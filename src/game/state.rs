@@ -47,6 +47,8 @@ pub struct GameState {
     pub rng: ChaCha8Rng, pub storm: Storm,
     pub refraction: u32,
     pub adaptations: Vec<Adaptation>,
+    #[serde(default)]
+    pub adaptations_hidden_turns: u32,
 }
 
 impl GameState {
@@ -96,7 +98,21 @@ impl GameState {
             visible: visible.clone(), revealed: visible,
             messages: vec!["Welcome to the Saltglass Steppe.".into()],
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
-            refraction: 0, adaptations: Vec::new(),
+            refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
+        }
+    }
+
+    pub fn visible_adaptation_count(&self) -> usize {
+        if self.adaptations_hidden_turns > 0 { 0 } else { self.adaptations.len() }
+    }
+
+    fn tick_turn(&mut self) {
+        self.turn += 1;
+        if self.adaptations_hidden_turns > 0 {
+            self.adaptations_hidden_turns -= 1;
+            if self.adaptations_hidden_turns == 0 {
+                self.log("The tincture wears off. Your glow returns.");
+            }
         }
     }
 
@@ -117,6 +133,23 @@ impl GameState {
                 self.map.tiles[y * self.map.width + x] = Tile::Glass;
             }
         }
+        
+        // Spawn storm enemies on glass tiles
+        let glass_tiles: Vec<(i32, i32)> = (0..self.map.tiles.len())
+            .filter(|&i| self.map.tiles[i] == Tile::Glass)
+            .map(|i| ((i % self.map.width) as i32, (i / self.map.width) as i32))
+            .filter(|&(x, y)| self.enemy_at(x, y).is_none() && !(x == self.player_x && y == self.player_y))
+            .collect();
+        if !glass_tiles.is_empty() {
+            let spawn_count = (self.storm.intensity as usize).min(2);
+            for _ in 0..spawn_count {
+                let idx = self.rng.gen_range(0..glass_tiles.len());
+                let (x, y) = glass_tiles[idx];
+                self.enemies.push(Enemy::new(x, y, "refraction_wraith"));
+                self.log("A wraith coalesces from the storm's edge.");
+            }
+        }
+        
         self.storm = Storm::forecast(&mut self.rng);
         self.visible = compute_fov(&self.map, self.player_x, self.player_y);
     }
@@ -269,9 +302,37 @@ impl GameState {
 
         // NPC interaction (bump to talk)
         if let Some(ni) = self.npc_at(new_x, new_y) {
-            let dialogue = self.npcs[ni].dialogue(&self.adaptations);
-            let name = self.npcs[ni].name();
+            let visible_adaptations: Vec<Adaptation> = if self.adaptations_hidden_turns > 0 {
+                Vec::new()
+            } else {
+                self.adaptations.clone()
+            };
+            let dialogue = self.npcs[ni].dialogue(&visible_adaptations);
+            let name = self.npcs[ni].name().to_string();
             self.log(format!("{}: \"{}\"", name, dialogue));
+            
+            // Execute first available action
+            let actions = self.npcs[ni].available_actions(&visible_adaptations);
+            for action in actions {
+                // Item exchange
+                if let (Some(gives), Some(consumes)) = (&action.effect.gives_item, &action.effect.consumes) {
+                    if let Some(idx) = self.inventory.iter().position(|id| id == consumes) {
+                        self.inventory.remove(idx);
+                        self.inventory.push(gives.clone());
+                        let gives_name = get_item_def(gives).map(|d| d.name.as_str()).unwrap_or("item");
+                        self.log(format!("The pilgrim presses {} into your hand.", gives_name));
+                        break;
+                    }
+                }
+                // Heal action
+                if let Some(heal) = action.effect.heal {
+                    let actual = heal.min(self.player_max_hp - self.player_hp);
+                    self.player_hp += actual;
+                    self.log(format!("You rest. (+{} HP)", actual));
+                    break;
+                }
+            }
+            
             self.npcs[ni].talked = true;
             return true;
         }
@@ -297,7 +358,7 @@ impl GameState {
             } else {
                 self.log(format!("You hit the {} {} for {} damage.", name, dir, dmg));
             }
-            self.turn += 1;
+            self.tick_turn();
             self.update_enemies();
             if self.storm.tick() { self.apply_storm(); }
             return true;
@@ -309,7 +370,7 @@ impl GameState {
             if walkable {
                 self.player_x = new_x;
                 self.player_y = new_y;
-                self.turn += 1;
+                self.tick_turn();
                 self.visible = compute_fov(&self.map, new_x, new_y);
                 self.revealed.extend(&self.visible);
                 self.pickup_items();
@@ -330,6 +391,41 @@ impl GameState {
                 return true;
             }
         }
+        false
+    }
+
+    pub fn try_break_wall(&mut self, x: i32, y: i32) -> bool {
+        // Check if player has glass_pick
+        let pick_idx = self.inventory.iter().position(|id| {
+            get_item_def(id).map(|d| d.breaks_walls).unwrap_or(false)
+        });
+        if pick_idx.is_none() {
+            self.log("You need a tool to break walls.");
+            return false;
+        }
+        // Check adjacency
+        let dist = (x - self.player_x).abs() + (y - self.player_y).abs();
+        if dist != 1 {
+            self.log("Too far to break.");
+            return false;
+        }
+        // Check if it's a wall
+        let idx = self.map.idx(x, y);
+        if let Tile::Wall { ref id, hp } = self.map.tiles[idx].clone() {
+            let new_hp = hp - 5;
+            if new_hp <= 0 {
+                self.map.tiles[idx] = Tile::Floor;
+                self.log("The wall crumbles!");
+            } else {
+                self.map.tiles[idx] = Tile::Wall { id: id.clone(), hp: new_hp };
+                self.log(format!("Cracks spread through the wall. (HP: {})", new_hp));
+            }
+            self.tick_turn();
+            self.update_enemies();
+            if self.storm.tick() { self.apply_storm(); }
+            return true;
+        }
+        self.log("Nothing to break there.");
         false
     }
 
@@ -370,6 +466,10 @@ impl GameState {
             let reduce = def.reduces_refraction.min(self.refraction);
             self.refraction -= reduce;
             self.log(format!("Your glow fades slightly. (-{} Refraction)", reduce));
+        }
+        if def.suppresses_adaptations {
+            self.adaptations_hidden_turns = 10;
+            self.log("Your glow dims. The tincture masks your changes.");
         }
         if def.reveals_map {
             self.log(format!("The {} reveals hidden paths...", def.name));

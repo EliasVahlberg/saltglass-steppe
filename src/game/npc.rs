@@ -40,6 +40,10 @@ pub struct ActionEffect {
     pub heal: Option<i32>,
     #[serde(default)]
     pub trade: Option<bool>,
+    #[serde(default)]
+    pub gives_item: Option<String>,
+    #[serde(default)]
+    pub consumes: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]

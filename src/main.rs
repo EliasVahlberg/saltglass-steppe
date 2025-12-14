@@ -19,7 +19,7 @@ struct LookMode {
     y: i32,
 }
 
-enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, None }
+enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), None }
 
 fn handle_input(look_mode: &mut LookMode) -> Result<Action> {
     if event::poll(std::time::Duration::from_millis(16))? {
@@ -32,6 +32,11 @@ fn handle_input(look_mode: &mut LookMode) -> Result<Action> {
                         KeyCode::Down | KeyCode::Char('j') => look_mode.y += 1,
                         KeyCode::Left | KeyCode::Char('h') => look_mode.x -= 1,
                         KeyCode::Right | KeyCode::Char('l') => look_mode.x += 1,
+                        KeyCode::Char('b') => {
+                            let (x, y) = (look_mode.x, look_mode.y);
+                            look_mode.active = false;
+                            return Ok(Action::BreakWall(x, y));
+                        }
                         _ => {}
                     }
                     return Ok(Action::None);
@@ -65,6 +70,11 @@ fn update(state: &mut GameState, action: Action, look_mode: &mut LookMode) -> bo
             look_mode.active = true;
             look_mode.x = state.player_x;
             look_mode.y = state.player_y;
+        }
+        Action::BreakWall(x, y) => {
+            if state.player_hp > 0 {
+                state.try_break_wall(x, y);
+            }
         }
         Action::Save => {
             match state.save(SAVE_FILE) {
