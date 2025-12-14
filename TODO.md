@@ -42,11 +42,25 @@
 - [x] Usable items (Brine Vial heals, Angle Lens reveals map)
 - [x] Featured relic (Angle-Split Lens)
 
-## Next Steps
+## Next Steps (Creative Direction Aligned)
+
+### High Priority — Core Pillars
+- [ ] Shimmer/glare visual effects (Pillar 3: Readable Light Tactics)
+- [ ] Beam/ray visualization using `-|/\` in Cyan (Pillar 3)
+- [ ] Post-storm diff highlighting — changed tiles in LightCyan until visited (Pillar 1: Storms Rewrite Maps)
+
+### Medium Priority — Content & Systems
 - [ ] Prismhide damage reduction
 - [ ] MirageStep decoy mechanic
 - [ ] More enemy behaviors (unique per type)
-- [ ] Faction NPCs
+- [ ] Add remaining enemies: Archive Drone (`Δ`), Refraction Wraith (`◊`)
+- [ ] Faction NPCs (Mirror Monks, Sand-Engineers, Glassborn)
+- [ ] Enhanced storm forecast panel (show edit types: ROTATE, GLASS, SWAP)
+
+### Low Priority — Polish
+- [ ] Extract color constants to `colors.rs` module
+- [ ] Glare/hot light tiles (`░`)
+- [ ] Storm shimmer overlay (`≈`) during active storms
 
 ## Tests: 13 passing
 - deterministic_map_generation
