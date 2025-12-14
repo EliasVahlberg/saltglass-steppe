@@ -8,7 +8,7 @@ use std::path::Path;
 
 use super::{
     adaptation::Adaptation,
-    enemy::Enemy,
+    enemy::{BehaviorContext, Enemy},
     item::{get_item_def, Item},
     map::{compute_fov, Map, Tile},
     npc::Npc,
@@ -303,77 +303,106 @@ impl GameState {
         if self.player_hp <= 0 { return; }
         let px = self.player_x;
         let py = self.player_y;
-        let has_saint_key = self.inventory.iter().any(|id| id == "saint_key");
+        let inventory = self.inventory.clone();
         let adaptation_count = self.adaptations.len();
         
         for i in 0..self.enemies.len() {
             if self.enemies[i].hp <= 0 { continue; }
             let ex = self.enemies[i].x;
             let ey = self.enemies[i].y;
-            let def = self.enemies[i].def();
-            let sight = def.map(|d| d.sight_range).unwrap_or(6);
+            let def = match self.enemies[i].def() {
+                Some(d) => d,
+                None => continue,
+            };
+            let sight = def.sight_range;
             let dist = (px - ex).abs() + (py - ey).abs();
             
-            // Saint-Key makes requires_saint_key enemies passive
-            if def.map(|d| d.requires_saint_key).unwrap_or(false) && has_saint_key {
-                continue;
+            // Check behaviors
+            let ctx = BehaviorContext {
+                player_adaptations: adaptation_count,
+                player_items: &inventory,
+            };
+            let mut is_passive = false;
+            let mut should_flee = false;
+            for behavior in &def.behaviors {
+                match behavior.behavior_type.as_str() {
+                    "passive_if" => {
+                        if behavior.condition_met(&ctx) { is_passive = true; }
+                    }
+                    "flee_if" => {
+                        if behavior.condition_met(&ctx) { should_flee = true; }
+                    }
+                    _ => {}
+                }
             }
             
-            // Flee behavior for adapted players
-            if def.map(|d| d.flees_adapted_players).unwrap_or(false) && adaptation_count >= 2 {
-                if dist < sight && dist > 1 {
-                    // Move away from player
-                    let dx = (ex - px).signum();
-                    let dy = (ey - py).signum();
-                    let nx = ex + dx;
-                    let ny = ey + dy;
-                    if self.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
-                        && self.enemy_at(nx, ny).is_none() {
-                        self.enemy_positions.remove(&(ex, ey));
-                        self.enemies[i].x = nx;
-                        self.enemies[i].y = ny;
-                        self.enemy_positions.insert((nx, ny), i);
-                    }
+            if is_passive { continue; }
+            
+            if should_flee && dist < sight && dist > 1 {
+                let dx = (ex - px).signum();
+                let dy = (ey - py).signum();
+                let nx = ex + dx;
+                let ny = ey + dy;
+                if self.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
+                    && self.enemy_at(nx, ny).is_none() {
+                    self.enemy_positions.remove(&(ex, ey));
+                    self.enemies[i].x = nx;
+                    self.enemies[i].y = ny;
+                    self.enemy_positions.insert((nx, ny), i);
                 }
                 continue;
             }
             
             if dist == 1 {
-                let (dmin, dmax) = def.map(|d| (d.damage_min, d.damage_max)).unwrap_or((1, 3));
-                let dmg = self.rng.gen_range(dmin..=dmax);
+                let dmg = self.rng.gen_range(def.damage_min..=def.damage_max);
                 self.player_hp -= dmg;
                 let dir = self.direction_from(ex, ey);
                 self.log(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg));
                 
-                // Trigger on_hit effects when enemy hits player
-                if let Some(d) = def {
-                    for e in &d.effects {
-                        if e.condition == "on_hit" {
-                            self.trigger_effect(&e.effect, 20);
+                // Trigger on_hit effects
+                for e in &def.effects {
+                    if e.condition == "on_hit" {
+                        self.trigger_effect(&e.effect, 20);
+                    }
+                }
+                
+                // Check on_hit behaviors
+                for behavior in &def.behaviors {
+                    if behavior.behavior_type == "on_hit_refraction" {
+                        if let Some(val) = behavior.value {
+                            self.refraction += val;
+                            self.log(format!("Glass shards pierce you. (+{} Refraction)", val));
+                            self.check_adaptation_threshold();
                         }
                     }
                 }
                 
-                // Refraction increase on hit
-                if let Some(ref_inc) = def.map(|d| d.increases_refraction).filter(|&r| r > 0) {
-                    self.refraction += ref_inc;
-                    self.log(format!("Glass shards pierce you. (+{} Refraction)", ref_inc));
-                    self.check_adaptation_threshold();
-                }
-                
                 if self.player_hp <= 0 { return; }
-            } else if dist < sight && self.visible.contains(&self.map.idx(ex, ey)) {
-                let path = a_star_search(self.map.idx(ex, ey), self.map.idx(px, py), &self.map);
-                if path.success && path.steps.len() > 1 {
-                    let next = path.steps[1];
-                    let nx = (next % self.map.width) as i32;
-                    let ny = (next / self.map.width) as i32;
-                    if self.enemy_at(nx, ny).is_none() && !(nx == px && ny == py) {
-                        self.enemy_positions.remove(&(ex, ey));
-                        self.enemies[i].x = nx;
-                        self.enemies[i].y = ny;
-                        self.enemy_positions.insert((nx, ny), i);
+            } else if dist < sight {
+                let enemy_idx = self.map.idx(ex, ey);
+                let (nx, ny) = if self.visible.contains(&enemy_idx) {
+                    // Visible: use A* pathfinding
+                    let path = a_star_search(enemy_idx, self.map.idx(px, py), &self.map);
+                    if path.success && path.steps.len() > 1 {
+                        let next = path.steps[1];
+                        ((next % self.map.width) as i32, (next / self.map.width) as i32)
+                    } else {
+                        continue;
                     }
+                } else {
+                    // Not visible: simple directional movement toward player
+                    let dx = (px - ex).signum();
+                    let dy = (py - ey).signum();
+                    (ex + dx, ey + dy)
+                };
+                
+                if self.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+                    && self.enemy_at(nx, ny).is_none() 
+                    && !(nx == px && ny == py) {
+                    self.enemy_positions.remove(&(ex, ey));
+                    self.enemies[i].x = nx;
+                    self.enemies[i].y = ny;
+                    self.enemy_positions.insert((nx, ny), i);
                 }
             }
         }
@@ -434,14 +463,16 @@ impl GameState {
                         self.trigger_effect(&e.effect, 20);
                     }
                 }
-            }
-            
-            // Damage reflection
-            if self.enemies[ei].def().map(|d| d.reflects_damage).unwrap_or(false) {
-                let reflected = dmg / 4; // 25% reflection
-                if reflected > 0 {
-                    self.player_hp -= reflected;
-                    self.log(format!("Light bends—your attack refracts back! (-{} HP)", reflected));
+                // Damage reflection behavior
+                for behavior in &def.behaviors {
+                    if behavior.behavior_type == "reflect_damage" {
+                        let percent = behavior.percent.unwrap_or(25);
+                        let reflected = (dmg as u32 * percent / 100) as i32;
+                        if reflected > 0 {
+                            self.player_hp -= reflected;
+                            self.log(format!("Light bends—your attack refracts back! (-{} HP)", reflected));
+                        }
+                    }
                 }
             }
             

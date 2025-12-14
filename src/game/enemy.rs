@@ -9,6 +9,18 @@ pub struct EntityEffect {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct Behavior {
+    #[serde(rename = "type")]
+    pub behavior_type: String,
+    #[serde(default)]
+    pub condition: Option<String>,
+    #[serde(default)]
+    pub percent: Option<u32>,
+    #[serde(default)]
+    pub value: Option<u32>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct EnemyDef {
     pub id: String,
     pub name: String,
@@ -23,15 +35,9 @@ pub struct EnemyDef {
     #[serde(default)]
     pub spawns_during_storm: bool,
     #[serde(default)]
-    pub reflects_damage: bool,
-    #[serde(default)]
     pub swarm: bool,
     #[serde(default)]
-    pub increases_refraction: u32,
-    #[serde(default)]
-    pub flees_adapted_players: bool,
-    #[serde(default)]
-    pub requires_saint_key: bool,
+    pub behaviors: Vec<Behavior>,
     #[serde(default)]
     pub effects: Vec<EntityEffect>,
 }
@@ -55,6 +61,32 @@ pub fn get_enemy_def(id: &str) -> Option<&'static EnemyDef> {
 
 pub fn all_enemy_ids() -> Vec<&'static str> {
     ENEMY_DEFS.keys().map(|s| s.as_str()).collect()
+}
+
+/// Context for evaluating behavior conditions
+pub struct BehaviorContext<'a> {
+    pub player_adaptations: usize,
+    pub player_items: &'a [String],
+}
+
+impl Behavior {
+    pub fn condition_met(&self, ctx: &BehaviorContext) -> bool {
+        let cond = match &self.condition {
+            Some(c) => c,
+            None => return true,
+        };
+        
+        if cond.starts_with("player_adaptations >= ") {
+            if let Ok(n) = cond[22..].parse::<usize>() {
+                return ctx.player_adaptations >= n;
+            }
+        }
+        if cond.starts_with("player_has_item:") {
+            let item_id = &cond[16..];
+            return ctx.player_items.iter().any(|i| i == item_id);
+        }
+        false
+    }
 }
 
 #[derive(Serialize, Deserialize)]

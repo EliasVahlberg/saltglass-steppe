@@ -52,7 +52,9 @@
       "sight_range": 8,
       "description": "Storm-born specter that phases through glass",
       "spawns_during_storm": true,
-      "reflects_damage": true,
+      "behaviors": [
+        {"type": "reflect_damage", "percent": 25}
+      ],
       "effects": [
         {"condition": "on_hit", "effect": "B(@1 &White)"},
         {"condition": "on_death", "effect": "B(@1 &LightCyan)"}
@@ -68,7 +70,9 @@
       "sight_range": 4,
       "description": "Skitters on glass legs—attacks in swarms",
       "swarm": true,
-      "increases_refraction": 2,
+      "behaviors": [
+        {"type": "on_hit_refraction", "value": 2}
+      ],
       "effects": [
         {"condition": "on_hit", "effect": "B(@2 &LightCyan)"},
         {"condition": "on_death", "effect": "B(@1 &Cyan)"}
@@ -83,7 +87,9 @@
       "damage_max": 5,
       "sight_range": 7,
       "description": "Swirling sand given malevolent form",
-      "flees_adapted_players": true,
+      "behaviors": [
+        {"type": "flee_if", "condition": "player_adaptations >= 2"}
+      ],
       "effects": [
         {"condition": "on_hit", "effect": "B(@2 &Yellow)"},
         {"condition": "on_death", "effect": "B(@1 &DarkGray)"}
@@ -98,8 +104,9 @@
       "damage_max": 8,
       "sight_range": 10,
       "description": "Ancient guardian—scans for valid credentials",
-      "requires_saint_key": true,
-      "hostile_without_key": true,
+      "behaviors": [
+        {"type": "passive_if", "condition": "player_has_item:saint_key"}
+      ],
       "effects": [
         {"condition": "on_hit", "effect": "B(@1 &LightBlue)"},
         {"condition": "on_death", "effect": "B(@1 &Blue)"}
