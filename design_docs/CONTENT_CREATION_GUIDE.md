@@ -222,6 +222,108 @@ Wall type is chosen randomly per map. HP is stored for future breakable wall mec
 
 ---
 
+## Visual Effects (`data/effects.json`)
+
+Visual effects are condition-based animations applied to entities during rendering. Effects are defined in JSON and parsed at runtime—no code changes required.
+
+### Schema
+
+```json
+{
+  "id": "unique_effect_id",
+  "condition": {"low_hp": 5},
+  "target": "player",
+  "effect": "B(@4 &Red)"
+}
+```
+
+### Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `id` | Yes | Unique identifier |
+| `condition` | Yes | Object with condition checks (see below) |
+| `target` | Yes | What to apply effect to: `player`, `enemy`, `ui` |
+| `effect` | Yes | Effect string (see syntax below) |
+
+### Effect Syntax
+
+Effects are encoded as strings with the format `TYPE(parameters)`.
+
+#### Blink: `B(@speed &color)`
+
+Alternates visibility/color at specified frame intervals.
+
+| Parameter | Prefix | Description |
+|-----------|--------|-------------|
+| speed | `@` | Frames per toggle (lower = faster) |
+| color | `&` | Color name |
+
+Example: `B(@4 &Red)` — Blink red every 4 frames
+
+#### Glow: `G(&color)`
+
+Constant color overlay.
+
+| Parameter | Prefix | Description |
+|-----------|--------|-------------|
+| color | `&` | Color name |
+
+Example: `G(&Magenta)` — Constant magenta glow
+
+### Available Colors
+
+`Red`, `Green`, `Yellow`, `Blue`, `Magenta`, `Cyan`, `White`, `DarkGray`, `LightRed`, `LightGreen`, `LightYellow`, `LightBlue`, `LightMagenta`, `LightCyan`
+
+### Condition Types
+
+| Condition | Example | Description |
+|-----------|---------|-------------|
+| `low_hp` | `{"low_hp": 5}` | Player HP at or below value |
+| `storm_near` | `{"storm_near": 3}` | Storm arriving in N or fewer turns |
+| `has_adaptation` | `{"has_adaptation": true}` | Player has any adaptation |
+| `on_tile` | `{"on_tile": "Glass"}` | Player standing on tile type |
+| `adaptations_hidden` | `{"adaptations_hidden": true}` | Veil Tincture active |
+| `enemy_type` | `{"enemy_type": "refraction_wraith"}` | For enemy-targeted effects |
+
+Multiple conditions can be combined—all must be true for effect to trigger.
+
+### Example: Adding a New Effect
+
+```json
+{
+  "id": "critical_hp",
+  "condition": {"low_hp": 3},
+  "target": "player",
+  "effect": "B(@2 &LightRed)"
+}
+```
+
+This creates a fast red blink when player HP drops to 3 or below.
+
+### Example: Enemy-Specific Effect
+
+```json
+{
+  "id": "dust_wraith_shimmer",
+  "condition": {"enemy_type": "dust_wraith"},
+  "target": "enemy",
+  "effect": "B(@5 &Yellow)"
+}
+```
+
+### Current Effects
+
+| ID | Condition | Visual |
+|----|-----------|--------|
+| `low_hp_warning` | HP ≤ 5 | Red blink |
+| `storm_imminent` | Storm ≤ 3 turns | Yellow blink |
+| `adaptation_glow` | Has adaptation | Magenta glow |
+| `glass_shimmer` | On glass tile | Cyan blink |
+| `suppression_active` | Tincture active | Dark gray glow |
+
+---
+
 ## Checklist for New Content
 
 - [ ] Add JSON entry with all required fields
