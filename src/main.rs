@@ -307,11 +307,20 @@ fn handle_menu_input() -> Result<MenuAction> {
     Ok(MenuAction::None)
 }
 
-fn render_menu(frame: &mut Frame) {
+fn render_menu(frame: &mut Frame, tick: u64) {
     let area = frame.area();
     let block = Block::default().borders(Borders::ALL);
     let inner = block.inner(area);
     frame.render_widget(block, area);
+
+    // Animated sand particles
+    let sand_chars = ['░', '▒', '·', '∙', ':', '.', ' '];
+    let width = inner.width as usize;
+    let mut sand_line = String::new();
+    for x in 0..width {
+        let idx = ((x + tick as usize) * 3 + (tick as usize / 2)) % sand_chars.len();
+        sand_line.push(sand_chars[idx]);
+    }
 
     let title_art = vec![
         "░██████╗░█████╗░██╗░░░░░████████╗░██████╗░██╗░░░░░░█████╗░░██████╗░██████╗",
@@ -330,15 +339,23 @@ fn render_menu(frame: &mut Frame) {
     ];
 
     let mut lines: Vec<Line> = Vec::new();
-    lines.push(Line::from(""));
+    
+    // Top sand animation
+    let sand_color = if tick % 8 < 4 { Color::Yellow } else { Color::Rgb(194, 178, 128) };
+    lines.push(Line::from(Span::styled(&sand_line, Style::default().fg(sand_color))));
     
     for line in &title_art {
-        lines.push(Line::from(Span::styled(*line, Style::default().fg(Color::Cyan))));
+        // Shimmer effect on title
+        let color = match (tick / 3) % 3 {
+            0 => Color::Cyan,
+            1 => Color::LightCyan,
+            _ => Color::Rgb(100, 200, 255),
+        };
+        lines.push(Line::from(Span::styled(*line, Style::default().fg(color))));
     }
     
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled("A roguelike of glass storms and refraction", Style::default().fg(Color::DarkGray).italic())));
-    lines.push(Line::from(""));
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
         Span::styled("  ◆ ", Style::default().fg(Color::Cyan)),
@@ -354,11 +371,23 @@ fn render_menu(frame: &mut Frame) {
         Span::raw(" to quit"),
     ]));
     lines.push(Line::from(""));
+    
+    // Bottom sand animation (reversed direction)
+    let mut sand_line2 = String::new();
+    for x in 0..width {
+        let idx = ((width - x) + (tick as usize * 2)) % sand_chars.len();
+        sand_line2.push(sand_chars[idx]);
+    }
+    lines.push(Line::from(Span::styled(sand_line2, Style::default().fg(sand_color))));
+    
     lines.push(Line::from(""));
-    lines.push(Line::from(Span::styled("─────────────────────────────────────────────────────────────────────────", Style::default().fg(Color::DarkGray))));
-    lines.push(Line::from(Span::styled("  The storms have scoured the steppe for centuries.", Style::default().fg(Color::Yellow))));
-    lines.push(Line::from(Span::styled("  Glass grows where flesh once walked.", Style::default().fg(Color::Yellow))));
-    lines.push(Line::from(Span::styled("  You feel the refraction building in your veins...", Style::default().fg(Color::Magenta))));
+    
+    // Flickering lore text
+    let lore_color = if tick % 6 < 5 { Color::Yellow } else { Color::Rgb(255, 200, 100) };
+    lines.push(Line::from(Span::styled("  The storms have scoured the steppe for centuries.", Style::default().fg(lore_color))));
+    lines.push(Line::from(Span::styled("  Glass grows where flesh once walked.", Style::default().fg(lore_color))));
+    let vein_color = if tick % 4 < 2 { Color::Magenta } else { Color::LightMagenta };
+    lines.push(Line::from(Span::styled("  You feel the refraction building in your veins...", Style::default().fg(vein_color))));
 
     let paragraph = Paragraph::new(lines).alignment(Alignment::Center);
     frame.render_widget(paragraph, inner);
@@ -370,8 +399,10 @@ fn main() -> Result<()> {
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
     // Main menu loop
+    let mut menu_tick: u64 = 0;
     loop {
-        terminal.draw(render_menu)?;
+        terminal.draw(|f| render_menu(f, menu_tick))?;
+        menu_tick = menu_tick.wrapping_add(1);
         match handle_menu_input()? {
             MenuAction::NewGame => break,
             MenuAction::Quit => {
