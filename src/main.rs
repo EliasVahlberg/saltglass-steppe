@@ -4,6 +4,7 @@ use crossterm::{
     ExecutableCommand,
 };
 use ratatui::{
+    layout::Alignment,
     prelude::*,
     widgets::{Block, Borders, Paragraph},
 };
@@ -157,11 +158,72 @@ fn render(frame: &mut Frame, state: &GameState) {
     frame.render_widget(Paragraph::new(log_text).block(log_block), chunks[1]);
 }
 
+enum MenuAction { NewGame, Quit, None }
+
+fn handle_menu_input() -> Result<MenuAction> {
+    if event::poll(std::time::Duration::from_millis(16))? {
+        if let Event::Key(key) = event::read()? {
+            if key.kind == KeyEventKind::Press {
+                return Ok(match key.code {
+                    KeyCode::Char('n') | KeyCode::Enter => MenuAction::NewGame,
+                    KeyCode::Char('q') | KeyCode::Esc => MenuAction::Quit,
+                    _ => MenuAction::None,
+                });
+            }
+        }
+    }
+    Ok(MenuAction::None)
+}
+
+fn render_menu(frame: &mut Frame) {
+    let area = frame.area();
+    let block = Block::default().title(" Saltglass Steppe ").borders(Borders::ALL);
+    let inner = block.inner(area);
+    frame.render_widget(block, area);
+
+    let text = vec![
+        Line::from(""),
+        Line::from(Span::styled("SALTGLASS STEPPE", Style::default().fg(Color::Yellow).bold())),
+        Line::from(""),
+        Line::from("A roguelike of glass storms and refraction"),
+        Line::from(""),
+        Line::from(""),
+        Line::from(vec![
+            Span::raw("  ["),
+            Span::styled("N", Style::default().fg(Color::Green)),
+            Span::raw("] New Run"),
+        ]),
+        Line::from(""),
+        Line::from(vec![
+            Span::raw("  ["),
+            Span::styled("Q", Style::default().fg(Color::Red)),
+            Span::raw("] Quit"),
+        ]),
+    ];
+    let paragraph = Paragraph::new(text).alignment(Alignment::Center);
+    frame.render_widget(paragraph, inner);
+}
+
 fn main() -> Result<()> {
     stdout().execute(EnterAlternateScreen)?;
     enable_raw_mode()?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
+    // Main menu loop
+    loop {
+        terminal.draw(render_menu)?;
+        match handle_menu_input()? {
+            MenuAction::NewGame => break,
+            MenuAction::Quit => {
+                disable_raw_mode()?;
+                stdout().execute(LeaveAlternateScreen)?;
+                return Ok(());
+            }
+            MenuAction::None => {}
+        }
+    }
+
+    // Game loop
     let seed = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
     let mut state = GameState::new(seed);
 
