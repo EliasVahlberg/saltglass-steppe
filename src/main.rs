@@ -309,18 +309,24 @@ fn handle_menu_input() -> Result<MenuAction> {
 
 fn render_menu(frame: &mut Frame, tick: u64) {
     let area = frame.area();
-    let block = Block::default().borders(Borders::ALL);
-    let inner = block.inner(area);
-    frame.render_widget(block, area);
-
-    // Animated sand particles
-    let sand_chars = ['░', '▒', '·', '∙', ':', '.', ' '];
-    let width = inner.width as usize;
-    let mut sand_line = String::new();
-    for x in 0..width {
-        let idx = ((x + tick as usize) * 3 + (tick as usize / 2)) % sand_chars.len();
-        sand_line.push(sand_chars[idx]);
+    let height = area.height as usize;
+    let width = area.width as usize;
+    
+    // Slow tick for subtle animation
+    let slow_tick = tick / 8;
+    
+    // Generate subtle sand background for entire screen
+    let sand_chars = ['.', '·', ' ', ' ', ' ', '.', ' ', '·', ' ', ' '];
+    let mut bg_lines: Vec<Line> = Vec::new();
+    for y in 0..height {
+        let mut row = String::new();
+        for x in 0..width {
+            let idx = ((x + y * 3 + slow_tick as usize) * 7) % sand_chars.len();
+            row.push(sand_chars[idx]);
+        }
+        bg_lines.push(Line::from(Span::styled(row, Style::default().fg(Color::Rgb(60, 55, 45)))));
     }
+    frame.render_widget(Paragraph::new(bg_lines), area);
 
     let title_art = vec![
         "░██████╗░█████╗░██╗░░░░░████████╗░██████╗░██╗░░░░░░█████╗░░██████╗░██████╗",
@@ -339,23 +345,15 @@ fn render_menu(frame: &mut Frame, tick: u64) {
     ];
 
     let mut lines: Vec<Line> = Vec::new();
-    
-    // Top sand animation
-    let sand_color = if tick % 8 < 4 { Color::Yellow } else { Color::Rgb(194, 178, 128) };
-    lines.push(Line::from(Span::styled(&sand_line, Style::default().fg(sand_color))));
+    lines.push(Line::from(""));
     
     for line in &title_art {
-        // Shimmer effect on title
-        let color = match (tick / 3) % 3 {
-            0 => Color::Cyan,
-            1 => Color::LightCyan,
-            _ => Color::Rgb(100, 200, 255),
-        };
-        lines.push(Line::from(Span::styled(*line, Style::default().fg(color))));
+        lines.push(Line::from(Span::styled(*line, Style::default().fg(Color::Cyan))));
     }
     
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled("A roguelike of glass storms and refraction", Style::default().fg(Color::DarkGray).italic())));
+    lines.push(Line::from(""));
     lines.push(Line::from(""));
     lines.push(Line::from(vec![
         Span::styled("  ◆ ", Style::default().fg(Color::Cyan)),
@@ -371,26 +369,19 @@ fn render_menu(frame: &mut Frame, tick: u64) {
         Span::raw(" to quit"),
     ]));
     lines.push(Line::from(""));
-    
-    // Bottom sand animation (reversed direction)
-    let mut sand_line2 = String::new();
-    for x in 0..width {
-        let idx = ((width - x) + (tick as usize * 2)) % sand_chars.len();
-        sand_line2.push(sand_chars[idx]);
-    }
-    lines.push(Line::from(Span::styled(sand_line2, Style::default().fg(sand_color))));
-    
     lines.push(Line::from(""));
-    
-    // Flickering lore text
-    let lore_color = if tick % 6 < 5 { Color::Yellow } else { Color::Rgb(255, 200, 100) };
-    lines.push(Line::from(Span::styled("  The storms have scoured the steppe for centuries.", Style::default().fg(lore_color))));
-    lines.push(Line::from(Span::styled("  Glass grows where flesh once walked.", Style::default().fg(lore_color))));
-    let vein_color = if tick % 4 < 2 { Color::Magenta } else { Color::LightMagenta };
-    lines.push(Line::from(Span::styled("  You feel the refraction building in your veins...", Style::default().fg(vein_color))));
+    lines.push(Line::from(Span::styled("─────────────────────────────────────────────────────────────────────────", Style::default().fg(Color::DarkGray))));
+    lines.push(Line::from(Span::styled("  The storms have scoured the steppe for centuries.", Style::default().fg(Color::Yellow))));
+    lines.push(Line::from(Span::styled("  Glass grows where flesh once walked.", Style::default().fg(Color::Yellow))));
+    lines.push(Line::from(Span::styled("  You feel the refraction building in your veins...", Style::default().fg(Color::Magenta))));
 
+    // Center the content
+    let content_height = lines.len() as u16;
+    let start_y = area.height.saturating_sub(content_height) / 2;
+    let content_area = Rect::new(area.x, area.y + start_y, area.width, content_height);
+    
     let paragraph = Paragraph::new(lines).alignment(Alignment::Center);
-    frame.render_widget(paragraph, inner);
+    frame.render_widget(paragraph, content_area);
 }
 
 fn main() -> Result<()> {
