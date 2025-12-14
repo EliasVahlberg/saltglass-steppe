@@ -18,6 +18,14 @@ pub struct ItemDef {
     pub heal: i32,
     #[serde(default)]
     pub reveals_map: bool,
+    #[serde(default)]
+    pub suppresses_adaptations: bool,
+    #[serde(default)]
+    pub breaks_walls: bool,
+    #[serde(default)]
+    pub reveals_storm_path: bool,
+    #[serde(default)]
+    pub reduces_refraction: u32,
 }
 
 #[derive(Deserialize)]

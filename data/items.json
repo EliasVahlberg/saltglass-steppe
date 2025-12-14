@@ -46,6 +46,57 @@
       "weight": 1,
       "usable": true,
       "reveals_map": true
+    },
+    {
+      "id": "salt_poultice",
+      "name": "Salt Poultice",
+      "glyph": "+",
+      "description": "Crystallized salve that seals wounds with brine",
+      "value": 15,
+      "weight": 1,
+      "usable": true,
+      "heal": 8
+    },
+    {
+      "id": "veil_tincture",
+      "name": "Veil Tincture",
+      "glyph": "!",
+      "description": "Dulls refraction glow—adaptations hidden briefly",
+      "value": 40,
+      "weight": 1,
+      "usable": true,
+      "suppresses_adaptations": true
+    },
+    {
+      "id": "glass_pick",
+      "name": "Glass Pick",
+      "glyph": "/",
+      "description": "Vitrified tool for breaking walls and glass seams",
+      "value": 30,
+      "weight": 2,
+      "usable": true,
+      "breaks_walls": true
+    },
+    {
+      "id": "storm_compass",
+      "name": "Storm Compass",
+      "glyph": "⊕",
+      "description": "Needle trembles toward the next storm's origin",
+      "value": 60,
+      "weight": 1,
+      "usable": true,
+      "reveals_storm_path": true
+    },
+    {
+      "id": "saints_tear",
+      "name": "Saint's Tear",
+      "glyph": "○",
+      "description": "Vitrified droplet from a machine-saint's eye",
+      "value": 75,
+      "weight": 0,
+      "usable": true,
+      "heal": 15,
+      "reduces_refraction": 10
     }
   ]
 }

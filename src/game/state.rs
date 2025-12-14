@@ -200,6 +200,9 @@ impl GameState {
         if self.player_hp <= 0 { return; }
         let px = self.player_x;
         let py = self.player_y;
+        let has_saint_key = self.inventory.iter().any(|id| id == "saint_key");
+        let adaptation_count = self.adaptations.len();
+        
         for i in 0..self.enemies.len() {
             if self.enemies[i].hp <= 0 { continue; }
             let ex = self.enemies[i].x;
@@ -207,12 +210,43 @@ impl GameState {
             let def = self.enemies[i].def();
             let sight = def.map(|d| d.sight_range).unwrap_or(6);
             let dist = (px - ex).abs() + (py - ey).abs();
+            
+            // Saint-Key makes requires_saint_key enemies passive
+            if def.map(|d| d.requires_saint_key).unwrap_or(false) && has_saint_key {
+                continue;
+            }
+            
+            // Flee behavior for adapted players
+            if def.map(|d| d.flees_adapted_players).unwrap_or(false) && adaptation_count >= 2 {
+                if dist < sight && dist > 1 {
+                    // Move away from player
+                    let dx = (ex - px).signum();
+                    let dy = (ey - py).signum();
+                    let nx = ex + dx;
+                    let ny = ey + dy;
+                    if self.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
+                        && self.enemy_at(nx, ny).is_none() {
+                        self.enemies[i].x = nx;
+                        self.enemies[i].y = ny;
+                    }
+                }
+                continue;
+            }
+            
             if dist == 1 {
                 let (dmin, dmax) = def.map(|d| (d.damage_min, d.damage_max)).unwrap_or((1, 3));
                 let dmg = self.rng.gen_range(dmin..=dmax);
                 self.player_hp -= dmg;
                 let dir = self.direction_from(ex, ey);
                 self.log(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg));
+                
+                // Refraction increase on hit
+                if let Some(ref_inc) = def.map(|d| d.increases_refraction).filter(|&r| r > 0) {
+                    self.refraction += ref_inc;
+                    self.log(format!("Glass shards pierce you. (+{} Refraction)", ref_inc));
+                    self.check_adaptation_threshold();
+                }
+                
                 if self.player_hp <= 0 { return; }
             } else if dist < sight && self.visible.contains(&self.map.idx(ex, ey)) {
                 let path = a_star_search(self.map.idx(ex, ey), self.map.idx(px, py), &self.map);
@@ -248,6 +282,16 @@ impl GameState {
             self.enemies[ei].hp -= dmg;
             let name = self.enemies[ei].name().to_string();
             let dir = self.direction_from(new_x, new_y);
+            
+            // Damage reflection
+            if self.enemies[ei].def().map(|d| d.reflects_damage).unwrap_or(false) {
+                let reflected = dmg / 4; // 25% reflection
+                if reflected > 0 {
+                    self.player_hp -= reflected;
+                    self.log(format!("Light bends—your attack refracts back! (-{} HP)", reflected));
+                }
+            }
+            
             if self.enemies[ei].hp <= 0 {
                 self.log(format!("You kill the {} {}!", name, dir));
             } else {
@@ -321,6 +365,11 @@ impl GameState {
             let heal = def.heal.min(self.player_max_hp - self.player_hp);
             self.player_hp += heal;
             self.log(format!("You use {}. (+{} HP)", def.name, heal));
+        }
+        if def.reduces_refraction > 0 {
+            let reduce = def.reduces_refraction.min(self.refraction);
+            self.refraction -= reduce;
+            self.log(format!("Your glow fades slightly. (-{} Refraction)", reduce));
         }
         if def.reveals_map {
             self.log(format!("The {} reveals hidden paths...", def.name));

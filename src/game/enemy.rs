@@ -14,6 +14,18 @@ pub struct EnemyDef {
     pub sight_range: i32,
     #[serde(default)]
     pub description: String,
+    #[serde(default)]
+    pub spawns_during_storm: bool,
+    #[serde(default)]
+    pub reflects_damage: bool,
+    #[serde(default)]
+    pub swarm: bool,
+    #[serde(default)]
+    pub increases_refraction: u32,
+    #[serde(default)]
+    pub flees_adapted_players: bool,
+    #[serde(default)]
+    pub requires_saint_key: bool,
 }
 
 fn default_sight() -> i32 { 6 }

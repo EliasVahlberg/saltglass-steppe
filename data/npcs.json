@@ -76,6 +76,122 @@
         }
       ],
       "actions": []
+    },
+    {
+      "id": "salt_hermit",
+      "name": "Salt Hermit",
+      "glyph": "H",
+      "faction": "Unaffiliated",
+      "description": "Weathered figure caked in crystalline deposits",
+      "dialogue": [
+        {
+          "conditions": [{"adaptation_count_gte": 3}],
+          "text": "More salt than flesh now. Good. The steppe accepts you."
+        },
+        {
+          "conditions": [{"has_adaptation": "Saltblood"}],
+          "text": "Saltblood... you'll survive. Maybe."
+        },
+        {
+          "conditions": [],
+          "text": "Another soft one. The storms will harden you or bury you."
+        }
+      ],
+      "actions": [
+        {
+          "id": "rest",
+          "name": "Rest Here",
+          "conditions": [],
+          "effect": {"heal": 3}
+        }
+      ]
+    },
+    {
+      "id": "dying_pilgrim",
+      "name": "Dying Pilgrim",
+      "glyph": "P",
+      "faction": "Unaffiliated",
+      "description": "Collapsed traveler, breath shallow, eyes fixed on the horizon",
+      "dialogue": [
+        {
+          "conditions": [{"has_adaptation": "Prismhide"}],
+          "text": "You glow... like the saints did... before the Heliograph fell..."
+        },
+        {
+          "conditions": [{"adaptation_count_gte": 1}],
+          "text": "The angle... I saw it once... in the Crucible... Vex knew..."
+        },
+        {
+          "conditions": [],
+          "text": "Water... no... too late... find the Archive... the truth is there..."
+        }
+      ],
+      "actions": [
+        {
+          "id": "give_water",
+          "name": "Give Water",
+          "conditions": [],
+          "effect": {"gives_item": "scripture_shard", "consumes": "brine_vial"}
+        }
+      ]
+    },
+    {
+      "id": "glassborn_merchant",
+      "name": "Glassborn Merchant",
+      "glyph": "G",
+      "faction": "Glassborn",
+      "description": "Crystalline trader with wares embedded in translucent flesh",
+      "dialogue": [
+        {
+          "conditions": [{"adaptation_count_gte": 2}],
+          "text": "Kin. My prices reflect our bond. Take what you need."
+        },
+        {
+          "conditions": [{"adaptation_count_gte": 1}],
+          "text": "Changing, but not yet changed. I trade with the becoming."
+        },
+        {
+          "conditions": [],
+          "text": "Soft-skin wants glass-goods? Pay double. You haven't earned trust."
+        }
+      ],
+      "actions": [
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [],
+          "effect": {"trade": true, "price_modifier_by_adaptations": true}
+        }
+      ]
+    },
+    {
+      "id": "archive_custodian",
+      "name": "Archive Custodian",
+      "glyph": "A",
+      "faction": "Archive",
+      "description": "Half-machine figure, face a cracked screen displaying static",
+      "dialogue": [
+        {
+          "conditions": [{"has_item": "saint_key"}],
+          "text": "CREDENTIAL VALID. ACCESS GRANTED. QUERY PERMITTED."
+        },
+        {
+          "conditions": [{"adaptation_count_gte": 2}],
+          "text": "BIOLOGICAL DEVIATION DETECTED. QUARANTINE RECOMMENDED."
+        },
+        {
+          "conditions": [],
+          "text": "UNAUTHORIZED ENTITY. PRESENT VALID CREDENTIAL OR VACATE."
+        }
+      ],
+      "actions": [
+        {
+          "id": "query_archive",
+          "name": "Query Archive",
+          "conditions": [{"has_item": "saint_key"}],
+          "effect": {"reveals_lore": true}
+        }
+      ]
     }
   ]
 }

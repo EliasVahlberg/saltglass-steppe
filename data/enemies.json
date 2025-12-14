@@ -29,6 +29,53 @@
       "damage_max": 4,
       "sight_range": 4,
       "description": "Desiccated pilgrim risen from the salt flats"
+    },
+    {
+      "id": "refraction_wraith",
+      "name": "Refraction Wraith",
+      "glyph": "◊",
+      "max_hp": 6,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 8,
+      "description": "Storm-born specter that phases through glass",
+      "spawns_during_storm": true,
+      "reflects_damage": true
+    },
+    {
+      "id": "shard_spider",
+      "name": "Shard Spider",
+      "glyph": "s",
+      "max_hp": 5,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 4,
+      "description": "Skitters on glass legs—attacks in swarms",
+      "swarm": true,
+      "increases_refraction": 2
+    },
+    {
+      "id": "dust_wraith",
+      "name": "Dust Wraith",
+      "glyph": "w",
+      "max_hp": 7,
+      "damage_min": 2,
+      "damage_max": 5,
+      "sight_range": 7,
+      "description": "Swirling sand given malevolent form",
+      "flees_adapted_players": true
+    },
+    {
+      "id": "archive_drone",
+      "name": "Archive Drone",
+      "glyph": "Δ",
+      "max_hp": 20,
+      "damage_min": 4,
+      "damage_max": 8,
+      "sight_range": 10,
+      "description": "Ancient guardian—scans for valid credentials",
+      "requires_saint_key": true,
+      "hostile_without_key": true
     }
   ]
 }
