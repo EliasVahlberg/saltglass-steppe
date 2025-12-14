@@ -151,6 +151,36 @@ impl GameState {
         self.npcs.iter().position(|n| n.x == x && n.y == y)
     }
 
+    pub fn describe_at(&self, x: i32, y: i32) -> String {
+        let idx = self.map.idx(x, y);
+        if !self.visible.contains(&idx) && !self.revealed.contains(&idx) {
+            return "Unknown".into();
+        }
+        if x == self.player_x && y == self.player_y {
+            return "You".into();
+        }
+        if let Some(ei) = self.enemy_at(x, y) {
+            let e = &self.enemies[ei];
+            return format!("{} (HP: {})", e.name(), e.hp);
+        }
+        if let Some(ni) = self.npc_at(x, y) {
+            let n = &self.npcs[ni];
+            let faction = n.def().map(|d| d.faction.as_str()).unwrap_or("Unknown");
+            return format!("{} - {}", n.name(), faction);
+        }
+        if let Some(item) = self.items.iter().find(|i| i.x == x && i.y == y) {
+            if let Some(def) = get_item_def(&item.id) {
+                return format!("{} - {}", def.name, def.description);
+            }
+        }
+        match self.map.get(x, y) {
+            Some(Tile::Floor) => "Floor".into(),
+            Some(Tile::Wall) => "Wall".into(),
+            Some(Tile::Glass) => "Glass - Sharp and refractive".into(),
+            None => "Void".into(),
+        }
+    }
+
     fn direction_from(&self, x: i32, y: i32) -> &'static str {
         let dx = x - self.player_x;
         let dy = y - self.player_y;

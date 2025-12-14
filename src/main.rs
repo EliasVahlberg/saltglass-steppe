@@ -13,16 +13,34 @@ use tui_rpg::{get_item_def, GameState, Tile, MAP_HEIGHT};
 
 const SAVE_FILE: &str = "savegame.ron";
 
-enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, None }
+struct LookMode {
+    active: bool,
+    x: i32,
+    y: i32,
+}
 
-fn handle_input() -> Result<Action> {
+enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, None }
+
+fn handle_input(look_mode: &mut LookMode) -> Result<Action> {
     if event::poll(std::time::Duration::from_millis(16))? {
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
+                if look_mode.active {
+                    match key.code {
+                        KeyCode::Esc | KeyCode::Enter => look_mode.active = false,
+                        KeyCode::Up | KeyCode::Char('k') => look_mode.y -= 1,
+                        KeyCode::Down | KeyCode::Char('j') => look_mode.y += 1,
+                        KeyCode::Left | KeyCode::Char('h') => look_mode.x -= 1,
+                        KeyCode::Right | KeyCode::Char('l') => look_mode.x += 1,
+                        _ => {}
+                    }
+                    return Ok(Action::None);
+                }
                 return Ok(match key.code {
                     KeyCode::Char('q') => Action::Quit,
                     KeyCode::Char('S') => Action::Save,
                     KeyCode::Char('L') => Action::Load,
+                    KeyCode::Char('x') => Action::EnterLook,
                     KeyCode::Char('1') => Action::UseItem(0),
                     KeyCode::Char('2') => Action::UseItem(1),
                     KeyCode::Char('3') => Action::UseItem(2),
@@ -39,10 +57,15 @@ fn handle_input() -> Result<Action> {
     Ok(Action::None)
 }
 
-fn update(state: &mut GameState, action: Action) -> bool {
+fn update(state: &mut GameState, action: Action, look_mode: &mut LookMode) -> bool {
     match action {
         Action::Quit => return false,
         Action::OpenControls => {}
+        Action::EnterLook => {
+            look_mode.active = true;
+            look_mode.x = state.player_x;
+            look_mode.y = state.player_y;
+        }
         Action::Save => {
             match state.save(SAVE_FILE) {
                 Ok(_) => state.log("Game saved."),
@@ -73,7 +96,7 @@ fn update(state: &mut GameState, action: Action) -> bool {
     true
 }
 
-fn render(frame: &mut Frame, state: &GameState) {
+fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode) {
     // Death screen
     if state.player_hp <= 0 {
         let area = frame.area();
@@ -98,12 +121,26 @@ fn render(frame: &mut Frame, state: &GameState) {
         return;
     }
 
+    let desc_height = if look_mode.active { 3u16 } else { 0 };
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Min(MAP_HEIGHT as u16 + 2), Constraint::Length(9)])
+        .constraints([
+            Constraint::Length(desc_height),
+            Constraint::Min(MAP_HEIGHT as u16 + 2),
+            Constraint::Length(9),
+        ])
         .split(frame.area());
 
-    let storm_color = if state.storm.turns_until <= 3 { Color::Red } else { Color::Yellow };
+    // Look mode description box
+    if look_mode.active {
+        let desc = state.describe_at(look_mode.x, look_mode.y);
+        let block = Block::default().title(" Look (Esc/Enter to exit) ").borders(Borders::ALL);
+        frame.render_widget(Paragraph::new(desc).block(block), chunks[0]);
+    }
+
+    let storm_color = if state.storm.turns_until <= 3 { Color::Red } 
+        else if state.storm.turns_until <= 5 { Color::Yellow } 
+        else { Color::Green };
     let title = Line::from(vec![
         " HP:".into(),
         Span::styled(format!("{}/{}", state.player_hp, state.player_max_hp), 
@@ -119,14 +156,15 @@ fn render(frame: &mut Frame, state: &GameState) {
         " ".into(),
     ]);
     let block = Block::default().title(title).borders(Borders::ALL);
-    let inner = block.inner(chunks[0]);
-    frame.render_widget(block, chunks[0]);
+    let inner = block.inner(chunks[1]);
+    frame.render_widget(block, chunks[1]);
 
     let mut lines: Vec<Line> = Vec::new();
     for y in 0..state.map.height {
         let mut spans: Vec<Span> = Vec::new();
         for x in 0..state.map.width {
             let idx = state.map.idx(x as i32, y as i32);
+            let is_look_cursor = look_mode.active && x as i32 == look_mode.x && y as i32 == look_mode.y;
             let (ch, style) = if x as i32 == state.player_x && y as i32 == state.player_y {
                 ('@', Style::default().fg(Color::Yellow).bold())
             } else if let Some(e) = state.enemies.iter().find(|e| e.x == x as i32 && e.y == y as i32 && e.hp > 0) {
@@ -164,6 +202,8 @@ fn render(frame: &mut Frame, state: &GameState) {
             } else if state.revealed.contains(&idx) {
                 ('~', Style::default().fg(Color::DarkGray))
             } else { (' ', Style::default()) };
+            
+            let style = if is_look_cursor { style.bg(Color::White).fg(Color::Black) } else { style };
             spans.push(Span::styled(ch.to_string(), style));
         }
         lines.push(Line::from(spans));
@@ -183,11 +223,11 @@ fn render(frame: &mut Frame, state: &GameState) {
     let status = if state.player_hp <= 0 {
         "\n*** YOU DIED *** Press q to quit"
     } else {
-        "\nMove: hjkl | Use: 1-3 | Save: S | Load: L | Quit: q"
+        "\nMove: hjkl | Look: x | Use: 1-3 | Save: S | Load: L | Quit: q"
     };
     let log_text = format!("{}\n{}{}", inv_str, state.messages.join("\n"), status);
     let log_block = Block::default().title(" Log ").borders(Borders::ALL);
-    frame.render_widget(Paragraph::new(log_text).block(log_block), chunks[1]);
+    frame.render_widget(Paragraph::new(log_text).block(log_block), chunks[2]);
 }
 
 enum MenuAction { NewGame, Quit, None }
@@ -259,6 +299,7 @@ fn main() -> Result<()> {
     let seed = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
     let mut state = GameState::new(seed);
     let mut show_controls = false;
+    let mut look_mode = LookMode { active: false, x: 0, y: 0 };
 
     loop {
         if show_controls {
@@ -271,10 +312,10 @@ fn main() -> Result<()> {
                 }
             }
         } else {
-            terminal.draw(|frame| render(frame, &state))?;
-            match handle_input()? {
+            terminal.draw(|frame| render(frame, &state, &look_mode))?;
+            match handle_input(&mut look_mode)? {
                 Action::OpenControls => show_controls = true,
-                action => if !update(&mut state, action) { break; }
+                action => if !update(&mut state, action, &mut look_mode) { break; }
             }
         }
     }
@@ -301,6 +342,7 @@ fn render_controls(frame: &mut Frame) {
         Line::from("    l/→  Move right"),
         Line::from(""),
         Line::from("  Actions:"),
+        Line::from("    x    Look at (examine tile)"),
         Line::from("    1-3  Use inventory item"),
         Line::from("    S    Save game"),
         Line::from("    L    Load game"),
