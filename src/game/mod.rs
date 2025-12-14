@@ -2,6 +2,7 @@ pub mod adaptation;
 pub mod constants;
 pub mod effect;
 pub mod enemy;
+pub mod event;
 pub mod item;
 pub mod map;
 pub mod npc;

@@ -9,6 +9,7 @@ use std::path::Path;
 use super::{
     adaptation::Adaptation,
     enemy::{BehaviorContext, Enemy},
+    event::GameEvent,
     item::{get_item_def, Item},
     map::{compute_fov, Map, Tile},
     npc::Npc,
@@ -64,6 +65,8 @@ pub struct GameState {
     pub npc_positions: HashMap<(i32, i32), usize>,
     #[serde(skip)]
     pub item_positions: HashMap<(i32, i32), Vec<usize>>,
+    #[serde(skip)]
+    pub event_queue: Vec<GameEvent>,
 }
 
 impl GameState {
@@ -141,6 +144,7 @@ impl GameState {
             enemy_positions: HashMap::new(),
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
+            event_queue: Vec::new(),
         };
         state.rebuild_spatial_index();
         state
@@ -168,6 +172,14 @@ impl GameState {
             effect: effect.to_string(),
             frames_remaining: duration,
         });
+    }
+
+    pub fn emit(&mut self, event: GameEvent) {
+        self.event_queue.push(event);
+    }
+
+    pub fn drain_events(&mut self) -> Vec<GameEvent> {
+        std::mem::take(&mut self.event_queue)
     }
 
     pub fn visible_adaptation_count(&self) -> usize {
@@ -237,6 +249,7 @@ impl GameState {
                 let idx = self.rng.gen_range(0..available.len());
                 let adaptation = available[idx];
                 self.adaptations.push(adaptation);
+                self.emit(GameEvent::AdaptationGained { name: adaptation.name().to_string() });
                 self.log(format!("🧬 You gain {}!", adaptation.name()));
             }
         }
@@ -451,7 +464,12 @@ impl GameState {
 
         if let Some(ei) = self.enemy_at(new_x, new_y) {
             let mut dmg = self.rng.gen_range(2..6);
-            if self.has_adaptation(Adaptation::Sunveins) { dmg += 2; }
+            // Apply damage bonuses from adaptations
+            for a in &self.adaptations {
+                if let Some(bonus) = a.effect_value("damage_bonus") {
+                    dmg += bonus;
+                }
+            }
             self.enemies[ei].hp -= dmg;
             let name = self.enemies[ei].name().to_string();
             let dir = self.direction_from(new_x, new_y);
@@ -487,6 +505,10 @@ impl GameState {
                         }
                     }
                 }
+                self.emit(GameEvent::EnemyKilled { 
+                    enemy_id: self.enemies[ei].id.clone(), 
+                    x: new_x, y: new_y 
+                });
                 self.log(format!("You kill the {} {}!", name, dir));
             } else {
                 self.log(format!("You hit the {} {} for {} damage.", name, dir, dmg));
@@ -509,7 +531,7 @@ impl GameState {
                 self.pickup_items();
 
                 if is_glass {
-                    if self.has_adaptation(Adaptation::Saltblood) {
+                    if self.adaptations.iter().any(|a| a.has_immunity("glass")) {
                         self.log("Your saltblood protects you from the glass.");
                     } else {
                         self.player_hp -= 1;
@@ -581,7 +603,8 @@ impl GameState {
                     }
                 }
             }
-            self.inventory.push(id);
+            self.inventory.push(id.clone());
+            self.emit(GameEvent::ItemPickedUp { item_id: id });
             self.log(format!("Picked up {}.", name));
             self.items.remove(i);
         }
