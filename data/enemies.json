@@ -10,7 +10,8 @@
       "sight_range": 6,
       "description": "Shimmering predator that hunts by heat",
       "effects": [
-        {"condition": "on_hit", "effect": "B(@2 &LightYellow)"}
+        {"condition": "on_hit", "effect": "B(@2 &LightYellow)"},
+        {"condition": "on_death", "effect": "B(@1 &Yellow)"}
       ]
     },
     {
@@ -23,7 +24,8 @@
       "sight_range": 5,
       "description": "Armored insect with refractive carapace",
       "effects": [
-        {"condition": "on_hit", "effect": "B(@3 &Cyan)"}
+        {"condition": "on_hit", "effect": "B(@3 &Cyan)"},
+        {"condition": "on_death", "effect": "B(@1 &LightCyan)"}
       ]
     },
     {
@@ -36,7 +38,8 @@
       "sight_range": 4,
       "description": "Desiccated pilgrim risen from the salt flats",
       "effects": [
-        {"condition": "on_hit", "effect": "G(&White)"}
+        {"condition": "on_hit", "effect": "G(&White)"},
+        {"condition": "on_death", "effect": "B(@2 &DarkGray)"}
       ]
     },
     {
@@ -67,7 +70,8 @@
       "swarm": true,
       "increases_refraction": 2,
       "effects": [
-        {"condition": "on_hit", "effect": "B(@2 &LightCyan)"}
+        {"condition": "on_hit", "effect": "B(@2 &LightCyan)"},
+        {"condition": "on_death", "effect": "B(@1 &Cyan)"}
       ]
     },
     {
@@ -81,7 +85,8 @@
       "description": "Swirling sand given malevolent form",
       "flees_adapted_players": true,
       "effects": [
-        {"condition": "on_hit", "effect": "B(@2 &Yellow)"}
+        {"condition": "on_hit", "effect": "B(@2 &Yellow)"},
+        {"condition": "on_death", "effect": "B(@1 &DarkGray)"}
       ]
     },
     {
@@ -96,7 +101,8 @@
       "requires_saint_key": true,
       "hostile_without_key": true,
       "effects": [
-        {"condition": "on_hit", "effect": "B(@1 &LightBlue)"}
+        {"condition": "on_hit", "effect": "B(@1 &LightBlue)"},
+        {"condition": "on_death", "effect": "B(@1 &Blue)"}
       ]
     }
   ]

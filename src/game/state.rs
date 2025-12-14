@@ -388,6 +388,14 @@ impl GameState {
             }
             
             if self.enemies[ei].hp <= 0 {
+                // Trigger on_death effects
+                if let Some(def) = self.enemies[ei].def() {
+                    for e in &def.effects {
+                        if e.condition == "on_death" {
+                            self.trigger_effect(&e.effect, 30);
+                        }
+                    }
+                }
                 self.log(format!("You kill the {} {}!", name, dir));
             } else {
                 self.log(format!("You hit the {} {} for {} damage.", name, dir, dmg));

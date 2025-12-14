@@ -380,13 +380,19 @@ Entities can have their own triggered effects that fire on specific events. Thes
 | Enemy | Trigger | Effect |
 |-------|---------|--------|
 | Mirage Hound | on_hit | Yellow blink @2 |
+| Mirage Hound | on_death | Yellow blink @1 |
 | Glass Beetle | on_hit | Cyan blink @3 |
+| Glass Beetle | on_death | Light cyan blink @1 |
 | Salt Mummy | on_hit | White glow |
+| Salt Mummy | on_death | Dark gray blink @2 |
 | Refraction Wraith | on_hit | White blink @1 |
 | Refraction Wraith | on_death | Light cyan blink @1 |
 | Shard Spider | on_hit | Light cyan blink @2 |
+| Shard Spider | on_death | Cyan blink @1 |
 | Dust Wraith | on_hit | Yellow blink @2 |
+| Dust Wraith | on_death | Dark gray blink @1 |
 | Archive Drone | on_hit | Light blue blink @1 |
+| Archive Drone | on_death | Blue blink @1 |
 
 ### Current Item Effects
 
