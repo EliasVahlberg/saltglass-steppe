@@ -309,30 +309,58 @@ fn handle_menu_input() -> Result<MenuAction> {
 
 fn render_menu(frame: &mut Frame) {
     let area = frame.area();
-    let block = Block::default().title(" Saltglass Steppe ").borders(Borders::ALL);
+    let block = Block::default().borders(Borders::ALL);
     let inner = block.inner(area);
     frame.render_widget(block, area);
 
-    let text = vec![
-        Line::from(""),
-        Line::from(Span::styled("SALTGLASS STEPPE", Style::default().fg(Color::Yellow).bold())),
-        Line::from(""),
-        Line::from("A roguelike of glass storms and refraction"),
-        Line::from(""),
-        Line::from(""),
-        Line::from(vec![
-            Span::raw("  ["),
-            Span::styled("N", Style::default().fg(Color::Green)),
-            Span::raw("] New Run"),
-        ]),
-        Line::from(""),
-        Line::from(vec![
-            Span::raw("  ["),
-            Span::styled("Q", Style::default().fg(Color::Red)),
-            Span::raw("] Quit"),
-        ]),
+    let title_art = vec![
+        "░██████╗░█████╗░██╗░░░░░████████╗░██████╗░██╗░░░░░░█████╗░░██████╗░██████╗",
+        "██╔════╝██╔══██╗██║░░░░░╚══██╔══╝██╔════╝░██║░░░░░██╔══██╗██╔════╝██╔════╝",
+        "╚█████╗░███████║██║░░░░░░░░██║░░░██║░░██╗░██║░░░░░███████║╚█████╗░╚█████╗░",
+        "░╚═══██╗██╔══██║██║░░░░░░░░██║░░░██║░░╚██╗██║░░░░░██╔══██║░╚═══██╗░╚═══██╗",
+        "██████╔╝██║░░██║███████╗░░░██║░░░╚██████╔╝███████╗██║░░██║██████╔╝██████╔╝",
+        "╚═════╝░╚═╝░░╚═╝╚══════╝░░░╚═╝░░░░╚═════╝░╚══════╝╚═╝░░╚═╝╚═════╝░╚═════╝░",
+        "",
+        "░██████╗████████╗███████╗██████╗░██████╗░███████╗",
+        "██╔════╝╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔════╝",
+        "╚█████╗░░░░██║░░░█████╗░░██████╔╝██████╔╝█████╗░░",
+        "░╚═══██╗░░░██║░░░██╔══╝░░██╔═══╝░██╔═══╝░██╔══╝░░",
+        "██████╔╝░░░██║░░░███████╗██║░░░░░██║░░░░░███████╗",
+        "╚═════╝░░░░╚═╝░░░╚══════╝╚═╝░░░░░╚═╝░░░░░╚══════╝",
     ];
-    let paragraph = Paragraph::new(text).alignment(Alignment::Center);
+
+    let mut lines: Vec<Line> = Vec::new();
+    lines.push(Line::from(""));
+    
+    for line in &title_art {
+        lines.push(Line::from(Span::styled(*line, Style::default().fg(Color::Cyan))));
+    }
+    
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled("A roguelike of glass storms and refraction", Style::default().fg(Color::DarkGray).italic())));
+    lines.push(Line::from(""));
+    lines.push(Line::from(""));
+    lines.push(Line::from(vec![
+        Span::styled("  ◆ ", Style::default().fg(Color::Cyan)),
+        Span::raw("Press "),
+        Span::styled("N", Style::default().fg(Color::Green).bold()),
+        Span::raw(" to begin your journey"),
+    ]));
+    lines.push(Line::from(""));
+    lines.push(Line::from(vec![
+        Span::styled("  ◆ ", Style::default().fg(Color::Cyan)),
+        Span::raw("Press "),
+        Span::styled("Q", Style::default().fg(Color::Red).bold()),
+        Span::raw(" to quit"),
+    ]));
+    lines.push(Line::from(""));
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled("─────────────────────────────────────────────────────────────────────────", Style::default().fg(Color::DarkGray))));
+    lines.push(Line::from(Span::styled("  The storms have scoured the steppe for centuries.", Style::default().fg(Color::Yellow))));
+    lines.push(Line::from(Span::styled("  Glass grows where flesh once walked.", Style::default().fg(Color::Yellow))));
+    lines.push(Line::from(Span::styled("  You feel the refraction building in your veins...", Style::default().fg(Color::Magenta))));
+
+    let paragraph = Paragraph::new(lines).alignment(Alignment::Center);
     frame.render_widget(paragraph, inner);
 }
 
