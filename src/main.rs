@@ -74,6 +74,30 @@ fn update(state: &mut GameState, action: Action) -> bool {
 }
 
 fn render(frame: &mut Frame, state: &GameState) {
+    // Death screen
+    if state.player_hp <= 0 {
+        let area = frame.area();
+        let mut lines: Vec<Line> = Vec::new();
+        let death_msg = "YOU DIED";
+        for _ in 0..area.height {
+            let mut row = String::new();
+            while row.len() < area.width as usize {
+                row.push_str(death_msg);
+                row.push(' ');
+            }
+            lines.push(Line::from(Span::styled(row, Style::default().fg(Color::Red).bold())));
+        }
+        frame.render_widget(Paragraph::new(lines), area);
+        let center_y = area.height / 2;
+        let msg = " Press Q to quit ";
+        let center_x = area.width.saturating_sub(msg.len() as u16) / 2;
+        frame.render_widget(
+            Paragraph::new(Span::styled(msg, Style::default().fg(Color::White).bg(Color::Red))),
+            Rect::new(center_x, center_y, msg.len() as u16, 1)
+        );
+        return;
+    }
+
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Min(MAP_HEIGHT as u16 + 2), Constraint::Length(9)])
