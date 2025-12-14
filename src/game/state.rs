@@ -113,7 +113,7 @@ impl GameState {
         for _ in 0..(self.storm.intensity as usize * 5) {
             let x = self.rng.gen_range(1..self.map.width - 1);
             let y = self.rng.gen_range(1..self.map.height - 1);
-            if self.map.tiles[y * self.map.width + x] == Tile::Wall {
+            if matches!(self.map.tiles[y * self.map.width + x], Tile::Wall { .. }) {
                 self.map.tiles[y * self.map.width + x] = Tile::Glass;
             }
         }
@@ -161,24 +161,23 @@ impl GameState {
         }
         if let Some(ei) = self.enemy_at(x, y) {
             let e = &self.enemies[ei];
-            return format!("{} (HP: {})", e.name(), e.hp);
+            let desc = e.def().map(|d| d.description.as_str()).unwrap_or("A creature");
+            return format!("{} (HP: {}) - {}", e.name(), e.hp, desc);
         }
         if let Some(ni) = self.npc_at(x, y) {
             let n = &self.npcs[ni];
-            let faction = n.def().map(|d| d.faction.as_str()).unwrap_or("Unknown");
-            return format!("{} - {}", n.name(), faction);
+            let desc = n.def().map(|d| d.description.as_str()).unwrap_or("A person");
+            return format!("{} - {}", n.name(), desc);
         }
         if let Some(item) = self.items.iter().find(|i| i.x == x && i.y == y) {
             if let Some(def) = get_item_def(&item.id) {
                 return format!("{} - {}", def.name, def.description);
             }
         }
-        match self.map.get(x, y) {
-            Some(Tile::Floor) => "Floor".into(),
-            Some(Tile::Wall) => "Wall".into(),
-            Some(Tile::Glass) => "Glass - Sharp and refractive".into(),
-            None => "Void".into(),
+        if let Some(tile) = self.map.get(x, y) {
+            return format!("{} - {}", tile.name(), tile.description());
         }
+        "Void".into()
     }
 
     fn direction_from(&self, x: i32, y: i32) -> &'static str {
@@ -261,7 +260,9 @@ impl GameState {
         }
 
         if let Some(tile) = self.map.get(new_x, new_y) {
-            if tile.walkable() {
+            let walkable = tile.walkable();
+            let is_glass = *tile == Tile::Glass;
+            if walkable {
                 self.player_x = new_x;
                 self.player_y = new_y;
                 self.turn += 1;
@@ -269,7 +270,7 @@ impl GameState {
                 self.revealed.extend(&self.visible);
                 self.pickup_items();
 
-                if tile == Tile::Glass {
+                if is_glass {
                     if self.has_adaptation(Adaptation::Saltblood) {
                         self.log("Your saltblood protects you from the glass.");
                     } else {

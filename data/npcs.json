@@ -5,6 +5,7 @@
       "name": "Mirror Monk",
       "glyph": "M",
       "faction": "MirrorMonks",
+      "description": "Robed figure whose skin shimmers with embedded glass",
       "dialogue": [
         {
           "conditions": [{"has_adaptation": "Prismhide"}],
@@ -30,6 +31,7 @@
       "name": "Sand-Engineer",
       "glyph": "E",
       "faction": "SandEngineers",
+      "description": "Weathered mechanic with goggles and tool-laden belt",
       "dialogue": [
         {
           "conditions": [{"has_adaptation": "Saltblood"}],
@@ -58,6 +60,7 @@
       "name": "Glassborn",
       "glyph": "G",
       "faction": "Glassborn",
+      "description": "Humanoid form of fused glass and crystallized flesh",
       "dialogue": [
         {
           "conditions": [{"adaptation_count_gte": 2}],

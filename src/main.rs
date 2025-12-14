@@ -195,7 +195,7 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode) {
                 let tile = &state.map.tiles[idx];
                 let style = match tile {
                     Tile::Floor => Style::default().fg(Color::DarkGray),
-                    Tile::Wall => Style::default().fg(Color::Gray),
+                    Tile::Wall { .. } => Style::default().fg(Color::Gray),
                     Tile::Glass => Style::default().fg(Color::Cyan),
                 };
                 (tile.glyph(), style)

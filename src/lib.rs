@@ -38,11 +38,11 @@ mod tests {
     #[test]
     fn storm_converts_walls_to_glass() {
         let mut state = GameState::new(42);
-        let walls_before: usize = state.map.tiles.iter().filter(|&&t| t == Tile::Wall).count();
+        let walls_before: usize = state.map.tiles.iter().filter(|t| matches!(t, Tile::Wall { .. })).count();
         state.storm.turns_until = 0;
         state.storm.intensity = 3;
         state.apply_storm();
-        let walls_after: usize = state.map.tiles.iter().filter(|&&t| t == Tile::Wall).count();
+        let walls_after: usize = state.map.tiles.iter().filter(|t| matches!(t, Tile::Wall { .. })).count();
         assert!(walls_after <= walls_before);
     }
 

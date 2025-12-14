@@ -57,6 +57,8 @@ pub struct NpcDef {
     pub name: String,
     pub glyph: String,
     pub faction: String,
+    #[serde(default)]
+    pub description: String,
     pub dialogue: Vec<DialogueEntry>,
     #[serde(default)]
     pub actions: Vec<NpcAction>,
