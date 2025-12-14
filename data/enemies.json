@@ -8,7 +8,10 @@
       "damage_min": 1,
       "damage_max": 3,
       "sight_range": 6,
-      "description": "Shimmering predator that hunts by heat"
+      "description": "Shimmering predator that hunts by heat",
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@2 &LightYellow)"}
+      ]
     },
     {
       "id": "glass_beetle",
@@ -18,7 +21,10 @@
       "damage_min": 1,
       "damage_max": 4,
       "sight_range": 5,
-      "description": "Armored insect with refractive carapace"
+      "description": "Armored insect with refractive carapace",
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@3 &Cyan)"}
+      ]
     },
     {
       "id": "salt_mummy",
@@ -28,7 +34,10 @@
       "damage_min": 2,
       "damage_max": 4,
       "sight_range": 4,
-      "description": "Desiccated pilgrim risen from the salt flats"
+      "description": "Desiccated pilgrim risen from the salt flats",
+      "effects": [
+        {"condition": "on_hit", "effect": "G(&White)"}
+      ]
     },
     {
       "id": "refraction_wraith",
@@ -40,7 +49,11 @@
       "sight_range": 8,
       "description": "Storm-born specter that phases through glass",
       "spawns_during_storm": true,
-      "reflects_damage": true
+      "reflects_damage": true,
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@1 &White)"},
+        {"condition": "on_death", "effect": "B(@1 &LightCyan)"}
+      ]
     },
     {
       "id": "shard_spider",
@@ -52,7 +65,10 @@
       "sight_range": 4,
       "description": "Skitters on glass legs—attacks in swarms",
       "swarm": true,
-      "increases_refraction": 2
+      "increases_refraction": 2,
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@2 &LightCyan)"}
+      ]
     },
     {
       "id": "dust_wraith",
@@ -63,7 +79,10 @@
       "damage_max": 5,
       "sight_range": 7,
       "description": "Swirling sand given malevolent form",
-      "flees_adapted_players": true
+      "flees_adapted_players": true,
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@2 &Yellow)"}
+      ]
     },
     {
       "id": "archive_drone",
@@ -75,7 +94,10 @@
       "sight_range": 10,
       "description": "Ancient guardian—scans for valid credentials",
       "requires_saint_key": true,
-      "hostile_without_key": true
+      "hostile_without_key": true,
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@1 &LightBlue)"}
+      ]
     }
   ]
 }

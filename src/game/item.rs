@@ -3,6 +3,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct EntityEffect {
+    pub condition: String,
+    pub effect: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct ItemDef {
     pub id: String,
     pub name: String,
@@ -26,6 +32,8 @@ pub struct ItemDef {
     pub reveals_storm_path: bool,
     #[serde(default)]
     pub reduces_refraction: u32,
+    #[serde(default)]
+    pub effects: Vec<EntityEffect>,
 }
 
 #[derive(Deserialize)]

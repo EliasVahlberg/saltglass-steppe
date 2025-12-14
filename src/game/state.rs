@@ -34,6 +34,12 @@ mod rng_serde {
     }
 }
 
+#[derive(Clone, Serialize, Deserialize)]
+pub struct TriggeredEffect {
+    pub effect: String,
+    pub frames_remaining: u32,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct GameState {
     pub player_x: i32, pub player_y: i32, pub player_hp: i32, pub player_max_hp: i32,
@@ -49,6 +55,8 @@ pub struct GameState {
     pub adaptations: Vec<Adaptation>,
     #[serde(default)]
     pub adaptations_hidden_turns: u32,
+    #[serde(default)]
+    pub triggered_effects: Vec<TriggeredEffect>,
 }
 
 impl GameState {
@@ -99,7 +107,15 @@ impl GameState {
             messages: vec!["Welcome to the Saltglass Steppe.".into()],
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
             refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
+            triggered_effects: Vec::new(),
         }
+    }
+
+    pub fn trigger_effect(&mut self, effect: &str, duration: u32) {
+        self.triggered_effects.push(TriggeredEffect {
+            effect: effect.to_string(),
+            frames_remaining: duration,
+        });
     }
 
     pub fn visible_adaptation_count(&self) -> usize {
@@ -273,6 +289,15 @@ impl GameState {
                 let dir = self.direction_from(ex, ey);
                 self.log(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg));
                 
+                // Trigger on_hit effects when enemy hits player
+                if let Some(d) = def {
+                    for e in &d.effects {
+                        if e.condition == "on_hit" {
+                            self.trigger_effect(&e.effect, 20);
+                        }
+                    }
+                }
+                
                 // Refraction increase on hit
                 if let Some(ref_inc) = def.map(|d| d.increases_refraction).filter(|&r| r > 0) {
                     self.refraction += ref_inc;
@@ -343,6 +368,15 @@ impl GameState {
             self.enemies[ei].hp -= dmg;
             let name = self.enemies[ei].name().to_string();
             let dir = self.direction_from(new_x, new_y);
+            
+            // Trigger on_hit effects
+            if let Some(def) = self.enemies[ei].def() {
+                for e in &def.effects {
+                    if e.condition == "on_hit" {
+                        self.trigger_effect(&e.effect, 20);
+                    }
+                }
+            }
             
             // Damage reflection
             if self.enemies[ei].def().map(|d| d.reflects_damage).unwrap_or(false) {
@@ -439,7 +473,16 @@ impl GameState {
             }
         }
         for (i, id) in picked.iter().rev() {
-            let name = get_item_def(id).map(|d| d.name.as_str()).unwrap_or("item");
+            let def = get_item_def(id);
+            let name = def.map(|d| d.name.as_str()).unwrap_or("item");
+            // Trigger on_pickup effects
+            if let Some(d) = def {
+                for e in &d.effects {
+                    if e.condition == "on_pickup" {
+                        self.trigger_effect(&e.effect, 30);
+                    }
+                }
+            }
             self.inventory.push(id.clone());
             self.log(format!("Picked up {}.", name));
             self.items.remove(*i);

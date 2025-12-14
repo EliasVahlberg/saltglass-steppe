@@ -3,6 +3,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct EntityEffect {
+    pub condition: String,
+    pub effect: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct EnemyDef {
     pub id: String,
     pub name: String,
@@ -26,6 +32,8 @@ pub struct EnemyDef {
     pub flees_adapted_players: bool,
     #[serde(default)]
     pub requires_saint_key: bool,
+    #[serde(default)]
+    pub effects: Vec<EntityEffect>,
 }
 
 fn default_sight() -> i32 { 6 }

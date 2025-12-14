@@ -117,7 +117,14 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_coun
         on_glass,
         adaptations_hidden: state.adaptations_hidden_turns > 0,
     };
-    let player_effects = get_active_effects(&effect_ctx, "player");
+    let mut player_effects = get_active_effects(&effect_ctx, "player");
+    
+    // Add triggered effects
+    for te in &state.triggered_effects {
+        if let Some(effect) = tui_rpg::parse_effect(&te.effect) {
+            player_effects.push(effect);
+        }
+    }
     
     // Death screen
     if state.player_hp <= 0 {
@@ -354,6 +361,13 @@ fn main() -> Result<()> {
 
     loop {
         frame_count = frame_count.wrapping_add(1);
+        
+        // Tick down triggered effects
+        state.triggered_effects.retain_mut(|e| {
+            e.frames_remaining = e.frames_remaining.saturating_sub(1);
+            e.frames_remaining > 0
+        });
+        
         if show_controls {
             terminal.draw(render_controls)?;
             if event::poll(std::time::Duration::from_millis(16))? {

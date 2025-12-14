@@ -7,7 +7,10 @@
       "description": "Crystallized storm energy, valuable for trade",
       "value": 25,
       "weight": 1,
-      "usable": false
+      "usable": false,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@3 &Cyan)"}
+      ]
     },
     {
       "id": "scripture_shard",
@@ -16,7 +19,10 @@
       "description": "Fragment of ancient religious text",
       "value": 15,
       "weight": 0,
-      "usable": false
+      "usable": false,
+      "effects": [
+        {"condition": "on_pickup", "effect": "G(&Yellow)"}
+      ]
     },
     {
       "id": "brine_vial",
@@ -26,7 +32,11 @@
       "value": 10,
       "weight": 1,
       "usable": true,
-      "heal": 5
+      "heal": 5,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@4 &Green)"},
+        {"condition": "on_use", "effect": "G(&Green)"}
+      ]
     },
     {
       "id": "saint_key",
@@ -35,7 +45,10 @@
       "description": "Opens Archive doors",
       "value": 50,
       "weight": 1,
-      "usable": false
+      "usable": false,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@2 &LightBlue)"}
+      ]
     },
     {
       "id": "angle_lens",
@@ -45,7 +58,11 @@
       "value": 100,
       "weight": 1,
       "usable": true,
-      "reveals_map": true
+      "reveals_map": true,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@3 &Magenta)"},
+        {"condition": "on_use", "effect": "B(@1 &White)"}
+      ]
     },
     {
       "id": "salt_poultice",
@@ -55,7 +72,11 @@
       "value": 15,
       "weight": 1,
       "usable": true,
-      "heal": 8
+      "heal": 8,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@4 &Green)"},
+        {"condition": "on_use", "effect": "G(&LightGreen)"}
+      ]
     },
     {
       "id": "veil_tincture",
@@ -65,7 +86,11 @@
       "value": 40,
       "weight": 1,
       "usable": true,
-      "suppresses_adaptations": true
+      "suppresses_adaptations": true,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@4 &DarkGray)"},
+        {"condition": "on_use", "effect": "G(&DarkGray)"}
+      ]
     },
     {
       "id": "glass_pick",
@@ -75,7 +100,10 @@
       "value": 30,
       "weight": 2,
       "usable": true,
-      "breaks_walls": true
+      "breaks_walls": true,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@4 &Cyan)"}
+      ]
     },
     {
       "id": "storm_compass",
@@ -85,7 +113,11 @@
       "value": 60,
       "weight": 1,
       "usable": true,
-      "reveals_storm_path": true
+      "reveals_storm_path": true,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@3 &Yellow)"},
+        {"condition": "on_use", "effect": "B(@2 &LightYellow)"}
+      ]
     },
     {
       "id": "saints_tear",
@@ -96,7 +128,11 @@
       "weight": 0,
       "usable": true,
       "heal": 15,
-      "reduces_refraction": 10
+      "reduces_refraction": 10,
+      "effects": [
+        {"condition": "on_pickup", "effect": "B(@2 &White)"},
+        {"condition": "on_use", "effect": "G(&White)"}
+      ]
     }
   ]
 }
