@@ -1,0 +1,34 @@
+{
+  "enemies": [
+    {
+      "id": "mirage_hound",
+      "name": "Mirage Hound",
+      "glyph": "h",
+      "max_hp": 8,
+      "damage_min": 1,
+      "damage_max": 3,
+      "sight_range": 6,
+      "description": "Shimmering predator that hunts by heat"
+    },
+    {
+      "id": "glass_beetle",
+      "name": "Glass Beetle",
+      "glyph": "b",
+      "max_hp": 12,
+      "damage_min": 1,
+      "damage_max": 4,
+      "sight_range": 5,
+      "description": "Armored insect with refractive carapace"
+    },
+    {
+      "id": "salt_mummy",
+      "name": "Salt Mummy",
+      "glyph": "m",
+      "max_hp": 15,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 4,
+      "description": "Desiccated pilgrim risen from the salt flats"
+    }
+  ]
+}

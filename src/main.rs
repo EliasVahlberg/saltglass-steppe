@@ -8,7 +8,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 use std::io::{stdout, Result};
-use tui_rpg::{GameState, MAP_HEIGHT};
+use tui_rpg::{get_item_def, GameState, Tile, MAP_HEIGHT};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -76,57 +76,77 @@ fn render(frame: &mut Frame, state: &GameState) {
         .constraints([Constraint::Min(MAP_HEIGHT as u16 + 2), Constraint::Length(9)])
         .split(frame.area());
 
-    // Adaptations display
-    let adapt_str = if state.adaptations.is_empty() {
-        String::new()
-    } else {
-        format!(" | {}", state.adaptations.iter().map(|a| a.name()).collect::<Vec<_>>().join(", "))
-    };
-
-    let title = format!(
-        " HP:{}/{} | Ref:{} | Turn {} | Storm:{}{}",
-        state.player_hp, state.player_max_hp, state.refraction,
-        state.turn, state.storm.turns_until, adapt_str
-    );
+    let storm_color = if state.storm.turns_until <= 3 { Color::Red } else { Color::Yellow };
+    let title = Line::from(vec![
+        " HP:".into(),
+        Span::styled(format!("{}/{}", state.player_hp, state.player_max_hp), 
+            Style::default().fg(if state.player_hp <= 5 { Color::Red } else { Color::Green })),
+        " | Ref:".into(),
+        Span::styled(format!("{}", state.refraction), Style::default().fg(Color::Cyan)),
+        format!(" | Turn {} | Storm:", state.turn).into(),
+        Span::styled(format!("{}", state.storm.turns_until), Style::default().fg(storm_color)),
+        if state.adaptations.is_empty() { Span::raw("") } else {
+            Span::styled(format!(" | {}", state.adaptations.iter().map(|a| a.name()).collect::<Vec<_>>().join(", ")),
+                Style::default().fg(Color::Magenta))
+        },
+        " ".into(),
+    ]);
     let block = Block::default().title(title).borders(Borders::ALL);
     let inner = block.inner(chunks[0]);
     frame.render_widget(block, chunks[0]);
 
-    let mut map_str = String::new();
+    let mut lines: Vec<Line> = Vec::new();
     for y in 0..state.map.height {
+        let mut spans: Vec<Span> = Vec::new();
         for x in 0..state.map.width {
             let idx = state.map.idx(x as i32, y as i32);
-            if x as i32 == state.player_x && y as i32 == state.player_y {
-                map_str.push('@');
+            let (ch, style) = if x as i32 == state.player_x && y as i32 == state.player_y {
+                ('@', Style::default().fg(Color::Yellow).bold())
             } else if let Some(e) = state.enemies.iter().find(|e| e.x == x as i32 && e.y == y as i32 && e.hp > 0) {
-                if state.visible.contains(&idx) { map_str.push(e.kind.glyph()); }
-                else if state.revealed.contains(&idx) { map_str.push('~'); }
-                else { map_str.push(' '); }
+                if state.visible.contains(&idx) {
+                    let color = match e.id.as_str() {
+                        "mirage_hound" => Color::LightYellow,
+                        "glass_beetle" => Color::Cyan,
+                        "salt_mummy" => Color::White,
+                        _ => Color::Red,
+                    };
+                    (e.glyph(), Style::default().fg(color))
+                } else if state.revealed.contains(&idx) {
+                    ('~', Style::default().fg(Color::DarkGray))
+                } else { (' ', Style::default()) }
             } else if let Some(item) = state.items.iter().find(|i| i.x == x as i32 && i.y == y as i32) {
-                if state.visible.contains(&idx) { map_str.push(item.kind.glyph()); }
-                else if state.revealed.contains(&idx) { map_str.push('~'); }
-                else { map_str.push(' '); }
+                if state.visible.contains(&idx) {
+                    (item.glyph(), Style::default().fg(Color::LightMagenta))
+                } else if state.revealed.contains(&idx) {
+                    ('~', Style::default().fg(Color::DarkGray))
+                } else { (' ', Style::default()) }
             } else if state.visible.contains(&idx) {
-                map_str.push(state.map.tiles[idx].glyph());
+                let tile = &state.map.tiles[idx];
+                let style = match tile {
+                    Tile::Floor => Style::default().fg(Color::DarkGray),
+                    Tile::Wall => Style::default().fg(Color::Gray),
+                    Tile::Glass => Style::default().fg(Color::Cyan),
+                };
+                (tile.glyph(), style)
             } else if state.revealed.contains(&idx) {
-                map_str.push('~');
-            } else {
-                map_str.push(' ');
-            }
+                ('~', Style::default().fg(Color::DarkGray))
+            } else { (' ', Style::default()) };
+            spans.push(Span::styled(ch.to_string(), style));
         }
-        map_str.push('\n');
+        lines.push(Line::from(spans));
     }
-    frame.render_widget(Paragraph::new(map_str), inner);
+    frame.render_widget(Paragraph::new(lines), inner);
 
-    // Inventory line
     let inv_str = if state.inventory.is_empty() {
         "Inventory: (empty)".to_string()
     } else {
         format!("Inventory: {}", state.inventory.iter().enumerate()
-            .map(|(i, k)| format!("[{}]{}", i + 1, k.name()))
+            .map(|(i, id)| {
+                let name = get_item_def(id).map(|d| d.name.as_str()).unwrap_or("?");
+                format!("[{}]{}", i + 1, name)
+            })
             .collect::<Vec<_>>().join(" "))
     };
-
     let status = if state.player_hp <= 0 {
         "\n*** YOU DIED *** Press q to quit"
     } else {

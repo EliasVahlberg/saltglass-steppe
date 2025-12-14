@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "id": "storm_glass",
+      "name": "Storm Glass",
+      "glyph": "◆",
+      "description": "Crystallized storm energy, valuable for trade",
+      "value": 25,
+      "weight": 1,
+      "usable": false
+    },
+    {
+      "id": "scripture_shard",
+      "name": "Scripture Shard",
+      "glyph": "?",
+      "description": "Fragment of ancient religious text",
+      "value": 15,
+      "weight": 0,
+      "usable": false
+    },
+    {
+      "id": "brine_vial",
+      "name": "Brine Vial",
+      "glyph": "!",
+      "description": "Salty healing draught",
+      "value": 10,
+      "weight": 1,
+      "usable": true,
+      "heal": 5
+    },
+    {
+      "id": "saint_key",
+      "name": "Saint-Key",
+      "glyph": "⚷",
+      "description": "Opens Archive doors",
+      "value": 50,
+      "weight": 1,
+      "usable": false
+    },
+    {
+      "id": "angle_lens",
+      "name": "Angle-Split Lens",
+      "glyph": "◎",
+      "description": "Reveals hidden paths when used",
+      "value": 100,
+      "weight": 1,
+      "usable": true,
+      "reveals_map": true
+    }
+  ]
+}

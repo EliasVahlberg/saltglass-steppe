@@ -5,7 +5,7 @@
   "mcpServers": {},
   "tools": ["*"],
   "toolAliases": {},
-  "allowedTools": [],
+  "allowedTools": ["*"],
   "resources": [
     "file://.kiro/steering/AGENTS_CREATIVE_DIRECTOR.md",
     "file://README.md",
