@@ -11,7 +11,7 @@ use super::{
     enemy::{all_enemy_ids, Enemy},
     item::{get_item_def, Item},
     map::{compute_fov, Map, Tile},
-    npc::{Faction, Npc},
+    npc::Npc,
     storm::Storm,
 };
 
@@ -67,7 +67,7 @@ impl GameState {
         let mut npcs = Vec::new();
         if rooms.len() > 3 {
             let npc_room = rooms[rooms.len() - 2];
-            npcs.push(Npc::new(npc_room.0, npc_room.1, Faction::MirrorMonks));
+            npcs.push(Npc::new(npc_room.0, npc_room.1, "mirror_monk"));
         }
 
         let spawn_items = ["storm_glass", "storm_glass", "storm_glass", "storm_glass",

@@ -1,73 +1,131 @@
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use super::adaptation::Adaptation;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-pub enum Faction {
-    MirrorMonks,
-    SandEngineers,
-    Glassborn,
+#[derive(Debug, Clone, Deserialize)]
+pub struct DialogueCondition {
+    #[serde(default)]
+    pub has_adaptation: Option<String>,
+    #[serde(default)]
+    pub adaptation_count_gte: Option<usize>,
+}
+
+impl DialogueCondition {
+    pub fn evaluate(&self, adaptations: &[Adaptation]) -> bool {
+        if let Some(ref name) = self.has_adaptation {
+            if !adaptations.iter().any(|a| a.name() == name) {
+                return false;
+            }
+        }
+        if let Some(count) = self.adaptation_count_gte {
+            if adaptations.len() < count {
+                return false;
+            }
+        }
+        true
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct DialogueEntry {
+    #[serde(default)]
+    pub conditions: Vec<DialogueCondition>,
+    pub text: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ActionEffect {
+    #[serde(default)]
+    pub heal: Option<i32>,
+    #[serde(default)]
+    pub trade: Option<bool>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct NpcAction {
+    pub id: String,
+    pub name: String,
+    #[serde(default)]
+    pub conditions: Vec<DialogueCondition>,
+    pub effect: ActionEffect,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct NpcDef {
+    pub id: String,
+    pub name: String,
+    pub glyph: String,
+    pub faction: String,
+    pub dialogue: Vec<DialogueEntry>,
+    #[serde(default)]
+    pub actions: Vec<NpcAction>,
+}
+
+#[derive(Deserialize)]
+struct NpcsFile {
+    npcs: Vec<NpcDef>,
+}
+
+static NPC_DEFS: Lazy<HashMap<String, NpcDef>> = Lazy::new(|| {
+    let data = include_str!("../../data/npcs.json");
+    let file: NpcsFile = serde_json::from_str(data).expect("Failed to parse npcs.json");
+    file.npcs.into_iter().map(|d| (d.id.clone(), d)).collect()
+});
+
+pub fn get_npc_def(id: &str) -> Option<&'static NpcDef> {
+    NPC_DEFS.get(id)
+}
+
+pub fn all_npc_ids() -> Vec<&'static str> {
+    NPC_DEFS.keys().map(|s| s.as_str()).collect()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Npc {
     pub x: i32,
     pub y: i32,
-    pub faction: Faction,
+    pub id: String,
     pub talked: bool,
 }
 
 impl Npc {
-    pub fn new(x: i32, y: i32, faction: Faction) -> Self {
-        Self { x, y, faction, talked: false }
+    pub fn new(x: i32, y: i32, id: &str) -> Self {
+        Self { x, y, id: id.to_string(), talked: false }
+    }
+
+    pub fn def(&self) -> Option<&'static NpcDef> {
+        get_npc_def(&self.id)
     }
 
     pub fn glyph(&self) -> char {
-        match self.faction {
-            Faction::MirrorMonks => 'M',
-            Faction::SandEngineers => 'E',
-            Faction::Glassborn => 'G',
-        }
+        self.def().map(|d| d.glyph.chars().next().unwrap_or('?')).unwrap_or('?')
     }
 
-    pub fn name(&self) -> &'static str {
-        match self.faction {
-            Faction::MirrorMonks => "Mirror Monk",
-            Faction::SandEngineers => "Sand-Engineer",
-            Faction::Glassborn => "Glassborn",
-        }
+    pub fn name(&self) -> &str {
+        self.def().map(|d| d.name.as_str()).unwrap_or("Unknown")
     }
 
-    pub fn dialogue(&self, adaptations: &[Adaptation]) -> &'static str {
-        match self.faction {
-            Faction::MirrorMonks => {
-                if adaptations.contains(&Adaptation::Prismhide) {
-                    "Your skin refracts. The angle has chosen you."
-                } else if adaptations.contains(&Adaptation::Sunveins) {
-                    "Light burns in your veins. You carry the storm's fire."
-                } else if !adaptations.is_empty() {
-                    "The storm speaks through your flesh. Listen."
-                } else {
-                    "You walk unmarked. The storm has not yet spoken to you."
+    pub fn dialogue(&self, adaptations: &[Adaptation]) -> &str {
+        if let Some(def) = self.def() {
+            for entry in &def.dialogue {
+                let all_match = entry.conditions.is_empty() 
+                    || entry.conditions.iter().all(|c| c.evaluate(adaptations));
+                if all_match {
+                    return &entry.text;
                 }
             }
-            Faction::SandEngineers => {
-                if adaptations.contains(&Adaptation::Saltblood) {
-                    "Saltblood, eh? Useful. Glass won't cut you."
-                } else if !adaptations.is_empty() {
-                    "Adapted, I see. Stay useful, stay alive."
-                } else {
-                    "Fresh meat. Watch where you step—glass cuts deep."
-                }
-            }
-            Faction::Glassborn => {
-                if adaptations.len() >= 2 {
-                    "You begin to understand. The shimmer is not pain—it is becoming."
-                } else if !adaptations.is_empty() {
-                    "You flinch at the shimmer. We were born in it."
-                } else {
-                    "Unmarked flesh. The storm will teach you, or break you."
-                }
-            }
+        }
+        "..."
+    }
+
+    pub fn available_actions(&self, adaptations: &[Adaptation]) -> Vec<&'static NpcAction> {
+        if let Some(def) = self.def() {
+            def.actions.iter()
+                .filter(|a| a.conditions.is_empty() || a.conditions.iter().all(|c| c.evaluate(adaptations)))
+                .collect()
+        } else {
+            Vec::new()
         }
     }
 }

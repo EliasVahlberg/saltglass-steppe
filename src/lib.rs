@@ -160,10 +160,10 @@ mod tests {
 
     #[test]
     fn npc_dialogue_reacts_to_adaptations() {
-        use crate::game::npc::{Faction, Npc};
+        use crate::game::npc::Npc;
         use crate::game::Adaptation;
         
-        let npc = Npc::new(0, 0, Faction::MirrorMonks);
+        let npc = Npc::new(0, 0, "mirror_monk");
         
         // No adaptations
         let dialogue = npc.dialogue(&[]);
