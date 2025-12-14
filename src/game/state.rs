@@ -133,6 +133,7 @@ impl GameState {
     }
 
     pub fn update_enemies(&mut self) {
+        if self.player_hp <= 0 { return; }
         let px = self.player_x;
         let py = self.player_y;
         for i in 0..self.enemies.len() {
@@ -147,6 +148,7 @@ impl GameState {
                 let dmg = self.rng.gen_range(dmin..=dmax);
                 self.player_hp -= dmg;
                 self.log(format!("{} hits you for {} damage!", self.enemies[i].name(), dmg));
+                if self.player_hp <= 0 { return; }
             } else if dist < sight && self.visible.contains(&self.map.idx(ex, ey)) {
                 let path = a_star_search(self.map.idx(ex, ey), self.map.idx(px, py), &self.map);
                 if path.success && path.steps.len() > 1 {
