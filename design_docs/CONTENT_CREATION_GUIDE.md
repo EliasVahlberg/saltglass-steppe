@@ -324,6 +324,87 @@ This creates a fast red blink when player HP drops to 3 or below.
 
 ---
 
+## Entity Effects (in items.json, enemies.json)
+
+Entities can have their own triggered effects that fire on specific events. These are defined directly in the entity's JSON, not in `effects.json`.
+
+### Schema
+
+```json
+{
+  "id": "entity_id",
+  "name": "Entity Name",
+  "effects": [
+    {"condition": "on_hit", "effect": "B(@2 &Red)"},
+    {"condition": "on_pickup", "effect": "G(&Green)"}
+  ]
+}
+```
+
+### Trigger Conditions
+
+| Condition | Applies To | When Triggered |
+|-----------|------------|----------------|
+| `on_hit` | Enemies | Combat occurs (either direction) |
+| `on_pickup` | Items | Player picks up item |
+| `on_use` | Items | Player uses item |
+| `on_death` | Enemies | Enemy is killed |
+
+### Example: Enemy with Combat Effect
+
+```json
+{
+  "id": "glass_beetle",
+  "name": "Glass Beetle",
+  "effects": [
+    {"condition": "on_hit", "effect": "B(@3 &Cyan)"}
+  ]
+}
+```
+
+### Example: Item with Pickup and Use Effects
+
+```json
+{
+  "id": "brine_vial",
+  "name": "Brine Vial",
+  "effects": [
+    {"condition": "on_pickup", "effect": "B(@4 &Green)"},
+    {"condition": "on_use", "effect": "G(&LightGreen)"}
+  ]
+}
+```
+
+### Current Enemy Effects
+
+| Enemy | Trigger | Effect |
+|-------|---------|--------|
+| Mirage Hound | on_hit | Yellow blink @2 |
+| Glass Beetle | on_hit | Cyan blink @3 |
+| Salt Mummy | on_hit | White glow |
+| Refraction Wraith | on_hit | White blink @1 |
+| Refraction Wraith | on_death | Light cyan blink @1 |
+| Shard Spider | on_hit | Light cyan blink @2 |
+| Dust Wraith | on_hit | Yellow blink @2 |
+| Archive Drone | on_hit | Light blue blink @1 |
+
+### Current Item Effects
+
+| Item | on_pickup | on_use |
+|------|-----------|--------|
+| Storm Glass | Cyan blink @3 | — |
+| Scripture Shard | Yellow glow | — |
+| Brine Vial | Green blink @4 | Green glow |
+| Saint-Key | Light blue blink @2 | — |
+| Angle-Split Lens | Magenta blink @3 | White blink @1 |
+| Salt Poultice | Green blink @4 | Light green glow |
+| Veil Tincture | Dark gray blink @4 | Dark gray glow |
+| Glass Pick | Cyan blink @4 | — |
+| Storm Compass | Yellow blink @3 | Light yellow blink @2 |
+| Saint's Tear | White blink @2 | White glow |
+
+---
+
 ## Checklist for New Content
 
 - [ ] Add JSON entry with all required fields
