@@ -1,0 +1,40 @@
+{
+  "effects": [
+    {
+      "id": "low_hp_warning",
+      "condition": {"low_hp": 5},
+      "target": "player",
+      "effect": "B(@4 &Red)"
+    },
+    {
+      "id": "storm_imminent",
+      "condition": {"storm_near": 3},
+      "target": "ui",
+      "effect": "B(@8 &Yellow)"
+    },
+    {
+      "id": "adaptation_glow",
+      "condition": {"has_adaptation": true},
+      "target": "player",
+      "effect": "G(&Magenta)"
+    },
+    {
+      "id": "glass_shimmer",
+      "condition": {"on_tile": "Glass"},
+      "target": "player",
+      "effect": "B(@6 &Cyan)"
+    },
+    {
+      "id": "refraction_wraith_phase",
+      "condition": {"enemy_type": "refraction_wraith"},
+      "target": "enemy",
+      "effect": "B(@3 &White)"
+    },
+    {
+      "id": "suppression_active",
+      "condition": {"adaptations_hidden": true},
+      "target": "player",
+      "effect": "G(&DarkGray)"
+    }
+  ]
+}

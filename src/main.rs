@@ -9,7 +9,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 use std::io::{stdout, Result};
-use tui_rpg::{get_item_def, GameState, Tile, MAP_HEIGHT};
+use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -106,7 +106,19 @@ fn update(state: &mut GameState, action: Action, look_mode: &mut LookMode) -> bo
     true
 }
 
-fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode) {
+fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_count: u64) {
+    // Build effect context
+    let player_idx = state.map.idx(state.player_x, state.player_y);
+    let on_glass = state.map.tiles.get(player_idx).map(|t| *t == Tile::Glass).unwrap_or(false);
+    let effect_ctx = EffectContext {
+        player_hp: state.player_hp,
+        storm_turns: state.storm.turns_until,
+        has_adaptation: !state.adaptations.is_empty(),
+        on_glass,
+        adaptations_hidden: state.adaptations_hidden_turns > 0,
+    };
+    let player_effects = get_active_effects(&effect_ctx, "player");
+    
     // Death screen
     if state.player_hp <= 0 {
         let area = frame.area();
@@ -176,7 +188,21 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode) {
             let idx = state.map.idx(x as i32, y as i32);
             let is_look_cursor = look_mode.active && x as i32 == look_mode.x && y as i32 == look_mode.y;
             let (ch, style) = if x as i32 == state.player_x && y as i32 == state.player_y {
-                ('@', Style::default().fg(Color::Yellow).bold())
+                let mut base_style = Style::default().fg(Color::Yellow).bold();
+                // Apply player effects
+                for effect in &player_effects {
+                    match effect {
+                        VisualEffect::Blink { speed, color } => {
+                            if (frame_count / *speed as u64) % 2 == 0 {
+                                base_style = base_style.fg(*color);
+                            }
+                        }
+                        VisualEffect::Glow { color } => {
+                            base_style = base_style.fg(*color);
+                        }
+                    }
+                }
+                ('@', base_style)
             } else if let Some(e) = state.enemies.iter().find(|e| e.x == x as i32 && e.y == y as i32 && e.hp > 0) {
                 if state.visible.contains(&idx) {
                     let color = match e.id.as_str() {
@@ -310,8 +336,10 @@ fn main() -> Result<()> {
     let mut state = GameState::new(seed);
     let mut show_controls = false;
     let mut look_mode = LookMode { active: false, x: 0, y: 0 };
+    let mut frame_count: u64 = 0;
 
     loop {
+        frame_count = frame_count.wrapping_add(1);
         if show_controls {
             terminal.draw(render_controls)?;
             if event::poll(std::time::Duration::from_millis(16))? {
@@ -322,7 +350,7 @@ fn main() -> Result<()> {
                 }
             }
         } else {
-            terminal.draw(|frame| render(frame, &state, &look_mode))?;
+            terminal.draw(|frame| render(frame, &state, &look_mode, frame_count))?;
             match handle_input(&mut look_mode)? {
                 Action::OpenControls => show_controls = true,
                 action => if !update(&mut state, action, &mut look_mode) { break; }

@@ -1,5 +1,6 @@
 pub mod adaptation;
 pub mod constants;
+pub mod effect;
 pub mod enemy;
 pub mod item;
 pub mod map;
@@ -9,6 +10,7 @@ pub mod storm;
 
 pub use adaptation::Adaptation;
 pub use constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
+pub use effect::{get_active_effects, parse_effect, EffectContext, VisualEffect};
 pub use enemy::{all_enemy_ids, get_enemy_def, Enemy, EnemyDef};
 pub use item::{all_item_ids, get_item_def, Item, ItemDef};
 pub use map::{compute_fov, Map, Tile};
