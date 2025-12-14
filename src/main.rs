@@ -9,7 +9,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 use std::io::{stdout, Result};
-use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT};
+use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -205,13 +205,27 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_coun
                 ('@', base_style)
             } else if let Some(e) = state.enemies.iter().find(|e| e.x == x as i32 && e.y == y as i32 && e.hp > 0) {
                 if state.visible.contains(&idx) {
-                    let color = match e.id.as_str() {
+                    let base_color = match e.id.as_str() {
                         "mirage_hound" => Color::LightYellow,
                         "glass_beetle" => Color::Cyan,
                         "salt_mummy" => Color::White,
                         _ => Color::Red,
                     };
-                    (e.glyph(), Style::default().fg(color))
+                    let mut style = Style::default().fg(base_color);
+                    // Apply enemy effects
+                    for effect in get_enemy_effects(&e.id) {
+                        match effect {
+                            VisualEffect::Blink { speed, color } => {
+                                if (frame_count / speed as u64) % 2 == 0 {
+                                    style = style.fg(color);
+                                }
+                            }
+                            VisualEffect::Glow { color } => {
+                                style = style.fg(color);
+                            }
+                        }
+                    }
+                    (e.glyph(), style)
                 } else if state.revealed.contains(&idx) {
                     ('~', Style::default().fg(Color::DarkGray))
                 } else { (' ', Style::default()) }

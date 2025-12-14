@@ -7,10 +7,22 @@
       "effect": "B(@4 &Red)"
     },
     {
+      "id": "critical_hp",
+      "condition": {"low_hp": 3},
+      "target": "player",
+      "effect": "B(@2 &LightRed)"
+    },
+    {
       "id": "storm_imminent",
       "condition": {"storm_near": 3},
       "target": "ui",
-      "effect": "B(@8 &Yellow)"
+      "effect": "B(@8 &Red)"
+    },
+    {
+      "id": "storm_approaching",
+      "condition": {"storm_near": 5},
+      "target": "ui",
+      "effect": "B(@12 &Yellow)"
     },
     {
       "id": "adaptation_glow",
@@ -25,16 +37,52 @@
       "effect": "B(@6 &Cyan)"
     },
     {
+      "id": "suppression_active",
+      "condition": {"adaptations_hidden": true},
+      "target": "player",
+      "effect": "G(&DarkGray)"
+    },
+    {
       "id": "refraction_wraith_phase",
       "condition": {"enemy_type": "refraction_wraith"},
       "target": "enemy",
       "effect": "B(@3 &White)"
     },
     {
-      "id": "suppression_active",
-      "condition": {"adaptations_hidden": true},
-      "target": "player",
-      "effect": "G(&DarkGray)"
+      "id": "mirage_hound_shimmer",
+      "condition": {"enemy_type": "mirage_hound"},
+      "target": "enemy",
+      "effect": "B(@5 &LightYellow)"
+    },
+    {
+      "id": "glass_beetle_glint",
+      "condition": {"enemy_type": "glass_beetle"},
+      "target": "enemy",
+      "effect": "B(@8 &Cyan)"
+    },
+    {
+      "id": "dust_wraith_swirl",
+      "condition": {"enemy_type": "dust_wraith"},
+      "target": "enemy",
+      "effect": "B(@4 &Yellow)"
+    },
+    {
+      "id": "shard_spider_glitter",
+      "condition": {"enemy_type": "shard_spider"},
+      "target": "enemy",
+      "effect": "B(@6 &LightCyan)"
+    },
+    {
+      "id": "archive_drone_scan",
+      "condition": {"enemy_type": "archive_drone"},
+      "target": "enemy",
+      "effect": "B(@10 &LightBlue)"
+    },
+    {
+      "id": "salt_mummy_pale",
+      "condition": {"enemy_type": "salt_mummy"},
+      "target": "enemy",
+      "effect": "G(&White)"
     }
   ]
 }

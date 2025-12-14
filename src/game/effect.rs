@@ -133,3 +133,11 @@ pub fn get_active_effects(ctx: &EffectContext, target: &str) -> Vec<VisualEffect
         .filter_map(|e| parse_effect(&e.effect))
         .collect()
 }
+
+pub fn get_enemy_effects(enemy_id: &str) -> Vec<VisualEffect> {
+    all_effects()
+        .iter()
+        .filter(|e| e.target == "enemy" && e.condition.enemy_type.as_deref() == Some(enemy_id))
+        .filter_map(|e| parse_effect(&e.effect))
+        .collect()
+}
