@@ -120,6 +120,26 @@ mod tests {
     }
 
     #[test]
+    fn item_removed_after_walking_onto_it() {
+        let mut state = GameState::new(42);
+        // Place item one tile to the right
+        let item_x = state.player_x + 1;
+        let item_y = state.player_y;
+        // Ensure tile is walkable
+        let idx = state.map.idx(item_x, item_y);
+        state.map.tiles[idx] = Tile::Floor;
+        // Clear existing items and add test item
+        state.items.clear();
+        state.items.push(Item::new(item_x, item_y, "brine_vial"));
+        assert_eq!(state.items.len(), 1);
+        // Move onto item
+        state.try_move(1, 0);
+        // Item should be removed from map
+        assert_eq!(state.items.len(), 0);
+        assert_eq!(state.inventory.len(), 1);
+    }
+
+    #[test]
     fn pickup_adds_to_inventory() {
         let mut state = GameState::new(42);
         state.items.push(Item::new(state.player_x, state.player_y, "brine_vial"));

@@ -65,14 +65,20 @@ impl GameState {
                           "brine_vial", "brine_vial", "brine_vial",
                           "scripture_shard", "scripture_shard", "saint_key"];
         let mut items = Vec::new();
+        let mut used_positions = std::collections::HashSet::new();
         for &(rx, ry) in rooms.iter().skip(1) {
             let ix = rx + rng.gen_range(-1..=1);
             let iy = ry + rng.gen_range(-1..=1);
-            let id = spawn_items[rng.gen_range(0..spawn_items.len())];
-            items.push(Item::new(ix, iy, id));
+            if !used_positions.contains(&(ix, iy)) {
+                used_positions.insert((ix, iy));
+                let id = spawn_items[rng.gen_range(0..spawn_items.len())];
+                items.push(Item::new(ix, iy, id));
+            }
         }
         if let Some(&(rx, ry)) = rooms.last() {
-            items.push(Item::new(rx, ry, "angle_lens"));
+            if !used_positions.contains(&(rx, ry)) {
+                items.push(Item::new(rx, ry, "angle_lens"));
+            }
         }
 
         Self {
