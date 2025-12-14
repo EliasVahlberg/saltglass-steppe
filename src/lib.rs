@@ -157,4 +157,20 @@ mod tests {
         state.use_item(0);
         assert_eq!(state.player_hp, 15);
     }
+
+    #[test]
+    fn npc_dialogue_reacts_to_adaptations() {
+        use crate::game::npc::{Faction, Npc};
+        use crate::game::Adaptation;
+        
+        let npc = Npc::new(0, 0, Faction::MirrorMonks);
+        
+        // No adaptations
+        let dialogue = npc.dialogue(&[]);
+        assert!(dialogue.contains("unmarked"));
+        
+        // With Prismhide
+        let dialogue = npc.dialogue(&[Adaptation::Prismhide]);
+        assert!(dialogue.contains("refracts"));
+    }
 }

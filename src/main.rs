@@ -141,6 +141,12 @@ fn render(frame: &mut Frame, state: &GameState) {
                 } else if state.revealed.contains(&idx) {
                     ('~', Style::default().fg(Color::DarkGray))
                 } else { (' ', Style::default()) }
+            } else if let Some(npc) = state.npcs.iter().find(|n| n.x == x as i32 && n.y == y as i32) {
+                if state.visible.contains(&idx) {
+                    (npc.glyph(), Style::default().fg(Color::Green).bold())
+                } else if state.revealed.contains(&idx) {
+                    ('~', Style::default().fg(Color::DarkGray))
+                } else { (' ', Style::default()) }
             } else if let Some(item) = state.items.iter().find(|i| i.x == x as i32 && i.y == y as i32) {
                 if state.visible.contains(&idx) {
                     (item.glyph(), Style::default().fg(Color::LightMagenta))

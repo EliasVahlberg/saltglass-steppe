@@ -11,6 +11,7 @@ use super::{
     enemy::{all_enemy_ids, Enemy},
     item::{get_item_def, Item},
     map::{compute_fov, Map, Tile},
+    npc::{Faction, Npc},
     storm::Storm,
 };
 
@@ -37,6 +38,7 @@ mod rng_serde {
 pub struct GameState {
     pub player_x: i32, pub player_y: i32, pub player_hp: i32, pub player_max_hp: i32,
     pub map: Map, pub enemies: Vec<Enemy>,
+    pub npcs: Vec<Npc>,
     pub items: Vec<Item>,
     pub inventory: Vec<String>,
     pub visible: HashSet<usize>, pub revealed: HashSet<usize>,
@@ -56,9 +58,16 @@ impl GameState {
 
         let enemy_ids = all_enemy_ids();
         let mut enemies = Vec::new();
-        for &(rx, ry) in rooms.iter().skip(1) {
+        for &(rx, ry) in rooms.iter().skip(1).take(rooms.len().saturating_sub(3)) {
             let id = enemy_ids[rng.gen_range(0..enemy_ids.len())];
             enemies.push(Enemy::new(rx, ry, id));
+        }
+
+        // Spawn one NPC (Mirror Monk) in a later room
+        let mut npcs = Vec::new();
+        if rooms.len() > 3 {
+            let npc_room = rooms[rooms.len() - 2];
+            npcs.push(Npc::new(npc_room.0, npc_room.1, Faction::MirrorMonks));
         }
 
         let spawn_items = ["storm_glass", "storm_glass", "storm_glass", "storm_glass",
@@ -83,7 +92,7 @@ impl GameState {
 
         Self {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
-            map, enemies, items, inventory: Vec::new(),
+            map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
             messages: vec!["Welcome to the Saltglass Steppe.".into()],
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
@@ -138,6 +147,10 @@ impl GameState {
         self.enemies.iter().position(|e| e.x == x && e.y == y && e.hp > 0)
     }
 
+    pub fn npc_at(&self, x: i32, y: i32) -> Option<usize> {
+        self.npcs.iter().position(|n| n.x == x && n.y == y)
+    }
+
     fn direction_from(&self, x: i32, y: i32) -> &'static str {
         let dx = x - self.player_x;
         let dy = y - self.player_y;
@@ -190,6 +203,15 @@ impl GameState {
     pub fn try_move(&mut self, dx: i32, dy: i32) -> bool {
         let new_x = self.player_x + dx;
         let new_y = self.player_y + dy;
+
+        // NPC interaction (bump to talk)
+        if let Some(ni) = self.npc_at(new_x, new_y) {
+            let dialogue = self.npcs[ni].dialogue(&self.adaptations);
+            let name = self.npcs[ni].name();
+            self.log(format!("{}: \"{}\"", name, dialogue));
+            self.npcs[ni].talked = true;
+            return true;
+        }
 
         if let Some(ei) = self.enemy_at(new_x, new_y) {
             let mut dmg = self.rng.gen_range(2..6);
