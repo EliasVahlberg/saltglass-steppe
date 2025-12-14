@@ -19,11 +19,11 @@ Saltglass Steppe is a TUI roguelike RPG set in a post-post-apocalyptic desert wh
 
 These are non-negotiable. Every feature, asset, and design decision must support at least one pillar without contradicting another.
 
-### Pillar 1: Storms Rewrite Maps
-Glass storms are not weather—they're procedural editors. The world physically changes, and players must adapt their mental maps.
+### Pillar 1: Mutation with Social Consequences
+Refraction adaptations grant power but alter how factions perceive you. Transformation is never free. *This is the core identity hook—"you are becoming something strange."*
 
-### Pillar 2: Mutation with Social Consequences
-Refraction adaptations grant power but alter how factions perceive you. Transformation is never free.
+### Pillar 2: Storms Rewrite Maps
+Glass storms are not weather—they're procedural editors. The world physically changes, and players must adapt their mental maps. *The signature system that makes this game distinct.*
 
 ### Pillar 3: Readable Light Tactics
 Combat and navigation use light/reflection as a core mechanic. Beams, glare, and sightlines must be visually clear in ASCII.
@@ -50,6 +50,8 @@ The world is strange but consistent. Every anomaly has rules the player can lear
 
 ### The Weirdness Dial
 Set to **Mythic-Reverent** (6/10 on the weird scale).
+
+The Saltglass should feel *numinous*—awe mixed with unease. Not horror, but dread as a constant undercurrent. "A lens that belonged to three dead saints" works because it's strange *and* slightly unsettling.
 
 | Too Normal | Target Zone | Too Weird |
 |------------|-------------|-----------|
@@ -110,7 +112,7 @@ The robot is mad at you
 | Salt Mummy | White | `Color::White` | Desiccated, pale |
 | Items | Light Magenta | `Color::LightMagenta` | Valuable, distinct |
 | Adaptations | Magenta | `Color::Magenta` | Mutation, transformation |
-| Storm warning | Red (≤3 turns) / Yellow | Contextual | Urgency escalation |
+| Storm warning | Red (≤3) / Orange (4-5) / Yellow (6+) | Contextual | Three-stage urgency |
 | HP (low) | Red | `Color::Red` | Danger state |
 | HP (healthy) | Green | `Color::Green` | Safe state |
 | Refraction meter | Cyan | `Color::Cyan` | Matches glass theme |
@@ -173,7 +175,7 @@ The robot is mad at you
 |---------|-------|------------------|
 | Mirror Monks | Cryptic, reverent, prophetic | "The angle speaks. Do you hear it?" |
 | Sand-Engineers | Practical, terse, problem-focused | "Well's dry. Need parts from the Crucible Block." |
-| Glassborn | Proud, challenging, direct | "You walk soft. Prove you're worth the glass in your veins." |
+| Glassborn | Transformed, alien pride, storm-touched | "You flinch at the shimmer. We were born in it." |
 | Archive Drones | Procedural, cold, protocol-bound | "CREDENTIAL CHECK. STATUS: UNAUTHORIZED. COMPLIANCE REQUIRED." |
 
 ---
@@ -280,7 +282,39 @@ Changed tiles rendered in `Color::LightCyan` with `*` until player visits them.
 
 ---
 
-## 10. Reference Touchstones
+## 10. First 5 Minutes
+
+What does the player see, hear, and do that tells them this isn't generic fantasy?
+
+### Opening Moments
+1. **Storm warning on screen** — Before the player moves, they see "Storm: 7 turns" in the status bar. The world is already counting down.
+2. **Glass terrain visible** — Cyan `*` tiles are present from the start. Walking on them hurts and increases Refraction.
+3. **First log message** — Something evocative: "The salt wind carries glass dust. You taste copper."
+
+### First Encounter
+- A **Mirage Hound** (`h` in Light Yellow) shimmers at the edge of FOV. It doesn't attack immediately—it watches.
+- Combat log: "The mirage hound flickers closer." Not "The enemy moves."
+
+### First Storm (Turn ~10-15)
+- Warning escalates: Yellow → Orange → Red
+- Storm hits: "⚡ GLASS STORM! The west corridor *refracts*..."
+- Map visibly changes. Walls become glass. New paths open.
+- Player gains Refraction. If threshold crossed: "Your skin catches light. You've adapted."
+
+### First NPC (Target)
+- A **Mirror Monk** stands in a room. Dialogue varies based on player's adaptations:
+  - No adaptations: "You walk unmarked. The storm has not yet spoken to you."
+  - With Prismhide: "Your skin refracts. The angle has chosen you."
+
+### What This Communicates
+- The world is hostile and strange (glass hurts, storms change maps)
+- You are changing (Refraction meter, adaptations)
+- Others notice your change (NPC reactions)
+- This is not Nethack with a coat of paint
+
+---
+
+## 11. Reference Touchstones
 
 These are internal references for the team—never visible to players.
 
@@ -302,7 +336,7 @@ These are internal references for the team—never visible to players.
 
 ---
 
-## Appendix: Glossary
+## 12. Appendix: Glossary
 
 | Term | Definition |
 |------|------------|

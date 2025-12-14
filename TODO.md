@@ -45,16 +45,16 @@
 ## Next Steps (Creative Direction Aligned)
 
 ### High Priority — Core Pillars
+- [ ] Faction NPCs (Mirror Monks, Sand-Engineers, Glassborn) — *Pillar 1 requires NPCs who react to adaptations*
 - [ ] Shimmer/glare visual effects (Pillar 3: Readable Light Tactics)
-- [ ] Beam/ray visualization using `-|/\` in Cyan (Pillar 3)
-- [ ] Post-storm diff highlighting — changed tiles in LightCyan until visited (Pillar 1: Storms Rewrite Maps)
+- [ ] Post-storm diff highlighting — changed tiles in LightCyan until visited (Pillar 2: Storms Rewrite Maps)
 
 ### Medium Priority — Content & Systems
+- [ ] Beam/ray visualization using `-|/\` in Cyan (Pillar 3)
 - [ ] Prismhide damage reduction
 - [ ] MirageStep decoy mechanic
 - [ ] More enemy behaviors (unique per type)
 - [ ] Add remaining enemies: Archive Drone (`Δ`), Refraction Wraith (`◊`)
-- [ ] Faction NPCs (Mirror Monks, Sand-Engineers, Glassborn)
 - [ ] Enhanced storm forecast panel (show edit types: ROTATE, GLASS, SWAP)
 
 ### Low Priority — Polish

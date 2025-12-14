@@ -9,10 +9,11 @@
   "resources": [
     "file://.kiro/steering/AGENTS_CREATIVE_DIRECTOR.md",
     "file://README.md",
-    "file://design_docs/Initial_idea.md"
+    "file://design_docs/Initial_idea.md",
+    "file://design_docs/CREATIVE_DIRECTION_SUMMARY.md"
   ],
   "hooks": {},
   "toolsSettings": {},
   "useLegacyMcpJson": false,
-  "model": null
+  "model": "claude-opus-4.5"
 }
