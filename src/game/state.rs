@@ -132,6 +132,22 @@ impl GameState {
         self.enemies.iter().position(|e| e.x == x && e.y == y && e.hp > 0)
     }
 
+    fn direction_from(&self, x: i32, y: i32) -> &'static str {
+        let dx = x - self.player_x;
+        let dy = y - self.player_y;
+        match (dx.signum(), dy.signum()) {
+            (0, -1) => "to the north",
+            (0, 1) => "to the south",
+            (-1, 0) => "to the west",
+            (1, 0) => "to the east",
+            (-1, -1) => "to the northwest",
+            (1, -1) => "to the northeast",
+            (-1, 1) => "to the southwest",
+            (1, 1) => "to the southeast",
+            _ => "nearby",
+        }
+    }
+
     pub fn update_enemies(&mut self) {
         if self.player_hp <= 0 { return; }
         let px = self.player_x;
@@ -147,7 +163,8 @@ impl GameState {
                 let (dmin, dmax) = def.map(|d| (d.damage_min, d.damage_max)).unwrap_or((1, 3));
                 let dmg = self.rng.gen_range(dmin..=dmax);
                 self.player_hp -= dmg;
-                self.log(format!("{} hits you for {} damage!", self.enemies[i].name(), dmg));
+                let dir = self.direction_from(ex, ey);
+                self.log(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg));
                 if self.player_hp <= 0 { return; }
             } else if dist < sight && self.visible.contains(&self.map.idx(ex, ey)) {
                 let path = a_star_search(self.map.idx(ex, ey), self.map.idx(px, py), &self.map);
@@ -173,10 +190,11 @@ impl GameState {
             if self.has_adaptation(Adaptation::Sunveins) { dmg += 2; }
             self.enemies[ei].hp -= dmg;
             let name = self.enemies[ei].name().to_string();
+            let dir = self.direction_from(new_x, new_y);
             if self.enemies[ei].hp <= 0 {
-                self.log(format!("You kill the {}!", name));
+                self.log(format!("You kill the {} {}!", name, dir));
             } else {
-                self.log(format!("You hit {} for {} damage.", name, dmg));
+                self.log(format!("You hit the {} {} for {} damage.", name, dir, dmg));
             }
             self.turn += 1;
             self.update_enemies();
