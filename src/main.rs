@@ -13,7 +13,7 @@ use tui_rpg::{get_item_def, GameState, Tile, MAP_HEIGHT};
 
 const SAVE_FILE: &str = "savegame.ron";
 
-enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), None }
+enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, None }
 
 fn handle_input() -> Result<Action> {
     if event::poll(std::time::Duration::from_millis(16))? {
@@ -30,6 +30,7 @@ fn handle_input() -> Result<Action> {
                     KeyCode::Down | KeyCode::Char('j') => Action::Move(0, 1),
                     KeyCode::Left | KeyCode::Char('h') => Action::Move(-1, 0),
                     KeyCode::Right | KeyCode::Char('l') => Action::Move(1, 0),
+                    KeyCode::Esc => Action::OpenControls,
                     _ => Action::None,
                 });
             }
@@ -41,6 +42,7 @@ fn handle_input() -> Result<Action> {
 fn update(state: &mut GameState, action: Action) -> bool {
     match action {
         Action::Quit => return false,
+        Action::OpenControls => {}
         Action::Save => {
             match state.save(SAVE_FILE) {
                 Ok(_) => state.log("Game saved."),
@@ -226,13 +228,59 @@ fn main() -> Result<()> {
     // Game loop
     let seed = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
     let mut state = GameState::new(seed);
+    let mut show_controls = false;
 
     loop {
-        terminal.draw(|frame| render(frame, &state))?;
-        if !update(&mut state, handle_input()?) { break; }
+        if show_controls {
+            terminal.draw(render_controls)?;
+            if event::poll(std::time::Duration::from_millis(16))? {
+                if let Event::Key(key) = event::read()? {
+                    if key.kind == KeyEventKind::Press {
+                        show_controls = false;
+                    }
+                }
+            }
+        } else {
+            terminal.draw(|frame| render(frame, &state))?;
+            match handle_input()? {
+                Action::OpenControls => show_controls = true,
+                action => if !update(&mut state, action) { break; }
+            }
+        }
     }
 
     disable_raw_mode()?;
     stdout().execute(LeaveAlternateScreen)?;
     Ok(())
+}
+
+fn render_controls(frame: &mut Frame) {
+    let area = frame.area();
+    let block = Block::default().title(" Controls ").borders(Borders::ALL);
+    let inner = block.inner(area);
+    frame.render_widget(block, area);
+
+    let text = vec![
+        Line::from(""),
+        Line::from(Span::styled("CONTROLS", Style::default().fg(Color::Yellow).bold())),
+        Line::from(""),
+        Line::from("  Movement:"),
+        Line::from("    h/←  Move left"),
+        Line::from("    j/↓  Move down"),
+        Line::from("    k/↑  Move up"),
+        Line::from("    l/→  Move right"),
+        Line::from(""),
+        Line::from("  Actions:"),
+        Line::from("    1-3  Use inventory item"),
+        Line::from("    S    Save game"),
+        Line::from("    L    Load game"),
+        Line::from(""),
+        Line::from("  Menu:"),
+        Line::from("    Esc  Open this menu"),
+        Line::from("    q    Quit game"),
+        Line::from(""),
+        Line::from(Span::styled("Press any key to return", Style::default().fg(Color::DarkGray))),
+    ];
+    let paragraph = Paragraph::new(text).alignment(Alignment::Center);
+    frame.render_widget(paragraph, inner);
 }
