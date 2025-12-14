@@ -131,6 +131,7 @@ mod tests {
         // Clear existing items and add test item
         state.items.clear();
         state.items.push(Item::new(item_x, item_y, "brine_vial"));
+        state.rebuild_spatial_index();
         assert_eq!(state.items.len(), 1);
         // Move onto item
         state.try_move(1, 0);
@@ -143,6 +144,7 @@ mod tests {
     fn pickup_adds_to_inventory() {
         let mut state = GameState::new(42);
         state.items.push(Item::new(state.player_x, state.player_y, "brine_vial"));
+        state.rebuild_spatial_index();
         let items_before = state.items.len();
         state.pickup_items();
         assert_eq!(state.items.len(), items_before - 1);

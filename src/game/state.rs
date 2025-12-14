@@ -2,16 +2,17 @@ use bracket_pathfinding::prelude::*;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::path::Path;
 
 use super::{
     adaptation::Adaptation,
-    enemy::{all_enemy_ids, Enemy},
+    enemy::Enemy,
     item::{get_item_def, Item},
     map::{compute_fov, Map, Tile},
     npc::Npc,
+    spawn::{load_spawn_tables, weighted_pick},
     storm::Storm,
 };
 
@@ -57,6 +58,12 @@ pub struct GameState {
     pub adaptations_hidden_turns: u32,
     #[serde(default)]
     pub triggered_effects: Vec<TriggeredEffect>,
+    #[serde(skip)]
+    pub enemy_positions: HashMap<(i32, i32), usize>,
+    #[serde(skip)]
+    pub npc_positions: HashMap<(i32, i32), usize>,
+    #[serde(skip)]
+    pub item_positions: HashMap<(i32, i32), Vec<usize>>,
 }
 
 impl GameState {
@@ -65,42 +72,65 @@ impl GameState {
         let (map, rooms) = Map::generate(&mut rng);
         let (px, py) = rooms[0];
         let visible = compute_fov(&map, px, py);
+        let tables = load_spawn_tables();
+        let table = &tables.default;
 
-        let enemy_ids = all_enemy_ids();
+        // Spawn enemies
         let mut enemies = Vec::new();
         for &(rx, ry) in rooms.iter().skip(1).take(rooms.len().saturating_sub(3)) {
-            let id = enemy_ids[rng.gen_range(0..enemy_ids.len())];
-            enemies.push(Enemy::new(rx, ry, id));
+            if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
+                enemies.push(Enemy::new(rx, ry, id));
+            }
         }
 
-        // Spawn one NPC (Mirror Monk) in a later room
+        // Spawn NPCs
         let mut npcs = Vec::new();
-        if rooms.len() > 3 {
-            let npc_room = rooms[rooms.len() - 2];
-            npcs.push(Npc::new(npc_room.0, npc_room.1, "mirror_monk"));
+        let late_room = rooms.len().saturating_sub(2);
+        for spawn in &table.npcs {
+            let room_idx = match spawn.room.as_deref() {
+                Some("late") => Some(late_room),
+                Some("last") => Some(rooms.len() - 1),
+                Some("first") => Some(0),
+                _ => {
+                    if rng.gen_ratio(spawn.weight.min(10), 10) {
+                        Some(rng.gen_range(1..rooms.len()))
+                    } else { None }
+                }
+            };
+            if let Some(idx) = room_idx {
+                if idx < rooms.len() {
+                    let (rx, ry) = rooms[idx];
+                    npcs.push(Npc::new(rx, ry, &spawn.id));
+                }
+            }
         }
 
-        let spawn_items = ["storm_glass", "storm_glass", "storm_glass", "storm_glass",
-                          "brine_vial", "brine_vial", "brine_vial",
-                          "scripture_shard", "scripture_shard", "saint_key"];
+        // Spawn items
         let mut items = Vec::new();
-        let mut used_positions = std::collections::HashSet::new();
-        for &(rx, ry) in rooms.iter().skip(1) {
-            let ix = rx + rng.gen_range(-1..=1);
-            let iy = ry + rng.gen_range(-1..=1);
-            if !used_positions.contains(&(ix, iy)) {
-                used_positions.insert((ix, iy));
-                let id = spawn_items[rng.gen_range(0..spawn_items.len())];
-                items.push(Item::new(ix, iy, id));
+        let mut used_positions = HashSet::new();
+        for spawn in &table.items {
+            if let Some("last") = spawn.room.as_deref() {
+                if let Some(&(rx, ry)) = rooms.last() {
+                    if !used_positions.contains(&(rx, ry)) {
+                        used_positions.insert((rx, ry));
+                        items.push(Item::new(rx, ry, &spawn.id));
+                    }
+                }
+                continue;
             }
-        }
-        if let Some(&(rx, ry)) = rooms.last() {
-            if !used_positions.contains(&(rx, ry)) {
-                items.push(Item::new(rx, ry, "angle_lens"));
+            for _ in 0..spawn.weight {
+                if let Some(&(rx, ry)) = rooms.get(rng.gen_range(1..rooms.len())) {
+                    let ix = rx + rng.gen_range(-1..=1);
+                    let iy = ry + rng.gen_range(-1..=1);
+                    if !used_positions.contains(&(ix, iy)) {
+                        used_positions.insert((ix, iy));
+                        items.push(Item::new(ix, iy, &spawn.id));
+                    }
+                }
             }
         }
 
-        Self {
+        let mut state = Self {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
             map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
@@ -108,6 +138,28 @@ impl GameState {
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
             refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
             triggered_effects: Vec::new(),
+            enemy_positions: HashMap::new(),
+            npc_positions: HashMap::new(),
+            item_positions: HashMap::new(),
+        };
+        state.rebuild_spatial_index();
+        state
+    }
+
+    pub fn rebuild_spatial_index(&mut self) {
+        self.enemy_positions.clear();
+        for (i, e) in self.enemies.iter().enumerate() {
+            if e.hp > 0 {
+                self.enemy_positions.insert((e.x, e.y), i);
+            }
+        }
+        self.npc_positions.clear();
+        for (i, n) in self.npcs.iter().enumerate() {
+            self.npc_positions.insert((n.x, n.y), i);
+        }
+        self.item_positions.clear();
+        for (i, item) in self.items.iter().enumerate() {
+            self.item_positions.entry((item.x, item.y)).or_default().push(i);
         }
     }
 
@@ -161,7 +213,9 @@ impl GameState {
             for _ in 0..spawn_count {
                 let idx = self.rng.gen_range(0..glass_tiles.len());
                 let (x, y) = glass_tiles[idx];
+                let enemy_idx = self.enemies.len();
                 self.enemies.push(Enemy::new(x, y, "refraction_wraith"));
+                self.enemy_positions.insert((x, y), enemy_idx);
                 self.log("A wraith coalesces from the storm's edge.");
             }
         }
@@ -193,11 +247,11 @@ impl GameState {
     }
 
     pub fn enemy_at(&self, x: i32, y: i32) -> Option<usize> {
-        self.enemies.iter().position(|e| e.x == x && e.y == y && e.hp > 0)
+        self.enemy_positions.get(&(x, y)).copied()
     }
 
     pub fn npc_at(&self, x: i32, y: i32) -> Option<usize> {
-        self.npcs.iter().position(|n| n.x == x && n.y == y)
+        self.npc_positions.get(&(x, y)).copied()
     }
 
     pub fn describe_at(&self, x: i32, y: i32) -> String {
@@ -275,8 +329,10 @@ impl GameState {
                     let ny = ey + dy;
                     if self.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
                         && self.enemy_at(nx, ny).is_none() {
+                        self.enemy_positions.remove(&(ex, ey));
                         self.enemies[i].x = nx;
                         self.enemies[i].y = ny;
+                        self.enemy_positions.insert((nx, ny), i);
                     }
                 }
                 continue;
@@ -313,8 +369,10 @@ impl GameState {
                     let nx = (next % self.map.width) as i32;
                     let ny = (next / self.map.width) as i32;
                     if self.enemy_at(nx, ny).is_none() && !(nx == px && ny == py) {
+                        self.enemy_positions.remove(&(ex, ey));
                         self.enemies[i].x = nx;
                         self.enemies[i].y = ny;
+                        self.enemy_positions.insert((nx, ny), i);
                     }
                 }
             }
@@ -388,6 +446,8 @@ impl GameState {
             }
             
             if self.enemies[ei].hp <= 0 {
+                // Remove from spatial index
+                self.enemy_positions.remove(&(new_x, new_y));
                 // Trigger on_death effects
                 if let Some(def) = self.enemies[ei].def() {
                     for e in &def.effects {
@@ -474,16 +534,15 @@ impl GameState {
     pub fn pickup_items(&mut self) {
         let px = self.player_x;
         let py = self.player_y;
-        let mut picked: Vec<(usize, String)> = Vec::new();
-        for (i, item) in self.items.iter().enumerate() {
-            if item.x == px && item.y == py {
-                picked.push((i, item.id.clone()));
-            }
-        }
-        for (i, id) in picked.iter().rev() {
-            let def = get_item_def(id);
+        let indices = match self.item_positions.remove(&(px, py)) {
+            Some(v) => v,
+            None => return,
+        };
+        // Process in reverse order to maintain valid indices during removal
+        for &i in indices.iter().rev() {
+            let id = self.items[i].id.clone();
+            let def = get_item_def(&id);
             let name = def.map(|d| d.name.as_str()).unwrap_or("item");
-            // Trigger on_pickup effects
             if let Some(d) = def {
                 for e in &d.effects {
                     if e.condition == "on_pickup" {
@@ -491,9 +550,14 @@ impl GameState {
                     }
                 }
             }
-            self.inventory.push(id.clone());
+            self.inventory.push(id);
             self.log(format!("Picked up {}.", name));
-            self.items.remove(*i);
+            self.items.remove(i);
+        }
+        // Rebuild item positions since indices shifted
+        self.item_positions.clear();
+        for (i, item) in self.items.iter().enumerate() {
+            self.item_positions.entry((item.x, item.y)).or_default().push(i);
         }
     }
 
@@ -539,6 +603,8 @@ impl GameState {
 
     pub fn load(path: impl AsRef<Path>) -> Result<Self, String> {
         let data = fs::read_to_string(path).map_err(|e| e.to_string())?;
-        ron::from_str(&data).map_err(|e| e.to_string())
+        let mut state: Self = ron::from_str(&data).map_err(|e| e.to_string())?;
+        state.rebuild_spatial_index();
+        Ok(state)
     }
 }

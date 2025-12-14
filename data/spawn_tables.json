@@ -1,0 +1,24 @@
+{
+  "default": {
+    "items": [
+      {"id": "storm_glass", "weight": 4},
+      {"id": "brine_vial", "weight": 3},
+      {"id": "scripture_shard", "weight": 2},
+      {"id": "saint_key", "weight": 1},
+      {"id": "angle_lens", "weight": 1, "room": "last"}
+    ],
+    "enemies": [
+      {"id": "mirage_hound", "weight": 3},
+      {"id": "glass_beetle", "weight": 3},
+      {"id": "salt_mummy", "weight": 2},
+      {"id": "shard_spider", "weight": 2},
+      {"id": "dust_wraith", "weight": 1}
+    ],
+    "npcs": [
+      {"id": "mirror_monk", "room": "late"},
+      {"id": "salt_hermit", "weight": 1},
+      {"id": "glass_merchant", "weight": 1},
+      {"id": "dying_pilgrim", "weight": 1}
+    ]
+  }
+}

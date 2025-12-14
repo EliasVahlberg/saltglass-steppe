@@ -210,7 +210,8 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_coun
                     }
                 }
                 ('@', base_style)
-            } else if let Some(e) = state.enemies.iter().find(|e| e.x == x as i32 && e.y == y as i32 && e.hp > 0) {
+            } else if let Some(&ei) = state.enemy_positions.get(&(x as i32, y as i32)) {
+                let e = &state.enemies[ei];
                 if state.visible.contains(&idx) {
                     let base_color = match e.id.as_str() {
                         "mirage_hound" => Color::LightYellow,
@@ -236,13 +237,15 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_coun
                 } else if state.revealed.contains(&idx) {
                     ('~', Style::default().fg(Color::DarkGray))
                 } else { (' ', Style::default()) }
-            } else if let Some(npc) = state.npcs.iter().find(|n| n.x == x as i32 && n.y == y as i32) {
+            } else if let Some(&ni) = state.npc_positions.get(&(x as i32, y as i32)) {
+                let npc = &state.npcs[ni];
                 if state.visible.contains(&idx) {
                     (npc.glyph(), Style::default().fg(Color::Green).bold())
                 } else if state.revealed.contains(&idx) {
                     ('~', Style::default().fg(Color::DarkGray))
                 } else { (' ', Style::default()) }
-            } else if let Some(item) = state.items.iter().find(|i| i.x == x as i32 && i.y == y as i32) {
+            } else if state.item_positions.contains_key(&(x as i32, y as i32)) {
+                let item = &state.items[state.item_positions[&(x as i32, y as i32)][0]];
                 if state.visible.contains(&idx) {
                     (item.glyph(), Style::default().fg(Color::LightMagenta))
                 } else if state.revealed.contains(&idx) {

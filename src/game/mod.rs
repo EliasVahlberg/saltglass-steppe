@@ -5,6 +5,7 @@ pub mod enemy;
 pub mod item;
 pub mod map;
 pub mod npc;
+pub mod spawn;
 pub mod state;
 pub mod storm;
 

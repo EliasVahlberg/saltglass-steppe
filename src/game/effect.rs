@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use ratatui::style::Color;
 use serde::Deserialize;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub enum VisualEffect {
@@ -25,11 +26,16 @@ pub struct EffectCondition {
 }
 
 #[derive(Debug, Clone, Deserialize)]
-pub struct EffectDef {
-    pub id: String,
+struct EffectDef {
     pub condition: EffectCondition,
     pub target: String,
     pub effect: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct ParsedEffect {
+    pub condition: EffectCondition,
+    pub effect: VisualEffect,
 }
 
 #[derive(Deserialize)]
@@ -37,15 +43,35 @@ struct EffectsFile {
     effects: Vec<EffectDef>,
 }
 
-static EFFECT_DEFS: Lazy<Vec<EffectDef>> = Lazy::new(|| {
+struct EffectIndex {
+    player_effects: Vec<ParsedEffect>,
+    enemy_effects: HashMap<String, Vec<VisualEffect>>,
+}
+
+static EFFECT_INDEX: Lazy<EffectIndex> = Lazy::new(|| {
     let data = include_str!("../../data/effects.json");
     let file: EffectsFile = serde_json::from_str(data).expect("Failed to parse effects.json");
-    file.effects
+    
+    let mut player_effects = Vec::new();
+    let mut enemy_effects: HashMap<String, Vec<VisualEffect>> = HashMap::new();
+    
+    for def in file.effects {
+        if let Some(effect) = parse_effect(&def.effect) {
+            if def.target == "player" {
+                player_effects.push(ParsedEffect {
+                    condition: def.condition,
+                    effect,
+                });
+            } else if def.target == "enemy" {
+                if let Some(enemy_id) = def.condition.enemy_type {
+                    enemy_effects.entry(enemy_id).or_default().push(effect);
+                }
+            }
+        }
+    }
+    
+    EffectIndex { player_effects, enemy_effects }
 });
-
-pub fn all_effects() -> &'static [EffectDef] {
-    &EFFECT_DEFS
-}
 
 fn parse_color(s: &str) -> Color {
     match s {
@@ -70,7 +96,6 @@ fn parse_color(s: &str) -> Color {
 pub fn parse_effect(s: &str) -> Option<VisualEffect> {
     let s = s.trim();
     if s.starts_with("B(") && s.ends_with(')') {
-        // Blink: B(@speed &color)
         let inner = &s[2..s.len()-1];
         let mut speed = 4u32;
         let mut color = Color::White;
@@ -84,7 +109,6 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         return Some(VisualEffect::Blink { speed, color });
     }
     if s.starts_with("G(") && s.ends_with(')') {
-        // Glow: G(&color)
         let inner = &s[2..s.len()-1];
         let mut color = Color::White;
         for part in inner.split_whitespace() {
@@ -127,17 +151,17 @@ impl EffectCondition {
 }
 
 pub fn get_active_effects(ctx: &EffectContext, target: &str) -> Vec<VisualEffect> {
-    all_effects()
+    if target != "player" { return Vec::new(); }
+    EFFECT_INDEX.player_effects
         .iter()
-        .filter(|e| e.target == target && e.condition.evaluate(ctx))
-        .filter_map(|e| parse_effect(&e.effect))
+        .filter(|e| e.condition.evaluate(ctx))
+        .map(|e| e.effect.clone())
         .collect()
 }
 
 pub fn get_enemy_effects(enemy_id: &str) -> Vec<VisualEffect> {
-    all_effects()
-        .iter()
-        .filter(|e| e.target == "enemy" && e.condition.enemy_type.as_deref() == Some(enemy_id))
-        .filter_map(|e| parse_effect(&e.effect))
-        .collect()
+    EFFECT_INDEX.enemy_effects
+        .get(enemy_id)
+        .cloned()
+        .unwrap_or_default()
 }
