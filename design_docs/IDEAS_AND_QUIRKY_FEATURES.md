@@ -44,5 +44,7 @@ Here are some ideas and quirky features that could be implemented in the project
 - A rumor-monger build that can spread rumors and manipulate NPCs through gossip but has to be careful not to spread false information that could backfire.
 - A aristocrat build that can access large wealth but only have rude or hostile dialogue options with most NPCs. They would get in to conflicts with commoners and lower-class NPCs often but could use their wealth to bribe or intimidate others into submission.
 - A commoner build that has very little wealth but has friendly or neutral dialogue options with most NPCs. They would have trouble dealing with aristocrats and higher-class NPCs often but could use their social skills to gather information and form alliances.
+- A roider build that gets stronger and more resilient the more drugs and performance enhancers they take but suffers from severe withdrawal symptoms if they go too long without them. They could have access to unique dialogue options and interactions with other drug users and dealers.
+- A meathead build that gets stronger the less intelligent they are. They could have access to unique dialogue options and interactions with other muscle-bound characters but would struggle with complex tasks and puzzles. If their intelligence drops too low even the information presented in the HUD could become difficult to understand and description text get more and more simplistic.
 
 These ideas and quirky features could add depth and uniqueness to the gameplay experience, making it more engaging and memorable for players.
