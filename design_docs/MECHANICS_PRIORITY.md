@@ -15,7 +15,7 @@ Scale: 1-5 (1=low, 5=high)
 | 6 | UI and HUD | 4 | 3 | 30% | All systems |
 | 7 | Inventory and Equipment | 4 | 2 | 60% | Items data |
 | 8 | Character Progression | 3 | 3 | 0% | Combat |
-| 9 | Exploration | 3 | 2 | 30% | Map, FOV |
+| 9 | Exploration | 3 | 2 | 50% | Map, FOV |
 | 10 | Quests and Storytelling | 3 | 4 | 0% | NPCs, Map |
 | 11 | Crafting System | 2 | 3 | 0% | Inventory |
 | 12 | Modularity/Modding | 2 | 3 | 30% | All systems |

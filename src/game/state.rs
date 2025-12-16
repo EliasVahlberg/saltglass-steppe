@@ -421,6 +421,10 @@ impl GameState {
                 }
             }
             
+            // Demeanor-based behavior
+            if !self.enemies[i].is_hostile() { is_passive = true; }
+            if self.enemies[i].should_flee() { should_flee = true; }
+            
             if is_passive { continue; }
             
             if should_flee && dist < sight && dist > 1 {
@@ -588,6 +592,9 @@ impl GameState {
             let cost = action_cost("attack_melee");
             if self.player_ap < cost { return false; }
             self.player_ap -= cost;
+            
+            // Provoke the enemy (for demeanor system)
+            self.enemies[ei].provoked = true;
             
             // Get weapon (equipped or fists)
             let weapon = self.equipped_weapon.as_ref()
@@ -785,6 +792,9 @@ impl GameState {
                 return true;
             }
         };
+        
+        // Provoke the enemy (for demeanor system)
+        self.enemies[ei].provoked = true;
         
         // Roll attack
         let enemy_reflex = self.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);

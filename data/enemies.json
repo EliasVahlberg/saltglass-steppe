@@ -111,6 +111,28 @@
         {"condition": "on_hit", "effect": "B(@1 &LightBlue)"},
         {"condition": "on_death", "effect": "B(@1 &Blue)"}
       ]
+    },
+    {
+      "id": "salt_pilgrim",
+      "name": "Salt Pilgrim",
+      "glyph": "p",
+      "max_hp": 10,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 5,
+      "demeanor": "neutral",
+      "description": "Wandering traveler, harmless unless provoked"
+    },
+    {
+      "id": "glass_moth",
+      "name": "Glass Moth",
+      "glyph": "~",
+      "max_hp": 4,
+      "damage_min": 0,
+      "damage_max": 1,
+      "sight_range": 4,
+      "demeanor": "pacifist",
+      "description": "Delicate creature that flees from danger"
     }
   ]
 }

@@ -93,6 +93,7 @@ pub enum AssertionCheck {
     ExploredCount { op: CmpOp, value: usize },
     EquippedInSlot { slot: String, item: Option<String> },
     PlayerArmor { op: CmpOp, value: i32 },
+    EnemyProvoked { id: String, provoked: bool },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -561,6 +562,12 @@ impl DesExecutor {
             }
             AssertionCheck::PlayerArmor { op, value } => {
                 op.compare(self.state.player_armor, *value)
+            }
+            AssertionCheck::EnemyProvoked { id, provoked } => {
+                self.state.enemies.iter()
+                    .find(|e| e.id == *id)
+                    .map(|e| e.provoked == *provoked)
+                    .unwrap_or(false)
             }
         }
     }

@@ -2,6 +2,17 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum AIDemeanor {
+    #[default]
+    Aggressive,  // Attacks on sight
+    Defensive,   // Takes cover, attacks when close
+    Neutral,     // Ignores unless attacked
+    Friendly,    // Helps player, becomes defensive if attacked
+    Pacifist,    // Flees when threatened
+}
+
 #[derive(Clone, Debug, Deserialize)]
 pub struct EntityEffect {
     pub condition: String,
@@ -36,6 +47,8 @@ pub struct EnemyDef {
     pub armor: i32,
     #[serde(default)]
     pub accuracy: i32,
+    #[serde(default)]
+    pub demeanor: AIDemeanor,
     #[serde(default)]
     pub description: String,
     #[serde(default)]
@@ -103,12 +116,14 @@ pub struct Enemy {
     pub hp: i32,
     #[serde(default)]
     pub ai_disabled: bool,
+    #[serde(default)]
+    pub provoked: bool,  // Set when attacked by player
 }
 
 impl Enemy {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
         let max_hp = get_enemy_def(id).map(|d| d.max_hp).unwrap_or(10);
-        Self { x, y, id: id.to_string(), hp: max_hp, ai_disabled: false }
+        Self { x, y, id: id.to_string(), hp: max_hp, ai_disabled: false, provoked: false }
     }
 
     pub fn id(&self) -> &str {
@@ -125,5 +140,25 @@ impl Enemy {
 
     pub fn name(&self) -> &str {
         self.def().map(|d| d.name.as_str()).unwrap_or("Unknown")
+    }
+
+    pub fn demeanor(&self) -> AIDemeanor {
+        self.def().map(|d| d.demeanor).unwrap_or_default()
+    }
+
+    /// Returns true if this enemy should act hostile toward player
+    pub fn is_hostile(&self) -> bool {
+        match self.demeanor() {
+            AIDemeanor::Aggressive => true,
+            AIDemeanor::Defensive => true,
+            AIDemeanor::Neutral => self.provoked,
+            AIDemeanor::Friendly => self.provoked,
+            AIDemeanor::Pacifist => false,
+        }
+    }
+
+    /// Returns true if this enemy should flee
+    pub fn should_flee(&self) -> bool {
+        self.demeanor() == AIDemeanor::Pacifist && self.provoked
     }
 }
