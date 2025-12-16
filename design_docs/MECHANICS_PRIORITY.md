@@ -154,9 +154,16 @@ Phase 3 - Stealth:
 **Missing:**
 - Lazy tile generation when player enters world tile
 - Subterranean layers
-- Dynamic lighting (light sources, time of day)
+- Time of day affecting ambient light
 - Environmental hazards (fire spread, acid pools)
 - Liquid system
+
+**Lighting System (Implemented):**
+- `LightSource` struct with position, radius, intensity
+- `compute_lighting()` calculates light levels for all tiles
+- Player has torch (radius 8, intensity 150)
+- Ambient light baseline (default 100)
+- Light map updated on player movement
 
 **Implementation Approach:**
 ```
@@ -397,7 +404,7 @@ Auto-explore: BFS to nearest unexplored walkable tile
 1. ✅ Explored tile memory
 2. ✅ World map generation
 3. ✅ Tile-from-world-seed generation
-4. ⬜ Dynamic lighting
+4. ✅ Dynamic lighting
 
 ### Milestone 3: Depth
 1. ⬜ Proper inventory system with inspect stats/properties

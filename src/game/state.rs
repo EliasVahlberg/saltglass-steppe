@@ -13,6 +13,7 @@ use super::{
     equipment::{EquipSlot, Equipment},
     event::GameEvent,
     item::{get_item_def, Item},
+    lighting::{compute_lighting, LightMap, LightSource},
     map::{compute_fov, Map, Tile},
     npc::Npc,
     spawn::{load_spawn_tables, weighted_pick},
@@ -44,6 +45,8 @@ pub struct TriggeredEffect {
     pub turns_remaining: u32,
 }
 
+fn default_ambient_light() -> u8 { 100 }
+
 #[derive(Serialize, Deserialize)]
 pub struct GameState {
     pub player_x: i32, pub player_y: i32, pub player_hp: i32, pub player_max_hp: i32,
@@ -66,6 +69,10 @@ pub struct GameState {
     pub items: Vec<Item>,
     pub inventory: Vec<String>,
     pub visible: HashSet<usize>, pub revealed: HashSet<usize>,
+    #[serde(skip)]
+    pub light_map: LightMap,
+    #[serde(default = "default_ambient_light")]
+    pub ambient_light: u8,
     pub messages: Vec<String>, pub turn: u32,
     #[serde(with = "rng_serde")]
     pub rng: ChaCha8Rng, pub storm: Storm,
@@ -149,6 +156,10 @@ impl GameState {
             }
         }
 
+        let ambient = 100u8;
+        let light_sources = vec![LightSource { x: px, y: py, radius: 8, intensity: 150 }];
+        let light_map = compute_lighting(&light_sources, ambient);
+
         let mut state = Self {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
             player_ap: default_player_ap(), player_max_ap: default_player_ap(),
@@ -157,6 +168,7 @@ impl GameState {
             status_effects: Vec::new(),
             map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
+            light_map, ambient_light: ambient,
             messages: vec!["Welcome to the Saltglass Steppe.".into()],
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
             refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
@@ -185,6 +197,18 @@ impl GameState {
         for (i, item) in self.items.iter().enumerate() {
             self.item_positions.entry((item.x, item.y)).or_default().push(i);
         }
+    }
+
+    pub fn update_lighting(&mut self) {
+        // Player always has a torch
+        let sources = vec![LightSource { x: self.player_x, y: self.player_y, radius: 8, intensity: 150 }];
+        self.light_map = compute_lighting(&sources, self.ambient_light);
+    }
+
+    pub fn get_light_level(&self, x: i32, y: i32) -> u8 {
+        if x < 0 || y < 0 { return 0; }
+        let idx = y as usize * self.map.width + x as usize;
+        self.light_map.get(idx).copied().unwrap_or(0)
     }
 
     pub fn trigger_effect(&mut self, effect: &str, duration: u32) {
@@ -304,6 +328,7 @@ impl GameState {
         
         self.storm = Storm::forecast(&mut self.rng);
         self.visible = compute_fov(&self.map, self.player_x, self.player_y);
+        self.update_lighting();
     }
 
     pub fn check_adaptation_threshold(&mut self) {
@@ -444,6 +469,7 @@ impl GameState {
                 self.player_x = new_x;
                 self.player_y = new_y;
                 self.visible = compute_fov(&self.map, new_x, new_y);
+                self.update_lighting();
                 self.revealed.extend(&self.visible);
                 self.pickup_items();
 

@@ -1,0 +1,23 @@
+{
+  "name": "Dynamic Lighting",
+  "description": "Test that player torch illuminates nearby tiles",
+  "seed": 12345,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20
+  },
+  "actions": [],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "light_level", "x": 10, "y": 10, "op": "gt", "value": 150},
+      "message": "Player position should be brightly lit (ambient + torch)"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "light_level", "x": 15, "y": 10, "op": "gt", "value": 100},
+      "message": "Nearby tiles should have at least ambient light"
+    }
+  ]
+}

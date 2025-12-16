@@ -94,6 +94,7 @@ pub enum AssertionCheck {
     EquippedInSlot { slot: String, item: Option<String> },
     PlayerArmor { op: CmpOp, value: i32 },
     EnemyProvoked { id: String, provoked: bool },
+    LightLevel { x: i32, y: i32, op: CmpOp, value: u8 },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -390,6 +391,7 @@ impl DesExecutor {
             }
         }
         state.rebuild_spatial_index();
+        state.update_lighting();
 
         Self {
             state,
@@ -568,6 +570,10 @@ impl DesExecutor {
                     .find(|e| e.id == *id)
                     .map(|e| e.provoked == *provoked)
                     .unwrap_or(false)
+            }
+            AssertionCheck::LightLevel { x, y, op, value } => {
+                let level = self.state.get_light_level(*x, *y);
+                op.compare(level as i32, *value as i32)
             }
         }
     }
