@@ -13,6 +13,22 @@ use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, EffectContext
 
 const SAVE_FILE: &str = "savegame.ron";
 
+/// Dim a color based on light level (0-255)
+fn dim_color(color: Color, light: u8) -> Color {
+    if light >= 200 { return color; }
+    let factor = light as f32 / 255.0;
+    match color {
+        Color::Rgb(r, g, b) => Color::Rgb(
+            (r as f32 * factor) as u8,
+            (g as f32 * factor) as u8,
+            (b as f32 * factor) as u8,
+        ),
+        Color::Gray | Color::DarkGray => if light < 100 { Color::Black } else { Color::DarkGray },
+        Color::Cyan => if light < 100 { Color::DarkGray } else { color },
+        _ => if light < 100 { Color::DarkGray } else { color },
+    }
+}
+
 /// UI-specific state, separate from game logic
 struct UiState {
     look_mode: LookMode,
@@ -300,12 +316,13 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
                 } else { (' ', Style::default()) }
             } else if state.visible.contains(&idx) {
                 let tile = &state.map.tiles[idx];
-                let style = match tile {
-                    Tile::Floor => Style::default().fg(Color::DarkGray),
-                    Tile::Wall { .. } => Style::default().fg(Color::Gray),
-                    Tile::Glass => Style::default().fg(Color::Cyan),
+                let light = state.get_light_level(x as i32, y as i32);
+                let base_color = match tile {
+                    Tile::Floor => Color::DarkGray,
+                    Tile::Wall { .. } => Color::Gray,
+                    Tile::Glass => Color::Cyan,
                 };
-                (tile.glyph(), style)
+                (tile.glyph(), Style::default().fg(dim_color(base_color, light)))
             } else if state.revealed.contains(&idx) {
                 // Show actual tile glyph in dark gray for explored-but-not-visible
                 let tile = &state.map.tiles[idx];
