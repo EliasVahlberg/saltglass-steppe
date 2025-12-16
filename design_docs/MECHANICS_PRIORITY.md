@@ -11,7 +11,7 @@ Scale: 1-5 (1=low, 5=high)
 | 2 | Combat System | 5 | 4 | 60% | Turn system |
 | 3 | Player Movement & Interaction | 5 | 2 | 50% | Map system |
 | 4 | Map and Environment | 5 | 4 | 40% | None |
-| 5 | Enemy AI and NPCs | 4 | 4 | 20% | Combat, Map |
+| 5 | Enemy AI and NPCs | 4 | 4 | 40% | Combat, Map |
 | 6 | UI and HUD | 4 | 3 | 30% | All systems |
 | 7 | Inventory and Equipment | 4 | 2 | 60% | Items data |
 | 8 | Character Progression | 3 | 3 | 0% | Combat |
