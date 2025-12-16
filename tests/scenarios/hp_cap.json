@@ -1,0 +1,11 @@
+{
+    "name": "hp_cap",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 18, "max_hp": 20, "inventory": ["brine_vial"]},
+    "actions": [
+        {"turn": 0, "action": {"type": "use_item", "item_index": 0}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 20}, "message": "HP should cap at max_hp (18+5=23 capped to 20)"}
+    ]
+}

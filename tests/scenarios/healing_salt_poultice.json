@@ -1,0 +1,12 @@
+{
+    "name": "healing_salt_poultice",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 10, "max_hp": 20, "inventory": ["salt_poultice"]},
+    "actions": [
+        {"turn": 0, "action": {"type": "use_item", "item_index": 0}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 18}, "message": "Salt poultice heals 8 HP"},
+        {"at_end": true, "check": {"type": "inventory_size", "op": "eq", "value": 0}}
+    ]
+}

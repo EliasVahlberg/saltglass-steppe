@@ -399,7 +399,7 @@ impl DesExecutor {
 
         let all_passed = self.assertion_results.iter().all(|r| r.passed);
         ExecutionResult {
-            success: self.state.player_hp > 0 && all_passed,
+            success: all_passed,
             final_turn: self.state.turn,
             logs: self.logs,
             assertion_results: self.assertion_results,
@@ -473,7 +473,7 @@ impl DesExecutor {
             }
             Action::Wait { turns } => {
                 for _ in 0..*turns {
-                    self.state.try_move(0, 0);
+                    self.state.wait_turn();
                 }
                 self.log(format!("Player waited {} turns", turns));
             }
@@ -655,6 +655,21 @@ mod tests {
         assert!(result.success);
         assert_eq!(result.assertion_results.len(), 2);
         assert!(result.assertion_results.iter().all(|r| r.passed));
+    }
+
+    #[test]
+    fn wait_advances_turns() {
+        let json = r#"{
+            "name": "wait_test",
+            "seed": 42,
+            "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20},
+            "actions": [
+                {"turn": 0, "action": {"type": "wait", "turns": 3}}
+            ]
+        }"#;
+        let result = run_scenario_json(json).unwrap();
+        eprintln!("Final turn: {}, logs: {:?}", result.final_turn, result.logs);
+        assert!(result.final_turn >= 3, "Expected turn >= 3, got {}", result.final_turn);
     }
 
     #[test]

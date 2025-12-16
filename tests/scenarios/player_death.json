@@ -1,0 +1,15 @@
+{
+    "name": "player_death",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 1, "max_hp": 20},
+    "entities": [
+        {"entity_type": "enemy", "id": "salt_mummy", "x": 6, "y": 5, "hp": 100}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}},
+        {"turn": 1, "action": {"type": "wait", "turns": 5}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_dead"}, "message": "Player should die from enemy attacks"}
+    ]
+}

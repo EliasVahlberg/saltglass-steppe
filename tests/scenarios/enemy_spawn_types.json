@@ -1,0 +1,21 @@
+{
+    "name": "enemy_spawn_types",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 50, "max_hp": 50},
+    "entities": [
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 10, "y": 5, "hp": 8},
+        {"entity_type": "enemy", "id": "glass_beetle", "x": 10, "y": 10, "hp": 12},
+        {"entity_type": "enemy", "id": "shard_spider", "x": 15, "y": 5, "hp": 5}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "log", "query": {"entity_at": {"x": 10, "y": 5}}}},
+        {"turn": 0, "action": {"type": "log", "query": {"entity_at": {"x": 10, "y": 10}}}},
+        {"turn": 0, "action": {"type": "log", "query": {"entity_at": {"x": 15, "y": 5}}}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "enemy_at", "x": 10, "y": 5, "alive": true}},
+        {"at_end": true, "check": {"type": "enemy_at", "x": 10, "y": 10, "alive": true}},
+        {"at_end": true, "check": {"type": "enemy_at", "x": 15, "y": 5, "alive": true}},
+        {"at_end": true, "check": {"type": "player_alive"}}
+    ]
+}

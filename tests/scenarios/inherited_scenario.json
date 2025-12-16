@@ -1,0 +1,12 @@
+{
+    "name": "inherited_scenario",
+    "base": "base_empty_room.json",
+    "actions": [
+        {"turn": 0, "action": {"type": "log", "query": "player_hp"}},
+        {"turn": 0, "action": {"type": "wait", "turns": 1}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 20}, "message": "Inherited HP from base"},
+        {"at_end": true, "check": {"type": "player_alive"}}
+    ]
+}

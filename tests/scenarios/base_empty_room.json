@@ -1,0 +1,10 @@
+{
+    "name": "base_empty_room",
+    "seed": 100,
+    "player": {
+        "x": 5,
+        "y": 5,
+        "hp": 20,
+        "max_hp": 20
+    }
+}

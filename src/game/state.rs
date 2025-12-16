@@ -186,6 +186,13 @@ impl GameState {
         if self.adaptations_hidden_turns > 0 { 0 } else { self.adaptations.len() }
     }
 
+    /// Wait in place, advancing the turn without moving
+    pub fn wait_turn(&mut self) {
+        self.tick_turn();
+        self.update_enemies();
+        if self.storm.tick() { self.apply_storm(); }
+    }
+
     fn tick_turn(&mut self) {
         self.turn += 1;
         if self.adaptations_hidden_turns > 0 {

@@ -1,0 +1,14 @@
+{
+    "name": "multiple_items",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 5, "max_hp": 20, "inventory": ["brine_vial", "salt_poultice", "storm_glass"]},
+    "actions": [
+        {"turn": 0, "action": {"type": "use_item", "item_index": 0}},
+        {"turn": 1, "action": {"type": "use_item", "item_index": 0}}
+    ],
+    "assertions": [
+        {"after_turn": 0, "check": {"type": "player_hp", "op": "eq", "value": 10}, "message": "First heal: 5+5=10"},
+        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 18}, "message": "Second heal: 10+8=18"},
+        {"at_end": true, "check": {"type": "inventory_size", "op": "eq", "value": 1}, "message": "storm_glass remains (not usable)"}
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "name": "non_usable_item",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20, "inventory": ["storm_glass", "saint_key"]},
+    "actions": [
+        {"turn": 0, "action": {"type": "use_item", "item_index": 0}},
+        {"turn": 1, "action": {"type": "use_item", "item_index": 1}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "inventory_size", "op": "eq", "value": 2}, "message": "Non-usable items remain in inventory"}
+    ]
+}

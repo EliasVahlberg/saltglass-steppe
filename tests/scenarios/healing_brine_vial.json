@@ -1,0 +1,14 @@
+{
+    "name": "healing_brine_vial",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 10, "max_hp": 20, "inventory": ["brine_vial"]},
+    "actions": [
+        {"turn": 0, "action": {"type": "log", "query": "player_hp"}},
+        {"turn": 0, "action": {"type": "use_item", "item_index": 0}},
+        {"turn": 1, "action": {"type": "log", "query": "player_hp"}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 15}, "message": "Brine vial heals 5 HP"},
+        {"at_end": true, "check": {"type": "inventory_size", "op": "eq", "value": 0}, "message": "Item consumed"}
+    ]
+}
