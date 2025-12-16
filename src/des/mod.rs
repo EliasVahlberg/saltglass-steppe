@@ -523,8 +523,68 @@ pub fn run_scenario_json(json: &str) -> Result<ExecutionResult, String> {
 }
 
 // ============================================================================
-// BLOCKED: Dummy Implementations
+// Rendered Execution
 // ============================================================================
+
+/// Callback for rendering state during slow execution
+pub type RenderCallback = Box<dyn FnMut(&GameState, &ExecutionLog)>;
+
+/// Run scenario with optional rendering callback and frame delay
+pub fn run_with_render<F>(scenario: &Scenario, frame_delay_ms: u64, mut render_fn: F) -> ExecutionResult
+where
+    F: FnMut(&GameState, Option<&ExecutionLog>),
+{
+    let mut executor = DesExecutor::new(scenario);
+    executor.capture_snapshots = true;
+    
+    let mut current_turn = 0;
+    let max_turns = scenario.actions.iter().map(|a| a.turn).max().unwrap_or(0) + 1;
+
+    // Initial render
+    render_fn(&executor.state, None);
+    std::thread::sleep(std::time::Duration::from_millis(frame_delay_ms));
+
+    while current_turn <= max_turns && executor.state.player_hp > 0 {
+        for scheduled in &scenario.actions {
+            if scheduled.turn == current_turn {
+                executor.execute_action(&scheduled.action, &scheduled.actor);
+                
+                // Render after each action
+                let log = ExecutionLog {
+                    turn: executor.state.turn,
+                    action_index: executor.action_index,
+                    message: format!("{:?}", scheduled.action),
+                };
+                render_fn(&executor.state, Some(&log));
+                std::thread::sleep(std::time::Duration::from_millis(frame_delay_ms));
+                
+                executor.action_index += 1;
+            }
+        }
+        for assertion in &scenario.assertions {
+            if assertion.after_turn == Some(current_turn) {
+                executor.check_assertion(assertion);
+            }
+        }
+        current_turn += 1;
+    }
+
+    for assertion in &scenario.assertions {
+        if assertion.at_end {
+            executor.check_assertion(assertion);
+        }
+    }
+
+    let all_passed = executor.assertion_results.iter().all(|r| r.passed);
+    ExecutionResult {
+        success: executor.state.player_hp > 0 && all_passed,
+        final_turn: executor.state.turn,
+        logs: executor.logs,
+        assertion_results: executor.assertion_results,
+        snapshots: executor.snapshots,
+        final_state: Some(executor.state),
+    }
+}
 
 /// Run multiple scenarios in parallel using rayon thread pool
 pub fn run_parallel(scenarios: &[Scenario]) -> Vec<ExecutionResult> {
@@ -535,11 +595,6 @@ pub fn run_parallel(scenarios: &[Scenario]) -> Vec<ExecutionResult> {
             executor.run(scenario)
         })
         .collect()
-}
-
-/// Run with rendering and slow execution
-pub fn run_rendered(_scenario: &Scenario, _frame_delay_ms: u64) -> ExecutionResult {
-    unimplemented!("BLOCKED: Rendered execution requires UI decoupling and frame control")
 }
 
 // ============================================================================

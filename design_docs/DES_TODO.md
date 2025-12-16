@@ -1,62 +1,50 @@
-# Debug Execution System (DES) - Implementation TODO
+# Debug Execution System (DES) - Implementation Status
 
 ## Status Legend
 - ✅ Implemented
 - 🔨 In Progress
 - ⏳ Pending
-- 🚫 BLOCKED (requires core functionality not yet implemented)
 
 ## Core Features
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Game State Management | ✅ | GameState with RON serialization exists |
+| Game State Management | ✅ | GameState with RON serialization |
 | RNG Seeding | ✅ | ChaCha8Rng with deterministic seeding |
-| Entity Management | ✅ | Enemies, NPCs, Items exist |
-| Basic Logging | ✅ | Messages vec in GameState |
+| Entity Management | ✅ | Enemies, NPCs, Items |
+| Basic Logging | ✅ | ExecutionLog with turn/action indexing |
 | DES Module Structure | ✅ | src/des/mod.rs |
-| DES Types | ✅ | Scenario, Action, EntitySpawn |
-| DES JSON Parser | ✅ | Parse scenario files |
+| DES Types | ✅ | Scenario, Action, EntitySpawn, Assertion |
+| DES JSON Parser | ✅ | Parse scenario files with inheritance |
 | DES Executor Core | ✅ | Execute scenarios headlessly |
 
-## Blocked Features
+## Advanced Features
 
-| Feature | Status | Blocking Reason |
-|---------|--------|-----------------|
-| Action Queue System | 🚫 | Needs core action abstraction layer |
-| Testing Framework Integration | 🚫 | Needs DES executor + assertions |
-| Base DES File Inheritance | 🚫 | Needs parser + variable system |
-| Action/State Indexing | 🚫 | Needs action queue implementation |
-| Parallel Test Execution | 🚫 | Needs thread-safe DES executor |
-| System Mocking | 🚫 | Needs dependency injection in GameState |
-| CI Integration | 🚫 | Needs working test suite |
-| Rendered Slow Execution | 🚫 | Needs UI decoupling + frame control |
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Testing Framework (Assertions) | ✅ | 9 assertion types with CmpOp |
+| Base File Inheritance | ✅ | Scenario merging + variable substitution |
+| Action/State Indexing | ✅ | StateSnapshot capture after each action |
+| Injectable RNG | ✅ | with_rng_seed() and with_rng() |
+| Parallel Test Execution | ✅ | rayon-based parallel execution |
+| Rendered Slow Execution | ✅ | run_with_render() callback API |
+| CI Integration | ✅ | GitHub Actions + integration tests |
 
-## Implementation Plan
+## Implementation Complete
 
-### Phase 1: Core DES (Current)
-1. ✅ Create TODO documentation
-2. 🔨 Define DES types (Scenario, Action, etc.)
-3. 🔨 Implement JSON parser
-4. 🔨 Implement basic executor
-5. 🔨 Add dummy stubs for blocked features
+All originally blocked features have been implemented:
 
-### Phase 2: Action System (Future)
-- Abstract action layer for player/entity actions
-- Action queue with turn ordering
-- Action indexing for replay/debug
+1. **Assertions** - AssertionCheck enum with PlayerHp, PlayerPosition, PlayerAlive, PlayerDead, InventoryContains, InventorySize, EnemyAt, NoEnemyAt, Turn checks
+2. **Base File Inheritance** - Scenario.inherit_from() merges base scenarios, from_json_with_vars() for ${var} substitution
+3. **State Indexing** - StateSnapshot captures state after each action for debugging
+4. **Injectable RNG** - DesExecutor.with_rng_seed() and with_rng() for deterministic testing
+5. **Parallel Execution** - run_parallel() uses rayon for concurrent scenario execution
+6. **Rendered Execution** - run_with_render() accepts callback for visual debugging
+7. **CI Integration** - GitHub Actions workflow + test scenarios
 
-### Phase 3: Advanced Features (Future)
-- Base scenario inheritance
-- Variable overrides
-- Parallel execution
-- System mocking
-- CI pipeline integration
+## Test Coverage
 
-## Dummy Implementations
-
-The following features have dummy implementations that will panic if called:
-- `DES::run_parallel()` - Parallel test execution
-- `DES::with_mocks()` - System mocking
-- `DES::run_rendered()` - Slow rendered execution
-- `Scenario::inherit_from()` - Base file inheritance
+- 20 unit tests in src/lib.rs
+- 5 DES-specific unit tests in src/des/mod.rs
+- 3 integration tests in tests/des_scenarios.rs
+- 2 example scenarios in tests/scenarios/

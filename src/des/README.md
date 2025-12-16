@@ -17,6 +17,9 @@ let result = run_scenario_json(r#"{
     "actions": [
         {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
         {"turn": 1, "action": {"type": "log", "query": "player_hp"}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_alive"}}
     ]
 }"#).unwrap();
 
@@ -29,6 +32,8 @@ assert!(result.success);
 {
     "name": "scenario_name",
     "seed": 42,
+    "base": "base_scenario.json",
+    "variables": {"item_id": "brine_vial"},
     "player": {
         "x": 10,
         "y": 10,
@@ -49,6 +54,10 @@ assert!(result.success);
     "actions": [
         {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
         {"turn": 1, "action": {"type": "attack", "target_x": 12, "target_y": 10}}
+    ],
+    "assertions": [
+        {"after_turn": 1, "check": {"type": "player_hp", "op": "ge", "value": 10}},
+        {"at_end": true, "check": {"type": "player_alive"}}
     ]
 }
 ```
@@ -64,20 +73,21 @@ assert!(result.success);
 | `wait` | `turns` | Skip turns |
 | `log` | `query` | Log game state |
 
-## Log Queries
+## Assertions
 
-- `player_hp` - Current HP
-- `player_position` - Current coordinates
-- `inventory` - Inventory contents
-- `turn` - Current turn number
-- `entity_at` - Entity at coordinates (`{"entity_at": {"x": 5, "y": 5}}`)
-- `custom` - Custom message (`{"custom": {"message": "test"}}`)
+| Check Type | Parameters | Description |
+|------------|------------|-------------|
+| `player_hp` | `op`, `value` | Compare player HP |
+| `player_position` | `x`, `y` | Check exact position |
+| `player_alive` | - | Player HP > 0 |
+| `player_dead` | - | Player HP <= 0 |
+| `inventory_contains` | `item` | Item in inventory |
+| `inventory_size` | `op`, `value` | Compare inventory size |
+| `enemy_at` | `x`, `y`, `alive` | Enemy at position |
+| `no_enemy_at` | `x`, `y` | No enemy at position |
+| `turn` | `op`, `value` | Compare turn number |
 
-## Entity Types
-
-- `enemy` - Hostile entities
-- `npc` - Non-player characters
-- `item` - Pickupable items
+Comparison operators (`op`): `eq`, `ne`, `lt`, `le`, `gt`, `ge`
 
 ## API
 
@@ -88,19 +98,74 @@ let result = des::run_scenario("path/to/scenario.json")?;
 // From JSON string
 let result = des::run_scenario_json(json_str)?;
 
-// Manual execution
-let scenario = Scenario::from_json(json_str)?;
-let executor = DesExecutor::new(&scenario);
+// With variable substitution
+let scenario = Scenario::from_json_with_vars(json, &vars)?;
+
+// Manual execution with options
+let executor = DesExecutor::new(&scenario)
+    .with_snapshots()      // Enable state capture
+    .with_rng_seed(123);   // Override RNG seed
 let result = executor.run(&scenario);
+
+// Parallel execution
+let results = des::run_parallel(&scenarios);
+
+// Rendered execution with callback
+des::run_with_render(&scenario, 100, |state, log| {
+    println!("Turn {}: {:?}", state.turn, log);
+});
 ```
 
-## Blocked Features
+## Base File Inheritance
 
-These features have dummy implementations that panic if called:
+Scenarios can inherit from base files:
 
-- `run_parallel()` - Parallel test execution
-- `run_with_mocks()` - System mocking
-- `run_rendered()` - Slow rendered execution
-- `Scenario::inherit_from()` - Base file inheritance
+```json
+// base.json
+{
+    "name": "base",
+    "seed": 42,
+    "player": {"hp": 20, "max_hp": 20}
+}
 
-See `design_docs/DES_TODO.md` for implementation roadmap.
+// test.json
+{
+    "name": "test",
+    "base": "base.json",
+    "actions": [{"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}}]
+}
+```
+
+## Variable Substitution
+
+Use `${var}` syntax in JSON:
+
+```rust
+let vars = HashMap::from([("item".to_string(), json!("brine_vial"))]);
+let scenario = Scenario::from_json_with_vars(r#"{"name": "${item}_test"}"#, &vars)?;
+```
+
+## State Snapshots
+
+Enable snapshots for debugging:
+
+```rust
+let executor = DesExecutor::new(&scenario).with_snapshots();
+let result = executor.run(&scenario);
+
+for snapshot in &result.snapshots {
+    println!("Action {}: HP={}, Pos=({},{})", 
+             snapshot.action_index, snapshot.player_hp,
+             snapshot.player_x, snapshot.player_y);
+}
+```
+
+## CI Integration
+
+Run all scenarios in `tests/scenarios/`:
+
+```bash
+cargo test --test des_scenarios
+```
+
+See `.github/workflows/ci.yml` for GitHub Actions configuration.

@@ -1,0 +1,20 @@
+{
+    "name": "item_pickup",
+    "seed": 42,
+    "player": {
+        "hp": 15,
+        "max_hp": 20
+    },
+    "entities": [
+        {"entity_type": "item", "id": "brine_vial", "x": 10, "y": 10}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "teleport", "x": 9, "y": 10}},
+        {"turn": 1, "action": {"type": "move", "dx": 1, "dy": 0}},
+        {"turn": 2, "action": {"type": "use_item", "item_index": 0}}
+    ],
+    "assertions": [
+        {"after_turn": 1, "check": {"type": "inventory_contains", "item": "brine_vial"}},
+        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 20}}
+    ]
+}
