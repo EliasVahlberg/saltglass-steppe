@@ -24,7 +24,60 @@ pub struct Scenario {
     #[serde(default)]
     pub actions: Vec<ScheduledAction>,
     #[serde(default)]
-    pub base: Option<String>, // BLOCKED: inheritance not implemented
+    pub assertions: Vec<Assertion>,
+    #[serde(default)]
+    pub base: Option<String>,
+    #[serde(default)]
+    pub variables: HashMap<String, serde_json::Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Assertion {
+    #[serde(default)]
+    pub after_turn: Option<u32>,
+    #[serde(default)]
+    pub at_end: bool,
+    pub check: AssertionCheck,
+    #[serde(default)]
+    pub message: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "snake_case")]
+pub enum AssertionCheck {
+    PlayerHp { op: CmpOp, value: i32 },
+    PlayerPosition { x: i32, y: i32 },
+    PlayerAlive,
+    PlayerDead,
+    InventoryContains { item: String },
+    InventorySize { op: CmpOp, value: usize },
+    EnemyAt { x: i32, y: i32, alive: bool },
+    NoEnemyAt { x: i32, y: i32 },
+    Turn { op: CmpOp, value: u32 },
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CmpOp {
+    Eq,
+    Ne,
+    Lt,
+    Le,
+    Gt,
+    Ge,
+}
+
+impl CmpOp {
+    fn compare<T: Ord>(&self, a: T, b: T) -> bool {
+        match self {
+            CmpOp::Eq => a == b,
+            CmpOp::Ne => a != b,
+            CmpOp::Lt => a < b,
+            CmpOp::Le => a <= b,
+            CmpOp::Gt => a > b,
+            CmpOp::Ge => a >= b,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -109,6 +162,8 @@ pub struct ExecutionResult {
     pub success: bool,
     pub final_turn: u32,
     pub logs: Vec<ExecutionLog>,
+    pub assertion_results: Vec<AssertionResult>,
+    pub snapshots: Vec<StateSnapshot>,
     pub final_state: Option<GameState>,
 }
 
@@ -117,6 +172,13 @@ pub struct ExecutionLog {
     pub turn: u32,
     pub action_index: usize,
     pub message: String,
+}
+
+#[derive(Debug, Clone)]
+pub struct AssertionResult {
+    pub passed: bool,
+    pub check: String,
+    pub message: Option<String>,
 }
 
 // ============================================================================
@@ -129,13 +191,65 @@ impl Scenario {
     }
 
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self, String> {
-        let content = fs::read_to_string(path).map_err(|e| format!("Read error: {}", e))?;
-        Self::from_json(&content)
+        let content = fs::read_to_string(&path).map_err(|e| format!("Read error: {}", e))?;
+        let mut scenario: Self = serde_json::from_str(&content)
+            .map_err(|e| format!("Parse error: {}", e))?;
+        
+        // Handle base file inheritance
+        if let Some(base_path) = scenario.base.take() {
+            let base_dir = path.as_ref().parent().unwrap_or(Path::new("."));
+            scenario.inherit_from(base_dir.join(&base_path))?;
+        }
+        Ok(scenario)
     }
 
-    /// BLOCKED: Base file inheritance not implemented
-    pub fn inherit_from(&mut self, _base_path: &str) -> Result<(), String> {
-        unimplemented!("BLOCKED: Base file inheritance requires variable system implementation")
+    /// Load and merge a base scenario file
+    pub fn inherit_from(&mut self, base_path: impl AsRef<Path>) -> Result<(), String> {
+        let base = Self::from_file(&base_path)?;
+        
+        // Merge: base values are used if child doesn't override
+        if self.seed.is_none() { self.seed = base.seed; }
+        
+        // Merge player setup (child overrides base)
+        if self.player.x.is_none() { self.player.x = base.player.x; }
+        if self.player.y.is_none() { self.player.y = base.player.y; }
+        if self.player.hp.is_none() { self.player.hp = base.player.hp; }
+        if self.player.max_hp.is_none() { self.player.max_hp = base.player.max_hp; }
+        if self.player.inventory.is_empty() { self.player.inventory = base.player.inventory; }
+        
+        // Prepend base entities, actions, assertions
+        let mut entities = base.entities;
+        entities.extend(self.entities.drain(..));
+        self.entities = entities;
+        
+        let mut actions = base.actions;
+        actions.extend(self.actions.drain(..));
+        self.actions = actions;
+        
+        let mut assertions = base.assertions;
+        assertions.extend(self.assertions.drain(..));
+        self.assertions = assertions;
+        
+        // Merge variables (child overrides base)
+        for (k, v) in base.variables {
+            self.variables.entry(k).or_insert(v);
+        }
+        
+        Ok(())
+    }
+
+    /// Substitute variables in JSON string before parsing
+    pub fn from_json_with_vars(json: &str, vars: &HashMap<String, serde_json::Value>) -> Result<Self, String> {
+        let mut result = json.to_string();
+        for (key, value) in vars {
+            let placeholder = format!("${{{}}}", key);
+            let replacement = match value {
+                serde_json::Value::String(s) => s.clone(),
+                v => v.to_string(),
+            };
+            result = result.replace(&placeholder, &replacement);
+        }
+        Self::from_json(&result)
     }
 }
 
@@ -143,10 +257,25 @@ impl Scenario {
 // Executor
 // ============================================================================
 
+/// State snapshot for debugging
+#[derive(Debug, Clone)]
+pub struct StateSnapshot {
+    pub action_index: usize,
+    pub turn: u32,
+    pub player_x: i32,
+    pub player_y: i32,
+    pub player_hp: i32,
+    pub inventory_size: usize,
+    pub enemy_count: usize,
+}
+
 pub struct DesExecutor {
     state: GameState,
     logs: Vec<ExecutionLog>,
+    assertion_results: Vec<AssertionResult>,
     action_index: usize,
+    snapshots: Vec<StateSnapshot>,
+    capture_snapshots: bool,
 }
 
 impl DesExecutor {
@@ -194,7 +323,30 @@ impl DesExecutor {
         Self {
             state,
             logs: Vec::new(),
+            assertion_results: Vec::new(),
             action_index: 0,
+            snapshots: Vec::new(),
+            capture_snapshots: false,
+        }
+    }
+
+    /// Enable state snapshot capture for debugging
+    pub fn with_snapshots(mut self) -> Self {
+        self.capture_snapshots = true;
+        self
+    }
+
+    fn capture_snapshot(&mut self) {
+        if self.capture_snapshots {
+            self.snapshots.push(StateSnapshot {
+                action_index: self.action_index,
+                turn: self.state.turn,
+                player_x: self.state.player_x,
+                player_y: self.state.player_y,
+                player_hp: self.state.player_hp,
+                inventory_size: self.state.inventory.len(),
+                enemy_count: self.state.enemies.iter().filter(|e| e.hp > 0).count(),
+            });
         }
     }
 
@@ -202,22 +354,73 @@ impl DesExecutor {
         let mut current_turn = 0;
         let max_turns = scenario.actions.iter().map(|a| a.turn).max().unwrap_or(0) + 1;
 
+        // Initial snapshot
+        self.capture_snapshot();
+
         while current_turn <= max_turns && self.state.player_hp > 0 {
             // Execute actions scheduled for this turn
             for scheduled in &scenario.actions {
                 if scheduled.turn == current_turn {
                     self.execute_action(&scheduled.action, &scheduled.actor);
+                    self.capture_snapshot();
                     self.action_index += 1;
+                }
+            }
+            // Check assertions for this turn
+            for assertion in &scenario.assertions {
+                if assertion.after_turn == Some(current_turn) {
+                    self.check_assertion(assertion);
                 }
             }
             current_turn += 1;
         }
 
+        // Check end-of-scenario assertions
+        for assertion in &scenario.assertions {
+            if assertion.at_end {
+                self.check_assertion(assertion);
+            }
+        }
+
+        let all_passed = self.assertion_results.iter().all(|r| r.passed);
         ExecutionResult {
-            success: self.state.player_hp > 0,
+            success: self.state.player_hp > 0 && all_passed,
             final_turn: self.state.turn,
             logs: self.logs,
+            assertion_results: self.assertion_results,
+            snapshots: self.snapshots,
             final_state: Some(self.state),
+        }
+    }
+
+    fn check_assertion(&mut self, assertion: &Assertion) {
+        let passed = self.evaluate_check(&assertion.check);
+        self.assertion_results.push(AssertionResult {
+            passed,
+            check: format!("{:?}", assertion.check),
+            message: assertion.message.clone(),
+        });
+    }
+
+    fn evaluate_check(&self, check: &AssertionCheck) -> bool {
+        match check {
+            AssertionCheck::PlayerHp { op, value } => op.compare(self.state.player_hp, *value),
+            AssertionCheck::PlayerPosition { x, y } => {
+                self.state.player_x == *x && self.state.player_y == *y
+            }
+            AssertionCheck::PlayerAlive => self.state.player_hp > 0,
+            AssertionCheck::PlayerDead => self.state.player_hp <= 0,
+            AssertionCheck::InventoryContains { item } => self.state.inventory.contains(item),
+            AssertionCheck::InventorySize { op, value } => {
+                op.compare(self.state.inventory.len() as i32, *value as i32)
+            }
+            AssertionCheck::EnemyAt { x, y, alive } => {
+                self.state.enemy_at(*x, *y).map(|i| {
+                    if *alive { self.state.enemies[i].hp > 0 } else { self.state.enemies[i].hp <= 0 }
+                }).unwrap_or(false)
+            }
+            AssertionCheck::NoEnemyAt { x, y } => self.state.enemy_at(*x, *y).is_none(),
+            AssertionCheck::Turn { op, value } => op.compare(self.state.turn as i32, *value as i32),
         }
     }
 
@@ -364,5 +567,37 @@ mod tests {
         let result = run_scenario_json(json).unwrap();
         assert!(result.success);
         assert!(!result.logs.is_empty());
+    }
+
+    #[test]
+    fn assertions_pass() {
+        let json = r#"{
+            "name": "assertion_test",
+            "seed": 42,
+            "player": {"hp": 20, "max_hp": 20},
+            "assertions": [
+                {"at_end": true, "check": {"type": "player_alive"}},
+                {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 20}}
+            ]
+        }"#;
+        let result = run_scenario_json(json).unwrap();
+        assert!(result.success);
+        assert_eq!(result.assertion_results.len(), 2);
+        assert!(result.assertion_results.iter().all(|r| r.passed));
+    }
+
+    #[test]
+    fn assertions_fail() {
+        let json = r#"{
+            "name": "fail_test",
+            "seed": 42,
+            "player": {"hp": 10},
+            "assertions": [
+                {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 20}}
+            ]
+        }"#;
+        let result = run_scenario_json(json).unwrap();
+        assert!(!result.success);
+        assert!(!result.assertion_results[0].passed);
     }
 }
