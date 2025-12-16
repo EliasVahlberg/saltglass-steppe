@@ -7,8 +7,8 @@ Scale: 1-5 (1=low, 5=high)
 
 | Rank | Mechanic | Importance | Difficulty | Current State | Dependencies |
 |------|----------|------------|------------|---------------|--------------|
-| 1 | Turn-Based System | 5 | 2 | 60% | None |
-| 2 | Combat System | 5 | 4 | 30% | Turn system |
+| 1 | Turn-Based System | 5 | 2 | 80% | None |
+| 2 | Combat System | 5 | 4 | 60% | Turn system |
 | 3 | Player Movement & Interaction | 5 | 2 | 50% | Map system |
 | 4 | Map and Environment | 5 | 4 | 40% | None |
 | 5 | Enemy AI and NPCs | 4 | 4 | 20% | Combat, Map |
@@ -27,13 +27,17 @@ Scale: 1-5 (1=low, 5=high)
 
 ### 1. Turn-Based System (Importance: 5, Difficulty: 2)
 
-**Current State:** Basic tick system exists. Player moves → enemies update → storm ticks.
+**Current State:** AP system implemented. Actions consume AP, auto-end turn when depleted.
+
+**Completed:**
+- ✅ Action Points (AP) system - actions cost variable AP
+- ✅ AP costs defined in data/actions.json
+- ✅ End turn early option (resets AP)
+- ✅ Auto-end turn when AP depleted
 
 **Missing:**
-- Action Points (AP) system - actions cost variable AP
 - Initiative rolls for encounter start
 - Interruptions/reactions
-- End turn early option
 
 **Implementation Approach:**
 ```
@@ -50,16 +54,23 @@ Scale: 1-5 (1=low, 5=high)
 
 ### 2. Combat System (Importance: 5, Difficulty: 4)
 
-**Current State:** Basic melee attack exists (player attacks adjacent enemy).
+**Current State:** Combat math, ranged attacks, and status effects implemented.
+
+**Completed:**
+- ✅ Hit chance: accuracy - target_reflex - cover_bonus (clamped 5-95%)
+- ✅ Damage: base_damage - armor (minimum 1)
+- ✅ Critical hits: 5% chance for 2x damage
+- ✅ Ranged attacks with range check, LOS, ammo consumption
+- ✅ Status effects: Poison, Burn, Stun, Bleed, Slow with duration/potency
+- ✅ Weapons defined in data/weapons.json (6 weapons)
+- ✅ Player stats: reflex, armor, equipped_weapon
+- ✅ Enemy stats: reflex, armor, accuracy
 
 **Missing:**
-- Ranged attacks with accuracy/range
 - Body part targeting
-- Cover mechanics (hit chance reduction)
-- Status effects (poison, stun, burn)
+- Cover mechanics (hit chance reduction from cover)
 - Psychic abilities (PSY resource)
-- Armor Rating damage reduction
-- Dodge/Reflex calculations
+- Dodge/Reflex evasion rolls
 
 **Implementation Approach:**
 ```
@@ -364,10 +375,10 @@ Phase 3 - Tactical AI:
 
 ### Milestone 1: Core Loop (Vertical Slice)
 1. ✅ Turn system basics
-2. ⬜ AP system
-3. ⬜ Combat math (hit/damage/armor)
-4. ⬜ Ranged attacks
-5. ⬜ Status effects (basic set)
+2. ✅ AP system
+3. ✅ Combat math (hit/damage/armor)
+4. ✅ Ranged attacks
+5. ✅ Status effects (basic set)
 
 ### Milestone 2: World & Exploration
 1. ⬜ Explored tile memory

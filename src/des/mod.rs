@@ -89,6 +89,8 @@ pub enum AssertionCheck {
     PlayerAp { op: CmpOp, value: i32 },
     HasStatusEffect { effect: String },
     StatusEffectCount { op: CmpOp, value: usize },
+    TileExplored { x: i32, y: i32 },
+    ExploredCount { op: CmpOp, value: usize },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -535,6 +537,13 @@ impl DesExecutor {
             }
             AssertionCheck::StatusEffectCount { op, value } => {
                 op.compare(self.state.status_effects.len() as i32, *value as i32)
+            }
+            AssertionCheck::TileExplored { x, y } => {
+                let idx = self.state.map.idx(*x, *y);
+                self.state.revealed.contains(&idx)
+            }
+            AssertionCheck::ExploredCount { op, value } => {
+                op.compare(self.state.revealed.len() as i32, *value as i32)
             }
         }
     }

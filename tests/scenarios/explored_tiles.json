@@ -1,0 +1,31 @@
+{
+  "name": "Explored Tile Memory",
+  "description": "Test that tiles in FOV get marked as explored and persist",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20
+  },
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}}
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {"type": "tile_explored", "x": 5, "y": 5},
+      "message": "Starting position should be explored"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "tile_explored", "x": 6, "y": 5},
+      "message": "First move position should be explored"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "explored_count", "op": "gt", "value": 10},
+      "message": "Should have explored multiple tiles from FOV"
+    }
+  ]
+}
