@@ -2,7 +2,7 @@
 //!
 //! Runs game scenarios without rendering for automated testing and validation.
 
-use crate::game::{adaptation::Adaptation, Enemy, GameState, Item, Npc};
+use crate::game::{adaptation::Adaptation, status::StatusType, Enemy, GameState, Item, Npc};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
@@ -17,6 +17,17 @@ fn parse_adaptation(id: &str) -> Option<Adaptation> {
         "sunveins" => Some(Adaptation::Sunveins),
         "mirage_step" | "miragestep" => Some(Adaptation::MirageStep),
         "saltblood" => Some(Adaptation::Saltblood),
+        _ => None,
+    }
+}
+
+fn parse_status_type(id: &str) -> Option<StatusType> {
+    match id.to_lowercase().as_str() {
+        "poison" => Some(StatusType::Poison),
+        "burn" => Some(StatusType::Burn),
+        "stun" => Some(StatusType::Stun),
+        "bleed" => Some(StatusType::Bleed),
+        "slow" => Some(StatusType::Slow),
         _ => None,
     }
 }
@@ -76,6 +87,8 @@ pub enum AssertionCheck {
     MapTileAt { x: i32, y: i32, tile: String },
     Refraction { op: CmpOp, value: u32 },
     PlayerAp { op: CmpOp, value: i32 },
+    HasStatusEffect { effect: String },
+    StatusEffectCount { op: CmpOp, value: usize },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -169,6 +182,7 @@ pub enum Action {
     Teleport { x: i32, y: i32 },
     Attack { target_x: i32, target_y: i32 },
     RangedAttack { target_x: i32, target_y: i32 },
+    ApplyStatus { effect: String, duration: u32, potency: i32 },
     UseItem { item_index: usize },
     Wait { turns: u32 },
     EndTurn,
@@ -514,6 +528,14 @@ impl DesExecutor {
             AssertionCheck::PlayerAp { op, value } => {
                 op.compare(self.state.player_ap, *value)
             }
+            AssertionCheck::HasStatusEffect { effect } => {
+                self.state.status_effects.iter().any(|e| {
+                    format!("{:?}", e.effect_type).to_lowercase() == effect.to_lowercase()
+                })
+            }
+            AssertionCheck::StatusEffectCount { op, value } => {
+                op.compare(self.state.status_effects.len() as i32, *value as i32)
+            }
         }
     }
 
@@ -548,6 +570,13 @@ impl DesExecutor {
             Action::RangedAttack { target_x, target_y } => {
                 self.state.try_ranged_attack(*target_x, *target_y);
                 self.log(format!("Player ranged attack ({}, {})", target_x, target_y));
+            }
+            Action::ApplyStatus { effect, duration, potency } => {
+                if let Some(status_type) = parse_status_type(effect) {
+                    use crate::game::status::StatusEffect;
+                    self.state.apply_status(StatusEffect::new(status_type, *duration, *potency));
+                    self.log(format!("Applied {} for {} turns", effect, duration));
+                }
             }
             Action::UseItem { item_index } => {
                 self.state.use_item(*item_index);

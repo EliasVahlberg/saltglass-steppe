@@ -57,6 +57,8 @@ pub struct GameState {
     pub player_armor: i32,
     #[serde(default)]
     pub equipped_weapon: Option<String>,
+    #[serde(default)]
+    pub status_effects: Vec<super::status::StatusEffect>,
     pub map: Map, pub enemies: Vec<Enemy>,
     pub npcs: Vec<Npc>,
     pub items: Vec<Item>,
@@ -149,6 +151,7 @@ impl GameState {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
             player_ap: default_player_ap(), player_max_ap: default_player_ap(),
             player_reflex: 5, player_armor: 0, equipped_weapon: None,
+            status_effects: Vec::new(),
             map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
             messages: vec!["Welcome to the Saltglass Steppe.".into()],
@@ -200,12 +203,37 @@ impl GameState {
         if self.adaptations_hidden_turns > 0 { 0 } else { self.adaptations.len() }
     }
 
-    /// End turn: reset AP, run enemy turns, tick storm
+    /// End turn: reset AP, tick status effects, run enemy turns, tick storm
     pub fn end_turn(&mut self) {
         self.player_ap = self.player_max_ap;
+        self.tick_status_effects();
         self.tick_turn();
         self.update_enemies();
         if self.storm.tick() { self.apply_storm(); }
+    }
+
+    /// Tick all status effects, apply damage, remove expired
+    fn tick_status_effects(&mut self) {
+        let mut total_damage = 0;
+        let mut messages = Vec::new();
+        for effect in &mut self.status_effects {
+            let dmg = effect.tick();
+            if dmg > 0 {
+                total_damage += dmg;
+                messages.push(format!("{} deals {} damage.", effect.name(), dmg));
+            }
+        }
+        for msg in messages {
+            self.log(msg);
+        }
+        self.player_hp -= total_damage;
+        self.status_effects.retain(|e| !e.is_expired());
+    }
+
+    /// Apply a status effect to the player
+    pub fn apply_status(&mut self, effect: super::status::StatusEffect) {
+        self.log(format!("You are {}! ({} turns)", effect.name(), effect.duration));
+        self.status_effects.push(effect);
     }
 
     /// Wait in place (costs 0 AP, ends turn)

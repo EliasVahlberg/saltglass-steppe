@@ -10,12 +10,14 @@ pub mod map;
 pub mod npc;
 pub mod spawn;
 pub mod state;
+pub mod status;
 pub mod storm;
 
 pub use action::{action_cost, default_enemy_ap, default_player_ap};
 pub use adaptation::Adaptation;
 pub use combat::{calc_damage, calc_hit_chance, default_weapon, get_weapon_def, roll_attack, CombatResult, WeaponDef};
 pub use constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
+pub use status::{is_stunned, slow_penalty, StatusEffect, StatusType};
 pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectContext, VisualEffect};
 pub use enemy::{all_enemy_ids, get_enemy_def, Enemy, EnemyDef};
 pub use item::{all_item_ids, get_item_def, Item, ItemDef};
