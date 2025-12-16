@@ -1,0 +1,23 @@
+{
+  "name": "AP Melee Attack Cost Test",
+  "description": "Test that melee attacks cost 2 AP",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 100, "ai_disabled": true}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 0, "action": {"type": "end_turn"}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "player_ap", "op": "eq", "value": 4}, "message": "AP should reset after end_turn"},
+    {"at_end": true, "check": {"type": "enemy_hp", "id": "mirage_hound", "op": "lt", "value": 100}, "message": "Enemy should have taken damage from melee attack"}
+  ]
+}

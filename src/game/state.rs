@@ -7,6 +7,7 @@ use std::fs;
 use std::path::Path;
 
 use super::{
+    action::{action_cost, default_player_ap},
     adaptation::Adaptation,
     enemy::{BehaviorContext, Enemy},
     event::GameEvent,
@@ -45,6 +46,10 @@ pub struct TriggeredEffect {
 #[derive(Serialize, Deserialize)]
 pub struct GameState {
     pub player_x: i32, pub player_y: i32, pub player_hp: i32, pub player_max_hp: i32,
+    #[serde(default = "default_player_ap")]
+    pub player_ap: i32,
+    #[serde(default = "default_player_ap")]
+    pub player_max_ap: i32,
     pub map: Map, pub enemies: Vec<Enemy>,
     pub npcs: Vec<Npc>,
     pub items: Vec<Item>,
@@ -135,6 +140,7 @@ impl GameState {
 
         let mut state = Self {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
+            player_ap: default_player_ap(), player_max_ap: default_player_ap(),
             map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
             messages: vec!["Welcome to the Saltglass Steppe.".into()],
@@ -186,11 +192,24 @@ impl GameState {
         if self.adaptations_hidden_turns > 0 { 0 } else { self.adaptations.len() }
     }
 
-    /// Wait in place, advancing the turn without moving
-    pub fn wait_turn(&mut self) {
+    /// End turn: reset AP, run enemy turns, tick storm
+    pub fn end_turn(&mut self) {
+        self.player_ap = self.player_max_ap;
         self.tick_turn();
         self.update_enemies();
         if self.storm.tick() { self.apply_storm(); }
+    }
+
+    /// Wait in place (costs 0 AP, ends turn)
+    pub fn wait_turn(&mut self) {
+        self.end_turn();
+    }
+
+    /// Auto-end turn if player has no AP left
+    fn check_auto_end_turn(&mut self) {
+        if self.player_ap <= 0 {
+            self.end_turn();
+        }
     }
 
     fn tick_turn(&mut self) {
@@ -440,6 +459,9 @@ impl GameState {
 
         // NPC interaction (bump to talk)
         if let Some(ni) = self.npc_at(new_x, new_y) {
+            let cost = action_cost("interact");
+            if self.player_ap < cost { return false; }
+            self.player_ap -= cost;
             let visible_adaptations: Vec<Adaptation> = if self.adaptations_hidden_turns > 0 {
                 Vec::new()
             } else {
@@ -476,6 +498,9 @@ impl GameState {
         }
 
         if let Some(ei) = self.enemy_at(new_x, new_y) {
+            let cost = action_cost("attack_melee");
+            if self.player_ap < cost { return false; }
+            self.player_ap -= cost;
             let mut dmg = self.rng.gen_range(2..6);
             // Apply damage bonuses from adaptations
             for a in &self.adaptations {
@@ -526,9 +551,7 @@ impl GameState {
             } else {
                 self.log(format!("You hit the {} {} for {} damage.", name, dir, dmg));
             }
-            self.tick_turn();
-            self.update_enemies();
-            if self.storm.tick() { self.apply_storm(); }
+            self.check_auto_end_turn();
             return true;
         }
 
@@ -536,9 +559,11 @@ impl GameState {
             let walkable = tile.walkable();
             let is_glass = *tile == Tile::Glass;
             if walkable {
+                let cost = action_cost("move");
+                if self.player_ap < cost { return false; }
+                self.player_ap -= cost;
                 self.player_x = new_x;
                 self.player_y = new_y;
-                self.tick_turn();
                 self.visible = compute_fov(&self.map, new_x, new_y);
                 self.revealed.extend(&self.visible);
                 self.pickup_items();
@@ -554,8 +579,7 @@ impl GameState {
                     }
                 }
 
-                self.update_enemies();
-                if self.storm.tick() { self.apply_storm(); }
+                self.check_auto_end_turn();
                 return true;
             }
         }
@@ -577,9 +601,12 @@ impl GameState {
             self.log("Too far to break.");
             return false;
         }
+        let cost = action_cost("break_wall");
+        if self.player_ap < cost { return false; }
         // Check if it's a wall
         let idx = self.map.idx(x, y);
         if let Tile::Wall { ref id, hp } = self.map.tiles[idx].clone() {
+            self.player_ap -= cost;
             let new_hp = hp - 5;
             if new_hp <= 0 {
                 self.map.tiles[idx] = Tile::Floor;
@@ -588,9 +615,7 @@ impl GameState {
                 self.map.tiles[idx] = Tile::Wall { id: id.clone(), hp: new_hp };
                 self.log(format!("Cracks spread through the wall. (HP: {})", new_hp));
             }
-            self.tick_turn();
-            self.update_enemies();
-            if self.storm.tick() { self.apply_storm(); }
+            self.check_auto_end_turn();
             return true;
         }
         self.log("Nothing to break there.");
@@ -630,6 +655,8 @@ impl GameState {
 
     pub fn use_item(&mut self, idx: usize) -> bool {
         if idx >= self.inventory.len() { return false; }
+        let cost = action_cost("use_item");
+        if self.player_ap < cost { return false; }
         let id = &self.inventory[idx];
         let def = match get_item_def(id) {
             Some(d) => d,
@@ -639,6 +666,7 @@ impl GameState {
             self.log(format!("You can't use {} right now.", def.name));
             return false;
         }
+        self.player_ap -= cost;
         if def.heal > 0 {
             let heal = def.heal.min(self.player_max_hp - self.player_hp);
             self.player_hp += heal;

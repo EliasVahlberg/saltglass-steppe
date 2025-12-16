@@ -1,3 +1,4 @@
+pub mod action;
 pub mod adaptation;
 pub mod constants;
 pub mod effect;
@@ -10,6 +11,7 @@ pub mod spawn;
 pub mod state;
 pub mod storm;
 
+pub use action::{action_cost, default_enemy_ap, default_player_ap};
 pub use adaptation::Adaptation;
 pub use constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
 pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectContext, VisualEffect};

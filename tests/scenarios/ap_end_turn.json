@@ -1,0 +1,27 @@
+{
+  "name": "AP End Turn Test",
+  "description": "Test that end_turn resets AP and advances turn counter",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  },
+  "map_override": {
+    "width": 10,
+    "height": 10,
+    "floor_area": [[0, 0], [9, 9]]
+  },
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 0, "action": {"type": "end_turn"}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "player_ap", "op": "eq", "value": 4}, "message": "AP should reset after end_turn"},
+    {"at_end": true, "check": {"type": "turn", "op": "eq", "value": 1}, "message": "Turn should advance after end_turn"},
+    {"at_end": true, "check": {"type": "player_position", "x": 7, "y": 5}, "message": "Player moved 2 tiles before ending turn"}
+  ]
+}

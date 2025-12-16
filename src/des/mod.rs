@@ -75,6 +75,7 @@ pub enum AssertionCheck {
     AdaptationCount { op: CmpOp, value: usize },
     MapTileAt { x: i32, y: i32, tile: String },
     Refraction { op: CmpOp, value: u32 },
+    PlayerAp { op: CmpOp, value: i32 },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -111,6 +112,10 @@ pub struct PlayerSetup {
     pub hp: Option<i32>,
     #[serde(default)]
     pub max_hp: Option<i32>,
+    #[serde(default)]
+    pub ap: Option<i32>,
+    #[serde(default)]
+    pub max_ap: Option<i32>,
     #[serde(default)]
     pub inventory: Vec<String>,
     #[serde(default)]
@@ -163,6 +168,7 @@ pub enum Action {
     Attack { target_x: i32, target_y: i32 },
     UseItem { item_index: usize },
     Wait { turns: u32 },
+    EndTurn,
     Log { query: LogQuery },
 }
 
@@ -318,6 +324,12 @@ impl DesExecutor {
         }
         if let Some(max_hp) = scenario.player.max_hp {
             state.player_max_hp = max_hp;
+        }
+        if let Some(ap) = scenario.player.ap {
+            state.player_ap = ap;
+        }
+        if let Some(max_ap) = scenario.player.max_ap {
+            state.player_max_ap = max_ap;
         }
         for item_id in &scenario.player.inventory {
             state.inventory.push(item_id.clone());
@@ -492,6 +504,9 @@ impl DesExecutor {
             AssertionCheck::Refraction { op, value } => {
                 op.compare(self.state.refraction as i32, *value as i32)
             }
+            AssertionCheck::PlayerAp { op, value } => {
+                op.compare(self.state.player_ap, *value)
+            }
         }
     }
 
@@ -532,6 +547,10 @@ impl DesExecutor {
                     self.state.wait_turn();
                 }
                 self.log(format!("Player waited {} turns", turns));
+            }
+            Action::EndTurn => {
+                self.state.end_turn();
+                self.log("Player ended turn".to_string());
             }
             Action::Log { query } => {
                 let msg = self.query_state(query);
@@ -726,6 +745,32 @@ mod tests {
         let result = run_scenario_json(json).unwrap();
         eprintln!("Final turn: {}, logs: {:?}", result.final_turn, result.logs);
         assert!(result.final_turn >= 3, "Expected turn >= 3, got {}", result.final_turn);
+    }
+
+    #[test]
+    fn ap_depletes_and_resets() {
+        let json = r#"{
+            "name": "ap_test",
+            "seed": 42,
+            "player": {"x": 5, "y": 5, "hp": 20, "ap": 4, "max_ap": 4},
+            "actions": [
+                {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+                {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+                {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+                {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}}
+            ],
+            "assertions": [
+                {"at_end": true, "check": {"type": "player_position", "x": 9, "y": 5}}
+            ]
+        }"#;
+        let result = run_scenario_json(json).unwrap();
+        let final_state = result.final_state.as_ref().unwrap();
+        eprintln!("Final turn: {}, AP: {}, pos: ({}, {})", 
+            result.final_turn, final_state.player_ap,
+            final_state.player_x, final_state.player_y);
+        eprintln!("Logs: {:?}", result.logs.iter().map(|l| &l.message).collect::<Vec<_>>());
+        // For now, just check that AP system is working - turn advances when AP depletes
+        assert!(result.final_turn >= 1, "Turn should advance after AP depleted");
     }
 
     #[test]

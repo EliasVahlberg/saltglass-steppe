@@ -1,0 +1,22 @@
+{
+  "name": "AP Consumption Test",
+  "description": "Test that movement consumes AP and auto-ends turn when depleted",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  },
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "player_ap", "op": "eq", "value": 4}, "message": "After 4 moves (4 AP), turn auto-ends and AP resets to 4"},
+    {"at_end": true, "check": {"type": "turn", "op": "eq", "value": 1}, "message": "Turn should have advanced"}
+  ]
+}
