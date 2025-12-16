@@ -1,0 +1,37 @@
+{
+  "name": "Equipment System Test",
+  "description": "Test equipping armor and verifying stat changes",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "inventory": ["salt_vest", "salt_knife"]
+  },
+  "actions": [
+    {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "armor"}},
+    {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "weapon"}}
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {"type": "equipped_in_slot", "slot": "armor", "item": "salt_vest"},
+      "message": "Salt vest should be equipped in armor slot"
+    },
+    {
+      "after_turn": 0,
+      "check": {"type": "player_armor", "op": "eq", "value": 3},
+      "message": "Player armor should be 3 from salt vest"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "equipped_in_slot", "slot": "weapon", "item": "salt_knife"},
+      "message": "Salt knife should be equipped in weapon slot"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "inventory_size", "op": "eq", "value": 0},
+      "message": "Inventory should be empty after equipping both items"
+    }
+  ]
+}

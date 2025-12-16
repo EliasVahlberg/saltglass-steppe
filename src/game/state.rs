@@ -11,6 +11,7 @@ use super::{
     adaptation::Adaptation,
     combat::{default_weapon, get_weapon_def, roll_attack},
     enemy::{BehaviorContext, Enemy},
+    equipment::{EquipSlot, Equipment},
     event::GameEvent,
     item::{get_item_def, Item},
     map::{compute_fov, Map, Tile},
@@ -57,6 +58,8 @@ pub struct GameState {
     pub player_armor: i32,
     #[serde(default)]
     pub equipped_weapon: Option<String>,
+    #[serde(default)]
+    pub equipment: Equipment,
     #[serde(default)]
     pub status_effects: Vec<super::status::StatusEffect>,
     pub map: Map, pub enemies: Vec<Enemy>,
@@ -151,6 +154,7 @@ impl GameState {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
             player_ap: default_player_ap(), player_max_ap: default_player_ap(),
             player_reflex: 5, player_armor: 0, equipped_weapon: None,
+            equipment: Equipment::default(),
             status_effects: Vec::new(),
             map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
@@ -834,6 +838,43 @@ impl GameState {
         }
         self.inventory.remove(idx);
         true
+    }
+
+    /// Equip an item from inventory to a slot
+    pub fn equip_item(&mut self, inv_idx: usize, slot: EquipSlot) -> bool {
+        if inv_idx >= self.inventory.len() { return false; }
+        let item_id = self.inventory[inv_idx].clone();
+        
+        // Unequip current item in slot (returns to inventory)
+        if let Some(old) = self.equipment.set(slot, Some(item_id)) {
+            self.inventory.push(old);
+        }
+        self.inventory.remove(inv_idx);
+        self.recalc_equipment_stats();
+        true
+    }
+
+    /// Unequip item from slot back to inventory
+    pub fn unequip_slot(&mut self, slot: EquipSlot) -> bool {
+        if let Some(item) = self.equipment.set(slot, None) {
+            self.inventory.push(item);
+            self.recalc_equipment_stats();
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Recalculate stats from equipment
+    fn recalc_equipment_stats(&mut self) {
+        // Sync equipped_weapon with equipment.weapon for backward compat
+        self.equipped_weapon = self.equipment.weapon.clone();
+        
+        // Calculate armor from equipped armor item
+        self.player_armor = self.equipment.armor.as_ref()
+            .and_then(|id| get_item_def(id))
+            .map(|def| def.armor_value)
+            .unwrap_or(0);
     }
 
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), String> {

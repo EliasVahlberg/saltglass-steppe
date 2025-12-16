@@ -91,6 +91,8 @@ pub enum AssertionCheck {
     StatusEffectCount { op: CmpOp, value: usize },
     TileExplored { x: i32, y: i32 },
     ExploredCount { op: CmpOp, value: usize },
+    EquippedInSlot { slot: String, item: Option<String> },
+    PlayerArmor { op: CmpOp, value: i32 },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -186,6 +188,8 @@ pub enum Action {
     RangedAttack { target_x: i32, target_y: i32 },
     ApplyStatus { effect: String, duration: u32, potency: i32 },
     UseItem { item_index: usize },
+    Equip { item_index: usize, slot: String },
+    Unequip { slot: String },
     Wait { turns: u32 },
     EndTurn,
     Log { query: LogQuery },
@@ -545,6 +549,18 @@ impl DesExecutor {
             AssertionCheck::ExploredCount { op, value } => {
                 op.compare(self.state.revealed.len() as i32, *value as i32)
             }
+            AssertionCheck::EquippedInSlot { slot, item } => {
+                let equipped = match slot.to_lowercase().as_str() {
+                    "weapon" => &self.state.equipment.weapon,
+                    "armor" => &self.state.equipment.armor,
+                    "accessory" => &self.state.equipment.accessory,
+                    _ => return false,
+                };
+                equipped == item
+            }
+            AssertionCheck::PlayerArmor { op, value } => {
+                op.compare(self.state.player_armor, *value)
+            }
         }
     }
 
@@ -590,6 +606,28 @@ impl DesExecutor {
             Action::UseItem { item_index } => {
                 self.state.use_item(*item_index);
                 self.log(format!("Player used item at index {}", item_index));
+            }
+            Action::Equip { item_index, slot } => {
+                use crate::game::equipment::EquipSlot;
+                let equip_slot = match slot.to_lowercase().as_str() {
+                    "weapon" => EquipSlot::Weapon,
+                    "armor" => EquipSlot::Armor,
+                    "accessory" => EquipSlot::Accessory,
+                    _ => { self.log(format!("Unknown slot: {}", slot)); return; }
+                };
+                self.state.equip_item(*item_index, equip_slot);
+                self.log(format!("Equipped item {} to {}", item_index, slot));
+            }
+            Action::Unequip { slot } => {
+                use crate::game::equipment::EquipSlot;
+                let equip_slot = match slot.to_lowercase().as_str() {
+                    "weapon" => EquipSlot::Weapon,
+                    "armor" => EquipSlot::Armor,
+                    "accessory" => EquipSlot::Accessory,
+                    _ => { self.log(format!("Unknown slot: {}", slot)); return; }
+                };
+                self.state.unequip_slot(equip_slot);
+                self.log(format!("Unequipped {}", slot));
             }
             Action::Wait { turns } => {
                 for _ in 0..*turns {

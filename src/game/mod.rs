@@ -10,6 +10,7 @@ pub mod map;
 pub mod npc;
 pub mod spawn;
 pub mod state;
+pub mod equipment;
 pub mod status;
 pub mod storm;
 

@@ -33,6 +33,10 @@ pub struct ItemDef {
     #[serde(default)]
     pub reduces_refraction: u32,
     #[serde(default)]
+    pub armor_value: i32,
+    #[serde(default)]
+    pub equip_slot: Option<String>,
+    #[serde(default)]
     pub effects: Vec<EntityEffect>,
 }
 

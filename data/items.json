@@ -151,6 +151,17 @@
       "value": 3,
       "weight": 0,
       "usable": false
+    },
+    {
+      "id": "salt_vest",
+      "name": "Salt Vest",
+      "glyph": "[",
+      "description": "Crystallized salt armor, light but protective",
+      "value": 50,
+      "weight": 3,
+      "usable": false,
+      "armor_value": 3,
+      "equip_slot": "armor"
     }
   ]
 }
