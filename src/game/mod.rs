@@ -2,6 +2,7 @@ pub mod action;
 pub mod adaptation;
 pub mod ai;
 pub mod combat;
+pub mod combat_actions;
 pub mod constants;
 pub mod effect;
 pub mod enemy;
