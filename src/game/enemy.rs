@@ -31,6 +31,12 @@ pub struct EnemyDef {
     #[serde(default = "default_sight")]
     pub sight_range: i32,
     #[serde(default)]
+    pub reflex: i32,
+    #[serde(default)]
+    pub armor: i32,
+    #[serde(default)]
+    pub accuracy: i32,
+    #[serde(default)]
     pub description: String,
     #[serde(default)]
     pub spawns_during_storm: bool,

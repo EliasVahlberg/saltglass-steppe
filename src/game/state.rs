@@ -9,6 +9,7 @@ use std::path::Path;
 use super::{
     action::{action_cost, default_player_ap},
     adaptation::Adaptation,
+    combat::{default_weapon, get_weapon_def, roll_attack},
     enemy::{BehaviorContext, Enemy},
     event::GameEvent,
     item::{get_item_def, Item},
@@ -50,6 +51,12 @@ pub struct GameState {
     pub player_ap: i32,
     #[serde(default = "default_player_ap")]
     pub player_max_ap: i32,
+    #[serde(default)]
+    pub player_reflex: i32,
+    #[serde(default)]
+    pub player_armor: i32,
+    #[serde(default)]
+    pub equipped_weapon: Option<String>,
     pub map: Map, pub enemies: Vec<Enemy>,
     pub npcs: Vec<Npc>,
     pub items: Vec<Item>,
@@ -141,6 +148,7 @@ impl GameState {
         let mut state = Self {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
             player_ap: default_player_ap(), player_max_ap: default_player_ap(),
+            player_reflex: 5, player_armor: 0, equipped_weapon: None,
             map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
             messages: vec!["Welcome to the Saltglass Steppe.".into()],
@@ -501,8 +509,29 @@ impl GameState {
             let cost = action_cost("attack_melee");
             if self.player_ap < cost { return false; }
             self.player_ap -= cost;
-            let mut dmg = self.rng.gen_range(2..6);
+            
+            // Get weapon (equipped or fists)
+            let weapon = self.equipped_weapon.as_ref()
+                .and_then(|id| get_weapon_def(id))
+                .unwrap_or_else(default_weapon);
+            
+            // Get enemy defense stats
+            let enemy_reflex = self.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
+            let enemy_armor = self.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
+            
+            // Roll attack
+            let result = roll_attack(&mut self.rng, weapon, enemy_reflex, enemy_armor, 0);
+            let name = self.enemies[ei].name().to_string();
+            let dir = self.direction_from(new_x, new_y);
+            
+            if !result.hit {
+                self.log(format!("You miss the {} {}.", name, dir));
+                self.check_auto_end_turn();
+                return true;
+            }
+            
             // Apply damage bonuses from adaptations
+            let mut dmg = result.damage;
             for a in &self.adaptations {
                 if let Some(bonus) = a.effect_value("damage_bonus") {
                     dmg += bonus;
@@ -549,7 +578,8 @@ impl GameState {
                 });
                 self.log(format!("You kill the {} {}!", name, dir));
             } else {
-                self.log(format!("You hit the {} {} for {} damage.", name, dir, dmg));
+                let crit_str = if result.crit { " CRITICAL!" } else { "" };
+                self.log(format!("You hit the {} {} for {} damage.{}", name, dir, dmg, crit_str));
             }
             self.check_auto_end_turn();
             return true;

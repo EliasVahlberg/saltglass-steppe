@@ -1,18 +1,18 @@
 {
     "name": "combat_basic",
+    "description": "Test basic melee combat with hit/miss system",
     "seed": 42,
-    "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20},
+    "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10},
     "entities": [
-        {"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 3}
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 1, "ai_disabled": true}
     ],
     "actions": [
-        {"turn": 0, "action": {"type": "log", "query": "player_hp"}},
         {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}},
-        {"turn": 1, "action": {"type": "attack", "target_x": 6, "target_y": 5}},
-        {"turn": 2, "action": {"type": "log", "query": "player_hp"}}
+        {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}},
+        {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
     ],
     "assertions": [
-        {"at_end": true, "check": {"type": "no_enemy_at", "x": 6, "y": 5}, "message": "Enemy should be dead after combat"},
+        {"at_end": true, "check": {"type": "no_enemy_at", "x": 6, "y": 5}, "message": "Enemy should be dead (1 HP, 90% hit chance, 3 attempts)"},
         {"at_end": true, "check": {"type": "player_alive"}}
     ]
 }

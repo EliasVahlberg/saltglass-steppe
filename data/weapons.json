@@ -1,0 +1,72 @@
+{
+  "weapons": [
+    {
+      "id": "fists",
+      "name": "Fists",
+      "glyph": "✊",
+      "damage_min": 1,
+      "damage_max": 3,
+      "accuracy": 90,
+      "range": 1,
+      "ap_cost": 2,
+      "description": "Your bare hands"
+    },
+    {
+      "id": "salt_knife",
+      "name": "Salt Knife",
+      "glyph": "/",
+      "damage_min": 2,
+      "damage_max": 5,
+      "accuracy": 85,
+      "range": 1,
+      "ap_cost": 2,
+      "description": "Crystallized blade that never dulls"
+    },
+    {
+      "id": "glass_shard",
+      "name": "Glass Shard",
+      "glyph": "▲",
+      "damage_min": 3,
+      "damage_max": 6,
+      "accuracy": 75,
+      "range": 1,
+      "ap_cost": 2,
+      "description": "Jagged storm glass, cuts both ways"
+    },
+    {
+      "id": "pilgrim_staff",
+      "name": "Pilgrim Staff",
+      "glyph": "|",
+      "damage_min": 2,
+      "damage_max": 4,
+      "accuracy": 80,
+      "range": 1,
+      "ap_cost": 2,
+      "description": "Sturdy walking staff, good for defense"
+    },
+    {
+      "id": "brine_pistol",
+      "name": "Brine Pistol",
+      "glyph": "┘",
+      "damage_min": 4,
+      "damage_max": 8,
+      "accuracy": 70,
+      "range": 6,
+      "ap_cost": 3,
+      "ammo_type": "brine_shot",
+      "description": "Fires pressurized salt water"
+    },
+    {
+      "id": "storm_bow",
+      "name": "Storm Bow",
+      "glyph": ")",
+      "damage_min": 3,
+      "damage_max": 7,
+      "accuracy": 75,
+      "range": 8,
+      "ap_cost": 2,
+      "ammo_type": "glass_arrow",
+      "description": "Launches glass-tipped arrows"
+    }
+  ]
+}
