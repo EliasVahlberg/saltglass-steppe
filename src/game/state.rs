@@ -39,7 +39,7 @@ mod rng_serde {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TriggeredEffect {
     pub effect: String,
-    pub frames_remaining: u32,
+    pub turns_remaining: u32,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -170,7 +170,7 @@ impl GameState {
     pub fn trigger_effect(&mut self, effect: &str, duration: u32) {
         self.triggered_effects.push(TriggeredEffect {
             effect: effect.to_string(),
-            frames_remaining: duration,
+            turns_remaining: duration,
         });
     }
 
@@ -194,6 +194,11 @@ impl GameState {
                 self.log("The tincture wears off. Your glow returns.");
             }
         }
+        // Tick down triggered effects
+        self.triggered_effects.retain_mut(|e| {
+            e.turns_remaining = e.turns_remaining.saturating_sub(1);
+            e.turns_remaining > 0
+        });
     }
 
     pub fn log(&mut self, msg: impl Into<String>) {
@@ -375,7 +380,7 @@ impl GameState {
                 // Trigger on_hit effects
                 for e in &def.effects {
                     if e.condition == "on_hit" {
-                        self.trigger_effect(&e.effect, 20);
+                        self.trigger_effect(&e.effect, 2);
                     }
                 }
                 
@@ -478,7 +483,7 @@ impl GameState {
             if let Some(def) = self.enemies[ei].def() {
                 for e in &def.effects {
                     if e.condition == "on_hit" {
-                        self.trigger_effect(&e.effect, 20);
+                        self.trigger_effect(&e.effect, 2);
                     }
                 }
                 // Damage reflection behavior
@@ -501,7 +506,7 @@ impl GameState {
                 if let Some(def) = self.enemies[ei].def() {
                     for e in &def.effects {
                         if e.condition == "on_death" {
-                            self.trigger_effect(&e.effect, 30);
+                            self.trigger_effect(&e.effect, 3);
                         }
                     }
                 }
@@ -599,7 +604,7 @@ impl GameState {
             if let Some(d) = def {
                 for e in &d.effects {
                     if e.condition == "on_pickup" {
-                        self.trigger_effect(&e.effect, 30);
+                        self.trigger_effect(&e.effect, 3);
                     }
                 }
             }

@@ -13,6 +13,27 @@ use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, EffectContext
 
 const SAVE_FILE: &str = "savegame.ron";
 
+/// UI-specific state, separate from game logic
+struct UiState {
+    look_mode: LookMode,
+    frame_count: u64,
+    show_controls: bool,
+}
+
+impl UiState {
+    fn new() -> Self {
+        Self {
+            look_mode: LookMode { active: false, x: 0, y: 0 },
+            frame_count: 0,
+            show_controls: false,
+        }
+    }
+    
+    fn tick_frame(&mut self) {
+        self.frame_count = self.frame_count.wrapping_add(1);
+    }
+}
+
 struct LookMode {
     active: bool,
     x: i32,
@@ -21,20 +42,20 @@ struct LookMode {
 
 enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), None }
 
-fn handle_input(look_mode: &mut LookMode) -> Result<Action> {
+fn handle_input(ui: &mut UiState) -> Result<Action> {
     if event::poll(std::time::Duration::from_millis(16))? {
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
-                if look_mode.active {
+                if ui.look_mode.active {
                     match key.code {
-                        KeyCode::Esc | KeyCode::Enter => look_mode.active = false,
-                        KeyCode::Up | KeyCode::Char('k') => look_mode.y -= 1,
-                        KeyCode::Down | KeyCode::Char('j') => look_mode.y += 1,
-                        KeyCode::Left | KeyCode::Char('h') => look_mode.x -= 1,
-                        KeyCode::Right | KeyCode::Char('l') => look_mode.x += 1,
+                        KeyCode::Esc | KeyCode::Enter => ui.look_mode.active = false,
+                        KeyCode::Up | KeyCode::Char('k') => ui.look_mode.y -= 1,
+                        KeyCode::Down | KeyCode::Char('j') => ui.look_mode.y += 1,
+                        KeyCode::Left | KeyCode::Char('h') => ui.look_mode.x -= 1,
+                        KeyCode::Right | KeyCode::Char('l') => ui.look_mode.x += 1,
                         KeyCode::Char('b') => {
-                            let (x, y) = (look_mode.x, look_mode.y);
-                            look_mode.active = false;
+                            let (x, y) = (ui.look_mode.x, ui.look_mode.y);
+                            ui.look_mode.active = false;
                             return Ok(Action::BreakWall(x, y));
                         }
                         _ => {}
@@ -62,14 +83,14 @@ fn handle_input(look_mode: &mut LookMode) -> Result<Action> {
     Ok(Action::None)
 }
 
-fn update(state: &mut GameState, action: Action, look_mode: &mut LookMode) -> bool {
+fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
     match action {
         Action::Quit => return false,
-        Action::OpenControls => {}
+        Action::OpenControls => ui.show_controls = true,
         Action::EnterLook => {
-            look_mode.active = true;
-            look_mode.x = state.player_x;
-            look_mode.y = state.player_y;
+            ui.look_mode.active = true;
+            ui.look_mode.x = state.player_x;
+            ui.look_mode.y = state.player_y;
         }
         Action::BreakWall(x, y) => {
             if state.player_hp > 0 {
@@ -106,7 +127,7 @@ fn update(state: &mut GameState, action: Action, look_mode: &mut LookMode) -> bo
     true
 }
 
-fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_count: u64) {
+fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     // Build effect context
     let player_idx = state.map.idx(state.player_x, state.player_y);
     let on_glass = state.map.tiles.get(player_idx).map(|t| *t == Tile::Glass).unwrap_or(false);
@@ -150,7 +171,7 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_coun
         return;
     }
 
-    let desc_height = if look_mode.active { 3u16 } else { 0 };
+    let desc_height = if ui.look_mode.active { 3u16 } else { 0 };
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -161,8 +182,8 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_coun
         .split(frame.area());
 
     // Look mode description box
-    if look_mode.active {
-        let desc = state.describe_at(look_mode.x, look_mode.y);
+    if ui.look_mode.active {
+        let desc = state.describe_at(ui.look_mode.x, ui.look_mode.y);
         let block = Block::default().title(" Look (Esc/Enter to exit) ").borders(Borders::ALL);
         frame.render_widget(Paragraph::new(desc).block(block), chunks[0]);
     }
@@ -193,14 +214,14 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_coun
         let mut spans: Vec<Span> = Vec::new();
         for x in 0..state.map.width {
             let idx = state.map.idx(x as i32, y as i32);
-            let is_look_cursor = look_mode.active && x as i32 == look_mode.x && y as i32 == look_mode.y;
+            let is_look_cursor = ui.look_mode.active && x as i32 == ui.look_mode.x && y as i32 == ui.look_mode.y;
             let (ch, style) = if x as i32 == state.player_x && y as i32 == state.player_y {
                 let mut base_style = Style::default().fg(Color::Yellow).bold();
                 // Apply player effects
                 for effect in &player_effects {
                     match effect {
                         VisualEffect::Blink { speed, color } => {
-                            if (frame_count / *speed as u64) % 2 == 0 {
+                            if (ui.frame_count / *speed as u64) % 2 == 0 {
                                 base_style = base_style.fg(*color);
                             }
                         }
@@ -224,7 +245,7 @@ fn render(frame: &mut Frame, state: &GameState, look_mode: &LookMode, frame_coun
                     for effect in get_enemy_effects(&e.id) {
                         match effect {
                             VisualEffect::Blink { speed, color } => {
-                                if (frame_count / speed as u64) % 2 == 0 {
+                                if (ui.frame_count / speed as u64) % 2 == 0 {
                                     style = style.fg(color);
                                 }
                             }
@@ -408,34 +429,24 @@ fn main() -> Result<()> {
     // Game loop
     let seed = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
     let mut state = GameState::new(seed);
-    let mut show_controls = false;
-    let mut look_mode = LookMode { active: false, x: 0, y: 0 };
-    let mut frame_count: u64 = 0;
+    let mut ui = UiState::new();
 
     loop {
-        frame_count = frame_count.wrapping_add(1);
+        ui.tick_frame();
         
-        // Tick down triggered effects
-        state.triggered_effects.retain_mut(|e| {
-            e.frames_remaining = e.frames_remaining.saturating_sub(1);
-            e.frames_remaining > 0
-        });
-        
-        if show_controls {
+        if ui.show_controls {
             terminal.draw(render_controls)?;
             if event::poll(std::time::Duration::from_millis(16))? {
                 if let Event::Key(key) = event::read()? {
                     if key.kind == KeyEventKind::Press {
-                        show_controls = false;
+                        ui.show_controls = false;
                     }
                 }
             }
         } else {
-            terminal.draw(|frame| render(frame, &state, &look_mode, frame_count))?;
-            match handle_input(&mut look_mode)? {
-                Action::OpenControls => show_controls = true,
-                action => if !update(&mut state, action, &mut look_mode) { break; }
-            }
+            terminal.draw(|frame| render(frame, &state, &ui))?;
+            let action = handle_input(&mut ui)?;
+            if !update(&mut state, action, &mut ui) { break; }
         }
     }
 
