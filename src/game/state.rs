@@ -493,6 +493,53 @@ impl GameState {
         }
     }
 
+    /// Auto-explore: find nearest unexplored walkable tile and move toward it
+    pub fn auto_explore(&mut self) -> bool {
+        let start = self.map.idx(self.player_x, self.player_y);
+        
+        // BFS to find nearest unexplored walkable tile
+        let mut visited = HashSet::new();
+        let mut queue = std::collections::VecDeque::new();
+        queue.push_back((start, vec![start]));
+        visited.insert(start);
+        
+        let target = loop {
+            let (idx, path) = match queue.pop_front() {
+                Some(p) => p,
+                None => return false, // No unexplored tiles reachable
+            };
+            
+            // Check if this tile is unexplored
+            if !self.revealed.contains(&idx) {
+                // Return the first step toward this tile
+                if path.len() > 1 {
+                    break Some(path[1]);
+                }
+                return false;
+            }
+            
+            // Add neighbors
+            for (next_idx, _) in self.map.get_available_exits(idx) {
+                if !visited.contains(&next_idx) {
+                    visited.insert(next_idx);
+                    let mut new_path = path.clone();
+                    new_path.push(next_idx);
+                    queue.push_back((next_idx, new_path));
+                }
+            }
+        };
+        
+        if let Some(next_idx) = target {
+            let nx = (next_idx % self.map.width) as i32;
+            let ny = (next_idx / self.map.width) as i32;
+            let dx = nx - self.player_x;
+            let dy = ny - self.player_y;
+            self.try_move(dx, dy)
+        } else {
+            false
+        }
+    }
+
     pub fn try_move(&mut self, dx: i32, dy: i32) -> bool {
         let new_x = self.player_x + dx;
         let new_y = self.player_y + dy;

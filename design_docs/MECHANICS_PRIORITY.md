@@ -13,9 +13,9 @@ Scale: 1-5 (1=low, 5=high)
 | 4 | Map and Environment | 5 | 4 | 40% | None |
 | 5 | Enemy AI and NPCs | 4 | 4 | 20% | Combat, Map |
 | 6 | UI and HUD | 4 | 3 | 30% | All systems |
-| 7 | Inventory and Equipment | 4 | 2 | 40% | Items data |
+| 7 | Inventory and Equipment | 4 | 2 | 60% | Items data |
 | 8 | Character Progression | 3 | 3 | 0% | Combat |
-| 9 | Exploration | 3 | 2 | 10% | Map, FOV |
+| 9 | Exploration | 3 | 2 | 30% | Map, FOV |
 | 10 | Quests and Storytelling | 3 | 4 | 0% | NPCs, Map |
 | 11 | Crafting System | 2 | 3 | 0% | Inventory |
 | 12 | Modularity/Modding | 2 | 3 | 30% | All systems |

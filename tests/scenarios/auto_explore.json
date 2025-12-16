@@ -1,0 +1,24 @@
+{
+  "name": "Auto-Explore Test",
+  "description": "Test that auto-explore moves player toward unexplored tiles",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "actions": [
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "auto_explore"}}
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "explored_count", "op": "gt", "value": 20},
+      "message": "Should have explored more tiles after auto-explore"
+    }
+  ]
+}

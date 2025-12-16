@@ -190,6 +190,7 @@ pub enum Action {
     UseItem { item_index: usize },
     Equip { item_index: usize, slot: String },
     Unequip { slot: String },
+    AutoExplore,
     Wait { turns: u32 },
     EndTurn,
     Log { query: LogQuery },
@@ -628,6 +629,10 @@ impl DesExecutor {
                 };
                 self.state.unequip_slot(equip_slot);
                 self.log(format!("Unequipped {}", slot));
+            }
+            Action::AutoExplore => {
+                let moved = self.state.auto_explore();
+                self.log(format!("Auto-explore: {}", if moved { "moved" } else { "no path" }));
             }
             Action::Wait { turns } => {
                 for _ in 0..*turns {
