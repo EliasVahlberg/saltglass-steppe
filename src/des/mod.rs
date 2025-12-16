@@ -3,6 +3,9 @@
 //! Runs game scenarios without rendering for automated testing and validation.
 
 use crate::game::{Enemy, GameState, Item, Npc};
+use rand::SeedableRng;
+use rand_chacha::ChaCha8Rng;
+use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
@@ -336,6 +339,18 @@ impl DesExecutor {
         self
     }
 
+    /// Inject a specific RNG seed for deterministic testing
+    pub fn with_rng_seed(mut self, seed: u64) -> Self {
+        self.state.rng = ChaCha8Rng::seed_from_u64(seed);
+        self
+    }
+
+    /// Inject a specific RNG state for exact replay
+    pub fn with_rng(mut self, rng: ChaCha8Rng) -> Self {
+        self.state.rng = rng;
+        self
+    }
+
     fn capture_snapshot(&mut self) {
         if self.capture_snapshots {
             self.snapshots.push(StateSnapshot {
@@ -511,17 +526,18 @@ pub fn run_scenario_json(json: &str) -> Result<ExecutionResult, String> {
 // BLOCKED: Dummy Implementations
 // ============================================================================
 
-/// BLOCKED: Run multiple scenarios in parallel
-pub fn run_parallel(_scenarios: &[Scenario]) -> Vec<ExecutionResult> {
-    unimplemented!("BLOCKED: Parallel execution requires thread-safe DES executor")
+/// Run multiple scenarios in parallel using rayon thread pool
+pub fn run_parallel(scenarios: &[Scenario]) -> Vec<ExecutionResult> {
+    scenarios
+        .par_iter()
+        .map(|scenario| {
+            let executor = DesExecutor::new(scenario);
+            executor.run(scenario)
+        })
+        .collect()
 }
 
-/// BLOCKED: Run with system mocking
-pub fn run_with_mocks(_scenario: &Scenario, _mocks: &HashMap<String, serde_json::Value>) -> ExecutionResult {
-    unimplemented!("BLOCKED: System mocking requires dependency injection in GameState")
-}
-
-/// BLOCKED: Run with rendering and slow execution
+/// Run with rendering and slow execution
 pub fn run_rendered(_scenario: &Scenario, _frame_delay_ms: u64) -> ExecutionResult {
     unimplemented!("BLOCKED: Rendered execution requires UI decoupling and frame control")
 }
