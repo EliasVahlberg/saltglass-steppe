@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
 use super::constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
+use super::world_map::{Biome, Terrain};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct WallDef {
@@ -79,10 +80,80 @@ pub struct Map {
 }
 
 impl Map {
+    /// Generate a tile map from world context
+    pub fn generate_from_world(
+        rng: &mut ChaCha8Rng,
+        biome: Biome,
+        terrain: Terrain,
+        _elevation: u8,
+    ) -> (Self, Vec<(i32, i32)>) {
+        // Wall type based on biome
+        let wall_type = match biome {
+            Biome::Saltflat => "salt_crystal",
+            Biome::Ruins => "shale",
+            _ => "sandstone",
+        }.to_string();
+        let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
+        let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
+        let mut room_centers = Vec::new();
+
+        // Room count based on terrain
+        let (min_rooms, max_rooms) = match terrain {
+            Terrain::Canyon => (3, 5),
+            Terrain::Mesa => (4, 6),
+            Terrain::Hills => (5, 8),
+            Terrain::Dunes => (4, 7),
+            Terrain::Flat => (6, 10),
+        };
+        let num_rooms = rng.gen_range(min_rooms..=max_rooms);
+
+        // Glass density based on biome
+        let glass_density = match biome {
+            Biome::Saltflat => (20, 35),
+            Biome::Oasis => (5, 10),
+            _ => (10, 20),
+        };
+
+        for _ in 0..num_rooms {
+            let w = rng.gen_range(4..10);
+            let h = rng.gen_range(4..8);
+            let x = rng.gen_range(1..MAP_WIDTH - w - 1);
+            let y = rng.gen_range(1..MAP_HEIGHT - h - 1);
+            for ry in y..y + h {
+                for rx in x..x + w {
+                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor;
+                }
+            }
+            room_centers.push(((x + w / 2) as i32, (y + h / 2) as i32));
+        }
+
+        for i in 1..room_centers.len() {
+            let (cx1, cy1) = room_centers[i - 1];
+            let (cx2, cy2) = room_centers[i];
+            for x in (cx1.min(cx2) as usize)..=(cx1.max(cx2) as usize) {
+                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor;
+            }
+            for y in (cy1.min(cy2) as usize)..=(cy1.max(cy2) as usize) {
+                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor;
+            }
+        }
+
+        for _ in 0..rng.gen_range(glass_density.0..glass_density.1) {
+            let x = rng.gen_range(1..MAP_WIDTH - 1);
+            let y = rng.gen_range(1..MAP_HEIGHT - 1);
+            if tiles[y * MAP_WIDTH + x] == Tile::Floor {
+                tiles[y * MAP_WIDTH + x] = Tile::Glass;
+            }
+        }
+
+        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT }, room_centers)
+    }
+
+    /// Legacy generate (uses default biome/terrain)
     pub fn generate(rng: &mut ChaCha8Rng) -> (Self, Vec<(i32, i32)>) {
         let wall_type = random_wall_type(rng);
         let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
-        let mut tiles = vec![Tile::Wall { id: wall_type.clone(), hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
+        let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
         let mut room_centers = Vec::new();
         let num_rooms = rng.gen_range(5..9);
 
@@ -153,4 +224,30 @@ impl Algorithm2D for Map {
 
 pub fn compute_fov(map: &Map, x: i32, y: i32) -> HashSet<usize> {
     field_of_view(Point::new(x, y), FOV_RANGE, map).into_iter().map(|p| map.idx(p.x, p.y)).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use rand::SeedableRng;
+
+    #[test]
+    fn generate_from_world_deterministic() {
+        let mut rng1 = ChaCha8Rng::seed_from_u64(12345);
+        let mut rng2 = ChaCha8Rng::seed_from_u64(12345);
+        let (map1, rooms1) = Map::generate_from_world(&mut rng1, Biome::Saltflat, Terrain::Canyon, 100);
+        let (map2, rooms2) = Map::generate_from_world(&mut rng2, Biome::Saltflat, Terrain::Canyon, 100);
+        assert_eq!(map1.tiles, map2.tiles);
+        assert_eq!(rooms1, rooms2);
+    }
+
+    #[test]
+    fn biome_affects_wall_type() {
+        let mut rng = ChaCha8Rng::seed_from_u64(42);
+        let (map, _) = Map::generate_from_world(&mut rng, Biome::Saltflat, Terrain::Flat, 128);
+        // Saltflat should use salt_crystal walls
+        if let Tile::Wall { id, .. } = &map.tiles[0] {
+            assert_eq!(id, "salt_crystal");
+        }
+    }
 }

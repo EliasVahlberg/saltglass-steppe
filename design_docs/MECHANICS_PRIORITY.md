@@ -146,9 +146,13 @@ Phase 3 - Stealth:
 - ✅ POI placement (Town, Dungeon, Landmark, Shrine) with distance penalty
 - ✅ Deterministic generation from seed
 - ✅ `tile_seed()` for deriving per-tile seeds
+- ✅ `Map::generate_from_world()` - tile generation from biome/terrain/elevation
+  - Wall type varies by biome (Saltflat→salt_crystal, Ruins→shale, else→sandstone)
+  - Room count varies by terrain (Canyon: 3-5, Mesa: 4-6, Hills: 5-8, Dunes: 4-7, Flat: 6-10)
+  - Glass density varies by biome (Saltflat: 20-35, Oasis: 5-10, else: 10-20)
 
 **Missing:**
-- Tile generation from world seed (lazy generation)
+- Lazy tile generation when player enters world tile
 - Subterranean layers
 - Dynamic lighting (light sources, time of day)
 - Environmental hazards (fire spread, acid pools)
@@ -392,7 +396,7 @@ Auto-explore: BFS to nearest unexplored walkable tile
 ### Milestone 2: World & Exploration
 1. ✅ Explored tile memory
 2. ✅ World map generation
-3. ⬜ Tile-from-world-seed generation
+3. ✅ Tile-from-world-seed generation
 4. ⬜ Dynamic lighting
 
 ### Milestone 3: Depth

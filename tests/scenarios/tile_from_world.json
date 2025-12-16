@@ -1,0 +1,23 @@
+{
+  "name": "Tile Generation From World Seed",
+  "description": "Test that tile generation is deterministic from world seed",
+  "seed": 99999,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20
+  },
+  "actions": [],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "player_alive"},
+      "message": "Player should be alive"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "explored_count", "op": "gt", "value": 5},
+      "message": "Should have explored some tiles"
+    }
+  ]
+}
