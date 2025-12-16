@@ -278,21 +278,25 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
                     }
                     (e.glyph(), style)
                 } else if state.revealed.contains(&idx) {
-                    ('~', Style::default().fg(Color::DarkGray))
+                    // Show underlying tile, not enemy
+                    let tile = &state.map.tiles[idx];
+                    (tile.glyph(), Style::default().fg(Color::DarkGray))
                 } else { (' ', Style::default()) }
             } else if let Some(&ni) = state.npc_positions.get(&(x as i32, y as i32)) {
                 let npc = &state.npcs[ni];
                 if state.visible.contains(&idx) {
                     (npc.glyph(), Style::default().fg(Color::Green).bold())
                 } else if state.revealed.contains(&idx) {
-                    ('~', Style::default().fg(Color::DarkGray))
+                    let tile = &state.map.tiles[idx];
+                    (tile.glyph(), Style::default().fg(Color::DarkGray))
                 } else { (' ', Style::default()) }
             } else if state.item_positions.contains_key(&(x as i32, y as i32)) {
                 let item = &state.items[state.item_positions[&(x as i32, y as i32)][0]];
                 if state.visible.contains(&idx) {
                     (item.glyph(), Style::default().fg(Color::LightMagenta))
                 } else if state.revealed.contains(&idx) {
-                    ('~', Style::default().fg(Color::DarkGray))
+                    let tile = &state.map.tiles[idx];
+                    (tile.glyph(), Style::default().fg(Color::DarkGray))
                 } else { (' ', Style::default()) }
             } else if state.visible.contains(&idx) {
                 let tile = &state.map.tiles[idx];
@@ -303,7 +307,9 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
                 };
                 (tile.glyph(), style)
             } else if state.revealed.contains(&idx) {
-                ('~', Style::default().fg(Color::DarkGray))
+                // Show actual tile glyph in dark gray for explored-but-not-visible
+                let tile = &state.map.tiles[idx];
+                (tile.glyph(), Style::default().fg(Color::DarkGray))
             } else { (' ', Style::default()) };
             
             let style = if is_look_cursor { style.bg(Color::White).fg(Color::Black) } else { style };

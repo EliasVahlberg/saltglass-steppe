@@ -281,19 +281,20 @@ Phase 3 - Tactical AI:
 
 ### 9. Exploration (Importance: 3, Difficulty: 2)
 
-**Current State:** FOV reveals tiles, but no memory of explored areas.
+**Current State:** FOV reveals tiles, explored tiles persist in memory.
+
+**Completed:**
+- ✅ Explored tile memory (`revealed` HashSet)
+- ✅ FOV union into explored each turn
+- ✅ Explored-but-not-visible tiles render in gray (actual glyph, not placeholder)
+- ✅ Dynamic objects (enemies, NPCs, items) hidden when out of FOV
 
 **Missing:**
-- Explored tile memory
-- Desaturated rendering of explored-but-not-visible
 - Auto-explore pathfinding
 
 **Implementation Approach:**
 ```
-1. Add explored: HashSet<(i32,i32)> to GameState
-2. Union FOV into explored each turn
-3. Render explored tiles in gray
-4. Auto-explore: BFS to nearest unexplored walkable
+Auto-explore: BFS to nearest unexplored walkable tile
 ```
 
 ---
@@ -381,16 +382,17 @@ Phase 3 - Tactical AI:
 5. ✅ Status effects (basic set)
 
 ### Milestone 2: World & Exploration
-1. ⬜ Explored tile memory
+1. ✅ Explored tile memory
 2. ⬜ World map generation
 3. ⬜ Tile-from-world-seed generation
 4. ⬜ Dynamic lighting
 
 ### Milestone 3: Depth
-1. ⬜ Equipment system
-2. ⬜ AI demeanor types
-3. ⬜ NPC dialogue
-4. ⬜ Character progression
+1. ⬜ Proper inventory system with inspect stats/properties
+2. ⬜ Equipment system
+3. ⬜ AI demeanor types
+4. ⬜ NPC dialogue
+5. ⬜ Character progression
 
 ### Milestone 4: Content
 1. ⬜ Quests
