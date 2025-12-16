@@ -120,6 +120,8 @@ pub struct PlayerSetup {
     pub inventory: Vec<String>,
     #[serde(default)]
     pub adaptations: Vec<String>,
+    #[serde(default)]
+    pub equipped_weapon: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -166,6 +168,7 @@ pub enum Action {
     Move { dx: i32, dy: i32 },
     Teleport { x: i32, y: i32 },
     Attack { target_x: i32, target_y: i32 },
+    RangedAttack { target_x: i32, target_y: i32 },
     UseItem { item_index: usize },
     Wait { turns: u32 },
     EndTurn,
@@ -339,6 +342,10 @@ impl DesExecutor {
             if let Some(a) = parse_adaptation(adaptation_id) {
                 state.adaptations.push(a);
             }
+        }
+        // Wire equipped weapon
+        if let Some(weapon_id) = &scenario.player.equipped_weapon {
+            state.equipped_weapon = Some(weapon_id.clone());
         }
 
         // Spawn entities
@@ -537,6 +544,10 @@ impl DesExecutor {
                     self.state.try_move(dx, dy);
                     self.log(format!("Player attacked ({}, {})", target_x, target_y));
                 }
+            }
+            Action::RangedAttack { target_x, target_y } => {
+                self.state.try_ranged_attack(*target_x, *target_y);
+                self.log(format!("Player ranged attack ({}, {})", target_x, target_y));
             }
             Action::UseItem { item_index } => {
                 self.state.use_item(*item_index);

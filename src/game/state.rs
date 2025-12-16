@@ -652,6 +652,93 @@ impl GameState {
         false
     }
 
+    /// Attempt a ranged attack at target position
+    pub fn try_ranged_attack(&mut self, target_x: i32, target_y: i32) -> bool {
+        // Get equipped ranged weapon
+        let weapon = match self.equipped_weapon.as_ref().and_then(|id| get_weapon_def(id)) {
+            Some(w) if w.range > 1 => w,
+            _ => {
+                self.log("No ranged weapon equipped.");
+                return false;
+            }
+        };
+        
+        // Check range
+        let dist = ((target_x - self.player_x).abs() + (target_y - self.player_y).abs()) as i32;
+        if dist > weapon.range {
+            self.log("Target out of range.");
+            return false;
+        }
+        
+        // Check line of sight
+        let target_idx = self.map.idx(target_x, target_y);
+        if !self.visible.contains(&target_idx) {
+            self.log("Can't see target.");
+            return false;
+        }
+        
+        // Check AP
+        let cost = weapon.ap_cost;
+        if self.player_ap < cost {
+            return false;
+        }
+        
+        // Check ammo if required
+        if let Some(ammo_type) = &weapon.ammo_type {
+            if !self.inventory.iter().any(|id| id == ammo_type) {
+                self.log(format!("Out of {}.", ammo_type.replace('_', " ")));
+                return false;
+            }
+            // Consume ammo
+            if let Some(idx) = self.inventory.iter().position(|id| id == ammo_type) {
+                self.inventory.remove(idx);
+            }
+        }
+        
+        self.player_ap -= cost;
+        
+        // Check for enemy at target
+        let ei = match self.enemy_at(target_x, target_y) {
+            Some(i) => i,
+            None => {
+                self.log("No target there.");
+                self.check_auto_end_turn();
+                return true;
+            }
+        };
+        
+        // Roll attack
+        let enemy_reflex = self.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
+        let enemy_armor = self.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
+        let result = roll_attack(&mut self.rng, weapon, enemy_reflex, enemy_armor, 0);
+        let name = self.enemies[ei].name().to_string();
+        
+        if !result.hit {
+            self.log(format!("Your shot misses the {}.", name));
+            self.check_auto_end_turn();
+            return true;
+        }
+        
+        // Apply damage
+        let dmg = result.damage;
+        self.enemies[ei].hp -= dmg;
+        
+        if self.enemies[ei].hp <= 0 {
+            self.enemy_positions.remove(&(target_x, target_y));
+            self.emit(GameEvent::EnemyKilled { 
+                enemy_id: self.enemies[ei].id.clone(), 
+                x: target_x, y: target_y 
+            });
+            self.log(format!("You kill the {} with a ranged shot!", name));
+        } else {
+            let crit_str = if result.crit { " CRITICAL!" } else { "" };
+            self.log(format!("You hit the {} for {} damage.{}", name, dmg, crit_str));
+        }
+        
+        self.check_auto_end_turn();
+        true
+    }
+
     pub fn pickup_items(&mut self) {
         let px = self.player_x;
         let py = self.player_y;

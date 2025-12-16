@@ -1,0 +1,27 @@
+{
+    "name": "Ranged Attack Test",
+    "description": "Test ranged attack with brine pistol",
+    "seed": 12345,
+    "player": {
+        "x": 5,
+        "y": 5,
+        "hp": 20,
+        "max_hp": 20,
+        "ap": 10,
+        "max_ap": 10,
+        "equipped_weapon": "brine_pistol",
+        "inventory": ["brine_shot", "brine_shot", "brine_shot"]
+    },
+    "entities": [
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 8, "y": 5, "hp": 1, "ai_disabled": true}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 8, "target_y": 5}},
+        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 8, "target_y": 5}},
+        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 8, "target_y": 5}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "no_enemy_at", "x": 8, "y": 5}, "message": "Enemy should be dead from ranged attacks"},
+        {"at_end": true, "check": {"type": "inventory_size", "op": "lt", "value": 3}, "message": "Ammo should be consumed"}
+    ]
+}

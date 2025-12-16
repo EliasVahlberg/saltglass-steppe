@@ -133,6 +133,24 @@
         {"condition": "on_pickup", "effect": "B(@2 &White)"},
         {"condition": "on_use", "effect": "G(&White)"}
       ]
+    },
+    {
+      "id": "brine_shot",
+      "name": "Brine Shot",
+      "glyph": "•",
+      "description": "Pressurized salt water cartridge",
+      "value": 5,
+      "weight": 0,
+      "usable": false
+    },
+    {
+      "id": "glass_arrow",
+      "name": "Glass Arrow",
+      "glyph": "→",
+      "description": "Glass-tipped arrow for storm bows",
+      "value": 3,
+      "weight": 0,
+      "usable": false
     }
   ]
 }
