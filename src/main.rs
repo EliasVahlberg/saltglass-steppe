@@ -40,7 +40,7 @@ struct LookMode {
     y: i32,
 }
 
-enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), None }
+enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), EndTurn, AutoExplore, RangedAttack(i32, i32), None }
 
 fn handle_input(ui: &mut UiState) -> Result<Action> {
     if event::poll(std::time::Duration::from_millis(16))? {
@@ -58,6 +58,11 @@ fn handle_input(ui: &mut UiState) -> Result<Action> {
                             ui.look_mode.active = false;
                             return Ok(Action::BreakWall(x, y));
                         }
+                        KeyCode::Char('f') => {
+                            let (x, y) = (ui.look_mode.x, ui.look_mode.y);
+                            ui.look_mode.active = false;
+                            return Ok(Action::RangedAttack(x, y));
+                        }
                         _ => {}
                     }
                     return Ok(Action::None);
@@ -67,6 +72,8 @@ fn handle_input(ui: &mut UiState) -> Result<Action> {
                     KeyCode::Char('S') => Action::Save,
                     KeyCode::Char('L') => Action::Load,
                     KeyCode::Char('x') => Action::EnterLook,
+                    KeyCode::Char('e') => Action::EndTurn,
+                    KeyCode::Char('o') => Action::AutoExplore,
                     KeyCode::Char('1') => Action::UseItem(0),
                     KeyCode::Char('2') => Action::UseItem(1),
                     KeyCode::Char('3') => Action::UseItem(2),
@@ -120,6 +127,21 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
         Action::Move(dx, dy) => {
             if state.player_hp > 0 {
                 state.try_move(dx, dy);
+            }
+        }
+        Action::EndTurn => {
+            if state.player_hp > 0 {
+                state.end_turn();
+            }
+        }
+        Action::AutoExplore => {
+            if state.player_hp > 0 {
+                state.auto_explore();
+            }
+        }
+        Action::RangedAttack(x, y) => {
+            if state.player_hp > 0 {
+                state.try_ranged_attack(x, y);
             }
         }
         Action::None => {}
@@ -304,7 +326,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     let status = if state.player_hp <= 0 {
         "\n*** YOU DIED *** Press q to quit"
     } else {
-        "\nMove: hjkl | Look: x | Use: 1-3 | Save: S | Load: L | Quit: q"
+        "\nMove: hjkl | Look: x | End turn: e | Auto-explore: o | Use: 1-3 | Save: S | Load: L | Quit: q"
     };
     let log_text = format!("{}\n{}{}", inv_str, state.messages.join("\n"), status);
     let log_block = Block::default().title(" Log ").borders(Borders::ALL);

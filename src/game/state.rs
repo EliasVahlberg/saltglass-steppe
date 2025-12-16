@@ -349,7 +349,8 @@ impl GameState {
         if let Some(ei) = self.enemy_at(x, y) {
             let e = &self.enemies[ei];
             let desc = e.def().map(|d| d.description.as_str()).unwrap_or("A creature");
-            return format!("{} (HP: {}) - {}", e.name(), e.hp, desc);
+            let demeanor = format!("{:?}", e.demeanor()).to_lowercase();
+            return format!("{} (HP: {}, {}) - {}", e.name(), e.hp, demeanor, desc);
         }
         if let Some(ni) = self.npc_at(x, y) {
             let n = &self.npcs[ni];
@@ -358,7 +359,14 @@ impl GameState {
         }
         if let Some(item) = self.items.iter().find(|i| i.x == x && i.y == y) {
             if let Some(def) = get_item_def(&item.id) {
-                return format!("{} - {}", def.name, def.description);
+                let item_type = if def.armor_value > 0 { "armor" }
+                    else if def.usable { "consumable" }
+                    else { "item" };
+                return format!("{} ({}) - {}", def.name, item_type, def.description);
+            }
+            // Check if it's a weapon
+            if let Some(wdef) = get_weapon_def(&item.id) {
+                return format!("{} (weapon) - {}", wdef.name, wdef.description);
             }
         }
         if let Some(tile) = self.map.get(x, y) {
