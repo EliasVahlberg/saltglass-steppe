@@ -200,8 +200,13 @@ impl GameState {
     }
 
     pub fn update_lighting(&mut self) {
-        // Player always has a torch
-        let sources = vec![LightSource { x: self.player_x, y: self.player_y, radius: 8, intensity: 150 }];
+        // Player torch + map lights
+        let mut sources = vec![LightSource { x: self.player_x, y: self.player_y, radius: 8, intensity: 150 }];
+        for ml in &self.map.lights {
+            if let Some(def) = super::light_defs::get_light_def(&ml.id) {
+                sources.push(LightSource { x: ml.x, y: ml.y, radius: def.radius, intensity: def.intensity });
+            }
+        }
         self.light_map = compute_lighting(&sources, self.ambient_light);
     }
 

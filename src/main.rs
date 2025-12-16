@@ -9,7 +9,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 use std::io::{stdout, Result};
-use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT};
+use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, get_light_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -310,6 +310,22 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
                 let item = &state.items[state.item_positions[&(x as i32, y as i32)][0]];
                 if state.visible.contains(&idx) {
                     (item.glyph(), Style::default().fg(Color::LightMagenta))
+                } else if state.revealed.contains(&idx) {
+                    let tile = &state.map.tiles[idx];
+                    (tile.glyph(), Style::default().fg(Color::DarkGray))
+                } else { (' ', Style::default()) }
+            } else if let Some(ml) = state.map.lights.iter().find(|l| l.x == x as i32 && l.y == y as i32) {
+                if state.visible.contains(&idx) {
+                    let def = get_light_def(&ml.id);
+                    let glyph = def.map(|d| d.glyph.chars().next().unwrap_or('*')).unwrap_or('*');
+                    let color = match def.map(|d| d.color.as_str()) {
+                        Some("orange") => Color::Rgb(255, 140, 0),
+                        Some("yellow") => Color::Yellow,
+                        Some("cyan") => Color::Cyan,
+                        Some("red") => Color::Rgb(255, 80, 40),
+                        _ => Color::Yellow,
+                    };
+                    (glyph, Style::default().fg(color))
                 } else if state.revealed.contains(&idx) {
                     let tile = &state.map.tiles[idx];
                     (tile.glyph(), Style::default().fg(Color::DarkGray))

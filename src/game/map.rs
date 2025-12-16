@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
 use super::constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
+use super::light_defs::{get_spawn_rule, pick_light_type};
 use super::world_map::{Biome, Terrain};
 
 #[derive(Debug, Clone, Deserialize)]
@@ -72,11 +73,21 @@ impl Tile {
     }
 }
 
+/// Static light source placed in the map
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct MapLight {
+    pub x: i32,
+    pub y: i32,
+    pub id: String,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Map {
     pub tiles: Vec<Tile>,
     pub width: usize,
     pub height: usize,
+    #[serde(default)]
+    pub lights: Vec<MapLight>,
 }
 
 impl Map {
@@ -146,7 +157,26 @@ impl Map {
             }
         }
 
-        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT }, room_centers)
+        // Spawn lights based on biome
+        let biome_key = match biome {
+            Biome::Saltflat => "saltflat",
+            Biome::Ruins => "ruins",
+            _ => "default",
+        };
+        let rule = get_spawn_rule(biome_key);
+        let mut lights = Vec::new();
+        for &(rx, ry) in &room_centers {
+            let count = rng.gen_range(rule.lights_per_room[0]..=rule.lights_per_room[1]);
+            for _ in 0..count {
+                if let Some(light_id) = pick_light_type(rule, rng) {
+                    let lx = rx + rng.gen_range(-2..=2);
+                    let ly = ry + rng.gen_range(-2..=2);
+                    lights.push(MapLight { x: lx, y: ly, id: light_id });
+                }
+            }
+        }
+
+        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT, lights }, room_centers)
     }
 
     /// Legacy generate (uses default biome/terrain)
@@ -189,7 +219,21 @@ impl Map {
             }
         }
 
-        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT }, room_centers)
+        // Spawn lights using default rules
+        let rule = get_spawn_rule("default");
+        let mut lights = Vec::new();
+        for &(rx, ry) in &room_centers {
+            let count = rng.gen_range(rule.lights_per_room[0]..=rule.lights_per_room[1]);
+            for _ in 0..count {
+                if let Some(light_id) = pick_light_type(rule, rng) {
+                    let lx = rx + rng.gen_range(-2..=2);
+                    let ly = ry + rng.gen_range(-2..=2);
+                    lights.push(MapLight { x: lx, y: ly, id: light_id });
+                }
+            }
+        }
+
+        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT, lights }, room_centers)
     }
 
     pub fn get(&self, x: i32, y: i32) -> Option<&Tile> {
