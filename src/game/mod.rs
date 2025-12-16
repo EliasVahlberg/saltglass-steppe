@@ -1,16 +1,18 @@
 pub mod action;
 pub mod adaptation;
+pub mod ai;
 pub mod combat;
 pub mod constants;
 pub mod effect;
 pub mod enemy;
+pub mod equipment;
 pub mod event;
+pub mod inspect;
 pub mod item;
 pub mod map;
 pub mod npc;
 pub mod spawn;
 pub mod state;
-pub mod equipment;
 pub mod status;
 pub mod storm;
 
