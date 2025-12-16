@@ -16,6 +16,7 @@ pub mod spawn;
 pub mod state;
 pub mod status;
 pub mod storm;
+pub mod world_map;
 
 pub use action::{action_cost, default_enemy_ap, default_player_ap};
 pub use adaptation::Adaptation;
@@ -29,3 +30,4 @@ pub use map::{compute_fov, Map, Tile};
 pub use npc::{get_npc_def, Npc, NpcDef};
 pub use state::{GameState, TriggeredEffect};
 pub use storm::Storm;
+pub use world_map::{Biome, POI, Terrain, WorldMap, WORLD_SIZE};

@@ -136,11 +136,19 @@ Phase 3 - Stealth:
 
 ### 4. Map and Environment (Importance: 5, Difficulty: 4)
 
-**Current State:** Single-tile procgen with rooms, corridors, FOV, storm glass conversion.
+**Current State:** Single-tile procgen with rooms, corridors, FOV, storm glass conversion. World map generation implemented.
+
+**Completed:**
+- ✅ World map generation (`WorldMap` struct with 64x64 grid)
+- ✅ Biome layer (Desert, Saltflat, Scrubland, Oasis, Ruins) via Perlin noise
+- ✅ Terrain layer (Flat, Hills, Dunes, Canyon, Mesa) via Perlin noise
+- ✅ Elevation layer (0-255) via Perlin noise
+- ✅ POI placement (Town, Dungeon, Landmark, Shrine) with distance penalty
+- ✅ Deterministic generation from seed
+- ✅ `tile_seed()` for deriving per-tile seeds
 
 **Missing:**
-- World map layer (biomes, terrain, elevation)
-- Lazy tile generation from world seed
+- Tile generation from world seed (lazy generation)
 - Subterranean layers
 - Dynamic lighting (light sources, time of day)
 - Environmental hazards (fire spread, acid pools)
@@ -383,7 +391,7 @@ Auto-explore: BFS to nearest unexplored walkable tile
 
 ### Milestone 2: World & Exploration
 1. ✅ Explored tile memory
-2. ⬜ World map generation
+2. ✅ World map generation
 3. ⬜ Tile-from-world-seed generation
 4. ⬜ Dynamic lighting
 
