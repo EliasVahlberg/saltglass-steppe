@@ -1,0 +1,17 @@
+{
+    "name": "player_adaptations",
+    "seed": 42,
+    "player": {
+        "x": 5, "y": 5,
+        "hp": 20, "max_hp": 20,
+        "adaptations": ["saltblood", "prismhide"]
+    },
+    "actions": [
+        {"turn": 0, "action": {"type": "log", "query": {"custom": {"message": "Testing adaptations"}}}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_has_adaptation", "adaptation": "saltblood"}},
+        {"at_end": true, "check": {"type": "player_has_adaptation", "adaptation": "prismhide"}},
+        {"at_end": true, "check": {"type": "adaptation_count", "op": "eq", "value": 2}}
+    ]
+}

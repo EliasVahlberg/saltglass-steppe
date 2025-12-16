@@ -333,6 +333,7 @@ impl GameState {
         
         for i in 0..self.enemies.len() {
             if self.enemies[i].hp <= 0 { continue; }
+            if self.enemies[i].ai_disabled { continue; }
             let ex = self.enemies[i].x;
             let ey = self.enemies[i].y;
             let def = match self.enemies[i].def() {

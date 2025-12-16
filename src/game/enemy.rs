@@ -95,12 +95,18 @@ pub struct Enemy {
     pub y: i32,
     pub id: String,
     pub hp: i32,
+    #[serde(default)]
+    pub ai_disabled: bool,
 }
 
 impl Enemy {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
         let max_hp = get_enemy_def(id).map(|d| d.max_hp).unwrap_or(10);
-        Self { x, y, id: id.to_string(), hp: max_hp }
+        Self { x, y, id: id.to_string(), hp: max_hp, ai_disabled: false }
+    }
+
+    pub fn id(&self) -> &str {
+        &self.id
     }
 
     pub fn def(&self) -> Option<&'static EnemyDef> {

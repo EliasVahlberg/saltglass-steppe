@@ -2,7 +2,7 @@
 //!
 //! Runs game scenarios without rendering for automated testing and validation.
 
-use crate::game::{Enemy, GameState, Item, Npc};
+use crate::game::{adaptation::Adaptation, Enemy, GameState, Item, Npc};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
@@ -10,6 +10,16 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
+
+fn parse_adaptation(id: &str) -> Option<Adaptation> {
+    match id.to_lowercase().as_str() {
+        "prismhide" => Some(Adaptation::Prismhide),
+        "sunveins" => Some(Adaptation::Sunveins),
+        "mirage_step" | "miragestep" => Some(Adaptation::MirageStep),
+        "saltblood" => Some(Adaptation::Saltblood),
+        _ => None,
+    }
+}
 
 // ============================================================================
 // Types
@@ -57,6 +67,14 @@ pub enum AssertionCheck {
     EnemyAt { x: i32, y: i32, alive: bool },
     NoEnemyAt { x: i32, y: i32 },
     Turn { op: CmpOp, value: u32 },
+    // New assertions
+    EnemyHp { id: String, op: CmpOp, value: i32 },
+    EnemyAlive { id: String },
+    EnemyDead { id: String },
+    PlayerHasAdaptation { adaptation: String },
+    AdaptationCount { op: CmpOp, value: usize },
+    MapTileAt { x: i32, y: i32, tile: String },
+    Refraction { op: CmpOp, value: u32 },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -107,6 +125,8 @@ pub struct EntitySpawn {
     pub y: i32,
     #[serde(default)]
     pub hp: Option<i32>,
+    #[serde(default)]
+    pub ai_disabled: bool,
     #[serde(default)]
     pub properties: HashMap<String, serde_json::Value>,
 }
@@ -302,6 +322,12 @@ impl DesExecutor {
         for item_id in &scenario.player.inventory {
             state.inventory.push(item_id.clone());
         }
+        // Wire adaptations
+        for adaptation_id in &scenario.player.adaptations {
+            if let Some(a) = parse_adaptation(adaptation_id) {
+                state.adaptations.push(a);
+            }
+        }
 
         // Spawn entities
         for spawn in &scenario.entities {
@@ -311,6 +337,7 @@ impl DesExecutor {
                     if let Some(hp) = spawn.hp {
                         enemy.hp = hp;
                     }
+                    enemy.ai_disabled = spawn.ai_disabled;
                     state.enemies.push(enemy);
                 }
                 EntityType::Npc => {
@@ -436,6 +463,35 @@ impl DesExecutor {
             }
             AssertionCheck::NoEnemyAt { x, y } => self.state.enemy_at(*x, *y).is_none(),
             AssertionCheck::Turn { op, value } => op.compare(self.state.turn as i32, *value as i32),
+            // New assertions
+            AssertionCheck::EnemyHp { id, op, value } => {
+                self.state.enemies.iter()
+                    .find(|e| e.id() == id)
+                    .map(|e| op.compare(e.hp, *value))
+                    .unwrap_or(false)
+            }
+            AssertionCheck::EnemyAlive { id } => {
+                self.state.enemies.iter().any(|e| e.id() == id && e.hp > 0)
+            }
+            AssertionCheck::EnemyDead { id } => {
+                self.state.enemies.iter().any(|e| e.id() == id && e.hp <= 0)
+            }
+            AssertionCheck::PlayerHasAdaptation { adaptation } => {
+                parse_adaptation(adaptation)
+                    .map(|a| self.state.adaptations.contains(&a))
+                    .unwrap_or(false)
+            }
+            AssertionCheck::AdaptationCount { op, value } => {
+                op.compare(self.state.adaptations.len() as i32, *value as i32)
+            }
+            AssertionCheck::MapTileAt { x, y, tile } => {
+                self.state.map.get(*x, *y)
+                    .map(|t| format!("{:?}", t).to_lowercase().contains(&tile.to_lowercase()))
+                    .unwrap_or(false)
+            }
+            AssertionCheck::Refraction { op, value } => {
+                op.compare(self.state.refraction as i32, *value as i32)
+            }
         }
     }
 

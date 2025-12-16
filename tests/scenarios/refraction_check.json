@@ -1,0 +1,11 @@
+{
+    "name": "refraction_check",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20},
+    "actions": [
+        {"turn": 0, "action": {"type": "log", "query": "player_hp"}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "refraction", "op": "eq", "value": 0}, "message": "Initial refraction is 0"}
+    ]
+}

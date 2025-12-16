@@ -1,0 +1,15 @@
+{
+    "name": "ai_disabled_enemy",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 5, "max_hp": 20},
+    "entities": [
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 10, "ai_disabled": true}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "wait", "turns": 5}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_alive"}, "message": "Player survives because enemy AI is disabled"},
+        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 5}, "message": "HP unchanged - no attacks"}
+    ]
+}

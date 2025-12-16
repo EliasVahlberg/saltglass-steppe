@@ -1,0 +1,15 @@
+{
+    "name": "enemy_hp_check",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20},
+    "entities": [
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 10, "ai_disabled": true}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "enemy_hp", "id": "mirage_hound", "op": "lt", "value": 10}, "message": "Enemy took damage"},
+        {"at_end": true, "check": {"type": "enemy_alive", "id": "mirage_hound"}}
+    ]
+}
