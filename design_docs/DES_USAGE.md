@@ -70,7 +70,8 @@ Override game systems for deterministic testing:
   "id": "mirage_hound",    // Entity definition ID
   "x": 6, "y": 5,
   "hp": 10,                // Optional: override HP
-  "ai_disabled": true      // Optional: disable AI
+  "ai_disabled": true,     // Optional: disable AI
+  "inventory": ["brine_vial", "salt_knife"]  // Optional: items carried
 }
 ```
 
@@ -139,6 +140,7 @@ Override game systems for deterministic testing:
 {"type": "enemy_alive", "id": "mirage_hound"}
 {"type": "enemy_dead", "id": "mirage_hound"}
 {"type": "enemy_provoked", "id": "salt_pilgrim", "provoked": true}
+{"type": "enemy_has_item", "id": "mirage_hound", "item": "brine_vial"}
 ```
 
 #### NPCs

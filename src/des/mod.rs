@@ -106,6 +106,7 @@ pub enum AssertionCheck {
     EquippedInSlot { slot: String, item: Option<String> },
     PlayerArmor { op: CmpOp, value: i32 },
     EnemyProvoked { id: String, provoked: bool },
+    EnemyHasItem { id: String, item: String },
     LightLevel { x: i32, y: i32, op: CmpOp, value: u8 },
     ItemInspectHasStat { item: String, stat: String },
     ItemInspectMissingStat { item: String, stat: String },
@@ -170,6 +171,8 @@ pub struct EntitySpawn {
     pub hp: Option<i32>,
     #[serde(default)]
     pub ai_disabled: bool,
+    #[serde(default)]
+    pub inventory: Vec<String>,
     #[serde(default)]
     pub properties: HashMap<String, serde_json::Value>,
 }
@@ -397,6 +400,7 @@ impl DesExecutor {
                         enemy.hp = hp;
                     }
                     enemy.ai_disabled = spawn.ai_disabled;
+                    enemy.inventory = spawn.inventory.clone();
                     state.enemies.push(enemy);
                 }
                 EntityType::Npc => {
@@ -590,6 +594,12 @@ impl DesExecutor {
                 self.state.enemies.iter()
                     .find(|e| e.id == *id)
                     .map(|e| e.provoked == *provoked)
+                    .unwrap_or(false)
+            }
+            AssertionCheck::EnemyHasItem { id, item } => {
+                self.state.enemies.iter()
+                    .find(|e| e.id == *id)
+                    .map(|e| e.inventory.contains(item))
                     .unwrap_or(false)
             }
             AssertionCheck::LightLevel { x, y, op, value } => {

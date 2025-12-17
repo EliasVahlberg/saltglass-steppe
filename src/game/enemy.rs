@@ -120,12 +120,14 @@ pub struct Enemy {
     pub ai_disabled: bool,
     #[serde(default)]
     pub provoked: bool,  // Set when attacked by player
+    #[serde(default)]
+    pub inventory: Vec<String>,  // Items carried by enemy
 }
 
 impl Enemy {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
         let max_hp = get_enemy_def(id).map(|d| d.max_hp).unwrap_or(10);
-        Self { x, y, id: id.to_string(), hp: max_hp, ai_disabled: false, provoked: false }
+        Self { x, y, id: id.to_string(), hp: max_hp, ai_disabled: false, provoked: false, inventory: Vec::new() }
     }
 
     pub fn id(&self) -> &str {
