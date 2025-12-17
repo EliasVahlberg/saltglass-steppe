@@ -5,46 +5,81 @@
 - 🔨 In Progress
 - ⏳ Pending
 
-## Core Features
+## Core Features (from DEBUG_EXECUTION_SYSTEM.md)
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Game State Management | ✅ | GameState with RON serialization |
-| RNG Seeding | ✅ | ChaCha8Rng with deterministic seeding |
-| Entity Management | ✅ | Enemies, NPCs, Items |
-| Basic Logging | ✅ | ExecutionLog with turn/action indexing |
-| DES Module Structure | ✅ | src/des/mod.rs |
-| DES Types | ✅ | Scenario, Action, EntitySpawn, Assertion |
-| DES JSON Parser | ✅ | Parse scenario files with inheritance |
-| DES Executor Core | ✅ | Execute scenarios headlessly |
+| # | Feature | Status | Notes |
+|---|---------|--------|-------|
+| 1 | Game State Management | ✅ | GameState with RON serialization |
+| 2 | Action Queue | ✅ | ScheduledAction with turn-based execution |
+| 3 | Entity Management | ✅ | Enemies, NPCs, Items with spawn properties |
+| 4 | Logging System | ✅ | ExecutionLog with turn/action indexing |
+| 5 | Testing Framework (Assertions) | ✅ | 25+ assertion types with CmpOp |
+| 6 | Decoupling Game Logic | ✅ | Game logic independent of rendering/input |
+| 7 | DES Input Parser | ✅ | Parse scenario files with inheritance |
+| 8 | Base DES Files | ✅ | 6 BASE_* scenarios created |
+| 9 | Action/State Indexing | ✅ | StateSnapshot capture after each action |
+| 10 | Parallel Test Execution | ✅ | rayon-based parallel execution |
+| 11 | Mock Certain Systems | 🔨 | ai_disabled for enemies; general mocking pending |
+| 12 | Comprehensive Documentation | ⏳ | Architecture docs needed |
+| 13 | CI Integration | ✅ | GitHub Actions + integration tests |
+| 14 | Seed RNG | ✅ | ChaCha8Rng with deterministic seeding |
+| 15 | Rendered Slow Execution | ✅ | run_with_render() callback API |
 
-## Advanced Features
+## Remaining Tasks
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Testing Framework (Assertions) | ✅ | 9 assertion types with CmpOp |
-| Base File Inheritance | ✅ | Scenario merging + variable substitution |
-| Action/State Indexing | ✅ | StateSnapshot capture after each action |
-| Injectable RNG | ✅ | with_rng_seed() and with_rng() |
-| Parallel Test Execution | ✅ | rayon-based parallel execution |
-| Rendered Slow Execution | ✅ | run_with_render() callback API |
-| CI Integration | ✅ | GitHub Actions + integration tests |
+### High Priority
+- [ ] **Documentation**: Write DES usage guide with examples
+  - Scenario JSON schema reference
+  - Assertion types and usage
+  - Base file inheritance patterns
+  - Best practices for test scenarios
 
-## Implementation Complete
+### Medium Priority
+- [ ] **General Mocking System**: Extend beyond ai_disabled
+  - Mock combat rolls (always hit/miss)
+  - Mock item drops
+  - Mock pathfinding results
+- [ ] **Entity Spawn Extensions**:
+  - Entity inventory (spawn enemies/NPCs with items)
+  - Entity equipment (spawn enemies with weapons)
 
-All originally blocked features have been implemented:
+### Low Priority (Future)
+- [ ] **Player Setup Extensions**:
+  - Player skills/abilities
+  - Player psy/max_psy (when psy system implemented)
+- [ ] **Advanced Actions**:
+  - Interact with specific entity by ID
+  - Trigger specific game events
 
-1. **Assertions** - AssertionCheck enum with PlayerHp, PlayerPosition, PlayerAlive, PlayerDead, InventoryContains, InventorySize, EnemyAt, NoEnemyAt, Turn checks
-2. **Base File Inheritance** - Scenario.inherit_from() merges base scenarios, from_json_with_vars() for ${var} substitution
-3. **State Indexing** - StateSnapshot captures state after each action for debugging
-4. **Injectable RNG** - DesExecutor.with_rng_seed() and with_rng() for deterministic testing
-5. **Parallel Execution** - run_parallel() uses rayon for concurrent scenario execution
-6. **Rendered Execution** - run_with_render() accepts callback for visual debugging
-7. **CI Integration** - GitHub Actions workflow + test scenarios
+## Implemented Features Summary
+
+### Assertions (25+ types)
+- PlayerHp, PlayerPosition, PlayerAlive, PlayerDead
+- InventoryContains, InventorySize
+- EnemyAt, NoEnemyAt, EnemyHp, EnemyAlive, EnemyDead, EnemyProvoked
+- Turn, PlayerAp, PlayerArmor, PlayerXp, PlayerLevel
+- PlayerHasAdaptation, AdaptationCount
+- MapTileAt, TileExplored, ExploredCount, LightLevel
+- HasStatusEffect, StatusEffectCount
+- EquippedInSlot, ItemInspectHasStat, ItemInspectMissingStat
+- NpcTalked
+
+### Actions
+- Move, Teleport, Attack, RangedAttack
+- UseItem, Equip, Unequip
+- ApplyStatus, AutoExplore, Wait, EndTurn, Log
+
+### Base Scenarios (tests/scenarios/BASE_*)
+- BASE_empty_room.json - Minimal room setup
+- BASE_combat.json - Player + enemy for combat tests
+- BASE_equipped_player.json - Player with weapon/armor
+- BASE_npc.json - Player + NPC for dialogue tests
+- BASE_items.json - Player + items for pickup/use tests
+- BASE_progression.json - Player setup for XP/level tests
 
 ## Test Coverage
 
-- 20 unit tests in src/lib.rs
+- 34 unit tests in src/lib.rs
 - 5 DES-specific unit tests in src/des/mod.rs
 - 3 integration tests in tests/des_scenarios.rs
-- 2 example scenarios in tests/scenarios/
+- 35 scenario files in tests/scenarios/
