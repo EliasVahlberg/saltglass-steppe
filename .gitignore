@@ -216,3 +216,9 @@ __marimo__/
 .vscode
 
 doc_resources
+
+savegame.ron
+
+untracked_docs
+
+.github
