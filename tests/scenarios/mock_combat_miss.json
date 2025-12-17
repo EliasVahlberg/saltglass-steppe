@@ -1,0 +1,29 @@
+{
+  "name": "Mock Combat Miss Test",
+  "description": "Test combat mocking - force all attacks to miss",
+  "seed": 100,
+  "mocks": {
+    "combat_always_hit": false
+  },
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 10
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "shard_spider", "x": 6, "y": 5, "hp": 5, "ai_disabled": true}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}},
+    {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}},
+    {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "enemy_at", "x": 6, "y": 5, "alive": true},
+      "message": "Enemy should still be alive (all attacks missed)"
+    }
+  ]
+}

@@ -36,11 +36,23 @@ fn parse_status_type(id: &str) -> Option<StatusType> {
 // Types
 // ============================================================================
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct MockSettings {
+    /// Force all attacks to hit (true) or miss (false)
+    #[serde(default)]
+    pub combat_always_hit: Option<bool>,
+    /// Force specific damage value (bypasses roll)
+    #[serde(default)]
+    pub combat_fixed_damage: Option<i32>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Scenario {
     pub name: String,
     #[serde(default)]
     pub seed: Option<u64>,
+    #[serde(default)]
+    pub mocks: MockSettings,
     #[serde(default)]
     pub entities: Vec<EntitySpawn>,
     #[serde(default)]
@@ -397,6 +409,10 @@ impl DesExecutor {
         }
         state.rebuild_spatial_index();
         state.update_lighting();
+
+        // Apply mock settings
+        state.mock_combat_hit = scenario.mocks.combat_always_hit;
+        state.mock_combat_damage = scenario.mocks.combat_fixed_damage;
 
         Self {
             state,
@@ -918,5 +934,31 @@ mod tests {
         let result = run_scenario_json(json).unwrap();
         assert!(!result.success);
         assert!(!result.assertion_results[0].passed);
+    }
+
+    #[test]
+    fn mock_combat_always_miss() {
+        let json = r#"{
+            "name": "mock_miss_test",
+            "seed": 100,
+            "mocks": {"combat_always_hit": false},
+            "player": {"x": 5, "y": 5, "hp": 20, "ap": 10},
+            "entities": [
+                {"entity_type": "enemy", "id": "shard_spider", "x": 6, "y": 5, "hp": 5, "ai_disabled": true}
+            ],
+            "actions": [
+                {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
+            ]
+        }"#;
+        let result = run_scenario_json(json).unwrap();
+        let state = result.final_state.as_ref().unwrap();
+        eprintln!("Mock hit setting: {:?}", state.mock_combat_hit);
+        // Find enemy at target position
+        let enemy = state.enemies.iter().find(|e| e.x == 6 && e.y == 5);
+        eprintln!("Enemy at (6,5): {:?}", enemy.map(|e| (e.id.as_str(), e.hp)));
+        eprintln!("Logs: {:?}", result.logs.iter().map(|l| &l.message).collect::<Vec<_>>());
+        // Enemy should still have 5 HP since all attacks miss
+        let enemy_hp = enemy.map(|e| e.hp).unwrap_or(-999);
+        assert_eq!(enemy_hp, 5, "Enemy should have 5 HP (attack missed)");
     }
 }

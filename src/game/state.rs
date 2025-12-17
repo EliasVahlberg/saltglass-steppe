@@ -94,6 +94,12 @@ pub struct GameState {
     pub item_positions: HashMap<(i32, i32), Vec<usize>>,
     #[serde(skip)]
     pub event_queue: Vec<GameEvent>,
+    /// Mock: force combat hits (Some(true)) or misses (Some(false))
+    #[serde(skip)]
+    pub mock_combat_hit: Option<bool>,
+    /// Mock: force specific damage value
+    #[serde(skip)]
+    pub mock_combat_damage: Option<i32>,
 }
 
 impl GameState {
@@ -182,6 +188,8 @@ impl GameState {
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
             event_queue: Vec::new(),
+            mock_combat_hit: None,
+            mock_combat_damage: None,
         };
         state.rebuild_spatial_index();
         state

@@ -1,0 +1,29 @@
+{
+  "name": "Mock Combat Test",
+  "description": "Test combat mocking - force all attacks to hit with fixed damage",
+  "seed": 100,
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 5
+  },
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 10
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 10, "ai_disabled": true}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}},
+    {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "enemy_dead", "id": "mirage_hound"},
+      "message": "Enemy should be dead (10 HP - 5 - 5 = 0)"
+    }
+  ]
+}

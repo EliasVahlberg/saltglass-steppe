@@ -2,7 +2,7 @@
 
 use super::{
     action::action_cost,
-    combat::{default_weapon, get_weapon_def, roll_attack},
+    combat::{default_weapon, get_weapon_def, roll_attack, CombatResult},
     event::GameEvent,
     item::get_item_def,
     map::Tile,
@@ -10,6 +10,18 @@ use super::{
 };
 
 impl GameState {
+    /// Apply mock settings to combat result if configured
+    fn apply_combat_mocks(&self, mut result: CombatResult) -> CombatResult {
+        if let Some(force_hit) = self.mock_combat_hit {
+            result.hit = force_hit;
+            if !force_hit { result.damage = 0; }
+        }
+        if let Some(dmg) = self.mock_combat_damage {
+            if result.hit { result.damage = dmg; }
+        }
+        result
+    }
+
     /// Melee attack against enemy at position
     pub fn attack_melee(&mut self, target_x: i32, target_y: i32) -> bool {
         let ei = match self.enemy_at(target_x, target_y) {
@@ -31,6 +43,7 @@ impl GameState {
         let enemy_armor = self.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
 
         let result = roll_attack(&mut self.rng, weapon, enemy_reflex, enemy_armor, 0);
+        let result = self.apply_combat_mocks(result);
         let name = self.enemies[ei].name().to_string();
         let dir = self.direction_from(target_x, target_y);
 
@@ -140,6 +153,7 @@ impl GameState {
         let enemy_reflex = self.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
         let enemy_armor = self.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
         let result = roll_attack(&mut self.rng, weapon, enemy_reflex, enemy_armor, 0);
+        let result = self.apply_combat_mocks(result);
         let name = self.enemies[ei].name().to_string();
 
         if !result.hit {
