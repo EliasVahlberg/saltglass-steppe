@@ -1,0 +1,23 @@
+{
+  "name": "NPC Dialogue Test",
+  "description": "Test NPC interaction via bump-to-talk",
+  "seed": 100,
+  "player": {
+    "hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  },
+  "entities": [
+    {"entity_type": "npc", "id": "dying_pilgrim", "x": 29, "y": 8}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}}
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {"type": "npc_talked", "id": "dying_pilgrim", "talked": true},
+      "message": "NPC should be marked as talked after bump interaction"
+    }
+  ]
+}

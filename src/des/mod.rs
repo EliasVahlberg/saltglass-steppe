@@ -97,6 +97,7 @@ pub enum AssertionCheck {
     LightLevel { x: i32, y: i32, op: CmpOp, value: u8 },
     ItemInspectHasStat { item: String, stat: String },
     ItemInspectMissingStat { item: String, stat: String },
+    NpcTalked { id: String, talked: bool },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -586,6 +587,12 @@ impl DesExecutor {
                 inspect_item(item)
                     .map(|info| !info.stats.iter().any(|(k, _)| k == stat))
                     .unwrap_or(true)
+            }
+            AssertionCheck::NpcTalked { id, talked } => {
+                self.state.npcs.iter()
+                    .find(|n| n.id == *id)
+                    .map(|n| n.talked == *talked)
+                    .unwrap_or(false)
             }
         }
     }

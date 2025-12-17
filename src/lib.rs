@@ -183,4 +183,26 @@ mod tests {
         let dialogue = npc.dialogue(&[Adaptation::Prismhide]);
         assert!(dialogue.contains("refracts"));
     }
+
+    #[test]
+    fn npc_bump_to_talk() {
+        use crate::game::npc::Npc;
+        
+        let mut state = GameState::new(100);
+        // Place NPC adjacent to player
+        let npc_x = state.player_x + 1;
+        let npc_y = state.player_y;
+        
+        state.npcs.push(Npc::new(npc_x, npc_y, "mirror_monk"));
+        state.rebuild_spatial_index();
+        
+        // Get the index of our NPC
+        let npc_idx = state.npc_at(npc_x, npc_y).expect("NPC should be in spatial index");
+        assert!(!state.npcs[npc_idx].talked, "NPC should not be talked to initially");
+        
+        // Bump into NPC
+        state.try_move(1, 0);
+        
+        assert!(state.npcs[npc_idx].talked, "NPC should be talked to after bump");
+    }
 }

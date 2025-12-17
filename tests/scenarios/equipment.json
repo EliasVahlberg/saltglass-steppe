@@ -1,6 +1,6 @@
 {
   "name": "Equipment System Test",
-  "description": "Test equipping armor and verifying stat changes",
+  "description": "Test equipping/unequipping armor and verifying stat changes",
   "seed": 12345,
   "player": {
     "x": 5,
@@ -10,7 +10,8 @@
   },
   "actions": [
     {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "armor"}},
-    {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "weapon"}}
+    {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "weapon"}},
+    {"turn": 1, "action": {"type": "unequip", "slot": "armor"}}
   ],
   "assertions": [
     {
@@ -24,14 +25,24 @@
       "message": "Player armor should be 3 from salt vest"
     },
     {
-      "at_end": true,
+      "after_turn": 0,
       "check": {"type": "equipped_in_slot", "slot": "weapon", "item": "salt_knife"},
       "message": "Salt knife should be equipped in weapon slot"
     },
     {
-      "at_end": true,
+      "after_turn": 0,
       "check": {"type": "inventory_size", "op": "eq", "value": 0},
       "message": "Inventory should be empty after equipping both items"
+    },
+    {
+      "after_turn": 1,
+      "check": {"type": "player_armor", "op": "eq", "value": 0},
+      "message": "Player armor should be 0 after unequipping vest"
+    },
+    {
+      "after_turn": 1,
+      "check": {"type": "inventory_contains", "item": "salt_vest"},
+      "message": "Salt vest should be back in inventory after unequip"
     }
   ]
 }
