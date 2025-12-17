@@ -14,6 +14,7 @@ pub mod light_defs;
 pub mod lighting;
 pub mod map;
 pub mod npc;
+pub mod progression;
 pub mod spawn;
 pub mod state;
 pub mod status;

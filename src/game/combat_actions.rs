@@ -73,6 +73,9 @@ impl GameState {
                         self.trigger_effect(&e.effect, 3);
                     }
                 }
+                if def.xp_value > 0 {
+                    self.gain_xp(def.xp_value);
+                }
             }
             self.emit(GameEvent::EnemyKilled {
                 enemy_id: self.enemies[ei].id.clone(),
@@ -150,6 +153,11 @@ impl GameState {
 
         if self.enemies[ei].hp <= 0 {
             self.enemy_positions.remove(&(target_x, target_y));
+            if let Some(def) = self.enemies[ei].def() {
+                if def.xp_value > 0 {
+                    self.gain_xp(def.xp_value);
+                }
+            }
             self.emit(GameEvent::EnemyKilled {
                 enemy_id: self.enemies[ei].id.clone(),
                 x: target_x, y: target_y

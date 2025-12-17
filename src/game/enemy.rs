@@ -56,6 +56,8 @@ pub struct EnemyDef {
     #[serde(default)]
     pub swarm: bool,
     #[serde(default)]
+    pub xp_value: u32,
+    #[serde(default)]
     pub behaviors: Vec<Behavior>,
     #[serde(default)]
     pub effects: Vec<EntityEffect>,

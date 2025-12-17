@@ -98,6 +98,8 @@ pub enum AssertionCheck {
     ItemInspectHasStat { item: String, stat: String },
     ItemInspectMissingStat { item: String, stat: String },
     NpcTalked { id: String, talked: bool },
+    PlayerXp { op: CmpOp, value: u32 },
+    PlayerLevel { op: CmpOp, value: u32 },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -593,6 +595,12 @@ impl DesExecutor {
                     .find(|n| n.id == *id)
                     .map(|n| n.talked == *talked)
                     .unwrap_or(false)
+            }
+            AssertionCheck::PlayerXp { op, value } => {
+                op.compare(self.state.player_xp as i32, *value as i32)
+            }
+            AssertionCheck::PlayerLevel { op, value } => {
+                op.compare(self.state.player_level as i32, *value as i32)
             }
         }
     }

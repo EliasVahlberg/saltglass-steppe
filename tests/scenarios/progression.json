@@ -1,0 +1,29 @@
+{
+  "name": "Character Progression Test",
+  "description": "Test XP gain from kills and level up",
+  "seed": 100,
+  "player": {
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "shard_spider", "x": 29, "y": 8, "hp": 1, "ai_disabled": true}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "attack", "target_x": 29, "target_y": 8}}
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {"type": "player_xp", "op": "eq", "value": 10},
+      "message": "Player should gain 10 XP from killing shard spider"
+    },
+    {
+      "after_turn": 0,
+      "check": {"type": "player_level", "op": "eq", "value": 0},
+      "message": "Player should still be level 0 (need 100 XP for level 1)"
+    }
+  ]
+}

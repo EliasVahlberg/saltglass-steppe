@@ -59,6 +59,10 @@ pub struct GameState {
     #[serde(default)]
     pub player_armor: i32,
     #[serde(default)]
+    pub player_xp: u32,
+    #[serde(default)]
+    pub player_level: u32,
+    #[serde(default)]
     pub equipped_weapon: Option<String>,
     #[serde(default)]
     pub equipment: Equipment,
@@ -163,7 +167,8 @@ impl GameState {
         let mut state = Self {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
             player_ap: default_player_ap(), player_max_ap: default_player_ap(),
-            player_reflex: 5, player_armor: 0, equipped_weapon: None,
+            player_reflex: 5, player_armor: 0, player_xp: 0, player_level: 0,
+            equipped_weapon: None,
             equipment: Equipment::default(),
             status_effects: Vec::new(),
             map, enemies, npcs, items, inventory: Vec::new(),
@@ -241,6 +246,31 @@ impl GameState {
 
     pub fn visible_adaptation_count(&self) -> usize {
         if self.adaptations_hidden_turns > 0 { 0 } else { self.adaptations.len() }
+    }
+
+    /// Gain XP and check for level up
+    pub fn gain_xp(&mut self, amount: u32) {
+        use super::progression::{xp_for_level, stat_growth, max_level};
+        
+        self.player_xp += amount;
+        self.log(format!("+{} XP", amount));
+        
+        // Check for level up
+        while self.player_level < max_level() {
+            let next_threshold = xp_for_level(self.player_level + 1);
+            if self.player_xp >= next_threshold {
+                self.player_level += 1;
+                let hp_gain = stat_growth("max_hp");
+                let ap_gain = stat_growth("max_ap");
+                self.player_max_hp += hp_gain;
+                self.player_hp += hp_gain; // Heal on level up
+                self.player_max_ap += ap_gain;
+                self.log(format!("⬆ LEVEL {}! (+{} HP, +{} AP)", self.player_level, hp_gain, ap_gain));
+                self.emit(GameEvent::LevelUp { level: self.player_level });
+            } else {
+                break;
+            }
+        }
     }
 
     /// End turn: reset AP, tick status effects, run enemy turns, tick storm

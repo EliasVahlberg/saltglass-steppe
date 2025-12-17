@@ -8,6 +8,7 @@
       "damage_min": 1,
       "damage_max": 3,
       "sight_range": 6,
+      "xp_value": 15,
       "description": "Shimmering predator that hunts by heat",
       "effects": [
         {"condition": "on_hit", "effect": "B(@2 &LightYellow)"},
@@ -22,6 +23,7 @@
       "damage_min": 1,
       "damage_max": 4,
       "sight_range": 5,
+      "xp_value": 20,
       "description": "Armored insect with refractive carapace",
       "effects": [
         {"condition": "on_hit", "effect": "B(@3 &Cyan)"},
@@ -36,6 +38,7 @@
       "damage_min": 2,
       "damage_max": 4,
       "sight_range": 4,
+      "xp_value": 25,
       "description": "Desiccated pilgrim risen from the salt flats",
       "effects": [
         {"condition": "on_hit", "effect": "G(&White)"},
@@ -50,6 +53,7 @@
       "damage_min": 3,
       "damage_max": 6,
       "sight_range": 8,
+      "xp_value": 30,
       "description": "Storm-born specter that phases through glass",
       "spawns_during_storm": true,
       "behaviors": [
@@ -68,6 +72,7 @@
       "damage_min": 1,
       "damage_max": 2,
       "sight_range": 4,
+      "xp_value": 10,
       "description": "Skitters on glass legs—attacks in swarms",
       "swarm": true,
       "behaviors": [
@@ -86,6 +91,7 @@
       "damage_min": 2,
       "damage_max": 5,
       "sight_range": 7,
+      "xp_value": 20,
       "description": "Swirling sand given malevolent form",
       "behaviors": [
         {"type": "flee_if", "condition": "player_adaptations >= 2"}
@@ -103,6 +109,7 @@
       "damage_min": 4,
       "damage_max": 8,
       "sight_range": 10,
+      "xp_value": 50,
       "description": "Ancient guardian—scans for valid credentials",
       "behaviors": [
         {"type": "passive_if", "condition": "player_has_item:saint_key"}
@@ -121,6 +128,7 @@
       "damage_max": 2,
       "sight_range": 5,
       "demeanor": "neutral",
+      "xp_value": 5,
       "description": "Wandering traveler, harmless unless provoked"
     },
     {
@@ -132,6 +140,7 @@
       "damage_max": 1,
       "sight_range": 4,
       "demeanor": "pacifist",
+      "xp_value": 3,
       "description": "Delicate creature that flees from danger"
     }
   ]

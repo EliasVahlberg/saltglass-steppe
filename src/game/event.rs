@@ -8,4 +8,5 @@ pub enum GameEvent {
     ItemUsed { item_id: String },
     AdaptationGained { name: String },
     StormArrived { intensity: u8 },
+    LevelUp { level: u32 },
 }
