@@ -1,0 +1,16 @@
+{
+  "name": "BASE_combat",
+  "description": "Combat setup - player with high AP and adjacent enemy (AI disabled)",
+  "seed": 100,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 5, "ai_disabled": true}
+  ]
+}

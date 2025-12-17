@@ -1,0 +1,17 @@
+{
+  "name": "BASE_items",
+  "description": "Player with items on ground for pickup/use tests",
+  "seed": 100,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 10,
+    "max_hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  },
+  "entities": [
+    {"entity_type": "item", "id": "brine_vial", "x": 6, "y": 5},
+    {"entity_type": "item", "id": "salt_poultice", "x": 7, "y": 5}
+  ]
+}

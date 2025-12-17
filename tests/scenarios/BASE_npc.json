@@ -1,0 +1,16 @@
+{
+  "name": "BASE_npc",
+  "description": "Player with adjacent NPC for dialogue/interaction tests",
+  "seed": 100,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  },
+  "entities": [
+    {"entity_type": "npc", "id": "test_npc", "x": 6, "y": 5}
+  ]
+}

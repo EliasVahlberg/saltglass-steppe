@@ -1,0 +1,14 @@
+{
+  "name": "BASE_equipped_player",
+  "description": "Player with weapon and armor in inventory for equipment tests",
+  "seed": 100,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 4,
+    "max_ap": 4,
+    "inventory": ["salt_knife", "salt_vest"]
+  }
+}

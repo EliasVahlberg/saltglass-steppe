@@ -1,0 +1,13 @@
+{
+  "name": "BASE_empty_room",
+  "description": "Minimal room setup - player in empty space with full stats",
+  "seed": 100,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  }
+}

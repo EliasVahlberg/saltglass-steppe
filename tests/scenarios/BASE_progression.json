@@ -1,0 +1,16 @@
+{
+  "name": "BASE_progression",
+  "description": "Player with high stats and adjacent weak enemy for XP/level tests",
+  "seed": 100,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "shard_spider", "x": 6, "y": 5, "hp": 1, "ai_disabled": true}
+  ]
+}
