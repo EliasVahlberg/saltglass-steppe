@@ -20,6 +20,7 @@
       "value": 15,
       "weight": 0,
       "usable": false,
+      "hidden_properties": ["value"],
       "effects": [
         {"condition": "on_pickup", "effect": "G(&Yellow)"}
       ]
@@ -162,6 +163,14 @@
       "usable": false,
       "armor_value": 3,
       "equip_slot": "armor"
+    },
+    {
+      "id": "wall_torch",
+      "name": "Wall Torch",
+      "glyph": "†",
+      "description": "A flickering torch mounted on the wall",
+      "pickup": false,
+      "light_source": {"radius": 6, "intensity": 120}
     }
   ]
 }

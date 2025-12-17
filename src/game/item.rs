@@ -9,6 +9,12 @@ pub struct EntityEffect {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct LightSource {
+    pub radius: i32,
+    pub intensity: u8,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct ItemDef {
     pub id: String,
     pub name: String,
@@ -38,7 +44,15 @@ pub struct ItemDef {
     pub equip_slot: Option<String>,
     #[serde(default)]
     pub effects: Vec<EntityEffect>,
+    #[serde(default)]
+    pub hidden_properties: Vec<String>,
+    #[serde(default = "default_pickup")]
+    pub pickup: bool,
+    #[serde(default)]
+    pub light_source: Option<LightSource>,
 }
+
+fn default_pickup() -> bool { true }
 
 #[derive(Deserialize)]
 struct ItemsFile {

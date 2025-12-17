@@ -2,7 +2,7 @@
 //!
 //! Runs game scenarios without rendering for automated testing and validation.
 
-use crate::game::{adaptation::Adaptation, status::StatusType, Enemy, GameState, Item, Npc};
+use crate::game::{adaptation::Adaptation, inspect::inspect_item, status::StatusType, Enemy, GameState, Item, Npc};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
@@ -95,6 +95,8 @@ pub enum AssertionCheck {
     PlayerArmor { op: CmpOp, value: i32 },
     EnemyProvoked { id: String, provoked: bool },
     LightLevel { x: i32, y: i32, op: CmpOp, value: u8 },
+    ItemInspectHasStat { item: String, stat: String },
+    ItemInspectMissingStat { item: String, stat: String },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -574,6 +576,16 @@ impl DesExecutor {
             AssertionCheck::LightLevel { x, y, op, value } => {
                 let level = self.state.get_light_level(*x, *y);
                 op.compare(level as i32, *value as i32)
+            }
+            AssertionCheck::ItemInspectHasStat { item, stat } => {
+                inspect_item(item)
+                    .map(|info| info.stats.iter().any(|(k, _)| k == stat))
+                    .unwrap_or(false)
+            }
+            AssertionCheck::ItemInspectMissingStat { item, stat } => {
+                inspect_item(item)
+                    .map(|info| !info.stats.iter().any(|(k, _)| k == stat))
+                    .unwrap_or(true)
             }
         }
     }

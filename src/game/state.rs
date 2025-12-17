@@ -200,11 +200,19 @@ impl GameState {
     }
 
     pub fn update_lighting(&mut self) {
-        // Player torch + map lights
+        // Player torch + map lights + item light sources
         let mut sources = vec![LightSource { x: self.player_x, y: self.player_y, radius: 8, intensity: 150 }];
         for ml in &self.map.lights {
             if let Some(def) = super::light_defs::get_light_def(&ml.id) {
                 sources.push(LightSource { x: ml.x, y: ml.y, radius: def.radius, intensity: def.intensity });
+            }
+        }
+        // Items with light_source property
+        for item in &self.items {
+            if let Some(def) = get_item_def(&item.id) {
+                if let Some(ref ls) = def.light_source {
+                    sources.push(LightSource { x: item.x, y: item.y, radius: ls.radius, intensity: ls.intensity });
+                }
             }
         }
         self.light_map = compute_lighting(&sources, self.ambient_light);
@@ -504,10 +512,15 @@ impl GameState {
             Some(v) => v,
             None => return,
         };
+        let mut picked_up = Vec::new();
         // Process in reverse order to maintain valid indices during removal
         for &i in indices.iter().rev() {
             let id = self.items[i].id.clone();
             let def = get_item_def(&id);
+            // Skip non-pickup items (e.g., light sources)
+            if !def.map(|d| d.pickup).unwrap_or(true) {
+                continue;
+            }
             let name = def.map(|d| d.name.as_str()).unwrap_or("item");
             if let Some(d) = def {
                 for e in &d.effects {
@@ -519,6 +532,10 @@ impl GameState {
             self.inventory.push(id.clone());
             self.emit(GameEvent::ItemPickedUp { item_id: id });
             self.log(format!("Picked up {}.", name));
+            picked_up.push(i);
+        }
+        // Remove picked up items
+        for i in picked_up {
             self.items.remove(i);
         }
         // Rebuild item positions since indices shifted

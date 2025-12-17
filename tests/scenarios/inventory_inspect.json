@@ -1,0 +1,32 @@
+{
+  "name": "Inventory Inspection Test",
+  "description": "Test data-driven item inspection with hidden properties",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20
+  },
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "item_inspect_has_stat", "item": "brine_vial", "stat": "heal"},
+      "message": "Brine vial should show heal stat"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "item_inspect_has_stat", "item": "brine_vial", "stat": "value"},
+      "message": "Brine vial should show value stat"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "item_inspect_has_stat", "item": "salt_vest", "stat": "armor_value"},
+      "message": "Salt vest should show armor_value stat"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "item_inspect_missing_stat", "item": "scripture_shard", "stat": "value"},
+      "message": "Scripture shard should hide value stat (hidden_properties)"
+    }
+  ]
+}

@@ -4,7 +4,71 @@ use super::combat::get_weapon_def;
 use super::item::get_item_def;
 use super::state::GameState;
 
+/// Detailed item information for inspection
+#[derive(Debug, Clone)]
+pub struct ItemInfo {
+    pub name: String,
+    pub description: String,
+    pub item_type: String,
+    pub stats: Vec<(String, String)>,
+}
+
+/// Get detailed info for an item by ID (data-driven, respects hidden_properties)
+pub fn inspect_item(id: &str) -> Option<ItemInfo> {
+    // Check weapons first
+    if let Some(w) = get_weapon_def(id) {
+        return Some(ItemInfo {
+            name: w.name.clone(),
+            description: w.description.clone(),
+            item_type: "Weapon".into(),
+            stats: vec![
+                ("Damage".into(), format!("{}-{}", w.damage_min, w.damage_max)),
+                ("Accuracy".into(), format!("{}%", w.accuracy)),
+                ("Range".into(), w.range.to_string()),
+                ("AP Cost".into(), w.ap_cost.to_string()),
+            ],
+        });
+    }
+    // Check items - data-driven property display
+    let d = get_item_def(id)?;
+    let hidden = &d.hidden_properties;
+    let mut stats = Vec::new();
+    
+    macro_rules! add_stat {
+        ($key:expr, $cond:expr, $val:expr) => {
+            if $cond && !hidden.iter().any(|h| h == $key) {
+                stats.push(($key.into(), $val));
+            }
+        };
+    }
+    
+    add_stat!("value", d.value > 0, d.value.to_string());
+    add_stat!("weight", d.weight > 0, d.weight.to_string());
+    add_stat!("heal", d.heal > 0, format!("+{} HP", d.heal));
+    add_stat!("armor_value", d.armor_value > 0, format!("+{}", d.armor_value));
+    add_stat!("reduces_refraction", d.reduces_refraction > 0, format!("-{}", d.reduces_refraction));
+    add_stat!("reveals_map", d.reveals_map, "Reveals map".into());
+    add_stat!("suppresses_adaptations", d.suppresses_adaptations, "Hides adaptations".into());
+    add_stat!("breaks_walls", d.breaks_walls, "Breaks walls".into());
+    add_stat!("equip_slot", d.equip_slot.is_some(), d.equip_slot.clone().unwrap_or_default());
+    
+    let item_type = if d.equip_slot.is_some() { "Equipment" }
+        else if d.usable { "Consumable" }
+        else { "Item" };
+    
+    Some(ItemInfo {
+        name: d.name.clone(),
+        description: d.description.clone(),
+        item_type: item_type.into(),
+        stats,
+    })
+}
+
 impl GameState {
+    /// Inspect an item in inventory by index
+    pub fn inspect_inventory(&self, idx: usize) -> Option<ItemInfo> {
+        self.inventory.get(idx).and_then(|id| inspect_item(id))
+    }
     /// Describe what's at a given position (for look mode)
     pub fn describe_at(&self, x: i32, y: i32) -> String {
         let idx = self.map.idx(x, y);
