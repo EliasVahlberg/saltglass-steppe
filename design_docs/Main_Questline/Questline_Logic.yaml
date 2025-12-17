@@ -1,0 +1,933 @@
+# Saltglass Steppe — Data-Driven Quest Definition Template
+# Format: YAML (JSON-friendly structure). Designed for roguelike fail-forward.
+# Notes:
+# - "prereq" supports flags, items, stats (refraction/adaptations), rep thresholds.
+# - "relocation" defines storm-edit resilience (where critical objects/NPCs go if overwritten).
+# - "log" bundles are ≤60 chars, on-tone, directional-ready.
+# - All IDs are stable string keys for save/load compatibility.
+
+schema_version: 0.1
+questline_id: main_spine_white_noon
+title: "Saltglass Steppe — White Noon Spine"
+
+global_variables:
+  flags:
+    - KEY_BROKEN
+    - KEY_INTACT
+    - TEAR_HELD
+    - TEAR_CONSUMED
+    - WHITE_NOON_NAMED
+    - CUSTODIAN_CONTACT
+    - DEEP_WING_ACCESS
+    - WHITE_NOON_TRUTH
+    - PROXY_AUTH
+    - VECTOR_LOCATED
+    - SEAM_PASSAGE
+    - FORECAST_TOOL
+    - ANGLE_LENS
+  counters:
+    AUTH_POINTS:
+      initial: 0
+      min: 0
+      max: 6
+    DRONE_ALERT:
+      initial: 0
+      min: 0
+      max: 10
+
+reputation_system:
+  # Suggested scale: -100..+100 (hostile..allied)
+  factions:
+    MIRROR_MONKS: { min: -100, max: 100 }
+    SAND_ENGINEERS: { min: -100, max: 100 }
+    GLASSBORN: { min: -100, max: 100 }
+    ARCHIVE: { min: -100, max: 100 } # optional; can mirror DRONE_ALERT instead
+
+relocation_rules:
+  # Reusable relocation policies referenced by nodes.
+  policies:
+    critical_item_nearest_protected_room:
+      description: >
+        If storm edits remove the original container/room,
+        relocate the item to the nearest room tagged "protected".
+      search_radius_tiles: 120
+      preferred_room_tags:
+        ["archive_vault", "sealed_reliquary", "fused_library"]
+      fallback_room_tags: ["hermit_shelter", "storm_calm_pocket"]
+      mark_tile_as_changed_until_visited: true
+
+    npc_anchor_migrate_shelters:
+      description: >
+        NPC is allowed to migrate between known shelters after storms.
+      shelters_by_priority:
+        - ["hermit_shelter"]
+        - ["monk_chapel"]
+        - ["engineer_outpost"]
+        - ["glassborn_waystation"]
+      migrate_on_storm_end: true
+      migrate_chance: 0.5
+      keep_dialog_state: true
+
+    objective_retarget_to_nearest_equivalent:
+      description: >
+        If objective room is overwritten, retarget to the nearest equivalent tileset.
+      equivalence_tags_required: ["same_tileset_family"]
+      search_radius_tiles: 160
+      mark_tile_as_changed_until_visited: true
+
+    time_limited_access_window:
+      description: >
+        Temporary access granted for N turns; storm end cancels if configured.
+      duration_turns: 90
+      cancel_on_storm_end: false
+
+log_bundles:
+  # Shared log lines used across nodes.
+  shared:
+    storm_warning:
+      - "The salt wind carries glass dust. You taste copper."
+      - "The flats shimmer—angles tighten."
+      - "Light gathers. The storm remembers its orders."
+    drone_check:
+      - "CREDENTIAL CHECK. Status: UNAUTHORIZED."
+      - "Archive optics fix on you—cold and patient."
+    refraction_gain:
+      - "Sharp glass cuts you. Light lingers in the wound."
+      - "Your skin catches light—Refraction rises."
+
+nodes:
+  # -------------------------
+  # ACT I
+  # -------------------------
+
+  - id: A1_N1
+    act: 1
+    title: "The Counting Sky"
+    type: ["story", "tutorial"]
+    prereq: { all: [] }
+    objectives:
+      - id: A1_N1_O1
+        kind: "reach_turn"
+        target_turn: 5
+      - id: A1_N1_O2
+        kind: "observe_ui"
+        ui_element: "storm_timer"
+    rewards:
+      flags_set: ["TUTORIAL_STORM_TIMER_SEEN"]
+    consequences:
+      counters_add: { DRONE_ALERT: 0 }
+      reputation_add: { MIRROR_MONKS: 0, SAND_ENGINEERS: 0, GLASSBORN: 0 }
+    relocation:
+      policy: null
+    log:
+      start:
+        - "Storm: 7. The sky counts down in silence."
+      progress:
+        - "The Steppe waits—then edits."
+      complete:
+        - "You learn the first rule: maps are temporary."
+
+  - id: A1_N2
+    act: 1
+    title: "The Pilgrim’s Last Angle"
+    type: ["story", "location"]
+    prereq:
+      all:
+        - flag: "TUTORIAL_STORM_TIMER_SEEN"
+    objectives:
+      - id: A1_N2_O1
+        kind: "find_npc"
+        npc_id: "DYING_PILGRIM"
+        zone_tags_any: ["salt_flats", "ruin_edge"]
+      - id: A1_N2_O2
+        kind: "interact"
+        entity_id: "DYING_PILGRIM"
+        interaction: "talk_or_loot"
+    fail_forward:
+      alternatives:
+        - id: A1_N2_ALT1
+          when:
+            any:
+              - npc_state:
+                  { npc_id: "DYING_PILGRIM", state: "dead_before_found" }
+          convert_to:
+            kind: "spawn_enemy_with_item"
+            enemy_id: "SALT_MUMMY"
+            item_grant: { item_id: "SCRIPTURE_SHARD", count: 1 }
+            note: "Pilgrim rises as m; shard recovered by force."
+        - id: A1_N2_ALT2
+          when:
+            any:
+              - objective_failed_due_to: "storm_rewrite"
+          convert_to:
+            kind: "retarget_objective"
+            relocation_policy: "objective_retarget_to_nearest_equivalent"
+            target_tags: ["fused_library"]
+    rewards:
+      items_add:
+        - { item_id: "SCRIPTURE_SHARD", count: 1 }
+      flags_set: ["PILGRIM_RUMOR_DOOR_REMEMBERS"]
+    consequences:
+      counters_add: { DRONE_ALERT: 0 }
+    relocation:
+      policy: "npc_anchor_migrate_shelters"
+    log:
+      start:
+        - "A figure lies ahead—wrapped in salt and breath."
+      progress:
+        - "The pilgrim grips your sleeve—eyes bright with glass."
+      complete:
+        - "A shard in your palm. A door that still remembers."
+
+  - id: A1_N3
+    act: 1
+    title: "Saint’s Eye Reliquary"
+    type: ["location", "setpiece"]
+    prereq:
+      all:
+        - flag: "PILGRIM_RUMOR_DOOR_REMEMBERS"
+    objectives:
+      - id: A1_N3_O1
+        kind: "enter_room"
+        room_tags_all: ["sealed_reliquary"]
+      - id: A1_N3_O2
+        kind: "acquire_item"
+        item_id: "SAINT_TEAR"
+        count: 1
+    choices:
+      - id: A1_N3_C1
+        title: "Consume the Tear"
+        when_available:
+          { all: [{ has_item: { item_id: "SAINT_TEAR", count: 1 } }] }
+        effects:
+          consume_item: { item_id: "SAINT_TEAR", count: 1 }
+          flags_set: ["TEAR_CONSUMED"]
+          refraction_add: -15
+          reputation_add:
+            { MIRROR_MONKS: -5, GLASSBORN: -10, SAND_ENGINEERS: +0 }
+      - id: A1_N3_C2
+        title: "Preserve the Tear"
+        effects:
+          flags_set: ["TEAR_HELD"]
+          reputation_add:
+            { MIRROR_MONKS: -2, GLASSBORN: +2, SAND_ENGINEERS: +1 }
+    rewards:
+      items_add: []
+      flags_set: ["RELIQUARY_PLUNDERED"]
+    consequences:
+      counters_add: { DRONE_ALERT: 0 }
+    relocation:
+      policy: "critical_item_nearest_protected_room"
+    log:
+      start:
+        - "Glass walls hold old hymns—silent, intact."
+      progress:
+        - "A droplet of vitrified light rests in the dark."
+      complete:
+        - "You leave with a saint’s grief—warm in your pack."
+
+  - id: A1_N4
+    act: 1
+    title: "The First Key (Broken)"
+    type: ["gate", "item"]
+    prereq:
+      all:
+        - flag: "RELIQUARY_PLUNDERED"
+    objectives:
+      - id: A1_N4_O1
+        kind: "acquire_item"
+        item_id: "SAINT_KEY_BROKEN"
+        count: 1
+    rewards:
+      items_add: []
+      flags_set: ["KEY_BROKEN"]
+      counters_add: { AUTH_POINTS: 1 }
+    consequences:
+      counters_set_min:
+        DRONE_ALERT: 1
+    fail_forward:
+      alternatives:
+        - id: A1_N4_ALT1
+          when:
+            any:
+              - objective_failed_due_to: "item_missed"
+              - objective_failed_due_to: "container_overwritten"
+          convert_to:
+            kind: "later_spawn"
+            spawn_trigger: "kill_archive_drone_elite"
+            item_grant: { item_id: "SAINT_KEY_BROKEN", count: 1 }
+            counters_add: { DRONE_ALERT: 1 }
+    relocation:
+      policy: "critical_item_nearest_protected_room"
+    log:
+      start:
+        - "A key-shape glints—its edges wrong."
+      progress:
+        - "The saint-key hums, then stutters."
+      complete:
+        - "Incomplete authority—enough to be noticed."
+
+  - id: A1_N5
+    act: 1
+    title: "White Noon is Named"
+    type: ["story", "terminal"]
+    prereq:
+      any:
+        - flag: "KEY_BROKEN"
+        - has_item: { item_id: "SAINT_KEY_BROKEN", count: 1 }
+        - rep_at_least: { faction: "MIRROR_MONKS", value: 10 } # monk-liturgical access
+    objectives:
+      - id: A1_N5_O1
+        kind: "read_fragment"
+        fragment_id: "ARCHIVE_WHITE_NOON_MENTION"
+    rewards:
+      flags_set: ["WHITE_NOON_NAMED"]
+    fail_forward:
+      alternatives:
+        - id: A1_N5_ALT1
+          when:
+            any:
+              - objective_failed_due_to: "no_archive_access"
+          convert_to:
+            kind: "dialog_unlock"
+            npc_id: "BROTHER_HALIX"
+            dialog_id: "WHITE_NOON_LITURGICAL_TITLE"
+            flags_set: ["WHITE_NOON_NAMED"]
+    relocation:
+      policy: "objective_retarget_to_nearest_equivalent"
+    log:
+      start:
+        - "Dust seals the terminal—until the key touches it."
+      progress:
+        - "Letters emerge in cold light: OPERATION: WHITE NOON."
+      complete:
+        - "The disaster had a name. Names imply intent."
+
+  # -------------------------
+  # ACT II (Nonlinear Authority)
+  # -------------------------
+
+  - id: A2_N1
+    act: 2
+    title: "Monk Path: The Choir of Shards"
+    type: ["faction", "location"]
+    prereq:
+      all:
+        - flag: "WHITE_NOON_NAMED"
+    reputation_thresholds:
+      # Either be tolerated or sneak/steal version triggers.
+      entry_any:
+        - { faction: "MIRROR_MONKS", at_least: -20 }
+      hostile_lock:
+        - { faction: "MIRROR_MONKS", at_most: -60 }
+    objectives:
+      - id: A2_N1_O1
+        kind: "acquire_item"
+        item_id: "SCRIPTURE_SHARD_CRED_1"
+        count: 1
+      - id: A2_N1_O2
+        kind: "acquire_item"
+        item_id: "SCRIPTURE_SHARD_CRED_2"
+        count: 1
+      - id: A2_N1_O3
+        kind: "acquire_item"
+        item_id: "SCRIPTURE_SHARD_CRED_3"
+        count: 1
+      - id: A2_N1_O4
+        kind: "deliver_items"
+        npc_id: "BROTHER_HALIX"
+        items:
+          - { item_id: "SCRIPTURE_SHARD_CRED_1", count: 1 }
+          - { item_id: "SCRIPTURE_SHARD_CRED_2", count: 1 }
+          - { item_id: "SCRIPTURE_SHARD_CRED_3", count: 1 }
+    rewards:
+      counters_add: { AUTH_POINTS: 1 }
+      reputation_add: { MIRROR_MONKS: +15 }
+      flags_set: ["MONK_LITURGICAL_OVERRIDE"]
+    fail_forward:
+      alternatives:
+        - id: A2_N1_ALT1
+          when:
+            any:
+              - rep_at_most: { faction: "MIRROR_MONKS", value: -60 }
+          convert_to:
+            kind: "heist_variant"
+            objective_set_id: "A2_N1_HEIST"
+            consequences:
+              reputation_add: { MIRROR_MONKS: -10 }
+              counters_add: { DRONE_ALERT: 0 }
+    relocation:
+      policy: "critical_item_nearest_protected_room"
+    log:
+      start:
+        - "The choir watches your hands—not your face."
+      progress:
+        - "Shards whisper when held at the correct angle."
+      complete:
+        - "Halix nods. 'Authority is a pattern.'"
+
+  - id: A2_N2
+    act: 2
+    title: "Engineer Path: Crucible Block Salvage"
+    type: ["faction", "location"]
+    prereq:
+      all:
+        - flag: "WHITE_NOON_NAMED"
+    reputation_thresholds:
+      entry_any:
+        - { faction: "SAND_ENGINEERS", at_least: -20 }
+      hostile_lock:
+        - { faction: "SAND_ENGINEERS", at_most: -60 }
+    objectives:
+      - id: A2_N2_O1
+        kind: "acquire_item"
+        item_id: "OPTICS_COUPLER"
+        count: 2
+      - id: A2_N2_O2
+        kind: "acquire_item"
+        item_id: "POWER_CERAMIC"
+        count: 1
+      - id: A2_N2_O3
+        kind: "craft"
+        recipe_id: "STORM_FORECAST_INSTRUMENT"
+    rewards:
+      flags_set: ["FORECAST_TOOL"]
+      counters_add: { AUTH_POINTS: 1 }
+      reputation_add: { SAND_ENGINEERS: +15 }
+    fail_forward:
+      alternatives:
+        - id: A2_N2_ALT1
+          when:
+            any:
+              - objective_failed_due_to: "craft_unavailable"
+          convert_to:
+            kind: "acquire_item_from_cache"
+            cache_tags_any: ["hermit_cache", "black_market"]
+            item_grant: { item_id: "STORM_FORECAST_INSTRUMENT", count: 1 }
+            flags_set: ["FORECAST_TOOL"]
+            reputation_add: { SAND_ENGINEERS: -5 } # you didn't build it
+    relocation:
+      policy: "objective_retarget_to_nearest_equivalent"
+    log:
+      start:
+        - "Ressa points at fused steel. 'We need parts. Now.'"
+      progress:
+        - "The Crucible Block creaks—glass under load."
+      complete:
+        - "The forecast needle steadies. The storm has a shape."
+
+  - id: A2_N3
+    act: 2
+    title: "Glassborn Path: Seam-Kinship"
+    type: ["faction", "rite", "setpiece"]
+    prereq:
+      all:
+        - flag: "WHITE_NOON_NAMED"
+    reputation_thresholds:
+      entry_any:
+        - { faction: "GLASSBORN", at_least: -20 }
+      hostile_lock:
+        - { faction: "GLASSBORN", at_most: -60 }
+    objectives:
+      - id: A2_N3_O1
+        kind: "reach_marked_zone_before_storm"
+        zone_tags_all: ["glassborn_rite_zone"]
+      - id: A2_N3_O2
+        kind: "survive_storm_event"
+        intensity_at_least: 5
+    rewards:
+      flags_set: ["SEAM_PASSAGE"]
+      counters_add: { AUTH_POINTS: 1 }
+      reputation_add: { GLASSBORN: +15 }
+      grant_adaptation_choice: { count: 1 }
+    fail_forward:
+      alternatives:
+        - id: A2_N3_ALT1
+          when:
+            any:
+              - objective_failed_due_to: "refused_rite"
+          convert_to:
+            kind: "trade_unlock"
+            npc_id: "SABLE_OF_THE_SEAM"
+            offer_id: "BUY_SEAM_PASSAGE"
+            currency: { item_id: "STORM_GLASS", count: 8 }
+            flags_set: ["SEAM_PASSAGE"]
+            reputation_add: { GLASSBORN: +5 }
+    relocation:
+      policy: "time_limited_access_window"
+    log:
+      start:
+        - "Sable gestures to the seam. 'Stand where light cuts.'"
+      progress:
+        - "Storm intensity rises. Your bones remember heat."
+      complete:
+        - "You endure. The Glassborn call you kin—quietly."
+
+  - id: A2_N4
+    act: 2
+    title: "The Second Key (Intact)"
+    type: ["gate", "item"]
+    prereq:
+      all:
+        - counter_at_least: { counter: "AUTH_POINTS", value: 2 }
+      any:
+        - flag: "MONK_LITURGICAL_OVERRIDE"
+        - flag: "FORECAST_TOOL"
+        - flag: "SEAM_PASSAGE"
+    objectives:
+      - id: A2_N4_O1
+        kind: "acquire_item"
+        item_id: "SAINT_KEY_INTACT"
+        count: 1
+    rewards:
+      flags_set: ["KEY_INTACT"]
+    fail_forward:
+      alternatives:
+        - id: A2_N4_ALT1
+          when:
+            any:
+              - objective_failed_due_to: "route_blocked_by_storm"
+          convert_to:
+            kind: "retarget_objective"
+            relocation_policy: "critical_item_nearest_protected_room"
+            target_tags: ["archive_vault", "sealed_reliquary"]
+        - id: A2_N4_ALT2
+          when:
+            any:
+              - objective_failed_due_to: "player_chose_rogue_route"
+          convert_to:
+            kind: "combat_drop"
+            enemy_id: "ARCHIVE_DRONE_ELITE"
+            drop_item: { item_id: "SAINT_KEY_INTACT", count: 1 }
+            counters_add: { DRONE_ALERT: 2 }
+    consequences:
+      counters_set_min:
+        DRONE_ALERT: 1
+    relocation:
+      policy: "critical_item_nearest_protected_room"
+    log:
+      start:
+        - "A clean glint—authority without fracture."
+      progress:
+        - "The key warms, recognizing its own past."
+      complete:
+        - "Intact credentials. You are now a legitimate ghost."
+
+  - id: A2_N5
+    act: 2
+    title: "Approach Custodian IRI-7"
+    type: ["story", "gate", "npc"]
+    prereq:
+      all:
+        - flag: "WHITE_NOON_NAMED"
+      any:
+        - flag: "KEY_INTACT"
+        - flag: "KEY_BROKEN"
+        - counter_at_least: { counter: "AUTH_POINTS", value: 2 }
+    reputation_thresholds:
+      # Optional: Archive "rep" can be derived from DRONE_ALERT + compliance history.
+      entry_any:
+        - { faction: "ARCHIVE", at_least: -80 }
+    objectives:
+      - id: A2_N5_O1
+        kind: "find_npc"
+        npc_id: "CUSTODIAN_IRI_7"
+        zone_tags_any: ["archive_interior"]
+      - id: A2_N5_O2
+        kind: "interact"
+        entity_id: "CUSTODIAN_IRI_7"
+        interaction: "initiate_query"
+    rewards:
+      flags_set: ["CUSTODIAN_CONTACT"]
+    fail_forward:
+      alternatives:
+        - id: A2_N5_ALT1
+          when:
+            any:
+              - counter_at_least: { counter: "DRONE_ALERT", value: 3 }
+          convert_to:
+            kind: "stealth_entry_required"
+            required_item_any:
+              - { item_id: "VEIL_TINCTURE", count: 1 }
+            note: "Enter as unmarked; dialogue is colder."
+    relocation:
+      policy: "npc_anchor_migrate_shelters"
+    log:
+      start:
+        - "The Archive hum deepens—like a held breath."
+      progress:
+        - "IRI-7 turns. 'STATE YOUR QUERY.'"
+      complete:
+        - "Contact made. Protocols tighten around you."
+
+  # -------------------------
+  # ACT III (Truth)
+  # -------------------------
+
+  - id: A3_N1
+    act: 3
+    title: "Deep Wing Entry: OPERATION WHITE NOON"
+    type: ["gate", "dungeon"]
+    prereq:
+      all:
+        - flag: "CUSTODIAN_CONTACT"
+      any:
+        - all:
+            - flag: "KEY_INTACT"
+            - counter_at_least: { counter: "AUTH_POINTS", value: 2 }
+        - all:
+            - flag: "KEY_BROKEN"
+            - counter_at_least: { counter: "AUTH_POINTS", value: 3 }
+        - flag: "ENGINEER_BREACH_OPTION" # set by optional sidequest, if used
+    access_methods:
+      - id: CLEAN_KEY_ENTRY
+        requires:
+          all:
+            - flag: "KEY_INTACT"
+            - counter_at_least: { counter: "AUTH_POINTS", value: 2 }
+        effects:
+          counters_add: { DRONE_ALERT: 0 }
+      - id: PATCHWORK_ENTRY
+        requires:
+          all:
+            - flag: "KEY_BROKEN"
+            - counter_at_least: { counter: "AUTH_POINTS", value: 3 }
+        effects:
+          counters_add: { DRONE_ALERT: 1 }
+      - id: BREACH_ENTRY
+        requires:
+          any:
+            - has_item: { item_id: "GLASS_PICK", count: 1 }
+        effects:
+          counters_set_min: { DRONE_ALERT: 3 }
+    objectives:
+      - id: A3_N1_O1
+        kind: "enter_dungeon"
+        dungeon_id: "DEEP_WING_WHITE_NOON"
+    rewards:
+      flags_set: ["DEEP_WING_ACCESS"]
+    relocation:
+      policy: null
+    log:
+      start:
+        - "The door reads your shape—then decides."
+      progress:
+        - "Cold corridors. Mirrors without faces."
+      complete:
+        - "Deep Wing opens. The past is awake in here."
+
+  - id: A3_N2
+    act: 3
+    title: "Reconstruct the Directive Chain"
+    type: ["story", "terminal"]
+    prereq:
+      all:
+        - flag: "DEEP_WING_ACCESS"
+    objectives:
+      - id: A3_N2_O1
+        kind: "complete_terminal_query"
+        terminal_id: "WHITE_NOON_CORE"
+        query_id: "DIRECTIVE_CHAIN_RECON"
+    rewards:
+      flags_set: ["WHITE_NOON_TRUTH"]
+      add_lore_entries:
+        - "WHITE_NOON_WAS_CORRECTION"
+        - "SAINTS_NEGOTIATED_NOT_CONTROLLED"
+        - "LOOP_STILL_RUNNING"
+    fail_forward:
+      alternatives:
+        - id: A3_N2_ALT1
+          when:
+            any:
+              - objective_failed_due_to: "terminal_destroyed"
+              - objective_failed_due_to: "access_lost"
+          convert_to:
+            kind: "collect_fragments"
+            required_fragments:
+              - "MIRROR_MEMORY_NODE_A"
+              - "MIRROR_MEMORY_NODE_B"
+              - "MIRROR_MEMORY_NODE_C"
+            turn_in_to_npc: "CUSTODIAN_IRI_7"
+            flags_set: ["WHITE_NOON_TRUTH"]
+    relocation:
+      policy: null
+    log:
+      start:
+        - "The terminal’s light is steady—merciless."
+      progress:
+        - "WHITE NOON… alignment correction… miscalibrated."
+      complete:
+        - "The storms are a loop. The loop is tightening."
+
+  - id: A3_N3
+    act: 3
+    title: "IRI-7: Proxy Authority Scan"
+    type: ["choice", "permanent_consequence"]
+    prereq:
+      all:
+        - flag: "WHITE_NOON_TRUTH"
+        - flag: "CUSTODIAN_CONTACT"
+    choices:
+      - id: A3_N3_C1
+        title: "Accept the scan (Proxy Authority)"
+        effects:
+          flags_set: ["PROXY_AUTH"]
+          counters_set_min: { DRONE_ALERT: 2 }
+          reputation_add:
+            MIRROR_MONKS: +10
+            SAND_ENGINEERS: +5
+            GLASSBORN: +0
+            ARCHIVE: +10
+      - id: A3_N3_C2
+        title: "Refuse"
+        effects:
+          flags_set: ["PROXY_REFUSED"]
+          reputation_add:
+            MIRROR_MONKS: -5
+            SAND_ENGINEERS: +0
+            GLASSBORN: +5
+            ARCHIVE: -5
+    rewards:
+      flags_set: ["PROXY_DECIDED"]
+    relocation:
+      policy: null
+    log:
+      start:
+        - "IRI-7’s lens opens. 'SUBMIT FOR CALIBRATION.'"
+      complete:
+        - "Your identity shifts—like light through a cut gem."
+
+  - id: A3_N4
+    act: 3
+    title: "Obtain the Heliograph Vector"
+    type: ["story", "key_item"]
+    prereq:
+      all:
+        - flag: "WHITE_NOON_TRUTH"
+    objectives:
+      - id: A3_N4_O1
+        kind: "acquire_item"
+        item_id: "HELIOGRAPH_VECTOR"
+        count: 1
+    rewards:
+      flags_set: ["VECTOR_LOCATED"]
+    fail_forward:
+      alternatives:
+        - id: A3_N4_ALT1
+          when:
+            any:
+              - objective_failed_due_to: "partial_vector_only"
+          convert_to:
+            kind: "faction_completion"
+            options:
+              - faction: "MIRROR_MONKS"
+                requires:
+                  { rep_at_least: { faction: "MIRROR_MONKS", value: 20 } }
+                complete_with: "ANGLE_INTERPRETATION_RITE"
+              - faction: "SAND_ENGINEERS"
+                requires:
+                  { rep_at_least: { faction: "SAND_ENGINEERS", value: 20 } }
+                complete_with: "FORECAST_MATH_RECON"
+              - faction: "GLASSBORN"
+                requires: { rep_at_least: { faction: "GLASSBORN", value: 20 } }
+                complete_with: "SEAM_MEMORY_ROUTE"
+            flags_set: ["VECTOR_LOCATED"]
+    relocation:
+      policy: "critical_item_nearest_protected_room"
+    log:
+      start:
+        - "Coordinates bloom in the terminal—cold and exact."
+      progress:
+        - "A window. A place. A single chance."
+      complete:
+        - "Vector acquired. The Steppe leans toward decision."
+
+  # -------------------------
+  # ACT IV (Endgame)
+  # -------------------------
+
+  - id: A4_N1
+    act: 4
+    title: "Approach the Vector Spire"
+    type: ["endgame_hub", "route_select"]
+    prereq:
+      all:
+        - flag: "VECTOR_LOCATED"
+    route_options:
+      - id: ROUTE_MONK
+        title: "Choir Route"
+        requires_any:
+          - rep_at_least: { faction: "MIRROR_MONKS", value: 15 }
+          - has_item: { item_id: "ANGLE_SPLIT_LENS", count: 1 }
+        hazard_profile: ["wraith_dense", "glare_puzzles"]
+      - id: ROUTE_ENGINEER
+        title: "Service Route"
+        requires_any:
+          - flag: "FORECAST_TOOL"
+          - rep_at_least: { faction: "SAND_ENGINEERS", value: 15 }
+        hazard_profile: ["drone_corridors", "beam_traps"]
+      - id: ROUTE_GLASSBORN
+        title: "Seam Route"
+        requires_any:
+          - flag: "SEAM_PASSAGE"
+          - rep_at_least: { faction: "GLASSBORN", value: 15 }
+        hazard_profile: ["high_refraction", "living_glass_tiles"]
+      - id: ROUTE_BRUTE
+        title: "Walk the open flats"
+        requires_any: []
+        hazard_profile: ["storm_exposure", "mixed_encounters"]
+    rewards:
+      flags_set: ["VECTOR_APPROACH_CHOSEN"]
+    relocation:
+      policy: null
+    log:
+      start:
+        - "The Spire glints on the horizon—too straight to trust."
+      complete:
+        - "Your route is chosen. The Steppe watches."
+
+  - id: A4_N2
+    act: 4
+    title: "The Storm Window (Vector Arena)"
+    type: ["setpiece", "boss"]
+    prereq:
+      all:
+        - flag: "VECTOR_APPROACH_CHOSEN"
+    objectives:
+      - id: A4_N2_O1
+        kind: "survive_setpiece"
+        setpiece_id: "VECTOR_STORM_WINDOW"
+        duration_turns: 80
+    fail_forward:
+      alternatives:
+        - id: A4_N2_ALT1
+          when:
+            any:
+              - objective_failed_due_to: "arrived_late"
+          convert_to:
+            kind: "hard_mode_variant"
+            setpiece_id: "VECTOR_RIDE_THE_STORM"
+            duration_turns: 60
+            refraction_add: +20
+    rewards:
+      flags_set: ["VECTOR_ARENA_CLEARED"]
+    relocation:
+      policy: null
+    log:
+      start:
+        - "Light gathers in lines. The Spire begins to sing."
+      progress:
+        - "A Refraction Wraith forms—pure angle and malice."
+      complete:
+        - "You stand at the Vector. The choice is yours."
+
+  - id: A4_N3
+    act: 4
+    title: "Intervention"
+    type: ["endgame_choice"]
+    prereq:
+      all:
+        - flag: "VECTOR_ARENA_CLEARED"
+    choices:
+      - id: END_SEAL
+        title: "Seal the Heliograph (Mercy Through Darkness)"
+        requires_any:
+          - flag: "KEY_INTACT"
+          - flag: "PROXY_AUTH"
+        alt_costs:
+          - requires_all:
+              - has_item: { item_id: "SAINT_TEAR", count: 1 }
+              - has_item: { item_id: "STORM_GLASS", count: 10 }
+            consume:
+              - { item_id: "SAINT_TEAR", count: 1 }
+              - { item_id: "STORM_GLASS", count: 10 }
+        effects:
+          flags_set: ["ENDING_SEAL"]
+          world_state:
+            storms_frequency: "none"
+            map_rewrite: "off"
+      - id: END_RECALIBRATE
+        title: "Recalibrate (Right the Angle)"
+        requires_any:
+          - flag: "FORECAST_TOOL"
+          - has_item: { item_id: "ANGLE_SPLIT_LENS", count: 1 }
+        effects:
+          flags_set: ["ENDING_RECALIBRATE"]
+          world_state:
+            storms_frequency: "normal"
+            storm_forecast_accuracy: "high"
+            map_rewrite: "patterned"
+      - id: END_SAINT
+        title: "Claim Sainthood (Wear the Key as Skin)"
+        requires_any:
+          - flag: "PROXY_AUTH"
+        alt_costs:
+          - requires_all:
+              - flag: "KEY_INTACT"
+              - counter_at_least: { counter: "AUTH_POINTS", value: 3 }
+            note: "Self-scan without IRI-7 (dangerous)."
+            consequences:
+              counters_set_min: { DRONE_ALERT: 4 }
+        effects:
+          flags_set: ["ENDING_SAINT"]
+          player_state:
+            archive_command_abilities: true
+            social_marking: "extreme"
+      - id: END_BREAK
+        title: "Break the Vector (Become the Correction)"
+        requires_any:
+          - refraction_at_least: 40
+          - adaptations_at_least: 2
+          - rep_at_least: { faction: "GLASSBORN", value: 25 }
+        effects:
+          flags_set: ["ENDING_BREAK"]
+          world_state:
+            storms_frequency: "high"
+            map_rewrite: "aggressive"
+            mutation_rate: "high"
+    rewards:
+      flags_set: ["QUESTLINE_COMPLETE"]
+    relocation:
+      policy: null
+    log:
+      start:
+        - "The Vector hums. The Steppe holds its breath."
+      choice_confirm:
+        - "Your hands catch the last light—then decide."
+      complete:
+        - "The world changes. It will not change back."
+
+# Optional: Node-specific log line bundles for UI panels
+log_line_bundles_per_node:
+  A1_N2:
+    on_enter:
+      - "Footprints end in salt. Someone crawled here."
+    on_fail_forward:
+      - "The pilgrim is gone. The shard remains—elsewhere."
+  A2_N4:
+    on_acquire:
+      - "Saint-key obtained. The Archive will remember you."
+  A3_N1:
+    on_access_denied:
+      - "ACCESS DENIED. The past does not trust you."
+    on_breach:
+      - "Glass cracks. Alarms remain silent—but listening."
+  A4_N2:
+    on_wraith_spawn:
+      - "A wraith condenses—light given hunger."
+
+# Suggested integration points (engine hooks)
+integration_hooks:
+  on_storm_start:
+    - "evaluate_relocation_policies"
+    - "apply_time_limited_access_counters"
+  on_storm_end:
+    - "migrate_npc_anchors"
+    - "mark_changed_tiles_for_diff_render"
+  on_item_lost_or_container_destroyed:
+    - "trigger_fail_forward_alternatives"
+  on_rep_change:
+    - "recompute_dialog_unlocks"
+  on_refraction_threshold_crossed:
+    - "apply_social_reactions"
+    - "adjust_drone_alert_growth_rate"
