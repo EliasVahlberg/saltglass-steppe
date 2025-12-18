@@ -21,6 +21,28 @@ pub fn dim_color(color: Color, light: u8) -> Color {
     }
 }
 
+/// Render floating damage numbers as overlay
+pub fn render_damage_numbers(frame: &mut Frame, area: Rect, state: &GameState) {
+    let t = theme();
+    for dn in &state.damage_numbers {
+        // Calculate screen position (offset by 1 for border)
+        let screen_x = dn.x as u16 + 1;
+        // Rise effect: move up as frames decrease (12 -> 0 means rise by ~1 cell)
+        let rise = (12 - dn.frames) / 6;
+        let screen_y = (dn.y as u16).saturating_sub(rise as u16) + 1;
+        
+        if screen_x < area.width && screen_y < area.height {
+            let color = if dn.is_heal { Color::Green } else { t.msg_combat };
+            let text = format!("{}", dn.value);
+            let rect = Rect::new(area.x + screen_x, area.y + screen_y, text.len() as u16, 1);
+            frame.render_widget(
+                Paragraph::new(text).style(Style::default().fg(color).bold()),
+                rect
+            );
+        }
+    }
+}
+
 /// Render the game map
 pub fn render_map(
     frame: &mut Frame,
@@ -41,6 +63,14 @@ pub fn render_map(
         for x in 0..state.map.width {
             let idx = state.map.idx(x as i32, y as i32);
             let is_look_cursor = look_cursor.map(|(lx, ly)| x as i32 == lx && y as i32 == ly).unwrap_or(false);
+            
+            // Check for projectile at this position
+            if let Some(proj_char) = state.get_projectile_at(x as i32, y as i32) {
+                let style = Style::default().fg(Color::Yellow).bold();
+                let style = if is_look_cursor { style.bg(Color::White).fg(Color::Black) } else { style };
+                spans.push(Span::styled(proj_char.to_string(), style));
+                continue;
+            }
             
             let (ch, style) = render_tile(state, x, y, idx, player_effects, frame_count);
             let style = if is_look_cursor { style.bg(Color::White).fg(Color::Black) } else { style };
@@ -199,24 +229,68 @@ fn render_tile(
 }
 
 /// Render the death screen
-pub fn render_death_screen(frame: &mut Frame) {
+pub fn render_death_screen(frame: &mut Frame, state: &GameState) {
     let area = frame.area();
-    let death_msg = "YOU DIED";
-    let lines: Vec<Line> = (0..area.height).map(|_| {
-        let mut row = String::new();
-        while row.len() < area.width as usize {
-            row.push_str(death_msg);
-            row.push(' ');
-        }
-        Line::from(Span::styled(row, Style::default().fg(Color::Red).bold()))
-    }).collect();
-    frame.render_widget(Paragraph::new(lines), area);
     
-    let center_y = area.height / 2;
+    // Fill background with dark red
+    let bg_lines: Vec<Line> = (0..area.height).map(|_| {
+        Line::from(Span::styled(" ".repeat(area.width as usize), Style::default().bg(Color::Rgb(40, 0, 0))))
+    }).collect();
+    frame.render_widget(Paragraph::new(bg_lines), area);
+    
+    // ASCII skull art
+    let skull = [
+        "     ___________     ",
+        "    /           \\    ",
+        "   /  .       .  \\   ",
+        "  |       _       |  ",
+        "  |    \\     /    |  ",
+        "   \\    '---'    /   ",
+        "    \\___________/    ",
+        "        | | |        ",
+        "       _| | |_       ",
+    ];
+    
+    let skull_y = area.height / 4;
+    let skull_x = area.width.saturating_sub(21) / 2;
+    for (i, line) in skull.iter().enumerate() {
+        frame.render_widget(
+            Paragraph::new(Span::styled(*line, Style::default().fg(Color::Red).bold())),
+            Rect::new(skull_x, skull_y + i as u16, 21, 1)
+        );
+    }
+    
+    // "YOU DIED" text
+    let title = "Y O U   D I E D";
+    let title_x = area.width.saturating_sub(title.len() as u16) / 2;
+    let title_y = skull_y + skull.len() as u16 + 2;
+    frame.render_widget(
+        Paragraph::new(Span::styled(title, Style::default().fg(Color::Red).bold())),
+        Rect::new(title_x, title_y, title.len() as u16, 1)
+    );
+    
+    // Stats summary
+    let stats = [
+        format!("Level: {}", state.player_level),
+        format!("Turns Survived: {}", state.turn),
+        format!("Refraction: {}", state.refraction),
+        format!("Adaptations: {}", state.adaptations.len()),
+    ];
+    let stats_y = title_y + 3;
+    for (i, stat) in stats.iter().enumerate() {
+        let stat_x = area.width.saturating_sub(stat.len() as u16) / 2;
+        frame.render_widget(
+            Paragraph::new(Span::styled(stat.as_str(), Style::default().fg(Color::Gray))),
+            Rect::new(stat_x, stats_y + i as u16, stat.len() as u16, 1)
+        );
+    }
+    
+    // Quit prompt
     let msg = " Press Q to quit ";
-    let center_x = area.width.saturating_sub(msg.len() as u16) / 2;
+    let msg_x = area.width.saturating_sub(msg.len() as u16) / 2;
+    let msg_y = stats_y + stats.len() as u16 + 2;
     frame.render_widget(
         Paragraph::new(Span::styled(msg, Style::default().fg(Color::White).bg(Color::Red))),
-        Rect::new(center_x, center_y, msg.len() as u16, 1)
+        Rect::new(msg_x, msg_y, msg.len() as u16, 1)
     );
 }

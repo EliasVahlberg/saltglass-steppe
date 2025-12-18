@@ -6,7 +6,7 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile, MAP_HEIGHT};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_side_panel, render_bottom_panel, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, MenuAction, render_map, render_death_screen};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_side_panel, render_bottom_panel, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, MenuAction, render_map, render_death_screen, render_damage_numbers};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -118,7 +118,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
 
     // Death screen
     if state.player_hp <= 0 {
-        render_death_screen(frame);
+        render_death_screen(frame, state);
         return;
     }
 
@@ -169,6 +169,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     // Render game map
     let look_cursor = if ui.look_mode.active { Some((ui.look_mode.x, ui.look_mode.y)) } else { None };
     render_map(frame, game_chunks[1], state, &player_effects, ui.frame_count, look_cursor);
+    render_damage_numbers(frame, game_chunks[1], state);
 
     // Bottom panel with log
     render_bottom_panel(frame, game_chunks[2], state);
@@ -206,6 +207,8 @@ fn main() -> Result<()> {
     loop {
         ui.tick_frame();
         state.tick_hit_flash();
+        state.tick_damage_numbers();
+        state.tick_projectile_trails();
         
         if ui.show_controls {
             terminal.draw(render_controls)?;

@@ -127,12 +127,38 @@ pub struct GameState {
     /// Positions with active hit flash effects (x, y, frames_remaining)
     #[serde(skip)]
     pub hit_flash_positions: Vec<(i32, i32, u32)>,
+    /// Floating damage numbers (x, y, value, frames_remaining, is_heal)
+    #[serde(skip)]
+    pub damage_numbers: Vec<DamageNumber>,
+    /// Active projectile trails for ranged attacks
+    #[serde(skip)]
+    pub projectile_trails: Vec<ProjectileTrail>,
     /// Mock: force combat hits (Some(true)) or misses (Some(false))
     #[serde(skip)]
     pub mock_combat_hit: Option<bool>,
     /// Mock: force specific damage value
     #[serde(skip)]
     pub mock_combat_damage: Option<i32>,
+}
+
+/// Floating damage number for visual feedback
+#[derive(Clone)]
+pub struct DamageNumber {
+    pub x: i32,
+    pub y: i32,
+    pub value: i32,
+    pub frames: u32,
+    pub is_heal: bool,
+}
+
+/// Projectile trail for ranged attack animation
+#[derive(Clone)]
+pub struct ProjectileTrail {
+    pub path: Vec<(i32, i32)>,
+    pub current_idx: usize,
+    pub frames_per_tile: u32,
+    pub frame_counter: u32,
+    pub char: char,
 }
 
 impl GameState {
@@ -224,6 +250,8 @@ impl GameState {
             item_positions: HashMap::new(),
             event_queue: Vec::new(),
             hit_flash_positions: Vec::new(),
+            damage_numbers: Vec::new(),
+            projectile_trails: Vec::new(),
             mock_combat_hit: None,
             mock_combat_damage: None,
         };
@@ -432,6 +460,58 @@ impl GameState {
     /// Check if position has active hit flash
     pub fn has_hit_flash(&self, x: i32, y: i32) -> bool {
         self.hit_flash_positions.iter().any(|(fx, fy, _)| *fx == x && *fy == y)
+    }
+
+    /// Spawn a floating damage number
+    pub fn spawn_damage_number(&mut self, x: i32, y: i32, value: i32, is_heal: bool) {
+        self.damage_numbers.push(DamageNumber { x, y, value, frames: 12, is_heal });
+    }
+
+    /// Tick damage number animations
+    pub fn tick_damage_numbers(&mut self) {
+        self.damage_numbers.retain_mut(|dn| {
+            dn.frames = dn.frames.saturating_sub(1);
+            dn.frames > 0
+        });
+    }
+
+    /// Spawn a projectile trail from source to target
+    pub fn spawn_projectile(&mut self, from: (i32, i32), to: (i32, i32), ch: char) {
+        let path = line_path(from, to);
+        if path.len() > 1 {
+            self.projectile_trails.push(ProjectileTrail {
+                path,
+                current_idx: 0,
+                frames_per_tile: 2,
+                frame_counter: 0,
+                char: ch,
+            });
+        }
+    }
+
+    /// Tick projectile trail animations
+    pub fn tick_projectile_trails(&mut self) {
+        self.projectile_trails.retain_mut(|pt| {
+            pt.frame_counter += 1;
+            if pt.frame_counter >= pt.frames_per_tile {
+                pt.frame_counter = 0;
+                pt.current_idx += 1;
+            }
+            pt.current_idx < pt.path.len()
+        });
+    }
+
+    /// Get current projectile position if any
+    pub fn get_projectile_at(&self, x: i32, y: i32) -> Option<char> {
+        for pt in &self.projectile_trails {
+            if pt.current_idx < pt.path.len() {
+                let (px, py) = pt.path[pt.current_idx];
+                if px == x && py == y {
+                    return Some(pt.char);
+                }
+            }
+        }
+        None
     }
 
     pub fn apply_storm(&mut self) {
@@ -825,4 +905,24 @@ impl GameState {
         state.rebuild_spatial_index();
         Ok(state)
     }
+}
+
+/// Simple Bresenham line for projectile paths
+fn line_path(from: (i32, i32), to: (i32, i32)) -> Vec<(i32, i32)> {
+    let mut path = Vec::new();
+    let (mut x0, mut y0) = from;
+    let (x1, y1) = to;
+    let dx = (x1 - x0).abs();
+    let dy = -(y1 - y0).abs();
+    let sx = if x0 < x1 { 1 } else { -1 };
+    let sy = if y0 < y1 { 1 } else { -1 };
+    let mut err = dx + dy;
+    loop {
+        path.push((x0, y0));
+        if x0 == x1 && y0 == y1 { break; }
+        let e2 = 2 * err;
+        if e2 >= dy { err += dy; x0 += sx; }
+        if e2 <= dx { err += dx; y0 += sy; }
+    }
+    path
 }

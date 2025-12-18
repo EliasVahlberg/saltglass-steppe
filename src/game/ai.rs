@@ -72,6 +72,7 @@ impl GameState {
                 let dmg = self.rng.gen_range(def.damage_min..=def.damage_max);
                 self.player_hp -= dmg;
                 self.trigger_hit_flash(self.player_x, self.player_y);
+                self.spawn_damage_number(self.player_x, self.player_y, dmg, false);
                 let dir = self.direction_from(ex, ey);
                 self.log_typed(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg), MsgType::Combat);
                 
