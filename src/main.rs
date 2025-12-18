@@ -9,8 +9,8 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 use std::io::{stdout, Result};
-use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, get_light_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT};
-use tui_rpg::ui::{render_inventory_menu, InventoryMenu};
+use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, get_light_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT, all_recipe_ids};
+use tui_rpg::ui::{render_inventory_menu, InventoryMenu, render_quest_log, QuestLogMenu, render_crafting_menu, CraftingMenu, render_side_panel, render_bottom_panel};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -36,6 +36,8 @@ struct UiState {
     frame_count: u64,
     show_controls: bool,
     inventory_menu: InventoryMenu,
+    quest_log: QuestLogMenu,
+    crafting_menu: CraftingMenu,
 }
 
 impl UiState {
@@ -45,6 +47,8 @@ impl UiState {
             frame_count: 0,
             show_controls: false,
             inventory_menu: InventoryMenu::default(),
+            quest_log: QuestLogMenu::default(),
+            crafting_menu: CraftingMenu::default(),
         }
     }
     
@@ -59,12 +63,33 @@ struct LookMode {
     y: i32,
 }
 
-enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), EndTurn, AutoExplore, RangedAttack(i32, i32), OpenInventory, EquipSelected, UnequipSelected, None }
+enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), EndTurn, AutoExplore, RangedAttack(i32, i32), OpenInventory, EquipSelected, UnequipSelected, OpenQuestLog, OpenCrafting, Craft, None }
 
 fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
     if event::poll(std::time::Duration::from_millis(16))? {
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
+                // Quest log input
+                if ui.quest_log.active {
+                    match key.code {
+                        KeyCode::Esc | KeyCode::Char('Q') => ui.quest_log.close(),
+                        KeyCode::Char('j') | KeyCode::Down => ui.quest_log.navigate(1, state.quest_log.active.len() + state.quest_log.completed.len() + 3),
+                        KeyCode::Char('k') | KeyCode::Up => ui.quest_log.navigate(-1, state.quest_log.active.len() + state.quest_log.completed.len() + 3),
+                        _ => {}
+                    }
+                    return Ok(Action::None);
+                }
+                // Crafting menu input
+                if ui.crafting_menu.active {
+                    match key.code {
+                        KeyCode::Esc | KeyCode::Char('c') => ui.crafting_menu.close(),
+                        KeyCode::Char('j') | KeyCode::Down => ui.crafting_menu.navigate(1, all_recipe_ids().len()),
+                        KeyCode::Char('k') | KeyCode::Up => ui.crafting_menu.navigate(-1, all_recipe_ids().len()),
+                        KeyCode::Enter => return Ok(Action::Craft),
+                        _ => {}
+                    }
+                    return Ok(Action::None);
+                }
                 // Inventory menu input
                 if ui.inventory_menu.active {
                     match key.code {
@@ -117,6 +142,8 @@ fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
                     KeyCode::Char('e') => Action::EndTurn,
                     KeyCode::Char('o') => Action::AutoExplore,
                     KeyCode::Char('i') => Action::OpenInventory,
+                    KeyCode::Char('Q') => Action::OpenQuestLog,
+                    KeyCode::Char('c') => Action::OpenCrafting,
                     KeyCode::Char('1') => Action::UseItem(0),
                     KeyCode::Char('2') => Action::UseItem(1),
                     KeyCode::Char('3') => Action::UseItem(2),
@@ -220,15 +247,34 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
                 state.unequip_slot(slot);
             }
         }
+        Action::OpenQuestLog => {
+            ui.quest_log.open();
+        }
+        Action::OpenCrafting => {
+            ui.crafting_menu.open();
+        }
+        Action::Craft => {
+            if let Some(recipe_id) = ui.crafting_menu.selected_recipe_id() {
+                state.craft(recipe_id);
+            }
+        }
         Action::None => {}
     }
     true
 }
 
 fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
-    // Inventory menu takes over the whole screen
+    // Fullscreen menus
     if ui.inventory_menu.active {
         render_inventory_menu(frame, &ui.inventory_menu, &state.inventory, &state.equipment);
+        return;
+    }
+    if ui.quest_log.active {
+        render_quest_log(frame, &ui.quest_log, state);
+        return;
+    }
+    if ui.crafting_menu.active {
+        render_crafting_menu(frame, &ui.crafting_menu, state);
         return;
     }
 
@@ -275,43 +321,39 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
         return;
     }
 
+    // Main layout: side panel + game area
+    let main_chunks = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints([
+            Constraint::Min(state.map.width as u16 + 2),
+            Constraint::Length(22),
+        ])
+        .split(frame.area());
+
+    // Left side: game area with look mode and map
     let desc_height = if ui.look_mode.active { 3u16 } else { 0 };
-    let chunks = Layout::default()
+    let game_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(desc_height),
             Constraint::Min(MAP_HEIGHT as u16 + 2),
-            Constraint::Length(9),
+            Constraint::Length(7),
         ])
-        .split(frame.area());
+        .split(main_chunks[0]);
 
     // Look mode description box
     if ui.look_mode.active {
         let desc = state.describe_at(ui.look_mode.x, ui.look_mode.y);
         let block = Block::default().title(" Look (Esc/Enter to exit) ").borders(Borders::ALL);
-        frame.render_widget(Paragraph::new(desc).block(block), chunks[0]);
+        frame.render_widget(Paragraph::new(desc).block(block), game_chunks[0]);
     }
 
-    let storm_color = if state.storm.turns_until <= 3 { Color::Red } 
-        else if state.storm.turns_until <= 5 { Color::Yellow } 
-        else { Color::Green };
     let title = Line::from(vec![
-        " HP:".into(),
-        Span::styled(format!("{}/{}", state.player_hp, state.player_max_hp), 
-            Style::default().fg(if state.player_hp <= 5 { Color::Red } else { Color::Green })),
-        " | Ref:".into(),
-        Span::styled(format!("{}", state.refraction), Style::default().fg(Color::Cyan)),
-        format!(" | Turn {} | Storm:", state.turn).into(),
-        Span::styled(format!("{}", state.storm.turns_until), Style::default().fg(storm_color)),
-        if state.adaptations.is_empty() { Span::raw("") } else {
-            Span::styled(format!(" | {}", state.adaptations.iter().map(|a| a.name()).collect::<Vec<_>>().join(", ")),
-                Style::default().fg(Color::Magenta))
-        },
-        " ".into(),
+        format!(" Turn {} ", state.turn).into(),
     ]);
     let block = Block::default().title(title).borders(Borders::ALL);
-    let inner = block.inner(chunks[1]);
-    frame.render_widget(block, chunks[1]);
+    let inner = block.inner(game_chunks[1]);
+    frame.render_widget(block, game_chunks[1]);
 
     let mut lines: Vec<Line> = Vec::new();
     for y in 0..state.map.height {
@@ -418,24 +460,11 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     }
     frame.render_widget(Paragraph::new(lines), inner);
 
-    let inv_str = if state.inventory.is_empty() {
-        "Inventory: (empty)".to_string()
-    } else {
-        format!("Inventory: {}", state.inventory.iter().enumerate()
-            .map(|(i, id)| {
-                let name = get_item_def(id).map(|d| d.name.as_str()).unwrap_or("?");
-                format!("[{}]{}", i + 1, name)
-            })
-            .collect::<Vec<_>>().join(" "))
-    };
-    let status = if state.player_hp <= 0 {
-        "\n*** YOU DIED *** Press q to quit"
-    } else {
-        "\nMove: hjkl | Look: x | End turn: e | Auto-explore: o | Use: 1-3 | Save: S | Load: L | Quit: q"
-    };
-    let log_text = format!("{}\n{}{}", inv_str, state.messages.join("\n"), status);
-    let log_block = Block::default().title(" Log ").borders(Borders::ALL);
-    frame.render_widget(Paragraph::new(log_text).block(log_block), chunks[2]);
+    // Bottom panel with log
+    render_bottom_panel(frame, game_chunks[2], state);
+
+    // Right side panel with stats
+    render_side_panel(frame, main_chunks[1], state);
 }
 
 enum MenuAction { NewGame, Quit, None }
