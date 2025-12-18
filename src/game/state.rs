@@ -217,8 +217,8 @@ impl GameState {
 
     pub fn update_lighting(&mut self) {
         let mut sources = Vec::new();
-        // Equipped light sources (e.g., hand torch)
-        for slot_item in [&self.equipment.weapon, &self.equipment.armor, &self.equipment.accessory] {
+        // Equipped light sources (check all slots)
+        for (_, slot_item) in self.equipment.iter() {
             if let Some(id) = slot_item {
                 if let Some(def) = get_item_def(id) {
                     if let Some(ref ls) = def.light_source {
@@ -690,8 +690,8 @@ impl GameState {
         // Sync equipped_weapon with equipment.weapon for backward compat
         self.equipped_weapon = self.equipment.weapon.clone();
         
-        // Calculate armor from equipped armor item
-        self.player_armor = self.equipment.armor.as_ref()
+        // Calculate armor from equipped jacket item
+        self.player_armor = self.equipment.jacket.as_ref()
             .and_then(|id| get_item_def(id))
             .map(|def| def.armor_value)
             .unwrap_or(0);

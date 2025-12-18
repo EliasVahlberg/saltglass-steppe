@@ -590,8 +590,12 @@ impl DesExecutor {
             AssertionCheck::EquippedInSlot { slot, item } => {
                 let equipped = match slot.to_lowercase().as_str() {
                     "weapon" => &self.state.equipment.weapon,
-                    "armor" => &self.state.equipment.armor,
+                    "jacket" => &self.state.equipment.jacket,
                     "accessory" => &self.state.equipment.accessory,
+                    "boots" => &self.state.equipment.boots,
+                    "gloves" => &self.state.equipment.gloves,
+                    "backpack" => &self.state.equipment.backpack,
+                    "necklace" => &self.state.equipment.necklace,
                     _ => return false,
                 };
                 equipped == item
@@ -693,8 +697,12 @@ impl DesExecutor {
                 use crate::game::equipment::EquipSlot;
                 let equip_slot = match slot.to_lowercase().as_str() {
                     "weapon" => EquipSlot::Weapon,
-                    "armor" => EquipSlot::Armor,
+                    "jacket" => EquipSlot::Jacket,
                     "accessory" => EquipSlot::Accessory,
+                    "boots" => EquipSlot::Boots,
+                    "gloves" => EquipSlot::Gloves,
+                    "backpack" => EquipSlot::Backpack,
+                    "necklace" => EquipSlot::Necklace,
                     _ => { self.log(format!("Unknown slot: {}", slot)); return; }
                 };
                 self.state.equip_item(*item_index, equip_slot);
@@ -704,8 +712,12 @@ impl DesExecutor {
                 use crate::game::equipment::EquipSlot;
                 let equip_slot = match slot.to_lowercase().as_str() {
                     "weapon" => EquipSlot::Weapon,
-                    "armor" => EquipSlot::Armor,
+                    "jacket" => EquipSlot::Jacket,
                     "accessory" => EquipSlot::Accessory,
+                    "boots" => EquipSlot::Boots,
+                    "gloves" => EquipSlot::Gloves,
+                    "backpack" => EquipSlot::Backpack,
+                    "necklace" => EquipSlot::Necklace,
                     _ => { self.log(format!("Unknown slot: {}", slot)); return; }
                 };
                 self.state.unequip_slot(equip_slot);

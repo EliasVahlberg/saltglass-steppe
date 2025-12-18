@@ -91,7 +91,7 @@ Override game systems for deterministic testing:
 | `attack` | `target_x`, `target_y` | Melee attack adjacent tile |
 | `ranged_attack` | `target_x`, `target_y` | Ranged attack |
 | `use_item` | `item_index` | Use item from inventory |
-| `equip` | `item_index`, `slot` | Equip item (weapon/armor/accessory) |
+| `equip` | `item_index`, `slot` | Equip item to slot |
 | `unequip` | `slot` | Unequip slot |
 | `apply_status` | `effect`, `duration`, `potency` | Apply status effect |
 | `auto_explore` | - | Auto-explore one step |
@@ -99,6 +99,17 @@ Override game systems for deterministic testing:
 | `end_turn` | - | End current turn |
 | `allocate_stat` | `stat` | Allocate pending stat point (max_hp/max_ap/reflex) |
 | `log` | `query` | Log state (player_hp, player_position, inventory, turn) |
+
+### Equipment Slots
+
+Available slots for `equip` and `unequip` actions:
+- `weapon` - Primary weapon
+- `jacket` - Body armor (provides armor value)
+- `accessory` - Accessories (e.g., hand torch for light)
+- `boots` - Footwear
+- `gloves` - Hand protection
+- `backpack` - Storage
+- `necklace` - Jewelry
 
 ## Assertions
 

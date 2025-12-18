@@ -10,6 +10,7 @@ use ratatui::{
 };
 use std::io::{stdout, Result};
 use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, get_light_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT};
+use tui_rpg::ui::{render_inventory_menu, InventoryMenu};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -34,6 +35,7 @@ struct UiState {
     look_mode: LookMode,
     frame_count: u64,
     show_controls: bool,
+    inventory_menu: InventoryMenu,
 }
 
 impl UiState {
@@ -42,6 +44,7 @@ impl UiState {
             look_mode: LookMode { active: false, x: 0, y: 0 },
             frame_count: 0,
             show_controls: false,
+            inventory_menu: InventoryMenu::default(),
         }
     }
     
@@ -56,12 +59,35 @@ struct LookMode {
     y: i32,
 }
 
-enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), EndTurn, AutoExplore, RangedAttack(i32, i32), None }
+enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), EndTurn, AutoExplore, RangedAttack(i32, i32), OpenInventory, EquipSelected, UnequipSelected, None }
 
-fn handle_input(ui: &mut UiState) -> Result<Action> {
+fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
     if event::poll(std::time::Duration::from_millis(16))? {
         if let Event::Key(key) = event::read()? {
             if key.kind == KeyEventKind::Press {
+                // Inventory menu input
+                if ui.inventory_menu.active {
+                    match key.code {
+                        KeyCode::Esc | KeyCode::Char('i') => ui.inventory_menu.close(),
+                        KeyCode::Char('j') | KeyCode::Down => ui.inventory_menu.navigate(1, state.inventory.len()),
+                        KeyCode::Char('k') | KeyCode::Up => ui.inventory_menu.navigate(-1, state.inventory.len()),
+                        KeyCode::Char('h') | KeyCode::Char('l') | KeyCode::Left | KeyCode::Right => ui.inventory_menu.switch_panel(),
+                        KeyCode::Char('x') => ui.inventory_menu.inspect(&state.inventory, &state.equipment),
+                        KeyCode::Enter => {
+                            if ui.inventory_menu.inspect_item.is_some() {
+                                ui.inventory_menu.inspect_item = None;
+                            } else {
+                                return Ok(match ui.inventory_menu.panel {
+                                    tui_rpg::ui::MenuPanel::Inventory => Action::EquipSelected,
+                                    tui_rpg::ui::MenuPanel::Equipment => Action::UnequipSelected,
+                                });
+                            }
+                        }
+                        _ => {}
+                    }
+                    return Ok(Action::None);
+                }
+                // Look mode input
                 if ui.look_mode.active {
                     match key.code {
                         KeyCode::Esc | KeyCode::Enter => ui.look_mode.active = false,
@@ -90,6 +116,7 @@ fn handle_input(ui: &mut UiState) -> Result<Action> {
                     KeyCode::Char('x') => Action::EnterLook,
                     KeyCode::Char('e') => Action::EndTurn,
                     KeyCode::Char('o') => Action::AutoExplore,
+                    KeyCode::Char('i') => Action::OpenInventory,
                     KeyCode::Char('1') => Action::UseItem(0),
                     KeyCode::Char('2') => Action::UseItem(1),
                     KeyCode::Char('3') => Action::UseItem(2),
@@ -160,12 +187,51 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
                 state.try_ranged_attack(x, y);
             }
         }
+        Action::OpenInventory => {
+            ui.inventory_menu.open();
+        }
+        Action::EquipSelected => {
+            if let Some(idx) = ui.inventory_menu.selected_inv_index() {
+                if idx < state.inventory.len() {
+                    // Get item's equip slot
+                    if let Some(def) = get_item_def(&state.inventory[idx]) {
+                        if let Some(slot_str) = &def.equip_slot {
+                            use tui_rpg::EquipSlot;
+                            let slot = match slot_str.as_str() {
+                                "weapon" => Some(EquipSlot::Weapon),
+                                "jacket" => Some(EquipSlot::Jacket),
+                                "accessory" => Some(EquipSlot::Accessory),
+                                "boots" => Some(EquipSlot::Boots),
+                                "gloves" => Some(EquipSlot::Gloves),
+                                "backpack" => Some(EquipSlot::Backpack),
+                                "necklace" => Some(EquipSlot::Necklace),
+                                _ => None,
+                            };
+                            if let Some(s) = slot {
+                                state.equip_item(idx, s);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Action::UnequipSelected => {
+            if let Some(slot) = ui.inventory_menu.selected_equip_slot() {
+                state.unequip_slot(slot);
+            }
+        }
         Action::None => {}
     }
     true
 }
 
 fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
+    // Inventory menu takes over the whole screen
+    if ui.inventory_menu.active {
+        render_inventory_menu(frame, &ui.inventory_menu, &state.inventory, &state.equipment);
+        return;
+    }
+
     // Build effect context
     let player_idx = state.map.idx(state.player_x, state.player_y);
     let on_glass = state.map.tiles.get(player_idx).map(|t| *t == Tile::Glass).unwrap_or(false);
@@ -506,7 +572,7 @@ fn main() -> Result<()> {
             }
         } else {
             terminal.draw(|frame| render(frame, &state, &ui))?;
-            let action = handle_input(&mut ui)?;
+            let action = handle_input(&mut ui, &state)?;
             if !update(&mut state, action, &mut ui) { break; }
         }
     }

@@ -1,6 +1,6 @@
 {
   "name": "Equipment System Test",
-  "description": "Test equipping/unequipping armor and verifying stat changes",
+  "description": "Test equipping/unequipping jacket and verifying stat changes",
   "seed": 12345,
   "player": {
     "x": 5,
@@ -9,15 +9,15 @@
     "inventory": ["salt_vest", "salt_knife"]
   },
   "actions": [
-    {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "armor"}},
+    {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "jacket"}},
     {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "weapon"}},
-    {"turn": 1, "action": {"type": "unequip", "slot": "armor"}}
+    {"turn": 1, "action": {"type": "unequip", "slot": "jacket"}}
   ],
   "assertions": [
     {
       "after_turn": 0,
-      "check": {"type": "equipped_in_slot", "slot": "armor", "item": "salt_vest"},
-      "message": "Salt vest should be equipped in armor slot"
+      "check": {"type": "equipped_in_slot", "slot": "jacket", "item": "salt_vest"},
+      "message": "Salt vest should be equipped in jacket slot"
     },
     {
       "after_turn": 0,

@@ -162,7 +162,7 @@
       "weight": 3,
       "usable": false,
       "armor_value": 3,
-      "equip_slot": "armor"
+      "equip_slot": "jacket"
     },
     {
       "id": "wall_torch",

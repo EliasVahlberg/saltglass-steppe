@@ -1,5 +1,6 @@
 mod game;
 pub mod des;
+pub mod ui;
 
 pub use game::*;
 
