@@ -647,7 +647,7 @@ impl DesExecutor {
                 op.compare(self.state.player_level as i32, *value as i32)
             }
             AssertionCheck::MessageContains { text } => {
-                self.state.messages.iter().any(|m| m.contains(text))
+                self.state.messages.iter().any(|m| m.text.contains(text))
             }
             AssertionCheck::PendingStatPoints { op, value } => {
                 op.compare(self.state.pending_stat_points, *value)

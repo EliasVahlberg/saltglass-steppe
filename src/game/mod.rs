@@ -34,7 +34,7 @@ pub use enemy::{all_enemy_ids, get_enemy_def, Enemy, EnemyDef};
 pub use item::{all_item_ids, get_item_def, Item, ItemDef};
 pub use map::{compute_fov, Map, Tile};
 pub use npc::{get_npc_def, Npc, NpcDef};
-pub use state::{GameState, TriggeredEffect};
+pub use state::{GameMessage, GameState, MsgType, TriggeredEffect};
 pub use storm::Storm;
 pub use world_map::{Biome, POI, Terrain, WorldMap, WORLD_SIZE};
 pub use lighting::{compute_lighting, is_lit, LightMap, LightSource};

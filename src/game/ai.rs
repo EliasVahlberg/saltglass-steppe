@@ -4,7 +4,7 @@ use bracket_pathfinding::prelude::a_star_search;
 use rand::Rng;
 
 use super::enemy::BehaviorContext;
-use super::state::GameState;
+use super::state::{GameState, MsgType};
 
 impl GameState {
     pub fn update_enemies(&mut self) {
@@ -71,8 +71,9 @@ impl GameState {
             if dist == 1 {
                 let dmg = self.rng.gen_range(def.damage_min..=def.damage_max);
                 self.player_hp -= dmg;
+                self.trigger_hit_flash(self.player_x, self.player_y);
                 let dir = self.direction_from(ex, ey);
-                self.log(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg));
+                self.log_typed(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg), MsgType::Combat);
                 
                 // Trigger on_hit effects
                 for e in &def.effects {
@@ -86,7 +87,7 @@ impl GameState {
                     if behavior.behavior_type == "on_hit_refraction" {
                         if let Some(val) = behavior.value {
                             self.refraction += val;
-                            self.log(format!("Glass shards pierce you. (+{} Refraction)", val));
+                            self.log_typed(format!("Glass shards pierce you. (+{} Refraction)", val), MsgType::Status);
                             self.check_adaptation_threshold();
                         }
                     }

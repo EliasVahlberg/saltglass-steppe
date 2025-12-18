@@ -4,8 +4,35 @@ use ratatui::{
     prelude::*,
     widgets::{Block, Borders, Paragraph, List, ListItem},
 };
-use crate::game::{GameState, get_item_def, get_quest_def};
+use crate::game::{GameState, MsgType, get_item_def, get_quest_def};
 use crate::game::equipment::EquipSlot;
+use super::theme::theme;
+
+/// Unicode block characters for smooth health bars (8 levels)
+const BAR_CHARS: [char; 9] = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
+
+/// Get gradient color based on percentage using theme
+fn health_color(pct: f32) -> Color {
+    let t = theme();
+    if pct > 0.5 { t.hp_high }
+    else if pct > 0.25 { t.hp_mid }
+    else { t.hp_low }
+}
+
+/// Render a gradient health bar with Unicode blocks
+fn render_bar(current: i32, max: i32, width: usize) -> (String, Color) {
+    let pct = if max > 0 { current.max(0) as f32 / max as f32 } else { 0.0 };
+    let color = health_color(pct);
+    let filled = pct * width as f32;
+    let full_blocks = filled as usize;
+    let partial = ((filled - full_blocks as f32) * 8.0) as usize;
+    
+    let mut bar = String::with_capacity(width);
+    for _ in 0..full_blocks { bar.push(BAR_CHARS[8]); }
+    if full_blocks < width { bar.push(BAR_CHARS[partial]); }
+    while bar.chars().count() < width { bar.push(BAR_CHARS[0]); }
+    (bar, color)
+}
 
 /// Render the side panel with player stats and equipment
 pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
@@ -22,22 +49,24 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         ])
         .split(inner);
 
-    // Stats section
-    let hp_color = if state.player_hp <= 5 { Color::Red } 
-        else if state.player_hp <= state.player_max_hp / 2 { Color::Yellow }
-        else { Color::Green };
+    // Stats section with gradient bars
+    let bar_width = 10;
+    let (hp_bar, hp_color) = render_bar(state.player_hp, state.player_max_hp, bar_width);
+    let (ap_bar, _) = render_bar(state.player_ap, state.player_max_ap, bar_width);
     let storm_color = if state.storm.turns_until <= 3 { Color::Red } 
         else if state.storm.turns_until <= 5 { Color::Yellow } 
         else { Color::Green };
 
     let stats = vec![
         Line::from(vec![
-            Span::raw("HP: "),
-            Span::styled(format!("{}/{}", state.player_hp, state.player_max_hp), Style::default().fg(hp_color)),
+            Span::raw("HP "),
+            Span::styled(hp_bar, Style::default().fg(hp_color)),
+            Span::styled(format!(" {}/{}", state.player_hp, state.player_max_hp), Style::default().fg(hp_color)),
         ]),
         Line::from(vec![
-            Span::raw("AP: "),
-            Span::styled(format!("{}/{}", state.player_ap, state.player_max_ap), Style::default().fg(Color::Cyan)),
+            Span::raw("AP "),
+            Span::styled(ap_bar, Style::default().fg(Color::Cyan)),
+            Span::styled(format!(" {}/{}", state.player_ap, state.player_max_ap), Style::default().fg(Color::Cyan)),
         ]),
         Line::from(vec![
             Span::raw("Lvl: "),
@@ -95,17 +124,32 @@ pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         ])
         .split(area);
 
-    // Message log
+    // Message log with color-coded types
     let log_block = Block::default().title(" Log ").borders(Borders::ALL);
     let log_inner = log_block.inner(chunks[0]);
     frame.render_widget(log_block, chunks[0]);
     
+    let t = theme();
     let msg_count = log_inner.height as usize;
+    let total = state.messages.len();
     let messages: Vec<ListItem> = state.messages.iter()
         .rev()
         .take(msg_count)
         .rev()
-        .map(|m| ListItem::new(m.as_str()))
+        .enumerate()
+        .map(|(i, m)| {
+            let base_color = match m.msg_type {
+                MsgType::Combat => t.msg_combat,
+                MsgType::Loot => t.msg_loot,
+                MsgType::Status => t.msg_status,
+                MsgType::Dialogue => t.msg_dialogue,
+                MsgType::System => t.msg_system,
+            };
+            // Fade older messages (dim if not recent)
+            let age = total.saturating_sub(i + 1);
+            let color = if age > 2 { t.msg_faded } else { base_color };
+            ListItem::new(Span::styled(&m.text, Style::default().fg(color)))
+        })
         .collect();
     frame.render_widget(List::new(messages), log_inner);
 
