@@ -334,45 +334,37 @@ Auto-explore: BFS to nearest unexplored walkable tile
 
 ### 10. Quests and Storytelling (Importance: 3, Difficulty: 4)
 
-**Current State:** Not implemented.
+**Current State:** Quest system implemented with data-driven objectives and rewards.
+
+**Completed:**
+- ✅ Quest data structure (QuestDef, Objective, QuestReward)
+- ✅ QuestLog tracks active/completed quests
+- ✅ Objective types: kill, collect, reach, talk_to
+- ✅ Quest hooks in combat, item pickup, movement, NPC talk
+- ✅ DES support (accept_quest, complete_quest actions + assertions)
 
 **Missing:**
-- Quest data structure
 - Quest log UI
-- Objective tracking
-- NPC quest givers
+- NPC quest givers (NPCs that offer quests)
 - Story flags/triggers
 
-**Implementation Approach:**
-```
-1. Quest struct: id, stages, objectives, rewards
-2. QuestLog tracks active/completed
-3. Objectives: kill X, collect Y, reach location
-4. Trigger system for story events
-```
-
-**Depends on:** NPC dialogue system.
+**Depends on:** NPC dialogue system (completed).
 
 ---
 
 ### 11. Crafting System (Importance: 2, Difficulty: 3)
 
-**Current State:** Not implemented.
+**Current State:** Data-driven crafting system implemented.
+
+**Completed:**
+- ✅ Recipe definitions in data/recipes.json
+- ✅ Material requirements checking
+- ✅ GameState::craft() method
+- ✅ DES support (craft action)
 
 **Missing:**
-- Recipe definitions
 - Crafting UI
-- Material requirements
-- Crafting stations
-
-**Implementation Approach:**
-```
-1. data/recipes.json with inputs/outputs
-2. Crafting action checks inventory
-3. Station requirement for advanced recipes
-```
-
-**Lower priority** - can be added after core loop is solid.
+- Crafting stations (location-based crafting)
 
 ---
 
@@ -429,10 +421,10 @@ Auto-explore: BFS to nearest unexplored walkable tile
 6. ✅ Equippable light sources (hand torch)
 
 ### Milestone 4: Content
-1. ⬜ Quests
-2. ⬜ Crafting
-3. ⬜ More enemy types
-4. ⬜ More items/equipment
+1. ✅ Quests (data-driven with objectives and rewards)
+2. ✅ Crafting (data-driven recipes)
+3. ✅ More enemy types (16 total)
+4. ✅ More items/equipment (25 total)
 
 ### Milestone 5: Polish
 1. ⬜ Full UI/HUD
