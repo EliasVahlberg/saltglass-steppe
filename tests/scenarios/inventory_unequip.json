@@ -1,0 +1,18 @@
+{
+    "name": "Inventory Unequip Test",
+    "description": "Test unequipping items back to inventory",
+    "seed": 42,
+    "player": {
+        "x": 5, "y": 5, "hp": 20, "max_hp": 20,
+        "inventory": ["glass_dagger"],
+        "equipped_weapon": "brine_pistol"
+    },
+    "actions": [
+        {"turn": 0, "action": {"type": "unequip", "slot": "weapon"}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "equipped_in_slot", "slot": "weapon", "item": null}, "message": "Weapon slot should be empty"},
+        {"at_end": true, "check": {"type": "inventory_contains", "item": "brine_pistol"}, "message": "Unequipped weapon should be in inventory"},
+        {"at_end": true, "check": {"type": "inventory_size", "op": "eq", "value": 2}, "message": "Inventory should have 2 items"}
+    ]
+}

@@ -405,9 +405,10 @@ impl DesExecutor {
                 state.adaptations.push(a);
             }
         }
-        // Wire equipped weapon
+        // Wire equipped weapon (both legacy and new equipment system)
         if let Some(weapon_id) = &scenario.player.equipped_weapon {
             state.equipped_weapon = Some(weapon_id.clone());
+            state.equipment.weapon = Some(weapon_id.clone());
         }
 
         // Spawn entities

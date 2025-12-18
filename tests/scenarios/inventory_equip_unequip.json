@@ -1,0 +1,18 @@
+{
+    "name": "Inventory Equip/Unequip Test",
+    "description": "Test equipping and unequipping items",
+    "seed": 42,
+    "player": {
+        "x": 5, "y": 5, "hp": 20, "max_hp": 20,
+        "inventory": ["glass_dagger", "salt_jacket"]
+    },
+    "actions": [
+        {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "weapon"}},
+        {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "jacket"}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "equipped_in_slot", "slot": "weapon", "item": "glass_dagger"}, "message": "Weapon should be equipped"},
+        {"at_end": true, "check": {"type": "equipped_in_slot", "slot": "jacket", "item": "salt_jacket"}, "message": "Jacket should be equipped"},
+        {"at_end": true, "check": {"type": "inventory_size", "op": "eq", "value": 0}, "message": "Inventory should be empty after equipping"}
+    ]
+}

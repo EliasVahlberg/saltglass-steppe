@@ -1,0 +1,18 @@
+{
+    "name": "Inventory Swap Equip Test",
+    "description": "Test that equipping swaps with currently equipped item",
+    "seed": 42,
+    "player": {
+        "x": 5, "y": 5, "hp": 20, "max_hp": 20,
+        "inventory": ["glass_dagger"],
+        "equipped_weapon": "brine_pistol"
+    },
+    "actions": [
+        {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "weapon"}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "equipped_in_slot", "slot": "weapon", "item": "glass_dagger"}, "message": "New weapon should be equipped"},
+        {"at_end": true, "check": {"type": "inventory_contains", "item": "brine_pistol"}, "message": "Old weapon should be in inventory"},
+        {"at_end": true, "check": {"type": "inventory_size", "op": "eq", "value": 1}, "message": "Inventory should have 1 item (swapped)"}
+    ]
+}
