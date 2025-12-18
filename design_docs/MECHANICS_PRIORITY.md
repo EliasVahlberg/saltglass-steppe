@@ -194,14 +194,19 @@ Phase 4 - Liquids/hazards (complex):
 
 ### 5. Enemy AI and NPCs (Importance: 4, Difficulty: 4)
 
-**Current State:** Basic chase-and-attack AI.
+**Current State:** Demeanor system implemented with multiple behavior types.
+
+**Completed:**
+- ✅ AI demeanor types (aggressive, defensive, neutral, pacifist)
+- ✅ Neutral: ignore unless attacked (provoked flag)
+- ✅ Pacifist: flee when threatened
+- ✅ Defensive: flee when HP drops below 30%
+- ✅ Flee behavior (move away from player)
 
 **Missing:**
-- AI demeanor types (aggressive, defensive, neutral, friendly, pacifist)
 - Patrol routes
 - Aggro system with target switching
 - Item usage by enemies
-- Flee behavior
 - Cover-seeking behavior
 
 **Implementation Approach:**
@@ -254,13 +259,18 @@ Phase 3 - Tactical AI:
 
 ### 7. Inventory and Equipment (Importance: 4, Difficulty: 2)
 
-**Current State:** Basic inventory exists, items defined in data/items.json.
+**Current State:** Full equipment system implemented.
+
+**Completed:**
+- ✅ Equipment slots (weapon, armor, accessory)
+- ✅ Equip/unequip actions
+- ✅ Equipment stat bonuses (armor value)
+- ✅ Item inspection with hidden properties
+- ✅ Equippable light sources (hand torch in accessory slot)
 
 **Missing:**
-- Equipment slots (weapon, armor, accessories)
 - Weight system
 - Item condition/durability
-- Equipment stat bonuses
 
 **Implementation Approach:**
 ```
@@ -277,11 +287,15 @@ Phase 3 - Tactical AI:
 
 ### 8. Character Progression (Importance: 3, Difficulty: 3)
 
-**Current State:** Not implemented.
+**Current State:** XP and level-up system implemented with stat allocation.
+
+**Completed:**
+- ✅ XP gain from combat (enemy xp_value)
+- ✅ Level thresholds (data-driven in progression.json)
+- ✅ Stat points on level up (3 per level)
+- ✅ Stat allocation (max_hp, max_ap, reflex)
 
 **Missing:**
-- XP gain and leveling
-- Stat points allocation
 - Skill trees (if keeping)
 - Backgrounds with starting bonuses
 
@@ -407,11 +421,12 @@ Auto-explore: BFS to nearest unexplored walkable tile
 4. ✅ Dynamic lighting
 
 ### Milestone 3: Depth
-1. ⬜ Proper inventory system with inspect stats/properties
-2. ⬜ Equipment system
-3. ⬜ AI demeanor types
-4. ⬜ NPC dialogue
-5. ⬜ Character progression
+1. ✅ Proper inventory system with inspect stats/properties
+2. ✅ Equipment system (weapon/armor/accessory slots)
+3. ✅ AI demeanor types (aggressive, defensive, neutral, pacifist)
+4. ✅ NPC dialogue (adaptation + item conditions)
+5. ✅ Character progression (XP, levels, stat point allocation)
+6. ✅ Equippable light sources (hand torch)
 
 ### Milestone 4: Content
 1. ⬜ Quests

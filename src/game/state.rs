@@ -63,6 +63,8 @@ pub struct GameState {
     #[serde(default)]
     pub player_level: u32,
     #[serde(default)]
+    pub pending_stat_points: i32,
+    #[serde(default)]
     pub equipped_weapon: Option<String>,
     #[serde(default)]
     pub equipment: Equipment,
@@ -174,6 +176,7 @@ impl GameState {
             player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
             player_ap: default_player_ap(), player_max_ap: default_player_ap(),
             player_reflex: 5, player_armor: 0, player_xp: 0, player_level: 0,
+            pending_stat_points: 0,
             equipped_weapon: None,
             equipment: Equipment::default(),
             status_effects: Vec::new(),
@@ -213,14 +216,28 @@ impl GameState {
     }
 
     pub fn update_lighting(&mut self) {
-        // Player torch + map lights + item light sources
-        let mut sources = vec![LightSource { x: self.player_x, y: self.player_y, radius: 8, intensity: 150 }];
+        let mut sources = Vec::new();
+        // Equipped light sources (e.g., hand torch)
+        for slot_item in [&self.equipment.weapon, &self.equipment.armor, &self.equipment.accessory] {
+            if let Some(id) = slot_item {
+                if let Some(def) = get_item_def(id) {
+                    if let Some(ref ls) = def.light_source {
+                        sources.push(LightSource { x: self.player_x, y: self.player_y, radius: ls.radius, intensity: ls.intensity });
+                    }
+                }
+            }
+        }
+        // Default player light if no equipped light source
+        if sources.is_empty() {
+            sources.push(LightSource { x: self.player_x, y: self.player_y, radius: 8, intensity: 150 });
+        }
+        // Map lights
         for ml in &self.map.lights {
             if let Some(def) = super::light_defs::get_light_def(&ml.id) {
                 sources.push(LightSource { x: ml.x, y: ml.y, radius: def.radius, intensity: def.intensity });
             }
         }
-        // Items with light_source property
+        // Items on ground with light_source property
         for item in &self.items {
             if let Some(def) = get_item_def(&item.id) {
                 if let Some(ref ls) = def.light_source {
@@ -258,7 +275,7 @@ impl GameState {
 
     /// Gain XP and check for level up
     pub fn gain_xp(&mut self, amount: u32) {
-        use super::progression::{xp_for_level, stat_growth, max_level};
+        use super::progression::{xp_for_level, stat_points_per_level, max_level};
         
         self.player_xp += amount;
         self.log(format!("+{} XP", amount));
@@ -268,17 +285,33 @@ impl GameState {
             let next_threshold = xp_for_level(self.player_level + 1);
             if self.player_xp >= next_threshold {
                 self.player_level += 1;
-                let hp_gain = stat_growth("max_hp");
-                let ap_gain = stat_growth("max_ap");
-                self.player_max_hp += hp_gain;
-                self.player_hp += hp_gain; // Heal on level up
-                self.player_max_ap += ap_gain;
-                self.log(format!("⬆ LEVEL {}! (+{} HP, +{} AP)", self.player_level, hp_gain, ap_gain));
+                let points = stat_points_per_level();
+                self.pending_stat_points += points;
+                self.log(format!("⬆ LEVEL {}! (+{} stat points)", self.player_level, points));
                 self.emit(GameEvent::LevelUp { level: self.player_level });
             } else {
                 break;
             }
         }
+    }
+
+    /// Allocate a stat point to a specific stat
+    pub fn allocate_stat(&mut self, stat: &str) -> bool {
+        if self.pending_stat_points <= 0 { return false; }
+        
+        match stat {
+            "max_hp" => {
+                self.player_max_hp += 1;
+                self.player_hp += 1; // Also heal
+            }
+            "max_ap" => self.player_max_ap += 1,
+            "reflex" => self.player_reflex += 1,
+            _ => return false,
+        }
+        
+        self.pending_stat_points -= 1;
+        self.log(format!("+1 {}", stat));
+        true
     }
 
     /// End turn: reset AP, tick status effects, run enemy turns, tick storm
@@ -474,13 +507,19 @@ impl GameState {
             } else {
                 self.adaptations.clone()
             };
-            let dialogue = self.npcs[ni].dialogue(&visible_adaptations);
+            let inventory_snapshot = self.inventory.clone();
+            let ctx = super::npc::DialogueContext {
+                adaptations: &visible_adaptations,
+                inventory: &inventory_snapshot,
+            };
+            let dialogue = self.npcs[ni].dialogue(&ctx).to_string();
             let name = self.npcs[ni].name().to_string();
+            let actions: Vec<_> = self.npcs[ni].available_actions(&ctx).into_iter().cloned().collect();
+            
             self.log(format!("{}: \"{}\"", name, dialogue));
             
             // Execute first available action
-            let actions = self.npcs[ni].available_actions(&visible_adaptations);
-            for action in actions {
+            for action in &actions {
                 // Item exchange
                 if let (Some(gives), Some(consumes)) = (&action.effect.gives_item, &action.effect.consumes) {
                     if let Some(idx) = self.inventory.iter().position(|id| id == consumes) {

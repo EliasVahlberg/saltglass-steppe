@@ -1,0 +1,36 @@
+{
+  "name": "Equippable Torch Test",
+  "description": "Test that equipping a hand torch affects light levels",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "inventory": ["hand_torch"]
+  },
+  "actions": [
+    {"turn": 0, "action": {"type": "equip", "item_index": 0, "slot": "accessory"}}
+  ],
+  "assertions": [
+    {
+      "at_start": true,
+      "check": {"type": "inventory_contains", "item": "hand_torch"},
+      "message": "Hand torch should be in inventory at start"
+    },
+    {
+      "after_turn": 0,
+      "check": {"type": "equipped_in_slot", "slot": "accessory", "item": "hand_torch"},
+      "message": "Hand torch should be equipped in accessory slot"
+    },
+    {
+      "after_turn": 0,
+      "check": {"type": "inventory_size", "op": "eq", "value": 0},
+      "message": "Inventory should be empty after equipping torch"
+    },
+    {
+      "after_turn": 0,
+      "check": {"type": "light_level", "x": 5, "y": 5, "op": "ge", "value": 140},
+      "message": "Player position should have torch light level (140 intensity)"
+    }
+  ]
+}

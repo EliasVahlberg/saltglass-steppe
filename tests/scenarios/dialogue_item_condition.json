@@ -1,0 +1,31 @@
+{
+  "name": "Item-Conditional Dialogue Test",
+  "description": "Test that NPC dialogue changes based on player inventory",
+  "seed": 100,
+  "player": {
+    "x": 28,
+    "y": 8,
+    "hp": 20,
+    "ap": 4,
+    "max_ap": 4,
+    "inventory": []
+  },
+  "entities": [
+    {"entity_type": "npc", "id": "archive_custodian", "x": 29, "y": 8}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}}
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {"type": "npc_talked", "id": "archive_custodian", "talked": true},
+      "message": "Archive custodian should be talked to"
+    },
+    {
+      "after_turn": 0,
+      "check": {"type": "message_contains", "text": "UNAUTHORIZED"},
+      "message": "Without saint_key, should get unauthorized message"
+    }
+  ]
+}

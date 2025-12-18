@@ -1,0 +1,52 @@
+{
+  "name": "Defensive Demeanor Test",
+  "description": "Test that defensive enemies retreat when HP drops below 30%",
+  "seed": 100,
+  "player": {
+    "x": 28,
+    "y": 8,
+    "hp": 50,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 12
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "salt_guardian",
+      "x": 29,
+      "y": 8,
+      "hp": 15,
+      "ai_disabled": false
+    }
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "attack", "target_x": 29, "target_y": 8}},
+    {"turn": 0, "action": {"type": "end_turn"}}
+  ],
+  "assertions": [
+    {
+      "at_start": true,
+      "check": {"type": "enemy_at", "x": 29, "y": 8, "alive": true},
+      "message": "Salt guardian should be at (29,8) at start"
+    },
+    {
+      "at_start": true,
+      "check": {"type": "enemy_hp", "id": "salt_guardian", "op": "eq", "value": 15},
+      "message": "Salt guardian should have 15 HP at start"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "enemy_hp", "id": "salt_guardian", "op": "eq", "value": 3},
+      "message": "Salt guardian should have 3 HP after 12 damage (below 30%)"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "no_enemy_at", "x": 29, "y": 8},
+      "message": "Salt guardian should have retreated from (29,8)"
+    }
+  ]
+}

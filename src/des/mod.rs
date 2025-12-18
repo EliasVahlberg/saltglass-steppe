@@ -113,6 +113,8 @@ pub enum AssertionCheck {
     NpcTalked { id: String, talked: bool },
     PlayerXp { op: CmpOp, value: u32 },
     PlayerLevel { op: CmpOp, value: u32 },
+    MessageContains { text: String },
+    PendingStatPoints { op: CmpOp, value: i32 },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -153,6 +155,8 @@ pub struct PlayerSetup {
     pub ap: Option<i32>,
     #[serde(default)]
     pub max_ap: Option<i32>,
+    #[serde(default)]
+    pub xp: Option<u32>,
     #[serde(default)]
     pub inventory: Vec<String>,
     #[serde(default)]
@@ -216,6 +220,7 @@ pub enum Action {
     Wait { turns: u32 },
     EndTurn,
     Log { query: LogQuery },
+    AllocateStat { stat: String },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -290,6 +295,7 @@ impl Scenario {
         if self.player.y.is_none() { self.player.y = base.player.y; }
         if self.player.hp.is_none() { self.player.hp = base.player.hp; }
         if self.player.max_hp.is_none() { self.player.max_hp = base.player.max_hp; }
+        if self.player.xp.is_none() { self.player.xp = base.player.xp; }
         if self.player.inventory.is_empty() { self.player.inventory = base.player.inventory; }
         
         // Prepend base entities, actions, assertions
@@ -376,6 +382,9 @@ impl DesExecutor {
         }
         if let Some(max_ap) = scenario.player.max_ap {
             state.player_max_ap = max_ap;
+        }
+        if let Some(xp) = scenario.player.xp {
+            state.player_xp = xp;
         }
         for item_id in &scenario.player.inventory {
             state.inventory.push(item_id.clone());
@@ -628,6 +637,12 @@ impl DesExecutor {
             AssertionCheck::PlayerLevel { op, value } => {
                 op.compare(self.state.player_level as i32, *value as i32)
             }
+            AssertionCheck::MessageContains { text } => {
+                self.state.messages.iter().any(|m| m.contains(text))
+            }
+            AssertionCheck::PendingStatPoints { op, value } => {
+                op.compare(self.state.pending_stat_points, *value)
+            }
         }
     }
 
@@ -713,6 +728,10 @@ impl DesExecutor {
             Action::Log { query } => {
                 let msg = self.query_state(query);
                 self.log(msg);
+            }
+            Action::AllocateStat { stat } => {
+                let success = self.state.allocate_stat(stat);
+                self.log(format!("Allocate stat '{}': {}", stat, if success { "success" } else { "failed" }));
             }
         }
     }

@@ -163,6 +163,14 @@ impl Enemy {
 
     /// Returns true if this enemy should flee
     pub fn should_flee(&self) -> bool {
-        self.demeanor() == AIDemeanor::Pacifist && self.provoked
+        match self.demeanor() {
+            AIDemeanor::Pacifist => self.provoked,
+            AIDemeanor::Defensive => {
+                // Defensive enemies flee when HP drops below 30%
+                let max_hp = self.def().map(|d| d.max_hp).unwrap_or(10);
+                self.hp * 100 / max_hp < 30
+            }
+            _ => false,
+        }
     }
 }

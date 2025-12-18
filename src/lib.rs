@@ -174,13 +174,16 @@ mod tests {
         use crate::game::Adaptation;
         
         let npc = Npc::new(0, 0, "mirror_monk");
+        use crate::game::npc::DialogueContext;
         
         // No adaptations
-        let dialogue = npc.dialogue(&[]);
+        let ctx = DialogueContext { adaptations: &[], inventory: &[] };
+        let dialogue = npc.dialogue(&ctx);
         assert!(dialogue.contains("unmarked"));
         
         // With Prismhide
-        let dialogue = npc.dialogue(&[Adaptation::Prismhide]);
+        let ctx = DialogueContext { adaptations: &[Adaptation::Prismhide], inventory: &[] };
+        let dialogue = npc.dialogue(&ctx);
         assert!(dialogue.contains("refracts"));
     }
 

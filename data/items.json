@@ -171,6 +171,17 @@
       "description": "A flickering torch mounted on the wall",
       "pickup": false,
       "light_source": {"radius": 6, "intensity": 120}
+    },
+    {
+      "id": "hand_torch",
+      "name": "Hand Torch",
+      "glyph": "†",
+      "description": "A portable torch that illuminates your surroundings",
+      "value": 15,
+      "weight": 1,
+      "usable": false,
+      "equip_slot": "accessory",
+      "light_source": {"radius": 7, "intensity": 140}
     }
   ]
 }

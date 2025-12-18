@@ -1,0 +1,59 @@
+{
+  "name": "Level-Up Stat Allocation Test",
+  "description": "Test that killing enemies grants XP, level up gives stat points, and points can be allocated",
+  "seed": 100,
+  "player": {
+    "x": 28,
+    "y": 8,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10,
+    "max_ap": 10,
+    "xp": 90
+  },
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 100
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "shard_spider", "x": 29, "y": 8, "hp": 1, "ai_disabled": true}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "attack", "target_x": 29, "target_y": 8}},
+    {"turn": 0, "action": {"type": "allocate_stat", "stat": "max_hp"}},
+    {"turn": 0, "action": {"type": "allocate_stat", "stat": "max_hp"}},
+    {"turn": 0, "action": {"type": "allocate_stat", "stat": "reflex"}}
+  ],
+  "assertions": [
+    {
+      "at_start": true,
+      "check": {"type": "player_xp", "op": "eq", "value": 90},
+      "message": "Player should start with 90 XP"
+    },
+    {
+      "at_start": true,
+      "check": {"type": "player_level", "op": "eq", "value": 0},
+      "message": "Player should start at level 0"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "player_xp", "op": "eq", "value": 100},
+      "message": "Player should have 100 XP after killing spider (90 + 10)"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "player_level", "op": "eq", "value": 1},
+      "message": "Player should be level 1 after reaching 100 XP"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "pending_stat_points", "op": "eq", "value": 0},
+      "message": "All 3 stat points should be allocated"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "player_hp", "op": "eq", "value": 52},
+      "message": "Player HP should be 52 (50 + 2 from allocating max_hp twice)"
+    }
+  ]
+}

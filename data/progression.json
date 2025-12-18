@@ -1,5 +1,6 @@
 {
   "level_thresholds": [0, 100, 250, 500, 850, 1300, 1900, 2700, 3800, 5200],
+  "stat_points_per_level": 3,
   "stat_growth": {
     "max_hp": 5,
     "max_ap": 1

@@ -3,23 +3,36 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use super::adaptation::Adaptation;
 
+/// Context for evaluating dialogue conditions
+pub struct DialogueContext<'a> {
+    pub adaptations: &'a [Adaptation],
+    pub inventory: &'a [String],
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct DialogueCondition {
     #[serde(default)]
     pub has_adaptation: Option<String>,
     #[serde(default)]
     pub adaptation_count_gte: Option<usize>,
+    #[serde(default)]
+    pub has_item: Option<String>,
 }
 
 impl DialogueCondition {
-    pub fn evaluate(&self, adaptations: &[Adaptation]) -> bool {
+    pub fn evaluate(&self, ctx: &DialogueContext) -> bool {
         if let Some(ref name) = self.has_adaptation {
-            if !adaptations.iter().any(|a| a.name() == name) {
+            if !ctx.adaptations.iter().any(|a| a.name() == name) {
                 return false;
             }
         }
         if let Some(count) = self.adaptation_count_gte {
-            if adaptations.len() < count {
+            if ctx.adaptations.len() < count {
+                return false;
+            }
+        }
+        if let Some(ref item_id) = self.has_item {
+            if !ctx.inventory.iter().any(|i| i == item_id) {
                 return false;
             }
         }
@@ -112,11 +125,11 @@ impl Npc {
         self.def().map(|d| d.name.as_str()).unwrap_or("Unknown")
     }
 
-    pub fn dialogue(&self, adaptations: &[Adaptation]) -> &str {
+    pub fn dialogue(&self, ctx: &DialogueContext) -> &str {
         if let Some(def) = self.def() {
             for entry in &def.dialogue {
                 let all_match = entry.conditions.is_empty() 
-                    || entry.conditions.iter().all(|c| c.evaluate(adaptations));
+                    || entry.conditions.iter().all(|c| c.evaluate(ctx));
                 if all_match {
                     return &entry.text;
                 }
@@ -125,10 +138,10 @@ impl Npc {
         "..."
     }
 
-    pub fn available_actions(&self, adaptations: &[Adaptation]) -> Vec<&'static NpcAction> {
+    pub fn available_actions(&self, ctx: &DialogueContext) -> Vec<&'static NpcAction> {
         if let Some(def) = self.def() {
             def.actions.iter()
-                .filter(|a| a.conditions.is_empty() || a.conditions.iter().all(|c| c.evaluate(adaptations)))
+                .filter(|a| a.conditions.is_empty() || a.conditions.iter().all(|c| c.evaluate(ctx)))
                 .collect()
         } else {
             Vec::new()

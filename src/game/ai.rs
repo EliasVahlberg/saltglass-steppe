@@ -51,13 +51,15 @@ impl GameState {
             
             if is_passive { continue; }
             
-            if should_flee && dist < sight && dist > 1 {
+            if should_flee && dist < sight {
+                // Flee away from player
                 let dx = (ex - px).signum();
                 let dy = (ey - py).signum();
                 let nx = ex + dx;
                 let ny = ey + dy;
                 if self.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
-                    && self.enemy_at(nx, ny).is_none() {
+                    && self.enemy_at(nx, ny).is_none() 
+                    && !(nx == px && ny == py) {
                     self.enemy_positions.remove(&(ex, ey));
                     self.enemies[i].x = nx;
                     self.enemies[i].y = ny;

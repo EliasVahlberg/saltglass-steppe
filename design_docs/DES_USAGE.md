@@ -56,6 +56,7 @@ Override game systems for deterministic testing:
   "x": 5, "y": 5,
   "hp": 20, "max_hp": 20,
   "ap": 4, "max_ap": 4,
+  "xp": 90,
   "inventory": ["brine_vial", "salt_knife"],
   "adaptations": ["prismhide", "saltblood"],
   "equipped_weapon": "salt_knife"
@@ -96,6 +97,7 @@ Override game systems for deterministic testing:
 | `auto_explore` | - | Auto-explore one step |
 | `wait` | `turns` | Wait N turns |
 | `end_turn` | - | End current turn |
+| `allocate_stat` | `stat` | Allocate pending stat point (max_hp/max_ap/reflex) |
 | `log` | `query` | Log state (player_hp, player_position, inventory, turn) |
 
 ## Assertions
@@ -121,6 +123,12 @@ Override game systems for deterministic testing:
 {"type": "player_armor", "op": "eq", "value": 3}
 {"type": "player_xp", "op": "ge", "value": 100}
 {"type": "player_level", "op": "eq", "value": 1}
+{"type": "pending_stat_points", "op": "eq", "value": 0}
+```
+
+#### Messages
+```json
+{"type": "message_contains", "text": "CREDENTIAL VALID"}
 ```
 
 #### Inventory & Equipment

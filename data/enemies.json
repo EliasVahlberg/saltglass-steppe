@@ -142,6 +142,18 @@
       "demeanor": "pacifist",
       "xp_value": 3,
       "description": "Delicate creature that flees from danger"
+    },
+    {
+      "id": "salt_guardian",
+      "name": "Salt Guardian",
+      "glyph": "G",
+      "max_hp": 15,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 6,
+      "demeanor": "defensive",
+      "xp_value": 25,
+      "description": "Crystalline protector that retreats when wounded"
     }
   ]
 }
