@@ -598,17 +598,11 @@ impl DesExecutor {
                 op.compare(self.state.revealed.len() as i32, *value as i32)
             }
             AssertionCheck::EquippedInSlot { slot, item } => {
-                let equipped = match slot.to_lowercase().as_str() {
-                    "weapon" => &self.state.equipment.weapon,
-                    "jacket" => &self.state.equipment.jacket,
-                    "accessory" => &self.state.equipment.accessory,
-                    "boots" => &self.state.equipment.boots,
-                    "gloves" => &self.state.equipment.gloves,
-                    "backpack" => &self.state.equipment.backpack,
-                    "necklace" => &self.state.equipment.necklace,
-                    _ => return false,
-                };
-                equipped == item
+                slot.parse::<crate::game::equipment::EquipSlot>()
+                    .ok()
+                    .and_then(|s| self.state.equipment.get(s))
+                    .map(|e| Some(e) == item.as_ref())
+                    .unwrap_or(item.is_none())
             }
             AssertionCheck::PlayerArmor { op, value } => {
                 op.compare(self.state.player_armor, *value)
@@ -697,6 +691,9 @@ impl DesExecutor {
             Action::Teleport { x, y } => {
                 self.state.player_x = *x;
                 self.state.player_y = *y;
+                // Update visibility after teleport
+                self.state.visible = crate::game::map::compute_fov(&self.state.map, *x, *y);
+                self.state.revealed.extend(&self.state.visible);
                 self.log(format!("Player teleported to ({}, {})", x, y));
             }
             Action::Attack { target_x, target_y } => {
@@ -723,34 +720,20 @@ impl DesExecutor {
                 self.log(format!("Player used item at index {}", item_index));
             }
             Action::Equip { item_index, slot } => {
-                use crate::game::equipment::EquipSlot;
-                let equip_slot = match slot.to_lowercase().as_str() {
-                    "weapon" => EquipSlot::Weapon,
-                    "jacket" => EquipSlot::Jacket,
-                    "accessory" => EquipSlot::Accessory,
-                    "boots" => EquipSlot::Boots,
-                    "gloves" => EquipSlot::Gloves,
-                    "backpack" => EquipSlot::Backpack,
-                    "necklace" => EquipSlot::Necklace,
-                    _ => { self.log(format!("Unknown slot: {}", slot)); return; }
-                };
-                self.state.equip_item(*item_index, equip_slot);
-                self.log(format!("Equipped item {} to {}", item_index, slot));
+                if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>() {
+                    self.state.equip_item(*item_index, equip_slot);
+                    self.log(format!("Equipped item {} to {}", item_index, slot));
+                } else {
+                    self.log(format!("Unknown slot: {}", slot));
+                }
             }
             Action::Unequip { slot } => {
-                use crate::game::equipment::EquipSlot;
-                let equip_slot = match slot.to_lowercase().as_str() {
-                    "weapon" => EquipSlot::Weapon,
-                    "jacket" => EquipSlot::Jacket,
-                    "accessory" => EquipSlot::Accessory,
-                    "boots" => EquipSlot::Boots,
-                    "gloves" => EquipSlot::Gloves,
-                    "backpack" => EquipSlot::Backpack,
-                    "necklace" => EquipSlot::Necklace,
-                    _ => { self.log(format!("Unknown slot: {}", slot)); return; }
-                };
-                self.state.unequip_slot(equip_slot);
-                self.log(format!("Unequipped {}", slot));
+                if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>() {
+                    self.state.unequip_slot(equip_slot);
+                    self.log(format!("Unequipped {}", slot));
+                } else {
+                    self.log(format!("Unknown slot: {}", slot));
+                }
             }
             Action::AutoExplore => {
                 let moved = self.state.auto_explore();

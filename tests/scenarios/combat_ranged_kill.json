@@ -1,0 +1,22 @@
+{
+    "name": "Ranged Combat Kill Test",
+    "description": "Test ranged attack killing an enemy at distance",
+    "seed": 42,
+    "mocks": {"combat_always_hit": true, "combat_fixed_damage": 20},
+    "player": {
+        "x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10,
+        "inventory": ["brine_shot", "brine_shot"],
+        "equipped_weapon": "brine_pistol"
+    },
+    "entities": [
+        {"entity_type": "enemy", "id": "shard_spider", "x": 7, "y": 5, "hp": 5, "ai_disabled": true}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "teleport", "x": 5, "y": 5}},
+        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 7, "target_y": 5}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "enemy_dead", "id": "shard_spider"}, "message": "Enemy should be dead from ranged attack"},
+        {"at_end": true, "check": {"type": "inventory_size", "op": "eq", "value": 1}, "message": "One shot should be consumed"}
+    ]
+}

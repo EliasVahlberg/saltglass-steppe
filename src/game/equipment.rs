@@ -1,6 +1,7 @@
 //! Equipment system with slots and stat bonuses
 
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -12,6 +13,22 @@ pub enum EquipSlot {
     Gloves,
     Backpack,
     Necklace,
+}
+
+impl FromStr for EquipSlot {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "weapon" => Ok(EquipSlot::Weapon),
+            "jacket" => Ok(EquipSlot::Jacket),
+            "accessory" => Ok(EquipSlot::Accessory),
+            "boots" => Ok(EquipSlot::Boots),
+            "gloves" => Ok(EquipSlot::Gloves),
+            "backpack" => Ok(EquipSlot::Backpack),
+            "necklace" => Ok(EquipSlot::Necklace),
+            _ => Err(()),
+        }
+    }
 }
 
 impl EquipSlot {

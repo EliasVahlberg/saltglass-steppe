@@ -1,0 +1,17 @@
+{
+    "name": "Combat Player Death Test",
+    "description": "Test player death from enemy attack",
+    "seed": 42,
+    "player": {"x": 5, "y": 5, "hp": 1, "max_hp": 20, "ap": 10, "max_ap": 10},
+    "entities": [
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 50, "ai_disabled": false}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "end_turn"}},
+        {"turn": 1, "action": {"type": "end_turn"}},
+        {"turn": 2, "action": {"type": "end_turn"}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "player_dead"}, "message": "Player should be dead from enemy attacks"}
+    ]
+}

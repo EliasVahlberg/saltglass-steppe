@@ -1,0 +1,18 @@
+{
+    "name": "Combat Kill XP Test",
+    "description": "Test that killing an enemy grants XP",
+    "seed": 42,
+    "mocks": {"combat_always_hit": true, "combat_fixed_damage": 10},
+    "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10, "xp": 0},
+    "entities": [
+        {"entity_type": "enemy", "id": "shard_spider", "x": 6, "y": 5, "hp": 5, "ai_disabled": true}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "enemy_dead", "id": "shard_spider"}, "message": "Enemy should be dead"},
+        {"at_end": true, "check": {"type": "player_xp", "op": "gt", "value": 0}, "message": "Player should gain XP from kill"},
+        {"at_end": true, "check": {"type": "player_alive"}}
+    ]
+}

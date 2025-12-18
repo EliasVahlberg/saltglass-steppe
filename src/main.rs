@@ -1,16 +1,12 @@
 use crossterm::{
-    event::{self, Event, KeyCode, KeyEventKind},
+    event::{self, Event, KeyEventKind},
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
     ExecutableCommand,
 };
-use ratatui::{
-    layout::Alignment,
-    prelude::*,
-    widgets::{Block, Borders, Paragraph},
-};
+use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
-use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, get_light_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT, all_recipe_ids};
-use tui_rpg::ui::{render_inventory_menu, InventoryMenu, render_quest_log, QuestLogMenu, render_crafting_menu, CraftingMenu, render_side_panel, render_bottom_panel};
+use tui_rpg::{get_active_effects, get_enemy_effects, get_item_def, get_light_def, EffectContext, GameState, Tile, VisualEffect, MAP_HEIGHT};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_side_panel, render_bottom_panel, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, MenuAction};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -28,136 +24,6 @@ fn dim_color(color: Color, light: u8) -> Color {
         Color::Cyan => if light < 100 { Color::DarkGray } else { color },
         _ => if light < 100 { Color::DarkGray } else { color },
     }
-}
-
-/// UI-specific state, separate from game logic
-struct UiState {
-    look_mode: LookMode,
-    frame_count: u64,
-    show_controls: bool,
-    inventory_menu: InventoryMenu,
-    quest_log: QuestLogMenu,
-    crafting_menu: CraftingMenu,
-}
-
-impl UiState {
-    fn new() -> Self {
-        Self {
-            look_mode: LookMode { active: false, x: 0, y: 0 },
-            frame_count: 0,
-            show_controls: false,
-            inventory_menu: InventoryMenu::default(),
-            quest_log: QuestLogMenu::default(),
-            crafting_menu: CraftingMenu::default(),
-        }
-    }
-    
-    fn tick_frame(&mut self) {
-        self.frame_count = self.frame_count.wrapping_add(1);
-    }
-}
-
-struct LookMode {
-    active: bool,
-    x: i32,
-    y: i32,
-}
-
-enum Action { Quit, Move(i32, i32), Save, Load, UseItem(usize), OpenControls, EnterLook, BreakWall(i32, i32), EndTurn, AutoExplore, RangedAttack(i32, i32), OpenInventory, EquipSelected, UnequipSelected, OpenQuestLog, OpenCrafting, Craft, None }
-
-fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
-    if event::poll(std::time::Duration::from_millis(16))? {
-        if let Event::Key(key) = event::read()? {
-            if key.kind == KeyEventKind::Press {
-                // Quest log input
-                if ui.quest_log.active {
-                    match key.code {
-                        KeyCode::Esc | KeyCode::Char('Q') => ui.quest_log.close(),
-                        KeyCode::Char('j') | KeyCode::Down => ui.quest_log.navigate(1, state.quest_log.active.len() + state.quest_log.completed.len() + 3),
-                        KeyCode::Char('k') | KeyCode::Up => ui.quest_log.navigate(-1, state.quest_log.active.len() + state.quest_log.completed.len() + 3),
-                        _ => {}
-                    }
-                    return Ok(Action::None);
-                }
-                // Crafting menu input
-                if ui.crafting_menu.active {
-                    match key.code {
-                        KeyCode::Esc | KeyCode::Char('c') => ui.crafting_menu.close(),
-                        KeyCode::Char('j') | KeyCode::Down => ui.crafting_menu.navigate(1, all_recipe_ids().len()),
-                        KeyCode::Char('k') | KeyCode::Up => ui.crafting_menu.navigate(-1, all_recipe_ids().len()),
-                        KeyCode::Enter => return Ok(Action::Craft),
-                        _ => {}
-                    }
-                    return Ok(Action::None);
-                }
-                // Inventory menu input
-                if ui.inventory_menu.active {
-                    match key.code {
-                        KeyCode::Esc | KeyCode::Char('i') => ui.inventory_menu.close(),
-                        KeyCode::Char('j') | KeyCode::Down => ui.inventory_menu.navigate(1, state.inventory.len()),
-                        KeyCode::Char('k') | KeyCode::Up => ui.inventory_menu.navigate(-1, state.inventory.len()),
-                        KeyCode::Char('h') | KeyCode::Char('l') | KeyCode::Left | KeyCode::Right => ui.inventory_menu.switch_panel(),
-                        KeyCode::Char('x') => ui.inventory_menu.inspect(&state.inventory, &state.equipment),
-                        KeyCode::Enter => {
-                            if ui.inventory_menu.inspect_item.is_some() {
-                                ui.inventory_menu.inspect_item = None;
-                            } else {
-                                return Ok(match ui.inventory_menu.panel {
-                                    tui_rpg::ui::MenuPanel::Inventory => Action::EquipSelected,
-                                    tui_rpg::ui::MenuPanel::Equipment => Action::UnequipSelected,
-                                });
-                            }
-                        }
-                        _ => {}
-                    }
-                    return Ok(Action::None);
-                }
-                // Look mode input
-                if ui.look_mode.active {
-                    match key.code {
-                        KeyCode::Esc | KeyCode::Enter => ui.look_mode.active = false,
-                        KeyCode::Up | KeyCode::Char('k') => ui.look_mode.y -= 1,
-                        KeyCode::Down | KeyCode::Char('j') => ui.look_mode.y += 1,
-                        KeyCode::Left | KeyCode::Char('h') => ui.look_mode.x -= 1,
-                        KeyCode::Right | KeyCode::Char('l') => ui.look_mode.x += 1,
-                        KeyCode::Char('b') => {
-                            let (x, y) = (ui.look_mode.x, ui.look_mode.y);
-                            ui.look_mode.active = false;
-                            return Ok(Action::BreakWall(x, y));
-                        }
-                        KeyCode::Char('f') => {
-                            let (x, y) = (ui.look_mode.x, ui.look_mode.y);
-                            ui.look_mode.active = false;
-                            return Ok(Action::RangedAttack(x, y));
-                        }
-                        _ => {}
-                    }
-                    return Ok(Action::None);
-                }
-                return Ok(match key.code {
-                    KeyCode::Char('q') => Action::Quit,
-                    KeyCode::Char('S') => Action::Save,
-                    KeyCode::Char('L') => Action::Load,
-                    KeyCode::Char('x') => Action::EnterLook,
-                    KeyCode::Char('e') => Action::EndTurn,
-                    KeyCode::Char('o') => Action::AutoExplore,
-                    KeyCode::Char('i') => Action::OpenInventory,
-                    KeyCode::Char('Q') => Action::OpenQuestLog,
-                    KeyCode::Char('c') => Action::OpenCrafting,
-                    KeyCode::Char('1') => Action::UseItem(0),
-                    KeyCode::Char('2') => Action::UseItem(1),
-                    KeyCode::Char('3') => Action::UseItem(2),
-                    KeyCode::Up | KeyCode::Char('k') => Action::Move(0, -1),
-                    KeyCode::Down | KeyCode::Char('j') => Action::Move(0, 1),
-                    KeyCode::Left | KeyCode::Char('h') => Action::Move(-1, 0),
-                    KeyCode::Right | KeyCode::Char('l') => Action::Move(1, 0),
-                    KeyCode::Esc => Action::OpenControls,
-                    _ => Action::None,
-                });
-            }
-        }
-    }
-    Ok(Action::None)
 }
 
 fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
@@ -220,22 +86,10 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
         Action::EquipSelected => {
             if let Some(idx) = ui.inventory_menu.selected_inv_index() {
                 if idx < state.inventory.len() {
-                    // Get item's equip slot
                     if let Some(def) = get_item_def(&state.inventory[idx]) {
                         if let Some(slot_str) = &def.equip_slot {
-                            use tui_rpg::EquipSlot;
-                            let slot = match slot_str.as_str() {
-                                "weapon" => Some(EquipSlot::Weapon),
-                                "jacket" => Some(EquipSlot::Jacket),
-                                "accessory" => Some(EquipSlot::Accessory),
-                                "boots" => Some(EquipSlot::Boots),
-                                "gloves" => Some(EquipSlot::Gloves),
-                                "backpack" => Some(EquipSlot::Backpack),
-                                "necklace" => Some(EquipSlot::Necklace),
-                                _ => None,
-                            };
-                            if let Some(s) = slot {
-                                state.equip_item(idx, s);
+                            if let Ok(slot) = slot_str.parse::<tui_rpg::EquipSlot>() {
+                                state.equip_item(idx, slot);
                             }
                         }
                     }
@@ -467,100 +321,6 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     render_side_panel(frame, main_chunks[1], state);
 }
 
-enum MenuAction { NewGame, Quit, None }
-
-fn handle_menu_input() -> Result<MenuAction> {
-    if event::poll(std::time::Duration::from_millis(16))? {
-        if let Event::Key(key) = event::read()? {
-            if key.kind == KeyEventKind::Press {
-                return Ok(match key.code {
-                    KeyCode::Char('n') | KeyCode::Enter => MenuAction::NewGame,
-                    KeyCode::Char('q') | KeyCode::Esc => MenuAction::Quit,
-                    _ => MenuAction::None,
-                });
-            }
-        }
-    }
-    Ok(MenuAction::None)
-}
-
-fn render_menu(frame: &mut Frame, tick: u64) {
-    let area = frame.area();
-    let height = area.height as usize;
-    let width = area.width as usize;
-    
-    // Slow tick for subtle animation
-    let slow_tick = tick / 8;
-    
-    // Generate subtle sand background for entire screen
-    let sand_chars = ['.', '·', ' ', ' ', ' ', '.', ' ', '·', ' ', ' '];
-    let mut bg_lines: Vec<Line> = Vec::new();
-    for y in 0..height {
-        let mut row = String::new();
-        for x in 0..width {
-            let idx = ((x + y * 3 + slow_tick as usize) * 7) % sand_chars.len();
-            row.push(sand_chars[idx]);
-        }
-        bg_lines.push(Line::from(Span::styled(row, Style::default().fg(Color::Rgb(60, 55, 45)))));
-    }
-    frame.render_widget(Paragraph::new(bg_lines), area);
-
-    let title_art = vec![
-        "░██████╗░█████╗░██╗░░░░░████████╗░██████╗░██╗░░░░░░█████╗░░██████╗░██████╗",
-        "██╔════╝██╔══██╗██║░░░░░╚══██╔══╝██╔════╝░██║░░░░░██╔══██╗██╔════╝██╔════╝",
-        "╚█████╗░███████║██║░░░░░░░░██║░░░██║░░██╗░██║░░░░░███████║╚█████╗░╚█████╗░",
-        "░╚═══██╗██╔══██║██║░░░░░░░░██║░░░██║░░╚██╗██║░░░░░██╔══██║░╚═══██╗░╚═══██╗",
-        "██████╔╝██║░░██║███████╗░░░██║░░░╚██████╔╝███████╗██║░░██║██████╔╝██████╔╝",
-        "╚═════╝░╚═╝░░╚═╝╚══════╝░░░╚═╝░░░░╚═════╝░╚══════╝╚═╝░░╚═╝╚═════╝░╚═════╝░",
-        "",
-        "░██████╗████████╗███████╗██████╗░██████╗░███████╗",
-        "██╔════╝╚══██╔══╝██╔════╝██╔══██╗██╔══██╗██╔════╝",
-        "╚█████╗░░░░██║░░░█████╗░░██████╔╝██████╔╝█████╗░░",
-        "░╚═══██╗░░░██║░░░██╔══╝░░██╔═══╝░██╔═══╝░██╔══╝░░",
-        "██████╔╝░░░██║░░░███████╗██║░░░░░██║░░░░░███████╗",
-        "╚═════╝░░░░╚═╝░░░╚══════╝╚═╝░░░░░╚═╝░░░░░╚══════╝",
-    ];
-
-    let mut lines: Vec<Line> = Vec::new();
-    lines.push(Line::from(""));
-    
-    for line in &title_art {
-        lines.push(Line::from(Span::styled(*line, Style::default().fg(Color::Cyan))));
-    }
-    
-    lines.push(Line::from(""));
-    lines.push(Line::from(Span::styled("A roguelike of glass storms and refraction", Style::default().fg(Color::DarkGray).italic())));
-    lines.push(Line::from(""));
-    lines.push(Line::from(""));
-    lines.push(Line::from(vec![
-        Span::styled("  ◆ ", Style::default().fg(Color::Cyan)),
-        Span::raw("Press "),
-        Span::styled("N", Style::default().fg(Color::Green).bold()),
-        Span::raw(" to begin your journey"),
-    ]));
-    lines.push(Line::from(""));
-    lines.push(Line::from(vec![
-        Span::styled("  ◆ ", Style::default().fg(Color::Cyan)),
-        Span::raw("Press "),
-        Span::styled("Q", Style::default().fg(Color::Red).bold()),
-        Span::raw(" to quit"),
-    ]));
-    lines.push(Line::from(""));
-    lines.push(Line::from(""));
-    lines.push(Line::from(Span::styled("─────────────────────────────────────────────────────────────────────────", Style::default().fg(Color::DarkGray))));
-    lines.push(Line::from(Span::styled("  The storms have scoured the steppe for centuries.", Style::default().fg(Color::Yellow))));
-    lines.push(Line::from(Span::styled("  Glass grows where flesh once walked.", Style::default().fg(Color::Yellow))));
-    lines.push(Line::from(Span::styled("  You feel the refraction building in your veins...", Style::default().fg(Color::Magenta))));
-
-    // Center the content
-    let content_height = lines.len() as u16;
-    let start_y = area.height.saturating_sub(content_height) / 2;
-    let content_area = Rect::new(area.x, area.y + start_y, area.width, content_height);
-    
-    let paragraph = Paragraph::new(lines).alignment(Alignment::Center);
-    frame.render_widget(paragraph, content_area);
-}
-
 fn main() -> Result<()> {
     stdout().execute(EnterAlternateScreen)?;
     enable_raw_mode()?;
@@ -609,36 +369,4 @@ fn main() -> Result<()> {
     disable_raw_mode()?;
     stdout().execute(LeaveAlternateScreen)?;
     Ok(())
-}
-
-fn render_controls(frame: &mut Frame) {
-    let area = frame.area();
-    let block = Block::default().title(" Controls ").borders(Borders::ALL);
-    let inner = block.inner(area);
-    frame.render_widget(block, area);
-
-    let text = vec![
-        Line::from(""),
-        Line::from(Span::styled("CONTROLS", Style::default().fg(Color::Yellow).bold())),
-        Line::from(""),
-        Line::from("  Movement:"),
-        Line::from("    h/←  Move left"),
-        Line::from("    j/↓  Move down"),
-        Line::from("    k/↑  Move up"),
-        Line::from("    l/→  Move right"),
-        Line::from(""),
-        Line::from("  Actions:"),
-        Line::from("    x    Look at (examine tile)"),
-        Line::from("    1-3  Use inventory item"),
-        Line::from("    S    Save game"),
-        Line::from("    L    Load game"),
-        Line::from(""),
-        Line::from("  Menu:"),
-        Line::from("    Esc  Open this menu"),
-        Line::from("    q    Quit game"),
-        Line::from(""),
-        Line::from(Span::styled("Press any key to return", Style::default().fg(Color::DarkGray))),
-    ];
-    let paragraph = Paragraph::new(text).alignment(Alignment::Center);
-    frame.render_widget(paragraph, inner);
 }
