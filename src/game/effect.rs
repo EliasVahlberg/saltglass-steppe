@@ -7,6 +7,7 @@ use std::collections::HashMap;
 pub enum VisualEffect {
     Blink { speed: u32, color: Color },
     Glow { color: Color },
+    HitFlash { frames_remaining: u32, color: Color },
 }
 
 #[derive(Debug, Clone, Deserialize)]

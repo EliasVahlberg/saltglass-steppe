@@ -40,6 +40,31 @@ mod rng_serde {
     }
 }
 
+/// Message types for color-coded log display
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq, Default)]
+pub enum MsgType {
+    #[default]
+    System,
+    Combat,
+    Loot,
+    Status,
+    Dialogue,
+}
+
+/// Game message with type for color-coding
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct GameMessage {
+    pub text: String,
+    pub msg_type: MsgType,
+    pub turn: u32,
+}
+
+impl GameMessage {
+    pub fn new(text: impl Into<String>, msg_type: MsgType, turn: u32) -> Self {
+        Self { text: text.into(), msg_type, turn }
+    }
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct TriggeredEffect {
     pub effect: String,
@@ -80,7 +105,7 @@ pub struct GameState {
     pub light_map: LightMap,
     #[serde(default = "default_ambient_light")]
     pub ambient_light: u8,
-    pub messages: Vec<String>, pub turn: u32,
+    pub messages: Vec<GameMessage>, pub turn: u32,
     #[serde(with = "rng_serde")]
     pub rng: ChaCha8Rng, pub storm: Storm,
     pub refraction: u32,
@@ -99,6 +124,9 @@ pub struct GameState {
     pub item_positions: HashMap<(i32, i32), Vec<usize>>,
     #[serde(skip)]
     pub event_queue: Vec<GameEvent>,
+    /// Positions with active hit flash effects (x, y, frames_remaining)
+    #[serde(skip)]
+    pub hit_flash_positions: Vec<(i32, i32, u32)>,
     /// Mock: force combat hits (Some(true)) or misses (Some(false))
     #[serde(skip)]
     pub mock_combat_hit: Option<bool>,
@@ -186,7 +214,7 @@ impl GameState {
             map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
             light_map, ambient_light: ambient,
-            messages: vec!["Welcome to the Saltglass Steppe.".into()],
+            messages: vec![GameMessage::new("Welcome to the Saltglass Steppe.", MsgType::System, 0)],
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
             refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
             quest_log: QuestLog::default(),
@@ -195,6 +223,7 @@ impl GameState {
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
             event_queue: Vec::new(),
+            hit_flash_positions: Vec::new(),
             mock_combat_hit: None,
             mock_combat_damage: None,
         };
@@ -347,7 +376,7 @@ impl GameState {
 
     /// Apply a status effect to the player
     pub fn apply_status(&mut self, effect: super::status::StatusEffect) {
-        self.log(format!("You are {}! ({} turns)", effect.name(), effect.duration));
+        self.log_typed(format!("You are {}! ({} turns)", effect.name(), effect.duration), MsgType::Status);
         self.status_effects.push(effect);
     }
 
@@ -368,7 +397,7 @@ impl GameState {
         if self.adaptations_hidden_turns > 0 {
             self.adaptations_hidden_turns -= 1;
             if self.adaptations_hidden_turns == 0 {
-                self.log("The tincture wears off. Your glow returns.");
+                self.log_typed("The tincture wears off. Your glow returns.", MsgType::Status);
             }
         }
         // Tick down triggered effects
@@ -379,8 +408,30 @@ impl GameState {
     }
 
     pub fn log(&mut self, msg: impl Into<String>) {
-        self.messages.push(msg.into());
+        self.log_typed(msg, MsgType::System);
+    }
+
+    pub fn log_typed(&mut self, msg: impl Into<String>, msg_type: MsgType) {
+        self.messages.push(GameMessage::new(msg, msg_type, self.turn));
         if self.messages.len() > 5 { self.messages.remove(0); }
+    }
+
+    /// Trigger a hit flash effect at position
+    pub fn trigger_hit_flash(&mut self, x: i32, y: i32) {
+        self.hit_flash_positions.push((x, y, 6)); // 6 frames
+    }
+
+    /// Tick hit flash animations (call each frame)
+    pub fn tick_hit_flash(&mut self) {
+        self.hit_flash_positions.retain_mut(|(_, _, frames)| {
+            *frames = frames.saturating_sub(1);
+            *frames > 0
+        });
+    }
+
+    /// Check if position has active hit flash
+    pub fn has_hit_flash(&self, x: i32, y: i32) -> bool {
+        self.hit_flash_positions.iter().any(|(fx, fy, _)| *fx == x && *fy == y)
     }
 
     pub fn apply_storm(&mut self) {
@@ -520,7 +571,7 @@ impl GameState {
             let name = self.npcs[ni].name().to_string();
             let actions: Vec<_> = self.npcs[ni].available_actions(&ctx).into_iter().cloned().collect();
             
-            self.log(format!("{}: \"{}\"", name, dialogue));
+            self.log_typed(format!("{}: \"{}\"", name, dialogue), MsgType::Dialogue);
             
             // Execute first available action
             for action in &actions {
@@ -530,7 +581,7 @@ impl GameState {
                         self.inventory.remove(idx);
                         self.inventory.push(gives.clone());
                         let gives_name = get_item_def(gives).map(|d| d.name.as_str()).unwrap_or("item");
-                        self.log(format!("The pilgrim presses {} into your hand.", gives_name));
+                        self.log_typed(format!("The pilgrim presses {} into your hand.", gives_name), MsgType::Loot);
                         break;
                     }
                 }
@@ -538,7 +589,7 @@ impl GameState {
                 if let Some(heal) = action.effect.heal {
                     let actual = heal.min(self.player_max_hp - self.player_hp);
                     self.player_hp += actual;
-                    self.log(format!("You rest. (+{} HP)", actual));
+                    self.log_typed(format!("You rest. (+{} HP)", actual), MsgType::Status);
                     break;
                 }
             }
@@ -615,7 +666,7 @@ impl GameState {
             self.inventory.push(id.clone());
             self.quest_log.on_item_collected(&id);
             self.emit(GameEvent::ItemPickedUp { item_id: id });
-            self.log(format!("Picked up {}.", name));
+            self.log_typed(format!("Picked up {}.", name), MsgType::Loot);
             picked_up.push(i);
         }
         // Remove picked up items
@@ -646,19 +697,19 @@ impl GameState {
         if def.heal > 0 {
             let heal = def.heal.min(self.player_max_hp - self.player_hp);
             self.player_hp += heal;
-            self.log(format!("You use {}. (+{} HP)", def.name, heal));
+            self.log_typed(format!("You use {}. (+{} HP)", def.name, heal), MsgType::Loot);
         }
         if def.reduces_refraction > 0 {
             let reduce = def.reduces_refraction.min(self.refraction);
             self.refraction -= reduce;
-            self.log(format!("Your glow fades slightly. (-{} Refraction)", reduce));
+            self.log_typed(format!("Your glow fades slightly. (-{} Refraction)", reduce), MsgType::Status);
         }
         if def.suppresses_adaptations {
             self.adaptations_hidden_turns = 10;
-            self.log("Your glow dims. The tincture masks your changes.");
+            self.log_typed("Your glow dims. The tincture masks your changes.", MsgType::Status);
         }
         if def.reveals_map {
-            self.log(format!("The {} reveals hidden paths...", def.name));
+            self.log_typed(format!("The {} reveals hidden paths...", def.name), MsgType::Loot);
             for idx in 0..self.map.tiles.len() {
                 self.revealed.insert(idx);
             }

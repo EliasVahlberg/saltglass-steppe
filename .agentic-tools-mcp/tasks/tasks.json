@@ -1,0 +1,207 @@
+{
+  "projects": [
+    {
+      "id": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "name": "TUI RPG Visual Polish",
+      "description": "Add visual flair and polish to the TUI roguelike game - animations, effects, color schemes, and UI improvements",
+      "createdAt": "2025-12-18T20:27:06.299Z",
+      "updatedAt": "2025-12-18T20:27:06.299Z"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "14ed5960-0b92-4f77-95a7-fccd11da6e63",
+      "name": "Combat Hit Flash Effects",
+      "details": "Add brief visual feedback when entities take damage - flash the tile/character red or invert colors momentarily. Could use a simple frame-based animation system.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.458Z",
+      "updatedAt": "2025-12-18T20:27:52.458Z",
+      "dependsOn": [],
+      "priority": 8,
+      "complexity": 4,
+      "status": "pending",
+      "tags": [
+        "animation",
+        "combat",
+        "feedback"
+      ],
+      "level": 0
+    },
+    {
+      "id": "571c9333-6579-40e8-916e-9785d622b1d2",
+      "name": "Floating Damage Numbers",
+      "details": "Display damage numbers that briefly appear and fade/rise when damage is dealt. Numbers could be colored by damage type (red for physical, blue for psy, green for healing).",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.469Z",
+      "updatedAt": "2025-12-18T20:27:52.469Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "animation",
+        "combat",
+        "feedback"
+      ],
+      "level": 0
+    },
+    {
+      "id": "0271be7e-a7fd-4da0-9644-9d4f01e960a9",
+      "name": "Status Effect Visual Indicators",
+      "details": "Show visual cues on affected entities - burning enemies flicker orange/red, poisoned entities pulse green, frozen entities shown in cyan. Could modify the entity's color or add a small indicator.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.477Z",
+      "updatedAt": "2025-12-18T20:27:52.477Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 3,
+      "status": "pending",
+      "tags": [
+        "status-effects",
+        "color",
+        "feedback"
+      ],
+      "level": 0
+    },
+    {
+      "id": "c679fa50-86aa-4609-9c70-bdd482e8cc8e",
+      "name": "Projectile Trail Animation",
+      "details": "Animate ranged attacks with a brief projectile trail from attacker to target. Could show characters like '-', '/', '*' moving across tiles for arrows/bolts/spells.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.486Z",
+      "updatedAt": "2025-12-18T20:27:52.486Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 5,
+      "status": "pending",
+      "tags": [
+        "animation",
+        "combat",
+        "ranged"
+      ],
+      "level": 0
+    },
+    {
+      "id": "2b20c603-d557-47f5-842e-d5bd786291c5",
+      "name": "Smooth Camera/Viewport Transitions",
+      "details": "When the viewport needs to shift (player near edge), animate the transition smoothly over a few frames rather than snapping instantly.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.494Z",
+      "updatedAt": "2025-12-18T20:27:52.494Z",
+      "dependsOn": [],
+      "priority": 5,
+      "complexity": 4,
+      "status": "pending",
+      "tags": [
+        "animation",
+        "camera",
+        "polish"
+      ],
+      "level": 0
+    },
+    {
+      "id": "2abf59a4-3381-4bab-8763-c4794c7edfa3",
+      "name": "Environmental Ambient Animations",
+      "details": "Add subtle ambient movement - water tiles shimmer/ripple, torches flicker, grass sways. Use cycling characters or color shifts on specific tile types.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.500Z",
+      "updatedAt": "2025-12-18T20:27:52.500Z",
+      "dependsOn": [],
+      "priority": 5,
+      "complexity": 4,
+      "status": "pending",
+      "tags": [
+        "animation",
+        "environment",
+        "atmosphere"
+      ],
+      "level": 0
+    },
+    {
+      "id": "5d931d02-94b0-4372-80f9-acb0ab43ac08",
+      "name": "Color Theme System",
+      "details": "Create a configurable color palette system allowing different themes (classic green terminal, warm dungeon, cold ice cave, etc). Store colors in a theme struct that UI modules reference.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.508Z",
+      "updatedAt": "2025-12-18T20:27:52.508Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 3,
+      "status": "pending",
+      "tags": [
+        "color",
+        "theming",
+        "config"
+      ],
+      "level": 0
+    },
+    {
+      "id": "811b1b05-d5a9-41bc-aba2-2477b29be435",
+      "name": "Health Bar Styling",
+      "details": "Improve health/psy bars with gradient colors (green->yellow->red as health drops), add Unicode block characters for smoother bars, optional pulsing when low.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.516Z",
+      "updatedAt": "2025-12-18T20:27:52.516Z",
+      "dependsOn": [],
+      "priority": 7,
+      "complexity": 2,
+      "status": "pending",
+      "tags": [
+        "ui",
+        "hud",
+        "color"
+      ],
+      "level": 0
+    },
+    {
+      "id": "99f83040-2a67-4cdb-abba-90c8316c6d16",
+      "name": "Message Log Enhancements",
+      "details": "Color-code message types (combat red, loot gold, system gray), add timestamps or turn numbers, fade older messages to dimmer colors.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.525Z",
+      "updatedAt": "2025-12-18T20:27:52.525Z",
+      "dependsOn": [],
+      "priority": 6,
+      "complexity": 2,
+      "status": "pending",
+      "tags": [
+        "ui",
+        "messages",
+        "color"
+      ],
+      "level": 0
+    },
+    {
+      "id": "55ac3992-271b-4191-a16f-1656e51bb33d",
+      "name": "Death/Game Over Screen Polish",
+      "details": "Enhance the death screen with dramatic presentation - screen fade to red, ASCII art skull or tombstone, stats summary with animation, dramatic text reveal.",
+      "projectId": "4f90c9e4-78b9-4298-94dc-ac35122e2a0f",
+      "completed": false,
+      "createdAt": "2025-12-18T20:27:52.534Z",
+      "updatedAt": "2025-12-18T20:27:52.534Z",
+      "dependsOn": [],
+      "priority": 4,
+      "complexity": 3,
+      "status": "pending",
+      "tags": [
+        "ui",
+        "death",
+        "polish"
+      ],
+      "level": 0
+    }
+  ],
+  "subtasks": [],
+  "migration": {
+    "version": "1.8.1"
+  }
+}

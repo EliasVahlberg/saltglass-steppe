@@ -205,6 +205,7 @@ fn main() -> Result<()> {
 
     loop {
         ui.tick_frame();
+        state.tick_hit_flash();
         
         if ui.show_controls {
             terminal.draw(render_controls)?;

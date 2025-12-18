@@ -6,7 +6,7 @@ use super::{
     event::GameEvent,
     item::get_item_def,
     map::Tile,
-    state::GameState,
+    state::{GameState, MsgType},
 };
 
 impl GameState {
@@ -48,7 +48,7 @@ impl GameState {
         let dir = self.direction_from(target_x, target_y);
 
         if !result.hit {
-            self.log(format!("You miss the {} {}.", name, dir));
+            self.log_typed(format!("You miss the {} {}.", name, dir), MsgType::Combat);
             return true;
         }
 
@@ -59,6 +59,7 @@ impl GameState {
             }
         }
         self.enemies[ei].hp -= dmg;
+        self.trigger_hit_flash(target_x, target_y);
 
         if let Some(def) = self.enemies[ei].def() {
             for e in &def.effects {
@@ -72,7 +73,8 @@ impl GameState {
                     let reflected = (dmg as u32 * percent / 100) as i32;
                     if reflected > 0 {
                         self.player_hp -= reflected;
-                        self.log(format!("Light bends—your attack refracts back! (-{} HP)", reflected));
+                        self.trigger_hit_flash(self.player_x, self.player_y);
+                        self.log_typed(format!("Light bends—your attack refracts back! (-{} HP)", reflected), MsgType::Combat);
                     }
                 }
             }
@@ -96,10 +98,10 @@ impl GameState {
                 enemy_id,
                 x: target_x, y: target_y
             });
-            self.log(format!("You kill the {} {}!", name, dir));
+            self.log_typed(format!("You kill the {} {}!", name, dir), MsgType::Combat);
         } else {
             let crit_str = if result.crit { " CRITICAL!" } else { "" };
-            self.log(format!("You hit the {} {} for {} damage.{}", name, dir, dmg, crit_str));
+            self.log_typed(format!("You hit the {} {} for {} damage.{}", name, dir, dmg, crit_str), MsgType::Combat);
         }
         true
     }
@@ -109,20 +111,20 @@ impl GameState {
         let weapon = match self.equipped_weapon.as_ref().and_then(|id| get_weapon_def(id)) {
             Some(w) if w.range > 1 => w,
             _ => {
-                self.log("No ranged weapon equipped.");
+                self.log_typed("No ranged weapon equipped.", MsgType::Combat);
                 return false;
             }
         };
 
         let dist = (target_x - self.player_x).abs() + (target_y - self.player_y).abs();
         if dist > weapon.range {
-            self.log("Target out of range.");
+            self.log_typed("Target out of range.", MsgType::Combat);
             return false;
         }
 
         let target_idx = self.map.idx(target_x, target_y);
         if !self.visible.contains(&target_idx) {
-            self.log("Can't see target.");
+            self.log_typed("Can't see target.", MsgType::Combat);
             return false;
         }
 
@@ -131,7 +133,7 @@ impl GameState {
 
         if let Some(ammo_type) = &weapon.ammo_type {
             if !self.inventory.iter().any(|id| id == ammo_type) {
-                self.log(format!("Out of {}.", ammo_type.replace('_', " ")));
+                self.log_typed(format!("Out of {}.", ammo_type.replace('_', " ")), MsgType::Combat);
                 return false;
             }
             if let Some(idx) = self.inventory.iter().position(|id| id == ammo_type) {
@@ -144,7 +146,7 @@ impl GameState {
         let ei = match self.enemy_at(target_x, target_y) {
             Some(i) => i,
             None => {
-                self.log("No target there.");
+                self.log_typed("No target there.", MsgType::Combat);
                 self.check_auto_end_turn();
                 return true;
             }
@@ -159,13 +161,14 @@ impl GameState {
         let name = self.enemies[ei].name().to_string();
 
         if !result.hit {
-            self.log(format!("Your shot misses the {}.", name));
+            self.log_typed(format!("Your shot misses the {}.", name), MsgType::Combat);
             self.check_auto_end_turn();
             return true;
         }
 
         let dmg = result.damage;
         self.enemies[ei].hp -= dmg;
+        self.trigger_hit_flash(target_x, target_y);
 
         if self.enemies[ei].hp <= 0 {
             let enemy_id = self.enemies[ei].id.clone();
@@ -180,10 +183,10 @@ impl GameState {
                 enemy_id,
                 x: target_x, y: target_y
             });
-            self.log(format!("You kill the {} with a ranged shot!", name));
+            self.log_typed(format!("You kill the {} with a ranged shot!", name), MsgType::Combat);
         } else {
             let crit_str = if result.crit { " CRITICAL!" } else { "" };
-            self.log(format!("You hit the {} for {} damage.{}", name, dmg, crit_str));
+            self.log_typed(format!("You hit the {} for {} damage.{}", name, dmg, crit_str), MsgType::Combat);
         }
 
         self.check_auto_end_turn();

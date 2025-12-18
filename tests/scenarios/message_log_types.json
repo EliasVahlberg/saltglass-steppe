@@ -1,0 +1,18 @@
+{
+  "name": "message_log_types",
+  "description": "Test that different actions produce correctly typed messages",
+  "seed": 12345,
+  "player": { "x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10 },
+  "entities": [
+    { "entity_type": "item", "id": "brine_vial", "x": 6, "y": 5 },
+    { "entity_type": "enemy", "id": "salt_crawler", "x": 7, "y": 5, "hp": 1, "ai_disabled": true }
+  ],
+  "actions": [
+    { "turn": 0, "action": { "type": "move", "dx": 1, "dy": 0 } },
+    { "turn": 0, "action": { "type": "attack", "target_x": 7, "target_y": 5 } }
+  ],
+  "assertions": [
+    { "at_end": true, "check": { "type": "message_contains", "text": "Picked up" }, "message": "Should have loot message" },
+    { "at_end": true, "check": { "type": "message_contains", "text": "kill" }, "message": "Should have combat message" }
+  ]
+}

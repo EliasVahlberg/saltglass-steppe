@@ -2,6 +2,8 @@
 
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use crate::{get_enemy_effects, get_light_def, GameState, Tile, VisualEffect};
+use crate::game::status::StatusType;
+use super::theme::theme;
 
 /// Dim a color based on light level (0-255)
 pub fn dim_color(color: Color, light: u8) -> Color {
@@ -57,9 +59,38 @@ fn render_tile(
     player_effects: &[VisualEffect],
     frame_count: u64,
 ) -> (char, Style) {
+    let t = theme();
+    
+    // Check for hit flash at this position
+    let has_flash = state.has_hit_flash(x as i32, y as i32);
+    
     // Player
     if x as i32 == state.player_x && y as i32 == state.player_y {
         let mut style = Style::default().fg(Color::Yellow).bold();
+        
+        // Hit flash takes priority
+        if has_flash && (frame_count % 2 == 0) {
+            return ('@', Style::default().fg(Color::White).bg(Color::Red).bold());
+        }
+        
+        // Apply status effect colors (priority: burn > poison > bleed)
+        for effect in &state.status_effects {
+            let status_color = match effect.effect_type {
+                StatusType::Burn => Some(t.status_burning),
+                StatusType::Poison => Some(t.status_poisoned),
+                StatusType::Bleed => Some(t.status_bleeding),
+                StatusType::Stun => Some(t.status_frozen),
+                _ => None,
+            };
+            if let Some(color) = status_color {
+                // Blink effect for status
+                if (frame_count / 4) % 2 == 0 {
+                    style = style.fg(color);
+                }
+                break; // Only show highest priority status
+            }
+        }
+        
         for effect in player_effects {
             match effect {
                 VisualEffect::Blink { speed, color } => {
@@ -68,6 +99,7 @@ fn render_tile(
                     }
                 }
                 VisualEffect::Glow { color } => style = style.fg(*color),
+                VisualEffect::HitFlash { .. } => {} // Handled above
             }
         }
         return ('@', style);
@@ -77,6 +109,11 @@ fn render_tile(
     if let Some(&ei) = state.enemy_positions.get(&(x as i32, y as i32)) {
         let e = &state.enemies[ei];
         if state.visible.contains(&idx) {
+            // Hit flash takes priority
+            if has_flash && (frame_count % 2 == 0) {
+                return (e.glyph(), Style::default().fg(Color::White).bg(Color::Red));
+            }
+            
             let base_color = match e.id.as_str() {
                 "mirage_hound" => Color::LightYellow,
                 "glass_beetle" => Color::Cyan,
@@ -90,6 +127,7 @@ fn render_tile(
                         if (frame_count / speed as u64) % 2 == 0 { style = style.fg(color); }
                     }
                     VisualEffect::Glow { color } => style = style.fg(color),
+                    VisualEffect::HitFlash { .. } => {} // Handled above
                 }
             }
             return (e.glyph(), style);
