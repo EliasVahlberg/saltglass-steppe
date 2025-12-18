@@ -100,6 +100,7 @@ Override game systems for deterministic testing:
 | `allocate_stat` | `stat` | Allocate pending stat point (max_hp/max_ap/reflex) |
 | `accept_quest` | `quest_id` | Accept a quest by ID |
 | `complete_quest` | `quest_id` | Complete a quest (if all objectives done) |
+| `craft` | `recipe_id` | Craft item using recipe |
 | `log` | `query` | Log state (player_hp, player_position, inventory, turn) |
 
 ### Equipment Slots

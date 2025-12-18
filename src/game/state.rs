@@ -734,6 +734,35 @@ impl GameState {
         }
     }
 
+    /// Craft an item using a recipe
+    pub fn craft(&mut self, recipe_id: &str) -> bool {
+        let recipe = match super::crafting::get_recipe(recipe_id) {
+            Some(r) => r,
+            None => return false,
+        };
+        
+        if !super::crafting::can_craft(recipe, &self.inventory) {
+            return false;
+        }
+        
+        // Remove materials
+        for (item_id, &count) in &recipe.materials {
+            for _ in 0..count {
+                if let Some(idx) = self.inventory.iter().position(|id| id == item_id) {
+                    self.inventory.remove(idx);
+                }
+            }
+        }
+        
+        // Add output
+        for _ in 0..recipe.output_count {
+            self.inventory.push(recipe.output.clone());
+        }
+        
+        self.log(format!("Crafted {}.", recipe.name));
+        true
+    }
+
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), String> {
         let data = ron::to_string(self).map_err(|e| e.to_string())?;
         fs::write(path, data).map_err(|e| e.to_string())

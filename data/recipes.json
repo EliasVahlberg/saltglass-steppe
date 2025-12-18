@@ -1,0 +1,35 @@
+{
+  "recipes": [
+    {
+      "id": "health_potion",
+      "name": "Health Potion",
+      "description": "Brew a healing potion from salt crystals and brine.",
+      "materials": {
+        "salt_crystal": 2,
+        "brine_vial": 1
+      },
+      "output": "health_potion",
+      "output_count": 1
+    },
+    {
+      "id": "salt_bomb",
+      "name": "Salt Bomb",
+      "description": "Combine salt crystals into an explosive device.",
+      "materials": {
+        "salt_crystal": 3
+      },
+      "output": "salt_bomb",
+      "output_count": 1
+    },
+    {
+      "id": "torch_bundle",
+      "name": "Torch Bundle",
+      "description": "Craft multiple torches from materials.",
+      "materials": {
+        "hand_torch": 2
+      },
+      "output": "hand_torch",
+      "output_count": 3
+    }
+  ]
+}

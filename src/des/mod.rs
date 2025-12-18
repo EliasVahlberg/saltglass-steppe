@@ -229,6 +229,8 @@ pub enum Action {
     // Quest actions
     AcceptQuest { quest_id: String },
     CompleteQuest { quest_id: String },
+    // Crafting actions
+    Craft { recipe_id: String },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -780,6 +782,11 @@ impl DesExecutor {
             Action::CompleteQuest { quest_id } => {
                 let success = self.state.complete_quest(quest_id);
                 self.log(format!("Complete quest '{}': {}", quest_id, if success { "success" } else { "failed" }));
+            }
+            // Crafting actions
+            Action::Craft { recipe_id } => {
+                let success = self.state.craft(recipe_id);
+                self.log(format!("Craft '{}': {}", recipe_id, if success { "success" } else { "failed" }));
             }
         }
     }

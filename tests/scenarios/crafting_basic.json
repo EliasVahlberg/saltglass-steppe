@@ -1,0 +1,46 @@
+{
+  "name": "Crafting System - Basic Flow",
+  "seed": 42,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "max_hp": 20,
+    "inventory": ["salt_crystal", "salt_crystal", "brine_vial", "salt_crystal"]
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "craft", "recipe_id": "health_potion" },
+      "comment": "Craft health potion (2 salt_crystal + 1 brine_vial)"
+    },
+    {
+      "turn": 1,
+      "action": { "type": "craft", "recipe_id": "health_potion" },
+      "comment": "Try to craft again - should fail (not enough materials)"
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": { "type": "inventory_contains", "item": "health_potion" },
+      "message": "Should have crafted health potion"
+    },
+    {
+      "after_turn": 0,
+      "check": { "type": "inventory_size", "op": "eq", "value": 2 },
+      "message": "Should have 2 items (1 health_potion + 1 salt_crystal remaining)"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "inventory_size", "op": "eq", "value": 2 },
+      "message": "Second craft should fail - still 2 items"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "message_contains", "text": "Crafted Health Potion" },
+      "message": "Should have crafting success message"
+    }
+  ]
+}
