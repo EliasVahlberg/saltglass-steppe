@@ -182,6 +182,102 @@
       "usable": false,
       "equip_slot": "accessory",
       "light_source": {"radius": 7, "intensity": 140}
+    },
+    {
+      "id": "health_potion",
+      "name": "Health Potion",
+      "glyph": "!",
+      "description": "Potent healing brew",
+      "value": 25,
+      "weight": 1,
+      "usable": true,
+      "heal": 12,
+      "effects": [
+        {"condition": "on_use", "effect": "G(&LightGreen)"}
+      ]
+    },
+    {
+      "id": "salt_bomb",
+      "name": "Salt Bomb",
+      "glyph": "*",
+      "description": "Explosive salt device",
+      "value": 40,
+      "weight": 2,
+      "usable": true,
+      "damage_area": 3,
+      "effects": [
+        {"condition": "on_use", "effect": "B(@5 &White)"}
+      ]
+    },
+    {
+      "id": "salt_crystal",
+      "name": "Salt Crystal",
+      "glyph": "◇",
+      "description": "Raw crystallized salt, useful for crafting",
+      "value": 5,
+      "weight": 1,
+      "usable": false
+    },
+    {
+      "id": "storm_boots",
+      "name": "Storm Boots",
+      "glyph": "]",
+      "description": "Glass-soled boots that resist storm damage",
+      "value": 45,
+      "weight": 2,
+      "usable": false,
+      "equip_slot": "boots"
+    },
+    {
+      "id": "brine_gloves",
+      "name": "Brine Gloves",
+      "glyph": "]",
+      "description": "Salt-treated gloves for handling dangerous materials",
+      "value": 30,
+      "weight": 1,
+      "usable": false,
+      "equip_slot": "gloves"
+    },
+    {
+      "id": "pilgrim_pack",
+      "name": "Pilgrim Pack",
+      "glyph": "∩",
+      "description": "Sturdy backpack for long journeys",
+      "value": 35,
+      "weight": 1,
+      "usable": false,
+      "equip_slot": "backpack"
+    },
+    {
+      "id": "salt_amulet",
+      "name": "Salt Amulet",
+      "glyph": "☼",
+      "description": "Protective charm blessed by salt-priests",
+      "value": 55,
+      "weight": 0,
+      "usable": false,
+      "equip_slot": "necklace"
+    },
+    {
+      "id": "glass_dagger",
+      "name": "Glass Dagger",
+      "glyph": "/",
+      "description": "Sharp but fragile blade of storm glass",
+      "value": 20,
+      "weight": 1,
+      "usable": false,
+      "equip_slot": "weapon"
+    },
+    {
+      "id": "crystal_shield",
+      "name": "Crystal Shield",
+      "glyph": "O",
+      "description": "Refractive shield that deflects light attacks",
+      "value": 60,
+      "weight": 4,
+      "usable": false,
+      "armor_value": 2,
+      "equip_slot": "accessory"
     }
   ]
 }

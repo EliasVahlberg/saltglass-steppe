@@ -154,6 +154,84 @@
       "demeanor": "defensive",
       "xp_value": 25,
       "description": "Crystalline protector that retreats when wounded"
+    },
+    {
+      "id": "salt_beetle",
+      "name": "Salt Beetle",
+      "glyph": "B",
+      "max_hp": 6,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 4,
+      "xp_value": 8,
+      "description": "Common pest that burrows in salt deposits",
+      "effects": [
+        {"condition": "on_death", "effect": "B(@1 &White)"}
+      ]
+    },
+    {
+      "id": "brine_lurker",
+      "name": "Brine Lurker",
+      "glyph": "L",
+      "max_hp": 18,
+      "damage_min": 3,
+      "damage_max": 5,
+      "sight_range": 3,
+      "xp_value": 35,
+      "armor": 2,
+      "description": "Ambush predator that hides in salt pools",
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@2 &Blue)"}
+      ]
+    },
+    {
+      "id": "crystal_scorpion",
+      "name": "Crystal Scorpion",
+      "glyph": "S",
+      "max_hp": 10,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 5,
+      "xp_value": 18,
+      "reflex": 3,
+      "description": "Fast-striking arachnid with venomous tail",
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@1 &Green)"}
+      ]
+    },
+    {
+      "id": "storm_elemental",
+      "name": "Storm Elemental",
+      "glyph": "E",
+      "max_hp": 25,
+      "damage_min": 4,
+      "damage_max": 7,
+      "sight_range": 8,
+      "xp_value": 60,
+      "spawns_during_storm": true,
+      "description": "Manifestation of the glass storms",
+      "behaviors": [
+        {"type": "reflect_damage", "percent": 15}
+      ],
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@3 &LightCyan)"},
+        {"condition": "on_death", "effect": "B(@2 &Cyan)"}
+      ]
+    },
+    {
+      "id": "sand_viper",
+      "name": "Sand Viper",
+      "glyph": "v",
+      "max_hp": 7,
+      "damage_min": 2,
+      "damage_max": 3,
+      "sight_range": 5,
+      "xp_value": 12,
+      "reflex": 5,
+      "description": "Quick serpent that strikes from the dunes",
+      "effects": [
+        {"condition": "on_hit", "effect": "B(@1 &Yellow)"}
+      ]
     }
   ]
 }
