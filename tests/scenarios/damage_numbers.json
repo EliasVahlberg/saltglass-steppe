@@ -1,0 +1,17 @@
+{
+  "name": "damage_numbers",
+  "description": "Test that damage numbers are spawned on combat",
+  "seed": 12345,
+  "player": { "x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10 },
+  "entities": [
+    { "entity_type": "enemy", "id": "salt_crawler", "x": 6, "y": 5, "hp": 1, "ai_disabled": true }
+  ],
+  "mock_combat": { "always_hit": true, "damage": 5 },
+  "actions": [
+    { "turn": 0, "action": { "type": "attack", "target_x": 6, "target_y": 5 } }
+  ],
+  "assertions": [
+    { "at_end": true, "check": { "type": "no_enemy_at", "x": 6, "y": 5 }, "message": "Enemy should be dead" },
+    { "at_end": true, "check": { "type": "message_contains", "text": "kill" }, "message": "Should have kill message" }
+  ]
+}

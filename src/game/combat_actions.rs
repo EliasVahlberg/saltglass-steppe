@@ -60,6 +60,7 @@ impl GameState {
         }
         self.enemies[ei].hp -= dmg;
         self.trigger_hit_flash(target_x, target_y);
+        self.spawn_damage_number(target_x, target_y, dmg, false);
 
         if let Some(def) = self.enemies[ei].def() {
             for e in &def.effects {
@@ -142,6 +143,10 @@ impl GameState {
         }
 
         self.player_ap -= cost;
+        
+        // Spawn projectile trail
+        let proj_char = if weapon.range > 3 { '*' } else { '-' };
+        self.spawn_projectile((self.player_x, self.player_y), (target_x, target_y), proj_char);
 
         let ei = match self.enemy_at(target_x, target_y) {
             Some(i) => i,
@@ -169,6 +174,7 @@ impl GameState {
         let dmg = result.damage;
         self.enemies[ei].hp -= dmg;
         self.trigger_hit_flash(target_x, target_y);
+        self.spawn_damage_number(target_x, target_y, dmg, false);
 
         if self.enemies[ei].hp <= 0 {
             let enemy_id = self.enemies[ei].id.clone();

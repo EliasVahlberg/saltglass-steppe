@@ -10,7 +10,7 @@ pub mod quest_log;
 pub mod theme;
 
 pub use crafting_menu::{render_crafting_menu, CraftingMenu};
-pub use game_view::{render_map, render_death_screen, dim_color};
+pub use game_view::{render_map, render_death_screen, render_damage_numbers, dim_color};
 pub use hud::{render_side_panel, render_bottom_panel, render_inventory_bar};
 pub use input::{handle_input, Action, UiState, LookMode};
 pub use inventory_menu::{render_inventory_menu, InventoryMenu, MenuPanel};
