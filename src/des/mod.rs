@@ -115,6 +115,11 @@ pub enum AssertionCheck {
     PlayerLevel { op: CmpOp, value: u32 },
     MessageContains { text: String },
     PendingStatPoints { op: CmpOp, value: i32 },
+    // Quest assertions
+    QuestActive { quest_id: String },
+    QuestCompleted { quest_id: String },
+    QuestObjectiveProgress { quest_id: String, objective_id: String, op: CmpOp, value: u32 },
+    QuestObjectiveComplete { quest_id: String, objective_id: String },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -221,6 +226,9 @@ pub enum Action {
     EndTurn,
     Log { query: LogQuery },
     AllocateStat { stat: String },
+    // Quest actions
+    AcceptQuest { quest_id: String },
+    CompleteQuest { quest_id: String },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -647,6 +655,25 @@ impl DesExecutor {
             AssertionCheck::PendingStatPoints { op, value } => {
                 op.compare(self.state.pending_stat_points, *value)
             }
+            // Quest assertions
+            AssertionCheck::QuestActive { quest_id } => {
+                self.state.quest_log.active.iter().any(|q| q.quest_id == *quest_id)
+            }
+            AssertionCheck::QuestCompleted { quest_id } => {
+                self.state.quest_log.completed.contains(quest_id)
+            }
+            AssertionCheck::QuestObjectiveProgress { quest_id, objective_id, op, value } => {
+                self.state.quest_log.get_active(quest_id)
+                    .and_then(|q| q.objectives.iter().find(|o| o.objective_id == *objective_id))
+                    .map(|o| op.compare(o.current as i32, *value as i32))
+                    .unwrap_or(false)
+            }
+            AssertionCheck::QuestObjectiveComplete { quest_id, objective_id } => {
+                self.state.quest_log.get_active(quest_id)
+                    .and_then(|q| q.objectives.iter().find(|o| o.objective_id == *objective_id))
+                    .map(|o| o.completed)
+                    .unwrap_or(false)
+            }
         }
     }
 
@@ -744,6 +771,15 @@ impl DesExecutor {
             Action::AllocateStat { stat } => {
                 let success = self.state.allocate_stat(stat);
                 self.log(format!("Allocate stat '{}': {}", stat, if success { "success" } else { "failed" }));
+            }
+            // Quest actions
+            Action::AcceptQuest { quest_id } => {
+                let success = self.state.accept_quest(quest_id);
+                self.log(format!("Accept quest '{}': {}", quest_id, if success { "success" } else { "failed" }));
+            }
+            Action::CompleteQuest { quest_id } => {
+                let success = self.state.complete_quest(quest_id);
+                self.log(format!("Complete quest '{}': {}", quest_id, if success { "success" } else { "failed" }));
             }
         }
     }

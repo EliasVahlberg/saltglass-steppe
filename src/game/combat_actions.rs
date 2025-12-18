@@ -79,6 +79,7 @@ impl GameState {
         }
 
         if self.enemies[ei].hp <= 0 {
+            let enemy_id = self.enemies[ei].id.clone();
             self.enemy_positions.remove(&(target_x, target_y));
             if let Some(def) = self.enemies[ei].def() {
                 for e in &def.effects {
@@ -90,8 +91,9 @@ impl GameState {
                     self.gain_xp(def.xp_value);
                 }
             }
+            self.quest_log.on_enemy_killed(&enemy_id);
             self.emit(GameEvent::EnemyKilled {
-                enemy_id: self.enemies[ei].id.clone(),
+                enemy_id,
                 x: target_x, y: target_y
             });
             self.log(format!("You kill the {} {}!", name, dir));
@@ -166,14 +168,16 @@ impl GameState {
         self.enemies[ei].hp -= dmg;
 
         if self.enemies[ei].hp <= 0 {
+            let enemy_id = self.enemies[ei].id.clone();
             self.enemy_positions.remove(&(target_x, target_y));
             if let Some(def) = self.enemies[ei].def() {
                 if def.xp_value > 0 {
                     self.gain_xp(def.xp_value);
                 }
             }
+            self.quest_log.on_enemy_killed(&enemy_id);
             self.emit(GameEvent::EnemyKilled {
-                enemy_id: self.enemies[ei].id.clone(),
+                enemy_id,
                 x: target_x, y: target_y
             });
             self.log(format!("You kill the {} with a ranged shot!", name));

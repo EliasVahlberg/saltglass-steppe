@@ -1,0 +1,111 @@
+{
+  "name": "Quest System - Basic Flow",
+  "seed": 42,
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 100
+  },
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 100,
+    "max_hp": 100,
+    "inventory": []
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "salt_beetle",
+      "x": 6,
+      "y": 5,
+      "ai_disabled": true
+    },
+    {
+      "entity_type": "npc",
+      "id": "merchant",
+      "x": 7,
+      "y": 5
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "accept_quest", "quest_id": "pest_control" }
+    },
+    {
+      "turn": 0,
+      "action": { "type": "accept_quest", "quest_id": "meet_merchant" }
+    },
+    {
+      "turn": 1,
+      "action": { "type": "attack", "target_x": 6, "target_y": 5 },
+      "comment": "Attack salt beetle"
+    },
+    {
+      "turn": 2,
+      "action": { "type": "teleport", "x": 6, "y": 5 },
+      "comment": "Teleport next to merchant"
+    },
+    {
+      "turn": 3,
+      "action": { "type": "move", "dx": 1, "dy": 0 },
+      "comment": "Bump into merchant to talk"
+    },
+    {
+      "turn": 4,
+      "action": { "type": "complete_quest", "quest_id": "meet_merchant" }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": { "type": "quest_active", "quest_id": "pest_control" },
+      "message": "Pest control quest should be active"
+    },
+    {
+      "after_turn": 0,
+      "check": { "type": "quest_active", "quest_id": "meet_merchant" },
+      "message": "Meet merchant quest should be active"
+    },
+    {
+      "after_turn": 0,
+      "check": { "type": "quest_objective_progress", "quest_id": "pest_control", "objective_id": "kill_beetles", "op": "eq", "value": 0 },
+      "message": "Should have 0 beetle kills initially"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "enemy_dead", "id": "salt_beetle" },
+      "message": "Salt beetle should be dead"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "quest_objective_progress", "quest_id": "pest_control", "objective_id": "kill_beetles", "op": "eq", "value": 1 },
+      "message": "Should have 1 beetle kill progress"
+    },
+    {
+      "after_turn": 3,
+      "check": { "type": "npc_talked", "id": "merchant", "talked": true },
+      "message": "Merchant should be talked to"
+    },
+    {
+      "after_turn": 3,
+      "check": { "type": "quest_objective_complete", "quest_id": "meet_merchant", "objective_id": "talk_merchant" },
+      "message": "Meet merchant objective should be complete"
+    },
+    {
+      "after_turn": 4,
+      "check": { "type": "quest_completed", "quest_id": "meet_merchant" },
+      "message": "Meet merchant quest should be completed"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "quest_active", "quest_id": "pest_control" },
+      "message": "Pest control should still be active (only 1/3 beetles)"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_xp", "op": "ge", "value": 20 },
+      "message": "Should have gained XP from meet_merchant quest (20 XP)"
+    }
+  ]
+}

@@ -98,6 +98,8 @@ Override game systems for deterministic testing:
 | `wait` | `turns` | Wait N turns |
 | `end_turn` | - | End current turn |
 | `allocate_stat` | `stat` | Allocate pending stat point (max_hp/max_ap/reflex) |
+| `accept_quest` | `quest_id` | Accept a quest by ID |
+| `complete_quest` | `quest_id` | Complete a quest (if all objectives done) |
 | `log` | `query` | Log state (player_hp, player_position, inventory, turn) |
 
 ### Equipment Slots
@@ -165,6 +167,14 @@ Available slots for `equip` and `unequip` actions:
 #### NPCs
 ```json
 {"type": "npc_talked", "id": "dying_pilgrim", "talked": true}
+```
+
+#### Quests
+```json
+{"type": "quest_active", "quest_id": "pest_control"}
+{"type": "quest_completed", "quest_id": "pest_control"}
+{"type": "quest_objective_progress", "quest_id": "pest_control", "objective_id": "kill_beetles", "op": "eq", "value": 2}
+{"type": "quest_objective_complete", "quest_id": "pest_control", "objective_id": "kill_beetles"}
 ```
 
 #### Adaptations & Status

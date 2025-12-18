@@ -16,6 +16,7 @@ use super::{
     lighting::{compute_lighting, LightMap, LightSource},
     map::{compute_fov, Map, Tile},
     npc::Npc,
+    quest::QuestLog,
     spawn::{load_spawn_tables, weighted_pick},
     storm::Storm,
 };
@@ -86,6 +87,8 @@ pub struct GameState {
     pub adaptations: Vec<Adaptation>,
     #[serde(default)]
     pub adaptations_hidden_turns: u32,
+    #[serde(default)]
+    pub quest_log: QuestLog,
     #[serde(default)]
     pub triggered_effects: Vec<TriggeredEffect>,
     #[serde(skip)]
@@ -186,6 +189,7 @@ impl GameState {
             messages: vec!["Welcome to the Saltglass Steppe.".into()],
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
             refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
+            quest_log: QuestLog::default(),
             triggered_effects: Vec::new(),
             enemy_positions: HashMap::new(),
             npc_positions: HashMap::new(),
@@ -540,6 +544,7 @@ impl GameState {
             }
             
             self.npcs[ni].talked = true;
+            self.quest_log.on_npc_talked(&self.npcs[ni].id);
             return true;
         }
 
@@ -558,6 +563,7 @@ impl GameState {
                 self.player_ap -= cost;
                 self.player_x = new_x;
                 self.player_y = new_y;
+                self.quest_log.on_position_changed(new_x, new_y);
                 self.visible = compute_fov(&self.map, new_x, new_y);
                 self.update_lighting();
                 self.revealed.extend(&self.visible);
@@ -607,6 +613,7 @@ impl GameState {
                 }
             }
             self.inventory.push(id.clone());
+            self.quest_log.on_item_collected(&id);
             self.emit(GameEvent::ItemPickedUp { item_id: id });
             self.log(format!("Picked up {}.", name));
             picked_up.push(i);
@@ -695,6 +702,36 @@ impl GameState {
             .and_then(|id| get_item_def(id))
             .map(|def| def.armor_value)
             .unwrap_or(0);
+    }
+
+    /// Accept a quest by ID
+    pub fn accept_quest(&mut self, quest_id: &str) -> bool {
+        if self.quest_log.accept(quest_id) {
+            if let Some(def) = super::quest::get_quest_def(quest_id) {
+                self.log(format!("Quest accepted: {}", def.name));
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Complete a quest and receive rewards
+    pub fn complete_quest(&mut self, quest_id: &str) -> bool {
+        if let Some(reward) = self.quest_log.complete(quest_id) {
+            if let Some(def) = super::quest::get_quest_def(quest_id) {
+                self.log(format!("Quest completed: {}", def.name));
+            }
+            if reward.xp > 0 {
+                self.gain_xp(reward.xp);
+            }
+            for item_id in &reward.items {
+                self.inventory.push(item_id.clone());
+            }
+            true
+        } else {
+            false
+        }
     }
 
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), String> {

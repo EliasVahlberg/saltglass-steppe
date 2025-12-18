@@ -1,8 +1,10 @@
-First-Hand Accounts from the Saltglass Steppe
-Mirror Monks — “Scripture in Angles”
+# First-Hand Accounts from the Saltglass Steppe
 
-1. Canticle Margin of Sister Vey (annotated into a lens-case, careful hand, devotional tone)
-   I was told to stop naming the storms as if they are beasts. A beast can be tricked. A beast can be fed. The edits do not bargain.
+## Mirror Monks — “Scripture in Angles”
+
+### 1. Canticle Margin of Sister Vey (annotated into a lens-case, careful hand, devotional tone)
+
+I was told to stop naming the storms as if they are beasts. A beast can be tricked. A beast can be fed. The edits do not bargain.
 
 Brother Halix says the Steppe is a text that writes back, and that our task is not to be safe but to be legible. I believed him with the clean certainty of the uncut.
 
@@ -22,8 +24,9 @@ Tonight, I will polish the choir lenses until my reflection disappears. Tomorrow
 
 If they knew how often I am afraid of the next sentence, they would call me something else.
 
-2. Storm-Walk Confession of Novice Tel (breathless, angry, spoken into a recorder bead)
-   If you are hearing this, it means I did not smash the bead like I promised myself I would.
+### 2. Storm-Walk Confession of Novice Tel (breathless, angry, spoken into a recorder bead)
+
+If you are hearing this, it means I did not smash the bead like I promised myself I would.
 
 They said the storm-walk was a choice. They always say choice. They say consent with mouths that have never been cut by the Steppe.
 
@@ -41,10 +44,11 @@ When I crawled back into the nave, Halix knelt like he was praying. He didn’t 
 
 I wanted to spit. Instead I said thank you, because I am learning the monastery’s true liturgy: you thank the people who hurt you, and you call it meaning.
 
-Sand-Engineers — “Function Over Faith”
+## Sand-Engineers — “Function Over Faith”
 
-1. Field Log of Forewoman Ressa Vane (clipped, utilitarian, numbers-first, faithless)
-   Day 18 since last pump overhaul. Brine level dropped again. Salt creep in the intake. We need a new seal.
+### 1. Field Log of Forewoman Ressa Vane (clipped, utilitarian, numbers-first, faithless)
+
+Day 18 since last pump overhaul. Brine level dropped again. Salt creep in the intake. We need a new seal.
 
 Storm forecast: likely within 9–11 turns (compass jitter consistent with Patterning). Anyone still calling that “the will of the Steppe” can volunteer to be willfully dehydrated.
 
@@ -58,8 +62,9 @@ We need a saint-key. We need Archive access. Not to worship the past—just to s
 
 If anyone finds ⚷, bring it to me. I will trade you water, tools, and a name that still matters when your body starts shining.
 
-2. Letter from a junior cutter, folded into duct tape (plainspoken, gallows humor)
-   Ma,
+### 2. Letter from a junior cutter, folded into duct tape (plainspoken, gallows humor)
+
+Ma,
 
 Don’t worry, I still have all my fingers. That’s a lie. I have most of them.
 
@@ -75,10 +80,11 @@ We found a ◆ storm glass nugget in a vent. It hummed when I held it. I thought
 
 Anyway. If you ever come this way, don’t. But if you do, come with me, not with the Monks. The Monks will turn you into meaning. I’ll turn you into someone who gets home.
 
-Glassborn — “Kinship With the Shimmer”
+## Glassborn — “Kinship With the Shimmer”
 
-1. Route-Song of Sable-of-the-Seam (lyrical, confident, metaphor-rich but practical)
-   You can tell a first-timer by how they look at the glass.
+### 1. Route-Song of Sable-of-the-Seam (lyrical, confident, metaphor-rich but practical)
+
+You can tell a first-timer by how they look at the glass.
 
 The unmarked stare at it like it’s an enemy. The Monks stare at it like it’s a mouth. The Engineers stare at it like it’s a broken tool. None of them are wrong. None of them are enough.
 
@@ -102,8 +108,9 @@ Later, when they asked me about the Crucible, I told them the truth: it hurts, a
 
 The Steppe is still being born. Some of us decided to be born with it.
 
-2. Market Note from a Glassborn Merchant (wry, transactional, affectionate in a sideways way)
-   Prices today:
+### 2. Market Note from a Glassborn Merchant (wry, transactional, affectionate in a sideways way)
+
+Prices today:
 
 ◆ storm glass, common angle: fair trade.
 ◆ storm glass, singing angle (you know it when it makes your teeth ring): don’t insult me.
@@ -116,10 +123,11 @@ They asked if being Glassborn means you never miss your old face.
 
 I said: I miss it the way you miss a house you know the storm would have taken anyway.
 
-Salt Hermits — “Endurance Without Interpretation”
+## Salt Hermits — “Endurance Without Interpretation”
 
-1. Recipe-Sermon of Hermit Nala (homespun, practical, quietly wise)
-   You can argue about meaning when you have surplus.
+### 1. Recipe-Sermon of Hermit Nala (homespun, practical, quietly wise)
+
+You can argue about meaning when you have surplus.
 
 Here is what you do when the glare has cut your skin and you can see the glass dust glittering in the wound like stars:
 
@@ -135,8 +143,9 @@ I think it was a day when people died and the world didn’t apologize.
 
 The Steppe doesn’t care what you believe. It cares what you can endure. Endure, and you’ll have time for beliefs later.
 
-2. Campfire Story Told to Pilgrims, recorded poorly (dry humor, communal)
-   Listen, I’ve hosted every kind of traveler.
+### 2. Campfire Story Told to Pilgrims, recorded poorly (dry humor, communal)
+
+Listen, I’ve hosted every kind of traveler.
 
 The Monks come in polite lines and try not to look afraid. They always look afraid. They ask for water like it’s a sacrament and then stare at the sun until they’re crying and call it devotion.
 
@@ -154,13 +163,14 @@ It didn’t laugh. Machines don’t. But it paused, like it had found a word it 
 
 That pause is why I’m still here.
 
-The Archives — “The Past That Still Patrols”
+## The Archives — “The Past That Still Patrols”
 
-1. Custodian IRI‑7: Response Fragment to an Unauthorized Query (clinical, then suddenly intimate)
-   QUERY RECEIVED.
-   FORMAT: NONCOMPLIANT.
-   REQUESTED DATASET: HELIOGRAPH CALIBRATION / INCIDENT WHITE NOON.
-   ACCESS LEVEL REQUIRED: ⚷ SAINT-KEY CLASS.
+### 1. Custodian IRI‑7: Response Fragment to an Unauthorized Query (clinical, then suddenly intimate)
+
+QUERY RECEIVED.
+FORMAT: NONCOMPLIANT.
+REQUESTED DATASET: HELIOGRAPH CALIBRATION / INCIDENT WHITE NOON.
+ACCESS LEVEL REQUIRED: ⚷ SAINT-KEY CLASS.
 
 NOTE: You are trembling. This is not relevant to the query.
 

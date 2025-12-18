@@ -1,0 +1,75 @@
+{
+  "quests": [
+    {
+      "id": "pest_control",
+      "name": "Pest Control",
+      "description": "Clear out the salt beetles infesting the area.",
+      "objectives": [
+        {
+          "id": "kill_beetles",
+          "description": "Kill 3 salt beetles",
+          "type": "kill",
+          "enemy_id": "salt_beetle",
+          "count": 3
+        }
+      ],
+      "reward": {
+        "xp": 50,
+        "items": ["health_potion"]
+      }
+    },
+    {
+      "id": "supply_run",
+      "name": "Supply Run",
+      "description": "Gather supplies for the settlement.",
+      "objectives": [
+        {
+          "id": "collect_salt",
+          "description": "Collect 2 salt crystals",
+          "type": "collect",
+          "item_id": "salt_crystal",
+          "count": 2
+        }
+      ],
+      "reward": {
+        "xp": 30,
+        "items": []
+      }
+    },
+    {
+      "id": "scout_mission",
+      "name": "Scout Mission",
+      "description": "Scout the eastern ruins.",
+      "objectives": [
+        {
+          "id": "reach_ruins",
+          "description": "Reach the ruins entrance",
+          "type": "reach",
+          "x": 40,
+          "y": 20
+        }
+      ],
+      "reward": {
+        "xp": 25,
+        "items": []
+      }
+    },
+    {
+      "id": "meet_merchant",
+      "name": "Meet the Merchant",
+      "description": "Find and speak with the wandering merchant.",
+      "objectives": [
+        {
+          "id": "talk_merchant",
+          "description": "Talk to the merchant",
+          "type": "talk_to",
+          "npc_id": "merchant"
+        }
+      ],
+      "reward": {
+        "xp": 20,
+        "items": []
+      }
+    }
+  ]
+}
