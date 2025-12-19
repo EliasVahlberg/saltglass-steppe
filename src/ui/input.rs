@@ -3,7 +3,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use std::io::Result;
 use crate::GameState;
-use super::{InventoryMenu, QuestLogMenu, CraftingMenu, MenuPanel};
+use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, MenuPanel};
 use crate::all_recipe_ids;
 
 /// Look mode cursor state
@@ -28,7 +28,8 @@ pub struct UiState {
     pub quest_log: QuestLogMenu,
     pub crafting_menu: CraftingMenu,
     pub pause_menu: PauseMenu,
-    pub target_enemy: Option<usize>, // Index into enemies array
+    pub wiki_menu: WikiMenu,
+    pub target_enemy: Option<usize>,
 }
 
 /// Pause menu state
@@ -56,6 +57,7 @@ impl UiState {
             quest_log: QuestLogMenu::default(),
             crafting_menu: CraftingMenu::default(),
             pause_menu: PauseMenu::default(),
+            wiki_menu: WikiMenu::default(),
             target_enemy: None,
         }
     }
@@ -83,10 +85,11 @@ pub enum Action {
     UnequipSelected,
     OpenQuestLog,
     OpenCrafting,
+    OpenWiki,
     Craft,
     OpenPauseMenu,
     ReturnToMainMenu,
-    SetTarget(i32, i32), // Set target at position
+    SetTarget(i32, i32),
     None,
 }
 
@@ -104,6 +107,10 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         // Pause menu input
         if ui.pause_menu.active {
             return Ok(handle_pause_menu_input(ui, key.code));
+        }
+        // Wiki menu input
+        if ui.wiki_menu.active {
+            return Ok(handle_wiki_input(ui, key.code));
         }
         // Quest log input
         if ui.quest_log.active {
@@ -125,6 +132,18 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         return Ok(handle_game_input(key.code));
     }
     Ok(Action::None)
+}
+
+fn handle_wiki_input(ui: &mut UiState, code: KeyCode) -> Action {
+    match code {
+        KeyCode::Esc | KeyCode::Char('w') => ui.wiki_menu.close(),
+        KeyCode::Tab | KeyCode::Char('l') => ui.wiki_menu.next_tab(),
+        KeyCode::BackTab | KeyCode::Char('h') => ui.wiki_menu.prev_tab(),
+        KeyCode::Char('j') | KeyCode::Down => ui.wiki_menu.navigate(1),
+        KeyCode::Char('k') | KeyCode::Up => ui.wiki_menu.navigate(-1),
+        _ => {}
+    }
+    Action::None
 }
 
 fn handle_quest_log_input(ui: &mut UiState, state: &GameState, code: KeyCode) -> Action {
@@ -233,6 +252,7 @@ fn handle_game_input(code: KeyCode) -> Action {
         KeyCode::Char('i') => Action::OpenInventory,
         KeyCode::Char('q') => Action::OpenQuestLog,
         KeyCode::Char('c') => Action::OpenCrafting,
+        KeyCode::Char('w') => Action::OpenWiki,
         KeyCode::Char('1') => Action::UseItem(0),
         KeyCode::Char('2') => Action::UseItem(1),
         KeyCode::Char('3') => Action::UseItem(2),

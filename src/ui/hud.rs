@@ -160,10 +160,10 @@ pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         "i     Inventory",
         "c     Craft",
         "q     Quest log",
+        "w     Wiki",
         "x     Look mode",
         "e     End turn",
         "o     Auto-explore",
-        "S/L   Save/Load",
         "Esc   Menu",
     ];
     let hotkey_lines: Vec<Line> = hotkeys.iter().map(|s| Line::from(*s)).collect();
