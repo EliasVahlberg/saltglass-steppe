@@ -96,9 +96,10 @@ impl GameState {
             }
             self.quest_log.on_enemy_killed(&enemy_id);
             self.emit(GameEvent::EnemyKilled {
-                enemy_id,
+                enemy_id: enemy_id.clone(),
                 x: target_x, y: target_y
             });
+            self.meta.discover_enemy(&enemy_id);
             self.log_typed(format!("You kill the {} {}!", name, dir), MsgType::Combat);
         } else {
             let crit_str = if result.crit { " CRITICAL!" } else { "" };
@@ -186,9 +187,10 @@ impl GameState {
             }
             self.quest_log.on_enemy_killed(&enemy_id);
             self.emit(GameEvent::EnemyKilled {
-                enemy_id,
+                enemy_id: enemy_id.clone(),
                 x: target_x, y: target_y
             });
+            self.meta.discover_enemy(&enemy_id);
             self.log_typed(format!("You kill the {} with a ranged shot!", name), MsgType::Combat);
         } else {
             let crit_str = if result.crit { " CRITICAL!" } else { "" };

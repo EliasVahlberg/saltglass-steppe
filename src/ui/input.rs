@@ -110,7 +110,7 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         }
         // Wiki menu input
         if ui.wiki_menu.active {
-            return Ok(handle_wiki_input(ui, key.code));
+            return Ok(handle_wiki_input(ui, state, key.code));
         }
         // Quest log input
         if ui.quest_log.active {
@@ -134,13 +134,22 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
     Ok(Action::None)
 }
 
-fn handle_wiki_input(ui: &mut UiState, code: KeyCode) -> Action {
+fn handle_wiki_input(ui: &mut UiState, _state: &GameState, code: KeyCode) -> Action {
+    use crate::game::{all_item_ids, all_enemy_ids};
+    use crate::game::npc::all_npc_ids;
+    use super::wiki::WikiTab;
+    
+    let count = match ui.wiki_menu.tab {
+        WikiTab::Items => all_item_ids().len(),
+        WikiTab::Enemies => all_enemy_ids().len(),
+        WikiTab::NPCs => all_npc_ids().len(),
+    };
     match code {
         KeyCode::Esc | KeyCode::Char('w') => ui.wiki_menu.close(),
         KeyCode::Tab | KeyCode::Char('l') => ui.wiki_menu.next_tab(),
         KeyCode::BackTab | KeyCode::Char('h') => ui.wiki_menu.prev_tab(),
-        KeyCode::Char('j') | KeyCode::Down => ui.wiki_menu.navigate(1),
-        KeyCode::Char('k') | KeyCode::Up => ui.wiki_menu.navigate(-1),
+        KeyCode::Char('j') | KeyCode::Down => ui.wiki_menu.navigate(1, count),
+        KeyCode::Char('k') | KeyCode::Up => ui.wiki_menu.navigate(-1, count),
         _ => {}
     }
     Action::None
