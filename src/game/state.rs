@@ -73,6 +73,34 @@ pub struct TriggeredEffect {
 }
 
 fn default_ambient_light() -> u8 { 100 }
+fn default_time_of_day() -> u8 { 8 } // Start at 8 AM
+
+/// Weather conditions affecting visibility and lighting
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+pub enum Weather {
+    #[default]
+    Clear,
+    Dusty,      // Reduced visibility
+    Sandstorm,  // Severely reduced visibility
+}
+
+impl Weather {
+    pub fn visibility_modifier(&self) -> i32 {
+        match self {
+            Weather::Clear => 0,
+            Weather::Dusty => -2,
+            Weather::Sandstorm => -4,
+        }
+    }
+    
+    pub fn ambient_modifier(&self) -> i32 {
+        match self {
+            Weather::Clear => 0,
+            Weather::Dusty => -20,
+            Weather::Sandstorm => -50,
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize)]
 pub struct GameState {
@@ -147,6 +175,12 @@ pub struct GameState {
     /// Current layer: 0 = surface, negative = underground
     #[serde(default)]
     pub layer: i32,
+    /// Time of day (0-23 hours)
+    #[serde(default = "default_time_of_day")]
+    pub time_of_day: u8,
+    /// Current weather condition
+    #[serde(default)]
+    pub weather: Weather,
 }
 
 /// Floating damage number for visual feedback
@@ -278,6 +312,8 @@ impl GameState {
             world_x,
             world_y,
             layer: 0,
+            time_of_day: 8,
+            weather: Weather::Clear,
         };
         state.rebuild_spatial_index();
         state
@@ -495,7 +531,47 @@ impl GameState {
                 }
             }
         }
-        self.light_map = compute_lighting(&sources, self.ambient_light);
+        self.light_map = compute_lighting(&sources, self.effective_ambient_light());
+    }
+
+    /// Calculate effective ambient light based on time of day and weather
+    pub fn effective_ambient_light(&self) -> u8 {
+        // Underground has fixed low ambient
+        if self.layer < 0 {
+            return 30;
+        }
+        
+        // Base ambient from time of day (0-23 hours)
+        let time_ambient = match self.time_of_day {
+            0..=4 => 30,    // Night
+            5..=6 => 60,    // Dawn
+            7..=17 => 120,  // Day
+            18..=19 => 80,  // Dusk
+            20..=23 => 40,  // Night
+            _ => 100,
+        };
+        
+        // Apply weather modifier
+        let weather_mod = self.weather.ambient_modifier();
+        (time_ambient as i32 + weather_mod).clamp(10, 200) as u8
+    }
+
+    /// Advance time by one turn (10 turns = 1 hour)
+    pub fn tick_time(&mut self) {
+        if self.turn % 10 == 0 {
+            self.time_of_day = (self.time_of_day + 1) % 24;
+            
+            // Random weather changes at dawn/dusk
+            if self.time_of_day == 6 || self.time_of_day == 18 {
+                let roll = self.rng.gen_range(0..10);
+                self.weather = match roll {
+                    0..=6 => Weather::Clear,
+                    7..=8 => Weather::Dusty,
+                    9 => Weather::Sandstorm,
+                    _ => Weather::Clear,
+                };
+            }
+        }
     }
 
     pub fn get_light_level(&self, x: i32, y: i32) -> u8 {
@@ -564,13 +640,15 @@ impl GameState {
         true
     }
 
-    /// End turn: reset AP, tick status effects, run enemy turns, tick storm
+    /// End turn: reset AP, tick status effects, run enemy turns, tick storm, tick time
     pub fn end_turn(&mut self) {
         self.player_ap = self.player_max_ap;
         self.tick_status_effects();
         self.tick_turn();
         self.update_enemies();
         if self.storm.tick() { self.apply_storm(); }
+        self.tick_time();
+        self.update_lighting();
     }
 
     /// Tick all status effects, apply damage, remove expired
