@@ -181,6 +181,11 @@ pub struct GameState {
     /// Current weather condition
     #[serde(default)]
     pub weather: Weather,
+    // Debug flags
+    #[serde(skip)]
+    pub debug_god_view: bool,
+    #[serde(skip)]
+    pub debug_phase: bool,
 }
 
 /// Floating damage number for visual feedback
@@ -320,6 +325,8 @@ impl GameState {
             layer: 0,
             time_of_day: 8,
             weather: Weather::Clear,
+            debug_god_view: false,
+            debug_phase: false,
         };
         state.rebuild_spatial_index();
         state
@@ -717,6 +724,34 @@ impl GameState {
         if self.messages.len() > 5 { self.messages.remove(0); }
     }
 
+    /// Execute a debug command
+    pub fn debug_command(&mut self, cmd: &str) {
+        let parts: Vec<&str> = cmd.trim().split_whitespace().collect();
+        match parts.first().map(|s| *s) {
+            Some("show") if parts.get(1) == Some(&"tile") => {
+                self.debug_god_view = true;
+                self.log("Debug: God view enabled");
+            }
+            Some("hide") if parts.get(1) == Some(&"tile") => {
+                self.debug_god_view = false;
+                self.log("Debug: God view disabled");
+            }
+            Some("sturdy") => {
+                self.player_hp = 9999;
+                self.player_max_hp = 9999;
+                self.log("Debug: HP set to 9999/9999");
+            }
+            Some("phase") => {
+                self.debug_phase = !self.debug_phase;
+                self.log(format!("Debug: Phase {}", if self.debug_phase { "enabled" } else { "disabled" }));
+            }
+            Some("help") => {
+                self.log("Commands: show tile, hide tile, sturdy, phase");
+            }
+            _ => self.log(format!("Unknown command: {}", cmd)),
+        }
+    }
+
     /// Trigger a hit flash effect at position
     pub fn trigger_hit_flash(&mut self, x: i32, y: i32) {
         self.hit_flash_positions.push((x, y, 6)); // 6 frames
@@ -966,7 +1001,7 @@ impl GameState {
         }
 
         if let Some(tile) = self.map.get(new_x, new_y) {
-            let walkable = tile.walkable();
+            let walkable = tile.walkable() || self.debug_phase;
             let is_glass = *tile == Tile::Glass;
             if walkable {
                 let cost = action_cost("move");

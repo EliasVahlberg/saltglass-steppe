@@ -6,7 +6,7 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile, MAP_HEIGHT};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -112,6 +112,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                     }
                 }
             }
+        }
+        Action::DebugCommand(cmd) => {
+            state.debug_command(&cmd);
         }
         Action::OpenInventory => {
             ui.inventory_menu.open();
@@ -241,6 +244,11 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     // Pause menu overlay (rendered last)
     if ui.pause_menu.active {
         render_pause_menu(frame, ui.pause_menu.selected);
+    }
+    
+    // Debug console overlay
+    if ui.debug_console.active {
+        render_debug_console(frame, &ui.debug_console);
     }
 }
 

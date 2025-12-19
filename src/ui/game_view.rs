@@ -72,7 +72,7 @@ pub fn render_map(
                 continue;
             }
             
-            let (ch, style) = render_tile(state, x, y, idx, player_effects, frame_count);
+            let (ch, style) = render_tile(state, x, y, idx, player_effects, frame_count, state.debug_god_view);
             let style = if is_look_cursor { style.bg(Color::White).fg(Color::Black) } else { style };
             spans.push(Span::styled(ch.to_string(), style));
         }
@@ -88,8 +88,11 @@ fn render_tile(
     idx: usize,
     player_effects: &[VisualEffect],
     frame_count: u64,
+    god_view: bool,
 ) -> (char, Style) {
     let t = theme();
+    let visible = state.visible.contains(&idx) || god_view;
+    let revealed = state.revealed.contains(&idx) || god_view;
     
     // Check for hit flash at this position
     let has_flash = state.has_hit_flash(x as i32, y as i32);
@@ -138,7 +141,7 @@ fn render_tile(
     // Enemy
     if let Some(&ei) = state.enemy_positions.get(&(x as i32, y as i32)) {
         let e = &state.enemies[ei];
-        if state.visible.contains(&idx) {
+        if visible {
             // Hit flash takes priority
             if has_flash && (frame_count % 2 == 0) {
                 return (e.glyph(), Style::default().fg(Color::White).bg(Color::Red));
@@ -161,7 +164,7 @@ fn render_tile(
                 }
             }
             return (e.glyph(), style);
-        } else if state.revealed.contains(&idx) {
+        } else if revealed {
             return (state.map.tiles[idx].glyph(), Style::default().fg(Color::DarkGray));
         }
         return (' ', Style::default());
@@ -170,9 +173,9 @@ fn render_tile(
     // NPC
     if let Some(&ni) = state.npc_positions.get(&(x as i32, y as i32)) {
         let npc = &state.npcs[ni];
-        if state.visible.contains(&idx) {
+        if visible {
             return (npc.glyph(), Style::default().fg(Color::Green).bold());
-        } else if state.revealed.contains(&idx) {
+        } else if revealed {
             return (state.map.tiles[idx].glyph(), Style::default().fg(Color::DarkGray));
         }
         return (' ', Style::default());
@@ -181,9 +184,9 @@ fn render_tile(
     // Item
     if let Some(items) = state.item_positions.get(&(x as i32, y as i32)) {
         let item = &state.items[items[0]];
-        if state.visible.contains(&idx) {
+        if visible {
             return (item.glyph(), Style::default().fg(Color::LightMagenta));
-        } else if state.revealed.contains(&idx) {
+        } else if revealed {
             return (state.map.tiles[idx].glyph(), Style::default().fg(Color::DarkGray));
         }
         return (' ', Style::default());
@@ -191,7 +194,7 @@ fn render_tile(
     
     // Light source
     if let Some(ml) = state.map.lights.iter().find(|l| l.x == x as i32 && l.y == y as i32) {
-        if state.visible.contains(&idx) {
+        if visible {
             let def = get_light_def(&ml.id);
             let glyph = def.map(|d| d.glyph.chars().next().unwrap_or('*')).unwrap_or('*');
             let color = match def.map(|d| d.color.as_str()) {
@@ -202,14 +205,14 @@ fn render_tile(
                 _ => Color::Yellow,
             };
             return (glyph, Style::default().fg(color));
-        } else if state.revealed.contains(&idx) {
+        } else if revealed {
             return (state.map.tiles[idx].glyph(), Style::default().fg(Color::DarkGray));
         }
         return (' ', Style::default());
     }
     
     // Visible tile
-    if state.visible.contains(&idx) {
+    if visible {
         let tile = &state.map.tiles[idx];
         let light = state.get_light_level(x as i32, y as i32);
         let base_color = match tile {
@@ -224,7 +227,7 @@ fn render_tile(
     }
     
     // Revealed but not visible
-    if state.revealed.contains(&idx) {
+    if revealed {
         return (state.map.tiles[idx].glyph(), Style::default().fg(Color::DarkGray));
     }
     
@@ -296,4 +299,22 @@ pub fn render_death_screen(frame: &mut Frame, state: &GameState) {
         Paragraph::new(Span::styled(msg, Style::default().fg(Color::White).bg(Color::Red))),
         Rect::new(msg_x, msg_y, msg.len() as u16, 1)
     );
+}
+
+
+/// Render the debug console overlay
+pub fn render_debug_console(frame: &mut Frame, console: &super::input::DebugConsole) {
+    let area = frame.area();
+    let width = 40.min(area.width.saturating_sub(4));
+    let height = 3;
+    let x = (area.width - width) / 2;
+    let y = area.height / 2;
+    let rect = Rect::new(x, y, width, height);
+    
+    let block = Block::default().title(" Debug Console ").borders(Borders::ALL).style(Style::default().bg(Color::Black));
+    let inner = block.inner(rect);
+    frame.render_widget(block, rect);
+    
+    let prompt = format!("> {}_", console.input);
+    frame.render_widget(Paragraph::new(prompt).style(Style::default().fg(Color::Yellow)), inner);
 }
