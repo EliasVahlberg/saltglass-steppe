@@ -709,6 +709,19 @@ impl DesExecutor {
                 self.log(format!("Player moved ({}, {})", dx, dy));
             }
             Action::Teleport { x, y } => {
+                // Carve floor around teleport destination
+                for dy in -4..=4 {
+                    for dx in -4..=4 {
+                        let nx = x + dx;
+                        let ny = y + dy;
+                        if nx >= 0 && ny >= 0 {
+                            let nidx = ny as usize * self.state.map.width + nx as usize;
+                            if nidx < self.state.map.tiles.len() && !self.state.map.tiles[nidx].walkable() {
+                                self.state.map.tiles[nidx] = crate::game::map::Tile::Floor;
+                            }
+                        }
+                    }
+                }
                 self.state.player_x = *x;
                 self.state.player_y = *y;
                 // Update visibility after teleport

@@ -24,17 +24,21 @@ pub fn dim_color(color: Color, light: u8) -> Color {
 /// Render floating damage numbers as overlay
 pub fn render_damage_numbers(frame: &mut Frame, area: Rect, state: &GameState) {
     let t = theme();
+    let inner = Rect::new(area.x + 1, area.y + 1, area.width.saturating_sub(2), area.height.saturating_sub(2));
+    let view_w = inner.width as i32;
+    let view_h = inner.height as i32;
+    let cam_x = (state.player_x - view_w / 2).max(0).min(state.map.width as i32 - view_w);
+    let cam_y = (state.player_y - view_h / 2).max(0).min(state.map.height as i32 - view_h);
+    
     for dn in &state.damage_numbers {
-        // Calculate screen position (offset by 1 for border)
-        let screen_x = dn.x as u16 + 1;
-        // Rise effect: move up as frames decrease (12 -> 0 means rise by ~1 cell)
         let rise = (12 - dn.frames) / 6;
-        let screen_y = (dn.y as u16).saturating_sub(rise as u16) + 1;
+        let screen_x = (dn.x - cam_x) as i32;
+        let screen_y = (dn.y - cam_y) as i32 - rise as i32;
         
-        if screen_x < area.width && screen_y < area.height {
+        if screen_x >= 0 && screen_x < view_w && screen_y >= 0 && screen_y < view_h {
             let color = if dn.is_heal { Color::Green } else { t.msg_combat };
             let text = format!("{}", dn.value);
-            let rect = Rect::new(area.x + screen_x, area.y + screen_y, text.len() as u16, 1);
+            let rect = Rect::new(inner.x + screen_x as u16, inner.y + screen_y as u16, text.len() as u16, 1);
             frame.render_widget(
                 Paragraph::new(text).style(Style::default().fg(color).bold()),
                 rect
@@ -57,10 +61,26 @@ pub fn render_map(
     let inner = block.inner(area);
     frame.render_widget(block, area);
 
+    // Calculate viewport centered on player
+    let view_w = inner.width as i32;
+    let view_h = inner.height as i32;
+    let half_w = view_w / 2;
+    let half_h = view_h / 2;
+    
+    // Clamp camera to map bounds
+    let cam_x = (state.player_x - half_w).max(0).min(state.map.width as i32 - view_w);
+    let cam_y = (state.player_y - half_h).max(0).min(state.map.height as i32 - view_h);
+
     let mut lines: Vec<Line> = Vec::new();
-    for y in 0..state.map.height {
+    for vy in 0..view_h {
         let mut spans: Vec<Span> = Vec::new();
-        for x in 0..state.map.width {
+        let y = (cam_y + vy) as usize;
+        for vx in 0..view_w {
+            let x = (cam_x + vx) as usize;
+            if x >= state.map.width || y >= state.map.height {
+                spans.push(Span::raw(" "));
+                continue;
+            }
             let idx = state.map.idx(x as i32, y as i32);
             let is_look_cursor = look_cursor.map(|(lx, ly)| x as i32 == lx && y as i32 == ly).unwrap_or(false);
             
