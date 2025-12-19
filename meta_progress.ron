@@ -5,16 +5,21 @@
     total_enemies_killed: 0,
     runs_completed: 0,
     discovered_items: [
-        "brine_vial",
         "scripture_shard",
+        "brine_vial",
     ],
     discovered_enemies: [
-        "salt_beetle",
-        "glass_beetle",
         "shard_spider",
         "dust_wraith",
+        "mirage_hound",
+        "salt_crawler",
+        "glass_beetle",
+        "salt_beetle",
     ],
     discovered_npcs: [
+        "dying_pilgrim",
+        "archive_custodian",
         "merchant",
+        "mirror_monk",
     ],
 )

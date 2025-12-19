@@ -19,6 +19,7 @@ use super::{
     quest::QuestLog,
     spawn::{load_spawn_tables, weighted_pick},
     storm::Storm,
+    world_map::WorldMap,
 };
 
 mod rng_serde {
@@ -136,6 +137,13 @@ pub struct GameState {
     pub mock_combat_damage: Option<i32>,
     #[serde(skip)]
     pub meta: super::meta::MetaProgress,
+    // World map for lazy tile generation
+    #[serde(default)]
+    pub world_map: Option<WorldMap>,
+    #[serde(default)]
+    pub world_x: usize,
+    #[serde(default)]
+    pub world_y: usize,
 }
 
 /// Floating damage number for visual feedback
@@ -160,16 +168,27 @@ pub struct ProjectileTrail {
 
 impl GameState {
     pub fn new(seed: u64) -> Self {
-        let mut rng = ChaCha8Rng::seed_from_u64(seed);
-        let (map, rooms) = Map::generate(&mut rng);
+        // Generate world map
+        let world_map = WorldMap::generate(seed);
+        let world_x = super::world_map::WORLD_SIZE / 2;
+        let world_y = super::world_map::WORLD_SIZE / 2;
+        
+        // Get world context for starting tile
+        let (biome, terrain, elevation, _poi, _resources, _connected) = world_map.get(world_x, world_y);
+        
+        // Generate tile map using world context
+        let tile_seed = world_map.tile_seed(world_x, world_y);
+        let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
+        let (map, rooms) = Map::generate_from_world(&mut rng, biome, terrain, elevation);
         let (px, py) = rooms[0];
         let visible = compute_fov(&map, px, py);
         let tables = load_spawn_tables();
         let table = &tables.default;
 
-        // Spawn enemies
+        // Spawn enemies (fewer on starting tile for hospitable start)
         let mut enemies = Vec::new();
-        for &(rx, ry) in rooms.iter().skip(1).take(rooms.len().saturating_sub(3)) {
+        let enemy_rooms = rooms.iter().skip(2).take(rooms.len().saturating_sub(4));
+        for &(rx, ry) in enemy_rooms {
             if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
@@ -197,7 +216,7 @@ impl GameState {
             }
         }
 
-        // Spawn items
+        // Spawn items (more on starting tile for hospitable start)
         let mut items = Vec::new();
         let mut used_positions = HashSet::new();
         for spawn in &table.items {
@@ -210,7 +229,7 @@ impl GameState {
                 }
                 continue;
             }
-            for _ in 0..spawn.weight {
+            for _ in 0..(spawn.weight + 1) { // +1 for hospitable start
                 if let Some(&(rx, ry)) = rooms.get(rng.gen_range(1..rooms.len())) {
                     let ix = rx + rng.gen_range(-1..=1);
                     let iy = ry + rng.gen_range(-1..=1);
@@ -252,6 +271,9 @@ impl GameState {
             mock_combat_hit: None,
             mock_combat_damage: None,
             meta: super::meta::MetaProgress::load(),
+            world_map: Some(world_map),
+            world_x,
+            world_y,
         };
         state.rebuild_spatial_index();
         state
@@ -300,6 +322,69 @@ impl GameState {
         for (i, item) in self.items.iter().enumerate() {
             self.item_positions.entry((item.x, item.y)).or_default().push(i);
         }
+    }
+
+    /// Travel to a new world tile (lazy generation)
+    pub fn travel_to_tile(&mut self, new_wx: usize, new_wy: usize) {
+        let world_map = match &self.world_map {
+            Some(wm) => wm,
+            None => return,
+        };
+        
+        let (biome, terrain, elevation, poi, _resources, _connected) = world_map.get(new_wx, new_wy);
+        let tile_seed = world_map.tile_seed(new_wx, new_wy);
+        let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
+        
+        // Generate new tile map
+        let (map, rooms) = Map::generate_from_world(&mut rng, biome, terrain, elevation);
+        let (px, py) = rooms[0];
+        
+        // Spawn enemies based on POI
+        let tables = load_spawn_tables();
+        let table = &tables.default;
+        let mut enemies = Vec::new();
+        let enemy_count = match poi {
+            super::world_map::POI::Town => 0,
+            super::world_map::POI::Shrine => 1,
+            _ => rooms.len().saturating_sub(2),
+        };
+        for &(rx, ry) in rooms.iter().skip(1).take(enemy_count) {
+            if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
+                enemies.push(Enemy::new(rx, ry, id));
+            }
+        }
+        
+        // Spawn items
+        let mut items = Vec::new();
+        let mut used_positions = HashSet::new();
+        for spawn in &table.items {
+            for _ in 0..spawn.weight {
+                if let Some(&(rx, ry)) = rooms.get(rng.gen_range(1..rooms.len())) {
+                    let ix = rx + rng.gen_range(-1..=1);
+                    let iy = ry + rng.gen_range(-1..=1);
+                    if !used_positions.contains(&(ix, iy)) {
+                        used_positions.insert((ix, iy));
+                        items.push(Item::new(ix, iy, &spawn.id));
+                    }
+                }
+            }
+        }
+        
+        // Update state
+        self.world_x = new_wx;
+        self.world_y = new_wy;
+        self.map = map;
+        self.enemies = enemies;
+        self.items = items;
+        self.npcs = Vec::new(); // NPCs are tile-specific
+        self.player_x = px;
+        self.player_y = py;
+        self.visible = compute_fov(&self.map, px, py);
+        self.revealed = self.visible.clone();
+        self.rebuild_spatial_index();
+        self.update_lighting();
+        
+        self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
     }
 
     pub fn update_lighting(&mut self) {
