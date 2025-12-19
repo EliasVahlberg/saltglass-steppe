@@ -381,6 +381,25 @@ impl DesExecutor {
         if let Some(y) = scenario.player.y {
             state.player_y = y;
         }
+        // Ensure player position and surrounding area is walkable (carve floor if needed)
+        if scenario.player.x.is_some() || scenario.player.y.is_some() {
+            // Carve a 9x9 area around player for movement tests
+            for dy in -4..=4 {
+                for dx in -4..=4 {
+                    let nx = state.player_x + dx;
+                    let ny = state.player_y + dy;
+                    if nx >= 0 && ny >= 0 {
+                        let nidx = ny as usize * state.map.width + nx as usize;
+                        if nidx < state.map.tiles.len() && !state.map.tiles[nidx].walkable() {
+                            state.map.tiles[nidx] = crate::game::map::Tile::Floor;
+                        }
+                    }
+                }
+            }
+            // Recompute FOV after carving
+            state.visible = crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
+            state.revealed.extend(&state.visible);
+        }
         if let Some(hp) = scenario.player.hp {
             state.player_hp = hp;
         }

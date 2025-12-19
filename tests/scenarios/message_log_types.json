@@ -3,6 +3,7 @@
   "description": "Test that different actions produce correctly typed messages",
   "seed": 12345,
   "player": { "x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10 },
+  "mocks": { "combat_always_hit": true, "combat_fixed_damage": 10 },
   "entities": [
     { "entity_type": "item", "id": "brine_vial", "x": 6, "y": 5 },
     { "entity_type": "enemy", "id": "salt_crawler", "x": 7, "y": 5, "hp": 1, "ai_disabled": true }

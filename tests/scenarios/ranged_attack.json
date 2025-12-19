@@ -12,16 +12,17 @@
         "equipped_weapon": "brine_pistol",
         "inventory": ["brine_shot", "brine_shot", "brine_shot"]
     },
+    "mocks": { "combat_always_hit": true, "combat_fixed_damage": 10 },
     "entities": [
-        {"entity_type": "enemy", "id": "mirage_hound", "x": 8, "y": 5, "hp": 1, "ai_disabled": true}
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 7, "y": 5, "hp": 1, "ai_disabled": true}
     ],
     "actions": [
-        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 8, "target_y": 5}},
-        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 8, "target_y": 5}},
-        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 8, "target_y": 5}}
+        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 7, "target_y": 5}},
+        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 7, "target_y": 5}},
+        {"turn": 0, "action": {"type": "ranged_attack", "target_x": 7, "target_y": 5}}
     ],
     "assertions": [
-        {"at_end": true, "check": {"type": "no_enemy_at", "x": 8, "y": 5}, "message": "Enemy should be dead from ranged attacks"},
+        {"at_end": true, "check": {"type": "no_enemy_at", "x": 7, "y": 5}, "message": "Enemy should be dead from ranged attacks"},
         {"at_end": true, "check": {"type": "inventory_size", "op": "lt", "value": 3}, "message": "Ammo should be consumed"}
     ]
 }

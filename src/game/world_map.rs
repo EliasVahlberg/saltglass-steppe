@@ -14,6 +14,21 @@ pub enum Terrain { Flat, Hills, Dunes, Canyon, Mesa }
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum POI { None, Town, Dungeon, Landmark, Shrine }
 
+/// Resource types that can be found in tiles
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
+pub struct Resources {
+    pub water: bool,
+    pub minerals: bool,
+    pub flora: bool,
+}
+
+/// Connected features that span multiple tiles
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
+pub struct Connected {
+    pub road: bool,
+    pub river: bool,
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 pub struct WorldMap {
     pub seed: u64,
@@ -21,6 +36,10 @@ pub struct WorldMap {
     pub terrain: Vec<Terrain>,
     pub elevation: Vec<u8>,  // 0-255
     pub pois: Vec<POI>,
+    #[serde(default)]
+    pub resources: Vec<Resources>,
+    #[serde(default)]
+    pub connected: Vec<Connected>,
 }
 
 impl WorldMap {
@@ -28,10 +47,12 @@ impl WorldMap {
         let biome_noise = Perlin::new(seed as u32);
         let terrain_noise = Perlin::new(seed as u32 + 1);
         let elev_noise = Perlin::new(seed as u32 + 2);
+        let resource_noise = Perlin::new(seed as u32 + 3);
 
         let mut biomes = vec![Biome::Desert; WORLD_SIZE * WORLD_SIZE];
         let mut terrain = vec![Terrain::Flat; WORLD_SIZE * WORLD_SIZE];
         let mut elevation = vec![128u8; WORLD_SIZE * WORLD_SIZE];
+        let mut resources = vec![Resources::default(); WORLD_SIZE * WORLD_SIZE];
 
         for y in 0..WORLD_SIZE {
             for x in 0..WORLD_SIZE {
@@ -62,6 +83,14 @@ impl WorldMap {
                 // Elevation
                 let e = elev_noise.get([nx * 1.5, ny * 1.5]);
                 elevation[idx] = ((e + 1.0) * 127.5) as u8;
+
+                // Resources based on biome and noise
+                let r = resource_noise.get([nx * 3.0, ny * 3.0]);
+                resources[idx] = Resources {
+                    water: biomes[idx] == Biome::Oasis || (r > 0.6 && terrain[idx] == Terrain::Canyon),
+                    minerals: terrain[idx] == Terrain::Mesa || (r < -0.5 && terrain[idx] == Terrain::Hills),
+                    flora: biomes[idx] == Biome::Scrubland || biomes[idx] == Biome::Oasis,
+                };
             }
         }
 
@@ -69,6 +98,7 @@ impl WorldMap {
         let mut pois = vec![POI::None; WORLD_SIZE * WORLD_SIZE];
         let poi_types = [POI::Town, POI::Dungeon, POI::Landmark, POI::Shrine];
         let mut poi_positions: Vec<(usize, usize)> = Vec::new();
+        let mut town_positions: Vec<(usize, usize)> = Vec::new();
         let mut rng = ChaCha8Rng::seed_from_u64(seed + 100);
 
         for &poi_type in &poi_types {
@@ -80,7 +110,6 @@ impl WorldMap {
                 POI::None => 0,
             };
             for _ in 0..count {
-                // Try to place with distance penalty
                 let mut best = None;
                 let mut best_score = f64::MIN;
                 for _ in 0..50 {
@@ -99,16 +128,40 @@ impl WorldMap {
                 if let Some((x, y)) = best {
                     pois[y * WORLD_SIZE + x] = poi_type;
                     poi_positions.push((x, y));
+                    if poi_type == POI::Town {
+                        town_positions.push((x, y));
+                    }
                 }
             }
         }
 
-        Self { seed, biomes, terrain, elevation, pois }
+        // Connect towns with roads
+        let mut connected = vec![Connected::default(); WORLD_SIZE * WORLD_SIZE];
+        for i in 1..town_positions.len() {
+            let (x1, y1) = town_positions[i - 1];
+            let (x2, y2) = town_positions[i];
+            // Simple L-shaped road
+            for x in x1.min(x2)..=x1.max(x2) {
+                connected[y1 * WORLD_SIZE + x].road = true;
+            }
+            for y in y1.min(y2)..=y1.max(y2) {
+                connected[y * WORLD_SIZE + x2].road = true;
+            }
+        }
+
+        Self { seed, biomes, terrain, elevation, pois, resources, connected }
     }
 
-    pub fn get(&self, x: usize, y: usize) -> (Biome, Terrain, u8, POI) {
+    pub fn get(&self, x: usize, y: usize) -> (Biome, Terrain, u8, POI, Resources, Connected) {
         let idx = y * WORLD_SIZE + x;
-        (self.biomes[idx], self.terrain[idx], self.elevation[idx], self.pois[idx])
+        (
+            self.biomes[idx],
+            self.terrain[idx],
+            self.elevation[idx],
+            self.pois[idx],
+            self.resources.get(idx).copied().unwrap_or_default(),
+            self.connected.get(idx).copied().unwrap_or_default(),
+        )
     }
 
     pub fn tile_seed(&self, x: usize, y: usize) -> u64 {
@@ -127,6 +180,8 @@ mod tests {
         assert_eq!(w1.biomes, w2.biomes);
         assert_eq!(w1.terrain, w2.terrain);
         assert_eq!(w1.pois, w2.pois);
+        assert_eq!(w1.resources, w2.resources);
+        assert_eq!(w1.connected, w2.connected);
     }
 
     #[test]
@@ -134,5 +189,21 @@ mod tests {
         let w = WorldMap::generate(42);
         let poi_count = w.pois.iter().filter(|&&p| p != POI::None).count();
         assert!(poi_count >= 10, "Expected at least 10 POIs, got {}", poi_count);
+    }
+
+    #[test]
+    fn has_roads_connecting_towns() {
+        let w = WorldMap::generate(42);
+        let road_count = w.connected.iter().filter(|c| c.road).count();
+        assert!(road_count > 0, "Expected roads connecting towns");
+    }
+
+    #[test]
+    fn has_resources() {
+        let w = WorldMap::generate(42);
+        let water = w.resources.iter().filter(|r| r.water).count();
+        let minerals = w.resources.iter().filter(|r| r.minerals).count();
+        assert!(water > 0, "Expected some water resources");
+        assert!(minerals > 0, "Expected some mineral resources");
     }
 }

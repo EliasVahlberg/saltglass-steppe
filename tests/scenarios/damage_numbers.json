@@ -6,7 +6,7 @@
   "entities": [
     { "entity_type": "enemy", "id": "salt_crawler", "x": 6, "y": 5, "hp": 1, "ai_disabled": true }
   ],
-  "mock_combat": { "always_hit": true, "damage": 5 },
+  "mocks": { "combat_always_hit": true, "combat_fixed_damage": 5 },
   "actions": [
     { "turn": 0, "action": { "type": "attack", "target_x": 6, "target_y": 5 } }
   ],

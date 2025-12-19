@@ -3,12 +3,14 @@
   "description": "Test NPC interaction via bump-to-talk",
   "seed": 100,
   "player": {
+    "x": 5,
+    "y": 5,
     "hp": 20,
     "ap": 4,
     "max_ap": 4
   },
   "entities": [
-    {"entity_type": "npc", "id": "dying_pilgrim", "x": 29, "y": 8}
+    {"entity_type": "npc", "id": "dying_pilgrim", "x": 6, "y": 5}
   ],
   "actions": [
     {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}}
