@@ -134,7 +134,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
         return;
     }
     if ui.wiki_menu.active {
-        render_wiki(frame, &ui.wiki_menu);
+        render_wiki(frame, &ui.wiki_menu, &state.meta);
         return;
     }
 

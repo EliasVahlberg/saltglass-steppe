@@ -124,21 +124,18 @@ pub struct GameState {
     pub item_positions: HashMap<(i32, i32), Vec<usize>>,
     #[serde(skip)]
     pub event_queue: Vec<GameEvent>,
-    /// Positions with active hit flash effects (x, y, frames_remaining)
     #[serde(skip)]
     pub hit_flash_positions: Vec<(i32, i32, u32)>,
-    /// Floating damage numbers (x, y, value, frames_remaining, is_heal)
     #[serde(skip)]
     pub damage_numbers: Vec<DamageNumber>,
-    /// Active projectile trails for ranged attacks
     #[serde(skip)]
     pub projectile_trails: Vec<ProjectileTrail>,
-    /// Mock: force combat hits (Some(true)) or misses (Some(false))
     #[serde(skip)]
     pub mock_combat_hit: Option<bool>,
-    /// Mock: force specific damage value
     #[serde(skip)]
     pub mock_combat_damage: Option<i32>,
+    #[serde(skip)]
+    pub meta: super::meta::MetaProgress,
 }
 
 /// Floating damage number for visual feedback
@@ -254,6 +251,7 @@ impl GameState {
             projectile_trails: Vec::new(),
             mock_combat_hit: None,
             mock_combat_damage: None,
+            meta: super::meta::MetaProgress::load(),
         };
         state.rebuild_spatial_index();
         state
@@ -704,6 +702,7 @@ impl GameState {
             
             self.npcs[ni].talked = true;
             self.quest_log.on_npc_talked(&self.npcs[ni].id);
+            self.meta.discover_npc(&self.npcs[ni].id);
             return true;
         }
 
@@ -778,7 +777,8 @@ impl GameState {
             }
             self.inventory.push(id.clone());
             self.quest_log.on_item_collected(&id);
-            self.emit(GameEvent::ItemPickedUp { item_id: id });
+            self.emit(GameEvent::ItemPickedUp { item_id: id.clone() });
+            self.meta.discover_item(&id);
             self.log_typed(format!("Picked up {}.", name), MsgType::Loot);
             picked_up.push(i);
         }

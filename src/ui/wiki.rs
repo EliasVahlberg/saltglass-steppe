@@ -5,7 +5,7 @@ use ratatui::{
     widgets::{Block, Borders, List, ListItem, Paragraph, Tabs, Wrap},
 };
 
-use crate::game::{all_item_ids, all_enemy_ids, get_item_def, get_enemy_def, get_npc_def};
+use crate::game::{all_item_ids, all_enemy_ids, get_item_def, get_enemy_def, get_npc_def, MetaProgress};
 use crate::game::npc::all_npc_ids;
 
 #[derive(Default, Clone, Copy, PartialEq, Eq)]
@@ -23,45 +23,34 @@ pub struct WikiMenu {
     pub active: bool,
     pub tab: WikiTab,
     pub selected: usize,
-    pub scroll: usize,
 }
 
 impl WikiMenu {
-    pub fn open(&mut self) { self.active = true; self.selected = 0; self.scroll = 0; }
+    pub fn open(&mut self) { self.active = true; self.selected = 0; }
     pub fn close(&mut self) { self.active = false; }
     
     pub fn next_tab(&mut self) {
         let idx = WikiTab::ALL.iter().position(|t| *t == self.tab).unwrap_or(0);
         self.tab = WikiTab::ALL[(idx + 1) % WikiTab::ALL.len()];
-        self.selected = 0; self.scroll = 0;
+        self.selected = 0;
     }
     
     pub fn prev_tab(&mut self) {
         let idx = WikiTab::ALL.iter().position(|t| *t == self.tab).unwrap_or(0);
         self.tab = WikiTab::ALL[(idx + WikiTab::ALL.len() - 1) % WikiTab::ALL.len()];
-        self.selected = 0; self.scroll = 0;
+        self.selected = 0;
     }
     
-    pub fn navigate(&mut self, dy: i32) {
-        let count = self.entry_count();
+    pub fn navigate(&mut self, dy: i32, count: usize) {
         if count > 0 {
             self.selected = (self.selected as i32 + dy).rem_euclid(count as i32) as usize;
         }
     }
-    
-    fn entry_count(&self) -> usize {
-        match self.tab {
-            WikiTab::Items => all_item_ids().len(),
-            WikiTab::Enemies => all_enemy_ids().len(),
-            WikiTab::NPCs => all_npc_ids().len(),
-        }
-    }
 }
 
-pub fn render_wiki(frame: &mut Frame, menu: &WikiMenu) {
+pub fn render_wiki(frame: &mut Frame, menu: &WikiMenu, meta: &MetaProgress) {
     let area = frame.area();
     
-    // Main layout
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Min(1)])
@@ -74,28 +63,31 @@ pub fn render_wiki(frame: &mut Frame, menu: &WikiMenu) {
         .highlight_style(Style::default().fg(Color::Yellow).bold());
     frame.render_widget(tabs, chunks[0]);
     
-    // Content: list on left, details on right
+    // Content
     let content = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([Constraint::Percentage(35), Constraint::Percentage(65)])
         .split(chunks[1]);
     
-    // Entry list
-    let entries = get_entries(menu.tab);
-    let items: Vec<ListItem> = entries.iter().enumerate().map(|(i, (name, _))| {
-        let style = if i == menu.selected {
+    let entries = get_entries(menu.tab, meta);
+    let items: Vec<ListItem> = entries.iter().enumerate().map(|(i, (name, _, discovered))| {
+        let style = if !discovered {
+            Style::default().fg(Color::DarkGray)
+        } else if i == menu.selected {
             Style::default().fg(Color::Black).bg(Color::Yellow)
-        } else { Style::default() };
-        ListItem::new(format!(" {} ", name)).style(style)
+        } else {
+            Style::default()
+        };
+        let display = if *discovered { name.clone() } else { "???".to_string() };
+        ListItem::new(format!(" {} ", display)).style(style)
     }).collect();
     
-    let list = List::new(items)
-        .block(Block::default().borders(Borders::ALL));
+    let list = List::new(items).block(Block::default().borders(Borders::ALL));
     frame.render_widget(list, content[0]);
     
-    // Details panel
+    // Details
     let detail_text = entries.get(menu.selected)
-        .map(|(_, desc)| desc.as_str())
+        .map(|(_, desc, discovered)| if *discovered { desc.as_str() } else { "Not yet discovered." })
         .unwrap_or("");
     
     let detail = Paragraph::new(detail_text)
@@ -103,41 +95,43 @@ pub fn render_wiki(frame: &mut Frame, menu: &WikiMenu) {
         .block(Block::default().title(" Details ").borders(Borders::ALL));
     frame.render_widget(detail, content[1]);
     
-    // Help
     let help = " [Tab/h/l] Switch tab | [j/k] Navigate | [Esc/w] Close ";
     let help_area = Rect::new(area.x, area.y + area.height.saturating_sub(1), area.width, 1);
     frame.render_widget(Paragraph::new(help).style(Style::default().fg(Color::DarkGray)), help_area);
 }
 
-fn get_entries(tab: WikiTab) -> Vec<(String, String)> {
+fn get_entries(tab: WikiTab, meta: &MetaProgress) -> Vec<(String, String, bool)> {
     match tab {
         WikiTab::Items => {
             all_item_ids().into_iter().filter_map(|id| {
                 let def = get_item_def(id)?;
+                let discovered = meta.discovered_items.contains(id);
                 let mut desc = format!("{}\n\n{}", def.name, def.description);
                 if def.heal > 0 { desc.push_str(&format!("\n\nHeals: {} HP", def.heal)); }
                 if def.armor_value > 0 { desc.push_str(&format!("\nArmor: +{}", def.armor_value)); }
                 if def.usable { desc.push_str("\n\n[Consumable]"); }
                 if def.equip_slot.is_some() { desc.push_str(&format!("\nSlot: {}", def.equip_slot.as_ref().unwrap())); }
-                Some((def.name.clone(), desc))
+                Some((def.name.clone(), desc, discovered))
             }).collect()
         }
         WikiTab::Enemies => {
             all_enemy_ids().into_iter().filter_map(|id| {
                 let def = get_enemy_def(id)?;
+                let discovered = meta.discovered_enemies.contains(id);
                 let desc = format!(
                     "{}\n\n{}\n\nHP: {}\nDamage: {}-{}\nArmor: {}\nXP: {}\nBehavior: {:?}",
                     def.name, def.description, def.max_hp, def.damage_min, def.damage_max,
                     def.armor, def.xp_value, def.demeanor
                 );
-                Some((def.name.clone(), desc))
+                Some((def.name.clone(), desc, discovered))
             }).collect()
         }
         WikiTab::NPCs => {
             all_npc_ids().into_iter().filter_map(|id| {
                 let def = get_npc_def(id)?;
+                let discovered = meta.discovered_npcs.contains(id);
                 let desc = format!("{}\n\n{}", def.name, def.description);
-                Some((def.name.clone(), desc))
+                Some((def.name.clone(), desc, discovered))
             }).collect()
         }
     }

@@ -1,0 +1,18 @@
+(
+    unlocked_classes: [],
+    total_items_collected: 0,
+    max_refraction_reached: 0,
+    total_enemies_killed: 0,
+    runs_completed: 0,
+    discovered_items: [
+        "brine_vial",
+    ],
+    discovered_enemies: [
+        "salt_beetle",
+        "glass_beetle",
+        "shard_spider",
+    ],
+    discovered_npcs: [
+        "merchant",
+    ],
+)

@@ -52,6 +52,12 @@ pub struct MetaProgress {
     pub max_refraction_reached: u32,
     pub total_enemies_killed: u32,
     pub runs_completed: u32,
+    #[serde(default)]
+    pub discovered_items: HashSet<String>,
+    #[serde(default)]
+    pub discovered_enemies: HashSet<String>,
+    #[serde(default)]
+    pub discovered_npcs: HashSet<String>,
 }
 
 impl MetaProgress {
@@ -79,6 +85,24 @@ impl MetaProgress {
             }
         }
         self.unlocked_classes.contains(class_id)
+    }
+
+    pub fn discover_item(&mut self, id: &str) {
+        if self.discovered_items.insert(id.to_string()) {
+            let _ = self.save();
+        }
+    }
+
+    pub fn discover_enemy(&mut self, id: &str) {
+        if self.discovered_enemies.insert(id.to_string()) {
+            let _ = self.save();
+        }
+    }
+
+    pub fn discover_npc(&mut self, id: &str) {
+        if self.discovered_npcs.insert(id.to_string()) {
+            let _ = self.save();
+        }
     }
 
     pub fn check_unlocks(&mut self) {
