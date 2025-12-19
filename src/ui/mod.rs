@@ -8,6 +8,7 @@ pub mod inventory_menu;
 pub mod menu;
 pub mod quest_log;
 pub mod theme;
+pub mod wiki;
 
 pub use crafting_menu::{render_crafting_menu, CraftingMenu};
 pub use game_view::{render_map, render_death_screen, render_damage_numbers, dim_color};
@@ -17,3 +18,4 @@ pub use inventory_menu::{render_inventory_menu, InventoryMenu, MenuPanel};
 pub use menu::{handle_menu_input, render_menu, render_controls, render_pause_menu, MenuAction, MainMenuState};
 pub use quest_log::{render_quest_log, QuestLogMenu};
 pub use theme::{theme, Theme};
+pub use wiki::{render_wiki, WikiMenu};

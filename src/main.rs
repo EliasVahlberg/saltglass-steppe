@@ -6,7 +6,7 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile, MAP_HEIGHT};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -106,6 +106,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenCrafting => {
             ui.crafting_menu.open();
         }
+        Action::OpenWiki => {
+            ui.wiki_menu.open();
+        }
         Action::Craft => {
             if let Some(recipe_id) = ui.crafting_menu.selected_recipe_id() {
                 state.craft(recipe_id);
@@ -128,6 +131,10 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     }
     if ui.crafting_menu.active {
         render_crafting_menu(frame, &ui.crafting_menu, state);
+        return;
+    }
+    if ui.wiki_menu.active {
+        render_wiki(frame, &ui.wiki_menu);
         return;
     }
 
