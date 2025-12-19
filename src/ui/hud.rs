@@ -216,7 +216,7 @@ pub fn render_target_hud(frame: &mut Frame, state: &GameState, target_idx: usize
     let area = frame.area();
     let width = 22u16;
     let height = 5u16;
-    let x = 1;
+    let x = area.width.saturating_sub(width + 1);
     let y = area.height.saturating_sub(height + 1);
     let hud_area = Rect::new(x, y, width, height);
     
