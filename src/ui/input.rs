@@ -19,6 +19,27 @@ impl Default for LookMode {
     }
 }
 
+/// Debug console state
+#[derive(Default)]
+pub struct DebugConsole {
+    pub active: bool,
+    pub input: String,
+    pub history: Vec<String>,
+}
+
+impl DebugConsole {
+    pub fn toggle(&mut self) { self.active = !self.active; self.input.clear(); }
+    pub fn push(&mut self, c: char) { self.input.push(c); }
+    pub fn pop(&mut self) { self.input.pop(); }
+    pub fn submit(&mut self) -> Option<String> {
+        if self.input.is_empty() { return None; }
+        let cmd = self.input.clone();
+        self.history.push(cmd.clone());
+        self.input.clear();
+        Some(cmd)
+    }
+}
+
 /// UI-specific state, separate from game logic
 pub struct UiState {
     pub look_mode: LookMode,
@@ -30,6 +51,7 @@ pub struct UiState {
     pub pause_menu: PauseMenu,
     pub wiki_menu: WikiMenu,
     pub target_enemy: Option<usize>,
+    pub debug_console: DebugConsole,
 }
 
 /// Pause menu state
@@ -59,6 +81,7 @@ impl UiState {
             pause_menu: PauseMenu::default(),
             wiki_menu: WikiMenu::default(),
             target_enemy: None,
+            debug_console: DebugConsole::default(),
         }
     }
     
@@ -91,6 +114,7 @@ pub enum Action {
     ReturnToMainMenu,
     SetTarget(i32, i32),
     UseStairs,
+    DebugCommand(String),
     None,
 }
 
@@ -105,6 +129,10 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
             return Ok(Action::None);
         }
         
+        // Debug console input
+        if ui.debug_console.active {
+            return Ok(handle_debug_console_input(ui, key.code));
+        }
         // Pause menu input
         if ui.pause_menu.active {
             return Ok(handle_pause_menu_input(ui, key.code));
@@ -130,7 +158,7 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
             return Ok(handle_look_input(ui, key.code));
         }
         // Normal game input
-        return Ok(handle_game_input(key.code));
+        return Ok(handle_game_input(ui, key.code));
     }
     Ok(Action::None)
 }
@@ -252,8 +280,24 @@ fn handle_pause_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
     Action::None
 }
 
-fn handle_game_input(code: KeyCode) -> Action {
+fn handle_debug_console_input(ui: &mut UiState, code: KeyCode) -> Action {
     match code {
+        KeyCode::Esc | KeyCode::Char('`') => ui.debug_console.toggle(),
+        KeyCode::Enter => {
+            if let Some(cmd) = ui.debug_console.submit() {
+                return Action::DebugCommand(cmd);
+            }
+        }
+        KeyCode::Backspace => { ui.debug_console.pop(); }
+        KeyCode::Char(c) => ui.debug_console.push(c),
+        _ => {}
+    }
+    Action::None
+}
+
+fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
+    match code {
+        KeyCode::Char('`') => { ui.debug_console.toggle(); Action::None }
         KeyCode::Char('S') => Action::Save,
         KeyCode::Char('L') => Action::Load,
         KeyCode::Char('x') => Action::EnterLook,
