@@ -5,7 +5,7 @@ use crossterm::{
 };
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
-use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile, MAP_HEIGHT};
+use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile};
 use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
 
 const SAVE_FILE: &str = "savegame.ron";
@@ -213,7 +213,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(desc_height),
-            Constraint::Min(MAP_HEIGHT as u16 + 2),
+            Constraint::Min(20),
             Constraint::Length(7),
         ])
         .split(main_chunks[0]);
