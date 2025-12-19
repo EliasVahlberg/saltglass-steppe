@@ -48,6 +48,18 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::Move(dx, dy) => {
             if state.player_hp > 0 {
+                // Check if on world exit - travel to adjacent world tile
+                if let Some(tile) = state.map.get(state.player_x, state.player_y) {
+                    if *tile == tui_rpg::Tile::WorldExit && state.layer == 0 {
+                        let new_wx = (state.world_x as i32 + dx).max(0) as usize;
+                        let new_wy = (state.world_y as i32 + dy).max(0) as usize;
+                        if new_wx != state.world_x || new_wy != state.world_y {
+                            state.travel_to_tile(new_wx, new_wy);
+                            return None;
+                        }
+                    }
+                }
+                
                 let new_x = state.player_x + dx;
                 let new_y = state.player_y + dy;
                 // Auto-target enemy when attacking
@@ -78,6 +90,23 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::SetTarget(x, y) => {
             ui.target_enemy = state.enemy_at(x, y);
+        }
+        Action::UseStairs => {
+            if state.player_hp > 0 {
+                // Check what tile we're standing on
+                if let Some(tile) = state.map.get(state.player_x, state.player_y) {
+                    match tile {
+                        tui_rpg::Tile::StairsDown => { state.enter_subterranean(); }
+                        tui_rpg::Tile::StairsUp => { state.exit_subterranean(); }
+                        tui_rpg::Tile::WorldExit => {
+                            // Simple world map travel - for now just show a message
+                            // TODO: Add proper world map UI
+                            state.log("Use arrow keys to choose direction, then press > again.");
+                        }
+                        _ => { state.log("No stairs here."); }
+                    }
+                }
+            }
         }
         Action::OpenInventory => {
             ui.inventory_menu.open();

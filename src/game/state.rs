@@ -216,8 +216,14 @@ impl GameState {
         // Generate tile map using world context
         let tile_seed = world_map.tile_seed(world_x, world_y);
         let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
-        let (map, rooms) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
+        let (mut map, rooms) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
         let (px, py) = rooms[0];
+        
+        // Add world exit to starting tile (near spawn point)
+        let exit_x = (px + 1).min(map.width as i32 - 1) as usize;
+        let exit_y = py as usize;
+        map.tiles[exit_y * map.width + exit_x] = Tile::WorldExit;
+        
         let visible = compute_fov(&map, px, py);
         let tables = load_spawn_tables();
         let table = &tables.default;

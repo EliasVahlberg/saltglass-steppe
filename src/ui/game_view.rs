@@ -218,6 +218,7 @@ fn render_tile(
             Tile::Glass => Color::Cyan,
             Tile::StairsDown => Color::Yellow,
             Tile::StairsUp => Color::Yellow,
+            Tile::WorldExit => Color::Green,
         };
         return (tile.glyph(), Style::default().fg(dim_color(base_color, light)));
     }
