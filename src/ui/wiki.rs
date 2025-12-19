@@ -71,10 +71,10 @@ pub fn render_wiki(frame: &mut Frame, menu: &WikiMenu, meta: &MetaProgress) {
     
     let entries = get_entries(menu.tab, meta);
     let items: Vec<ListItem> = entries.iter().enumerate().map(|(i, (name, _, discovered))| {
-        let style = if !discovered {
-            Style::default().fg(Color::DarkGray)
-        } else if i == menu.selected {
+        let style = if i == menu.selected {
             Style::default().fg(Color::Black).bg(Color::Yellow)
+        } else if !discovered {
+            Style::default().fg(Color::DarkGray)
         } else {
             Style::default()
         };

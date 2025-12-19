@@ -6,11 +6,13 @@
     runs_completed: 0,
     discovered_items: [
         "brine_vial",
+        "scripture_shard",
     ],
     discovered_enemies: [
         "salt_beetle",
         "glass_beetle",
         "shard_spider",
+        "dust_wraith",
     ],
     discovered_npcs: [
         "merchant",
