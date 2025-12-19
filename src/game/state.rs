@@ -944,6 +944,7 @@ impl GameState {
             self.npcs[ni].talked = true;
             self.quest_log.on_npc_talked(&self.npcs[ni].id);
             self.meta.discover_npc(&self.npcs[ni].id);
+            self.check_auto_end_turn();
             return true;
         }
 
