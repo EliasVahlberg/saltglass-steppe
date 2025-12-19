@@ -45,6 +45,7 @@ pub enum Tile {
     Glass,
     StairsDown,
     StairsUp,
+    WorldExit,
 }
 
 impl Tile {
@@ -55,10 +56,11 @@ impl Tile {
             Tile::Glass => '*',
             Tile::StairsDown => '>',
             Tile::StairsUp => '<',
+            Tile::WorldExit => 'O',
         }
     }
-    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::StairsDown | Tile::StairsUp) }
-    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::StairsDown | Tile::StairsUp) }
+    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
+    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
 
     pub fn name(&self) -> &str {
         match self {
@@ -67,6 +69,7 @@ impl Tile {
             Tile::Glass => "Glass",
             Tile::StairsDown => "Stairs Down",
             Tile::StairsUp => "Stairs Up",
+            Tile::WorldExit => "World Map Exit",
         }
     }
 
@@ -77,6 +80,7 @@ impl Tile {
             Tile::Glass => "Sharp refractive shards, dangerous to walk on",
             Tile::StairsDown => "Stairs leading down into darkness",
             Tile::StairsUp => "Stairs leading back to the surface",
+            Tile::WorldExit => "A passage to the world map",
         }
     }
 }

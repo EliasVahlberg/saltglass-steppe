@@ -90,6 +90,7 @@ pub enum Action {
     OpenPauseMenu,
     ReturnToMainMenu,
     SetTarget(i32, i32),
+    UseStairs,
     None,
 }
 
@@ -262,6 +263,7 @@ fn handle_game_input(code: KeyCode) -> Action {
         KeyCode::Char('q') => Action::OpenQuestLog,
         KeyCode::Char('c') => Action::OpenCrafting,
         KeyCode::Char('w') => Action::OpenWiki,
+        KeyCode::Char('<') | KeyCode::Char('>') => Action::UseStairs,
         KeyCode::Char('1') => Action::UseItem(0),
         KeyCode::Char('2') => Action::UseItem(1),
         KeyCode::Char('3') => Action::UseItem(2),
