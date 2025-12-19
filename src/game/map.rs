@@ -43,6 +43,8 @@ pub enum Tile {
     Floor,
     Wall { id: String, hp: i32 },
     Glass,
+    StairsDown,
+    StairsUp,
 }
 
 impl Tile {
@@ -51,16 +53,20 @@ impl Tile {
             Tile::Floor => '.',
             Tile::Wall { .. } => '#',
             Tile::Glass => '*',
+            Tile::StairsDown => '>',
+            Tile::StairsUp => '<',
         }
     }
-    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass) }
-    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass) }
+    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::StairsDown | Tile::StairsUp) }
+    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::StairsDown | Tile::StairsUp) }
 
     pub fn name(&self) -> &str {
         match self {
             Tile::Floor => "Floor",
             Tile::Wall { id, .. } => get_wall_def(id).map(|d| d.name.as_str()).unwrap_or("Wall"),
             Tile::Glass => "Glass",
+            Tile::StairsDown => "Stairs Down",
+            Tile::StairsUp => "Stairs Up",
         }
     }
 
@@ -69,6 +75,8 @@ impl Tile {
             Tile::Floor => "Dusty ground",
             Tile::Wall { id, .. } => get_wall_def(id).map(|d| d.description.as_str()).unwrap_or("Solid wall"),
             Tile::Glass => "Sharp refractive shards, dangerous to walk on",
+            Tile::StairsDown => "Stairs leading down into darkness",
+            Tile::StairsUp => "Stairs leading back to the surface",
         }
     }
 }
@@ -97,6 +105,17 @@ impl Map {
         biome: Biome,
         terrain: Terrain,
         _elevation: u8,
+    ) -> (Self, Vec<(i32, i32)>) {
+        Self::generate_from_world_with_poi(rng, biome, terrain, _elevation, super::world_map::POI::None)
+    }
+
+    /// Generate a tile map from world context with POI
+    pub fn generate_from_world_with_poi(
+        rng: &mut ChaCha8Rng,
+        biome: Biome,
+        terrain: Terrain,
+        _elevation: u8,
+        poi: super::world_map::POI,
     ) -> (Self, Vec<(i32, i32)>) {
         // Wall type based on biome
         let wall_type = match biome {
@@ -154,6 +173,13 @@ impl Map {
             let y = rng.gen_range(1..MAP_HEIGHT - 1);
             if tiles[y * MAP_WIDTH + x] == Tile::Floor {
                 tiles[y * MAP_WIDTH + x] = Tile::Glass;
+            }
+        }
+
+        // Add stairs down for dungeon POI
+        if poi == super::world_map::POI::Dungeon {
+            if let Some(&(rx, ry)) = room_centers.last() {
+                tiles[ry as usize * MAP_WIDTH + rx as usize] = Tile::StairsDown;
             }
         }
 
@@ -231,6 +257,62 @@ impl Map {
                     lights.push(MapLight { x: lx, y: ly, id: light_id });
                 }
             }
+        }
+
+        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT, lights }, room_centers)
+    }
+
+    /// Generate a subterranean map (cave/dungeon)
+    pub fn generate_subterranean(rng: &mut ChaCha8Rng, layer: i32) -> (Self, Vec<(i32, i32)>) {
+        let wall_type = "shale".to_string();
+        let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
+        let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
+        let mut room_centers = Vec::new();
+        
+        // More rooms deeper underground
+        let num_rooms = rng.gen_range(4 + layer.unsigned_abs() as usize..8 + layer.unsigned_abs() as usize * 2);
+
+        for _ in 0..num_rooms.min(12) {
+            let w = rng.gen_range(3..8);
+            let h = rng.gen_range(3..6);
+            let x = rng.gen_range(1..MAP_WIDTH - w - 1);
+            let y = rng.gen_range(1..MAP_HEIGHT - h - 1);
+            for ry in y..y + h {
+                for rx in x..x + w {
+                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor;
+                }
+            }
+            room_centers.push(((x + w / 2) as i32, (y + h / 2) as i32));
+        }
+
+        // Connect rooms with corridors
+        for i in 1..room_centers.len() {
+            let (cx1, cy1) = room_centers[i - 1];
+            let (cx2, cy2) = room_centers[i];
+            for x in (cx1.min(cx2) as usize)..=(cx1.max(cx2) as usize) {
+                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor;
+            }
+            for y in (cy1.min(cy2) as usize)..=(cy1.max(cy2) as usize) {
+                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor;
+            }
+        }
+
+        // Place stairs up in first room
+        if let Some(&(rx, ry)) = room_centers.first() {
+            tiles[ry as usize * MAP_WIDTH + rx as usize] = Tile::StairsUp;
+        }
+
+        // Place stairs down in last room (if not at max depth)
+        if layer > -3 {
+            if let Some(&(rx, ry)) = room_centers.last() {
+                tiles[ry as usize * MAP_WIDTH + rx as usize] = Tile::StairsDown;
+            }
+        }
+
+        // Fewer lights underground
+        let mut lights = Vec::new();
+        for &(rx, ry) in room_centers.iter().take(2) {
+            lights.push(MapLight { x: rx, y: ry, id: "crystal".to_string() });
         }
 
         (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT, lights }, room_centers)

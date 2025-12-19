@@ -144,6 +144,9 @@ pub struct GameState {
     pub world_x: usize,
     #[serde(default)]
     pub world_y: usize,
+    /// Current layer: 0 = surface, negative = underground
+    #[serde(default)]
+    pub layer: i32,
 }
 
 /// Floating damage number for visual feedback
@@ -174,12 +177,12 @@ impl GameState {
         let world_y = super::world_map::WORLD_SIZE / 2;
         
         // Get world context for starting tile
-        let (biome, terrain, elevation, _poi, _resources, _connected) = world_map.get(world_x, world_y);
+        let (biome, terrain, elevation, poi, _resources, _connected) = world_map.get(world_x, world_y);
         
         // Generate tile map using world context
         let tile_seed = world_map.tile_seed(world_x, world_y);
         let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
-        let (map, rooms) = Map::generate_from_world(&mut rng, biome, terrain, elevation);
+        let (map, rooms) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
         let (px, py) = rooms[0];
         let visible = compute_fov(&map, px, py);
         let tables = load_spawn_tables();
@@ -274,6 +277,7 @@ impl GameState {
             world_map: Some(world_map),
             world_x,
             world_y,
+            layer: 0,
         };
         state.rebuild_spatial_index();
         state
@@ -336,7 +340,7 @@ impl GameState {
         let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
         
         // Generate new tile map
-        let (map, rooms) = Map::generate_from_world(&mut rng, biome, terrain, elevation);
+        let (map, rooms) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
         let (px, py) = rooms[0];
         
         // Spawn enemies based on POI
@@ -385,6 +389,80 @@ impl GameState {
         self.update_lighting();
         
         self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
+    }
+
+    /// Enter subterranean layer (go down stairs)
+    pub fn enter_subterranean(&mut self) -> bool {
+        // Check if standing on stairs down
+        if let Some(tile) = self.map.get(self.player_x, self.player_y) {
+            if *tile != Tile::StairsDown { return false; }
+        } else { return false; }
+
+        self.layer -= 1;
+        let seed = self.world_map.as_ref()
+            .map(|wm| wm.tile_seed(self.world_x, self.world_y))
+            .unwrap_or(42)
+            .wrapping_add(self.layer.unsigned_abs() as u64 * 1000);
+        let mut rng = ChaCha8Rng::seed_from_u64(seed);
+        
+        let (map, rooms) = Map::generate_subterranean(&mut rng, self.layer);
+        let (px, py) = rooms[0];
+        
+        self.map = map;
+        self.enemies = Vec::new();
+        self.items = Vec::new();
+        self.npcs = Vec::new();
+        self.player_x = px;
+        self.player_y = py;
+        self.visible = compute_fov(&self.map, px, py);
+        self.revealed = self.visible.clone();
+        self.rebuild_spatial_index();
+        self.update_lighting();
+        
+        self.log(format!("You descend to level {}.", -self.layer));
+        true
+    }
+
+    /// Exit subterranean layer (go up stairs)
+    pub fn exit_subterranean(&mut self) -> bool {
+        // Check if standing on stairs up
+        if let Some(tile) = self.map.get(self.player_x, self.player_y) {
+            if *tile != Tile::StairsUp { return false; }
+        } else { return false; }
+
+        if self.layer >= 0 { return false; } // Already on surface
+
+        self.layer += 1;
+        
+        if self.layer == 0 {
+            // Return to surface - regenerate surface tile
+            self.travel_to_tile(self.world_x, self.world_y);
+            self.log("You return to the surface.");
+        } else {
+            // Go up one underground level
+            let seed = self.world_map.as_ref()
+                .map(|wm| wm.tile_seed(self.world_x, self.world_y))
+                .unwrap_or(42)
+                .wrapping_add(self.layer.unsigned_abs() as u64 * 1000);
+            let mut rng = ChaCha8Rng::seed_from_u64(seed);
+            
+            let (map, rooms) = Map::generate_subterranean(&mut rng, self.layer);
+            let (px, py) = rooms.last().copied().unwrap_or((5, 5));
+            
+            self.map = map;
+            self.enemies = Vec::new();
+            self.items = Vec::new();
+            self.npcs = Vec::new();
+            self.player_x = px;
+            self.player_y = py;
+            self.visible = compute_fov(&self.map, px, py);
+            self.revealed = self.visible.clone();
+            self.rebuild_spatial_index();
+            self.update_lighting();
+            
+            self.log(format!("You ascend to level {}.", -self.layer));
+        }
+        true
     }
 
     pub fn update_lighting(&mut self) {
