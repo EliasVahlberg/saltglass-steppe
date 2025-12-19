@@ -167,70 +167,40 @@ pub fn render_inventory_menu(
 }
 
 fn render_inspect_overlay(frame: &mut Frame, item_id: &str, area: Rect) {
+    use ratatui::widgets::Wrap;
+    
     let info = inspect_item(item_id);
+    let width = 50u16.min(area.width.saturating_sub(4));
     
-    // Calculate content and wrap text
-    let max_width = (area.width as usize).saturating_sub(4).min(60);
     let mut lines: Vec<Line> = Vec::new();
-    let mut content_width: usize = 0;
+    let mut desc_len = 0usize;
     
-    if let Some(info) = info {
+    if let Some(ref info) = info {
         lines.push(Line::from(Span::styled(info.name.clone(), Style::default().fg(Color::Yellow).bold())));
-        content_width = content_width.max(info.name.len());
         lines.push(Line::from(""));
-        
-        // Wrap description text
-        for wrapped in wrap_text(&info.description, max_width) {
-            content_width = content_width.max(wrapped.len());
-            lines.push(Line::from(Span::styled(wrapped, Style::default().fg(Color::White))));
-        }
+        desc_len = info.description.len();
+        lines.push(Line::from(Span::styled(info.description.clone(), Style::default().fg(Color::White))));
         lines.push(Line::from(""));
-        
         for (stat, value) in &info.stats {
-            let stat_line = format!("  {}: {}", stat, value);
-            content_width = content_width.max(stat_line.len());
-            lines.push(Line::from(stat_line));
+            lines.push(Line::from(format!("  {}: {}", stat, value)));
         }
     } else {
         lines.push(Line::from(Span::styled("Unknown item", Style::default().fg(Color::Red))));
-        content_width = 12;
     }
     
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled("[x] Close", Style::default().fg(Color::DarkGray))));
 
-    let height = (lines.len() + 2).min(area.height as usize) as u16;
-    let width = (content_width + 4).max(20).min(area.width as usize) as u16;
+    // Estimate height based on description length + wrapping
+    let inner_width = width.saturating_sub(2) as usize;
+    let wrapped_lines = if inner_width > 0 { (desc_len / inner_width) + 1 } else { 1 };
+    let height = ((lines.len() + wrapped_lines + 2) as u16).min(area.height.saturating_sub(4));
+    
     let x = (area.width.saturating_sub(width)) / 2;
     let y = (area.height.saturating_sub(height)) / 2;
     let popup_area = Rect::new(x, y, width, height);
 
     let block = Block::default().title(" Inspect ").borders(Borders::ALL).style(Style::default().bg(Color::Black));
     frame.render_widget(ratatui::widgets::Clear, popup_area);
-    frame.render_widget(Paragraph::new(lines).block(block), popup_area);
-}
-
-/// Wrap text to fit within max_width
-fn wrap_text(text: &str, max_width: usize) -> Vec<String> {
-    let mut lines = Vec::new();
-    let mut current = String::new();
-    
-    for word in text.split_whitespace() {
-        if current.is_empty() {
-            current = word.to_string();
-        } else if current.len() + 1 + word.len() <= max_width {
-            current.push(' ');
-            current.push_str(word);
-        } else {
-            lines.push(current);
-            current = word.to_string();
-        }
-    }
-    if !current.is_empty() {
-        lines.push(current);
-    }
-    if lines.is_empty() {
-        lines.push(String::new());
-    }
-    lines
+    frame.render_widget(Paragraph::new(lines).wrap(Wrap { trim: true }).block(block), popup_area);
 }
