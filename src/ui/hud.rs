@@ -159,12 +159,12 @@ pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         "hjkl  Move",
         "i     Inventory",
         "c     Craft",
-        "Q     Quest log",
+        "q     Quest log",
         "x     Look mode",
         "e     End turn",
         "o     Auto-explore",
         "S/L   Save/Load",
-        "q     Quit",
+        "Esc   Menu",
     ];
     let hotkey_lines: Vec<Line> = hotkeys.iter().map(|s| Line::from(*s)).collect();
     frame.render_widget(Paragraph::new(hotkey_lines).block(hotkeys_block), chunks[1]);
@@ -183,4 +183,48 @@ pub fn render_inventory_bar(frame: &mut Frame, area: Rect, state: &GameState) {
         Line::from(items)
     };
     frame.render_widget(Paragraph::new(line), area);
+}
+
+/// Render target enemy HUD (bottom left overlay)
+pub fn render_target_hud(frame: &mut Frame, state: &GameState, target_idx: usize) {
+    if target_idx >= state.enemies.len() {
+        return;
+    }
+    let enemy = &state.enemies[target_idx];
+    if enemy.hp <= 0 {
+        return;
+    }
+    
+    let def = enemy.def();
+    let name = enemy.name();
+    let max_hp = def.map(|d| d.max_hp).unwrap_or(10);
+    let demeanor = format!("{:?}", enemy.demeanor()).to_lowercase();
+    
+    let bar_width = 12;
+    let (hp_bar, hp_color) = render_bar(enemy.hp, max_hp, bar_width);
+    
+    let lines = vec![
+        Line::from(Span::styled(name, Style::default().fg(Color::Red).bold())),
+        Line::from(vec![
+            Span::raw("HP "),
+            Span::styled(hp_bar, Style::default().fg(hp_color)),
+            Span::styled(format!(" {}/{}", enemy.hp, max_hp), Style::default().fg(hp_color)),
+        ]),
+        Line::from(Span::styled(format!("({})", demeanor), Style::default().fg(Color::DarkGray))),
+    ];
+    
+    let area = frame.area();
+    let width = 22u16;
+    let height = 5u16;
+    let x = 1;
+    let y = area.height.saturating_sub(height + 1);
+    let hud_area = Rect::new(x, y, width, height);
+    
+    let block = Block::default()
+        .title(" Target ")
+        .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black));
+    
+    frame.render_widget(ratatui::widgets::Clear, hud_area);
+    frame.render_widget(Paragraph::new(lines).block(block), hud_area);
 }

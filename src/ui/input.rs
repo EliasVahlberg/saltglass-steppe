@@ -27,6 +27,23 @@ pub struct UiState {
     pub inventory_menu: InventoryMenu,
     pub quest_log: QuestLogMenu,
     pub crafting_menu: CraftingMenu,
+    pub pause_menu: PauseMenu,
+    pub target_enemy: Option<usize>, // Index into enemies array
+}
+
+/// Pause menu state
+#[derive(Default)]
+pub struct PauseMenu {
+    pub active: bool,
+    pub selected: usize,
+}
+
+impl PauseMenu {
+    pub fn open(&mut self) { self.active = true; self.selected = 0; }
+    pub fn close(&mut self) { self.active = false; }
+    pub fn navigate(&mut self, dy: i32, count: usize) {
+        self.selected = (self.selected as i32 + dy).rem_euclid(count as i32) as usize;
+    }
 }
 
 impl UiState {
@@ -38,6 +55,8 @@ impl UiState {
             inventory_menu: InventoryMenu::default(),
             quest_log: QuestLogMenu::default(),
             crafting_menu: CraftingMenu::default(),
+            pause_menu: PauseMenu::default(),
+            target_enemy: None,
         }
     }
     
@@ -65,6 +84,9 @@ pub enum Action {
     OpenQuestLog,
     OpenCrafting,
     Craft,
+    OpenPauseMenu,
+    ReturnToMainMenu,
+    SetTarget(i32, i32), // Set target at position
     None,
 }
 
@@ -79,6 +101,10 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
             return Ok(Action::None);
         }
         
+        // Pause menu input
+        if ui.pause_menu.active {
+            return Ok(handle_pause_menu_input(ui, key.code));
+        }
         // Quest log input
         if ui.quest_log.active {
             return Ok(handle_quest_log_input(ui, state, key.code));
@@ -104,7 +130,7 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
 fn handle_quest_log_input(ui: &mut UiState, state: &GameState, code: KeyCode) -> Action {
     let total = state.quest_log.active.len() + state.quest_log.completed.len() + 3;
     match code {
-        KeyCode::Esc | KeyCode::Char('Q') => ui.quest_log.close(),
+        KeyCode::Esc | KeyCode::Char('q') => ui.quest_log.close(),
         KeyCode::Char('j') | KeyCode::Down => ui.quest_log.navigate(1, total),
         KeyCode::Char('k') | KeyCode::Up => ui.quest_log.navigate(-1, total),
         _ => {}
@@ -162,6 +188,36 @@ fn handle_look_input(ui: &mut UiState, code: KeyCode) -> Action {
             ui.look_mode.active = false;
             return Action::RangedAttack(x, y);
         }
+        KeyCode::Char('t') => {
+            let (x, y) = (ui.look_mode.x, ui.look_mode.y);
+            ui.look_mode.active = false;
+            return Action::SetTarget(x, y);
+        }
+        _ => {}
+    }
+    Action::None
+}
+
+/// Pause menu options
+pub const PAUSE_OPTIONS: &[&str] = &["Resume", "Save", "Controls", "Main Menu", "Quit"];
+
+fn handle_pause_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
+    match code {
+        KeyCode::Esc => { ui.pause_menu.close(); }
+        KeyCode::Up | KeyCode::Char('k') => ui.pause_menu.navigate(-1, PAUSE_OPTIONS.len()),
+        KeyCode::Down | KeyCode::Char('j') => ui.pause_menu.navigate(1, PAUSE_OPTIONS.len()),
+        KeyCode::Enter => {
+            let selected = ui.pause_menu.selected;
+            ui.pause_menu.close();
+            return match selected {
+                0 => Action::None, // Resume
+                1 => Action::Save,
+                2 => Action::OpenControls,
+                3 => Action::ReturnToMainMenu,
+                4 => Action::Quit,
+                _ => Action::None,
+            };
+        }
         _ => {}
     }
     Action::None
@@ -169,14 +225,13 @@ fn handle_look_input(ui: &mut UiState, code: KeyCode) -> Action {
 
 fn handle_game_input(code: KeyCode) -> Action {
     match code {
-        KeyCode::Char('q') => Action::Quit,
         KeyCode::Char('S') => Action::Save,
         KeyCode::Char('L') => Action::Load,
         KeyCode::Char('x') => Action::EnterLook,
         KeyCode::Char('e') => Action::EndTurn,
         KeyCode::Char('o') => Action::AutoExplore,
         KeyCode::Char('i') => Action::OpenInventory,
-        KeyCode::Char('Q') => Action::OpenQuestLog,
+        KeyCode::Char('q') => Action::OpenQuestLog,
         KeyCode::Char('c') => Action::OpenCrafting,
         KeyCode::Char('1') => Action::UseItem(0),
         KeyCode::Char('2') => Action::UseItem(1),
@@ -185,7 +240,7 @@ fn handle_game_input(code: KeyCode) -> Action {
         KeyCode::Down | KeyCode::Char('j') => Action::Move(0, 1),
         KeyCode::Left | KeyCode::Char('h') => Action::Move(-1, 0),
         KeyCode::Right | KeyCode::Char('l') => Action::Move(1, 0),
-        KeyCode::Esc => Action::OpenControls,
+        KeyCode::Esc => Action::OpenPauseMenu,
         _ => Action::None,
     }
 }

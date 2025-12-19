@@ -6,13 +6,15 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile, MAP_HEIGHT};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_side_panel, render_bottom_panel, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, MenuAction, render_map, render_death_screen, render_damage_numbers};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
 
 const SAVE_FILE: &str = "savegame.ron";
 
-fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
+fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<bool> {
     match action {
-        Action::Quit => return false,
+        Action::Quit => return Some(false),
+        Action::ReturnToMainMenu => return None, // Signal to return to main menu
+        Action::OpenPauseMenu => ui.pause_menu.open(),
         Action::OpenControls => ui.show_controls = true,
         Action::EnterLook => {
             ui.look_mode.active = true;
@@ -46,6 +48,12 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
         }
         Action::Move(dx, dy) => {
             if state.player_hp > 0 {
+                let new_x = state.player_x + dx;
+                let new_y = state.player_y + dy;
+                // Auto-target enemy when attacking
+                if let Some(ei) = state.enemy_at(new_x, new_y) {
+                    ui.target_enemy = Some(ei);
+                }
                 state.try_move(dx, dy);
             }
         }
@@ -61,8 +69,15 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
         }
         Action::RangedAttack(x, y) => {
             if state.player_hp > 0 {
+                // Auto-target enemy when attacking
+                if let Some(ei) = state.enemy_at(x, y) {
+                    ui.target_enemy = Some(ei);
+                }
                 state.try_ranged_attack(x, y);
             }
+        }
+        Action::SetTarget(x, y) => {
+            ui.target_enemy = state.enemy_at(x, y);
         }
         Action::OpenInventory => {
             ui.inventory_menu.open();
@@ -98,7 +113,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> bool {
         }
         Action::None => {}
     }
-    true
+    Some(true)
 }
 
 fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
@@ -176,6 +191,16 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
 
     // Right side panel with stats
     render_side_panel(frame, main_chunks[1], state);
+    
+    // Target HUD (bottom left)
+    if let Some(target_idx) = ui.target_enemy {
+        render_target_hud(frame, state, target_idx);
+    }
+    
+    // Pause menu overlay (rendered last)
+    if ui.pause_menu.active {
+        render_pause_menu(frame, ui.pause_menu.selected);
+    }
 }
 
 fn main() -> Result<()> {
@@ -183,46 +208,71 @@ fn main() -> Result<()> {
     enable_raw_mode()?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
-    // Main menu loop
-    let mut menu_tick: u64 = 0;
-    loop {
-        terminal.draw(|f| render_menu(f, menu_tick))?;
-        menu_tick = menu_tick.wrapping_add(1);
-        match handle_menu_input()? {
-            MenuAction::NewGame => break,
-            MenuAction::Quit => {
-                disable_raw_mode()?;
-                stdout().execute(LeaveAlternateScreen)?;
-                return Ok(());
-            }
-            MenuAction::None => {}
-        }
-    }
-
-    // Game loop
-    let seed = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
-    let mut state = GameState::new(seed);
-    let mut ui = UiState::new();
-
-    loop {
-        ui.tick_frame();
-        state.tick_hit_flash();
-        state.tick_damage_numbers();
-        state.tick_projectile_trails();
-        
-        if ui.show_controls {
-            terminal.draw(render_controls)?;
-            if event::poll(std::time::Duration::from_millis(16))? {
-                if let Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        ui.show_controls = false;
+    'main: loop {
+        // Main menu loop
+        let mut menu_state = MainMenuState::new();
+        let mut menu_tick: u64 = 0;
+        let class_id = loop {
+            terminal.draw(|f| render_menu(f, menu_tick, &menu_state))?;
+            menu_tick = menu_tick.wrapping_add(1);
+            match handle_menu_input(&mut menu_state)? {
+                MenuAction::NewGame(class) => break class,
+                MenuAction::Controls => {
+                    // Show controls screen
+                    loop {
+                        terminal.draw(render_controls)?;
+                        if event::poll(std::time::Duration::from_millis(16))? {
+                            if let Event::Key(key) = event::read()? {
+                                if key.kind == KeyEventKind::Press { break; }
+                            }
+                        }
                     }
                 }
+                MenuAction::Quit => {
+                    disable_raw_mode()?;
+                    stdout().execute(LeaveAlternateScreen)?;
+                    return Ok(());
+                }
+                MenuAction::LoadGame(_) | MenuAction::None => {}
             }
-        } else {
-            terminal.draw(|frame| render(frame, &state, &ui))?;
-            let action = handle_input(&mut ui, &state)?;
-            if !update(&mut state, action, &mut ui) { break; }
+        };
+
+        // Create game with selected class
+        let seed = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
+        let mut state = GameState::new_with_class(seed, &class_id);
+        let mut ui = UiState::new();
+
+        loop {
+            ui.tick_frame();
+            state.tick_hit_flash();
+            state.tick_damage_numbers();
+            state.tick_projectile_trails();
+            
+            // Clear target if enemy is dead
+            if let Some(ei) = ui.target_enemy {
+                if ei >= state.enemies.len() || state.enemies[ei].hp <= 0 {
+                    ui.target_enemy = None;
+                }
+            }
+            
+            if ui.show_controls {
+                terminal.draw(render_controls)?;
+                if event::poll(std::time::Duration::from_millis(16))? {
+                    if let Event::Key(key) = event::read()? {
+                        if key.kind == KeyEventKind::Press {
+                            ui.show_controls = false;
+                        }
+                    }
+                }
+            } else {
+                terminal.draw(|frame| render(frame, &state, &ui))?;
+                let action = handle_input(&mut ui, &state)?;
+                match update(&mut state, action, &mut ui) {
+                    Some(true) => {} // Continue game
+                    Some(false) => break 'main, // Quit
+                    None => break, // Return to main menu
+                }
+            }
         }
     }
 
