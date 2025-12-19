@@ -55,18 +55,23 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                         let new_wy = (state.world_y as i32 + dy).max(0) as usize;
                         if new_wx != state.world_x || new_wy != state.world_y {
                             state.travel_to_tile(new_wx, new_wy);
-                            return None;
                         }
+                    } else {
+                        let new_x = state.player_x + dx;
+                        let new_y = state.player_y + dy;
+                        if let Some(ei) = state.enemy_at(new_x, new_y) {
+                            ui.target_enemy = Some(ei);
+                        }
+                        state.try_move(dx, dy);
                     }
+                } else {
+                    let new_x = state.player_x + dx;
+                    let new_y = state.player_y + dy;
+                    if let Some(ei) = state.enemy_at(new_x, new_y) {
+                        ui.target_enemy = Some(ei);
+                    }
+                    state.try_move(dx, dy);
                 }
-                
-                let new_x = state.player_x + dx;
-                let new_y = state.player_y + dy;
-                // Auto-target enemy when attacking
-                if let Some(ei) = state.enemy_at(new_x, new_y) {
-                    ui.target_enemy = Some(ei);
-                }
-                state.try_move(dx, dy);
             }
         }
         Action::EndTurn => {
