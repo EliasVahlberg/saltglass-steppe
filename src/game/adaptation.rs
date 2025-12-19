@@ -50,6 +50,16 @@ pub enum Adaptation {
 }
 
 impl Adaptation {
+    pub fn from_id(id: &str) -> Option<Self> {
+        match id {
+            "prismhide" => Some(Self::Prismhide),
+            "sunveins" => Some(Self::Sunveins),
+            "mirage_step" => Some(Self::MirageStep),
+            "saltblood" => Some(Self::Saltblood),
+            _ => None,
+        }
+    }
+
     pub fn id(&self) -> &str {
         match self {
             Self::Prismhide => "prismhide",

@@ -259,6 +259,34 @@ impl GameState {
         state
     }
 
+    /// Create a new game with a specific character class
+    pub fn new_with_class(seed: u64, class_id: &str) -> Self {
+        let mut state = Self::new(seed);
+        
+        if let Some(class) = super::meta::get_class(class_id) {
+            state.player_hp = class.starting_hp;
+            state.player_max_hp = class.starting_hp;
+            state.player_ap = class.starting_ap;
+            state.player_max_ap = class.starting_ap;
+            
+            // Add starting items
+            for item_id in &class.starting_items {
+                state.inventory.push(item_id.clone());
+            }
+            
+            // Add starting adaptations
+            for adapt_id in &class.starting_adaptations {
+                if let Some(adapt) = Adaptation::from_id(adapt_id) {
+                    state.adaptations.push(adapt);
+                }
+            }
+            
+            state.log(format!("You begin as a {}.", class.name));
+        }
+        
+        state
+    }
+
     pub fn rebuild_spatial_index(&mut self) {
         self.enemy_positions.clear();
         for (i, e) in self.enemies.iter().enumerate() {
@@ -680,6 +708,11 @@ impl GameState {
         }
 
         if self.enemy_at(new_x, new_y).is_some() {
+            // If not enough AP, end turn first then attack
+            let cost = action_cost("attack_melee");
+            if self.player_ap < cost {
+                self.end_turn();
+            }
             let hit = self.attack_melee(new_x, new_y);
             if hit { self.check_auto_end_turn(); }
             return hit;

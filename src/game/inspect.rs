@@ -2,6 +2,7 @@
 
 use super::combat::get_weapon_def;
 use super::item::get_item_def;
+use super::light_defs::get_light_def;
 use super::state::GameState;
 
 /// Detailed item information for inspection
@@ -98,6 +99,12 @@ impl GameState {
             }
             if let Some(wdef) = get_weapon_def(&item.id) {
                 return format!("{} (weapon) - {}", wdef.name, wdef.description);
+            }
+        }
+        // Check for map lights (torches, braziers, etc.)
+        if let Some(light) = self.map.lights.iter().find(|l| l.x == x && l.y == y) {
+            if let Some(def) = get_light_def(&light.id) {
+                return format!("{} (light source)", def.name);
             }
         }
         if let Some(tile) = self.map.get(x, y) {
