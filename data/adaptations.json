@@ -5,6 +5,7 @@
       "name": "Prismhide",
       "description": "Crystalline skin reduces damage",
       "threshold": 25,
+      "stat_modifiers": { "armor": 2 },
       "effects": []
     },
     {
@@ -12,6 +13,7 @@
       "name": "Sunveins",
       "description": "Store light charge, +2 attack damage",
       "threshold": 50,
+      "stat_modifiers": { "damage_bonus": 2 },
       "effects": [{ "type": "damage_bonus", "value": 2 }]
     },
     {
@@ -19,13 +21,15 @@
       "name": "Mirage Step",
       "description": "Leave decoy when moving (confuses enemies)",
       "threshold": 75,
-      "effects": []
+      "stat_modifiers": {},
+      "effects": [{ "type": "special_ability", "value": 0, "ability": "mirage_step" }]
     },
     {
       "id": "saltblood",
       "name": "Saltblood",
       "description": "Immune to glass terrain damage",
       "threshold": 100,
+      "stat_modifiers": {},
       "effects": [{ "type": "immunity", "damage_source": "glass" }]
     }
   ]

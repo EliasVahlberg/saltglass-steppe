@@ -1,0 +1,51 @@
+{
+  "name": "adaptation_stat_modifiers",
+  "seed": 42,
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 5
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 30,
+    "max_hp": 30,
+    "ap": 10,
+    "adaptations": ["prismhide"]
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "shard_spider",
+      "x": 11,
+      "y": 10,
+      "hp": 10,
+      "ai_disabled": true
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "end_turn" }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "player_has_adaptation",
+        "adaptation": "prismhide"
+      },
+      "message": "Player should have prismhide adaptation"
+    },
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "player_hp",
+        "op": "ge",
+        "value": 28
+      },
+      "message": "Prismhide armor (2) should reduce enemy damage from 5 to 3, leaving HP >= 28"
+    }
+  ]
+}

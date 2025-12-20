@@ -2,6 +2,16 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+#[derive(Clone, Debug, Deserialize, Default)]
+pub struct StatModifiers {
+    #[serde(default)]
+    pub armor: i32,
+    #[serde(default)]
+    pub damage_bonus: i32,
+    #[serde(default)]
+    pub reflex: i32,
+}
+
 #[derive(Clone, Debug, Deserialize)]
 pub struct AdaptationEffect {
     #[serde(rename = "type")]
@@ -10,6 +20,8 @@ pub struct AdaptationEffect {
     pub value: Option<i32>,
     #[serde(default)]
     pub damage_source: Option<String>,
+    #[serde(default)]
+    pub ability: Option<String>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -18,6 +30,8 @@ pub struct AdaptationDef {
     pub name: String,
     pub description: String,
     pub threshold: u32,
+    #[serde(default)]
+    pub stat_modifiers: StatModifiers,
     #[serde(default)]
     pub effects: Vec<AdaptationEffect>,
 }
@@ -97,4 +111,28 @@ impl Adaptation {
             d.effects.iter().any(|e| e.effect_type == "immunity" && e.damage_source.as_deref() == Some(source))
         }).unwrap_or(false)
     }
+
+    pub fn has_ability(&self, ability: &str) -> bool {
+        self.def().map(|d| {
+            d.effects.iter().any(|e| e.effect_type == "special_ability" && e.ability.as_deref() == Some(ability))
+        }).unwrap_or(false)
+    }
+
+    /// Get stat modifiers from this adaptation
+    pub fn stat_modifiers(&self) -> &'static StatModifiers {
+        static DEFAULT: StatModifiers = StatModifiers { armor: 0, damage_bonus: 0, reflex: 0 };
+        self.def().map(|d| &d.stat_modifiers).unwrap_or(&DEFAULT)
+    }
+}
+
+/// Calculate total stat modifiers from a list of adaptations
+pub fn total_stat_modifiers(adaptations: &[Adaptation]) -> StatModifiers {
+    let mut total = StatModifiers::default();
+    for a in adaptations {
+        let mods = a.stat_modifiers();
+        total.armor += mods.armor;
+        total.damage_bonus += mods.damage_bonus;
+        total.reflex += mods.reflex;
+    }
+    total
 }

@@ -2,6 +2,7 @@
 
 use super::{
     action::action_cost,
+    adaptation::total_stat_modifiers,
     combat::{default_weapon, get_weapon_def, roll_attack, CombatResult},
     event::GameEvent,
     item::get_item_def,
@@ -53,11 +54,9 @@ impl GameState {
         }
 
         let mut dmg = result.damage;
-        for a in &self.adaptations {
-            if let Some(bonus) = a.effect_value("damage_bonus") {
-                dmg += bonus;
-            }
-        }
+        // Apply adaptation damage bonus
+        let adapt_mods = total_stat_modifiers(&self.adaptations);
+        dmg += adapt_mods.damage_bonus;
         self.enemies[ei].hp -= dmg;
         self.trigger_hit_flash(target_x, target_y);
         self.spawn_damage_number(target_x, target_y, dmg, false);
