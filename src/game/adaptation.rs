@@ -17,6 +17,7 @@ pub struct AdaptationDef {
     pub id: String,
     pub name: String,
     pub description: String,
+    pub threshold: u32,
     #[serde(default)]
     pub effects: Vec<AdaptationEffect>,
 }

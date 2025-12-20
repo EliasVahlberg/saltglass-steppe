@@ -916,17 +916,22 @@ impl GameState {
     }
 
     pub fn check_adaptation_threshold(&mut self) {
-        let thresholds = [25, 50, 75, 100];
-        let adaptation_count = self.adaptations.len();
-        if adaptation_count < thresholds.len() && self.refraction >= thresholds[adaptation_count] {
-            let available: Vec<Adaptation> = [
-                Adaptation::Prismhide, Adaptation::Sunveins,
-                Adaptation::MirageStep, Adaptation::Saltblood,
-            ].into_iter().filter(|a| !self.adaptations.contains(a)).collect();
-
-            if !available.is_empty() {
-                let idx = self.rng.gen_range(0..available.len());
-                let adaptation = available[idx];
+        // Get all available adaptations sorted by threshold
+        let mut available: Vec<(&str, u32)> = super::adaptation::all_adaptation_ids()
+            .iter()
+            .filter_map(|&id| {
+                super::adaptation::get_adaptation_def(id).map(|def| (id, def.threshold))
+            })
+            .filter(|(id, _)| {
+                !self.adaptations.iter().any(|a| a.id() == *id)
+            })
+            .collect();
+        
+        available.sort_by_key(|(_, threshold)| *threshold);
+        
+        // Find first unlockable adaptation
+        if let Some(&(adaptation_id, _threshold)) = available.iter().find(|(_, t)| self.refraction >= *t) {
+            if let Some(adaptation) = super::adaptation::Adaptation::from_id(adaptation_id) {
                 self.adaptations.push(adaptation);
                 self.emit(GameEvent::AdaptationGained { name: adaptation.name().to_string() });
                 self.log(format!("🧬 You gain {}!", adaptation.name()));
