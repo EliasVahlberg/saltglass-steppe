@@ -1,0 +1,83 @@
+{
+  "name": "shop_trading",
+  "description": "Tests buying items with currency",
+  "seed": 12345,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 100,
+    "max_hp": 100,
+    "inventory": []
+  },
+  "entities": [
+    {
+      "entity_type": "npc",
+      "id": "sand_engineer",
+      "x": 12,
+      "y": 10
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "buy_item",
+        "item_id": "brine_vial",
+        "npc_id": "sand_engineer"
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "buy_item",
+        "item_id": "salt_poultice",
+        "npc_id": "sand_engineer"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "inventory_contains",
+        "item": "brine_vial"
+      },
+      "message": "Should have brine_vial after buying"
+    },
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "salt_scrip",
+        "op": "eq",
+        "value": 40
+      },
+      "message": "Should have 40 scrip after buying brine_vial for 10 (50-10=40)"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "inventory_contains",
+        "item": "salt_poultice"
+      },
+      "message": "Should have salt_poultice after buying"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "salt_scrip",
+        "op": "eq",
+        "value": 25
+      },
+      "message": "Should have 25 scrip after buying salt_poultice for 15 (40-15=25)"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "inventory_size",
+        "op": "eq",
+        "value": 2
+      },
+      "message": "Should have 2 items total"
+    }
+  ]
+}

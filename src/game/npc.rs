@@ -79,6 +79,9 @@ pub struct NpcDef {
     pub dialogue: Vec<DialogueEntry>,
     #[serde(default)]
     pub actions: Vec<NpcAction>,
+    /// Items available for purchase (item_id)
+    #[serde(default)]
+    pub shop_inventory: Vec<String>,
 }
 
 #[derive(Deserialize)]

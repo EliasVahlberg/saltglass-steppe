@@ -37,6 +37,9 @@ pub struct QuestReward {
     /// Quest IDs to unlock upon completion
     #[serde(default)]
     pub unlocks_quests: Vec<String>,
+    /// Currency reward (salt scrip)
+    #[serde(default)]
+    pub salt_scrip: u32,
 }
 
 /// Quest definition loaded from data file
