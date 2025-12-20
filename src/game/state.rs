@@ -199,6 +199,9 @@ pub struct GameState {
     /// Tutorial system progress tracking
     #[serde(default)]
     pub tutorial_progress: TutorialProgress,
+    /// Animation frame counter for ambient tile animations
+    #[serde(skip)]
+    pub animation_frame: u32,
     // Debug flags
     #[serde(skip)]
     pub debug_god_view: bool,
@@ -346,6 +349,7 @@ impl GameState {
             time_of_day: 8,
             weather: Weather::Clear,
             tutorial_progress: TutorialProgress::default(),
+            animation_frame: 0,
             debug_god_view: false,
             debug_phase: false,
         };
@@ -885,6 +889,11 @@ impl GameState {
             dn.frames = dn.frames.saturating_sub(1);
             dn.frames > 0
         });
+    }
+
+    /// Tick animation frame for ambient tile animations
+    pub fn tick_animation(&mut self) {
+        self.animation_frame = self.animation_frame.wrapping_add(1);
     }
 
     /// Spawn a projectile trail from source to target

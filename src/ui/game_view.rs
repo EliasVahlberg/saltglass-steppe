@@ -55,21 +55,22 @@ pub fn render_map(
     player_effects: &[VisualEffect],
     frame_count: u64,
     look_cursor: Option<(i32, i32)>,
+    camera: (f32, f32),
 ) {
     let title = Line::from(format!(" Turn {} ", state.turn));
     let block = Block::default().title(title).borders(Borders::ALL);
     let inner = block.inner(area);
     frame.render_widget(block, area);
 
-    // Calculate viewport centered on player
+    // Calculate viewport using smooth camera position
     let view_w = inner.width as i32;
     let view_h = inner.height as i32;
     let half_w = view_w / 2;
     let half_h = view_h / 2;
     
-    // Clamp camera to map bounds
-    let cam_x = (state.player_x - half_w).max(0).min(state.map.width as i32 - view_w);
-    let cam_y = (state.player_y - half_h).max(0).min(state.map.height as i32 - view_h);
+    // Use smooth camera position, clamped to map bounds
+    let cam_x = (camera.0 as i32 - half_w).max(0).min(state.map.width as i32 - view_w);
+    let cam_y = (camera.1 as i32 - half_h).max(0).min(state.map.height as i32 - view_h);
 
     let mut lines: Vec<Line> = Vec::new();
     for vy in 0..view_h {
@@ -235,15 +236,26 @@ fn render_tile(
     if visible {
         let tile = &state.map.tiles[idx];
         let light = state.get_light_level(x as i32, y as i32);
-        let base_color = match tile {
-            Tile::Floor => Color::DarkGray,
-            Tile::Wall { .. } => Color::Gray,
-            Tile::Glass => Color::Cyan,
-            Tile::StairsDown => Color::Yellow,
-            Tile::StairsUp => Color::Yellow,
-            Tile::WorldExit => Color::Green,
+        
+        // Animated tiles based on animation_frame
+        let (glyph, base_color) = match tile {
+            Tile::Glass => {
+                // Glass shimmers between cyan shades
+                let phase = ((state.animation_frame / 4) + (x as u32 ^ y as u32)) % 3;
+                let color = match phase {
+                    0 => Color::Cyan,
+                    1 => Color::LightCyan,
+                    _ => Color::Rgb(100, 200, 220),
+                };
+                ('░', color)
+            }
+            Tile::Floor => ('.', Color::DarkGray),
+            Tile::Wall { .. } => ('#', Color::Gray),
+            Tile::StairsDown => ('>', Color::Yellow),
+            Tile::StairsUp => ('<', Color::Yellow),
+            Tile::WorldExit => ('▣', Color::Green),
         };
-        return (tile.glyph(), Style::default().fg(dim_color(base_color, light)));
+        return (glyph, Style::default().fg(dim_color(base_color, light)));
     }
     
     // Revealed but not visible

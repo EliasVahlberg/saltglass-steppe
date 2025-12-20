@@ -223,7 +223,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
 
     // Render game map
     let look_cursor = if ui.look_mode.active { Some((ui.look_mode.x, ui.look_mode.y)) } else { None };
-    render_map(frame, game_chunks[1], state, &player_effects, ui.frame_count, look_cursor);
+    render_map(frame, game_chunks[1], state, &player_effects, ui.frame_count, look_cursor, (ui.camera_x, ui.camera_y));
     render_damage_numbers(frame, game_chunks[1], state);
 
     // Bottom panel with log
@@ -286,12 +286,17 @@ fn main() -> Result<()> {
         let seed = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
         let mut state = GameState::new_with_class(seed, &class_id);
         let mut ui = UiState::new();
+        // Initialize camera to player position
+        ui.camera_x = state.player_x as f32;
+        ui.camera_y = state.player_y as f32;
 
         loop {
             ui.tick_frame();
             state.tick_hit_flash();
             state.tick_damage_numbers();
             state.tick_projectile_trails();
+            state.tick_animation();
+            ui.update_camera(state.player_x, state.player_y);
             
             // Clear target if enemy is dead
             if let Some(ei) = ui.target_enemy {
