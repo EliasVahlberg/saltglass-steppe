@@ -187,6 +187,61 @@ impl Map {
             }
         }
 
+        // Add WorldExit tiles at map edges (one per edge, connected to nearest room)
+        // North edge
+        if let Some(&(rx, _)) = room_centers.iter().min_by_key(|(_, y)| *y) {
+            let exit_x = rx as usize;
+            for y in 0..MAP_HEIGHT {
+                if tiles[y * MAP_WIDTH + exit_x] == Tile::Floor {
+                    // Carve path to edge
+                    for ey in 0..y {
+                        tiles[ey * MAP_WIDTH + exit_x] = Tile::Floor;
+                    }
+                    tiles[exit_x] = Tile::WorldExit; // y=0
+                    break;
+                }
+            }
+        }
+        // South edge
+        if let Some(&(rx, _)) = room_centers.iter().max_by_key(|(_, y)| *y) {
+            let exit_x = rx as usize;
+            for y in (0..MAP_HEIGHT).rev() {
+                if tiles[y * MAP_WIDTH + exit_x] == Tile::Floor {
+                    for ey in (y + 1)..MAP_HEIGHT {
+                        tiles[ey * MAP_WIDTH + exit_x] = Tile::Floor;
+                    }
+                    tiles[(MAP_HEIGHT - 1) * MAP_WIDTH + exit_x] = Tile::WorldExit;
+                    break;
+                }
+            }
+        }
+        // West edge
+        if let Some(&(_, ry)) = room_centers.iter().min_by_key(|(x, _)| *x) {
+            let exit_y = ry as usize;
+            for x in 0..MAP_WIDTH {
+                if tiles[exit_y * MAP_WIDTH + x] == Tile::Floor {
+                    for ex in 0..x {
+                        tiles[exit_y * MAP_WIDTH + ex] = Tile::Floor;
+                    }
+                    tiles[exit_y * MAP_WIDTH] = Tile::WorldExit; // x=0
+                    break;
+                }
+            }
+        }
+        // East edge
+        if let Some(&(_, ry)) = room_centers.iter().max_by_key(|(x, _)| *x) {
+            let exit_y = ry as usize;
+            for x in (0..MAP_WIDTH).rev() {
+                if tiles[exit_y * MAP_WIDTH + x] == Tile::Floor {
+                    for ex in (x + 1)..MAP_WIDTH {
+                        tiles[exit_y * MAP_WIDTH + ex] = Tile::Floor;
+                    }
+                    tiles[exit_y * MAP_WIDTH + MAP_WIDTH - 1] = Tile::WorldExit;
+                    break;
+                }
+            }
+        }
+
         // Spawn lights based on biome
         let biome_key = match biome {
             Biome::Saltflat => "saltflat",

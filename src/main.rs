@@ -48,30 +48,12 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::Move(dx, dy) => {
             if state.player_hp > 0 {
-                // Check if on world exit - travel to adjacent world tile
-                if let Some(tile) = state.map.get(state.player_x, state.player_y) {
-                    if *tile == tui_rpg::Tile::WorldExit && state.layer == 0 {
-                        let new_wx = (state.world_x as i32 + dx).max(0) as usize;
-                        let new_wy = (state.world_y as i32 + dy).max(0) as usize;
-                        if new_wx != state.world_x || new_wy != state.world_y {
-                            state.travel_to_tile(new_wx, new_wy);
-                        }
-                    } else {
-                        let new_x = state.player_x + dx;
-                        let new_y = state.player_y + dy;
-                        if let Some(ei) = state.enemy_at(new_x, new_y) {
-                            ui.target_enemy = Some(ei);
-                        }
-                        state.try_move(dx, dy);
-                    }
-                } else {
-                    let new_x = state.player_x + dx;
-                    let new_y = state.player_y + dy;
-                    if let Some(ei) = state.enemy_at(new_x, new_y) {
-                        ui.target_enemy = Some(ei);
-                    }
-                    state.try_move(dx, dy);
+                let new_x = state.player_x + dx;
+                let new_y = state.player_y + dy;
+                if let Some(ei) = state.enemy_at(new_x, new_y) {
+                    ui.target_enemy = Some(ei);
                 }
+                state.try_move(dx, dy);
             }
         }
         Action::EndTurn => {
@@ -146,6 +128,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenWiki => {
             ui.wiki_menu.open();
         }
+        Action::OpenWorldMap => {
+            ui.world_map_view.toggle(state.world_x, state.world_y);
+        }
         Action::Craft => {
             if let Some(recipe_id) = ui.crafting_menu.selected_recipe_id() {
                 state.craft(recipe_id);
@@ -172,6 +157,12 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     }
     if ui.wiki_menu.active {
         render_wiki(frame, &ui.wiki_menu, &state.meta);
+        return;
+    }
+    if ui.world_map_view.open {
+        if let Some(ref world_map) = state.world_map {
+            tui_rpg::ui::render_world_map(frame, frame.area(), world_map, state.world_x, state.world_y, &ui.world_map_view);
+        }
         return;
     }
 
