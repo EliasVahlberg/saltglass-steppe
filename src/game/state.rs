@@ -230,8 +230,8 @@ impl GameState {
     pub fn new(seed: u64) -> Self {
         // Generate world map
         let world_map = WorldMap::generate(seed);
-        let world_x = super::world_map::WORLD_SIZE / 2;
-        let world_y = super::world_map::WORLD_SIZE / 2;
+        let world_x = super::world_map::WORLD_WIDTH / 2;
+        let world_y = super::world_map::WORLD_HEIGHT / 2;
         
         // Get world context for starting tile
         let (biome, terrain, elevation, poi, _resources, _connected) = world_map.get(world_x, world_y);
@@ -1119,7 +1119,7 @@ impl GameState {
                         self.travel_to_tile(self.world_x, self.world_y - 1);
                         // Spawn at south edge of new tile
                         self.player_y = self.map.height as i32 - 2;
-                    } else if at_south && self.world_y < super::world_map::WORLD_SIZE - 1 {
+                    } else if at_south && self.world_y < super::world_map::WORLD_HEIGHT - 1 {
                         self.travel_to_tile(self.world_x, self.world_y + 1);
                         // Spawn at north edge of new tile
                         self.player_y = 1;
@@ -1127,7 +1127,7 @@ impl GameState {
                         self.travel_to_tile(self.world_x - 1, self.world_y);
                         // Spawn at east edge of new tile
                         self.player_x = self.map.width as i32 - 2;
-                    } else if at_east && self.world_x < super::world_map::WORLD_SIZE - 1 {
+                    } else if at_east && self.world_x < super::world_map::WORLD_WIDTH - 1 {
                         self.travel_to_tile(self.world_x + 1, self.world_y);
                         // Spawn at west edge of new tile
                         self.player_x = 1;
