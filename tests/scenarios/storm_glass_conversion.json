@@ -1,0 +1,40 @@
+{
+  "name": "storm_glass_conversion",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "trigger_storm",
+        "intensity": 3
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "tile_type_count",
+        "tile_type": "glass",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Storm should convert some walls to glass"
+    },
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "player_alive"
+      },
+      "message": "Player should survive the storm"
+    }
+  ]
+}

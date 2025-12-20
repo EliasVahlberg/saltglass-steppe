@@ -870,14 +870,25 @@ impl GameState {
 
     pub fn apply_storm(&mut self) {
         self.log(format!("⚡ GLASS STORM! Intensity {}", self.storm.intensity));
-        self.refraction += self.storm.intensity as u32 * 10;
+        let refraction_gain = self.storm.intensity as u32 * super::storm::refraction_multiplier();
+        self.refraction += refraction_gain;
         self.check_adaptation_threshold();
 
+        // Convert walls to glass and potentially drop storm_glass items
         for _ in 0..(self.storm.intensity as usize * 5) {
             let x = self.rng.gen_range(1..self.map.width - 1);
             let y = self.rng.gen_range(1..self.map.height - 1);
             if matches!(self.map.tiles[y * self.map.width + x], Tile::Wall { .. }) {
                 self.map.tiles[y * self.map.width + x] = Tile::Glass;
+                
+                // Chance to spawn storm_glass item at converted tile
+                let roll: f32 = self.rng.gen_range(0.0..1.0);
+                if roll < super::storm::storm_glass_drop_chance() {
+                    // Check if tile is walkable and no item already there
+                    if !self.items.iter().any(|item| item.x == x as i32 && item.y == y as i32) {
+                        self.items.push(super::item::Item::new(x as i32, y as i32, "storm_glass"));
+                    }
+                }
             }
         }
         
@@ -888,7 +899,7 @@ impl GameState {
             .filter(|&(x, y)| self.enemy_at(x, y).is_none() && !(x == self.player_x && y == self.player_y))
             .collect();
         if !glass_tiles.is_empty() {
-            let spawn_count = (self.storm.intensity as usize).min(2);
+            let spawn_count = (self.storm.intensity as usize).min(super::storm::wraith_spawn_max());
             for _ in 0..spawn_count {
                 let idx = self.rng.gen_range(0..glass_tiles.len());
                 let (x, y) = glass_tiles[idx];

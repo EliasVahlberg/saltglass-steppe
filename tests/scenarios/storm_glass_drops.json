@@ -1,0 +1,41 @@
+{
+  "name": "storm_glass_drops",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "trigger_storm",
+        "intensity": 4
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "item_exists_on_map",
+        "item_id": "storm_glass"
+      },
+      "message": "Storm should spawn storm_glass items (at least 1 with high intensity)"
+    },
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "tile_type_count",
+        "tile_type": "glass",
+        "op": "ge",
+        "value": 10
+      },
+      "message": "High intensity storm (4) should convert at least 10 tiles (20 conversions attempted)"
+    }
+  ]
+}

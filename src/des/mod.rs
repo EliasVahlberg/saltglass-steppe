@@ -122,6 +122,10 @@ pub enum AssertionCheck {
     QuestAvailable { quest_id: String },
     QuestObjectiveProgress { quest_id: String, objective_id: String, op: CmpOp, value: u32 },
     QuestObjectiveComplete { quest_id: String, objective_id: String },
+    // Storm assertions
+    StormTimer { op: CmpOp, value: u32 },
+    ItemExistsOnMap { item_id: String, min_count: Option<usize> },
+    TileTypeCount { tile_type: String, op: CmpOp, value: usize },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -237,6 +241,8 @@ pub enum Action {
     // Economy actions
     BuyItem { item_id: String, npc_id: String },
     SellItem { item_id: String },
+    // Storm actions
+    TriggerStorm { intensity: Option<u8> },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -702,6 +708,31 @@ impl DesExecutor {
                     .map(|o| o.completed)
                     .unwrap_or(false)
             }
+            // Storm assertions
+            AssertionCheck::StormTimer { op, value } => {
+                op.compare(self.state.storm.turns_until, *value)
+            }
+            AssertionCheck::ItemExistsOnMap { item_id, min_count } => {
+                let count = self.state.items.iter().filter(|item| item.id == *item_id).count();
+                if let Some(min) = min_count {
+                    count >= *min
+                } else {
+                    count > 0
+                }
+            }
+            AssertionCheck::TileTypeCount { tile_type, op, value } => {
+                let count = self.state.map.tiles.iter()
+                    .filter(|tile| {
+                        match (tile_type.as_str(), tile) {
+                            ("glass", crate::game::map::Tile::Glass) => true,
+                            ("floor", crate::game::map::Tile::Floor) => true,
+                            ("wall", crate::game::map::Tile::Wall { .. }) => true,
+                            _ => false,
+                        }
+                    })
+                    .count();
+                op.compare(count, *value)
+            }
         }
     }
 
@@ -836,6 +867,13 @@ impl DesExecutor {
                     Ok(()) => self.log(format!("Sold '{}'", item_id)),
                     Err(e) => self.log(format!("Sell failed: {}", e)),
                 }
+            }
+            Action::TriggerStorm { intensity } => {
+                if let Some(intensity_val) = intensity {
+                    self.state.storm.intensity = *intensity_val;
+                }
+                self.state.apply_storm();
+                self.log(format!("Storm triggered with intensity {}", self.state.storm.intensity));
             }
         }
     }

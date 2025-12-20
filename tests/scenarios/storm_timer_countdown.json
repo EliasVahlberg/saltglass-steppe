@@ -1,0 +1,44 @@
+{
+  "name": "storm_timer_countdown",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      },
+      "message": "Player should survive waiting for storm timer"
+    }
+  ]
+}
