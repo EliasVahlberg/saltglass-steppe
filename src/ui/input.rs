@@ -53,6 +53,9 @@ pub struct UiState {
     pub world_map_view: WorldMapView,
     pub target_enemy: Option<usize>,
     pub debug_console: DebugConsole,
+    /// Smooth camera position (lerped toward player)
+    pub camera_x: f32,
+    pub camera_y: f32,
 }
 
 /// Pause menu state
@@ -84,11 +87,20 @@ impl UiState {
             world_map_view: WorldMapView::default(),
             target_enemy: None,
             debug_console: DebugConsole::default(),
+            camera_x: 0.0,
+            camera_y: 0.0,
         }
     }
     
     pub fn tick_frame(&mut self) {
         self.frame_count = self.frame_count.wrapping_add(1);
+    }
+
+    /// Lerp camera toward target position
+    pub fn update_camera(&mut self, target_x: i32, target_y: i32) {
+        let lerp_speed = 0.2;
+        self.camera_x += (target_x as f32 - self.camera_x) * lerp_speed;
+        self.camera_y += (target_y as f32 - self.camera_y) * lerp_speed;
     }
 }
 
