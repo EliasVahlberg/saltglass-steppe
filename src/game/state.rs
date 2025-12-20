@@ -288,6 +288,11 @@ impl GameState {
         // Spawn items (more on starting tile for hospitable start)
         let mut items = Vec::new();
         let mut used_positions = HashSet::new();
+        
+        // Always spawn hand torch near player start
+        items.push(Item::new(px + 1, py, "hand_torch"));
+        used_positions.insert((px + 1, py));
+        
         for spawn in &table.items {
             if let Some("last") = spawn.room.as_deref() {
                 if let Some(&(rx, ry)) = rooms.last() {

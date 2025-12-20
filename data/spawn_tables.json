@@ -5,7 +5,15 @@
       {"id": "brine_vial", "weight": 3},
       {"id": "scripture_shard", "weight": 2},
       {"id": "saint_key", "weight": 1},
-      {"id": "angle_lens", "weight": 1, "room": "last"}
+      {"id": "angle_lens", "weight": 1, "room": "last"},
+      {"id": "salt_knife", "weight": 2},
+      {"id": "glass_shard", "weight": 2},
+      {"id": "rusty_blade", "weight": 1},
+      {"id": "salt_vest", "weight": 1},
+      {"id": "leather_jacket", "weight": 1},
+      {"id": "leather_boots", "weight": 1},
+      {"id": "leather_cap", "weight": 1},
+      {"id": "hand_torch", "weight": 1}
     ],
     "enemies": [
       {"id": "mirage_hound", "weight": 3},

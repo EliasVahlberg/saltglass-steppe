@@ -241,6 +241,16 @@ fn handle_inventory_input(ui: &mut UiState, state: &GameState, code: KeyCode) ->
         KeyCode::Char('k') | KeyCode::Up => ui.inventory_menu.navigate(-1, state.inventory.len()),
         KeyCode::Char('h') | KeyCode::Char('l') | KeyCode::Left | KeyCode::Right => ui.inventory_menu.switch_panel(),
         KeyCode::Char('x') => ui.inventory_menu.inspect(&state.inventory, &state.equipment),
+        KeyCode::Char('u') => {
+            // Use selected item from inventory
+            if ui.inventory_menu.panel == MenuPanel::Inventory && ui.inventory_menu.inspect_item.is_none() {
+                if let Some(idx) = ui.inventory_menu.selected_inv_index() {
+                    if idx < state.inventory.len() {
+                        return Action::UseItem(idx);
+                    }
+                }
+            }
+        }
         KeyCode::Enter => {
             if ui.inventory_menu.inspect_item.is_some() {
                 ui.inventory_menu.inspect_item = None;
