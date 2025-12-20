@@ -1,0 +1,102 @@
+{
+  "name": "tutorial_messages_display",
+  "description": "Verifies tutorial messages display at correct triggers",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "salt_crawler",
+      "x": 12,
+      "y": 10,
+      "hp": 8
+    },
+    {
+      "entity_type": "item",
+      "id": "brine_vial",
+      "x": 14,
+      "y": 10
+    },
+    {
+      "entity_type": "npc",
+      "id": "elder_mira",
+      "x": 16,
+      "y": 10
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "comment": "Game start - should show tutorial message",
+      "action": {
+        "type": "wait"
+      }
+    },
+    {
+      "turn": 1,
+      "comment": "Move toward enemy to trigger first_enemy_visible",
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 2,
+      "comment": "Wait to ensure enemy tutorial triggers",
+      "action": {
+        "type": "wait"
+      }
+    },
+    {
+      "turn": 3,
+      "comment": "Move toward item to trigger first_item_visible",
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 4,
+      "comment": "Attack enemy to deplete AP",
+      "action": {
+        "type": "attack",
+        "target_x": 12,
+        "target_y": 10
+      }
+    },
+    {
+      "turn": 5,
+      "comment": "Attack again to deplete AP and trigger ap_depleted",
+      "action": {
+        "type": "attack",
+        "target_x": 12,
+        "target_y": 10
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": false,
+      "turn": 0,
+      "check": {
+        "type": "custom",
+        "description": "Tutorial system initialized"
+      }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

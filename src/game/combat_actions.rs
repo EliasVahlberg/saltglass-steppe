@@ -83,15 +83,23 @@ impl GameState {
 
         if self.enemies[ei].hp <= 0 {
             let enemy_id = self.enemies[ei].id.clone();
+            let enemy_x = self.enemies[ei].x;
+            let enemy_y = self.enemies[ei].y;
             self.enemy_positions.remove(&(target_x, target_y));
             if let Some(def) = self.enemies[ei].def() {
+                // Trigger on_death effects
                 for e in &def.effects {
                     if e.condition == "on_death" {
                         self.trigger_effect(&e.effect, 3);
                     }
                 }
+                // Award XP
                 if def.xp_value > 0 {
                     self.gain_xp(def.xp_value);
+                }
+                // Drop loot
+                if !def.loot_table.is_empty() {
+                    self.drop_enemy_loot(&def.loot_table, enemy_x, enemy_y);
                 }
             }
             self.quest_log.on_enemy_killed(&enemy_id);
@@ -179,10 +187,17 @@ impl GameState {
 
         if self.enemies[ei].hp <= 0 {
             let enemy_id = self.enemies[ei].id.clone();
+            let enemy_x = self.enemies[ei].x;
+            let enemy_y = self.enemies[ei].y;
             self.enemy_positions.remove(&(target_x, target_y));
             if let Some(def) = self.enemies[ei].def() {
+                // Award XP
                 if def.xp_value > 0 {
                     self.gain_xp(def.xp_value);
+                }
+                // Drop loot
+                if !def.loot_table.is_empty() {
+                    self.drop_enemy_loot(&def.loot_table, enemy_x, enemy_y);
                 }
             }
             self.quest_log.on_enemy_killed(&enemy_id);

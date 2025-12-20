@@ -19,6 +19,7 @@ use super::{
     quest::QuestLog,
     spawn::{load_spawn_tables, weighted_pick},
     storm::Storm,
+    tutorial::TutorialProgress,
     world_map::WorldMap,
 };
 
@@ -181,6 +182,9 @@ pub struct GameState {
     /// Current weather condition
     #[serde(default)]
     pub weather: Weather,
+    /// Tutorial system progress tracking
+    #[serde(default)]
+    pub tutorial_progress: TutorialProgress,
     // Debug flags
     #[serde(skip)]
     pub debug_god_view: bool,
@@ -325,6 +329,7 @@ impl GameState {
             layer: 0,
             time_of_day: 8,
             weather: Weather::Clear,
+            tutorial_progress: TutorialProgress::default(),
             debug_god_view: false,
             debug_phase: false,
         };
@@ -691,6 +696,46 @@ impl GameState {
     /// Wait in place (costs 0 AP, ends turn)
     pub fn wait_turn(&mut self) {
         self.end_turn();
+    }
+
+    /// Rest to recover HP (50% max HP). Requires no nearby enemies and costs 10 turns.
+    pub fn rest(&mut self) -> Result<(), String> {
+        // Check for nearby enemies (within FOV range)
+        for enemy in &self.enemies {
+            let dx = (enemy.x - self.player_x).abs();
+            let dy = (enemy.y - self.player_y).abs();
+            if dx <= super::constants::FOV_RANGE && dy <= super::constants::FOV_RANGE {
+                return Err("You cannot rest with enemies nearby!".to_string());
+            }
+        }
+
+        // Heal 50% max HP
+        let heal_amount = (self.player_max_hp as f32 * 0.5) as i32;
+        let old_hp = self.player_hp;
+        self.player_hp = (self.player_hp + heal_amount).min(self.player_max_hp);
+        let actual_heal = self.player_hp - old_hp;
+
+        if actual_heal > 0 {
+            self.log_typed(
+                format!("You rest and recover {} HP.", actual_heal),
+                MsgType::Status,
+            );
+        } else {
+            self.log_typed("You rest but are already at full health.", MsgType::Status);
+        }
+
+        // Advance 10 turns
+        for _ in 0..10 {
+            self.tick_turn();
+        }
+
+        // Process enemy turns (they get to act while you rest)
+        let player_pos = (self.player_x, self.player_y);
+        for i in 0..self.enemies.len() {
+            super::ai::tick_enemy(self, i, player_pos);
+        }
+
+        Ok(())
     }
 
     /// Auto-end turn if player has no AP left
@@ -1208,6 +1253,46 @@ impl GameState {
         
         self.log(format!("Crafted {}.", recipe.name));
         true
+    }
+
+    /// Get next tutorial message if conditions are met
+    pub fn get_next_tutorial_message(&self) -> Option<&super::tutorial::TutorialMessage> {
+        self.tutorial_progress.get_next_message(self)
+    }
+
+    /// Mark a tutorial message as shown
+    pub fn dismiss_tutorial_message(&mut self, message_id: &str) {
+        self.tutorial_progress.mark_shown(message_id);
+    }
+
+    /// Drop loot from an enemy at a specific position
+    pub(crate) fn drop_enemy_loot(&mut self, loot_table: &[super::enemy::LootEntry], x: i32, y: i32) {
+        if loot_table.is_empty() {
+            return;
+        }
+
+        // Calculate total weight
+        let total_weight: u32 = loot_table.iter().map(|entry| entry.weight).sum();
+        if total_weight == 0 {
+            return;
+        }
+
+        // Roll for loot drop
+        let roll = self.rng.gen_range(0..total_weight);
+        let mut cumulative = 0;
+        for entry in loot_table {
+            cumulative += entry.weight;
+            if roll < cumulative {
+                // Drop this item
+                let item = Item::new(x, y, &entry.item);
+                self.items.push(item);
+                self.rebuild_spatial_index();
+                if let Some(def) = get_item_def(&entry.item) {
+                    self.log_typed(format!("The enemy drops {}.", def.name), MsgType::Loot);
+                }
+                return;
+            }
+        }
     }
 
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), String> {

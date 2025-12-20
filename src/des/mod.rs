@@ -223,6 +223,7 @@ pub enum Action {
     Unequip { slot: String },
     AutoExplore,
     Wait { turns: u32 },
+    Rest,
     EndTurn,
     Log { query: LogQuery },
     AllocateStat { stat: String },
@@ -777,6 +778,12 @@ impl DesExecutor {
                     self.state.wait_turn();
                 }
                 self.log(format!("Player waited {} turns", turns));
+            }
+            Action::Rest => {
+                match self.state.rest() {
+                    Ok(()) => self.log("Player rested and recovered HP".to_string()),
+                    Err(e) => self.log(format!("Rest failed: {}", e)),
+                }
             }
             Action::EndTurn => {
                 self.state.end_turn();
