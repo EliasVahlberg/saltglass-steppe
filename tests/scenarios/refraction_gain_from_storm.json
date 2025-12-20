@@ -1,0 +1,41 @@
+{
+  "name": "refraction_gain_from_storm",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "refraction": 0,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "trigger_storm",
+        "intensity": 3
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "refraction",
+        "op": "eq",
+        "value": 30
+      },
+      "message": "Storm intensity 3 should grant 30 refraction (3 * 10)"
+    },
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "player_has_adaptation",
+        "adaptation": "prismhide"
+      },
+      "message": "Refraction 30 should unlock Prismhide (threshold 25)"
+    }
+  ]
+}
