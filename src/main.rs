@@ -44,6 +44,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::UseItem(idx) => {
             if state.player_hp > 0 {
                 state.use_item(idx);
+                ui.inventory_menu.close();
             }
         }
         Action::Move(dx, dy) => {
