@@ -182,6 +182,7 @@ fn render_class_select(frame: &mut Frame, state: &MainMenuState) {
     
     frame.render_widget(Clear, popup);
     
+    let inner_width = width.saturating_sub(6) as usize; // account for borders and indent
     let mut lines: Vec<Line> = Vec::new();
     for (i, class) in classes.iter().enumerate() {
         let style = if i == state.class_index {
@@ -191,7 +192,10 @@ fn render_class_select(frame: &mut Frame, state: &MainMenuState) {
         };
         let prefix = if i == state.class_index { "► " } else { "  " };
         lines.push(Line::from(Span::styled(format!("{}{}", prefix, class.name), style)));
-        lines.push(Line::from(Span::styled(format!("    {}", class.description), Style::default().fg(Color::DarkGray))));
+        // Word wrap the description
+        for wrapped_line in textwrap::wrap(&class.description, inner_width) {
+            lines.push(Line::from(Span::styled(format!("    {}", wrapped_line), Style::default().fg(Color::DarkGray))));
+        }
     }
     lines.push(Line::from(""));
     lines.push(Line::from(Span::styled("[Enter] Select  [Esc] Back", Style::default().fg(Color::DarkGray))));
