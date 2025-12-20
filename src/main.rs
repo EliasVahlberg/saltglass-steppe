@@ -131,6 +131,11 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenWorldMap => {
             ui.world_map_view.toggle(state.world_x, state.world_y);
         }
+        Action::WorldMapTravel(wx, wy) => {
+            if state.player_hp > 0 && state.layer == 0 {
+                state.travel_to_tile_safe(wx, wy);
+            }
+        }
         Action::Craft => {
             if let Some(recipe_id) = ui.crafting_menu.selected_recipe_id() {
                 state.craft(recipe_id);

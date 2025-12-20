@@ -73,7 +73,7 @@ pub fn render_world_map(
     view: &WorldMapView,
 ) {
     let block = Block::default()
-        .title(" World Map [M to close, arrows to move cursor] ")
+        .title(" World Map [M close, arrows move, Enter travel, C center] ")
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Cyan));
     
