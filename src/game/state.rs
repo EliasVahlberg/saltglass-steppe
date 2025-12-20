@@ -597,9 +597,9 @@ impl GameState {
                 }
             }
         }
-        // Default player light if no equipped light source
+        // Default player light if no equipped light source (dim without torch)
         if sources.is_empty() {
-            sources.push(LightSource { x: self.player_x, y: self.player_y, radius: 8, intensity: 150 });
+            sources.push(LightSource { x: self.player_x, y: self.player_y, radius: 5, intensity: 100 });
         }
         // Map lights
         for ml in &self.map.lights {
