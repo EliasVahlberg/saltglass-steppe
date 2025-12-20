@@ -66,9 +66,10 @@ impl DialogBox {
     }
     
     pub fn next_page(&mut self) -> bool {
+        let char_count = self.current_text().chars().count();
         // If text still revealing, show all
-        if self.chars_shown < self.current_text().len() {
-            self.chars_shown = self.current_text().len();
+        if self.chars_shown < char_count {
+            self.chars_shown = char_count;
             return true;
         }
         // Go to next page or close
@@ -88,15 +89,20 @@ impl DialogBox {
     
     pub fn visible_text(&self) -> &str {
         let text = self.current_text();
-        let end = self.chars_shown.min(text.len());
-        &text[..end]
+        // chars_shown counts characters, not bytes - find the byte index
+        let byte_end = text.char_indices()
+            .nth(self.chars_shown)
+            .map(|(i, _)| i)
+            .unwrap_or(text.len());
+        &text[..byte_end]
     }
     
     pub fn tick(&mut self, frame_ms: u64) {
         if !self.active { return; }
         let chars_per_ms = self.cpm as f64 / 60000.0;
         let chars_to_add = (chars_per_ms * frame_ms as f64).max(1.0) as usize;
-        self.chars_shown = (self.chars_shown + chars_to_add).min(self.current_text().len());
+        let char_count = self.current_text().chars().count();
+        self.chars_shown = (self.chars_shown + chars_to_add).min(char_count);
     }
 }
 
