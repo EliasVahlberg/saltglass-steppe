@@ -131,13 +131,13 @@ impl Map {
         let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
         let mut room_centers = Vec::new();
 
-        // Room count based on terrain
+        // Room count based on terrain - more rooms for open feel
         let (min_rooms, max_rooms) = match terrain {
-            Terrain::Canyon => (3, 5),
-            Terrain::Mesa => (4, 6),
-            Terrain::Hills => (5, 8),
-            Terrain::Dunes => (4, 7),
-            Terrain::Flat => (6, 10),
+            Terrain::Canyon => (6, 10),
+            Terrain::Mesa => (8, 12),
+            Terrain::Hills => (10, 15),
+            Terrain::Dunes => (8, 14),
+            Terrain::Flat => (12, 18),
         };
         let num_rooms = rng.gen_range(min_rooms..=max_rooms);
 
@@ -148,9 +148,10 @@ impl Map {
             _ => (10, 20),
         };
 
+        // Generate larger rooms for more open areas (~50% floor coverage)
         for _ in 0..num_rooms {
-            let w = rng.gen_range(4..10);
-            let h = rng.gen_range(4..8);
+            let w = rng.gen_range(8..20);  // Much larger rooms
+            let h = rng.gen_range(6..14);
             let x = rng.gen_range(1..MAP_WIDTH - w - 1);
             let y = rng.gen_range(1..MAP_HEIGHT - h - 1);
             for ry in y..y + h {
@@ -161,14 +162,23 @@ impl Map {
             room_centers.push(((x + w / 2) as i32, (y + h / 2) as i32));
         }
 
+        // Connect rooms with wider corridors (3 tiles wide)
         for i in 1..room_centers.len() {
             let (cx1, cy1) = room_centers[i - 1];
             let (cx2, cy2) = room_centers[i];
+            // Horizontal corridor
             for x in (cx1.min(cx2) as usize)..=(cx1.max(cx2) as usize) {
-                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor;
+                for dy in -1i32..=1 {
+                    let y = (cy1 + dy).clamp(1, MAP_HEIGHT as i32 - 2) as usize;
+                    tiles[y * MAP_WIDTH + x] = Tile::Floor;
+                }
             }
+            // Vertical corridor
             for y in (cy1.min(cy2) as usize)..=(cy1.max(cy2) as usize) {
-                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor;
+                for dx in -1i32..=1 {
+                    let x = (cx2 + dx).clamp(1, MAP_WIDTH as i32 - 2) as usize;
+                    tiles[y * MAP_WIDTH + x] = Tile::Floor;
+                }
             }
         }
 
