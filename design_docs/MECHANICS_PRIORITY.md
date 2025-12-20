@@ -176,19 +176,27 @@ Phase 3 - Forecast System:
 
 ### **NEW 2. Adaptation System (Importance: 5, Difficulty: 3) [CRITICAL FOR MINIMAL STATE]**
 
-**Current State:** Not implemented. Core identity/consequence system.
+**Current State:** ✅ Core implementation complete (Dec 20, 2025)
 
-**Required for Minimal State:**
+**Implemented Features:**
 
-- ⬜ Refraction stat (0-100 scale, visible in HUD)
-- ⬜ 5-8 basic adaptations with thresholds
-  - Crystalline Vision (20+ refraction): see through glass walls
-  - Glass Skin (40+ refraction): +armor, -speed
-  - Light Sensitivity (60+ refraction): light sources hurt
-  - Prism Reflex (80+ refraction): beam attacks have splash
-- ⬜ Adaptation triggers (storm exposure, consuming Storm Glass, psychic use)
+- ✅ Refraction stat (0-100 scale, visible in HUD)
+- ✅ 4 basic adaptations with thresholds:
+  - Prismhide (25+ refraction): +2 armor from crystalline skin
+  - Sunveins (50+ refraction): +2 damage bonus from stored light
+  - Mirage Step (75+ refraction): leave decoys when moving (confuses enemies)
+  - Saltblood (100+ refraction): immune to glass terrain damage
+- ✅ Adaptation triggers (storm exposure grants refraction)
+- ✅ Stat modifiers system (armor, damage_bonus, reflex from adaptations)
+- ✅ Special abilities system (mirage_step decoys, saltblood immunity)
+- ✅ Data-driven adaptations (data/adaptations.json)
+- ✅ DES test coverage (adaptation_stat_modifiers.json, adaptation_progression.json)
+
+**Still TODO for Polish:**
+
 - ⬜ NPC reaction modifiers based on refraction
 - ⬜ Visual indicators (character glyph changes, side panel ASCII art updates)
+- ⬜ see_through_glass ability (FOV modification)
 
 **Design Notes:**
 
@@ -196,51 +204,6 @@ Phase 3 - Forecast System:
 - Low refraction = trusted by Engineers, distrusted by Glassborn
 - High refraction = trusted by Monks/Glassborn, flagged by Archive drones
 - Each adaptation has pros AND cons (never pure upgrade)
-
-**Implementation Approach:**
-
-```
-Phase 1 - Stat Tracking:
-  - Add refraction field to Player (0-100)
-  - Increment on storm exposure, Storm Glass consumption
-  - Display in top HUD
-
-Phase 2 - Adaptation Unlocks:
-  - Define adaptations in data/adaptations.json
-  - Check thresholds each turn
-  - Apply stat modifiers and special abilities
-  - Log "You feel your skin hardening..." messages
-
-Phase 3 - Social Integration:
-  - NPC dialogue checks refraction level
-  - Faction reputation modifiers
-  - Special dialogue branches unlock/lock
-  - Shopkeeper pricing affected
-```
-
-**DES Testing:**
-
-```json
-{
-  "player": { "refraction": 45 },
-  "actions": [
-    { "turn": 0, "action": { "type": "talk_to_npc", "npc_id": "monk_halix" } }
-  ],
-  "assertions": [
-    {
-      "at_end": true,
-      "check": {
-        "type": "dialogue_option_available",
-        "option": "discuss_glass_nature"
-      }
-    },
-    {
-      "at_end": true,
-      "check": { "type": "player_has_adaptation", "adaptation": "glass_skin" }
-    }
-  ]
-}
-```
 
 **Why Critical:** Adaptations are the game's unique identity hook:
 

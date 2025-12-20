@@ -103,6 +103,14 @@ impl Weather {
     }
 }
 
+/// Decoy left by mirage_step adaptation
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Decoy {
+    pub x: i32,
+    pub y: i32,
+    pub turns_remaining: u32,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct GameState {
     pub player_x: i32, pub player_y: i32, pub player_hp: i32, pub player_max_hp: i32,
@@ -149,6 +157,9 @@ pub struct GameState {
     pub quest_log: QuestLog,
     #[serde(default)]
     pub triggered_effects: Vec<TriggeredEffect>,
+    /// Decoys left by mirage_step adaptation
+    #[serde(default)]
+    pub decoys: Vec<Decoy>,
     #[serde(skip)]
     pub enemy_positions: HashMap<(i32, i32), usize>,
     #[serde(skip)]
@@ -317,6 +328,7 @@ impl GameState {
             refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
             quest_log: QuestLog::default(),
             triggered_effects: Vec::new(),
+            decoys: Vec::new(),
             enemy_positions: HashMap::new(),
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
@@ -759,6 +771,11 @@ impl GameState {
             e.turns_remaining = e.turns_remaining.saturating_sub(1);
             e.turns_remaining > 0
         });
+        // Tick down decoys
+        self.decoys.retain_mut(|d| {
+            d.turns_remaining = d.turns_remaining.saturating_sub(1);
+            d.turns_remaining > 0
+        });
     }
 
     pub fn log(&mut self, msg: impl Into<String>) {
@@ -951,6 +968,11 @@ impl GameState {
         self.npc_positions.get(&(x, y)).copied()
     }
 
+    /// Check if there's a decoy at position
+    pub fn decoy_at(&self, x: i32, y: i32) -> bool {
+        self.decoys.iter().any(|d| d.x == x && d.y == y)
+    }
+
     /// Auto-explore: find nearest unexplored walkable tile and move toward it
     pub fn auto_explore(&mut self) -> bool {
         let start = self.map.idx(self.player_x, self.player_y);
@@ -1069,6 +1091,14 @@ impl GameState {
                 let cost = action_cost("move");
                 if self.player_ap < cost { return false; }
                 self.player_ap -= cost;
+                
+                // Mirage Step: leave decoy at old position
+                let old_x = self.player_x;
+                let old_y = self.player_y;
+                if self.adaptations.iter().any(|a| a.has_ability("mirage_step")) {
+                    self.decoys.push(Decoy { x: old_x, y: old_y, turns_remaining: 3 });
+                }
+                
                 self.player_x = new_x;
                 self.player_y = new_y;
                 self.quest_log.on_position_changed(new_x, new_y);

@@ -3,16 +3,31 @@
 use bracket_pathfinding::prelude::a_star_search;
 use rand::Rng;
 
+use super::adaptation::total_stat_modifiers;
 use super::enemy::BehaviorContext;
 use super::state::{GameState, MsgType};
 
 impl GameState {
+    /// Get effective player armor (base + equipment + adaptations)
+    pub fn effective_armor(&self) -> i32 {
+        let adapt_mods = total_stat_modifiers(&self.adaptations);
+        self.player_armor + adapt_mods.armor
+    }
+
+    /// Get effective player reflex (base + adaptations)
+    pub fn effective_reflex(&self) -> i32 {
+        let adapt_mods = total_stat_modifiers(&self.adaptations);
+        self.player_reflex + adapt_mods.reflex
+    }
+
     pub fn update_enemies(&mut self) {
         if self.player_hp <= 0 { return; }
         let px = self.player_x;
         let py = self.player_y;
         let inventory = self.inventory.clone();
         let adaptation_count = self.adaptations.len();
+        let player_armor = self.effective_armor();
+        let decoys = self.decoys.clone();
         
         for i in 0..self.enemies.len() {
             if self.enemies[i].hp <= 0 { continue; }
@@ -68,38 +83,64 @@ impl GameState {
                 continue;
             }
             
-            if dist == 1 {
-                let dmg = self.rng.gen_range(def.damage_min..=def.damage_max);
-                self.player_hp -= dmg;
-                self.trigger_hit_flash(self.player_x, self.player_y);
-                self.spawn_damage_number(self.player_x, self.player_y, dmg, false);
-                let dir = self.direction_from(ex, ey);
-                self.log_typed(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg), MsgType::Combat);
-                
-                // Trigger on_hit effects
-                for e in &def.effects {
-                    if e.condition == "on_hit" {
-                        self.trigger_effect(&e.effect, 2);
-                    }
+            // Check for nearby decoys - 50% chance to target decoy instead
+            let mut target_x = px;
+            let mut target_y = py;
+            let mut target_is_decoy = false;
+            for decoy in &decoys {
+                let decoy_dist = (decoy.x - ex).abs() + (decoy.y - ey).abs();
+                if decoy_dist < sight && self.rng.gen_bool(0.5) {
+                    target_x = decoy.x;
+                    target_y = decoy.y;
+                    target_is_decoy = true;
+                    break;
                 }
-                
-                // Check on_hit behaviors
-                for behavior in &def.behaviors {
-                    if behavior.behavior_type == "on_hit_refraction" {
-                        if let Some(val) = behavior.value {
-                            self.refraction += val;
-                            self.log_typed(format!("Glass shards pierce you. (+{} Refraction)", val), MsgType::Status);
-                            self.check_adaptation_threshold();
+            }
+            let target_dist = (target_x - ex).abs() + (target_y - ey).abs();
+            
+            if target_dist == 1 {
+                if target_is_decoy {
+                    // Attack decoy - it dissipates
+                    self.decoys.retain(|d| !(d.x == target_x && d.y == target_y));
+                    let dir = self.direction_from(ex, ey);
+                    self.log_typed(format!("{} {} attacks your decoy!", self.enemies[i].name(), dir), MsgType::Combat);
+                } else {
+                    // Attack player
+                    let base_dmg = self.rng.gen_range(def.damage_min..=def.damage_max);
+                    let dmg = (base_dmg - player_armor).max(1);
+                    self.player_hp -= dmg;
+                    self.trigger_hit_flash(self.player_x, self.player_y);
+                    self.spawn_damage_number(self.player_x, self.player_y, dmg, false);
+                    let dir = self.direction_from(ex, ey);
+                    self.log_typed(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg), MsgType::Combat);
+                    
+                    // Trigger on_hit effects
+                    for e in &def.effects {
+                        if e.condition == "on_hit" {
+                            self.trigger_effect(&e.effect, 2);
                         }
                     }
+                    
+                    // Check on_hit behaviors
+                    for behavior in &def.behaviors {
+                        if behavior.behavior_type == "on_hit_refraction" {
+                            if let Some(val) = behavior.value {
+                                self.refraction += val;
+                                self.log_typed(format!("Glass shards pierce you. (+{} Refraction)", val), MsgType::Status);
+                                self.check_adaptation_threshold();
+                            }
+                        }
+                    }
+                    
+                    if self.player_hp <= 0 { return; }
                 }
-                
-                if self.player_hp <= 0 { return; }
-            } else if dist < sight {
+            } else if target_dist < sight {
+                // Move toward target (player or decoy)
                 let enemy_idx = self.map.idx(ex, ey);
+                let target_idx = self.map.idx(target_x, target_y);
                 let (nx, ny) = if self.visible.contains(&enemy_idx) {
                     // Visible: use A* pathfinding
-                    let path = a_star_search(enemy_idx, self.map.idx(px, py), &self.map);
+                    let path = a_star_search(enemy_idx, target_idx, &self.map);
                     if path.success && path.steps.len() > 1 {
                         let next = path.steps[1];
                         ((next % self.map.width) as i32, (next / self.map.width) as i32)
@@ -107,9 +148,9 @@ impl GameState {
                         continue;
                     }
                 } else {
-                    // Not visible: simple directional movement toward player
-                    let dx = (px - ex).signum();
-                    let dy = (py - ey).signum();
+                    // Not visible: simple directional movement toward target
+                    let dx = (target_x - ex).signum();
+                    let dy = (target_y - ey).signum();
                     (ex + dx, ey + dy)
                 };
                 
