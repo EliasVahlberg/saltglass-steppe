@@ -3,7 +3,9 @@ use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 
-pub const WORLD_SIZE: usize = 64;
+pub const WORLD_SIZE: usize = 64;  // Height (kept for backward compat)
+pub const WORLD_WIDTH: usize = 192; // 3x wider
+pub const WORLD_HEIGHT: usize = 64;
 
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Biome { Desert, Saltflat, Scrubland, Oasis, Ruins }
@@ -49,16 +51,16 @@ impl WorldMap {
         let elev_noise = Perlin::new(seed as u32 + 2);
         let resource_noise = Perlin::new(seed as u32 + 3);
 
-        let mut biomes = vec![Biome::Desert; WORLD_SIZE * WORLD_SIZE];
-        let mut terrain = vec![Terrain::Flat; WORLD_SIZE * WORLD_SIZE];
-        let mut elevation = vec![128u8; WORLD_SIZE * WORLD_SIZE];
-        let mut resources = vec![Resources::default(); WORLD_SIZE * WORLD_SIZE];
+        let mut biomes = vec![Biome::Desert; WORLD_WIDTH * WORLD_HEIGHT];
+        let mut terrain = vec![Terrain::Flat; WORLD_WIDTH * WORLD_HEIGHT];
+        let mut elevation = vec![128u8; WORLD_WIDTH * WORLD_HEIGHT];
+        let mut resources = vec![Resources::default(); WORLD_WIDTH * WORLD_HEIGHT];
 
-        for y in 0..WORLD_SIZE {
-            for x in 0..WORLD_SIZE {
-                let idx = y * WORLD_SIZE + x;
-                let nx = x as f64 / WORLD_SIZE as f64 * 4.0;
-                let ny = y as f64 / WORLD_SIZE as f64 * 4.0;
+        for y in 0..WORLD_HEIGHT {
+            for x in 0..WORLD_WIDTH {
+                let idx = y * WORLD_WIDTH + x;
+                let nx = x as f64 / WORLD_WIDTH as f64 * 12.0; // Scale noise for wider map
+                let ny = y as f64 / WORLD_HEIGHT as f64 * 4.0;
 
                 // Biome from noise
                 let b = biome_noise.get([nx, ny]);
@@ -95,7 +97,7 @@ impl WorldMap {
         }
 
         // POI placement with distance penalty
-        let mut pois = vec![POI::None; WORLD_SIZE * WORLD_SIZE];
+        let mut pois = vec![POI::None; WORLD_WIDTH * WORLD_HEIGHT];
         let poi_types = [POI::Town, POI::Dungeon, POI::Landmark, POI::Shrine];
         let mut poi_positions: Vec<(usize, usize)> = Vec::new();
         let mut town_positions: Vec<(usize, usize)> = Vec::new();
@@ -103,18 +105,18 @@ impl WorldMap {
 
         for &poi_type in &poi_types {
             let count = match poi_type {
-                POI::Town => 3,
-                POI::Dungeon => 5,
-                POI::Landmark => 4,
-                POI::Shrine => 6,
+                POI::Town => 9,      // 3x more towns
+                POI::Dungeon => 15,  // 3x more dungeons
+                POI::Landmark => 12, // 3x more landmarks
+                POI::Shrine => 18,   // 3x more shrines
                 POI::None => 0,
             };
             for _ in 0..count {
                 let mut best = None;
                 let mut best_score = f64::MIN;
                 for _ in 0..50 {
-                    let x = rng.gen_range(2..WORLD_SIZE - 2);
-                    let y = rng.gen_range(2..WORLD_SIZE - 2);
+                    let x = rng.gen_range(2..WORLD_WIDTH - 2);
+                    let y = rng.gen_range(2..WORLD_HEIGHT - 2);
                     let min_dist = poi_positions.iter()
                         .map(|&(px, py)| ((x as i32 - px as i32).pow(2) + (y as i32 - py as i32).pow(2)) as f64)
                         .map(|d| d.sqrt())
@@ -126,7 +128,7 @@ impl WorldMap {
                     }
                 }
                 if let Some((x, y)) = best {
-                    pois[y * WORLD_SIZE + x] = poi_type;
+                    pois[y * WORLD_WIDTH + x] = poi_type;
                     poi_positions.push((x, y));
                     if poi_type == POI::Town {
                         town_positions.push((x, y));
@@ -136,16 +138,16 @@ impl WorldMap {
         }
 
         // Connect towns with roads
-        let mut connected = vec![Connected::default(); WORLD_SIZE * WORLD_SIZE];
+        let mut connected = vec![Connected::default(); WORLD_WIDTH * WORLD_HEIGHT];
         for i in 1..town_positions.len() {
             let (x1, y1) = town_positions[i - 1];
             let (x2, y2) = town_positions[i];
             // Simple L-shaped road
             for x in x1.min(x2)..=x1.max(x2) {
-                connected[y1 * WORLD_SIZE + x].road = true;
+                connected[y1 * WORLD_WIDTH + x].road = true;
             }
             for y in y1.min(y2)..=y1.max(y2) {
-                connected[y * WORLD_SIZE + x2].road = true;
+                connected[y * WORLD_WIDTH + x2].road = true;
             }
         }
 
@@ -153,7 +155,7 @@ impl WorldMap {
     }
 
     pub fn get(&self, x: usize, y: usize) -> (Biome, Terrain, u8, POI, Resources, Connected) {
-        let idx = y * WORLD_SIZE + x;
+        let idx = y * WORLD_WIDTH + x;
         (
             self.biomes[idx],
             self.terrain[idx],
@@ -165,7 +167,7 @@ impl WorldMap {
     }
 
     pub fn tile_seed(&self, x: usize, y: usize) -> u64 {
-        self.seed.wrapping_add((y * WORLD_SIZE + x) as u64)
+        self.seed.wrapping_add((y * WORLD_WIDTH + x) as u64)
     }
 }
 

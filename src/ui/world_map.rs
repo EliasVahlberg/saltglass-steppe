@@ -5,7 +5,7 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-use crate::game::world_map::{Biome, POI, Terrain, WorldMap, WORLD_SIZE};
+use crate::game::world_map::{Biome, POI, Terrain, WorldMap, WORLD_WIDTH, WORLD_HEIGHT};
 
 /// World map view state
 #[derive(Default)]
@@ -25,8 +25,8 @@ impl WorldMapView {
     }
 
     pub fn move_cursor(&mut self, dx: i32, dy: i32) {
-        self.cursor_x = (self.cursor_x as i32 + dx).clamp(0, WORLD_SIZE as i32 - 1) as usize;
-        self.cursor_y = (self.cursor_y as i32 + dy).clamp(0, WORLD_SIZE as i32 - 1) as usize;
+        self.cursor_x = (self.cursor_x as i32 + dx).clamp(0, WORLD_WIDTH as i32 - 1) as usize;
+        self.cursor_y = (self.cursor_y as i32 + dy).clamp(0, WORLD_HEIGHT as i32 - 1) as usize;
     }
 }
 
@@ -89,8 +89,8 @@ pub fn render_world_map(
     
     let start_x = view.cursor_x.saturating_sub(half_w);
     let start_y = view.cursor_y.saturating_sub(half_h);
-    let end_x = (start_x + view_width).min(WORLD_SIZE);
-    let end_y = (start_y + view_height).min(WORLD_SIZE);
+    let end_x = (start_x + view_width).min(WORLD_WIDTH);
+    let end_y = (start_y + view_height).min(WORLD_HEIGHT);
 
     // Render map tiles
     for (screen_y, world_y) in (start_y..end_y).enumerate() {
