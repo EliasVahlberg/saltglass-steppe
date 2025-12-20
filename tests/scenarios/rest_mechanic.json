@@ -1,0 +1,56 @@
+{
+  "name": "rest_mechanic",
+  "description": "Tests rest mechanic: healing, turn cost, enemy blocking",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 10,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "salt_crawler",
+      "x": 30,
+      "y": 30,
+      "hp": 8,
+      "comment": "Far away - should not block resting"
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "comment": "Rest to recover HP (50% of max_hp = 10 HP)",
+      "action": {
+        "type": "rest"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_hp_at_least",
+        "value": 20,
+        "description": "Player should be at full HP after resting"
+      }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "turn_at_least",
+        "value": 10,
+        "description": "Resting should advance at least 10 turns"
+      }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

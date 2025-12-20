@@ -22,6 +22,7 @@ pub mod spawn;
 pub mod state;
 pub mod status;
 pub mod storm;
+pub mod tutorial;
 pub mod world_map;
 
 pub use action::{action_cost, default_enemy_ap, default_player_ap};
@@ -44,3 +45,4 @@ pub use map::MapLight;
 pub use quest::{get_quest_def, ActiveQuest, QuestLog, QuestReward};
 pub use crafting::{get_recipe, all_recipe_ids, can_craft, available_recipes, Recipe};
 pub use meta::{all_classes, get_class, ClassDef, MetaProgress};
+pub use tutorial::{get_tutorial_data, TutorialProgress};

@@ -10,9 +10,13 @@
       "sight_range": 6,
       "xp_value": 15,
       "description": "Shimmering predator that hunts by heat",
+      "loot_table": [
+        { "item": "salted_meat", "weight": 3 },
+        { "item": "brine_vial", "weight": 1 }
+      ],
       "effects": [
-        {"condition": "on_hit", "effect": "B(@2 &LightYellow)"},
-        {"condition": "on_death", "effect": "B(@1 &Yellow)"}
+        { "condition": "on_hit", "effect": "B(@2 &LightYellow)" },
+        { "condition": "on_death", "effect": "B(@1 &Yellow)" }
       ]
     },
     {
@@ -25,9 +29,13 @@
       "sight_range": 5,
       "xp_value": 20,
       "description": "Armored insect with refractive carapace",
+      "loot_table": [
+        { "item": "glass_shard", "weight": 5 },
+        { "item": "salt_crystal", "weight": 2 }
+      ],
       "effects": [
-        {"condition": "on_hit", "effect": "B(@3 &Cyan)"},
-        {"condition": "on_death", "effect": "B(@1 &LightCyan)"}
+        { "condition": "on_hit", "effect": "B(@3 &Cyan)" },
+        { "condition": "on_death", "effect": "B(@1 &LightCyan)" }
       ]
     },
     {
@@ -40,9 +48,14 @@
       "sight_range": 4,
       "xp_value": 25,
       "description": "Desiccated pilgrim risen from the salt flats",
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 4 },
+        { "item": "rusted_gear", "weight": 2 },
+        { "item": "rags", "weight": 1 }
+      ],
       "effects": [
-        {"condition": "on_hit", "effect": "G(&White)"},
-        {"condition": "on_death", "effect": "B(@2 &DarkGray)"}
+        { "condition": "on_hit", "effect": "G(&White)" },
+        { "condition": "on_death", "effect": "B(@2 &DarkGray)" }
       ]
     },
     {
@@ -56,12 +69,15 @@
       "xp_value": 30,
       "description": "Storm-born specter that phases through glass",
       "spawns_during_storm": true,
-      "behaviors": [
-        {"type": "reflect_damage", "percent": 25}
+      "loot_table": [
+        { "item": "storm_glass", "weight": 3 },
+        { "item": "glass_arrow", "weight": 2 },
+        { "item": "scripture_shard", "weight": 1 }
       ],
+      "behaviors": [{ "type": "reflect_damage", "percent": 25 }],
       "effects": [
-        {"condition": "on_hit", "effect": "B(@1 &White)"},
-        {"condition": "on_death", "effect": "B(@1 &LightCyan)"}
+        { "condition": "on_hit", "effect": "B(@1 &White)" },
+        { "condition": "on_death", "effect": "B(@1 &LightCyan)" }
       ]
     },
     {
@@ -75,12 +91,14 @@
       "xp_value": 10,
       "description": "Skitters on glass legs—attacks in swarms",
       "swarm": true,
-      "behaviors": [
-        {"type": "on_hit_refraction", "value": 2}
+      "loot_table": [
+        { "item": "glass_arrow", "weight": 4 },
+        { "item": "brine_vial", "weight": 1 }
       ],
+      "behaviors": [{ "type": "on_hit_refraction", "value": 2 }],
       "effects": [
-        {"condition": "on_hit", "effect": "B(@2 &LightCyan)"},
-        {"condition": "on_death", "effect": "B(@1 &Cyan)"}
+        { "condition": "on_hit", "effect": "B(@2 &LightCyan)" },
+        { "condition": "on_death", "effect": "B(@1 &Cyan)" }
       ]
     },
     {
@@ -93,12 +111,16 @@
       "sight_range": 7,
       "xp_value": 20,
       "description": "Swirling sand given malevolent form",
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 3 },
+        { "item": "veil_tincture", "weight": 1 }
+      ],
       "behaviors": [
-        {"type": "flee_if", "condition": "player_adaptations >= 2"}
+        { "type": "flee_if", "condition": "player_adaptations >= 2" }
       ],
       "effects": [
-        {"condition": "on_hit", "effect": "B(@2 &Yellow)"},
-        {"condition": "on_death", "effect": "B(@1 &DarkGray)"}
+        { "condition": "on_hit", "effect": "B(@2 &Yellow)" },
+        { "condition": "on_death", "effect": "B(@1 &DarkGray)" }
       ]
     },
     {
@@ -111,12 +133,18 @@
       "sight_range": 10,
       "xp_value": 50,
       "description": "Ancient guardian—scans for valid credentials",
+      "loot_table": [
+        { "item": "saint_key", "weight": 1 },
+        { "item": "scripture_shard", "weight": 3 },
+        { "item": "storm_glass", "weight": 2 },
+        { "item": "brine_shot", "weight": 2 }
+      ],
       "behaviors": [
-        {"type": "passive_if", "condition": "player_has_item:saint_key"}
+        { "type": "passive_if", "condition": "player_has_item:saint_key" }
       ],
       "effects": [
-        {"condition": "on_hit", "effect": "B(@1 &LightBlue)"},
-        {"condition": "on_death", "effect": "B(@1 &Blue)"}
+        { "condition": "on_hit", "effect": "B(@1 &LightBlue)" },
+        { "condition": "on_death", "effect": "B(@1 &Blue)" }
       ]
     },
     {
@@ -129,7 +157,11 @@
       "sight_range": 5,
       "demeanor": "neutral",
       "xp_value": 5,
-      "description": "Wandering traveler, harmless unless provoked"
+      "description": "Wandering traveler, harmless unless provoked",
+      "loot_table": [
+        { "item": "brine_vial", "weight": 2 },
+        { "item": "salt_crystal", "weight": 1 }
+      ]
     },
     {
       "id": "glass_moth",
@@ -141,7 +173,8 @@
       "sight_range": 4,
       "demeanor": "pacifist",
       "xp_value": 3,
-      "description": "Delicate creature that flees from danger"
+      "description": "Delicate creature that flees from danger",
+      "loot_table": [{ "item": "glass_arrow", "weight": 1 }]
     },
     {
       "id": "salt_guardian",
@@ -153,7 +186,12 @@
       "sight_range": 6,
       "demeanor": "defensive",
       "xp_value": 25,
-      "description": "Crystalline protector that retreats when wounded"
+      "description": "Crystalline protector that retreats when wounded",
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 5 },
+        { "item": "salt_amulet", "weight": 1 },
+        { "item": "brine_vial", "weight": 2 }
+      ]
     },
     {
       "id": "salt_beetle",
@@ -165,9 +203,11 @@
       "sight_range": 4,
       "xp_value": 8,
       "description": "Common pest that burrows in salt deposits",
-      "effects": [
-        {"condition": "on_death", "effect": "B(@1 &White)"}
-      ]
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 4 },
+        { "item": "brine_vial", "weight": 1 }
+      ],
+      "effects": [{ "condition": "on_death", "effect": "B(@1 &White)" }]
     },
     {
       "id": "brine_lurker",
@@ -180,9 +220,12 @@
       "xp_value": 35,
       "armor": 2,
       "description": "Ambush predator that hides in salt pools",
-      "effects": [
-        {"condition": "on_hit", "effect": "B(@2 &Blue)"}
-      ]
+      "loot_table": [
+        { "item": "brine_vial", "weight": 5 },
+        { "item": "salt_poultice", "weight": 2 },
+        { "item": "brine_gloves", "weight": 1 }
+      ],
+      "effects": [{ "condition": "on_hit", "effect": "B(@2 &Blue)" }]
     },
     {
       "id": "crystal_scorpion",
@@ -195,9 +238,12 @@
       "xp_value": 18,
       "reflex": 3,
       "description": "Fast-striking arachnid with venomous tail",
-      "effects": [
-        {"condition": "on_hit", "effect": "B(@1 &Green)"}
-      ]
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 3 },
+        { "item": "glass_arrow", "weight": 2 },
+        { "item": "brine_vial", "weight": 1 }
+      ],
+      "effects": [{ "condition": "on_hit", "effect": "B(@1 &Green)" }]
     },
     {
       "id": "storm_elemental",
@@ -210,12 +256,16 @@
       "xp_value": 60,
       "spawns_during_storm": true,
       "description": "Manifestation of the glass storms",
-      "behaviors": [
-        {"type": "reflect_damage", "percent": 15}
+      "loot_table": [
+        { "item": "storm_glass", "weight": 4 },
+        { "item": "storm_compass", "weight": 2 },
+        { "item": "storm_boots", "weight": 1 },
+        { "item": "saints_tear", "weight": 1 }
       ],
+      "behaviors": [{ "type": "reflect_damage", "percent": 15 }],
       "effects": [
-        {"condition": "on_hit", "effect": "B(@3 &LightCyan)"},
-        {"condition": "on_death", "effect": "B(@2 &Cyan)"}
+        { "condition": "on_hit", "effect": "B(@3 &LightCyan)" },
+        { "condition": "on_death", "effect": "B(@2 &Cyan)" }
       ]
     },
     {
@@ -229,9 +279,11 @@
       "xp_value": 12,
       "reflex": 5,
       "description": "Quick serpent that strikes from the dunes",
-      "effects": [
-        {"condition": "on_hit", "effect": "B(@1 &Yellow)"}
-      ]
+      "loot_table": [
+        { "item": "brine_vial", "weight": 2 },
+        { "item": "salt_crystal", "weight": 2 }
+      ],
+      "effects": [{ "condition": "on_hit", "effect": "B(@1 &Yellow)" }]
     }
   ]
 }

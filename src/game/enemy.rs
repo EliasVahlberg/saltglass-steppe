@@ -20,6 +20,12 @@ pub struct EntityEffect {
 }
 
 #[derive(Clone, Debug, Deserialize)]
+pub struct LootEntry {
+    pub item: String,
+    pub weight: u32,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 pub struct Behavior {
     #[serde(rename = "type")]
     pub behavior_type: String,
@@ -61,6 +67,8 @@ pub struct EnemyDef {
     pub behaviors: Vec<Behavior>,
     #[serde(default)]
     pub effects: Vec<EntityEffect>,
+    #[serde(default)]
+    pub loot_table: Vec<LootEntry>,
 }
 
 fn default_sight() -> i32 { 6 }

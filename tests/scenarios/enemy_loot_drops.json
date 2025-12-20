@@ -1,0 +1,71 @@
+{
+  "name": "enemy_loot_drops",
+  "description": "Tests that enemies drop loot items when killed",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "mirage_hound",
+      "x": 12,
+      "y": 10,
+      "hp": 8
+    }
+  ],
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 10
+  },
+  "actions": [
+    {
+      "turn": 0,
+      "comment": "Attack and kill the mirage_hound to trigger loot drop",
+      "action": {
+        "type": "attack",
+        "target_x": 12,
+        "target_y": 10
+      }
+    },
+    {
+      "turn": 1,
+      "comment": "Check for items at enemy death location",
+      "action": {
+        "type": "log",
+        "query": {
+          "type": "entity_at",
+          "x": 12,
+          "y": 10
+        }
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "enemy_dead",
+        "id": "mirage_hound"
+      }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "custom",
+        "description": "Loot item should exist at enemy death location"
+      }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}
