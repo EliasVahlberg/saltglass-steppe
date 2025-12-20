@@ -8,9 +8,7 @@
       "value": 25,
       "weight": 1,
       "usable": false,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@3 &Cyan)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@3 &Cyan)"}]
     },
     {
       "id": "scripture_shard",
@@ -21,9 +19,7 @@
       "weight": 0,
       "usable": false,
       "hidden_properties": ["value"],
-      "effects": [
-        {"condition": "on_pickup", "effect": "G(&Yellow)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "G(&Yellow)"}]
     },
     {
       "id": "brine_vial",
@@ -34,10 +30,7 @@
       "weight": 1,
       "usable": true,
       "heal": 5,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@4 &Green)"},
-        {"condition": "on_use", "effect": "G(&Green)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@4 &Green)"}, {"condition": "on_use", "effect": "G(&Green)"}]
     },
     {
       "id": "saint_key",
@@ -47,9 +40,7 @@
       "value": 50,
       "weight": 1,
       "usable": false,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@2 &LightBlue)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@2 &LightBlue)"}]
     },
     {
       "id": "angle_lens",
@@ -60,10 +51,7 @@
       "weight": 1,
       "usable": true,
       "reveals_map": true,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@3 &Magenta)"},
-        {"condition": "on_use", "effect": "B(@1 &White)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@3 &Magenta)"}, {"condition": "on_use", "effect": "B(@1 &White)"}]
     },
     {
       "id": "salt_poultice",
@@ -74,10 +62,7 @@
       "weight": 1,
       "usable": true,
       "heal": 8,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@4 &Green)"},
-        {"condition": "on_use", "effect": "G(&LightGreen)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@4 &Green)"}, {"condition": "on_use", "effect": "G(&LightGreen)"}]
     },
     {
       "id": "veil_tincture",
@@ -88,10 +73,7 @@
       "weight": 1,
       "usable": true,
       "suppresses_adaptations": true,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@4 &DarkGray)"},
-        {"condition": "on_use", "effect": "G(&DarkGray)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@4 &DarkGray)"}, {"condition": "on_use", "effect": "G(&DarkGray)"}]
     },
     {
       "id": "glass_pick",
@@ -102,9 +84,7 @@
       "weight": 2,
       "usable": true,
       "breaks_walls": true,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@4 &Cyan)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@4 &Cyan)"}]
     },
     {
       "id": "storm_compass",
@@ -115,10 +95,7 @@
       "weight": 1,
       "usable": true,
       "reveals_storm_path": true,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@3 &Yellow)"},
-        {"condition": "on_use", "effect": "B(@2 &LightYellow)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@3 &Yellow)"}, {"condition": "on_use", "effect": "B(@2 &LightYellow)"}]
     },
     {
       "id": "saints_tear",
@@ -130,10 +107,7 @@
       "usable": true,
       "heal": 15,
       "reduces_refraction": 10,
-      "effects": [
-        {"condition": "on_pickup", "effect": "B(@2 &White)"},
-        {"condition": "on_use", "effect": "G(&White)"}
-      ]
+      "effects": [{"condition": "on_pickup", "effect": "B(@2 &White)"}, {"condition": "on_use", "effect": "G(&White)"}]
     },
     {
       "id": "brine_shot",
@@ -154,15 +128,35 @@
       "usable": false
     },
     {
-      "id": "salt_vest",
-      "name": "Salt Vest",
-      "glyph": "[",
-      "description": "Crystallized salt armor, light but protective",
-      "value": 50,
-      "weight": 3,
-      "usable": false,
-      "armor_value": 3,
-      "equip_slot": "jacket"
+      "id": "health_potion",
+      "name": "Health Potion",
+      "glyph": "!",
+      "description": "Potent healing brew",
+      "value": 25,
+      "weight": 1,
+      "usable": true,
+      "heal": 12,
+      "effects": [{"condition": "on_use", "effect": "G(&LightGreen)"}]
+    },
+    {
+      "id": "salt_bomb",
+      "name": "Salt Bomb",
+      "glyph": "*",
+      "description": "Explosive salt device",
+      "value": 40,
+      "weight": 2,
+      "usable": true,
+      "damage_area": 3,
+      "effects": [{"condition": "on_use", "effect": "B(@5 &White)"}]
+    },
+    {
+      "id": "salt_crystal",
+      "name": "Salt Crystal",
+      "glyph": "◇",
+      "description": "Raw crystallized salt, useful for crafting",
+      "value": 5,
+      "weight": 1,
+      "usable": false
     },
     {
       "id": "wall_torch",
@@ -184,39 +178,43 @@
       "light_source": {"radius": 7, "intensity": 140}
     },
     {
-      "id": "health_potion",
-      "name": "Health Potion",
-      "glyph": "!",
-      "description": "Potent healing brew",
-      "value": 25,
+      "id": "salted_meat",
+      "name": "Salted Meat",
+      "glyph": "%",
+      "description": "Preserved meat, restores some health",
+      "value": 8,
       "weight": 1,
       "usable": true,
-      "heal": 12,
-      "effects": [
-        {"condition": "on_use", "effect": "G(&LightGreen)"}
-      ]
+      "heal": 3
     },
     {
-      "id": "salt_bomb",
-      "name": "Salt Bomb",
+      "id": "rusted_gear",
+      "name": "Rusted Gear",
       "glyph": "*",
-      "description": "Explosive salt device",
-      "value": 40,
+      "description": "Old mechanical part, might be useful",
+      "value": 12,
       "weight": 2,
-      "usable": true,
-      "damage_area": 3,
-      "effects": [
-        {"condition": "on_use", "effect": "B(@5 &White)"}
-      ]
+      "usable": false
     },
     {
-      "id": "salt_crystal",
-      "name": "Salt Crystal",
-      "glyph": "◇",
-      "description": "Raw crystallized salt, useful for crafting",
-      "value": 5,
-      "weight": 1,
+      "id": "rags",
+      "name": "Rags",
+      "glyph": "~",
+      "description": "Tattered cloth scraps",
+      "value": 2,
+      "weight": 0,
       "usable": false
+    },
+    {
+      "id": "salt_vest",
+      "name": "Salt Vest",
+      "glyph": "[",
+      "description": "Crystallized salt armor, light but protective",
+      "value": 50,
+      "weight": 3,
+      "usable": false,
+      "armor_value": 3,
+      "equip_slot": "jacket"
     },
     {
       "id": "storm_boots",
@@ -226,6 +224,7 @@
       "value": 45,
       "weight": 2,
       "usable": false,
+      "armor_value": 1,
       "equip_slot": "boots"
     },
     {
@@ -236,6 +235,7 @@
       "value": 30,
       "weight": 1,
       "usable": false,
+      "armor_value": 1,
       "equip_slot": "gloves"
     },
     {
@@ -256,6 +256,7 @@
       "value": 55,
       "weight": 0,
       "usable": false,
+      "armor_value": 1,
       "equip_slot": "necklace"
     },
     {
@@ -278,6 +279,159 @@
       "usable": false,
       "armor_value": 2,
       "equip_slot": "accessory"
+    },
+    {
+      "id": "iron_helm",
+      "name": "Iron Helm",
+      "glyph": "^",
+      "description": "Heavy iron helmet, good protection",
+      "value": 40,
+      "weight": 3,
+      "usable": false,
+      "armor_value": 2,
+      "equip_slot": "helmet"
+    },
+    {
+      "id": "glass_helm",
+      "name": "Glass Helm",
+      "glyph": "^",
+      "description": "Transparent crystalline headgear",
+      "value": 65,
+      "weight": 2,
+      "usable": false,
+      "armor_value": 3,
+      "equip_slot": "helmet"
+    },
+    {
+      "id": "leather_cap",
+      "name": "Leather Cap",
+      "glyph": "^",
+      "description": "Simple leather head protection",
+      "value": 15,
+      "weight": 1,
+      "usable": false,
+      "armor_value": 1,
+      "equip_slot": "helmet"
+    },
+    {
+      "id": "chain_vest",
+      "name": "Chain Vest",
+      "glyph": "[",
+      "description": "Interlocking metal rings for protection",
+      "value": 70,
+      "weight": 5,
+      "usable": false,
+      "armor_value": 4,
+      "equip_slot": "jacket"
+    },
+    {
+      "id": "leather_jacket",
+      "name": "Leather Jacket",
+      "glyph": "[",
+      "description": "Tough leather body armor",
+      "value": 30,
+      "weight": 2,
+      "usable": false,
+      "armor_value": 2,
+      "equip_slot": "jacket"
+    },
+    {
+      "id": "glass_plate",
+      "name": "Glass Plate",
+      "glyph": "[",
+      "description": "Heavy crystalline armor, maximum protection",
+      "value": 120,
+      "weight": 8,
+      "usable": false,
+      "armor_value": 6,
+      "equip_slot": "jacket"
+    },
+    {
+      "id": "iron_boots",
+      "name": "Iron Boots",
+      "glyph": "]",
+      "description": "Heavy metal footwear",
+      "value": 35,
+      "weight": 3,
+      "usable": false,
+      "armor_value": 2,
+      "equip_slot": "boots"
+    },
+    {
+      "id": "leather_boots",
+      "name": "Leather Boots",
+      "glyph": "]",
+      "description": "Comfortable walking boots",
+      "value": 20,
+      "weight": 1,
+      "usable": false,
+      "armor_value": 1,
+      "equip_slot": "boots"
+    },
+    {
+      "id": "iron_gauntlets",
+      "name": "Iron Gauntlets",
+      "glyph": "]",
+      "description": "Metal hand protection",
+      "value": 40,
+      "weight": 2,
+      "usable": false,
+      "armor_value": 2,
+      "equip_slot": "gloves"
+    },
+    {
+      "id": "glass_gauntlets",
+      "name": "Glass Gauntlets",
+      "glyph": "]",
+      "description": "Crystalline hand armor",
+      "value": 55,
+      "weight": 2,
+      "usable": false,
+      "armor_value": 3,
+      "equip_slot": "gloves"
+    },
+    {
+      "id": "storm_cloak",
+      "name": "Storm Cloak",
+      "glyph": "(",
+      "description": "Flowing cloak that resists storm winds",
+      "value": 80,
+      "weight": 1,
+      "usable": false,
+      "armor_value": 1,
+      "equip_slot": "accessory"
+    },
+    {
+      "id": "refraction_ring",
+      "name": "Refraction Ring",
+      "glyph": "o",
+      "description": "Ring that bends light around the wearer",
+      "value": 90,
+      "weight": 0,
+      "usable": false,
+      "equip_slot": "accessory"
+    },
+    {
+      "id": "travelers_pack",
+      "name": "Traveler's Pack",
+      "glyph": "∩",
+      "description": "Large backpack for extended journeys",
+      "value": 50,
+      "weight": 2,
+      "usable": false,
+      "equip_slot": "backpack"
+    },
+    {
+      "id": "crystal_pendant",
+      "name": "Crystal Pendant",
+      "glyph": "☼",
+      "description": "Glowing crystal on a chain",
+      "value": 45,
+      "weight": 0,
+      "usable": false,
+      "armor_value": 1,
+      "equip_slot": "necklace",
+      "light_source": {"radius": 4, "intensity": 80}
     }
   ]
 }

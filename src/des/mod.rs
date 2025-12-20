@@ -442,6 +442,12 @@ impl DesExecutor {
             state.equipment.weapon = Some(weapon_id.clone());
         }
 
+        // Clear generated enemies if scenario specifies its own entities
+        // This ensures test scenarios have full control over enemy placement
+        if !scenario.entities.is_empty() {
+            state.enemies.clear();
+        }
+
         // Spawn entities
         for spawn in &scenario.entities {
             match spawn.entity_type {

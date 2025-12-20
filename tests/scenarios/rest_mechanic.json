@@ -14,10 +14,10 @@
     {
       "entity_type": "enemy",
       "id": "salt_crawler",
-      "x": 30,
-      "y": 30,
+      "x": 60,
+      "y": 60,
       "hp": 8,
-      "comment": "Far away - should not block resting"
+      "comment": "Far away - should not block resting (beyond FOV_RANGE of 32)"
     }
   ],
   "actions": [
