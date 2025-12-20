@@ -222,3 +222,7 @@ savegame.ron
 untracked_docs
 
 .github
+
+.agentic-tools-mcp
+
+meta_progress.ron
