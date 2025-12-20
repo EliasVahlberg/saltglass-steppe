@@ -35,17 +35,19 @@
       "at_end": true,
       "check": {
         "type": "player_hp",
-        "value": 10,
-        "description": "Player HP should be unchanged (rest blocked)"
-      }
+        "op": "eq",
+        "value": 10
+      },
+      "message": "Player HP should be unchanged (rest blocked)"
     },
     {
       "at_end": true,
       "check": {
         "type": "turn",
-        "value": 0,
-        "description": "Turn should not advance (rest blocked)"
-      }
+        "op": "eq",
+        "value": 0
+      },
+      "message": "Turn should not advance (rest blocked)"
     },
     {
       "at_end": true,

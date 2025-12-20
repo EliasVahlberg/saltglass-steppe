@@ -34,14 +34,13 @@
   "actions": [
     {
       "turn": 0,
-      "comment": "Game start - should show tutorial message",
       "action": {
-        "type": "wait"
+        "type": "wait",
+        "turns": 1
       }
     },
     {
       "turn": 1,
-      "comment": "Move toward enemy to trigger first_enemy_visible",
       "action": {
         "type": "move",
         "dx": 1,
@@ -50,14 +49,13 @@
     },
     {
       "turn": 2,
-      "comment": "Wait to ensure enemy tutorial triggers",
       "action": {
-        "type": "wait"
+        "type": "wait",
+        "turns": 1
       }
     },
     {
       "turn": 3,
-      "comment": "Move toward item to trigger first_item_visible",
       "action": {
         "type": "move",
         "dx": 1,
@@ -66,7 +64,6 @@
     },
     {
       "turn": 4,
-      "comment": "Attack enemy to deplete AP",
       "action": {
         "type": "attack",
         "target_x": 12,
@@ -75,7 +72,6 @@
     },
     {
       "turn": 5,
-      "comment": "Attack again to deplete AP and trigger ap_depleted",
       "action": {
         "type": "attack",
         "target_x": 12,
@@ -84,14 +80,6 @@
     }
   ],
   "assertions": [
-    {
-      "at_end": false,
-      "turn": 0,
-      "check": {
-        "type": "custom",
-        "description": "Tutorial system initialized"
-      }
-    },
     {
       "at_end": true,
       "check": {

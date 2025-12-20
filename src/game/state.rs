@@ -730,10 +730,7 @@ impl GameState {
         }
 
         // Process enemy turns (they get to act while you rest)
-        let player_pos = (self.player_x, self.player_y);
-        for i in 0..self.enemies.len() {
-            super::ai::tick_enemy(self, i, player_pos);
-        }
+        self.update_enemies();
 
         Ok(())
     }
@@ -1219,6 +1216,14 @@ impl GameState {
             }
             for item_id in &reward.items {
                 self.inventory.push(item_id.clone());
+            }
+            // Log unlocked quests
+            if !reward.unlocks_quests.is_empty() {
+                for unlocked_id in &reward.unlocks_quests {
+                    if let Some(unlocked_def) = super::quest::get_quest_def(unlocked_id) {
+                        self.log(format!("New quest available: {}", unlocked_def.name));
+                    }
+                }
             }
             true
         } else {

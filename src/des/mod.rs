@@ -118,6 +118,7 @@ pub enum AssertionCheck {
     // Quest assertions
     QuestActive { quest_id: String },
     QuestCompleted { quest_id: String },
+    QuestAvailable { quest_id: String },
     QuestObjectiveProgress { quest_id: String, objective_id: String, op: CmpOp, value: u32 },
     QuestObjectiveComplete { quest_id: String, objective_id: String },
 }
@@ -679,6 +680,9 @@ impl DesExecutor {
             AssertionCheck::QuestCompleted { quest_id } => {
                 self.state.quest_log.completed.contains(quest_id)
             }
+            AssertionCheck::QuestAvailable { quest_id } => {
+                self.state.quest_log.is_quest_available(quest_id)
+            }
             AssertionCheck::QuestObjectiveProgress { quest_id, objective_id, op, value } => {
                 self.state.quest_log.get_active(quest_id)
                     .and_then(|q| q.objectives.iter().find(|o| o.objective_id == *objective_id))
@@ -728,6 +732,8 @@ impl DesExecutor {
                 // Update visibility after teleport
                 self.state.visible = crate::game::map::compute_fov(&self.state.map, *x, *y);
                 self.state.revealed.extend(&self.state.visible);
+                // Notify quest log of position change
+                self.state.quest_log.on_position_changed(*x, *y);
                 self.log(format!("Player teleported to ({}, {})", x, y));
             }
             Action::Attack { target_x, target_y } => {
