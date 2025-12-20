@@ -86,15 +86,46 @@ Appendix A: Game Render Mockups
 - **Unique Backgrounds**: Players can choose or discover unique backgrounds for their characters that provide specific starting bonuses, skills, or storylines. These backgrounds can influence gameplay and character development throughout the game.
 - **Unconventional Builds and Playstyles**: The game supports a variety of unconventional builds and playstyles, allowing players to experiment with different combinations of skills, stats, and abilities to create unique characters that suit their preferred approach to gameplay. Builds should be somewhat quirky and have both significant pros and cons to balance them out.
 
-## 9. Inventory and Equipment [0/5]
+## 9. Inventory and Equipment [5/5]
 
-## 10. Crafting System [0/6]
+- **Inventory Management**: Players can carry a limited number of items based on their weight capacity. Items can be organized, dropped, or used from the inventory screen.
+- **Equipment Slots**: Characters have specific equipment slots (weapon, armor, accessory) that provide stat bonuses and special abilities when items are equipped.
+- **Item Inspection**: Players can inspect items to view detailed information including stats, effects, hidden properties, and condition. Items can be examined in ASCII art form showing visual details.
+- **Weight System**: Each item has a weight value that contributes to the player's total carried weight. Exceeding weight capacity can reduce movement speed or prevent further item pickup.
+- **Equipment Durability**: Items degrade over time with use. Damaged items provide reduced benefits and may break entirely if not repaired. Condition affects both performance and visual representation.
 
-## 11. Quests and Storytelling [0/6]
+## 10. Crafting System [4/6]
+
+- **Recipe System**: Crafting is data-driven with recipes defined in JSON. Each recipe specifies required materials, outputs, and optional crafting station requirements.
+- **Material Gathering**: Players can collect raw materials from the environment (e.g., scavenging glass shards, mining salt deposits, harvesting organic matter) to use in crafting.
+- **Crafting Stations**: Certain advanced recipes require specific crafting stations or environmental conditions (e.g., forge for metalworking, alchemy table for potions, mirror shrine for psychic items).
+- **Item Modification**: Players can modify existing equipment by adding enchantments, refining materials, or combining items to create enhanced versions with unique properties.
+- **Recipe Discovery**: Recipes can be discovered through exploration (finding schematics, scripture shards), NPC interactions, or experimentation by combining materials.
+- **Adaptive Crafting**: Some recipes may require specific adaptations or environmental conditions (e.g., high refraction for glass-working, exposure to storms for crystallization, psychic abilities for psy-infused items).
+
+## 11. Quests and Storytelling [5/6]
+
+- **Quest System**: Quests are data-driven with multiple objective types (kill, collect, reach location, talk to NPC) and varied rewards (items, XP, reputation, story progression).
+- **Quest Discovery**: Quests can be obtained from NPCs, found in the environment (journals, terminals, scripture), or triggered by exploring specific locations or reaching story milestones.
+- **Branching Narratives**: Quest outcomes can vary based on player choices, adaptations, faction allegiances, and prior decisions, creating personalized story paths.
+- **Faction Reputation**: Actions and quest choices affect standing with different factions (Mirror Monks, Sand-Engineers, Glassborn, etc.), opening or closing specific questlines and altering NPC interactions.
+- **Story Flags and Triggers**: The game tracks player decisions, discoveries, and transformations through persistent flags that influence dialogue, quest availability, and world state.
+- **Environmental Storytelling**: The world itself tells stories through discoverable lore items (scripture shards, logs, journals), environmental details, and the physical state of ruins and glass-fused structures.
 
 ## 12. Audio and Sound Design [0/4]
 
-## 13. Modularity and Extensibility (modding support) [0/5]
+- **Ambient Soundscapes**: Contextual audio that reflects the environment (wind across salt flats, glass chimes in vitrified corridors, storm rumbles, archive hums).
+- **UI Feedback**: Audio cues for player actions (menu navigation, item pickup, combat hits, level up, quest completion) to provide tactile feedback in the terminal interface.
+- **Combat Sounds**: Distinct audio for different attack types, weapon impacts, status effect applications, and enemy behaviors to enhance combat clarity.
+- **Musical Themes**: Adaptive music that responds to game state (exploration, combat, faction areas, story moments) with thematic motifs for different regions and factions.
+
+## 13. Modularity and Extensibility (modding support) [2/5]
+
+- **Data-Driven Content**: Core game content (items, enemies, NPCs, quests, recipes) is defined in JSON files, allowing easy modification and extension without code changes.
+- **Mod Loading System**: Support for loading external mod files that can override or extend base game data with clear load order and conflict resolution.
+- **Script Hooks**: Expose key game events and systems through a scripting interface (potentially Lua) allowing modders to create custom behaviors, abilities, and game mechanics.
+- **Mod Documentation**: Comprehensive modding guide with JSON schema documentation, examples, and best practices for creating compatible mods.
+- **Validation and Error Handling**: Robust validation for mod data to prevent crashes and provide clear error messages when mod files contain invalid content.
 
 ## Appendix A: Game Render Mockups
 

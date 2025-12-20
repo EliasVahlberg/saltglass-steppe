@@ -74,7 +74,7 @@ impl TutorialProgress {
                 !self.has_shown("first_enemy_visible")
                     && !game_state.enemies.is_empty()
                     && game_state.enemies.iter().any(|e| {
-                        e.is_alive() && game_state.visible.contains(&(e.y as usize * game_state.map.width + e.x as usize))
+                        e.hp > 0 && game_state.visible.contains(&(e.y as usize * game_state.map.width + e.x as usize))
                     })
             }
             "first_item_visible" => {

@@ -1,0 +1,68 @@
+{
+  "name": "quest_reach_objective",
+  "description": "Tests that reach objectives work correctly",
+  "seed": 12345,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 100,
+    "max_hp": 100
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "accept_quest",
+        "quest_id": "first_steps"
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "teleport",
+        "x": 15,
+        "y": 15
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "quest_active",
+        "quest_id": "first_steps"
+      },
+      "message": "Quest should be active"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "player_position",
+        "x": 15,
+        "y": 15
+      },
+      "message": "Player should be at (15,15)"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "quest_objective_progress",
+        "quest_id": "first_steps",
+        "objective_id": "explore",
+        "op": "eq",
+        "value": 1
+      },
+      "message": "Objective progress should be 1"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "quest_objective_complete",
+        "quest_id": "first_steps",
+        "objective_id": "explore"
+      },
+      "message": "Reach objective should be complete"
+    }
+  ]
+}

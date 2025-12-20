@@ -26,23 +26,10 @@
   "actions": [
     {
       "turn": 0,
-      "comment": "Attack and kill the mirage_hound to trigger loot drop",
       "action": {
         "type": "attack",
         "target_x": 12,
         "target_y": 10
-      }
-    },
-    {
-      "turn": 1,
-      "comment": "Check for items at enemy death location",
-      "action": {
-        "type": "log",
-        "query": {
-          "type": "entity_at",
-          "x": 12,
-          "y": 10
-        }
       }
     }
   ],
@@ -50,22 +37,25 @@
     {
       "at_end": true,
       "check": {
-        "type": "enemy_dead",
-        "id": "mirage_hound"
-      }
-    },
-    {
-      "at_end": true,
-      "check": {
-        "type": "custom",
-        "description": "Loot item should exist at enemy death location"
-      }
+        "type": "no_enemy_at",
+        "x": 12,
+        "y": 10
+      },
+      "message": "Enemy should be gone after being killed"
     },
     {
       "at_end": true,
       "check": {
         "type": "player_alive"
       }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "message_contains",
+        "text": "dropped"
+      },
+      "message": "Combat log should contain loot drop message"
     }
   ]
 }

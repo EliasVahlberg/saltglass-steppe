@@ -33,18 +33,20 @@
     {
       "at_end": true,
       "check": {
-        "type": "player_hp_at_least",
-        "value": 20,
-        "description": "Player should be at full HP after resting"
-      }
+        "type": "player_hp",
+        "op": "ge",
+        "value": 20
+      },
+      "message": "Player should be at full HP after resting"
     },
     {
       "at_end": true,
       "check": {
-        "type": "turn_at_least",
-        "value": 10,
-        "description": "Resting should advance at least 10 turns"
-      }
+        "type": "turn",
+        "op": "ge",
+        "value": 10
+      },
+      "message": "Resting should advance at least 10 turns"
     },
     {
       "at_end": true,

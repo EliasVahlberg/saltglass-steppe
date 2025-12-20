@@ -1,0 +1,87 @@
+{
+  "name": "quest_chain_unlocking",
+  "description": "Tests that completing a quest unlocks the next quest in the chain",
+  "seed": 12345,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 100,
+    "max_hp": 100,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "accept_quest",
+        "quest_id": "first_steps"
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "teleport",
+        "x": 15,
+        "y": 15
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "complete_quest",
+        "quest_id": "first_steps"
+      }
+    },
+    {
+      "turn": 3,
+      "action": {
+        "type": "accept_quest",
+        "quest_id": "choose_your_path"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "quest_active",
+        "quest_id": "first_steps"
+      },
+      "message": "first_steps should be active after accepting"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "quest_objective_complete",
+        "quest_id": "first_steps",
+        "objective_id": "explore"
+      },
+      "message": "Objective 'explore' should be complete after teleporting to (15,15)"
+    },
+    {
+      "after_turn": 2,
+      "check": {
+        "type": "quest_completed",
+        "quest_id": "first_steps"
+      },
+      "message": "first_steps should be marked as completed"
+    },
+    {
+      "after_turn": 2,
+      "check": {
+        "type": "quest_available",
+        "quest_id": "choose_your_path"
+      },
+      "message": "choose_your_path should be available after completing first_steps"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "quest_active",
+        "quest_id": "choose_your_path"
+      },
+      "message": "choose_your_path should be active after accepting it"
+    }
+  ]
+}

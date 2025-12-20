@@ -34,6 +34,9 @@ pub struct QuestReward {
     pub xp: u32,
     #[serde(default)]
     pub items: Vec<String>,
+    /// Quest IDs to unlock upon completion
+    #[serde(default)]
+    pub unlocks_quests: Vec<String>,
 }
 
 /// Quest definition loaded from data file
@@ -45,6 +48,9 @@ pub struct QuestDef {
     pub objectives: Vec<Objective>,
     #[serde(default)]
     pub reward: QuestReward,
+    /// Quest IDs that must be completed before this quest becomes available
+    #[serde(default)]
+    pub requires_quests_completed: Vec<String>,
 }
 
 #[derive(Deserialize)]
@@ -178,12 +184,40 @@ pub struct QuestLog {
 }
 
 impl QuestLog {
-    pub fn accept(&mut self, quest_id: &str) -> bool {
-        // Don't accept if already active or completed
+    /// Check if a quest's prerequisites are satisfied
+    pub fn is_quest_available(&self, quest_id: &str) -> bool {
+        // Already active or completed? Not available.
         if self.active.iter().any(|q| q.quest_id == quest_id) {
             return false;
         }
         if self.completed.contains(&quest_id.to_string()) {
+            return false;
+        }
+
+        // Check prerequisites
+        if let Some(def) = get_quest_def(quest_id) {
+            for required in &def.requires_quests_completed {
+                if !self.completed.contains(required) {
+                    return false;
+                }
+            }
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Get list of all available quest IDs (prerequisites satisfied, not active/completed)
+    pub fn get_available_quests(&self) -> Vec<&'static str> {
+        all_quest_ids()
+            .into_iter()
+            .filter(|id| self.is_quest_available(id))
+            .collect()
+    }
+
+    pub fn accept(&mut self, quest_id: &str) -> bool {
+        // Use is_quest_available for comprehensive checks
+        if !self.is_quest_available(quest_id) {
             return false;
         }
         if let Some(quest) = ActiveQuest::new(quest_id) {
