@@ -1087,6 +1087,7 @@ impl GameState {
         if let Some(tile) = self.map.get(new_x, new_y) {
             let walkable = tile.walkable() || self.debug_phase;
             let is_glass = *tile == Tile::Glass;
+            let is_world_exit = *tile == Tile::WorldExit;
             if walkable {
                 let cost = action_cost("move");
                 if self.player_ap < cost { return false; }
@@ -1106,6 +1107,32 @@ impl GameState {
                 self.update_lighting();
                 self.revealed.extend(&self.visible);
                 self.pickup_items();
+
+                // Handle world exit at map edges
+                if is_world_exit && self.layer == 0 {
+                    let at_north = new_y == 0;
+                    let at_south = new_y == self.map.height as i32 - 1;
+                    let at_west = new_x == 0;
+                    let at_east = new_x == self.map.width as i32 - 1;
+                    
+                    if at_north && self.world_y > 0 {
+                        self.travel_to_tile(self.world_x, self.world_y - 1);
+                        // Spawn at south edge of new tile
+                        self.player_y = self.map.height as i32 - 2;
+                    } else if at_south && self.world_y < super::world_map::WORLD_SIZE - 1 {
+                        self.travel_to_tile(self.world_x, self.world_y + 1);
+                        // Spawn at north edge of new tile
+                        self.player_y = 1;
+                    } else if at_west && self.world_x > 0 {
+                        self.travel_to_tile(self.world_x - 1, self.world_y);
+                        // Spawn at east edge of new tile
+                        self.player_x = self.map.width as i32 - 2;
+                    } else if at_east && self.world_x < super::world_map::WORLD_SIZE - 1 {
+                        self.travel_to_tile(self.world_x + 1, self.world_y);
+                        // Spawn at west edge of new tile
+                        self.player_x = 1;
+                    }
+                }
 
                 if is_glass {
                     if self.adaptations.iter().any(|a| a.has_immunity("glass")) {

@@ -9,6 +9,7 @@ pub mod menu;
 pub mod quest_log;
 pub mod theme;
 pub mod wiki;
+pub mod world_map;
 
 pub use crafting_menu::{render_crafting_menu, CraftingMenu};
 pub use game_view::{render_map, render_death_screen, render_damage_numbers, render_debug_console, dim_color};
@@ -19,3 +20,4 @@ pub use menu::{handle_menu_input, render_menu, render_controls, render_pause_men
 pub use quest_log::{render_quest_log, QuestLogMenu};
 pub use theme::{theme, Theme};
 pub use wiki::{render_wiki, WikiMenu};
+pub use world_map::{render_world_map, WorldMapView};

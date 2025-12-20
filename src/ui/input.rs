@@ -3,7 +3,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use std::io::Result;
 use crate::GameState;
-use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, MenuPanel};
+use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, MenuPanel, WorldMapView};
 use crate::all_recipe_ids;
 
 /// Look mode cursor state
@@ -50,6 +50,7 @@ pub struct UiState {
     pub crafting_menu: CraftingMenu,
     pub pause_menu: PauseMenu,
     pub wiki_menu: WikiMenu,
+    pub world_map_view: WorldMapView,
     pub target_enemy: Option<usize>,
     pub debug_console: DebugConsole,
 }
@@ -80,6 +81,7 @@ impl UiState {
             crafting_menu: CraftingMenu::default(),
             pause_menu: PauseMenu::default(),
             wiki_menu: WikiMenu::default(),
+            world_map_view: WorldMapView::default(),
             target_enemy: None,
             debug_console: DebugConsole::default(),
         }
@@ -109,6 +111,7 @@ pub enum Action {
     OpenQuestLog,
     OpenCrafting,
     OpenWiki,
+    OpenWorldMap,
     Craft,
     OpenPauseMenu,
     ReturnToMainMenu,
@@ -144,6 +147,10 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         // Pause menu input
         if ui.pause_menu.active {
             return Ok(handle_pause_menu_input(ui, key.code));
+        }
+        // World map view input
+        if ui.world_map_view.open {
+            return Ok(handle_world_map_input(ui, state, key.code));
         }
         // Wiki menu input
         if ui.wiki_menu.active {
@@ -303,6 +310,25 @@ fn handle_debug_console_input(ui: &mut UiState, code: KeyCode) -> Action {
     Action::None
 }
 
+fn handle_world_map_input(ui: &mut UiState, state: &GameState, code: KeyCode) -> Action {
+    match code {
+        KeyCode::Esc | KeyCode::Char('m') | KeyCode::Char('M') => {
+            ui.world_map_view.open = false;
+        }
+        KeyCode::Up | KeyCode::Char('k') => ui.world_map_view.move_cursor(0, -1),
+        KeyCode::Down | KeyCode::Char('j') => ui.world_map_view.move_cursor(0, 1),
+        KeyCode::Left | KeyCode::Char('h') => ui.world_map_view.move_cursor(-1, 0),
+        KeyCode::Right | KeyCode::Char('l') => ui.world_map_view.move_cursor(1, 0),
+        KeyCode::Char('c') => {
+            // Center on player
+            ui.world_map_view.cursor_x = state.world_x;
+            ui.world_map_view.cursor_y = state.world_y;
+        }
+        _ => {}
+    }
+    Action::None
+}
+
 fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
     match code {
         KeyCode::Char('`') => { ui.debug_console.toggle(); Action::None }
@@ -315,6 +341,7 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Char('q') => Action::OpenQuestLog,
         KeyCode::Char('c') => Action::OpenCrafting,
         KeyCode::Char('w') => Action::OpenWiki,
+        KeyCode::Char('m') | KeyCode::Char('M') => Action::OpenWorldMap,
         KeyCode::Char('<') | KeyCode::Char('>') => Action::UseStairs,
         KeyCode::Char('1') => Action::UseItem(0),
         KeyCode::Char('2') => Action::UseItem(1),
