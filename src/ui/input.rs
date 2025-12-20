@@ -112,6 +112,7 @@ pub enum Action {
     OpenCrafting,
     OpenWiki,
     OpenWorldMap,
+    WorldMapTravel(usize, usize),
     Craft,
     OpenPauseMenu,
     ReturnToMainMenu,
@@ -323,6 +324,12 @@ fn handle_world_map_input(ui: &mut UiState, state: &GameState, code: KeyCode) ->
             // Center on player
             ui.world_map_view.cursor_x = state.world_x;
             ui.world_map_view.cursor_y = state.world_y;
+        }
+        KeyCode::Enter => {
+            // Travel to cursor position
+            let (wx, wy) = (ui.world_map_view.cursor_x, ui.world_map_view.cursor_y);
+            ui.world_map_view.open = false;
+            return Action::WorldMapTravel(wx, wy);
         }
         _ => {}
     }

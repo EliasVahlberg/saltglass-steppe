@@ -461,6 +461,47 @@ impl GameState {
         self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
     }
 
+    /// Travel to a world tile with safe spawn (not on wall/enemy/glass)
+    pub fn travel_to_tile_safe(&mut self, new_wx: usize, new_wy: usize) {
+        self.travel_to_tile(new_wx, new_wy);
+        
+        // Find safe spawn position (not wall, glass, or enemy)
+        let (mut px, mut py) = (self.player_x, self.player_y);
+        
+        // Check if current position is safe
+        let is_safe = |map: &Map, enemies: &[Enemy], x: i32, y: i32| -> bool {
+            if let Some(tile) = map.get(x, y) {
+                if *tile != Tile::Floor { return false; }
+            } else { return false; }
+            !enemies.iter().any(|e| e.x == x && e.y == y && e.hp > 0)
+        };
+        
+        if !is_safe(&self.map, &self.enemies, px, py) {
+            // Search for safe position in expanding squares
+            'search: for radius in 1i32..20 {
+                for dy in -radius..=radius {
+                    for dx in -radius..=radius {
+                        if dx.abs() == radius || dy.abs() == radius {
+                            let nx = px + dx;
+                            let ny = py + dy;
+                            if is_safe(&self.map, &self.enemies, nx, ny) {
+                                px = nx;
+                                py = ny;
+                                break 'search;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        self.player_x = px;
+        self.player_y = py;
+        self.visible = compute_fov(&self.map, px, py);
+        self.revealed = self.visible.clone();
+        self.update_lighting();
+    }
+
     /// Enter subterranean layer (go down stairs)
     pub fn enter_subterranean(&mut self) -> bool {
         // Check if standing on stairs down
