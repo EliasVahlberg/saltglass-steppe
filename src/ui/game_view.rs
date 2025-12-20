@@ -350,3 +350,40 @@ pub fn render_debug_console(frame: &mut Frame, console: &super::input::DebugCons
     let prompt = format!("> {}_", console.input);
     frame.render_widget(Paragraph::new(prompt).style(Style::default().fg(Color::Yellow)), inner);
 }
+
+
+/// Render dialog box overlay with word wrapping and typewriter effect
+pub fn render_dialog_box(frame: &mut Frame, dialog: &super::input::DialogBox) {
+    if !dialog.active { return; }
+    
+    let area = frame.area();
+    let width = 60.min(area.width.saturating_sub(4));
+    let height = 12.min(area.height.saturating_sub(4));
+    let x = (area.width - width) / 2;
+    let y = (area.height - height) / 2;
+    let rect = Rect::new(x, y, width, height);
+    
+    let title = format!(" {} ", dialog.speaker);
+    let block = Block::default()
+        .title(title)
+        .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black).fg(Color::White));
+    let inner = block.inner(rect);
+    frame.render_widget(block, rect);
+    
+    // Word wrap the visible text
+    let text = dialog.visible_text();
+    let wrapped = textwrap::wrap(text, inner.width as usize);
+    let lines: Vec<Line> = wrapped.iter().map(|s| Line::from(s.to_string())).collect();
+    frame.render_widget(Paragraph::new(lines), inner);
+    
+    // Page indicator and hint
+    let page_info = format!(" [{}/{}] Enter=Next Esc=Close ", dialog.current_page + 1, dialog.pages.len());
+    let info_len = page_info.len() as u16;
+    let hint_x = rect.x + rect.width.saturating_sub(info_len + 1);
+    let hint_y = rect.y + rect.height - 1;
+    frame.render_widget(
+        Paragraph::new(Span::styled(page_info, Style::default().fg(Color::DarkGray))),
+        Rect::new(hint_x, hint_y, info_len, 1)
+    );
+}

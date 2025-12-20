@@ -9,19 +9,19 @@
       "dialogue": [
         {
           "conditions": [{ "has_adaptation": "Prismhide" }],
-          "text": "Your skin refracts. The angle has chosen you."
+          "text": "Your skin refracts the light beautifully. The angle has chosen you, pilgrim.</nextpage>We of the Mirror Order have watched for ones like you. The storm's gift is not a curse—it is transformation.</nextpage>Seek the Crucible when you are ready. There, the true nature of glass will be revealed to you."
         },
         {
           "conditions": [{ "has_adaptation": "Sunveins" }],
-          "text": "Light burns in your veins. You carry the storm's fire."
+          "text": "Light burns in your veins! You carry the storm's fire within you.</nextpage>The Sunveins are a rare blessing. Few survive the transformation, fewer still learn to wield it.</nextpage>Come to our monastery when you wish to learn. We can teach you to focus that inner light."
         },
         {
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "text": "The storm speaks through your flesh. Listen."
+          "text": "The storm speaks through your flesh. Can you hear it?</nextpage>Each adaptation is a word in the storm's language. Collect enough, and you may understand its message.</nextpage>We monks have spent generations deciphering these signs. Perhaps you will succeed where we have failed."
         },
         {
           "conditions": [],
-          "text": "You walk unmarked. The storm has not yet spoken to you."
+          "text": "You walk unmarked through the Saltglass Steppe. The storm has not yet spoken to you.</nextpage>This is neither blessing nor curse—merely a beginning. The glass storms will come, and when they do, you will change.</nextpage>Embrace the transformation when it comes. Resistance only brings suffering."
         }
       ],
       "actions": []
@@ -35,15 +35,15 @@
       "dialogue": [
         {
           "conditions": [{ "has_adaptation": "Saltblood" }],
-          "text": "Saltblood, eh? Useful. Glass won't cut you."
+          "text": "Saltblood, eh? Useful adaptation. Glass won't cut you, and the salt flats won't burn your feet.</nextpage>We engineers value practical mutations. None of that mystical nonsense the monks peddle.</nextpage>If you want work, we always need runners who can cross the glass fields safely."
         },
         {
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "text": "Adapted, I see. Stay useful, stay alive."
+          "text": "Adapted, I see. Good—stay useful, stay alive. That's the engineer's creed.</nextpage>We don't care what the monks say about 'transformation' or 'becoming.' Mutations are tools, nothing more.</nextpage>Got some gear for trade if you're interested. Fair prices for practical folk."
         },
         {
           "conditions": [],
-          "text": "Fresh meat. Watch where you step—glass cuts deep."
+          "text": "Fresh meat on the steppe. Watch where you step—glass cuts deep out here.</nextpage>Name's Kael. I maintain the water condensers for the settlements around here.</nextpage>Word of advice: get yourself a good pair of boots and a torch. The nights are dark and full of crawlers."
         }
       ],
       "actions": [
@@ -70,15 +70,15 @@
       "dialogue": [
         {
           "conditions": [{ "adaptation_count_gte": 2 }],
-          "text": "You begin to understand. The shimmer is not pain—it is becoming."
+          "text": "You begin to understand, flesh-kin. The shimmer is not pain—it is becoming.</nextpage>We Glassborn remember what it was to be soft. To bleed. To fear the storm.</nextpage>Now we ARE the storm. And soon, you may join us in the eternal refraction."
         },
         {
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "text": "You flinch at the shimmer. We were born in it."
+          "text": "You flinch at the shimmer still. We were born in it, molded by it.</nextpage>Your first adaptation is merely a taste. The storm has so much more to give.</nextpage>Do not fear the change. Fear remaining unchanged."
         },
         {
           "conditions": [],
-          "text": "Unmarked flesh. The storm will teach you, or break you."
+          "text": "Unmarked flesh. Soft. Fragile. The storm will teach you, or break you.</nextpage>We do not hate your kind. We pity you. Trapped in bodies that decay and fail.</nextpage>When the glass takes you—and it will—remember: we offered you understanding."
         }
       ],
       "actions": []
@@ -92,15 +92,15 @@
       "dialogue": [
         {
           "conditions": [{ "adaptation_count_gte": 3 }],
-          "text": "More salt than flesh now. Good. The steppe accepts you."
+          "text": "Ha! More salt than flesh now, aren't you? Good. The steppe accepts you.</nextpage>I've been out here forty years. Watched the storms come and go. Watched people change.</nextpage>You've got the look of a survivor. Rest here if you need. The salt keeps the crawlers away."
         },
         {
           "conditions": [{ "has_adaptation": "Saltblood" }],
-          "text": "Saltblood... you'll survive. Maybe."
+          "text": "Saltblood... you'll survive out here. Maybe even thrive.</nextpage>I got the same gift, years back. Lets me walk the flats without boots.</nextpage>There's a spring two days east. Good water, if you can fight off the beetles."
         },
         {
           "conditions": [],
-          "text": "Another soft one. The storms will harden you or bury you."
+          "text": "Another soft one stumbling through the wastes. The storms will harden you or bury you.</nextpage>I've seen hundreds like you. Most don't last a week.</nextpage>But you've got something in your eyes. Determination, maybe. Or just stupidity. Time will tell."
         }
       ],
       "actions": [
@@ -121,15 +121,15 @@
       "dialogue": [
         {
           "conditions": [{ "has_adaptation": "Prismhide" }],
-          "text": "You glow... like the saints did... before the Heliograph fell..."
+          "text": "You glow... like the saints did... before the Heliograph fell...</nextpage>I was searching... for the truth... about what we were... before the storms...</nextpage>Take this shard... it speaks of the old world... find the Archive..."
         },
         {
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "text": "The angle... I saw it once... in the Crucible... Vex knew..."
+          "text": "The angle... I saw it once... in the Crucible... Vex knew the secret...</nextpage>They said the storms were punishment... but I think... I think they were a gift...</nextpage>Too late for me now... but you... you might understand..."
         },
         {
           "conditions": [],
-          "text": "Water... no... too late... find the Archive... the truth is there..."
+          "text": "Water... no... too late for that... listen...</nextpage>The Archive... in the eastern ruins... it holds the truth about the Heliograph...</nextpage>Find it... before the monks... before they bury the past forever..."
         }
       ],
       "actions": [
@@ -145,23 +145,19 @@
       ]
     },
     {
-      "id": "glassborn_merchant",
-      "name": "Glassborn Merchant",
-      "glyph": "G",
-      "faction": "Glassborn",
-      "description": "Crystalline trader with wares embedded in translucent flesh",
+      "id": "glass_merchant",
+      "name": "Glass Merchant",
+      "glyph": "$",
+      "faction": "Unaffiliated",
+      "description": "Shrewd trader with a cart of glittering wares",
       "dialogue": [
         {
           "conditions": [{ "adaptation_count_gte": 2 }],
-          "text": "Kin. My prices reflect our bond. Take what you need."
-        },
-        {
-          "conditions": [{ "adaptation_count_gte": 1 }],
-          "text": "Changing, but not yet changed. I trade with the becoming."
+          "text": "Ah, a fellow connoisseur of the storm's gifts! I can see the refraction in your eyes.</nextpage>For one so touched by glass, I offer special prices. We adapted folk must stick together.</nextpage>Browse my wares—I've got items you won't find anywhere else on the steppe."
         },
         {
           "conditions": [],
-          "text": "Soft-skin wants glass-goods? Pay double. You haven't earned trust."
+          "text": "Welcome, traveler! You look like someone who appreciates quality merchandise.</nextpage>I've got weapons, armor, supplies—everything a pilgrim needs to survive the wastes.</nextpage>Fair prices, no haggling. Take it or leave it. The storms don't wait for bargains."
         }
       ],
       "actions": [
@@ -169,15 +165,15 @@
           "id": "trade",
           "name": "Trade",
           "conditions": [],
-          "effect": { "trade": true, "price_modifier_by_adaptations": true }
+          "effect": { "trade": true }
         }
       ],
       "shop_inventory": [
         "storm_glass",
-        "scripture_shard",
-        "saint_key",
-        "angle_lens",
-        "brine_vial"
+        "salt_knife",
+        "leather_jacket",
+        "storm_compass",
+        "saints_tear"
       ]
     },
     {
@@ -185,29 +181,18 @@
       "name": "Archive Custodian",
       "glyph": "A",
       "faction": "Archive",
-      "description": "Half-machine figure, face a cracked screen displaying static",
+      "description": "Mechanical guardian of ancient knowledge",
       "dialogue": [
         {
           "conditions": [{ "has_item": "saint_key" }],
-          "text": "CREDENTIAL VALID. ACCESS GRANTED. QUERY PERMITTED."
-        },
-        {
-          "conditions": [{ "adaptation_count_gte": 2 }],
-          "text": "BIOLOGICAL DEVIATION DETECTED. QUARANTINE RECOMMENDED."
+          "text": "CREDENTIAL VALID. ACCESS GRANTED.</nextpage>The Archive welcomes you, key-bearer. The knowledge within is yours to explore.</nextpage>Be warned: some truths are better left buried in the glass."
         },
         {
           "conditions": [],
-          "text": "UNAUTHORIZED ENTITY. PRESENT VALID CREDENTIAL OR VACATE."
+          "text": "UNAUTHORIZED. SAINT-KEY REQUIRED.</nextpage>This Archive contains knowledge from before the Heliograph's fall.</nextpage>Only those bearing a Saint-Key may enter. Seek one in the ruins."
         }
       ],
-      "actions": [
-        {
-          "id": "query_archive",
-          "name": "Query Archive",
-          "conditions": [{ "has_item": "saint_key" }],
-          "effect": { "reveals_lore": true }
-        }
-      ]
+      "actions": []
     }
   ]
 }

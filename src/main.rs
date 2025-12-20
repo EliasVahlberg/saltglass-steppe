@@ -6,7 +6,7 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_dialog_box, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -247,6 +247,9 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     if ui.debug_console.active {
         render_debug_console(frame, &ui.debug_console);
     }
+    
+    // Dialog box overlay (highest priority)
+    render_dialog_box(frame, &ui.dialog_box);
 }
 
 fn main() -> Result<()> {
@@ -298,6 +301,12 @@ fn main() -> Result<()> {
             state.tick_projectile_trails();
             state.tick_animation();
             ui.update_camera(state.player_x, state.player_y);
+            ui.dialog_box.tick(16); // ~60fps
+            
+            // Check for pending dialogue from NPC interaction
+            if let Some((speaker, text)) = state.pending_dialogue.take() {
+                ui.dialog_box.show(&speaker, &text);
+            }
             
             // Clear target if enemy is dead
             if let Some(ei) = ui.target_enemy {

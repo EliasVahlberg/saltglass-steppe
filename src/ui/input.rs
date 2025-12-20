@@ -40,6 +40,66 @@ impl DebugConsole {
     }
 }
 
+/// Dialog box state for NPC conversations
+#[derive(Default)]
+pub struct DialogBox {
+    pub active: bool,
+    pub speaker: String,
+    pub pages: Vec<String>,
+    pub current_page: usize,
+    pub chars_shown: usize,
+    pub cpm: u32, // characters per minute
+}
+
+impl DialogBox {
+    pub fn show(&mut self, speaker: &str, text: &str) {
+        self.active = true;
+        self.speaker = speaker.to_string();
+        self.pages = text.split("</nextpage>").map(|s| s.trim().to_string()).collect();
+        self.current_page = 0;
+        self.chars_shown = 0;
+        self.cpm = 1200; // default ~20 chars/sec
+    }
+    
+    pub fn close(&mut self) {
+        self.active = false;
+    }
+    
+    pub fn next_page(&mut self) -> bool {
+        // If text still revealing, show all
+        if self.chars_shown < self.current_text().len() {
+            self.chars_shown = self.current_text().len();
+            return true;
+        }
+        // Go to next page or close
+        if self.current_page + 1 < self.pages.len() {
+            self.current_page += 1;
+            self.chars_shown = 0;
+            true
+        } else {
+            self.close();
+            false
+        }
+    }
+    
+    pub fn current_text(&self) -> &str {
+        self.pages.get(self.current_page).map(|s| s.as_str()).unwrap_or("")
+    }
+    
+    pub fn visible_text(&self) -> &str {
+        let text = self.current_text();
+        let end = self.chars_shown.min(text.len());
+        &text[..end]
+    }
+    
+    pub fn tick(&mut self, frame_ms: u64) {
+        if !self.active { return; }
+        let chars_per_ms = self.cpm as f64 / 60000.0;
+        let chars_to_add = (chars_per_ms * frame_ms as f64).max(1.0) as usize;
+        self.chars_shown = (self.chars_shown + chars_to_add).min(self.current_text().len());
+    }
+}
+
 /// UI-specific state, separate from game logic
 pub struct UiState {
     pub look_mode: LookMode,
@@ -53,6 +113,7 @@ pub struct UiState {
     pub world_map_view: WorldMapView,
     pub target_enemy: Option<usize>,
     pub debug_console: DebugConsole,
+    pub dialog_box: DialogBox,
     /// Smooth camera position (lerped toward player)
     pub camera_x: f32,
     pub camera_y: f32,
@@ -87,6 +148,7 @@ impl UiState {
             world_map_view: WorldMapView::default(),
             target_enemy: None,
             debug_console: DebugConsole::default(),
+            dialog_box: DialogBox::default(),
             camera_x: 0.0,
             camera_y: 0.0,
         }
@@ -151,6 +213,16 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
                 KeyCode::Esc => return Ok(Action::ReturnToMainMenu),
                 _ => return Ok(Action::None),
             }
+        }
+        
+        // Dialog box input (highest priority when active)
+        if ui.dialog_box.active {
+            match key.code {
+                KeyCode::Esc => ui.dialog_box.close(),
+                KeyCode::Enter | KeyCode::Char(' ') => { ui.dialog_box.next_page(); }
+                _ => {}
+            }
+            return Ok(Action::None);
         }
         
         // Debug console input
