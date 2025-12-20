@@ -8,15 +8,15 @@
       "description": "Robed figure whose skin shimmers with embedded glass",
       "dialogue": [
         {
-          "conditions": [{"has_adaptation": "Prismhide"}],
+          "conditions": [{ "has_adaptation": "Prismhide" }],
           "text": "Your skin refracts. The angle has chosen you."
         },
         {
-          "conditions": [{"has_adaptation": "Sunveins"}],
+          "conditions": [{ "has_adaptation": "Sunveins" }],
           "text": "Light burns in your veins. You carry the storm's fire."
         },
         {
-          "conditions": [{"adaptation_count_gte": 1}],
+          "conditions": [{ "adaptation_count_gte": 1 }],
           "text": "The storm speaks through your flesh. Listen."
         },
         {
@@ -34,11 +34,11 @@
       "description": "Weathered mechanic with goggles and tool-laden belt",
       "dialogue": [
         {
-          "conditions": [{"has_adaptation": "Saltblood"}],
+          "conditions": [{ "has_adaptation": "Saltblood" }],
           "text": "Saltblood, eh? Useful. Glass won't cut you."
         },
         {
-          "conditions": [{"adaptation_count_gte": 1}],
+          "conditions": [{ "adaptation_count_gte": 1 }],
           "text": "Adapted, I see. Stay useful, stay alive."
         },
         {
@@ -51,8 +51,14 @@
           "id": "trade",
           "name": "Trade",
           "conditions": [],
-          "effect": {"trade": true}
+          "effect": { "trade": true }
         }
+      ],
+      "shop_inventory": [
+        "brine_vial",
+        "salt_poultice",
+        "health_potion",
+        "hand_torch"
       ]
     },
     {
@@ -63,11 +69,11 @@
       "description": "Humanoid form of fused glass and crystallized flesh",
       "dialogue": [
         {
-          "conditions": [{"adaptation_count_gte": 2}],
+          "conditions": [{ "adaptation_count_gte": 2 }],
           "text": "You begin to understand. The shimmer is not pain—it is becoming."
         },
         {
-          "conditions": [{"adaptation_count_gte": 1}],
+          "conditions": [{ "adaptation_count_gte": 1 }],
           "text": "You flinch at the shimmer. We were born in it."
         },
         {
@@ -85,11 +91,11 @@
       "description": "Weathered figure caked in crystalline deposits",
       "dialogue": [
         {
-          "conditions": [{"adaptation_count_gte": 3}],
+          "conditions": [{ "adaptation_count_gte": 3 }],
           "text": "More salt than flesh now. Good. The steppe accepts you."
         },
         {
-          "conditions": [{"has_adaptation": "Saltblood"}],
+          "conditions": [{ "has_adaptation": "Saltblood" }],
           "text": "Saltblood... you'll survive. Maybe."
         },
         {
@@ -102,7 +108,7 @@
           "id": "rest",
           "name": "Rest Here",
           "conditions": [],
-          "effect": {"heal": 3}
+          "effect": { "heal": 3 }
         }
       ]
     },
@@ -114,11 +120,11 @@
       "description": "Collapsed traveler, breath shallow, eyes fixed on the horizon",
       "dialogue": [
         {
-          "conditions": [{"has_adaptation": "Prismhide"}],
+          "conditions": [{ "has_adaptation": "Prismhide" }],
           "text": "You glow... like the saints did... before the Heliograph fell..."
         },
         {
-          "conditions": [{"adaptation_count_gte": 1}],
+          "conditions": [{ "adaptation_count_gte": 1 }],
           "text": "The angle... I saw it once... in the Crucible... Vex knew..."
         },
         {
@@ -131,7 +137,10 @@
           "id": "give_water",
           "name": "Give Water",
           "conditions": [],
-          "effect": {"gives_item": "scripture_shard", "consumes": "brine_vial"}
+          "effect": {
+            "gives_item": "scripture_shard",
+            "consumes": "brine_vial"
+          }
         }
       ]
     },
@@ -143,11 +152,11 @@
       "description": "Crystalline trader with wares embedded in translucent flesh",
       "dialogue": [
         {
-          "conditions": [{"adaptation_count_gte": 2}],
+          "conditions": [{ "adaptation_count_gte": 2 }],
           "text": "Kin. My prices reflect our bond. Take what you need."
         },
         {
-          "conditions": [{"adaptation_count_gte": 1}],
+          "conditions": [{ "adaptation_count_gte": 1 }],
           "text": "Changing, but not yet changed. I trade with the becoming."
         },
         {
@@ -160,8 +169,15 @@
           "id": "trade",
           "name": "Trade",
           "conditions": [],
-          "effect": {"trade": true, "price_modifier_by_adaptations": true}
+          "effect": { "trade": true, "price_modifier_by_adaptations": true }
         }
+      ],
+      "shop_inventory": [
+        "storm_glass",
+        "scripture_shard",
+        "saint_key",
+        "angle_lens",
+        "brine_vial"
       ]
     },
     {
@@ -172,11 +188,11 @@
       "description": "Half-machine figure, face a cracked screen displaying static",
       "dialogue": [
         {
-          "conditions": [{"has_item": "saint_key"}],
+          "conditions": [{ "has_item": "saint_key" }],
           "text": "CREDENTIAL VALID. ACCESS GRANTED. QUERY PERMITTED."
         },
         {
-          "conditions": [{"adaptation_count_gte": 2}],
+          "conditions": [{ "adaptation_count_gte": 2 }],
           "text": "BIOLOGICAL DEVIATION DETECTED. QUARANTINE RECOMMENDED."
         },
         {
@@ -188,8 +204,8 @@
         {
           "id": "query_archive",
           "name": "Query Archive",
-          "conditions": [{"has_item": "saint_key"}],
-          "effect": {"reveals_lore": true}
+          "conditions": [{ "has_item": "saint_key" }],
+          "effect": { "reveals_lore": true }
         }
       ]
     }

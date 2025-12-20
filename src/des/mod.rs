@@ -115,6 +115,7 @@ pub enum AssertionCheck {
     PlayerLevel { op: CmpOp, value: u32 },
     MessageContains { text: String },
     PendingStatPoints { op: CmpOp, value: i32 },
+    SaltScrip { op: CmpOp, value: u32 },
     // Quest assertions
     QuestActive { quest_id: String },
     QuestCompleted { quest_id: String },
@@ -233,6 +234,9 @@ pub enum Action {
     CompleteQuest { quest_id: String },
     // Crafting actions
     Craft { recipe_id: String },
+    // Economy actions
+    BuyItem { item_id: String, npc_id: String },
+    SellItem { item_id: String },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -673,6 +677,9 @@ impl DesExecutor {
             AssertionCheck::PendingStatPoints { op, value } => {
                 op.compare(self.state.pending_stat_points, *value)
             }
+            AssertionCheck::SaltScrip { op, value } => {
+                op.compare(self.state.salt_scrip as i32, *value as i32)
+            }
             // Quest assertions
             AssertionCheck::QuestActive { quest_id } => {
                 self.state.quest_log.active.iter().any(|q| q.quest_id == *quest_id)
@@ -816,6 +823,19 @@ impl DesExecutor {
             Action::Craft { recipe_id } => {
                 let success = self.state.craft(recipe_id);
                 self.log(format!("Craft '{}': {}", recipe_id, if success { "success" } else { "failed" }));
+            }
+            // Economy actions
+            Action::BuyItem { item_id, npc_id } => {
+                match self.state.buy_item(item_id, npc_id) {
+                    Ok(()) => self.log(format!("Bought '{}'", item_id)),
+                    Err(e) => self.log(format!("Buy failed: {}", e)),
+                }
+            }
+            Action::SellItem { item_id } => {
+                match self.state.sell_item(item_id) {
+                    Ok(()) => self.log(format!("Sold '{}'", item_id)),
+                    Err(e) => self.log(format!("Sell failed: {}", e)),
+                }
             }
         }
     }

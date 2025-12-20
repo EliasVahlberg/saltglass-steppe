@@ -120,6 +120,9 @@ pub struct GameState {
     pub player_level: u32,
     #[serde(default)]
     pub pending_stat_points: i32,
+    /// Currency (salt scrip)
+    #[serde(default)]
+    pub salt_scrip: u32,
     #[serde(default)]
     pub equipped_weapon: Option<String>,
     #[serde(default)]
@@ -302,6 +305,7 @@ impl GameState {
             player_ap: default_player_ap(), player_max_ap: default_player_ap(),
             player_reflex: 5, player_armor: 0, player_xp: 0, player_level: 0,
             pending_stat_points: 0,
+            salt_scrip: 50,
             equipped_weapon: None,
             equipment: Equipment::default(),
             status_effects: Vec::new(),
@@ -1214,6 +1218,10 @@ impl GameState {
             if reward.xp > 0 {
                 self.gain_xp(reward.xp);
             }
+            if reward.salt_scrip > 0 {
+                self.salt_scrip += reward.salt_scrip;
+                self.log(format!("Received {} salt scrip", reward.salt_scrip));
+            }
             for item_id in &reward.items {
                 self.inventory.push(item_id.clone());
             }
@@ -1258,6 +1266,54 @@ impl GameState {
         
         self.log(format!("Crafted {}.", recipe.name));
         true
+    }
+
+    /// Buy an item from an NPC shop
+    pub fn buy_item(&mut self, item_id: &str, npc_id: &str) -> Result<(), String> {
+        // Check if NPC exists and has the item in shop
+        let npc_def = super::npc::get_npc_def(npc_id)
+            .ok_or_else(|| format!("NPC '{}' not found", npc_id))?;
+        
+        if !npc_def.shop_inventory.contains(&item_id.to_string()) {
+            return Err(format!("{} doesn't sell that item", npc_def.name));
+        }
+
+        // Get item value
+        let item_def = get_item_def(item_id)
+            .ok_or_else(|| format!("Item '{}' not found", item_id))?;
+        
+        let price = item_def.value;
+        
+        // Check if player has enough currency
+        if self.salt_scrip < price {
+            return Err(format!("Not enough salt scrip (need {}, have {})", price, self.salt_scrip));
+        }
+
+        // Execute transaction
+        self.salt_scrip -= price;
+        self.inventory.push(item_id.to_string());
+        self.log(format!("Bought {} for {} salt scrip", item_def.name, price));
+        Ok(())
+    }
+
+    /// Sell an item to an NPC
+    pub fn sell_item(&mut self, item_id: &str) -> Result<(), String> {
+        // Check if player has the item
+        let item_idx = self.inventory.iter().position(|id| id == item_id)
+            .ok_or_else(|| format!("You don't have that item"))?;
+
+        // Get item value
+        let item_def = get_item_def(item_id)
+            .ok_or_else(|| format!("Item '{}' not found", item_id))?;
+        
+        // Sell for half value
+        let sell_price = item_def.value / 2;
+        
+        // Execute transaction
+        self.inventory.remove(item_idx);
+        self.salt_scrip += sell_price;
+        self.log(format!("Sold {} for {} salt scrip", item_def.name, sell_price));
+        Ok(())
     }
 
     /// Get next tutorial message if conditions are met

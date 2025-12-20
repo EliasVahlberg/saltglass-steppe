@@ -16,6 +16,7 @@
       "reward": {
         "xp": 10,
         "items": [],
+        "salt_scrip": 25,
         "unlocks_quests": ["choose_your_path"]
       }
     },
@@ -35,6 +36,7 @@
       "reward": {
         "xp": 20,
         "items": [],
+        "salt_scrip": 50,
         "unlocks_quests": ["glasswright_introduction", "nomad_introduction"]
       }
     },
@@ -61,6 +63,7 @@
       "reward": {
         "xp": 40,
         "items": ["glasswright_token"],
+        "salt_scrip": 75,
         "unlocks_quests": ["craft_your_first_item"]
       }
     },
@@ -87,6 +90,7 @@
       "reward": {
         "xp": 40,
         "items": ["nomad_token"],
+        "salt_scrip": 75,
         "unlocks_quests": ["learn_to_hunt"]
       }
     },
