@@ -196,6 +196,9 @@ pub struct GameState {
     /// Current weather condition
     #[serde(default)]
     pub weather: Weather,
+    /// Consecutive turns waited (for auto-rest)
+    #[serde(default)]
+    pub wait_counter: u32,
     /// Tutorial system progress tracking
     #[serde(default)]
     pub tutorial_progress: TutorialProgress,
@@ -353,6 +356,7 @@ impl GameState {
             layer: 0,
             time_of_day: 8,
             weather: Weather::Clear,
+            wait_counter: 0,
             tutorial_progress: TutorialProgress::default(),
             animation_frame: 0,
             debug_god_view: false,
@@ -759,8 +763,27 @@ impl GameState {
         self.status_effects.push(effect);
     }
 
-    /// Wait in place (costs 0 AP, ends turn)
+    /// Wait in place (costs 0 AP, ends turn). Auto-heals after 5 consecutive waits with no enemies nearby.
     pub fn wait_turn(&mut self) {
+        // Check for nearby enemies
+        let enemies_nearby = self.enemies.iter().any(|e| {
+            let dx = (e.x - self.player_x).abs();
+            let dy = (e.y - self.player_y).abs();
+            dx <= super::constants::FOV_RANGE && dy <= super::constants::FOV_RANGE
+        });
+        
+        if enemies_nearby {
+            self.wait_counter = 0;
+        } else {
+            self.wait_counter += 1;
+            // Auto-rest after 5 consecutive waits
+            if self.wait_counter >= 5 && self.player_hp < self.player_max_hp {
+                let heal = (self.player_max_hp / 10).max(1);
+                self.player_hp = (self.player_hp + heal).min(self.player_max_hp);
+                self.log_typed(format!("You rest and recover {} HP.", heal), MsgType::Status);
+                self.wait_counter = 0;
+            }
+        }
         self.end_turn();
     }
 
@@ -1076,6 +1099,7 @@ impl GameState {
     }
 
     pub fn try_move(&mut self, dx: i32, dy: i32) -> bool {
+        self.wait_counter = 0; // Reset auto-rest counter on movement
         let new_x = self.player_x + dx;
         let new_y = self.player_y + dy;
 
