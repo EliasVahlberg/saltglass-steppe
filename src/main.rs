@@ -219,7 +219,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     if ui.look_mode.active {
         let desc = state.describe_at(ui.look_mode.x, ui.look_mode.y);
         let block = Block::default().title(" Look (Esc/Enter to exit) ").borders(Borders::ALL);
-        frame.render_widget(Paragraph::new(desc).block(block), game_chunks[0]);
+        frame.render_widget(Paragraph::new(desc).wrap(ratatui::widgets::Wrap { trim: true }).block(block), game_chunks[0]);
     }
 
     // Render game map

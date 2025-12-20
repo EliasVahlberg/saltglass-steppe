@@ -363,6 +363,9 @@ pub fn render_dialog_box(frame: &mut Frame, dialog: &super::input::DialogBox) {
     let y = (area.height - height) / 2;
     let rect = Rect::new(x, y, width, height);
     
+    // Clear the area first
+    frame.render_widget(ratatui::widgets::Clear, rect);
+    
     let title = format!(" {} ", dialog.speaker);
     let block = Block::default()
         .title(title)
@@ -375,7 +378,7 @@ pub fn render_dialog_box(frame: &mut Frame, dialog: &super::input::DialogBox) {
     let text = dialog.visible_text();
     let wrapped = textwrap::wrap(text, inner.width as usize);
     let lines: Vec<Line> = wrapped.iter().map(|s| Line::from(s.to_string())).collect();
-    frame.render_widget(Paragraph::new(lines), inner);
+    frame.render_widget(Paragraph::new(lines).style(Style::default().bg(Color::Black)), inner);
     
     // Page indicator and hint
     let page_info = format!(" [{}/{}] Enter=Next Esc=Close ", dialog.current_page + 1, dialog.pages.len());
@@ -383,7 +386,7 @@ pub fn render_dialog_box(frame: &mut Frame, dialog: &super::input::DialogBox) {
     let hint_x = rect.x + rect.width.saturating_sub(info_len + 1);
     let hint_y = rect.y + rect.height - 1;
     frame.render_widget(
-        Paragraph::new(Span::styled(page_info, Style::default().fg(Color::DarkGray))),
+        Paragraph::new(Span::styled(page_info, Style::default().fg(Color::DarkGray).bg(Color::Black))),
         Rect::new(hint_x, hint_y, info_len, 1)
     );
 }
