@@ -312,7 +312,7 @@ pub fn render_death_screen(frame: &mut Frame, state: &GameState) {
     }
     
     // Quit prompt
-    let msg = " Press Q to quit ";
+    let msg = " Press Esc to return to menu ";
     let msg_x = area.width.saturating_sub(msg.len() as u16) / 2;
     let msg_y = stats_y + stats.len() as u16 + 2;
     frame.render_widget(

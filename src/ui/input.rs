@@ -129,6 +129,14 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
             return Ok(Action::None);
         }
         
+        // Death screen - only allow Esc to return to main menu
+        if state.player_hp <= 0 {
+            match key.code {
+                KeyCode::Esc => return Ok(Action::ReturnToMainMenu),
+                _ => return Ok(Action::None),
+            }
+        }
+        
         // Debug console input
         if ui.debug_console.active {
             return Ok(handle_debug_console_input(ui, key.code));
