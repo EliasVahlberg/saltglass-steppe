@@ -432,6 +432,56 @@
       "armor_value": 1,
       "equip_slot": "necklace",
       "light_source": {"radius": 4, "intensity": 80}
+    },
+    {
+      "id": "salt_knife",
+      "name": "Salt Knife",
+      "glyph": "/",
+      "description": "Crystallized blade that never dulls",
+      "value": 25,
+      "weight": 1,
+      "usable": false,
+      "equip_slot": "weapon"
+    },
+    {
+      "id": "glass_shard",
+      "name": "Glass Shard",
+      "glyph": "▲",
+      "description": "Jagged storm glass, cuts both ways",
+      "value": 15,
+      "weight": 1,
+      "usable": false,
+      "equip_slot": "weapon"
+    },
+    {
+      "id": "rusty_blade",
+      "name": "Rusty Blade",
+      "glyph": "/",
+      "description": "Old corroded sword, still sharp",
+      "value": 20,
+      "weight": 2,
+      "usable": false,
+      "equip_slot": "weapon"
+    },
+    {
+      "id": "brine_pistol",
+      "name": "Brine Pistol",
+      "glyph": "┘",
+      "description": "Fires pressurized salt water",
+      "value": 60,
+      "weight": 2,
+      "usable": false,
+      "equip_slot": "ranged_weapon"
+    },
+    {
+      "id": "storm_bow",
+      "name": "Storm Bow",
+      "glyph": ")",
+      "description": "Launches glass-tipped arrows",
+      "value": 50,
+      "weight": 2,
+      "usable": false,
+      "equip_slot": "ranged_weapon"
     }
   ]
 }

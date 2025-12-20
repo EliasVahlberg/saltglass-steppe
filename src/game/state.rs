@@ -205,6 +205,9 @@ pub struct GameState {
     /// Animation frame counter for ambient tile animations
     #[serde(skip)]
     pub animation_frame: u32,
+    /// Pending dialogue to show in UI (speaker, text)
+    #[serde(skip)]
+    pub pending_dialogue: Option<(String, String)>,
     // Debug flags
     #[serde(skip)]
     pub debug_god_view: bool,
@@ -359,6 +362,7 @@ impl GameState {
             wait_counter: 0,
             tutorial_progress: TutorialProgress::default(),
             animation_frame: 0,
+            pending_dialogue: None,
             debug_god_view: false,
             debug_phase: false,
         };
@@ -1122,7 +1126,10 @@ impl GameState {
             let name = self.npcs[ni].name().to_string();
             let actions: Vec<_> = self.npcs[ni].available_actions(&ctx).into_iter().cloned().collect();
             
-            self.log_typed(format!("{}: \"{}\"", name, dialogue), MsgType::Dialogue);
+            // Store pending dialogue for UI to display
+            self.pending_dialogue = Some((name.clone(), dialogue.clone()));
+            // Also log for DES tests and message history
+            self.log_typed(format!("{}: \"{}\"", name, dialogue.replace("</nextpage>", " ")), MsgType::Dialogue);
             
             // Execute first available action
             for action in &actions {
