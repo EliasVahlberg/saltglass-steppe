@@ -1,0 +1,30 @@
+# Advanced Map Features Test
+# Tests hidden locations, safe routes, storm damage, and player annotations
+
+# Test 1: Reveal hidden location
+action reveal_location 10 15 "Ancient Cache"
+assert map_feature_revealed 10 15
+
+# Test 2: Add safe route from NPC
+action add_safe_route 5 5 20 20 "Guide Keth" "Safe passage through the glass fields"
+assert safe_route_exists 5 5 20 20
+
+# Test 3: Track storm damage on world map
+action add_storm_damage 32 16 25
+assert storm_damage_recorded 32 16 25
+
+# Test 4: Player annotation
+action add_annotation 12 8 "Dangerous area - glass spiders"
+assert annotation_exists 12 8
+
+# Test 5: Add waypoint
+action add_waypoint 25 30 "Base Camp" "Safe resting spot with supplies"
+assert waypoint_exists 25 30 "Base Camp"
+
+# Test 6: Check location revelation
+assert location_revealed 10 15 true
+assert location_revealed 99 99 false
+
+# Test 7: Get safe routes from position
+assert safe_routes_from 5 5 1
+assert safe_routes_from 99 99 0

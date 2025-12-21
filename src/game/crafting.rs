@@ -17,6 +17,13 @@ pub struct Recipe {
     /// Output quantity (default 1)
     #[serde(default = "default_output_count")]
     pub output_count: u32,
+    /// Skill level required (0 = no skill needed)
+    #[serde(default)]
+    pub skill_required: u32,
+    /// Crafting station required (null = can craft anywhere)
+    pub station_required: Option<String>,
+    /// Faction required (null = no faction restriction)
+    pub faction_required: Option<String>,
 }
 
 fn default_output_count() -> u32 { 1 }
@@ -51,7 +58,62 @@ pub fn can_craft(recipe: &Recipe, inventory: &[String]) -> bool {
     true
 }
 
-/// Get available recipes based on inventory
-pub fn available_recipes(inventory: &[String]) -> Vec<&'static Recipe> {
-    RECIPES.values().filter(|r| can_craft(r, inventory)).collect()
+/// Check if player can craft recipe (materials + skill + station + faction)
+pub fn can_craft_advanced(
+    recipe: &Recipe, 
+    inventory: &[String], 
+    player_level: u32,
+    available_stations: &[String],
+    faction_reputation: &HashMap<String, i32>
+) -> bool {
+    // Check materials
+    if !can_craft(recipe, inventory) {
+        return false;
+    }
+    
+    // Check skill requirement (use player level as crafting skill)
+    if player_level < recipe.skill_required {
+        return false;
+    }
+    
+    // Check crafting station
+    if let Some(required_station) = &recipe.station_required {
+        if !available_stations.contains(required_station) {
+            return false;
+        }
+    }
+    
+    // Check faction requirement (need positive reputation)
+    if let Some(required_faction) = &recipe.faction_required {
+        if faction_reputation.get(required_faction).unwrap_or(&0) <= &0 {
+            return false;
+        }
+    }
+    
+    true
+}
+
+/// Get all recipes player can currently craft
+pub fn available_recipes(
+    inventory: &[String],
+    player_level: u32,
+    available_stations: &[String],
+    faction_reputation: &HashMap<String, i32>
+) -> Vec<&'static Recipe> {
+    RECIPES.values()
+        .filter(|recipe| can_craft_advanced(recipe, inventory, player_level, available_stations, faction_reputation))
+        .collect()
+}
+
+/// Calculate crafting success chance based on skill vs requirement
+pub fn crafting_success_chance(player_level: u32, recipe_skill: u32) -> f32 {
+    if player_level >= recipe_skill + 2 {
+        1.0 // Guaranteed success
+    } else if player_level >= recipe_skill {
+        0.8 // High chance
+    } else if player_level + 1 >= recipe_skill {
+        0.6 // Medium chance
+    } else {
+        0.3 // Low chance
+    }
 }

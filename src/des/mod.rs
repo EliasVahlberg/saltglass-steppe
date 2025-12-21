@@ -130,6 +130,27 @@ pub enum AssertionCheck {
     RitualCompleted { ritual_id: String },
     RitualAvailable { ritual_id: String },
     FactionReputation { faction: String, op: CmpOp, value: i32 },
+    // Map Features assertions
+    MapFeatureRevealed { x: i32, y: i32 },
+    SafeRouteExists { from_x: i32, from_y: i32, to_x: i32, to_y: i32 },
+    StormDamageRecorded { world_x: usize, world_y: usize, op: CmpOp, value: u32 },
+    AnnotationExists { x: i32, y: i32 },
+    WaypointExists { x: i32, y: i32, name: String },
+    LocationRevealed { x: i32, y: i32, revealed: bool },
+    SafeRoutesFrom { x: i32, y: i32, op: CmpOp, value: usize },
+    // Crafting assertions
+    HasItem { item: String },
+    ItemCount { item: String, op: CmpOp, value: u32 },
+    CraftingSuccess { recipe: String, op: CmpOp, value: f32 },
+    AvailableRecipesCount { op: CmpOp, value: usize },
+    // Sanity assertions
+    SanityCurrent { op: CmpOp, value: u32 },
+    SanityMax { op: CmpOp, value: u32 },
+    MentalEffectsCount { op: CmpOp, value: usize },
+    HasMentalEffect { effect: String },
+    AdaptationTolerance { op: CmpOp, value: u32 },
+    DecisionPenalty { op: CmpOp, value: i32 },
+    ShouldHallucinate { should: bool },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -250,6 +271,24 @@ pub enum Action {
     // Ritual actions
     PerformRitual { ritual_id: String },
     SetLocationType { location_type: String },
+    // Map Features actions
+    RevealLocation { x: i32, y: i32, description: String },
+    AddSafeRoute { from_x: i32, from_y: i32, to_x: i32, to_y: i32, npc_name: String, description: String },
+    AddStormDamage { world_x: usize, world_y: usize, damage: u32 },
+    AddAnnotation { x: i32, y: i32, text: String },
+    AddWaypoint { x: i32, y: i32, name: String, description: String },
+    AddStation { station: String },
+    SetFactionRep { faction: String, value: i32 },
+    SetLevel { level: u32 },
+    // Sanity actions
+    LoseSanity { amount: u32, source: String },
+    RestoreSanity { amount: u32, source: String },
+    AddMentalEffect { effect: String, duration: u32, intensity: u32 },
+    TickMentalEffects,
+    AdaptationEffect { adaptation: String },
+    RestRestoration,
+    SocialRestoration,
+    MeditationRestoration,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -773,6 +812,90 @@ impl DesExecutor {
                 let reputation = self.state.get_reputation(faction);
                 op.compare(reputation, *value)
             }
+            // Map Features assertions
+            AssertionCheck::MapFeatureRevealed { x, y } => {
+                self.state.map_features.is_location_revealed(*x, *y)
+            }
+            AssertionCheck::SafeRouteExists { from_x, from_y, to_x, to_y } => {
+                self.state.map_features.safe_routes.iter()
+                    .any(|r| r.from == (*from_x, *from_y) && r.to == (*to_x, *to_y))
+            }
+            AssertionCheck::StormDamageRecorded { world_x, world_y, op, value } => {
+                let damage = self.state.map_features.storm_damage.get(&(*world_x, *world_y)).unwrap_or(&0);
+                op.compare(*damage as i32, *value as i32)
+            }
+            AssertionCheck::AnnotationExists { x, y } => {
+                self.state.map_features.player_annotations.contains_key(&(*x, *y))
+            }
+            AssertionCheck::WaypointExists { x, y, name } => {
+                self.state.map_features.waypoints.iter()
+                    .any(|w| w.x == *x && w.y == *y && w.name == *name)
+            }
+            AssertionCheck::LocationRevealed { x, y, revealed } => {
+                self.state.map_features.is_location_revealed(*x, *y) == *revealed
+            }
+            AssertionCheck::SafeRoutesFrom { x, y, op, value } => {
+                let count = self.state.map_features.get_safe_routes_from(*x, *y).len();
+                op.compare(count, *value)
+            }
+            // Crafting assertions
+            AssertionCheck::HasItem { item } => {
+                self.state.inventory.contains(item)
+            }
+            AssertionCheck::ItemCount { item, op, value } => {
+                let count = self.state.inventory.iter().filter(|id| *id == item).count() as u32;
+                op.compare(count as i32, *value as i32)
+            }
+            AssertionCheck::CraftingSuccess { recipe, op, value } => {
+                if let Some(recipe_def) = crate::game::get_recipe(recipe) {
+                    let success = crate::game::crafting_success_chance(self.state.player_level, recipe_def.skill_required);
+                    op.compare((success * 100.0) as i32, (*value * 100.0) as i32)
+                } else {
+                    false
+                }
+            }
+            AssertionCheck::AvailableRecipesCount { op, value } => {
+                let available_stations = vec!["crafting_table".to_string()]; // Mock stations for testing
+                let recipes = crate::game::available_recipes(
+                    &self.state.inventory,
+                    self.state.player_level,
+                    &available_stations,
+                    &self.state.faction_reputation
+                );
+                op.compare(recipes.len(), *value)
+            }
+            // Sanity assertions
+            AssertionCheck::SanityCurrent { op, value } => {
+                op.compare(self.state.sanity.current_sanity as i32, *value as i32)
+            }
+            AssertionCheck::SanityMax { op, value } => {
+                op.compare(self.state.sanity.max_sanity as i32, *value as i32)
+            }
+            AssertionCheck::MentalEffectsCount { op, value } => {
+                op.compare(self.state.sanity.mental_effects.len(), *value)
+            }
+            AssertionCheck::HasMentalEffect { effect } => {
+                use crate::game::sanity::MentalEffectType;
+                let effect_type = match effect.as_str() {
+                    "hallucinations" => MentalEffectType::Hallucinations,
+                    "paranoia" => MentalEffectType::Paranoia,
+                    "confusion" => MentalEffectType::Confusion,
+                    "despair" => MentalEffectType::Despair,
+                    "clarity" => MentalEffectType::Clarity,
+                    "determination" => MentalEffectType::Determination,
+                    _ => return false,
+                };
+                self.state.sanity.has_effect(effect_type)
+            }
+            AssertionCheck::AdaptationTolerance { op, value } => {
+                op.compare(self.state.sanity.adaptation_tolerance as i32, *value as i32)
+            }
+            AssertionCheck::DecisionPenalty { op, value } => {
+                op.compare(self.state.sanity.decision_penalty(), *value)
+            }
+            AssertionCheck::ShouldHallucinate { should } => {
+                self.state.sanity.should_hallucinate(&mut self.state.rng) == *should
+            }
         }
     }
 
@@ -925,6 +1048,91 @@ impl DesExecutor {
                 // Store location type for ritual requirements (simplified)
                 self.current_location_type = Some(location_type.clone());
                 self.log(format!("Location type set to: {}", location_type));
+            }
+            // Map Features actions
+            Action::RevealLocation { x, y, description } => {
+                self.state.map_features.reveal_location(*x, *y, description.clone());
+                self.log(format!("Revealed location at ({}, {}): {}", x, y, description));
+            }
+            Action::AddSafeRoute { from_x, from_y, to_x, to_y, npc_name, description } => {
+                self.state.map_features.add_safe_route((*from_x, *from_y), (*to_x, *to_y), npc_name.clone(), description.clone());
+                self.log(format!("Added safe route from ({}, {}) to ({}, {}) marked by {}", from_x, from_y, to_x, to_y, npc_name));
+            }
+            Action::AddStormDamage { world_x, world_y, damage } => {
+                self.state.map_features.add_storm_damage(*world_x, *world_y, *damage);
+                self.log(format!("Added storm damage {} at world ({}, {})", damage, world_x, world_y));
+            }
+            Action::AddAnnotation { x, y, text } => {
+                self.state.map_features.add_annotation(*x, *y, text.clone());
+                self.log(format!("Added annotation at ({}, {}): {}", x, y, text));
+            }
+            Action::AddWaypoint { x, y, name, description } => {
+                self.state.map_features.add_waypoint(*x, *y, name.clone(), description.clone());
+                self.log(format!("Added waypoint '{}' at ({}, {})", name, x, y));
+            }
+            Action::AddStation { station } => {
+                // Mock implementation - in real game this would add to available stations
+                self.log(format!("Added crafting station: {}", station));
+            }
+            Action::SetFactionRep { faction, value } => {
+                self.state.faction_reputation.insert(faction.clone(), *value);
+                self.log(format!("Set faction reputation for '{}' to {}", faction, value));
+            }
+            Action::SetLevel { level } => {
+                self.state.player_level = *level;
+                self.log(format!("Set player level to {}", level));
+            }
+            // Sanity actions
+            Action::LoseSanity { amount, source } => {
+                let messages = self.state.sanity.lose_sanity(*amount, source);
+                for msg in messages {
+                    self.log(msg);
+                }
+            }
+            Action::RestoreSanity { amount, source } => {
+                let message = self.state.sanity.restore_sanity(*amount, source);
+                self.log(message);
+            }
+            Action::AddMentalEffect { effect, duration, intensity } => {
+                use crate::game::sanity::MentalEffectType;
+                let effect_type = match effect.as_str() {
+                    "hallucinations" => MentalEffectType::Hallucinations,
+                    "paranoia" => MentalEffectType::Paranoia,
+                    "confusion" => MentalEffectType::Confusion,
+                    "despair" => MentalEffectType::Despair,
+                    "clarity" => MentalEffectType::Clarity,
+                    "determination" => MentalEffectType::Determination,
+                    _ => {
+                        self.log(format!("Unknown mental effect: {}", effect));
+                        return;
+                    }
+                };
+                self.state.sanity.add_mental_effect(effect_type, *duration, *intensity);
+                self.log(format!("Added mental effect '{}' for {} turns", effect, duration));
+            }
+            Action::TickMentalEffects => {
+                let messages = self.state.sanity.tick_effects();
+                for msg in messages {
+                    self.log(msg);
+                }
+            }
+            Action::AdaptationEffect { adaptation } => {
+                let messages = self.state.sanity.adaptation_effect(adaptation);
+                for msg in messages {
+                    self.log(msg);
+                }
+            }
+            Action::RestRestoration => {
+                let message = self.state.sanity.rest_restoration();
+                self.log(message);
+            }
+            Action::SocialRestoration => {
+                let message = self.state.sanity.social_restoration();
+                self.log(message);
+            }
+            Action::MeditationRestoration => {
+                let message = self.state.sanity.meditation_restoration();
+                self.log(message);
             }
         }
     }

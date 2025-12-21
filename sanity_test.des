@@ -1,0 +1,62 @@
+# Sanity/Mental Health System Test
+# Tests sanity loss, mental effects, hallucinations, and restoration
+
+# Test 1: Initial sanity state
+assert sanity_current 80
+assert sanity_max 100
+assert mental_effects_count 0
+
+# Test 2: Sanity loss from various sources
+action lose_sanity 20 "witnessing horror"
+assert sanity_current 60
+assert has_mental_effect confusion
+
+# Test 3: Further sanity loss triggers paranoia
+action lose_sanity 25 "isolation"
+assert sanity_current 35
+assert has_mental_effect paranoia
+
+# Test 4: Severe sanity loss triggers despair
+action lose_sanity 20 "traumatic event"
+assert sanity_current 15
+assert has_mental_effect despair
+
+# Test 5: Sanity restoration
+action restore_sanity 30 "rest"
+assert sanity_current 45
+assert has_mental_effect despair false  # Should be removed
+
+# Test 6: Adaptation effects on sanity
+action adaptation_effect glass_sight
+assert sanity_current 40  # Lost 5 sanity
+assert adaptation_tolerance 1
+
+# Test 7: Repeated adaptation effects (tolerance should reduce loss)
+action adaptation_effect glass_sight
+assert sanity_current 36  # Lost 4 sanity (5 - 1 tolerance)
+assert adaptation_tolerance 2
+
+# Test 8: Mental effect duration ticking
+action tick_mental_effects
+# Effects should have reduced duration
+
+# Test 9: Decision penalties based on sanity
+assert decision_penalty -2  # At 36 sanity, should have -2 penalty
+
+# Test 10: Hallucination checks
+action add_mental_effect hallucinations 5 2
+assert should_hallucinate true  # Should have chance to hallucinate
+
+# Test 11: Restoration methods
+action rest_restoration
+assert sanity_current 41  # +5 from rest
+
+action social_restoration  
+assert sanity_current 49  # +8 from social interaction
+
+action meditation_restoration
+assert sanity_current 59  # +10 from meditation
+
+# Test 12: Maximum sanity cap
+action restore_sanity 50 "test"
+assert sanity_current 100  # Should cap at max_sanity

@@ -15,8 +15,10 @@ use super::{
     item::{get_item_def, Item},
     lighting::{compute_lighting, LightMap, LightSource},
     map::{compute_fov, Map, Tile},
+    map_features::MapFeatures,
     npc::Npc,
     quest::QuestLog,
+    sanity::SanitySystem,
     spawn::{load_spawn_tables, weighted_pick},
     storm::Storm,
     tutorial::TutorialProgress,
@@ -212,6 +214,12 @@ pub struct GameState {
     /// Tutorial system progress tracking
     #[serde(default)]
     pub tutorial_progress: TutorialProgress,
+    /// Advanced map features (hidden locations, safe routes, etc.)
+    #[serde(default)]
+    pub map_features: MapFeatures,
+    /// Sanity/Mental health system
+    #[serde(default)]
+    pub sanity: SanitySystem,
     /// Animation frame counter for ambient tile animations
     #[serde(skip)]
     pub animation_frame: u32,
@@ -391,6 +399,8 @@ impl GameState {
             weather: Weather::Clear,
             wait_counter: 0,
             tutorial_progress: TutorialProgress::default(),
+            map_features: MapFeatures::new(),
+            sanity: SanitySystem::new(),
             animation_frame: 0,
             pending_dialogue: None,
             debug_god_view: false,
