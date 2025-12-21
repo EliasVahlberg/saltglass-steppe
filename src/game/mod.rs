@@ -5,6 +5,7 @@ pub mod combat;
 pub mod combat_actions;
 pub mod constants;
 pub mod crafting;
+pub mod dialogue;
 pub mod effect;
 pub mod enemy;
 pub mod equipment;

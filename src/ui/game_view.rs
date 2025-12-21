@@ -129,11 +129,11 @@ fn render_tile(
         
         // Apply status effect colors (priority: burn > poison > bleed)
         for effect in &state.status_effects {
-            let status_color = match effect.effect_type {
-                StatusType::Burn => Some(t.status_burning),
-                StatusType::Poison => Some(t.status_poisoned),
-                StatusType::Bleed => Some(t.status_bleeding),
-                StatusType::Stun => Some(t.status_frozen),
+            let status_color = match effect.id.as_str() {
+                "burn" => Some(t.status_burning),
+                "poison" => Some(t.status_poisoned),
+                "bleed" => Some(t.status_bleeding),
+                "stun" => Some(t.status_frozen),
                 _ => None,
             };
             if let Some(color) = status_color {

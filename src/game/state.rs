@@ -48,6 +48,7 @@ pub enum MsgType {
     #[default]
     System,
     Combat,
+    Social,
     Loot,
     Status,
     Dialogue,
@@ -131,6 +132,12 @@ pub struct GameState {
     /// Currency (salt scrip)
     #[serde(default)]
     pub salt_scrip: u32,
+    /// Faction reputation system (-100 to +100 per faction)
+    #[serde(default)]
+    pub faction_reputation: HashMap<String, i32>,
+    /// Track last damage dealt for reflection behaviors
+    #[serde(default)]
+    pub last_damage_dealt: u32,
     #[serde(default)]
     pub equipped_weapon: Option<String>,
     #[serde(default)]
@@ -348,6 +355,9 @@ impl GameState {
             pending_stat_points: 0,
             salt_scrip: 50,
             equipped_weapon: None,
+            // Faction reputation system (-100 to +100 per faction)
+            faction_reputation: HashMap::new(),
+            last_damage_dealt: 0,
             equipment: Equipment::default(),
             status_effects: Vec::new(),
             map, enemies, npcs, items, inventory: Vec::new(),
@@ -778,7 +788,7 @@ impl GameState {
             let dmg = effect.tick();
             if dmg > 0 {
                 total_damage += dmg;
-                messages.push(format!("{} deals {} damage.", effect.name(), dmg));
+                messages.push(format!("{} deals {} damage.", effect.name, dmg));
             }
         }
         for msg in messages {
@@ -790,7 +800,7 @@ impl GameState {
 
     /// Apply a status effect to the player
     pub fn apply_status(&mut self, effect: super::status::StatusEffect) {
-        self.log_typed(format!("You are {}! ({} turns)", effect.name(), effect.duration), MsgType::Status);
+        self.log_typed(format!("You are {}! ({} turns)", effect.name, effect.duration), MsgType::System);
         self.status_effects.push(effect);
     }
 
@@ -1540,6 +1550,132 @@ impl GameState {
                 return;
             }
         }
+    }
+
+    /// Modify faction reputation (clamped to -100 to +100)
+    pub fn modify_reputation(&mut self, faction: &str, delta: i32) {
+        let current = self.faction_reputation.get(faction).copied().unwrap_or(0);
+        let new_rep = (current + delta).clamp(-100, 100);
+        self.faction_reputation.insert(faction.to_string(), new_rep);
+        
+        if delta != 0 {
+            let change_desc = if delta > 0 { "improved" } else { "worsened" };
+            self.log_typed(format!("Your reputation with {} has {}.", faction, change_desc), MsgType::Social);
+        }
+    }
+
+    /// Get faction reputation (0 if not set)
+    pub fn get_reputation(&self, faction: &str) -> i32 {
+        self.faction_reputation.get(faction).copied().unwrap_or(0)
+    }
+
+    /// Add currency to player
+    pub fn add_currency(&mut self, amount: u32) {
+        self.salt_scrip += amount;
+        if amount > 0 {
+            self.log_typed(format!("Gained {} salt scrip.", amount), MsgType::Loot);
+        }
+    }
+
+    /// Try to spend currency, returns true if successful
+    pub fn spend_currency(&mut self, amount: u32) -> bool {
+        if self.salt_scrip >= amount {
+            self.salt_scrip -= amount;
+            self.log_typed(format!("Spent {} salt scrip.", amount), MsgType::System);
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Calculate item price with faction reputation modifier
+    pub fn calculate_price(&self, base_price: u32, faction: &str, buying: bool) -> u32 {
+        let reputation = self.get_reputation(faction);
+        let modifier = 1.0 + (reputation as f32 * -0.002); // -0.2% per reputation point
+        let price = (base_price as f32 * modifier) as u32;
+        
+        if buying {
+            price.max(1) // Minimum 1 scrip when buying
+        } else {
+            (price * 7 / 10).max(1) // Sell for 70% of buy price
+        }
+    }
+
+    /// Apply status effect to player
+    pub fn apply_status_effect(&mut self, effect_id: &str, duration: i32) {
+        // Check if effect already exists
+        if let Some(existing) = self.status_effects.iter_mut().find(|e| e.id == effect_id) {
+            existing.duration = existing.duration.max(duration); // Take longer duration
+            existing.add_stack(5); // Max 5 stacks for most effects
+        } else {
+            self.status_effects.push(super::status::StatusEffect::new(effect_id, duration));
+        }
+        
+        self.log_typed(format!("You are affected by {}.", effect_id), MsgType::Combat);
+    }
+
+    /// Check if player has specific status effect
+    pub fn has_status_effect(&self, effect_id: &str) -> bool {
+        self.status_effects.iter().any(|e| e.id == effect_id)
+    }
+
+    /// Process enemy behavior on attack
+    pub fn process_enemy_behavior(&mut self, enemy_index: usize, behavior_type: &str, params: &super::enemy::Behavior) -> bool {
+        match behavior_type {
+            "reflect_damage" => {
+                if let Some(percent) = params.percent {
+                    let reflected = (self.last_damage_dealt * percent / 100) as i32;
+                    if reflected > 0 {
+                        self.player_hp -= reflected;
+                        self.log_typed(format!("The enemy reflects {} damage back at you!", reflected), MsgType::Combat);
+                        return true;
+                    }
+                }
+            },
+            "poison_sting" => {
+                if let Some(duration) = params.value {
+                    self.apply_status_effect("poison", duration as i32);
+                    return true;
+                }
+            },
+            "web_trap" => {
+                if let Some(turns) = params.value {
+                    self.apply_status_effect("immobilized", turns as i32);
+                    self.log_typed("You are trapped in webbing!".to_string(), MsgType::Combat);
+                    return true;
+                }
+            },
+            "drain_sanity" => {
+                if let Some(amount) = params.value {
+                    // Placeholder for sanity system
+                    self.log_typed(format!("Your mind reels from the encounter! (-{} sanity)", amount), MsgType::Combat);
+                    return true;
+                }
+            },
+            "teleport" => {
+                if let Some(range) = params.value {
+                    // Find valid teleport position
+                    for _ in 0..10 {
+                        let dx = self.rng.gen_range(-(range as i32)..=(range as i32));
+                        let dy = self.rng.gen_range(-(range as i32)..=(range as i32));
+                        let new_x = self.enemies[enemy_index].x + dx;
+                        let new_y = self.enemies[enemy_index].y + dy;
+                        
+                        if let Some(tile) = self.map.get(new_x, new_y) {
+                            if *tile == super::map::Tile::Floor {
+                                self.enemies[enemy_index].x = new_x;
+                                self.enemies[enemy_index].y = new_y;
+                                self.log_typed("The enemy teleports!".to_string(), MsgType::Combat);
+                                self.rebuild_spatial_index();
+                                return true;
+                            }
+                        }
+                    }
+                }
+            },
+            _ => return false,
+        }
+        false
     }
 
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), String> {
