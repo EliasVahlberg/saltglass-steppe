@@ -1,0 +1,70 @@
+# Dialogue System Test
+# Tests robust dialogue trees with branching conversations and conditions
+
+# Test 1: Start dialogue with merchant
+action start_dialogue merchant_keth
+assert dialogue_active merchant_keth
+assert dialogue_speaker "Merchant Keth"
+assert dialogue_options_count 4
+
+# Test 2: Conditional dialogue option (reputation requirement)
+action set_faction_rep saltborn_collective 10
+action start_dialogue merchant_keth
+assert dialogue_option_available "How do you feel about the other factions?"
+
+# Test 3: Conditional dialogue option (reputation too low)
+action set_faction_rep saltborn_collective 5
+action start_dialogue merchant_keth
+assert dialogue_option_available "How do you feel about the other factions?" false
+
+# Test 4: Navigate to different dialogue node
+action start_dialogue merchant_keth
+action choose_dialogue_option 1  # "Tell me about the local area"
+assert dialogue_node "area_info"
+assert dialogue_text_contains "dangerous lately"
+
+# Test 5: Dialogue action execution (trade)
+action start_dialogue merchant_keth
+action choose_dialogue_option 0  # "I'd like to see your wares"
+assert pending_trade merchant_keth
+assert dialogue_ended
+
+# Test 6: Dialogue action execution (give item)
+action set_faction_rep saltborn_collective 10
+action start_dialogue merchant_keth
+action choose_dialogue_option 2  # Faction talk
+action choose_dialogue_option 0  # "I respect that philosophy"
+assert has_item salt_crystal
+assert dialogue_node "greeting"
+
+# Test 7: Reputation change action
+action start_dialogue glasswright_artisan
+action choose_dialogue_option 1  # Guild exclusive
+action choose_dialogue_option 0  # "How can I prove my dedication?"
+assert faction_reputation glasswright_guild 5
+
+# Test 8: Complex conditional dialogue (adaptation requirement)
+give_adaptation storm_touched
+action start_dialogue storm_prophet_trader
+assert dialogue_option_available "The storms guide my path as well."
+
+# Test 9: Dialogue tree with multiple conditions
+action set_faction_rep storm_prophets 50
+give_adaptation storm_touched
+action start_dialogue storm_prophet_trader
+action choose_dialogue_option 3  # Kindred spirit
+action choose_dialogue_option 1  # "What secrets can you share"
+assert has_item blessed_storm_glass
+
+# Test 10: Currency transaction in dialogue
+give salt_scrip 100
+action start_dialogue merchant_keth
+# Simulate dialogue action that takes currency
+action dialogue_action take_currency 50
+assert salt_scrip 50
+
+# Test 11: Quest completion condition
+complete_quest "find_ancient_relic"
+action start_dialogue storm_prophet_trader
+# Should have access to quest-completion-dependent options
+assert dialogue_condition_met completed_quest "find_ancient_relic"

@@ -1,0 +1,314 @@
+{
+  "dialogues": [
+    {
+      "npc_id": "merchant_keth",
+      "name": "Merchant Keth",
+      "faction": "saltborn_collective",
+      "root_node": "greeting",
+      "nodes": [
+        {
+          "id": "greeting",
+          "speaker": "Merchant Keth",
+          "text": "Welcome, traveler! I've got supplies from across the Saltglass Steppe. What brings you to my humble stall?",
+          "options": [
+            {
+              "text": "I'd like to see your wares.",
+              "response": "Of course! Take a look at what I have available.",
+              "action": {
+                "type": "trade",
+                "parameters": {
+                  "trader_id": "merchant_keth"
+                }
+              },
+              "ends_conversation": true
+            },
+            {
+              "text": "Tell me about the local area.",
+              "leads_to": "area_info"
+            },
+            {
+              "text": "How do you feel about the other factions?",
+              "condition": {
+                "faction_reputation": {
+                  "saltborn_collective": 10
+                }
+              },
+              "leads_to": "faction_talk"
+            },
+            {
+              "text": "I need to go.",
+              "response": "Safe travels, friend. May the salt winds guide you.",
+              "ends_conversation": true
+            }
+          ]
+        },
+        {
+          "id": "area_info",
+          "speaker": "Merchant Keth",
+          "text": "This area's been getting more dangerous lately. Glass spiders have been spotted near the old ruins, and the storms are getting stronger. You'd best be careful out there.",
+          "options": [
+            {
+              "text": "Any advice for dealing with glass spiders?",
+              "response": "Keep your distance and use ranged attacks if you can. Their webs are sharp as razors, but they're fragile creatures.",
+              "leads_to": "greeting"
+            },
+            {
+              "text": "What about the storms?",
+              "response": "The Storm Prophets say they're signs of change coming. I just know they make travel treacherous. Stock up on supplies before venturing far.",
+              "leads_to": "greeting"
+            },
+            {
+              "text": "Thanks for the warning.",
+              "leads_to": "greeting"
+            }
+          ]
+        },
+        {
+          "id": "faction_talk",
+          "speaker": "Merchant Keth",
+          "text": "Well, since you've proven yourself trustworthy... The Glasswright Guild makes fine tools, but they're prideful. The Storm Prophets speak in riddles, but their warnings often prove true. We Saltborn just try to survive and help each other.",
+          "options": [
+            {
+              "text": "I respect that philosophy.",
+              "response": "Good to hear! Here, take this as a token of friendship.",
+              "action": {
+                "type": "give_item",
+                "parameters": {
+                  "item_id": "salt_crystal"
+                }
+              },
+              "leads_to": "greeting"
+            },
+            {
+              "text": "What about trade between factions?",
+              "response": "Trade keeps us all alive, regardless of politics. Though some are more... selective about their customers.",
+              "leads_to": "greeting"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "npc_id": "glasswright_artisan",
+      "name": "Artisan Vex",
+      "faction": "glasswright_guild",
+      "root_node": "greeting",
+      "nodes": [
+        {
+          "id": "greeting",
+          "speaker": "Artisan Vex",
+          "text": "Ah, another seeker of fine craftsmanship. The Glasswright Guild's reputation precedes us, I trust?",
+          "options": [
+            {
+              "text": "I'm interested in your glass work.",
+              "response": "Excellent! Our pieces are unmatched in quality and precision.",
+              "action": {
+                "type": "trade",
+                "parameters": {
+                  "trader_id": "glasswright_artisan"
+                }
+              },
+              "ends_conversation": true
+            },
+            {
+              "text": "I've heard you only sell to guild members.",
+              "condition": {
+                "faction_reputation": {
+                  "glasswright_guild": -10
+                }
+              },
+              "leads_to": "guild_exclusive"
+            },
+            {
+              "text": "Can you teach me about glassworking?",
+              "condition": {
+                "faction_reputation": {
+                  "glasswright_guild": 25
+                }
+              },
+              "leads_to": "teaching"
+            },
+            {
+              "text": "I should be going.",
+              "response": "Very well. Remember, true artistry cannot be rushed.",
+              "ends_conversation": true
+            }
+          ]
+        },
+        {
+          "id": "guild_exclusive",
+          "speaker": "Artisan Vex",
+          "text": "Our finest pieces are indeed reserved for those who understand their true value. Prove your dedication to the craft, and perhaps we can discuss exclusive arrangements.",
+          "options": [
+            {
+              "text": "How can I prove my dedication?",
+              "response": "Bring me rare materials, support our guild's interests, and show respect for the ancient techniques. Reputation is earned, not bought.",
+              "action": {
+                "type": "reputation_change",
+                "parameters": {
+                  "faction": "glasswright_guild",
+                  "change": 5
+                }
+              },
+              "leads_to": "greeting"
+            },
+            {
+              "text": "That seems unfair.",
+              "response": "Fairness? Quality craftsmanship requires standards. Perhaps you'd be more comfortable with... lesser merchants.",
+              "action": {
+                "type": "reputation_change",
+                "parameters": {
+                  "faction": "glasswright_guild",
+                  "change": -5
+                }
+              },
+              "ends_conversation": true
+            }
+          ]
+        },
+        {
+          "id": "teaching",
+          "speaker": "Artisan Vex",
+          "text": "Ah, a true student of the craft! The secrets of glassworking are passed down through generations. The key is understanding that glass is not merely melted sand - it's crystallized potential.",
+          "options": [
+            {
+              "text": "Tell me about the advanced techniques.",
+              "condition": {
+                "faction_reputation": {
+                  "glasswright_guild": 50
+                }
+              },
+              "response": "The master techniques involve working with storm-touched glass and incorporating salt crystal matrices. Here, take these tools - you've earned them.",
+              "action": {
+                "type": "give_item",
+                "parameters": {
+                  "item_id": "precision_tools"
+                }
+              },
+              "leads_to": "greeting"
+            },
+            {
+              "text": "I'm grateful for the knowledge.",
+              "response": "Knowledge shared is knowledge multiplied. Continue your studies, and the guild will take notice.",
+              "action": {
+                "type": "reputation_change",
+                "parameters": {
+                  "faction": "glasswright_guild",
+                  "change": 10
+                }
+              },
+              "leads_to": "greeting"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "npc_id": "storm_prophet_trader",
+      "name": "Prophet Zara",
+      "faction": "storm_prophets",
+      "root_node": "greeting",
+      "nodes": [
+        {
+          "id": "greeting",
+          "speaker": "Prophet Zara",
+          "text": "The winds whisper of your approach, wanderer. The storms have shown me glimpses of your path. What do you seek in these shifting times?",
+          "options": [
+            {
+              "text": "I seek items touched by the storm.",
+              "response": "The storm provides for those who understand its nature. Behold what the winds have brought.",
+              "action": {
+                "type": "trade",
+                "parameters": {
+                  "trader_id": "storm_prophet_trader"
+                }
+              },
+              "ends_conversation": true
+            },
+            {
+              "text": "What do the storms tell you?",
+              "leads_to": "prophecy"
+            },
+            {
+              "text": "I don't believe in prophecies.",
+              "response": "Belief is not required for truth to manifest. The storms care not for skepticism.",
+              "action": {
+                "type": "reputation_change",
+                "parameters": {
+                  "faction": "storm_prophets",
+                  "change": -10
+                }
+              },
+              "ends_conversation": true
+            },
+            {
+              "text": "The storms guide my path as well.",
+              "condition": {
+                "has_adaptation": "storm_touched"
+              },
+              "leads_to": "kindred_spirit"
+            }
+          ]
+        },
+        {
+          "id": "prophecy",
+          "speaker": "Prophet Zara",
+          "text": "The great convergence approaches. Glass and salt, storm and stillness - all will be tested. Those who adapt will endure, those who resist will be swept away like dust before the tempest.",
+          "options": [
+            {
+              "text": "What must I do to prepare?",
+              "response": "Embrace change, gather allies, and trust in the storm's wisdom. Here, take this - you will need it when the time comes.",
+              "action": {
+                "type": "give_item",
+                "parameters": {
+                  "item_id": "prophecy_scroll"
+                }
+              },
+              "leads_to": "greeting"
+            },
+            {
+              "text": "When will this convergence occur?",
+              "response": "Time flows like sand through glass. Soon, but not yet. The signs will be unmistakable when the moment arrives.",
+              "leads_to": "greeting"
+            }
+          ]
+        },
+        {
+          "id": "kindred_spirit",
+          "speaker": "Prophet Zara",
+          "text": "Yes... I sense the storm's touch upon you. You understand what others cannot - that change is not to be feared, but embraced. The winds have marked you as one of us.",
+          "options": [
+            {
+              "text": "I am honored by the recognition.",
+              "response": "Honor is earned through understanding. You have walked the path of transformation and emerged stronger. The storm smiles upon you.",
+              "action": {
+                "type": "reputation_change",
+                "parameters": {
+                  "faction": "storm_prophets",
+                  "change": 25
+                }
+              },
+              "leads_to": "greeting"
+            },
+            {
+              "text": "What secrets can you share with me?",
+              "condition": {
+                "faction_reputation": {
+                  "storm_prophets": 50
+                }
+              },
+              "response": "The deepest mysteries are not spoken, but experienced. Take this storm glass - it will reveal truths when the time is right.",
+              "action": {
+                "type": "give_item",
+                "parameters": {
+                  "item_id": "blessed_storm_glass"
+                }
+              },
+              "leads_to": "greeting"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
