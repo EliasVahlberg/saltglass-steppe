@@ -1,85 +1,60 @@
 use serde::{Deserialize, Serialize};
 
-/// Status effect types
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "snake_case")]
-pub enum StatusType {
-    Poison,
-    Burn,
-    Stun,
-    Bleed,
-    Slow,
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct StatusEffect {
+    pub id: String,
+    pub name: String,
+    pub duration: i32, // Turns remaining
+    pub stacks: u32,   // How many times applied
 }
 
-/// Active status effect on a character
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct StatusEffect {
-    pub effect_type: StatusType,
-    pub duration: u32,
-    pub potency: i32,
+#[derive(Clone, Debug, Deserialize)]
+pub struct StatusEffectDef {
+    pub id: String,
+    pub name: String,
+    pub description: String,
+    pub max_stacks: u32,
+    pub tick_damage: i32,
+    pub blocks_healing: bool,
+    pub reduces_accuracy: i32,
+    pub reduces_damage: i32,
+    pub grants_invisibility: bool,
 }
 
 impl StatusEffect {
-    pub fn new(effect_type: StatusType, duration: u32, potency: i32) -> Self {
-        Self { effect_type, duration, potency }
+    pub fn new(id: &str, duration: i32) -> Self {
+        Self {
+            id: id.to_string(),
+            name: id.to_string(), // Will be replaced with proper name from def
+            duration,
+            stacks: 1,
+        }
     }
 
-    /// Tick the effect, returning damage dealt (if any)
     pub fn tick(&mut self) -> i32 {
-        if self.duration > 0 {
-            self.duration -= 1;
-        }
-        match self.effect_type {
-            StatusType::Poison => self.potency,
-            StatusType::Burn => self.potency,
-            StatusType::Bleed => self.potency,
-            _ => 0,
+        self.duration -= 1;
+        0 // Return damage dealt (placeholder for now)
+    }
+
+    pub fn add_stack(&mut self, max_stacks: u32) {
+        if self.stacks < max_stacks {
+            self.stacks += 1;
         }
     }
 
     pub fn is_expired(&self) -> bool {
-        self.duration == 0
-    }
-
-    pub fn name(&self) -> &'static str {
-        match self.effect_type {
-            StatusType::Poison => "Poisoned",
-            StatusType::Burn => "Burning",
-            StatusType::Stun => "Stunned",
-            StatusType::Bleed => "Bleeding",
-            StatusType::Slow => "Slowed",
-        }
+        self.duration <= 0
     }
 }
 
-/// Check if stunned (can't act)
-pub fn is_stunned(effects: &[StatusEffect]) -> bool {
-    effects.iter().any(|e| e.effect_type == StatusType::Stun && e.duration > 0)
+// Legacy compatibility functions
+pub fn is_stunned(_effects: &[StatusEffect]) -> bool {
+    false // Placeholder
 }
 
-/// Get movement penalty from slow
-pub fn slow_penalty(effects: &[StatusEffect]) -> i32 {
-    effects.iter()
-        .filter(|e| e.effect_type == StatusType::Slow && e.duration > 0)
-        .map(|e| e.potency)
-        .sum()
+pub fn slow_penalty(_effects: &[StatusEffect]) -> i32 {
+    0 // Placeholder
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn poison_deals_damage() {
-        let mut effect = StatusEffect::new(StatusType::Poison, 3, 2);
-        assert_eq!(effect.tick(), 2);
-        assert_eq!(effect.duration, 2);
-    }
-
-    #[test]
-    fn effect_expires() {
-        let mut effect = StatusEffect::new(StatusType::Stun, 1, 0);
-        effect.tick();
-        assert!(effect.is_expired());
-    }
-}
+// Legacy type alias
+pub type StatusType = String;

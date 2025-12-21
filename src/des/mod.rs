@@ -21,13 +21,13 @@ fn parse_adaptation(id: &str) -> Option<Adaptation> {
     }
 }
 
-fn parse_status_type(id: &str) -> Option<StatusType> {
+fn parse_status_type(id: &str) -> Option<String> {
     match id.to_lowercase().as_str() {
-        "poison" => Some(StatusType::Poison),
-        "burn" => Some(StatusType::Burn),
-        "stun" => Some(StatusType::Stun),
-        "bleed" => Some(StatusType::Bleed),
-        "slow" => Some(StatusType::Slow),
+        "poison" => Some("poison".to_string()),
+        "burn" => Some("burn".to_string()),
+        "stun" => Some("stun".to_string()),
+        "bleed" => Some("bleed".to_string()),
+        "slow" => Some("slow".to_string()),
         _ => None,
     }
 }
@@ -622,7 +622,7 @@ impl DesExecutor {
             }
             AssertionCheck::HasStatusEffect { effect } => {
                 self.state.status_effects.iter().any(|e| {
-                    format!("{:?}", e.effect_type).to_lowercase() == effect.to_lowercase()
+                    e.id.to_lowercase() == effect.to_lowercase()
                 })
             }
             AssertionCheck::StatusEffectCount { op, value } => {
@@ -795,7 +795,7 @@ impl DesExecutor {
             Action::ApplyStatus { effect, duration, potency } => {
                 if let Some(status_type) = parse_status_type(effect) {
                     use crate::game::status::StatusEffect;
-                    self.state.apply_status(StatusEffect::new(status_type, *duration, *potency));
+                    self.state.apply_status(StatusEffect::new(&status_type, *duration as i32));
                     self.log(format!("Applied {} for {} turns", effect, duration));
                 }
             }

@@ -39,6 +39,16 @@ pub struct ItemDef {
     #[serde(default)]
     pub reduces_refraction: u32,
     #[serde(default)]
+    pub grants_invisibility: bool,
+    #[serde(default)]
+    pub reveals_storm_timing: bool,
+    #[serde(default)]
+    pub reveals_locations: bool,
+    #[serde(default)]
+    pub stackable: bool,
+    #[serde(default)]
+    pub grows_over_time: bool,
+    #[serde(default)]
     pub armor_value: i32,
     #[serde(default)]
     pub equip_slot: Option<String>,
