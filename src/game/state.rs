@@ -894,6 +894,9 @@ impl GameState {
             d.turns_remaining = d.turns_remaining.saturating_sub(1);
             d.turns_remaining > 0
         });
+        
+        // Apply light-based effects
+        self.apply_light_effects();
     }
 
     pub fn log(&mut self, msg: impl Into<String>) {
@@ -1680,6 +1683,40 @@ impl GameState {
             _ => return false,
         }
         false
+    }
+
+    /// Apply light-based effects (glare damage, visibility modifiers)
+    pub fn apply_light_effects(&mut self) {
+        let light_level = super::lighting::get_light_level(&self.light_map, self.player_x, self.player_y);
+        
+        // Glare damage
+        if super::lighting::has_glare(&self.light_map, self.player_x, self.player_y, 220) {
+            if !self.has_status_effect("glare_protection") {
+                self.player_hp -= 1;
+                self.log_typed("The intense light burns your eyes!".to_string(), MsgType::Combat);
+                self.apply_status_effect("blinded", 2);
+            }
+        }
+        
+        // Light-based item effects
+        for item_id in &self.inventory.clone() {
+            if let Some(def) = super::item::get_item_def(item_id) {
+                if def.reveals_storm_timing && light_level > 150 {
+                    // Storm Chart works better in bright light
+                    if self.rng.gen_range(0..100) < 10 {
+                        self.log_typed("The Storm Chart glows, revealing storm patterns...".to_string(), MsgType::System);
+                    }
+                }
+                
+                if def.grants_invisibility && light_level < 50 {
+                    // Refraction Oil works better in darkness
+                    if !self.has_status_effect("invisible") {
+                        self.apply_status_effect("invisible", 3);
+                        self.log_typed("You blend into the shadows...".to_string(), MsgType::System);
+                    }
+                }
+            }
+        }
     }
 
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), String> {

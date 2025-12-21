@@ -1,0 +1,67 @@
+# Light and Vision System Test
+
+## Test: Light Source Items
+
+### Setup
+```
+spawn_item hand_torch 5 5
+move_player 5 5
+pickup_item hand_torch
+equip_item hand_torch weapon
+```
+
+### Test Light Effects
+```
+# Should have light from equipped torch
+assert_light_level 5 5 ge 100
+
+# Test glare effects with bright light
+set_light_level 5 5 250
+wait 1
+assert_has_status_effect blinded
+```
+
+## Test: Item Light Interactions
+
+### Storm Chart in Bright Light
+```
+spawn_item storm_chart 10 10
+move_player 10 10
+pickup_item storm_chart
+set_light_level 10 10 200
+wait 10
+# Should occasionally trigger storm timing messages
+```
+
+### Refraction Oil in Darkness
+```
+spawn_item refraction_oil 15 15
+move_player 15 15
+pickup_item refraction_oil
+set_light_level 15 15 30
+wait 5
+assert_has_status_effect invisible
+```
+
+## Test: Visibility Modifiers
+
+### Dark Areas
+```
+set_light_level 20 20 20
+# Should have reduced visibility
+assert_visibility_modifier 20 20 lt 1.0
+```
+
+### Bright Areas
+```
+set_light_level 25 25 150
+# Should have enhanced visibility
+assert_visibility_modifier 25 25 ge 1.0
+```
+
+### Glare Areas
+```
+set_light_level 30 30 230
+# Should have reduced visibility from glare
+assert_visibility_modifier 30 30 lt 1.0
+```
