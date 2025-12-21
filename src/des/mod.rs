@@ -2,7 +2,7 @@
 //!
 //! Runs game scenarios without rendering for automated testing and validation.
 
-use crate::game::{adaptation::Adaptation, inspect::inspect_item, status::StatusType, Enemy, GameState, Item, Npc};
+use crate::game::{adaptation::Adaptation, inspect::inspect_item, Enemy, GameState, Item, Npc};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
@@ -652,7 +652,7 @@ impl DesExecutor {
         });
     }
 
-    fn evaluate_check(&self, check: &AssertionCheck) -> bool {
+    fn evaluate_check(&mut self, check: &AssertionCheck) -> bool {
         match check {
             AssertionCheck::PlayerHp { op, value } => op.compare(self.state.player_hp, *value),
             AssertionCheck::PlayerPosition { x, y } => {
@@ -1019,7 +1019,7 @@ impl DesExecutor {
                 self.state.try_ranged_attack(*target_x, *target_y);
                 self.log(format!("Player ranged attack ({}, {})", target_x, target_y));
             }
-            Action::ApplyStatus { effect, duration, potency } => {
+            Action::ApplyStatus { effect, duration, potency: _ } => {
                 if let Some(status_type) = parse_status_type(effect) {
                     use crate::game::status::StatusEffect;
                     self.state.apply_status(StatusEffect::new(&status_type, *duration as i32));
@@ -1215,7 +1215,7 @@ impl DesExecutor {
                 );
                 self.log(format!("Got trade interface for {} at tier {}", trader_id, tier));
             }
-            Action::ExecuteTrade { trader_id, item_id, quantity } => {
+            Action::ExecuteTrade { trader_id: _, item_id, quantity } => {
                 if let Some(ref mut interface) = self.current_trade_interface {
                     match crate::game::trading::execute_trade(
                         interface,
@@ -1254,6 +1254,15 @@ impl DesExecutor {
                     self.state.adaptations.push(adaptation);
                     self.log(format!("Gave adaptation: {}", adaptation_id));
                 }
+            }
+            Action::ExecuteSell { .. } => {
+                self.log("ExecuteSell action not implemented in DES".to_string());
+            }
+            Action::SpawnEnemy { .. } => {
+                self.log("SpawnEnemy action not implemented in DES".to_string());
+            }
+            Action::DialogueAction { .. } => {
+                self.log("DialogueAction not implemented in DES".to_string());
             }
         }
     }

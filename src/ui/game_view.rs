@@ -2,7 +2,6 @@
 
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use crate::{get_enemy_effects, get_light_def, GameState, Tile, VisualEffect};
-use crate::game::status::StatusType;
 use super::theme::theme;
 
 /// Dim a color based on light level (0-255)

@@ -135,10 +135,10 @@ impl crate::game::state::GameState {
         }
 
         // Apply effects
-        if let Some(adaptation) = &ritual.effects.add_adaptation {
-            if let Some(adapt_def) = super::adaptation::get_adaptation_def(adaptation) {
-                self.adaptations.push(adapt_def.clone());
-                self.log_typed(format!("Gained adaptation: {}", adapt_def.name), super::state::MsgType::System);
+        if let Some(adaptation_id) = &ritual.effects.add_adaptation {
+            if let Some(adaptation) = super::adaptation::Adaptation::from_id(adaptation_id) {
+                self.adaptations.push(adaptation);
+                self.log_typed(format!("Gained adaptation: {}", adaptation_id), super::state::MsgType::System);
             }
         }
 
@@ -165,7 +165,7 @@ impl crate::game::state::GameState {
         // Record completion
         self.completed_rituals.push(CompletedRitual {
             ritual_id: ritual.id.clone(),
-            completed_at: self.turn,
+            completed_at: self.turn as u64,
         });
 
         self.log_typed(format!("Ritual completed: {}", ritual.name), super::state::MsgType::System);

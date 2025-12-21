@@ -1,6 +1,5 @@
 use rand::Rng;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
 /// Mental health system tracking psychological effects
 #[derive(Clone, Debug, Serialize, Deserialize)]

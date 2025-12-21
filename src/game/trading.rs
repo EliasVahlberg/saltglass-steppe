@@ -1,5 +1,5 @@
 use once_cell::sync::Lazy;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::collections::HashMap;
 
 /// Trading system with faction, tier, and relationship-based availability
@@ -81,7 +81,7 @@ pub fn calculate_area_tier(enemies: &[crate::game::Enemy]) -> u32 {
         return 1;
     }
     
-    let avg_hp: f32 = enemies.iter().map(|e| e.max_hp as f32).sum::<f32>() / enemies.len() as f32;
+    let avg_hp: f32 = enemies.iter().map(|e| e.hp as f32).sum::<f32>() / enemies.len() as f32;
     
     match avg_hp as u32 {
         0..=20 => 1,
@@ -103,17 +103,19 @@ pub fn get_trade_interface(
     let player_rep = faction_reputation.get(&trader.faction).unwrap_or(&0);
     
     // Calculate reputation modifier
+    let default_modifier = ReputationModifier {
+        price_multiplier: 1.0,
+        stock_bonus: 0,
+        exclusive_items: Vec::new(),
+    };
+    
     let rep_modifier = trader.reputation_modifiers.iter()
         .find(|(rep_str, _)| {
             let threshold: i32 = rep_str.parse().unwrap_or(0);
             *player_rep >= threshold
         })
         .map(|(_, modifier)| modifier)
-        .unwrap_or(&ReputationModifier {
-            price_multiplier: 1.0,
-            stock_bonus: 0,
-            exclusive_items: Vec::new(),
-        });
+        .unwrap_or(&default_modifier);
     
     let mut available_items = Vec::new();
     

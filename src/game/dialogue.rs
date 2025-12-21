@@ -1,4 +1,4 @@
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use std::collections::HashMap;
 use once_cell::sync::Lazy;
 
@@ -212,7 +212,7 @@ fn check_dialogue_condition(game_state: &crate::game::GameState, condition: &Dia
 
     // Check adaptation
     if let Some(adaptation_id) = &condition.has_adaptation {
-        if !game_state.adaptations.iter().any(|a| a.id == *adaptation_id) {
+        if !game_state.adaptations.iter().any(|a| a.id() == *adaptation_id) {
             return false;
         }
     }
@@ -310,8 +310,11 @@ impl crate::game::state::GameState {
     }
 
     /// Get available dialogue options for an NPC
-    pub fn get_available_dialogue_options(&self, dialogue: &DialogueTree) -> Vec<&DialogueOption> {
-        dialogue.options.iter()
+    pub fn get_available_dialogue_options<'a>(&self, dialogue: &'a DialogueTree) -> Vec<&'a DialogueOption> {
+        dialogue.nodes.iter()
+            .find(|node| node.id == dialogue.root_node)
+            .map(|node| node.options.iter().collect())
+            .unwrap_or_else(Vec::new).into_iter()
             .filter(|option| {
                 if let Some(condition) = &option.condition {
                     self.check_dialogue_condition(condition)
