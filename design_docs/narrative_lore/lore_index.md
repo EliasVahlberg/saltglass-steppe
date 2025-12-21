@@ -118,6 +118,43 @@ All mystical elements are explained through:
 - Survival equipment, creature encounters, and emergency procedures
 - Trade diplomacy, seasonal considerations, and the Wanderer's Code
 
+## High-Priority Worldbuilding Documents:
+
+### 10. [The_Atlas_of_Glass.md](The_Atlas_of_Glass.md) - Regional Gazetteer
+- Comprehensive location guide covering all major territories and settlements
+- Detailed navigation information with quantum coordinates and travel times
+- Trade routes (Salt Circuit, Iron Road, Glass Path, Archive Spiral)
+- Hazard zones and safety protocols for dangerous areas
+- Seasonal variations and storm effects on geography
+
+### 11. [The_Technical_Codex.md](The_Technical_Codex.md) - Technology Manual
+- Complete technology reference covering Legacy, Hybrid, Native, Archive, and Quantum systems
+- Operational procedures for Saint-Keys, Archive terminals, Storm Glass processing
+- Maintenance guidelines and safety protocols for all equipment types
+- Emergency procedures and repair resources
+- Future technology development and research priorities
+
+### 12. [The_Living_Steppe.md](The_Living_Steppe.md) - Flora, Fauna & Environment
+- Comprehensive species guide covering quantum-adapted plants and animals
+- Environmental phenomena including quantum weather and seasonal changes
+- Resource management and conservation practices
+- Survival information for creature encounters and environmental hazards
+- Ecological relationships and ecosystem health monitoring
+
+### 13. [The_Medical_Compendium.md](The_Medical_Compendium.md) - Healthcare Guide
+- Complete medical reference for baseline and adapted human physiology
+- Treatment protocols for adaptation-related conditions and quantum poisoning
+- Emergency medicine procedures for storm-related and Archive system injuries
+- Specialized facilities and their capabilities across all factions
+- Medical ethics and resource allocation in the transformed world
+
+### 14. [The_Calendar_of_Light.md](The_Calendar_of_Light.md) - Time & Seasons
+- Complete temporal system with 365-day cycles and three seasons
+- Storm prediction methods and warning systems
+- Historical timeline from Year 0 PT to present (Year 23 PT)
+- Temporal phenomena and reality distortion effects on time
+- Practical applications for scheduling, coordination, and daily life
+
 ## Gameplay Integration:
 
 These documents provide:

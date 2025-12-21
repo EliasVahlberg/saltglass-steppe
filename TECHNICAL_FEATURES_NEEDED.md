@@ -222,6 +222,228 @@ All these systems should be implemented with data-driven design principles:
 
 This order ensures each system builds on previous ones and provides immediate gameplay value.
 
+## NEW SYSTEMS FOR HIGH-PRIORITY LORE DOCUMENTS
+
+### Priority: CRITICAL (Required for Atlas of Glass)
+
+#### 29. Regional Navigation System
+**Referenced in:** Atlas of Glass, quantum coordinates, trade routes
+**Description:** Advanced navigation and location discovery system
+**Implementation needs:**
+- Quantum coordinate system (QC format) for stable location references
+- Regional stability ratings (Stable, Semi-Stable, Variable, Chaotic)
+- Dynamic location accessibility based on seasons and storms
+- Trade route system with waypoints and travel time calculations
+- Hazard zone detection and warning systems
+
+#### 30. World Map Overhaul
+**Referenced in:** Atlas locations, territorial boundaries, faction zones
+**Description:** Enhanced world map with detailed regional information
+**Implementation needs:**
+- Faction territory boundaries and control zones
+- Major landmark placement (Nexus Plateau, Glass Gardens, etc.)
+- Settlement locations with population and services data
+- Trade route visualization with safety ratings
+- Seasonal map changes and storm damage tracking
+
+#### 31. Travel Time and Distance System
+**Referenced in:** Atlas travel times, route planning
+**Description:** Realistic travel mechanics with environmental factors
+**Implementation needs:**
+- Distance calculation between major locations
+- Travel speed modifiers (terrain, weather, equipment)
+- Route planning with multiple path options
+- Travel hazard encounters and random events
+- Supply consumption during long journeys
+
+### Priority: CRITICAL (Required for Technical Codex)
+
+#### 32. Technology Classification System
+**Referenced in:** Technical Codex equipment categories
+**Description:** Comprehensive technology identification and interaction
+**Implementation needs:**
+- Technology types (Legacy, Hybrid, Native, Archive, Quantum)
+- Equipment compatibility matrix and interaction rules
+- Maintenance requirements and degradation mechanics
+- Power consumption tracking (Storm Glass grades)
+- Technology malfunction and repair systems
+
+#### 33. Saint-Key Authentication System
+**Referenced in:** Technical Codex, Archive access protocols
+**Description:** Credential-based access control for Archive systems
+**Implementation needs:**
+- Saint-Key item with access level properties (1-5)
+- Biometric verification and consciousness scanning
+- Archive facility access restrictions and permissions
+- Emergency override protocols for crisis situations
+- Key bonding process and security features
+
+#### 34. Storm Glass Processing System
+**Referenced in:** Technical Codex, Merchant Protocols economy
+**Description:** Storm Glass refinement and grading mechanics
+**Implementation needs:**
+- Raw Storm Glass collection and sorting
+- Processing equipment and facility requirements
+- Grading system (1-4 Thorne Units) with quality assessment
+- Purification and stabilization procedures
+- Quality control and contamination detection
+
+### Priority: HIGH (Required for Living Steppe)
+
+#### 35. Quantum Flora and Fauna System
+**Referenced in:** Living Steppe species guide, ecological interactions
+**Description:** Advanced creature and plant behavior system
+**Implementation needs:**
+- Quantum-adapted species with special properties
+- Ecological relationships and food chain mechanics
+- Seasonal behavior changes and migration patterns
+- Resource harvesting from plants and creatures
+- Conservation mechanics and sustainability tracking
+
+#### 36. Environmental Phenomena System
+**Referenced in:** Living Steppe weather patterns, quantum effects
+**Description:** Dynamic environmental events and hazards
+**Implementation needs:**
+- Probability storms with multiple reality states
+- Consciousness fog causing psychic interference
+- Reality ripples with space-time distortions
+- Environmental hazard detection and protection
+- Seasonal environmental changes and adaptations
+
+#### 37. Resource Management System
+**Referenced in:** Living Steppe harvesting, conservation practices
+**Description:** Sustainable resource extraction and ecosystem health
+**Implementation needs:**
+- Renewable resource tracking (plants, water, materials)
+- Harvesting quotas and regeneration timers
+- Ecosystem health monitoring and consequences
+- Conservation practices and environmental protection
+- Resource quality assessment and contamination detection
+
+### Priority: HIGH (Required for Medical Compendium)
+
+#### 38. Advanced Medical System
+**Referenced in:** Medical Compendium, adaptation physiology
+**Description:** Comprehensive healthcare for transformed humans
+**Implementation needs:**
+- Adaptation stage tracking (0-100% transformation)
+- Medical conditions specific to quantum adaptation
+- Treatment protocols for consciousness disorders
+- Medical facility specializations and capabilities
+- Emergency medical procedures and triage systems
+
+#### 39. Consciousness Disorder System
+**Referenced in:** Medical Compendium, quantum poisoning, fragmentation
+**Description:** Mental health mechanics for transformed individuals
+**Implementation needs:**
+- Consciousness fragmentation and identity disorders
+- Quantum poisoning symptoms and treatment
+- Reality displacement and temporal confusion
+- Consciousness stabilization and anchoring techniques
+- Medical ethics and consent in transformation medicine
+
+#### 40. Specialized Medical Facilities
+**Referenced in:** Medical Compendium facility descriptions
+**Description:** Faction-specific healthcare systems and capabilities
+**Implementation needs:**
+- Archive Medical Division with AI assistance
+- Sand-Engineer medical stations with technology focus
+- Mirror Monk healing centers with spiritual approach
+- Glassborn healing circles with transformation expertise
+- Medical facility access requirements and services
+
+### Priority: MEDIUM (Required for Calendar of Light)
+
+#### 41. Temporal System Overhaul
+**Referenced in:** Calendar of Light, seasonal cycles, storm timing
+**Description:** Comprehensive time and calendar system
+**Implementation needs:**
+- 365-day calendar with three seasons (Storm, Calm, Flux)
+- Storm prediction system with 47-day cycles
+- Seasonal activity restrictions and opportunities
+- Historical timeline tracking (Year 0-23 PT)
+- Temporal phenomena and reality distortion effects
+
+#### 42. Storm Prediction and Warning System
+**Referenced in:** Calendar storm cycles, prediction methods
+**Description:** Advanced storm forecasting and community alerts
+**Implementation needs:**
+- Storm intensity levels (1-5) with different effects
+- Prediction accuracy based on methods and equipment
+- Community warning protocols and communication networks
+- Environmental indicators and biological responses
+- Storm preparation activities and safety measures
+
+#### 43. Faction Calendar Integration
+**Referenced in:** Calendar observances, cultural events
+**Description:** Faction-specific holidays and cultural practices
+**Implementation needs:**
+- Universal observances (White Noon Memorial, Storm's End)
+- Faction-specific holidays and celebrations
+- Cultural event scheduling and community participation
+- Religious and spiritual observance mechanics
+- Social bonding and community relationship effects
+
+### Priority: LOW (Polish and Immersion)
+
+#### 44. Location-Based Services System
+**Referenced in:** Atlas settlements, facility capabilities
+**Description:** Dynamic services available at different locations
+**Implementation needs:**
+- Settlement service availability (medical, trade, repair)
+- Facility specialization and unique capabilities
+- Service quality ratings and reputation effects
+- Access requirements and faction restrictions
+- Service pricing and availability fluctuations
+
+#### 45. Equipment Maintenance System
+**Referenced in:** Technical Codex maintenance requirements
+**Description:** Technology upkeep and degradation mechanics
+**Implementation needs:**
+- Equipment durability and wear tracking
+- Maintenance schedules and requirements
+- Repair services and facility capabilities
+- Component replacement and upgrade systems
+- Technology failure consequences and emergency procedures
+
+#### 46. Ecological Research System
+**Referenced in:** Living Steppe research priorities, citizen science
+**Description:** Scientific study and documentation of transformed ecosystem
+**Implementation needs:**
+- Species observation and documentation mechanics
+- Research collaboration with NPCs and factions
+- Data collection and analysis activities
+- Conservation project participation
+- Scientific discovery and knowledge advancement
+
+## IMPLEMENTATION PRIORITY FOR NEW LORE CONTENT
+
+**Phase 1 (Critical Systems):**
+1. **Regional Navigation System** - Enables Atlas-based exploration
+2. **Technology Classification System** - Supports Technical Codex equipment
+3. **Advanced Medical System** - Enables healthcare mechanics
+4. **Temporal System Overhaul** - Implements Calendar of Light
+
+**Phase 2 (High Priority Systems):**
+5. **World Map Overhaul** - Visual representation of Atlas locations
+6. **Saint-Key Authentication System** - Archive access mechanics
+7. **Quantum Flora and Fauna System** - Living Steppe creatures
+8. **Storm Prediction and Warning System** - Calendar storm mechanics
+
+**Phase 3 (Enhancement Systems):**
+9. **Environmental Phenomena System** - Living Steppe weather
+10. **Consciousness Disorder System** - Medical Compendium conditions
+11. **Storm Glass Processing System** - Technical Codex equipment
+12. **Faction Calendar Integration** - Cultural observances
+
+**Phase 4 (Polish Systems):**
+13. **Travel Time and Distance System** - Atlas navigation mechanics
+14. **Resource Management System** - Living Steppe conservation
+15. **Specialized Medical Facilities** - Medical Compendium locations
+16. **Location-Based Services System** - Atlas settlement services
+
+This implementation order ensures that the most critical systems for gameplay are developed first, with each phase building on the previous one to create a comprehensive and immersive world system.
+
 ## NEW SYSTEMS FOR LORE-BASED CONTENT
 
 ### Priority: CRITICAL (Required for New Lore Content)
