@@ -220,6 +220,9 @@ pub struct GameState {
     /// Sanity/Mental health system
     #[serde(default)]
     pub sanity: SanitySystem,
+    /// Pending trade interface (for UI)
+    #[serde(skip)]
+    pub pending_trade: Option<String>,
     /// Animation frame counter for ambient tile animations
     #[serde(skip)]
     pub animation_frame: u32,
@@ -401,6 +404,7 @@ impl GameState {
             tutorial_progress: TutorialProgress::default(),
             map_features: MapFeatures::new(),
             sanity: SanitySystem::new(),
+            pending_trade: None,
             animation_frame: 0,
             pending_dialogue: None,
             debug_god_view: false,

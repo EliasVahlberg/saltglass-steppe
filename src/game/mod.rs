@@ -26,6 +26,7 @@ pub mod spawn;
 pub mod state;
 pub mod status;
 pub mod storm;
+pub mod trading;
 pub mod tutorial;
 pub mod world_map;
 
@@ -50,5 +51,7 @@ pub use map::MapLight;
 pub use quest::{get_quest_def, ActiveQuest, QuestLog, QuestReward};
 pub use crafting::{get_recipe, all_recipe_ids, can_craft, available_recipes, can_craft_advanced, crafting_success_chance, Recipe};
 pub use sanity::{SanitySystem, MentalEffect, MentalEffectType};
+pub use trading::{get_trader, get_trade_interface, execute_trade, execute_sell, TradeInterface, AvailableTradeItem, calculate_area_tier};
+pub use dialogue::{get_dialogue_tree, start_dialogue, continue_dialogue, DialogueState};
 pub use meta::{all_classes, get_class, ClassDef, MetaProgress};
 pub use tutorial::{get_tutorial_data, TutorialProgress};

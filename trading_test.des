@@ -1,0 +1,59 @@
+# Trading System Test
+# Tests faction-based, tier-based, and reputation-dependent trading
+
+# Test 1: Basic trading interface
+action get_trade_interface merchant_keth 1
+assert trade_interface_available merchant_keth
+
+# Test 2: Tier-based item availability (low tier)
+action get_trade_interface merchant_keth 1
+assert item_available hand_torch true
+assert item_available glass_pick false  # Requires tier 2
+
+# Test 3: Tier-based item availability (higher tier)
+action get_trade_interface merchant_keth 2
+assert item_available glass_pick true
+
+# Test 4: Reputation-based pricing
+action set_faction_rep saltborn_collective 50
+action get_trade_interface merchant_keth 1
+assert price_modifier merchant_keth 0.8  # 20% discount at high rep
+
+# Test 5: Reputation-based exclusive items
+action set_faction_rep saltborn_collective 50
+action get_trade_interface merchant_keth 1
+assert item_available rare_salt_essence true
+
+# Test 6: Faction exclusive items
+action set_faction_rep glasswright_guild 50
+action get_trade_interface glasswright_artisan 3
+assert item_available enhanced_goggles true
+
+# Test 7: Execute trade transaction
+give salt_scrip 100
+action execute_trade merchant_keth hand_torch 1
+assert has_item hand_torch
+assert salt_scrip_spent 15
+
+# Test 8: Insufficient currency
+give salt_scrip 5
+action execute_trade merchant_keth glass_pick 1
+assert trade_failed "Insufficient currency"
+
+# Test 9: Sell items to trader
+give glass_shard 3
+action set_faction_rep saltborn_collective 25
+action execute_sell merchant_keth glass_shard 2
+assert salt_scrip_gained 8  # 5 base * 0.8 multiplier * 2 items
+
+# Test 10: Cannot sell to hostile trader
+action set_faction_rep saltborn_collective -50
+action execute_sell merchant_keth glass_shard 1
+assert trade_failed "Trader refuses to buy"
+
+# Test 11: Area tier calculation
+spawn_enemy glass_spider 10 10 40  # 40 HP enemy
+assert area_tier 2
+
+spawn_enemy crystal_guardian 15 15 80  # 80 HP enemy  
+assert area_tier 4
