@@ -262,8 +262,20 @@ impl GameState {
 
         // Spawn enemies (fewer on starting tile for hospitable start)
         let mut enemies = Vec::new();
-        let enemy_rooms = rooms.iter().skip(2).take(rooms.len().saturating_sub(4));
-        for &(rx, ry) in enemy_rooms {
+        let max_enemies = 8; // Limit total enemies regardless of clearing count
+        let safe_distance = 15; // Minimum distance from player spawn
+        let (px, py) = rooms[0]; // Player spawn position
+        
+        let safe_rooms: Vec<_> = rooms.iter()
+            .filter(|&&(rx, ry)| {
+                let dx = (rx - px).abs();
+                let dy = (ry - py).abs();
+                dx >= safe_distance || dy >= safe_distance
+            })
+            .take(max_enemies)
+            .collect();
+            
+        for &(rx, ry) in safe_rooms {
             if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
@@ -298,6 +310,10 @@ impl GameState {
         // Always spawn hand torch near player start
         items.push(Item::new(px + 1, py, "hand_torch"));
         used_positions.insert((px + 1, py));
+        
+        // Always spawn glass pick (wall break tool) near player start
+        items.push(Item::new(px - 1, py, "glass_pick"));
+        used_positions.insert((px - 1, py));
         
         for spawn in &table.items {
             if let Some("last") = spawn.room.as_deref() {
@@ -437,9 +453,20 @@ impl GameState {
         let enemy_count = match poi {
             super::world_map::POI::Town => 0,
             super::world_map::POI::Shrine => 1,
-            _ => rooms.len().saturating_sub(2),
+            _ => 6.min(rooms.len().saturating_sub(2)), // Cap at 6 enemies
         };
-        for &(rx, ry) in rooms.iter().skip(1).take(enemy_count) {
+        
+        let safe_distance = 15; // Minimum distance from player spawn
+        let safe_rooms: Vec<_> = rooms.iter()
+            .filter(|&&(rx, ry)| {
+                let dx = (rx - px).abs();
+                let dy = (ry - py).abs();
+                dx >= safe_distance || dy >= safe_distance
+            })
+            .take(enemy_count)
+            .collect();
+            
+        for &(rx, ry) in safe_rooms {
             if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
