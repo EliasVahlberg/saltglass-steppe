@@ -19,6 +19,7 @@ pub mod meta;
 pub mod npc;
 pub mod progression;
 pub mod quest;
+pub mod ritual;
 pub mod spawn;
 pub mod state;
 pub mod status;

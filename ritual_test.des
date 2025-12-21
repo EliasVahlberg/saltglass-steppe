@@ -1,0 +1,83 @@
+# Ritual System Test
+
+## Test: Storm Walk Ritual
+
+### Setup
+```
+spawn_item storm_glass 5 5
+move_player 5 5
+pickup_item storm_glass
+add_adaptation glass_touched
+```
+
+### Test Ritual Requirements Check
+```
+# Should fail - need to be at shrine location
+assert_ritual_available storm_walk false
+
+# Move to shrine location (simulate)
+set_location_type shrine
+
+# Should now be available
+assert_ritual_available storm_walk true
+```
+
+### Test Ritual Performance
+```
+perform_ritual storm_walk
+assert_has_adaptation storm_touched
+assert_reputation storm_walkers 10
+assert_stat_change reflex 2
+assert_ritual_completed storm_walk
+```
+
+## Test: Crucible Transformation Ritual
+
+### Setup
+```
+spawn_item saint_key 10 10
+spawn_item scripture_shard 10 11
+move_player 10 10
+pickup_item saint_key
+pickup_item scripture_shard
+add_adaptation glass_touched
+add_adaptation storm_touched
+add_adaptation salt_blessed
+set_reputation monks 25
+```
+
+### Test Requirements
+```
+set_location_type archive
+assert_ritual_available crucible_transformation true
+```
+
+### Test Performance
+```
+perform_ritual crucible_transformation
+assert_has_adaptation sanctified
+assert_reputation monks 45
+assert_stat_change max_hp 10
+assert_ritual_completed crucible_transformation
+```
+
+## Test: Ritual Failure Cases
+
+### Missing Items
+```
+clear_inventory
+assert_ritual_available storm_walk false
+```
+
+### Insufficient Reputation
+```
+set_reputation monks 0
+assert_ritual_available crucible_transformation false
+```
+
+### Already Completed
+```
+perform_ritual storm_walk
+# Should not be able to perform again
+assert_ritual_available storm_walk false
+```
