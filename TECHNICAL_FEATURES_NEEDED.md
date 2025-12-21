@@ -18,7 +18,7 @@ This document lists technical systems that need to be implemented to support the
 
 ### 🚧 IN PROGRESS
 - **Trading System UI** - Backend complete, needs UI
-- **Light and Vision System** - Partially exists, needs item integration
+- **Light and Vision System** - Complete with glare effects, visibility modifiers, and item interactions
 
 ### ⏳ TODO
 - **Advanced Map Features** - Not started
@@ -141,14 +141,16 @@ This document lists technical systems that need to be implemented to support the
 - Merchant inventory that restocks over time
 - Special items only available to certain factions
 
-### 10. Light and Vision System
+### 10. ✅ Light and Vision System
 **Referenced in:** Items with light_source, enemy behaviors
 **Description:** Dynamic lighting affects gameplay
 **Implementation needs:**
-- Light radius affects FOV
-- Glare tiles that damage or blind
-- Light-based puzzles and navigation
-- Storm effects on visibility
+- ✅ Light radius affects FOV
+- ✅ Glare tiles that damage or blind
+- ✅ Light-based puzzles and navigation
+- ✅ Storm effects on visibility
+- ✅ Item interactions based on light level
+- ✅ Visibility modifiers for different light levels
 
 ### 11. Status Effects System
 **Referenced in:** Enemy behaviors, item effects
