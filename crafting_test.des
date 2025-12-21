@@ -1,0 +1,52 @@
+# Crafting System Test
+# Tests recipe system, skill requirements, stations, and faction restrictions
+
+# Test 1: Basic crafting (no requirements)
+give cloth_scrap
+give oil_vial
+action craft basic_torch
+assert has_item hand_torch
+assert item_count cloth_scrap 0
+assert item_count oil_vial 0
+
+# Test 2: Skill-based crafting (should fail at level 0)
+give glass_shard 3
+give cloth_scrap
+action craft glass_shard_blade
+assert has_item glass_blade false
+
+# Test 3: Level up and try again
+action set_level 1
+action craft glass_shard_blade
+assert has_item glass_blade
+
+# Test 4: Station requirement (should fail without station)
+give cloth_scrap 2
+give dye_powder
+give metal_wire
+action craft faction_banner
+assert has_item guild_banner false
+
+# Test 5: Add crafting station and try again
+action add_station crafting_table
+action craft faction_banner
+assert has_item guild_banner false  # Still fails due to faction requirement
+
+# Test 6: Add faction reputation and try again
+action set_faction_rep glasswright_guild 50
+action craft faction_banner
+assert has_item guild_banner
+
+# Test 7: Test crafting success rates
+action set_level 0
+assert crafting_success basic_torch 1.0  # No skill requirement
+assert crafting_success glass_shard_blade 0.3  # Below requirement
+
+action set_level 1
+assert crafting_success glass_shard_blade 0.8  # Meets requirement
+
+action set_level 3
+assert crafting_success glass_shard_blade 1.0  # Exceeds requirement
+
+# Test 8: Available recipes check
+assert available_recipes_count 2  # Should have basic recipes available

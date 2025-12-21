@@ -163,32 +163,41 @@ This document lists technical systems that need to be implemented to support the
 
 ## Priority: LOW (Polish and Immersion)
 
-### 12. Advanced Map Features
+### 12. Advanced Map Features ✅ **COMPLETED**
 **Referenced in:** Items that reveal locations
 **Description:** Dynamic map discovery and annotation
-**Implementation needs:**
-- Hidden locations revealed by items
-- Safe routes marked by NPCs
-- Storm damage tracking on world map
-- Player annotations and waypoints
+**Implementation:** ✅ **COMPLETE**
+- ✅ Hidden locations revealed by items
+- ✅ Safe routes marked by NPCs
+- ✅ Storm damage tracking on world map
+- ✅ Player annotations and waypoints
+- ✅ Data-driven MapFeatures system with full serialization support
+- ✅ DES testing support with comprehensive assertions
 
-### 13. Crafting System
+### 13. Crafting System ✅ **COMPLETED**
 **Referenced in:** Items marked as crafting components
 **Description:** Combine items to create new ones
-**Implementation needs:**
-- Recipe system using JSON data
-- Crafting stations or requirements
-- Skill-based success rates
-- Faction-specific recipes
+**Implementation:** ✅ **COMPLETE**
+- ✅ Recipe system using JSON data
+- ✅ Crafting stations and requirements
+- ✅ Skill-based success rates
+- ✅ Faction-specific recipes
+- ✅ Enhanced with skill requirements, station dependencies, and faction restrictions
+- ✅ Success rate calculation based on player skill vs recipe requirements
+- ✅ DES testing support with crafting assertions
 
-### 14. Sanity/Mental Health System
+### 14. Sanity/Mental Health System ✅ **COMPLETED**
 **Referenced in:** Enemy drain_sanity behavior
 **Description:** Psychological effects of transformation
-**Implementation needs:**
-- Sanity meter alongside HP
-- Effects of low sanity (hallucinations, poor decisions)
-- Ways to restore mental health
-- Adaptation effects on sanity
+**Implementation:** ✅ **COMPLETE**
+- ✅ Sanity meter alongside HP (0-100 range)
+- ✅ Effects of low sanity (hallucinations, poor decisions, paranoia, despair)
+- ✅ Ways to restore mental health (rest, social interaction, meditation)
+- ✅ Adaptation effects on sanity with tolerance building
+- ✅ Mental effects system with duration and intensity
+- ✅ Decision penalties based on sanity level
+- ✅ Hallucination generation system
+- ✅ DES testing support with comprehensive sanity assertions
 
 ## Data-Driven Implementation Notes
 
