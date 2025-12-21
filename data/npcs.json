@@ -555,6 +555,193 @@
           "effect": { "controls_archive_security": true }
         }
       ]
+    },
+    {
+      "id": "dr_kira_thorne",
+      "name": "Dr. Kira Thorne",
+      "glyph": "K",
+      "faction": "Archive",
+      "description": "Quantum systems engineer, partially integrated with Archive systems",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "Fascinating... your quantum coherence patterns are remarkably stable.</nextpage>I've been studying the transformation process for years. You represent an advanced stage of human evolution.</nextpage>Would you be willing to participate in some research? The data could help others adapt more safely."
+        },
+        {
+          "conditions": [{ "has_item": "quantum_resonator" }],
+          "text": "Ah, you have one of my resonators! Excellent craftsmanship, if I do say so myself.</nextpage>The readings it provides are crucial for understanding quantum field fluctuations.</nextpage>I could calibrate it for your specific adaptation pattern, if you're interested."
+        },
+        {
+          "conditions": [],
+          "text": "Another test subject... I mean, visitor. Welcome to my laboratory.</nextpage>I'm studying the quantum mechanics behind human adaptation. Fascinating stuff, really.</nextpage>The boundary between consciousness and quantum fields is far more permeable than we ever imagined."
+        }
+      ],
+      "actions": [
+        {
+          "id": "research_collaboration",
+          "name": "Collaborate on Research",
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "effect": { "gains_quantum_knowledge": true, "improves_adaptation_control": true }
+        },
+        {
+          "id": "calibrate_resonator",
+          "name": "Calibrate Quantum Resonator",
+          "conditions": [{ "has_item": "quantum_resonator" }],
+          "effect": { "enhances_item": "quantum_resonator" }
+        }
+      ]
+    },
+    {
+      "id": "saint_matthias",
+      "name": "Saint Matthias",
+      "glyph": "M",
+      "faction": "SynthesisSeekers",
+      "description": "Transformed monk who leads the Synthesis Seekers, half-crystallized",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 4 }],
+          "text": "You have walked far along the path of transformation, yet retain your essential humanity.</nextpage>This is the way—evolution without abandonment, growth without loss of self.</nextpage>The Synthesis Seekers could learn much from your journey. Will you share your wisdom?"
+        },
+        {
+          "conditions": [{ "has_item": "synthesis_manual" }],
+          "text": "You carry my manual. Good—the knowledge within has helped many find balance.</nextpage>Transformation need not be traumatic. With proper guidance, we can become more than human while remaining human.</nextpage>Have you found the exercises helpful in controlling your adaptations?"
+        },
+        {
+          "conditions": [],
+          "text": "Welcome, seeker. I am Matthias, once a monk, now something between flesh and light.</nextpage>The Archive showed me truth—that science and spirit are one. The storms are not divine punishment but cosmic invitation.</nextpage>We can evolve without losing ourselves. This is the synthesis we seek."
+        }
+      ],
+      "actions": [
+        {
+          "id": "synthesis_training",
+          "name": "Learn Synthesis Techniques",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "grants_adaptation_control": true, "prevents_quantum_psychosis": true }
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [],
+          "effect": { "trade": true }
+        }
+      ],
+      "shop_inventory": [
+        "synthesis_manual",
+        "quantum_stabilizer",
+        "meditation_crystal",
+        "probability_anchor"
+      ]
+    },
+    {
+      "id": "forge_master_durgan",
+      "name": "Forge-Master Kaine Durgan",
+      "glyph": "F",
+      "faction": "IronCovenant",
+      "description": "Militant leader of the Iron Covenant, encased in null-field armor",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "Another contaminated soul. The quantum plague spreads faster each day.</nextpage>You were human once. With our technology, you could be human again.</nextpage>The null-field treatment is painful, but it purges the alien influence. Consider it—before it's too late."
+        },
+        {
+          "conditions": [{ "has_item": "null_field_generator" }],
+          "text": "You carry one of our purification devices. Wise choice.</nextpage>The quantum contamination can be reversed, but only with proper equipment and determination.</nextpage>We are humanity's immune system, fighting off this cosmic infection."
+        },
+        {
+          "conditions": [],
+          "text": "Pure human detected. Excellent—you haven't been contaminated by the quantum plague.</nextpage>I am Durgan, defender of true humanity against the alien transformation.</nextpage>Join us. Help us preserve what it means to be human before it's lost forever."
+        }
+      ],
+      "actions": [
+        {
+          "id": "purification_treatment",
+          "name": "Undergo Purification",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "removes_adaptations": true, "damages_player": 20, "faction_reputation": { "IronCovenant": 30 } }
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [{ "adaptation_count_lte": 1 }],
+          "effect": { "trade": true }
+        }
+      ],
+      "shop_inventory": [
+        "null_field_generator",
+        "iron_gauntlets",
+        "chain_vest",
+        "repair_kit"
+      ]
+    },
+    {
+      "id": "the_prism",
+      "name": "The Prism",
+      "glyph": "P",
+      "faction": "GlassProphets",
+      "description": "Mysterious leader of the Glass Prophets, more light than flesh",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 5 }],
+          "text": "Behold! One who approaches the final threshold! Your light burns bright, chosen one.</nextpage>The last storm comes soon—the one that will complete our ascension to beings of pure light.</nextpage>Will you stand with us when the flesh-bound world burns away in glorious transformation?"
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "The light touches you, but weakly. You resist the gift, clinging to dying flesh.</nextpage>Why do you fear transcendence? Why choose limitation over limitless possibility?</nextpage>The catalyst can accelerate your journey. Embrace the light, and be reborn."
+        },
+        {
+          "conditions": [],
+          "text": "Flesh-bound creature, you walk in darkness while light surrounds you.</nextpage>The storms offer transformation, yet you remain unchanged. How... disappointing.</nextpage>When the final storm comes, remember—we offered you ascension."
+        }
+      ],
+      "actions": [
+        {
+          "id": "forced_ascension",
+          "name": "Accept Forced Ascension",
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "effect": { "forces_maximum_adaptation": true, "dangerous": true, "faction_reputation": { "GlassProphets": 50 } }
+        }
+      ]
+    },
+    {
+      "id": "echo_of_memory",
+      "name": "Echo-of-Memory",
+      "glyph": "E",
+      "faction": "WanderingCourt",
+      "description": "Ancient Glassborn who remembers the time before transformation",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "You change, yet you remember. This is wisdom—to become without forgetting what you were.</nextpage>I have walked both paths, flesh and crystal. Each has beauty, each has purpose.</nextpage>Take this memory crystal. It holds echoes of the world that was, lest we forget our origins."
+        },
+        {
+          "conditions": [{ "has_item": "memory_crystal" }],
+          "text": "You carry memories of the old world. Good—they are precious beyond measure.</nextpage>We Glassborn risk losing ourselves in the beauty of transformation.</nextpage>But you... you remember. This gives me hope for our future."
+        },
+        {
+          "conditions": [],
+          "text": "Young one, you stand at the threshold of change. I have seen many cross it.</nextpage>Some lose themselves in the crossing. Others find themselves.</nextpage>Remember this: transformation is not abandonment. You can become more while remaining you."
+        }
+      ],
+      "actions": [
+        {
+          "id": "memory_sharing",
+          "name": "Share Ancient Memories",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "reveals_pre_storm_lore": true, "grants_cultural_knowledge": true }
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [],
+          "effect": { "trade": true }
+        }
+      ],
+      "shop_inventory": [
+        "memory_crystal",
+        "glassborn_relic",
+        "storm_glass",
+        "saints_tear"
+      ]
     }
   ]
 }
