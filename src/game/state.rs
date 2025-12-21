@@ -138,6 +138,9 @@ pub struct GameState {
     /// Track last damage dealt for reflection behaviors
     #[serde(default)]
     pub last_damage_dealt: u32,
+    /// Completed rituals
+    #[serde(default)]
+    pub completed_rituals: Vec<super::ritual::CompletedRitual>,
     #[serde(default)]
     pub equipped_weapon: Option<String>,
     #[serde(default)]
@@ -358,6 +361,7 @@ impl GameState {
             // Faction reputation system (-100 to +100 per faction)
             faction_reputation: HashMap::new(),
             last_damage_dealt: 0,
+            completed_rituals: Vec::new(),
             equipment: Equipment::default(),
             status_effects: Vec::new(),
             map, enemies, npcs, items, inventory: Vec::new(),

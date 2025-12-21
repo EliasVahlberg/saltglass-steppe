@@ -126,6 +126,10 @@ pub enum AssertionCheck {
     StormTimer { op: CmpOp, value: u32 },
     ItemExistsOnMap { item_id: String, min_count: Option<usize> },
     TileTypeCount { tile_type: String, op: CmpOp, value: usize },
+    // Ritual assertions
+    RitualCompleted { ritual_id: String },
+    RitualAvailable { ritual_id: String },
+    FactionReputation { faction: String, op: CmpOp, value: i32 },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -243,6 +247,9 @@ pub enum Action {
     SellItem { item_id: String },
     // Storm actions
     TriggerStorm { intensity: Option<u8> },
+    // Ritual actions
+    PerformRitual { ritual_id: String },
+    SetLocationType { location_type: String },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -379,6 +386,7 @@ pub struct DesExecutor {
     action_index: usize,
     snapshots: Vec<StateSnapshot>,
     capture_snapshots: bool,
+    current_location_type: Option<String>,
 }
 
 impl DesExecutor {
@@ -482,6 +490,7 @@ impl DesExecutor {
             action_index: 0,
             snapshots: Vec::new(),
             capture_snapshots: false,
+            current_location_type: None,
         }
     }
 
@@ -739,6 +748,31 @@ impl DesExecutor {
                     .count();
                 op.compare(count, *value)
             }
+            AssertionCheck::RitualCompleted { ritual_id } => {
+                self.state.has_completed_ritual(ritual_id)
+            }
+            AssertionCheck::RitualAvailable { ritual_id } => {
+                // Simplified check - would need proper ritual definition loading
+                match ritual_id.as_str() {
+                    "storm_walk" => {
+                        self.state.inventory.contains(&"storm_glass".to_string()) &&
+                        self.state.adaptations.len() >= 1 &&
+                        self.current_location_type.as_deref() == Some("shrine")
+                    }
+                    "crucible_transformation" => {
+                        self.state.inventory.contains(&"saint_key".to_string()) &&
+                        self.state.inventory.contains(&"scripture_shard".to_string()) &&
+                        self.state.get_reputation("monks") >= 25 &&
+                        self.state.adaptations.len() >= 3 &&
+                        self.current_location_type.as_deref() == Some("archive")
+                    }
+                    _ => false,
+                }
+            }
+            AssertionCheck::FactionReputation { faction, op, value } => {
+                let reputation = self.state.get_reputation(faction);
+                op.compare(reputation, *value)
+            }
         }
     }
 
@@ -880,6 +914,17 @@ impl DesExecutor {
                 }
                 self.state.apply_storm();
                 self.log(format!("Storm triggered with intensity {}", self.state.storm.intensity));
+            }
+            Action::PerformRitual { ritual_id } => {
+                match self.state.perform_ritual(ritual_id) {
+                    Ok(message) => self.log(format!("Ritual performed: {}", message)),
+                    Err(error) => self.log(format!("Ritual failed: {}", error)),
+                }
+            }
+            Action::SetLocationType { location_type } => {
+                // Store location type for ritual requirements (simplified)
+                self.current_location_type = Some(location_type.clone());
+                self.log(format!("Location type set to: {}", location_type));
             }
         }
     }
