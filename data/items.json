@@ -581,7 +581,7 @@
       "value": 30,
       "weight": 1,
       "usable": true,
-      "grants_invisibility": 10,
+      "grants_invisibility": true,
       "effects": [{"condition": "on_use", "effect": "G(&DarkGray)"}]
     },
     {
