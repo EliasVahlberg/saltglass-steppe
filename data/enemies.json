@@ -284,6 +284,350 @@
         { "item": "salt_crystal", "weight": 2 }
       ],
       "effects": [{ "condition": "on_hit", "effect": "B(@1 &Yellow)" }]
+    },
+    {
+      "id": "glass_wasp",
+      "name": "Glass Wasp",
+      "glyph": "w",
+      "max_hp": 4,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 6,
+      "xp_value": 8,
+      "reflex": 4,
+      "description": "Buzzing insect with crystalline wings",
+      "swarm": true,
+      "loot_table": [
+        { "item": "glass_dust", "weight": 3 },
+        { "item": "glass_thread", "weight": 1 }
+      ],
+      "behaviors": [{ "type": "poison_sting", "duration": 3 }],
+      "effects": [{ "condition": "on_hit", "effect": "B(@2 &LightCyan)" }]
+    },
+    {
+      "id": "salt_crawler",
+      "name": "Salt Crawler",
+      "glyph": "c",
+      "max_hp": 9,
+      "damage_min": 2,
+      "damage_max": 3,
+      "sight_range": 4,
+      "xp_value": 15,
+      "armor": 1,
+      "description": "Armored arthropod that feeds on salt deposits",
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 4 },
+        { "item": "beetle_carapace", "weight": 2 },
+        { "item": "salt_rations", "weight": 1 }
+      ],
+      "effects": [{ "condition": "on_death", "effect": "B(@2 &White)" }]
+    },
+    {
+      "id": "mirage_phantom",
+      "name": "Mirage Phantom",
+      "glyph": "φ",
+      "max_hp": 8,
+      "damage_min": 3,
+      "damage_max": 4,
+      "sight_range": 7,
+      "xp_value": 22,
+      "description": "Illusory being that appears in heat shimmer",
+      "loot_table": [
+        { "item": "wraith_essence", "weight": 2 },
+        { "item": "refraction_oil", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "teleport", "range": 3 },
+        { "type": "create_illusions" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &LightYellow)" },
+        { "condition": "on_death", "effect": "B(@3 &Yellow)" }
+      ]
+    },
+    {
+      "id": "glass_golem",
+      "name": "Glass Golem",
+      "glyph": "G",
+      "max_hp": 30,
+      "damage_min": 5,
+      "damage_max": 8,
+      "sight_range": 5,
+      "xp_value": 75,
+      "armor": 4,
+      "description": "Massive construct of fused glass and stone",
+      "loot_table": [
+        { "item": "storm_glass", "weight": 5 },
+        { "item": "glass_shard", "weight": 4 },
+        { "item": "prism_lens", "weight": 1 },
+        { "item": "glass_mail", "weight": 1 }
+      ],
+      "behaviors": [{ "type": "slam_attack", "stun_chance": 0.3 }],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@2 &Cyan)" },
+        { "condition": "on_death", "effect": "B(@4 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "storm_hawk",
+      "name": "Storm Hawk",
+      "glyph": "H",
+      "max_hp": 12,
+      "damage_min": 3,
+      "damage_max": 5,
+      "sight_range": 10,
+      "xp_value": 28,
+      "reflex": 6,
+      "description": "Aerial predator that rides the storm winds",
+      "loot_table": [
+        { "item": "storm_glass", "weight": 2 },
+        { "item": "glass_arrow", "weight": 3 },
+        { "item": "storm_cloak_fragment", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "dive_attack", "damage_bonus": 2 },
+        { "type": "fly", "movement_bonus": 2 }
+      ],
+      "effects": [{ "condition": "on_hit", "effect": "B(@1 &LightBlue)" }]
+    },
+    {
+      "id": "salt_wraith",
+      "name": "Salt Wraith",
+      "glyph": "W",
+      "max_hp": 14,
+      "damage_min": 2,
+      "damage_max": 6,
+      "sight_range": 8,
+      "xp_value": 35,
+      "description": "Ghostly remnant of a pilgrim who died of thirst",
+      "loot_table": [
+        { "item": "pilgrim_journal", "weight": 1 },
+        { "item": "salt_crystal", "weight": 3 },
+        { "item": "wraith_essence", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "drain_water", "effect": "dehydration" },
+        { "type": "phase_through_walls" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&DarkGray)" },
+        { "condition": "on_death", "effect": "B(@2 &White)" }
+      ]
+    },
+    {
+      "id": "glass_serpent",
+      "name": "Glass Serpent",
+      "glyph": "S",
+      "max_hp": 16,
+      "damage_min": 4,
+      "damage_max": 6,
+      "sight_range": 6,
+      "xp_value": 40,
+      "armor": 2,
+      "description": "Massive snake with scales of razor-sharp glass",
+      "loot_table": [
+        { "item": "glass_shard", "weight": 5 },
+        { "item": "glass_thread", "weight": 3 },
+        { "item": "refraction_blade", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "constrict", "damage_per_turn": 2 },
+        { "type": "glass_spit", "range": 4 }
+      ],
+      "effects": [{ "condition": "on_hit", "effect": "B(@2 &Cyan)" }]
+    },
+    {
+      "id": "archive_sentinel",
+      "name": "Archive Sentinel",
+      "glyph": "Δ",
+      "max_hp": 35,
+      "damage_min": 6,
+      "damage_max": 10,
+      "sight_range": 12,
+      "xp_value": 80,
+      "armor": 3,
+      "description": "Elite guardian of the most sacred Archive chambers",
+      "loot_table": [
+        { "item": "saint_key", "weight": 2 },
+        { "item": "archive_data_crystal", "weight": 1 },
+        { "item": "archive_scanner", "weight": 1 },
+        { "item": "storm_glass", "weight": 3 }
+      ],
+      "behaviors": [
+        { "type": "laser_beam", "range": 8, "damage": 8 },
+        { "type": "passive_if", "condition": "player_has_item:saint_key" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &LightRed)" },
+        { "condition": "on_death", "effect": "B(@3 &Blue)" }
+      ]
+    },
+    {
+      "id": "crystalline_spider",
+      "name": "Crystalline Spider",
+      "glyph": "s",
+      "max_hp": 8,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 5,
+      "xp_value": 18,
+      "description": "Arachnid that spins webs of glass thread",
+      "loot_table": [
+        { "item": "glass_thread", "weight": 4 },
+        { "item": "glass_needle", "weight": 2 },
+        { "item": "brine_vial", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "web_trap", "immobilize_turns": 2 },
+        { "type": "climb_walls" }
+      ],
+      "effects": [{ "condition": "on_hit", "effect": "B(@2 &LightCyan)" }]
+    },
+    {
+      "id": "salt_elemental",
+      "name": "Salt Elemental",
+      "glyph": "E",
+      "max_hp": 22,
+      "damage_min": 3,
+      "damage_max": 7,
+      "sight_range": 6,
+      "xp_value": 50,
+      "description": "Living embodiment of the salt flats",
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 6 },
+        { "item": "brine_concentrate", "weight": 2 },
+        { "item": "salt_amulet", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "salt_spray", "range": 3, "blinds": true },
+        { "type": "crystallize", "slows_enemy": true }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@2 &White)" },
+        { "condition": "on_death", "effect": "B(@3 &LightGray)" }
+      ]
+    },
+    {
+      "id": "glass_mantis",
+      "name": "Glass Mantis",
+      "glyph": "M",
+      "max_hp": 11,
+      "damage_min": 3,
+      "damage_max": 5,
+      "sight_range": 7,
+      "xp_value": 25,
+      "reflex": 5,
+      "description": "Predatory insect with blade-like foreclaws",
+      "loot_table": [
+        { "item": "glass_shard", "weight": 3 },
+        { "item": "glass_dagger", "weight": 1 },
+        { "item": "beetle_carapace", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "ambush", "damage_bonus": 3 },
+        { "type": "precise_strike", "critical_chance": 0.25 }
+      ],
+      "effects": [{ "condition": "on_hit", "effect": "B(@1 &Green)" }]
+    },
+    {
+      "id": "storm_wisp",
+      "name": "Storm Wisp",
+      "glyph": "o",
+      "max_hp": 3,
+      "damage_min": 1,
+      "damage_max": 3,
+      "sight_range": 8,
+      "xp_value": 12,
+      "description": "Tiny ball of concentrated storm energy",
+      "spawns_during_storm": true,
+      "loot_table": [
+        { "item": "storm_glass", "weight": 2 },
+        { "item": "storm_seed", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "lightning_bolt", "range": 5 },
+        { "type": "erratic_movement" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &LightYellow)" },
+        { "condition": "on_death", "effect": "B(@2 &Yellow)" }
+      ]
+    },
+    {
+      "id": "brine_ooze",
+      "name": "Brine Ooze",
+      "glyph": "O",
+      "max_hp": 18,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 3,
+      "xp_value": 30,
+      "description": "Gelatinous mass of concentrated salt water",
+      "loot_table": [
+        { "item": "brine_vial", "weight": 4 },
+        { "item": "brine_concentrate", "weight": 2 },
+        { "item": "salt_crystal", "weight": 3 }
+      ],
+      "behaviors": [
+        { "type": "engulf", "damage_per_turn": 1 },
+        { "type": "split_on_death", "spawns": 2 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&Blue)" },
+        { "condition": "on_death", "effect": "B(@3 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "glass_horror",
+      "name": "Glass Horror",
+      "glyph": "H",
+      "max_hp": 40,
+      "damage_min": 6,
+      "damage_max": 12,
+      "sight_range": 8,
+      "xp_value": 100,
+      "armor": 3,
+      "description": "Nightmarish fusion of multiple creatures and glass",
+      "rare": true,
+      "loot_table": [
+        { "item": "storm_glass", "weight": 8 },
+        { "item": "saints_tear", "weight": 2 },
+        { "item": "refraction_blade", "weight": 1 },
+        { "item": "glass_plate", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "multiple_attacks", "count": 2 },
+        { "type": "fear_aura", "range": 3 },
+        { "type": "regenerate", "hp_per_turn": 2 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &Red)" },
+        { "condition": "on_death", "effect": "B(@5 &LightRed)" }
+      ]
+    },
+    {
+      "id": "pilgrim_shade",
+      "name": "Pilgrim Shade",
+      "glyph": "p",
+      "max_hp": 6,
+      "damage_min": 1,
+      "damage_max": 3,
+      "sight_range": 6,
+      "xp_value": 15,
+      "description": "Ghostly echo of a lost traveler",
+      "loot_table": [
+        { "item": "pilgrim_journal", "weight": 2 },
+        { "item": "wraith_essence", "weight": 1 },
+        { "item": "salt_rations", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "drain_sanity", "amount": 1 },
+        { "type": "whisper_warnings" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&DarkGray)" },
+        { "condition": "on_death", "effect": "B(@2 &Gray)" }
+      ]
     }
   ]
 }

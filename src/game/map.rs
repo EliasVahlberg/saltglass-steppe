@@ -1,13 +1,14 @@
 use bracket_pathfinding::prelude::*;
+use noise::{NoiseFn, Perlin};
 use once_cell::sync::Lazy;
-use rand::Rng;
+use rand::{Rng, RngCore};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 
 use super::constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
 use super::light_defs::{get_spawn_rule, pick_light_type};
-use super::world_map::{Biome, Terrain};
+use super::world_map::{Biome, Terrain, POI};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct WallDef {
@@ -23,10 +24,42 @@ struct WallsFile {
     walls: Vec<WallDef>,
 }
 
+#[derive(Debug, Clone, Deserialize)]
+struct TerrainConfig {
+    floor_threshold: f64,
+    glass_density: f64,
+    noise_scale: f64,
+    wall_type: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct BiomeModifier {
+    glass_density_multiplier: Option<f64>,
+    wall_type_override: Option<String>,
+    floor_threshold_bonus: Option<f64>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct POILayout {
+    central_clearing_size: usize,
+}
+
+#[derive(Deserialize)]
+struct TerrainConfigFile {
+    terrain_types: HashMap<String, TerrainConfig>,
+    biome_modifiers: HashMap<String, BiomeModifier>,
+    poi_layouts: HashMap<String, POILayout>,
+}
+
 static WALL_DEFS: Lazy<HashMap<String, WallDef>> = Lazy::new(|| {
     let data = include_str!("../../data/walls.json");
     let file: WallsFile = serde_json::from_str(data).expect("Failed to parse walls.json");
     file.walls.into_iter().map(|d| (d.id.clone(), d)).collect()
+});
+
+static TERRAIN_CONFIG: Lazy<TerrainConfigFile> = Lazy::new(|| {
+    let data = include_str!("../../data/terrain_config.json");
+    serde_json::from_str(data).expect("Failed to parse terrain_config.json")
 });
 
 pub fn get_wall_def(id: &str) -> Option<&'static WallDef> {
@@ -119,159 +152,163 @@ impl Map {
         biome: Biome,
         terrain: Terrain,
         _elevation: u8,
-        poi: super::world_map::POI,
+        poi: POI,
     ) -> (Self, Vec<(i32, i32)>) {
-        // Wall type based on biome
-        let wall_type = match biome {
-            Biome::Saltflat => "salt_crystal",
-            Biome::Ruins => "shale",
-            _ => "sandstone",
-        }.to_string();
-        let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
-        let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
-        let mut room_centers = Vec::new();
+        let seed = rng.next_u32();
+        Self::generate_noise_terrain(seed, biome, terrain, poi)
+    }
 
-        // Room count based on terrain - more rooms for open feel
-        let (min_rooms, max_rooms) = match terrain {
-            Terrain::Canyon => (6, 10),
-            Terrain::Mesa => (8, 12),
-            Terrain::Hills => (10, 15),
-            Terrain::Dunes => (8, 14),
-            Terrain::Flat => (12, 18),
+    fn generate_noise_terrain(
+        seed: u32,
+        biome: Biome,
+        terrain: Terrain,
+        poi: POI,
+    ) -> (Self, Vec<(i32, i32)>) {
+        // Get terrain config
+        let terrain_key = match terrain {
+            Terrain::Canyon => "canyon",
+            Terrain::Mesa => "mesa", 
+            Terrain::Hills => "hills",
+            Terrain::Dunes => "dunes",
+            Terrain::Flat => "flat",
         };
-        let num_rooms = rng.gen_range(min_rooms..=max_rooms);
-
-        // Glass density based on biome
-        let glass_density = match biome {
-            Biome::Saltflat => (20, 35),
-            Biome::Oasis => (5, 10),
-            _ => (10, 20),
-        };
-
-        // Generate larger rooms for more open areas (~50% floor coverage)
-        for _ in 0..num_rooms {
-            let w = rng.gen_range(8..20);  // Much larger rooms
-            let h = rng.gen_range(6..14);
-            let x = rng.gen_range(1..MAP_WIDTH - w - 1);
-            let y = rng.gen_range(1..MAP_HEIGHT - h - 1);
-            for ry in y..y + h {
-                for rx in x..x + w {
-                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor;
-                }
-            }
-            room_centers.push(((x + w / 2) as i32, (y + h / 2) as i32));
-        }
-
-        // Connect rooms with wider corridors (3 tiles wide)
-        for i in 1..room_centers.len() {
-            let (cx1, cy1) = room_centers[i - 1];
-            let (cx2, cy2) = room_centers[i];
-            // Horizontal corridor
-            for x in (cx1.min(cx2) as usize)..=(cx1.max(cx2) as usize) {
-                for dy in -1i32..=1 {
-                    let y = (cy1 + dy).clamp(1, MAP_HEIGHT as i32 - 2) as usize;
-                    tiles[y * MAP_WIDTH + x] = Tile::Floor;
-                }
-            }
-            // Vertical corridor
-            for y in (cy1.min(cy2) as usize)..=(cy1.max(cy2) as usize) {
-                for dx in -1i32..=1 {
-                    let x = (cx2 + dx).clamp(1, MAP_WIDTH as i32 - 2) as usize;
-                    tiles[y * MAP_WIDTH + x] = Tile::Floor;
-                }
-            }
-        }
-
-        for _ in 0..rng.gen_range(glass_density.0..glass_density.1) {
-            let x = rng.gen_range(1..MAP_WIDTH - 1);
-            let y = rng.gen_range(1..MAP_HEIGHT - 1);
-            if tiles[y * MAP_WIDTH + x] == Tile::Floor {
-                tiles[y * MAP_WIDTH + x] = Tile::Glass;
-            }
-        }
-
-        // Add stairs down for dungeon POI
-        if poi == super::world_map::POI::Dungeon {
-            if let Some(&(rx, ry)) = room_centers.last() {
-                tiles[ry as usize * MAP_WIDTH + rx as usize] = Tile::StairsDown;
-            }
-        }
-
-        // Add WorldExit tiles at map edges (one per edge, connected to nearest room)
-        // North edge
-        if let Some(&(rx, _)) = room_centers.iter().min_by_key(|(_, y)| *y) {
-            let exit_x = rx as usize;
-            for y in 0..MAP_HEIGHT {
-                if tiles[y * MAP_WIDTH + exit_x] == Tile::Floor {
-                    // Carve path to edge
-                    for ey in 0..y {
-                        tiles[ey * MAP_WIDTH + exit_x] = Tile::Floor;
-                    }
-                    tiles[exit_x] = Tile::WorldExit; // y=0
-                    break;
-                }
-            }
-        }
-        // South edge
-        if let Some(&(rx, _)) = room_centers.iter().max_by_key(|(_, y)| *y) {
-            let exit_x = rx as usize;
-            for y in (0..MAP_HEIGHT).rev() {
-                if tiles[y * MAP_WIDTH + exit_x] == Tile::Floor {
-                    for ey in (y + 1)..MAP_HEIGHT {
-                        tiles[ey * MAP_WIDTH + exit_x] = Tile::Floor;
-                    }
-                    tiles[(MAP_HEIGHT - 1) * MAP_WIDTH + exit_x] = Tile::WorldExit;
-                    break;
-                }
-            }
-        }
-        // West edge
-        if let Some(&(_, ry)) = room_centers.iter().min_by_key(|(x, _)| *x) {
-            let exit_y = ry as usize;
-            for x in 0..MAP_WIDTH {
-                if tiles[exit_y * MAP_WIDTH + x] == Tile::Floor {
-                    for ex in 0..x {
-                        tiles[exit_y * MAP_WIDTH + ex] = Tile::Floor;
-                    }
-                    tiles[exit_y * MAP_WIDTH] = Tile::WorldExit; // x=0
-                    break;
-                }
-            }
-        }
-        // East edge
-        if let Some(&(_, ry)) = room_centers.iter().max_by_key(|(x, _)| *x) {
-            let exit_y = ry as usize;
-            for x in (0..MAP_WIDTH).rev() {
-                if tiles[exit_y * MAP_WIDTH + x] == Tile::Floor {
-                    for ex in (x + 1)..MAP_WIDTH {
-                        tiles[exit_y * MAP_WIDTH + ex] = Tile::Floor;
-                    }
-                    tiles[exit_y * MAP_WIDTH + MAP_WIDTH - 1] = Tile::WorldExit;
-                    break;
-                }
-            }
-        }
-
-        // Spawn lights based on biome
+        
         let biome_key = match biome {
             Biome::Saltflat => "saltflat",
+            Biome::Oasis => "oasis",
             Biome::Ruins => "ruins",
-            _ => "default",
+            _ => "desert",
         };
-        let rule = get_spawn_rule(biome_key);
-        let mut lights = Vec::new();
-        for &(rx, ry) in &room_centers {
-            let count = rng.gen_range(rule.lights_per_room[0]..=rule.lights_per_room[1]);
-            for _ in 0..count {
-                if let Some(light_id) = pick_light_type(rule, rng) {
-                    let lx = rx + rng.gen_range(-2..=2);
-                    let ly = ry + rng.gen_range(-2..=2);
-                    lights.push(MapLight { x: lx, y: ly, id: light_id });
+
+        let config = &TERRAIN_CONFIG.terrain_types[terrain_key];
+        let biome_mod = TERRAIN_CONFIG.biome_modifiers.get(biome_key);
+
+        // Apply biome modifiers
+        let mut floor_threshold = config.floor_threshold;
+        let mut glass_density = config.glass_density;
+        let mut wall_type = config.wall_type.clone();
+
+        if let Some(modifier) = biome_mod {
+            if let Some(bonus) = modifier.floor_threshold_bonus {
+                floor_threshold += bonus;
+            }
+            if let Some(multiplier) = modifier.glass_density_multiplier {
+                glass_density *= multiplier;
+            }
+            if let Some(override_type) = &modifier.wall_type_override {
+                wall_type = override_type.clone();
+            }
+        }
+
+        // Create noise generators
+        let terrain_noise = Perlin::new(seed);
+        let glass_noise = Perlin::new(seed + 1);
+        let diagonal_noise = Perlin::new(seed + 2);
+        
+        let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
+        let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
+        let mut clearings = Vec::new();
+
+        // Generate base terrain with noise - more open areas
+        for y in 0..MAP_HEIGHT {
+            for x in 0..MAP_WIDTH {
+                let idx = y * MAP_WIDTH + x;
+                let nx = x as f64 / config.noise_scale;
+                let ny = y as f64 / config.noise_scale;
+                
+                let terrain_value = terrain_noise.get([nx, ny]);
+                
+                // Lower threshold for more open areas (50% more sparse)
+                if terrain_value > (floor_threshold - 0.5) {
+                    tiles[idx] = Tile::Floor;
+                    
+                    // Sharp diagonal glass formations
+                    let diag_value = diagonal_noise.get([nx * 4.0, ny * 4.0]);
+                    let diagonal_factor = ((x as f64 - y as f64) / 20.0).sin().abs();
+                    
+                    if diag_value > 0.4 && diagonal_factor > 0.7 {
+                        tiles[idx] = Tile::Glass;
+                    } else {
+                        // Regular glass placement
+                        let glass_value = glass_noise.get([nx * 2.0, ny * 2.0]);
+                        if glass_value > (1.0 - glass_density * 0.7) {
+                            tiles[idx] = Tile::Glass;
+                        }
+                    }
                 }
             }
         }
 
-        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT, lights }, room_centers)
+        // Add POI-specific features
+        if poi != POI::None {
+            Self::add_poi_features(&mut tiles, poi, &clearings);
+        }
+
+        // Find natural clearings for spawn points
+        clearings.extend(Self::find_clearings(&tiles));
+
+        let map = Map {
+            tiles,
+            width: MAP_WIDTH,
+            height: MAP_HEIGHT,
+            lights: Vec::new(),
+        };
+
+        (map, clearings)
+    }
+
+    fn add_poi_features(tiles: &mut Vec<Tile>, poi: POI, _clearings: &[(i32, i32)]) {
+        let poi_key = match poi {
+            POI::Town => "town",
+            POI::Landmark => "ruins", 
+            POI::Shrine => "shrine",
+            POI::Dungeon => "archive",
+            _ => return,
+        };
+
+        if let Some(layout) = TERRAIN_CONFIG.poi_layouts.get(poi_key) {
+            let center_x = MAP_WIDTH / 2;
+            let center_y = MAP_HEIGHT / 2;
+            let size = layout.central_clearing_size;
+
+            // Create central clearing
+            for y in center_y.saturating_sub(size/2)..=(center_y + size/2).min(MAP_HEIGHT-1) {
+                for x in center_x.saturating_sub(size/2)..=(center_x + size/2).min(MAP_WIDTH-1) {
+                    tiles[y * MAP_WIDTH + x] = Tile::Floor;
+                }
+            }
+        }
+    }
+
+    fn find_clearings(tiles: &[Tile]) -> Vec<(i32, i32)> {
+        let mut clearings = Vec::new();
+        
+        // Find floor areas that could serve as spawn points
+        for y in 5..MAP_HEIGHT-5 {
+            for x in 5..MAP_WIDTH-5 {
+                if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor) {
+                    // Check if there's enough open space around this point
+                    let mut open_count = 0;
+                    for dy in -2..=2 {
+                        for dx in -2..=2 {
+                            let ny = (y as i32 + dy) as usize;
+                            let nx = (x as i32 + dx) as usize;
+                            if ny < MAP_HEIGHT && nx < MAP_WIDTH {
+                                if matches!(tiles[ny * MAP_WIDTH + nx], Tile::Floor) {
+                                    open_count += 1;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if open_count >= 15 { // At least 15 of 25 tiles are floor
+                        clearings.push((x as i32, y as i32));
+                    }
+                }
+            }
+        }
+        
+        clearings
     }
 
     /// Legacy generate (uses default biome/terrain)
