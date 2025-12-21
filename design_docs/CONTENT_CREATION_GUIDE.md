@@ -204,7 +204,226 @@ if rooms.len() > 4 {
 
 ---
 
-## Wall Types (`data/walls.json`)
+## Trading System (`data/traders.json`)
+
+The trading system provides faction-based, tier-dependent commerce with reputation modifiers.
+
+### Trader Schema
+
+```json
+{
+  "trader_id": "unique_trader_id",
+  "name": "Display Name",
+  "faction": "faction_name",
+  "base_tier": 1,
+  "items": [
+    {
+      "item_id": "item_from_items_json",
+      "base_price": 50,
+      "stock": 5,
+      "min_tier": 1,
+      "max_tier": 3,
+      "required_reputation": 0,
+      "faction_exclusive": "faction_name"
+    }
+  ],
+  "reputation_modifiers": {
+    "50": {
+      "price_multiplier": 0.8,
+      "stock_bonus": 3,
+      "exclusive_items": ["rare_item_id"]
+    }
+  }
+}
+```
+
+### Trading Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `trader_id` | Yes | Unique identifier |
+| `name` | Yes | Display name |
+| `faction` | Yes | Trader's faction |
+| `base_tier` | Yes | Minimum area tier for trader |
+| `items` | Yes | Array of trade items |
+| `reputation_modifiers` | No | Reputation-based bonuses |
+
+### Trade Item Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `item_id` | Yes | Must exist in items.json |
+| `base_price` | Yes | Base cost in salt scrip |
+| `stock` | Yes | Available quantity (-1 = infinite) |
+| `min_tier` | No | Minimum area tier (default: 1) |
+| `max_tier` | No | Maximum area tier |
+| `required_reputation` | No | Minimum faction reputation (default: 0) |
+| `faction_exclusive` | No | Only available to faction members |
+
+### Area Tiers
+
+Tiers are calculated from enemy HP averages in the current area:
+- **Tier 1**: 0-20 HP enemies (starting areas)
+- **Tier 2**: 21-40 HP enemies 
+- **Tier 3**: 41-60 HP enemies
+- **Tier 4**: 61-80 HP enemies
+- **Tier 5**: 81+ HP enemies (endgame areas)
+
+### Reputation Effects
+
+Reputation modifiers apply at specific thresholds:
+
+| Reputation | Price Modifier | Sell Price | Access |
+|------------|----------------|------------|---------|
+| -50 to -26 | 1.5x | 30% | Hostile |
+| -25 to -1 | 1.2x | 50% | Unfriendly |
+| 0 to 24 | 1.0x | 70% | Neutral |
+| 25 to 49 | 0.9x | 80% | Friendly |
+| 50 to 74 | 0.8x | 90% | Allied |
+| 75+ | 0.7x | 100% | Revered |
+
+### Example: Adding a New Trader
+
+```json
+{
+  "trader_id": "storm_scavenger",
+  "name": "Scavenger Nix",
+  "faction": "independent",
+  "base_tier": 2,
+  "items": [
+    {
+      "item_id": "storm_glass",
+      "base_price": 80,
+      "stock": 2,
+      "min_tier": 2,
+      "required_reputation": 10
+    },
+    {
+      "item_id": "scrap_metal",
+      "base_price": 15,
+      "stock": -1,
+      "min_tier": 1
+    }
+  ],
+  "reputation_modifiers": {
+    "25": {
+      "price_multiplier": 0.9,
+      "stock_bonus": 1,
+      "exclusive_items": ["rare_storm_relic"]
+    }
+  }
+}
+```
+
+---
+
+## Dialogue System (`data/dialogues.json`)
+
+The dialogue system provides branching conversations with conditions and actions.
+
+### Dialogue Tree Schema
+
+```json
+{
+  "npc_id": "npc_from_npcs_json",
+  "name": "NPC Display Name",
+  "faction": "faction_name",
+  "root_node": "greeting",
+  "nodes": [
+    {
+      "id": "greeting",
+      "speaker": "NPC Name",
+      "text": "Hello, traveler!",
+      "options": [
+        {
+          "text": "Player response option",
+          "condition": {
+            "has_currency": 50,
+            "faction_reputation": {"faction_name": 25}
+          },
+          "response": "NPC response text",
+          "action": {
+            "type": "trade",
+            "parameters": {"trader_id": "trader_id"}
+          },
+          "leads_to": "next_node_id",
+          "ends_conversation": false
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Dialogue Conditions
+
+| Condition | Example | Description |
+|-----------|---------|-------------|
+| `has_currency` | `{"has_currency": 100}` | Player has minimum salt scrip |
+| `faction_reputation` | `{"faction_reputation": {"guild": 25}}` | Minimum faction reputation |
+| `has_item` | `{"has_item": "storm_glass"}` | Player has specific item |
+| `player_level` | `{"player_level": 3}` | Minimum player level |
+| `completed_quest` | `{"completed_quest": "quest_id"}` | Quest is completed |
+| `has_adaptation` | `{"has_adaptation": "glass_sight"}` | Player has adaptation |
+| `area_tier` | `{"area_tier": 3}` | Current area tier |
+
+### Dialogue Actions
+
+| Action Type | Parameters | Description |
+|-------------|------------|-------------|
+| `trade` | `{"trader_id": "merchant_id"}` | Open trade interface |
+| `reputation_change` | `{"faction": "guild", "change": 10}` | Modify reputation |
+| `give_item` | `{"item_id": "storm_glass"}` | Give item to player |
+| `take_item` | `{"item_id": "salt_crystal"}` | Take item from player |
+| `give_currency` | `{"amount": 50}` | Give salt scrip |
+| `take_currency` | `{"amount": 25}` | Take salt scrip |
+
+### Example: Adding New Dialogue
+
+```json
+{
+  "npc_id": "guild_apprentice",
+  "name": "Apprentice Kira",
+  "faction": "glasswright_guild",
+  "root_node": "greeting",
+  "nodes": [
+    {
+      "id": "greeting",
+      "speaker": "Apprentice Kira",
+      "text": "The guild masters are always watching. What do you need?",
+      "options": [
+        {
+          "text": "I'd like to trade.",
+          "response": "I have some basic supplies available.",
+          "action": {
+            "type": "trade",
+            "parameters": {"trader_id": "guild_apprentice"}
+          },
+          "ends_conversation": true
+        },
+        {
+          "text": "Tell me about the guild.",
+          "condition": {
+            "faction_reputation": {"glasswright_guild": 0}
+          },
+          "leads_to": "guild_info"
+        }
+      ]
+    },
+    {
+      "id": "guild_info",
+      "speaker": "Apprentice Kira",
+      "text": "We shape glass into tools and art. The masters say glass holds memory.",
+      "options": [
+        {
+          "text": "Interesting. Thank you.",
+          "leads_to": "greeting"
+        }
+      ]
+    }
+  ]
+}
+```
 
 ### Schema
 
@@ -413,12 +632,39 @@ Entities can have their own triggered effects that fire on specific events. Thes
 
 ## Checklist for New Content
 
+### Items
 - [ ] Add JSON entry with all required fields
 - [ ] Write description that fits the setting (salt, glass, storms, mutation)
-- [ ] For enemies: add color mapping in `main.rs` if desired
-- [ ] For NPCs: write dialogue that reacts to adaptations (Pillar 1)
-- [ ] For items: add to spawn list if it should appear naturally
-- [ ] Test with `cargo run` and use look mode (`x`) to verify description
+- [ ] Add to spawn list if it should appear naturally
+- [ ] Consider adding to trader inventories
+
+### Enemies  
+- [ ] Add JSON entry with balanced stats for intended tier
+- [ ] Add color mapping in `main.rs` if desired
+- [ ] Consider HP range for area tier calculation
+
+### NPCs
+- [ ] Add JSON entry with faction-appropriate dialogue
+- [ ] Write dialogue that reacts to adaptations (Pillar 1)
+- [ ] Create corresponding dialogue tree in `dialogues.json`
+- [ ] Link to trader if NPC should sell items
+
+### Traders
+- [ ] Add trader entry in `traders.json`
+- [ ] Set appropriate tier and faction requirements
+- [ ] Balance prices and stock levels
+- [ ] Add reputation modifiers for faction members
+
+### Dialogues
+- [ ] Create branching conversation tree
+- [ ] Use conditions to make dialogue reactive
+- [ ] Include faction-appropriate voice and concerns
+- [ ] Link trade actions to corresponding traders
+
+### Testing
+- [ ] Test with `cargo run` and use look mode (`x`) to verify descriptions
+- [ ] Test trading interface and dialogue trees
+- [ ] Verify reputation and tier requirements work correctly
 
 ---
 
@@ -450,6 +696,16 @@ Entities can have their own triggered effects that fire on specific events. Thes
 - [ ] _Suggestion: Tool for breaking walls_
 - [ ] _Suggestion: Storm prediction device_
 
+**Traders:**
+- [ ] _Suggestion: Black market trader with illegal adaptations_
+- [ ] _Suggestion: Faction-neutral trader in dangerous areas_
+- [ ] _Suggestion: Traveling merchant with rotating stock_
+
+**Dialogues:**
+- [ ] _Suggestion: Multi-stage quest dialogue trees_
+- [ ] _Suggestion: Faction conflict resolution conversations_
+- [ ] _Suggestion: Adaptation-specific dialogue branches_
+
 ### Faction Voice Guidelines
 
 | Faction | Voice | Avoid |
@@ -464,7 +720,18 @@ Entities can have their own triggered effects that fire on specific events. Thes
 - [ ] Does the default dialogue establish faction identity?
 - [ ] Is the voice distinct from other factions?
 - [ ] Does it reinforce Pillar 1 (Mutation with Social Consequences)?
+- [ ] Are dialogue conditions properly balanced?
+- [ ] Do trade actions link to appropriate traders?
+- [ ] Are reputation changes reasonable for the interaction?
+
+### Trading Balance Checklist
+
+- [ ] Are prices balanced for the item's utility and rarity?
+- [ ] Does the tier requirement match item power level?
+- [ ] Are reputation requirements appropriate for faction relations?
+- [ ] Do exclusive items provide meaningful faction benefits?
+- [ ] Are stock levels reasonable (finite for rare items)?
 
 ---
 
-*Last updated: 2025-12-14*
+*Last updated: 2025-12-21*
