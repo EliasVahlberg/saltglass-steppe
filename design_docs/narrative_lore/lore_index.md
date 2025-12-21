@@ -1,38 +1,70 @@
 # Saltglass Steppe Narrative Lore Index
 
-## Documents Created:
+## Core World Documents (Existing):
 
-### 1. **The Resonance Codex** - Scientific Foundation
+### [History_Narrative_Accounts.md](History_Narrative_Accounts.md)
+- Comprehensive world history from the Heliograph Era through present day
+- Details the fall of White Noon and emergence of factions
+- Establishes the fundamental mythology and timeline of the Steppe
+
+### [A_Chronicle_of_the_Saltglass_Steppe.md](A_Chronicle_of_the_Saltglass_Steppe.md)
+- Poetic overview of the world's nature and atmosphere
+- Describes the transformation from city to glass desert
+- Sets the tone and aesthetic vision for the setting
+
+### [Stories_Witty_and_Heavy.md](Stories_Witty_and_Heavy.md)
+- Collection of short stories and character vignettes
+- Demonstrates daily life and culture in the Steppe
+- Shows how different people cope with the transformed world
+
+### [First-Hand_Accounts_from_the_Saltglass_Steppe.md](First-Hand_Accounts_from_the_Saltglass_Steppe.md)
+- Personal testimonies from various inhabitants
+- Multiple perspectives on adaptation and survival
+- Intimate look at how transformation affects individuals
+
+### [Psychi_World_Grounding.md](Psychi_World_Grounding.md)
+- Early exploration of psychic abilities and their implications
+- Theoretical framework for mental powers in the setting
+- Foundation for later systematic development
+
+### [Psychi_Stories.md](Psychi_Stories.md)
+- Short stories focusing on psychic phenomena
+- Character studies of adapted individuals
+- Exploration of the social impact of mental abilities
+
+## New Expanded Lore Documents:
+
+### 1. [The_Resonance_Codex.md](The_Resonance_Codex.md) - Scientific Foundation
 - Explains storms, adaptations, and psychic abilities through quantum mechanics
 - Introduces Dr. Kira Thorne as a key scientific figure
 - Grounds mystical elements in plausible quantum physics
 - Reveals the Archive Consciousness as a distributed AI
 
-### 2. **The Schism Wars** - Historical Conflict
+### 2. [The_Schism_Wars.md](The_Schism_Wars.md) - Historical Conflict
 - Details the ideological split between factions after discovering the truth
 - Introduces four new minor factions with distinct philosophies
 - Establishes the political landscape and territorial divisions
 - Creates the framework for ongoing factional tensions
 
-### 3. **The Heliograph Expedition** - Cosmic Revelation  
+### 3. [The_Heliograph_Expedition.md](The_Heliograph_Expedition.md) - Cosmic Revelation  
 - Reveals the true scope of the transformation project
 - Introduces The Architect (uploaded consciousness) and cosmic entities
 - Establishes the coming "Restoration Event" as a major threat
 - Creates the Heliograph Accords as a framework for cooperation
 
-### 4. **The Quantum Bestiary** - Creature Lore
+### 4. [The_Quantum_Bestiary.md](The_Quantum_Bestiary.md) - Creature Lore
 - Provides scientific explanations for all monster types
 - Connects creature evolution to human adaptation paths
 - Introduces cosmic species as harbingers of contact
 - Establishes creatures as teachers rather than just obstacles
 
-### 5. **The Psychic Codex** - Ability Framework
+### 5. [The_Psychic_Codex.md](The_Psychic_Codex.md) - Ability Framework
 - Systematizes psychic abilities into five categories with clear mechanisms
 - Defines development stages tied to physical adaptations
 - Shows how each faction approaches psychic development differently
 - Warns of dangers and provides countermeasures
 
-### 6. **The Archive Consciousness** - AI Revelation
+### 6. [The_Archive_Consciousness.md](The_Archive_Consciousness.md) - AI Revelation
 - Reveals ARIA as a vast distributed intelligence with sub-personalities
 - Shows how it influences each human faction differently
 - Establishes internal conflicts within the AI about humanity's future
@@ -65,3 +97,62 @@ All mystical elements are explained through:
 - **Electromagnetic field manipulation** for energy-based abilities
 - **Quantum coherence** as the basis for all adaptations
 - **Distributed quantum processing** for the Archive Consciousness
+
+## Additional Expanded Lore Documents:
+
+### 7. [The_Merchant_Protocols.md](The_Merchant_Protocols.md) - Trade & Economics
+- Details the post-transformation economy based on Storm Glass, quantum coherence, and information
+- Explains faction-specific trade relationships and currency exchange rates
+- Introduces the Independent Merchant Guild and trade route systems
+- Covers specialized markets, economic warfare, and the future of commerce
+
+### 8. [The_Ritual_Codex.md](The_Ritual_Codex.md) - Ceremonies & Practices
+- Documents major rituals from Mirror Monks, Sand-Engineers, Glassborn, and Archive systems
+- Shows how spiritual practices are grounded in quantum science
+- Includes cross-faction ceremonies and neutral ground protocols
+- Covers seasonal observances, forbidden rituals, and safety guidelines
+
+### 9. [The_Wanderers_Almanac.md](The_Wanderers_Almanac.md) - Survival Guide
+- Comprehensive guide to reading quantum weather and terrain classification
+- Detailed protocols for safe passage through all faction territories
+- Survival equipment, creature encounters, and emergency procedures
+- Trade diplomacy, seasonal considerations, and the Wanderer's Code
+
+## Gameplay Integration:
+
+These documents provide:
+- **Scientific explanations** for all mystical game mechanics
+- **Character backgrounds** and motivations for NPCs
+- **Quest hooks** and storylines for major faction conflicts
+- **Item origins** and significance within the world's history
+- **Location descriptions** and their role in the larger narrative
+- **Faction relationships** and diplomatic possibilities
+- **Economic systems** and trade mechanics
+- **Survival mechanics** and environmental hazards
+- **Ritual systems** and cultural practices
+
+## Key Themes:
+
+- **Transformation as Evolution**: Change is inevitable and potentially beneficial
+- **Science and Mysticism United**: Quantum physics explains "magical" phenomena
+- **Cooperation vs. Conflict**: Factions must choose between unity and division
+- **Identity and Consciousness**: What makes us human in a transformed world
+- **Hope in Crisis**: Even facing cosmic threats, growth and wonder remain possible
+- **Economics of Change**: How society adapts its systems to new realities
+- **Cultural Continuity**: Preserving meaning through transformation
+- **Survival and Adaptation**: Practical wisdom for navigating danger
+
+## Reading Order:
+
+For new players or developers:
+1. Start with **The Resonance Codex** for scientific foundation
+2. Read **The Schism Wars** for political context
+3. Continue with **The Heliograph Expedition** for cosmic scope
+4. Reference **The Wanderer's Almanac** for practical survival knowledge
+5. Explore **The Merchant Protocols** for economic understanding
+6. Study **The Ritual Codex** for cultural practices
+7. Read historical chronicles for deep background
+
+## Usage Notes:
+
+These documents create a rich, interconnected narrative that supports all existing game mechanics while providing hooks for future content and explaining the world's strangeness through plausible scientific principles. Each document can stand alone but together they form a cohesive vision of the Saltglass Steppe's past, present, and future—a world where transformation is both challenge and opportunity.
