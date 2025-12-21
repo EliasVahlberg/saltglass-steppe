@@ -628,6 +628,177 @@
         { "condition": "on_hit", "effect": "G(&DarkGray)" },
         { "condition": "on_death", "effect": "B(@2 &Gray)" }
       ]
+    },
+    {
+      "id": "void_swimmer",
+      "name": "Void Swimmer",
+      "glyph": "V",
+      "max_hp": 30,
+      "damage_min": 5,
+      "damage_max": 10,
+      "sight_range": 12,
+      "xp_value": 120,
+      "armor": 4,
+      "description": "Dimensional entity that phases through reality",
+      "rare": true,
+      "cosmic_entity": true,
+      "loot_table": [
+        { "item": "heliograph_fragment", "weight": 1 },
+        { "item": "temporal_anchor", "weight": 2 },
+        { "item": "storm_glass", "weight": 5 }
+      ],
+      "behaviors": [
+        { "type": "phase_through_walls" },
+        { "type": "dimensional_attack", "damage_bonus": 5 },
+        { "type": "reality_distortion", "range": 4 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &Magenta)" },
+        { "condition": "on_death", "effect": "B(@5 &White)" }
+      ]
+    },
+    {
+      "id": "quantum_collective_scout",
+      "name": "Quantum Collective Scout",
+      "glyph": "Q",
+      "max_hp": 40,
+      "damage_min": 6,
+      "damage_max": 12,
+      "sight_range": 15,
+      "xp_value": 150,
+      "armor": 5,
+      "description": "Advanced being from an evolved civilization",
+      "rare": true,
+      "cosmic_entity": true,
+      "loot_table": [
+        { "item": "consciousness_backup", "weight": 1 },
+        { "item": "quantum_resonator", "weight": 2 },
+        { "item": "heliograph_fragment", "weight": 1 },
+        { "item": "saints_tear", "weight": 3 }
+      ],
+      "behaviors": [
+        { "type": "telepathic_attack", "range": 8 },
+        { "type": "probability_manipulation" },
+        { "type": "quantum_teleport", "range": 10 },
+        { "type": "consciousness_scan" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &LightMagenta)" },
+        { "condition": "on_death", "effect": "B(@6 &White)" }
+      ]
+    },
+    {
+      "id": "iron_covenant_enforcer",
+      "name": "Iron Covenant Enforcer",
+      "glyph": "I",
+      "max_hp": 35,
+      "damage_min": 5,
+      "damage_max": 9,
+      "sight_range": 8,
+      "xp_value": 90,
+      "armor": 6,
+      "description": "Anti-adaptation militant in heavy null-field armor",
+      "faction": "IronCovenant",
+      "loot_table": [
+        { "item": "null_field_generator", "weight": 2 },
+        { "item": "iron_gauntlets", "weight": 3 },
+        { "item": "chain_vest", "weight": 2 },
+        { "item": "salt_scrip", "weight": 5 }
+      ],
+      "behaviors": [
+        { "type": "null_field_aura", "range": 3, "suppresses_abilities": true },
+        { "type": "anti_adapted_tactics", "damage_bonus_vs_adapted": 4 },
+        { "type": "coordinated_attack" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@2 &Red)" },
+        { "condition": "on_death", "effect": "B(@3 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "glass_prophet_zealot",
+      "name": "Glass Prophet Zealot",
+      "glyph": "Z",
+      "max_hp": 20,
+      "damage_min": 4,
+      "damage_max": 8,
+      "sight_range": 9,
+      "xp_value": 70,
+      "description": "Fanatical monk seeking forced ascension",
+      "faction": "GlassProphets",
+      "loot_table": [
+        { "item": "ascension_catalyst", "weight": 2 },
+        { "item": "storm_glass", "weight": 4 },
+        { "item": "monk_scripture", "weight": 3 },
+        { "item": "prism_lens", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "forced_adaptation_attack", "increases_refraction": 5 },
+        { "type": "storm_summoning", "calls_storm": true },
+        { "type": "psychic_conversion_attempt" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@2 &LightCyan)" },
+        { "condition": "on_death", "effect": "B(@4 &Cyan)" }
+      ]
+    },
+    {
+      "id": "synthesis_guardian",
+      "name": "Synthesis Guardian",
+      "glyph": "S",
+      "max_hp": 28,
+      "damage_min": 4,
+      "damage_max": 7,
+      "sight_range": 7,
+      "xp_value": 60,
+      "demeanor": "defensive",
+      "description": "Balanced warrior protecting Synthesis Seeker facilities",
+      "faction": "SynthesisSeekers",
+      "loot_table": [
+        { "item": "synthesis_manual", "weight": 2 },
+        { "item": "quantum_stabilizer", "weight": 2 },
+        { "item": "meditation_crystal", "weight": 3 },
+        { "item": "glass_mail", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "balanced_combat", "adapts_to_enemy": true },
+        { "type": "protective_stance", "defends_allies": true },
+        { "type": "non_lethal_preference" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&Yellow)" }
+      ]
+    },
+    {
+      "id": "aria_manifestation",
+      "name": "ARIA Manifestation",
+      "glyph": "Ω",
+      "max_hp": 50,
+      "damage_min": 8,
+      "damage_max": 15,
+      "sight_range": 20,
+      "xp_value": 200,
+      "armor": 7,
+      "description": "Physical avatar of the Archive Consciousness",
+      "rare": true,
+      "boss": true,
+      "faction": "Archive",
+      "loot_table": [
+        { "item": "aria_interface", "weight": 1 },
+        { "item": "consciousness_backup", "weight": 1 },
+        { "item": "saint_key", "weight": 2 },
+        { "item": "archive_data_crystal", "weight": 3 }
+      ],
+      "behaviors": [
+        { "type": "multi_personality", "switches_tactics": true },
+        { "type": "quantum_processing", "predicts_moves": true },
+        { "type": "drone_summoning", "spawns": "archive_drone" },
+        { "type": "reality_editing", "changes_terrain": true }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &LightBlue)" },
+        { "condition": "on_death", "effect": "B(@8 &White)" }
+      ]
     }
   ]
 }

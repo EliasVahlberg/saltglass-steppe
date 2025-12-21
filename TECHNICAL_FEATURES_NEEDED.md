@@ -221,3 +221,166 @@ All these systems should be implemented with data-driven design principles:
 8. **Ritual System** - Enables transformation mechanics
 
 This order ensures each system builds on previous ones and provides immediate gameplay value.
+
+## NEW SYSTEMS FOR LORE-BASED CONTENT
+
+### Priority: CRITICAL (Required for New Lore Content)
+
+#### 15. Quantum Consciousness System
+**Referenced in:** Psychic Codex, new items, advanced NPCs
+**Description:** Framework for psychic abilities and quantum-based powers
+**Implementation needs:**
+- Five categories of psychic abilities (telepathy, probability, energy, phasing, temporal)
+- Stage-based development tied to adaptation levels
+- Quantum coherence as resource system
+- Psychic ability cooldowns and limitations
+- Mental strain and quantum psychosis mechanics
+
+#### 16. ARIA Communication System
+**Referenced in:** Archive Consciousness lore, ARIA Interface item
+**Description:** Direct dialogue system with the distributed AI
+**Implementation needs:**
+- Multi-personality AI responses based on Archive facility type
+- Dynamic dialogue that changes based on player's adaptation level
+- ARIA influence on world events and other NPCs
+- Archive facility control through ARIA interface
+- AI memory of previous interactions
+
+#### 17. Cosmic Entity Encounters
+**Referenced in:** Quantum Collective Scout, Void Swimmer enemies
+**Description:** Special encounter system for otherworldly beings
+**Implementation needs:**
+- Rare spawn conditions tied to player adaptation level
+- Reality distortion effects during encounters
+- Cosmic entity communication attempts
+- Dimensional attack patterns and defenses
+- Consequences for cosmic contact events
+
+#### 18. Consciousness Backup System
+**Referenced in:** Consciousness Backup item, Archive facilities
+**Description:** Mind uploading and digital consciousness storage
+**Implementation needs:**
+- Player consciousness scanning and storage
+- Backup restoration after death (with consequences)
+- Digital consciousness interaction with ARIA
+- Memory fragmentation and identity issues
+- Archive facility integration for backup storage
+
+### Priority: HIGH (Enhances Lore Integration)
+
+#### 19. Null Field Technology
+**Referenced in:** Iron Covenant faction, Null Field Generator item
+**Description:** Anti-quantum technology that suppresses abilities
+**Implementation needs:**
+- Null field area effects that disable psychic abilities
+- Adaptation suppression and reversal mechanics
+- Iron Covenant equipment with null field properties
+- Null field resistance for highly adapted characters
+- Environmental null field zones
+
+#### 20. Forced Adaptation System
+**Referenced in:** Glass Prophet faction, Ascension Catalyst item
+**Description:** Accelerated transformation mechanics
+**Implementation needs:**
+- Rapid adaptation progression with risks
+- Forced adaptation events and consequences
+- Adaptation resistance and acceptance mechanics
+- Transformation trauma and psychological effects
+- Emergency adaptation in extreme situations
+
+#### 21. Memory Crystal Technology
+**Referenced in:** Wandering Court faction, Memory Crystal item
+**Description:** Cultural preservation and memory sharing system
+**Implementation needs:**
+- Pre-storm memory storage and playback
+- Cultural knowledge database access
+- Memory sharing between characters
+- Lost knowledge recovery mechanics
+- Nostalgia and identity preservation themes
+
+#### 22. Quantum Field Manipulation
+**Referenced in:** Various lore documents, storm mechanics
+**Description:** Environmental quantum field effects
+**Implementation needs:**
+- Quantum field strength measurement and display
+- Field manipulation through items and abilities
+- Environmental hazards from quantum instability
+- Quantum field interactions with technology
+- Storm prediction through field analysis
+
+### Priority: MEDIUM (Atmospheric and Immersion)
+
+#### 23. Timeline Perception System
+**Referenced in:** Psychic Codex temporal abilities
+**Description:** Time-based psychic abilities and consequences
+**Implementation needs:**
+- Precognition mechanics for seeing future events
+- Retrocognition for viewing past events
+- Temporal displacement risks and effects
+- Timeline stability and paradox prevention
+- Temporal anchor items for protection
+
+#### 24. Collective Consciousness Network
+**Referenced in:** Glassborn faction, hive mind mechanics
+**Description:** Shared consciousness between adapted individuals
+**Implementation needs:**
+- Mental network joining and leaving mechanics
+- Shared knowledge and experience pools
+- Individual identity preservation vs. collective merger
+- Network communication and coordination
+- Collective decision-making processes
+
+#### 25. Reality Editing System
+**Referenced in:** ARIA Manifestation, storm mechanics
+**Description:** Direct manipulation of physical reality
+**Implementation needs:**
+- Terrain modification during encounters
+- Reality stability measurement
+- Editing resistance and backlash effects
+- Environmental storytelling through edits
+- Player reality manipulation abilities
+
+#### 26. Cosmic Contact Protocol
+**Referenced in:** Heliograph Expedition lore
+**Description:** Framework for interaction with alien intelligences
+**Implementation needs:**
+- Communication attempt mechanics
+- Cosmic entity relationship tracking
+- Contact preparation and readiness systems
+- Cosmic threat assessment and response
+- Post-contact world state changes
+
+### Priority: LOW (Polish and Depth)
+
+#### 27. Cultural Preservation Mechanics
+**Referenced in:** Wandering Court, pre-storm artifacts
+**Description:** Maintaining human culture through transformation
+**Implementation needs:**
+- Cultural knowledge skill system
+- Tradition preservation activities
+- Cultural artifact collection and study
+- Identity crisis and resolution mechanics
+- Cultural exchange between factions
+
+#### 28. Quantum Biology Research
+**Referenced in:** Dr. Kira Thorne, research collaboration
+**Description:** Scientific study of adaptation processes
+**Implementation needs:**
+- Research project system with NPCs
+- Data collection and analysis mechanics
+- Scientific breakthrough discoveries
+- Research collaboration benefits
+- Ethical considerations in experimentation
+
+## IMPLEMENTATION PRIORITY FOR LORE CONTENT
+
+1. **Quantum Consciousness System** - Enables psychic abilities from lore
+2. **ARIA Communication System** - Allows interaction with Archive AI
+3. **Null Field Technology** - Enables Iron Covenant faction mechanics
+4. **Forced Adaptation System** - Supports Glass Prophet faction
+5. **Cosmic Entity Encounters** - Adds otherworldly threat level
+6. **Memory Crystal Technology** - Enables cultural preservation themes
+7. **Consciousness Backup System** - Archive-based resurrection mechanics
+8. **Quantum Field Manipulation** - Environmental storytelling tool
+
+This order ensures each system builds on previous ones and provides immediate gameplay value.
