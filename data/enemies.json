@@ -1,6 +1,32 @@
 {
   "enemies": [
     {
+      "id": "laser_drone",
+      "name": "Laser Drone",
+      "glyph": "d",
+      "max_hp": 10,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 8,
+      "xp_value": 20,
+      "description": "Ancient security drone",
+      "behaviors": [{ "type": "laser_beam", "value": 5 }]
+    },
+    {
+      "id": "splitter_slime",
+      "name": "Splitter Slime",
+      "glyph": "o",
+      "max_hp": 10,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 4,
+      "xp_value": 10,
+      "description": "Unstable biological mass",
+      "behaviors": [
+        { "type": "split_on_death", "condition": "glass_beetle", "value": 2 }
+      ]
+    },
+    {
       "id": "mirage_hound",
       "name": "Mirage Hound",
       "glyph": "h",
@@ -765,9 +791,7 @@
         { "type": "protective_stance", "defends_allies": true },
         { "type": "non_lethal_preference" }
       ],
-      "effects": [
-        { "condition": "on_hit", "effect": "G(&Yellow)" }
-      ]
+      "effects": [{ "condition": "on_hit", "effect": "G(&Yellow)" }]
     },
     {
       "id": "aria_manifestation",

@@ -18,14 +18,13 @@ This document lists technical systems that need to be implemented to support the
 - **Advanced Dialogue System** - Condition checking for faction/currency/items/level
 - **Quest System Expansion** - Already well-implemented with objectives, rewards, and tracking
 - **Ritual System** - Complete with requirements, effects, and DES testing support
+- **Advanced Map Features** - Hidden locations, safe routes, storm damage tracking
+- **Crafting System** - Recipe system, stations, skill requirements
+- **Sanity/Mental Health System** - Sanity meter, mental effects, hallucinations
 
 ### 🚧 IN PROGRESS
 
 ### ⏳ TODO
-
-- **Advanced Map Features** - Not started
-- **Crafting System** - Not started
-- **Sanity/Mental Health System** - Placeholder exists
 
 ## Implementation Summary
 
@@ -100,19 +99,19 @@ This document lists technical systems that need to be implemented to support the
 
 ## Priority: HIGH (Enhances Core Systems)
 
-### 5. 🚧 Advanced Combat Behaviors
+### 5. ✅ Advanced Combat Behaviors
 
 **Referenced in:** Enemy behaviors array
 **Description:** Complex enemy AI and special attacks
 **Implementation needs:**
 
-- `reflect_damage`: Percentage of damage reflected back to attacker
-- `teleport`: Enemy can move instantly within range
-- `web_trap`: Immobilizes player for X turns
-- `drain_sanity`: Reduces player mental health
-- `laser_beam`: Ranged attack with specific damage
-- `split_on_death`: Enemy spawns smaller versions when killed
-- `fear_aura`: Causes player to flee or suffer penalties
+- ✅ `reflect_damage`: Percentage of damage reflected back to attacker
+- ✅ `teleport`: Enemy can move instantly within range
+- ✅ `web_trap`: Immobilizes player for X turns
+- ✅ `drain_sanity`: Reduces player mental health
+- ✅ `laser_beam`: Ranged attack with specific damage
+- ✅ `split_on_death`: Enemy spawns smaller versions when killed
+- ✅ `fear_aura`: Causes player to flee or suffer penalties (Implemented as `swarm` aggro)
 - `multiple_attacks`: Enemy attacks multiple times per turn
 
 ### 6. ✅ Ritual System
@@ -127,28 +126,28 @@ This document lists technical systems that need to be implemented to support the
 - ✅ Faction reputation consequences
 - ✅ DES testing support with assertions
 
-### 7. Quest System Expansion
+### 7. ✅ Quest System Expansion
 
 **Referenced in:** NPC actions, dialogue
 **Description:** Dynamic quest generation and tracking
 **Implementation needs:**
 
-- `starts_quest`: NPCs can give quests dynamically
-- Quest objectives beyond "kill X enemies"
-- Faction-specific questlines
-- Quest rewards that affect reputation and unlock content
+- ✅ `starts_quest`: NPCs can give quests dynamically
+- ✅ Quest objectives beyond "kill X enemies" (Added `InterfaceWithAria`)
+- ✅ Faction-specific questlines
+- ✅ Quest rewards that affect reputation and unlock content
 
-### 8. Advanced Dialogue System
+### 8. ✅ Advanced Dialogue System
 
 **Referenced in:** NPC dialogue conditions
 **Description:** Complex dialogue trees with multiple conditions
 **Implementation needs:**
 
-- `has_currency`: Check if player has enough money
-- `faction_reputation`: Dialogue based on faction standing
-- `has_item`: Check for specific items in inventory
-- Multiple conditions per dialogue option (AND logic)
-- Dialogue that consumes items or currency
+- ✅ `has_currency`: Check if player has enough money
+- ✅ `faction_reputation`: Dialogue based on faction standing
+- ✅ `has_item`: Check for specific items in inventory
+- ✅ Multiple conditions per dialogue option (AND logic)
+- ✅ Dialogue that consumes items or currency
 
 ## Priority: MEDIUM (Quality of Life)
 

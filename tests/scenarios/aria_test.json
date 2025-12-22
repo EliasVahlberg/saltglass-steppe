@@ -1,0 +1,18 @@
+{
+  "name": "aria_test",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": ["aria_interface"]
+  },
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "accept_quest", "quest_id": "aria_first_contact" }
+    },
+    { "turn": 1, "action": { "type": "use_item", "item_index": 0 } }
+  ],
+  "assertions": [
+    { "check": { "type": "quest_completed", "quest_id": "aria_first_contact" } }
+  ]
+}

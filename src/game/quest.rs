@@ -16,6 +16,8 @@ pub enum ObjectiveType {
     Reach { x: i32, y: i32 },
     /// Talk to a specific NPC
     TalkTo { npc_id: String },
+    /// Interface with ARIA
+    InterfaceWithAria { item_required: String },
 }
 
 /// A single quest objective
@@ -98,7 +100,7 @@ impl ActiveQuest {
             let target = match &obj.objective_type {
                 ObjectiveType::Kill { count, .. } => *count,
                 ObjectiveType::Collect { count, .. } => *count,
-                ObjectiveType::Reach { .. } | ObjectiveType::TalkTo { .. } => 1,
+                ObjectiveType::Reach { .. } | ObjectiveType::TalkTo { .. } | ObjectiveType::InterfaceWithAria { .. } => 1,
             };
             ObjectiveProgress {
                 objective_id: obj.id.clone(),
@@ -170,6 +172,20 @@ impl ActiveQuest {
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::TalkTo { npc_id: target } = &obj.objective_type {
                     if target == npc_id && !self.objectives[i].completed {
+                        self.objectives[i].current = 1;
+                        self.objectives[i].completed = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /// Update progress for ARIA interface objectives
+    pub fn on_aria_interfaced(&mut self, item_used: &str) {
+        if let Some(def) = self.def() {
+            for (i, obj) in def.objectives.iter().enumerate() {
+                if let ObjectiveType::InterfaceWithAria { item_required } = &obj.objective_type {
+                    if item_required == item_used && !self.objectives[i].completed {
                         self.objectives[i].current = 1;
                         self.objectives[i].completed = true;
                     }
@@ -257,6 +273,13 @@ impl QuestLog {
     pub fn on_item_collected(&mut self, item_id: &str) {
         for quest in &mut self.active {
             quest.on_item_collected(item_id);
+        }
+    }
+
+    /// Notify all active quests of ARIA interface
+    pub fn on_aria_interfaced(&mut self, item_used: &str) {
+        for quest in &mut self.active {
+            quest.on_aria_interfaced(item_used);
         }
     }
 

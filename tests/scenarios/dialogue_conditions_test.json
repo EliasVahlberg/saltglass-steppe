@@ -1,0 +1,43 @@
+{
+  "name": "dialogue_conditions_test",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": []
+  },
+  "entities": [
+    { "entity_type": "npc", "id": "merchant_test", "x": 11, "y": 10 }
+  ],
+  "actions": [
+    { "turn": 0, "action": { "type": "move", "dx": 1, "dy": 0 } },
+    {
+      "turn": 1,
+      "action": {
+        "type": "log",
+        "query": { "custom": { "message": "Checking poor dialogue" } }
+      }
+    },
+    { "turn": 2, "action": { "type": "move", "dx": -1, "dy": 0 } },
+    {
+      "turn": 3,
+      "action": {
+        "type": "set_salt_scrip",
+        "amount": 100
+      }
+    },
+    { "turn": 4, "action": { "type": "move", "dx": 1, "dy": 0 } },
+    {
+      "turn": 5,
+      "action": {
+        "type": "log",
+        "query": { "custom": { "message": "Checking rich dialogue" } }
+      }
+    }
+  ],
+  "assertions": [
+    { "check": { "type": "message_contains", "text": "You are poor" } },
+    {
+      "check": { "type": "message_contains", "text": "You have enough scrip!" }
+    }
+  ]
+}

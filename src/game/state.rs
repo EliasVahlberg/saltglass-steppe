@@ -220,6 +220,9 @@ pub struct GameState {
     /// Sanity/Mental health system
     #[serde(default)]
     pub sanity: SanitySystem,
+    /// Psychic/Quantum Consciousness system
+    #[serde(default)]
+    pub psychic: super::psychic::PsychicState,
     /// Pending trade interface (for UI)
     #[serde(skip)]
     pub pending_trade: Option<String>,
@@ -404,6 +407,7 @@ impl GameState {
             tutorial_progress: TutorialProgress::default(),
             map_features: MapFeatures::new(),
             sanity: SanitySystem::new(),
+            psychic: super::psychic::PsychicState::default(),
             pending_trade: None,
             animation_frame: 0,
             pending_dialogue: None,
@@ -791,6 +795,7 @@ impl GameState {
     pub fn end_turn(&mut self) {
         self.player_ap = self.player_max_ap;
         self.tick_status_effects();
+        self.psychic.tick();
         self.tick_turn();
         self.update_enemies();
         if self.storm.tick() { self.apply_storm(); }
@@ -1179,6 +1184,8 @@ impl GameState {
             let ctx = super::npc::DialogueContext {
                 adaptations: &visible_adaptations,
                 inventory: &inventory_snapshot,
+                salt_scrip: self.salt_scrip,
+                faction_reputation: &self.faction_reputation,
             };
             let dialogue = self.npcs[ni].dialogue(&ctx).to_string();
             let name = self.npcs[ni].name().to_string();
@@ -1379,8 +1386,107 @@ impl GameState {
                 self.revealed.insert(idx);
             }
         }
-        self.inventory.remove(idx);
+        if def.enables_aria_dialogue {
+            self.log_typed("You interface with ARIA...", MsgType::System);
+            self.quest_log.on_aria_interfaced(&def.id);
+            // Trigger ARIA dialogue if we have a pending dialogue system
+            // For now, we just log it.
+        }
+        
+        if def.consumable {
+            self.inventory.remove(idx);
+        }
         true
+    }
+
+    pub fn use_item_on_tile(&mut self, idx: usize, x: i32, y: i32) -> bool {
+        if idx >= self.inventory.len() { return false; }
+        
+        // Check range (must be adjacent)
+        let dx = (x - self.player_x).abs();
+        let dy = (y - self.player_y).abs();
+        if dx > 1 || dy > 1 {
+            self.log("That is too far away.");
+            return false;
+        }
+
+        let cost = action_cost("use_item");
+        if self.player_ap < cost { return false; }
+
+        let id = &self.inventory[idx];
+        let def = match get_item_def(id) {
+            Some(d) => d,
+            None => return false,
+        };
+
+        if def.breaks_walls {
+            let tile_idx = (y * self.map.width as i32 + x) as usize;
+            if tile_idx >= self.map.tiles.len() { return false; }
+
+            let is_wall = matches!(self.map.tiles[tile_idx], super::map::Tile::Wall { .. });
+            if !is_wall {
+                self.log("You can only use this on walls.");
+                return false;
+            }
+
+            self.player_ap -= cost;
+            let mut broken = false;
+            if let super::map::Tile::Wall { id: _, hp } = &mut self.map.tiles[tile_idx] {
+                *hp -= 10; // Arbitrary damage for now
+                if *hp <= 0 {
+                    broken = true;
+                }
+            }
+            
+            self.log_typed("You strike the wall. Cracks spread through the glass.", MsgType::Combat);
+
+            if broken {
+                self.map.tiles[tile_idx] = super::map::Tile::Floor;
+                self.log_typed("The wall shatters!", MsgType::Combat);
+                self.update_lighting(); // Wall break changes lighting
+            }
+
+            // Consume item if consumable (or maybe always for now as per discussion)
+            if def.consumable {
+                self.inventory.remove(idx);
+            }
+            return true;
+        }
+
+        self.log(format!("You can't use {} on that.", def.name));
+        false
+    }
+
+    pub fn use_psychic_ability(&mut self, ability_id: &str) {
+        match self.psychic.use_ability(ability_id) {
+            Ok(effect_id) => {
+                self.log_typed(format!("You use {}.", ability_id), MsgType::Combat);
+                // Apply effect
+                match effect_id.as_str() {
+                    "stun_aoe" => {
+                        // Stun nearby enemies
+                        let mut stunned_count = 0;
+                        for enemy in &mut self.enemies {
+                            let dist = ((enemy.x - self.player_x).pow(2) + (enemy.y - self.player_y).pow(2)) as f32;
+                            if dist <= 25.0 { // Radius 5
+                                enemy.apply_status("stun", 2);
+                                stunned_count += 1;
+                            }
+                        }
+                        self.log_typed(format!("Stunned {} enemies.", stunned_count), MsgType::Combat);
+                    },
+                    "guaranteed_hit" => {
+                        self.apply_status_effect("guaranteed_hit", 1);
+                    },
+                    "phasing" => {
+                        self.apply_status_effect("phasing", 5);
+                        self.debug_phase = true; // Or handle via status effect check in movement
+                    },
+                    _ => self.log("Effect not implemented."),
+                }
+            },
+            Err(e) => self.log(e),
+        }
     }
 
     /// Equip an item from inventory to a slot

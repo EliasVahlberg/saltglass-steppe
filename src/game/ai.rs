@@ -48,6 +48,10 @@ impl GameState {
             };
             let mut is_passive = false;
             let mut should_flee = false;
+            let mut attacks = 1;
+            let mut laser_dmg = 0;
+            let mut has_laser = false;
+
             for behavior in &def.behaviors {
                 match behavior.behavior_type.as_str() {
                     "passive_if" => {
@@ -55,6 +59,19 @@ impl GameState {
                     }
                     "flee_if" => {
                         if behavior.condition_met(&ctx) { should_flee = true; }
+                    }
+                    "multiple_attacks" => {
+                        attacks = behavior.value.unwrap_or(1) as usize;
+                    }
+                    "laser_beam" => {
+                        has_laser = true;
+                        laser_dmg = behavior.value.unwrap_or(5) as i32;
+                    }
+                    "fear_aura" => {
+                        if dist <= 3 && !self.has_status_effect("fear") {
+                            self.apply_status_effect("fear", 2);
+                            self.log_typed(format!("The {}'s presence terrifies you!", self.enemies[i].name()), MsgType::Status);
+                        }
                     }
                     _ => {}
                 }
@@ -105,36 +122,54 @@ impl GameState {
                     let dir = self.direction_from(ex, ey);
                     self.log_typed(format!("{} {} attacks your decoy!", self.enemies[i].name(), dir), MsgType::Combat);
                 } else {
-                    // Attack player
-                    let base_dmg = self.rng.gen_range(def.damage_min..=def.damage_max);
-                    let dmg = (base_dmg - player_armor).max(1);
-                    self.player_hp -= dmg;
-                    self.trigger_hit_flash(self.player_x, self.player_y);
-                    self.spawn_damage_number(self.player_x, self.player_y, dmg, false);
-                    let dir = self.direction_from(ex, ey);
-                    self.log_typed(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg), MsgType::Combat);
-                    
-                    // Trigger on_hit effects
-                    for e in &def.effects {
-                        if e.condition == "on_hit" {
-                            self.trigger_effect(&e.effect, 2);
-                        }
-                    }
-                    
-                    // Check on_hit behaviors
-                    for behavior in &def.behaviors {
-                        if behavior.behavior_type == "on_hit_refraction" {
-                            if let Some(val) = behavior.value {
-                                self.refraction += val;
-                                self.log_typed(format!("Glass shards pierce you. (+{} Refraction)", val), MsgType::Status);
-                                self.check_adaptation_threshold();
+                    // Attack player (possibly multiple times)
+                    for _ in 0..attacks {
+                        let base_dmg = self.rng.gen_range(def.damage_min..=def.damage_max);
+                        let dmg = (base_dmg - player_armor).max(1);
+                        self.player_hp -= dmg;
+                        self.trigger_hit_flash(self.player_x, self.player_y);
+                        self.spawn_damage_number(self.player_x, self.player_y, dmg, false);
+                        let dir = self.direction_from(ex, ey);
+                        self.log_typed(format!("{} {} attacks you for {} damage!", self.enemies[i].name(), dir, dmg), MsgType::Combat);
+                        
+                        // Trigger on_hit effects
+                        for e in &def.effects {
+                            if e.condition == "on_hit" {
+                                self.trigger_effect(&e.effect, 2);
                             }
                         }
+                        
+                        // Check on_hit behaviors
+                        for behavior in &def.behaviors {
+                            if behavior.behavior_type == "on_hit_refraction" {
+                                if let Some(val) = behavior.value {
+                                    self.refraction += val;
+                                    self.log_typed(format!("Glass shards pierce you. (+{} Refraction)", val), MsgType::Status);
+                                    self.check_adaptation_threshold();
+                                }
+                            }
+                        }
+                        
+                        if self.player_hp <= 0 { return; }
                     }
-                    
-                    if self.player_hp <= 0 { return; }
                 }
             } else if target_dist < sight {
+                // Laser beam check
+                if has_laser && !target_is_decoy && self.visible.contains(&self.map.idx(ex, ey)) {
+                    // Fire laser
+                    self.player_hp -= laser_dmg;
+                    self.trigger_hit_flash(self.player_x, self.player_y);
+                    self.spawn_damage_number(self.player_x, self.player_y, laser_dmg, false);
+                    self.log_typed(format!("{} fires a laser beam for {} damage!", self.enemies[i].name(), laser_dmg), MsgType::Combat);
+                    
+                    // Visual effect for beam
+                    // We can't easily draw a line here without more helper functions, but we can log it
+                    if self.player_hp <= 0 { return; }
+                    
+                    // Don't move if fired laser
+                    continue;
+                }
+
                 // Move toward target (player or decoy)
                 let enemy_idx = self.map.idx(ex, ey);
                 let target_idx = self.map.idx(target_x, target_y);

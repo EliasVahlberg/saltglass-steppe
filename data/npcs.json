@@ -1,6 +1,24 @@
 {
   "npcs": [
     {
+      "id": "merchant_test",
+      "name": "Test Merchant",
+      "glyph": "T",
+      "faction": "Unaffiliated",
+      "description": "A merchant for testing conditions",
+      "dialogue": [
+        {
+          "conditions": [{ "min_salt_scrip": 100 }],
+          "text": "You have enough scrip!"
+        },
+        {
+          "conditions": [],
+          "text": "You are poor."
+        }
+      ],
+      "actions": []
+    },
+    {
       "id": "mirror_monk",
       "name": "Mirror Monk",
       "glyph": "M",
@@ -581,7 +599,10 @@
           "id": "research_collaboration",
           "name": "Collaborate on Research",
           "conditions": [{ "adaptation_count_gte": 2 }],
-          "effect": { "gains_quantum_knowledge": true, "improves_adaptation_control": true }
+          "effect": {
+            "gains_quantum_knowledge": true,
+            "improves_adaptation_control": true
+          }
         },
         {
           "id": "calibrate_resonator",
@@ -616,7 +637,10 @@
           "id": "synthesis_training",
           "name": "Learn Synthesis Techniques",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "grants_adaptation_control": true, "prevents_quantum_psychosis": true }
+          "effect": {
+            "grants_adaptation_control": true,
+            "prevents_quantum_psychosis": true
+          }
         },
         {
           "id": "trade",
@@ -657,7 +681,11 @@
           "id": "purification_treatment",
           "name": "Undergo Purification",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "removes_adaptations": true, "damages_player": 20, "faction_reputation": { "IronCovenant": 30 } }
+          "effect": {
+            "removes_adaptations": true,
+            "damages_player": 20,
+            "faction_reputation": { "IronCovenant": 30 }
+          }
         },
         {
           "id": "trade",
@@ -698,7 +726,11 @@
           "id": "forced_ascension",
           "name": "Accept Forced Ascension",
           "conditions": [{ "adaptation_count_gte": 3 }],
-          "effect": { "forces_maximum_adaptation": true, "dangerous": true, "faction_reputation": { "GlassProphets": 50 } }
+          "effect": {
+            "forces_maximum_adaptation": true,
+            "dangerous": true,
+            "faction_reputation": { "GlassProphets": 50 }
+          }
         }
       ]
     },
@@ -727,7 +759,10 @@
           "id": "memory_sharing",
           "name": "Share Ancient Memories",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "reveals_pre_storm_lore": true, "grants_cultural_knowledge": true }
+          "effect": {
+            "reveals_pre_storm_lore": true,
+            "grants_cultural_knowledge": true
+          }
         },
         {
           "id": "trade",
