@@ -1,15 +1,34 @@
 {
-    "name": "Burn Status Effect Test",
-    "description": "Test burn status effect damage over time",
-    "seed": 42,
-    "player": {"x": 5, "y": 5, "hp": 30, "max_hp": 30, "ap": 4, "max_ap": 4},
-    "actions": [
-        {"turn": 0, "action": {"type": "apply_status", "effect": "burn", "duration": 2, "potency": 3}},
-        {"turn": 0, "action": {"type": "end_turn"}},
-        {"turn": 1, "action": {"type": "end_turn"}}
-    ],
-    "assertions": [
-        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 24}, "message": "Burn should deal 3 damage per turn for 2 turns (30 - 6 = 24)"},
-        {"at_end": true, "check": {"type": "status_effect_count", "op": "eq", "value": 0}, "message": "Burn should expire after 2 turns"}
-    ]
+  "name": "Burn Status Effect Test",
+  "description": "Test burn status effect damage over time",
+  "seed": 42,
+  "player": { "x": 5, "y": 5, "hp": 30, "max_hp": 30, "ap": 4, "max_ap": 4 },
+  "variables": {
+    "debug_disable_glare": true
+  },
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "apply_status",
+        "effect": "burn",
+        "duration": 2,
+        "potency": 3
+      }
+    },
+    { "turn": 0, "action": { "type": "end_turn" } },
+    { "turn": 1, "action": { "type": "end_turn" } }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": { "type": "player_hp", "op": "eq", "value": 24 },
+      "message": "Burn should deal 3 damage per turn for 2 turns (30 - 6 = 24)"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "status_effect_count", "op": "eq", "value": 0 },
+      "message": "Burn should expire after 2 turns"
+    }
+  ]
 }

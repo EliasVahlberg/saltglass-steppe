@@ -10,6 +10,9 @@
     "ap": 10,
     "max_ap": 10
   },
+  "variables": {
+    "debug_disable_glare": true
+  },
   "entities": [
     {
       "entity_type": "enemy",

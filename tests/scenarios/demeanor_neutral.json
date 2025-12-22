@@ -9,6 +9,9 @@
     "ap": 10,
     "max_ap": 10
   },
+  "variables": {
+    "debug_disable_glare": true
+  },
   "entities": [
     {
       "entity_type": "enemy",
@@ -20,23 +23,31 @@
     }
   ],
   "actions": [
-    {"turn": 0, "action": {"type": "end_turn"}},
-    {"turn": 1, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
+    { "turn": 0, "action": { "type": "end_turn" } },
+    { "turn": 1, "action": { "type": "attack", "target_x": 6, "target_y": 5 } }
   ],
   "assertions": [
     {
       "after_turn": 0,
-      "check": {"type": "enemy_provoked", "id": "salt_pilgrim", "provoked": false},
+      "check": {
+        "type": "enemy_provoked",
+        "id": "salt_pilgrim",
+        "provoked": false
+      },
       "message": "Neutral enemy should not be provoked initially"
     },
     {
       "after_turn": 0,
-      "check": {"type": "player_hp", "op": "eq", "value": 20},
+      "check": { "type": "player_hp", "op": "eq", "value": 20 },
       "message": "Neutral enemy should not attack unprovoked"
     },
     {
       "at_end": true,
-      "check": {"type": "enemy_provoked", "id": "salt_pilgrim", "provoked": true},
+      "check": {
+        "type": "enemy_provoked",
+        "id": "salt_pilgrim",
+        "provoked": true
+      },
       "message": "Enemy should be provoked after being attacked"
     }
   ]

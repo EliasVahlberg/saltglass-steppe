@@ -1,16 +1,35 @@
 {
-    "name": "Bleed Status Effect Test",
-    "description": "Test bleed status effect damage over time",
-    "seed": 42,
-    "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 4, "max_ap": 4},
-    "actions": [
-        {"turn": 0, "action": {"type": "apply_status", "effect": "bleed", "duration": 3, "potency": 1}},
-        {"turn": 0, "action": {"type": "end_turn"}},
-        {"turn": 1, "action": {"type": "end_turn"}},
-        {"turn": 2, "action": {"type": "end_turn"}}
-    ],
-    "assertions": [
-        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 17}, "message": "Bleed should deal 1 damage per turn for 3 turns (20 - 3 = 17)"},
-        {"at_end": true, "check": {"type": "status_effect_count", "op": "eq", "value": 0}, "message": "Bleed should expire after 3 turns"}
-    ]
+  "name": "Bleed Status Effect Test",
+  "description": "Test bleed status effect damage over time",
+  "seed": 42,
+  "player": { "x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 4, "max_ap": 4 },
+  "variables": {
+    "debug_disable_glare": true
+  },
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "apply_status",
+        "effect": "bleed",
+        "duration": 3,
+        "potency": 1
+      }
+    },
+    { "turn": 0, "action": { "type": "end_turn" } },
+    { "turn": 1, "action": { "type": "end_turn" } },
+    { "turn": 2, "action": { "type": "end_turn" } }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": { "type": "player_hp", "op": "eq", "value": 17 },
+      "message": "Bleed should deal 1 damage per turn for 3 turns (20 - 3 = 17)"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "status_effect_count", "op": "eq", "value": 0 },
+      "message": "Bleed should expire after 3 turns"
+    }
+  ]
 }

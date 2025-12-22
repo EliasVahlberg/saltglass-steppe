@@ -498,6 +498,14 @@ impl DesExecutor {
             state.visible = crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
             state.revealed.extend(&state.visible);
         }
+
+        // Check for debug flags in variables
+        if let Some(val) = scenario.variables.get("debug_disable_glare") {
+            if val.as_bool().unwrap_or(false) {
+                state.debug_disable_glare = true;
+            }
+        }
+
         if let Some(hp) = scenario.player.hp {
             state.player_hp = hp;
         }
