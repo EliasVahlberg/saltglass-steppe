@@ -173,17 +173,29 @@ mod tests {
     fn npc_dialogue_reacts_to_adaptations() {
         use crate::game::npc::Npc;
         use crate::game::Adaptation;
+        use std::collections::HashMap;
         
         let npc = Npc::new(0, 0, "mirror_monk");
         use crate::game::npc::DialogueContext;
+        let empty_rep = HashMap::new();
         
         // No adaptations
-        let ctx = DialogueContext { adaptations: &[], inventory: &[] };
+        let ctx = DialogueContext { 
+            adaptations: &[], 
+            inventory: &[],
+            salt_scrip: 0,
+            faction_reputation: &empty_rep
+        };
         let dialogue = npc.dialogue(&ctx);
         assert!(dialogue.contains("unmarked"));
         
         // With Prismhide
-        let ctx = DialogueContext { adaptations: &[Adaptation::Prismhide], inventory: &[] };
+        let ctx = DialogueContext { 
+            adaptations: &[Adaptation::Prismhide], 
+            inventory: &[],
+            salt_scrip: 0,
+            faction_reputation: &empty_rep
+        };
         let dialogue = npc.dialogue(&ctx);
         assert!(dialogue.contains("refracts"));
     }

@@ -43,7 +43,8 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(6),  // Stats
+            Constraint::Length(9),  // Stats (expanded)
+            Constraint::Length(5),  // Status Effects
             Constraint::Length(9),  // Equipment
             Constraint::Min(3),     // Quests
         ])
@@ -76,6 +77,17 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         Line::from(vec![
             Span::raw("Ref: "),
             Span::styled(format!("{}", state.refraction), Style::default().fg(Color::Magenta)),
+            Span::raw(" Arm: "),
+            Span::styled(format!("{}", state.player_armor), Style::default().fg(Color::Blue)),
+        ]),
+        Line::from(vec![
+            Span::raw("Scrip: "),
+            Span::styled(format!("{}", state.salt_scrip), Style::default().fg(Color::Yellow)),
+        ]),
+        Line::from(vec![
+            Span::raw("Time: "),
+            Span::styled(format!("{:02}:00", state.time_of_day), Style::default().fg(Color::White)),
+            Span::raw(format!(" {:?}", state.weather)),
         ]),
         Line::from(vec![
             Span::raw("Storm: "),
@@ -83,6 +95,20 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         ]),
     ];
     frame.render_widget(Paragraph::new(stats), chunks[0]);
+
+    // Status Effects section
+    let mut status_lines = vec![Line::from(Span::styled("─Status─", Style::default().fg(Color::DarkGray)))];
+    if state.status_effects.is_empty() {
+        status_lines.push(Line::from(Span::styled("None", Style::default().fg(Color::DarkGray))));
+    } else {
+        for effect in &state.status_effects {
+            status_lines.push(Line::from(vec![
+                Span::styled(format!("{} ", effect.name), Style::default().fg(Color::Red)),
+                Span::styled(format!("({})", effect.duration), Style::default().fg(Color::Yellow)),
+            ]));
+        }
+    }
+    frame.render_widget(Paragraph::new(status_lines), chunks[1]);
 
     // Equipment section
     let mut equip_lines = vec![Line::from(Span::styled("─Equipment─", Style::default().fg(Color::DarkGray)))];
@@ -93,7 +119,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             .unwrap_or("-");
         equip_lines.push(Line::from(format!("{}: {}", slot.display_name(), item_name)));
     }
-    frame.render_widget(Paragraph::new(equip_lines), chunks[1]);
+    frame.render_widget(Paragraph::new(equip_lines), chunks[2]);
 
     // Active quests section
     let mut quest_lines = vec![Line::from(Span::styled("─Quests─", Style::default().fg(Color::DarkGray)))];
@@ -111,7 +137,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             }
         }
     }
-    frame.render_widget(Paragraph::new(quest_lines), chunks[2]);
+    frame.render_widget(Paragraph::new(quest_lines), chunks[3]);
 }
 
 /// Render the bottom panel with messages and hotkeys

@@ -84,7 +84,7 @@ pub fn render_trade_menu(
     
     let trade_interface = menu.interface.as_ref().unwrap();
 
-    let area = f.size();
+    let area = f.area();
     let block = Block::default()
         .title(format!(" Trading with {} ", trade_interface.trader_name))
         .borders(Borders::ALL)

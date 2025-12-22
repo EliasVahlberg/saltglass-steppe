@@ -1,23 +1,42 @@
 {
-    "name": "Status Effects Test",
-    "description": "Test status effect application and tick behavior",
-    "seed": 12345,
-    "player": {
-        "x": 5,
-        "y": 5,
-        "hp": 20,
-        "max_hp": 20,
-        "ap": 4,
-        "max_ap": 4
+  "name": "Status Effects Test",
+  "description": "Test status effect application and tick behavior",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  },
+  "variables": {
+    "debug_disable_glare": true
+  },
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "apply_status",
+        "effect": "poison",
+        "duration": 3,
+        "potency": 2
+      }
     },
-    "actions": [
-        {"turn": 0, "action": {"type": "apply_status", "effect": "poison", "duration": 3, "potency": 2}},
-        {"turn": 0, "action": {"type": "end_turn"}},
-        {"turn": 1, "action": {"type": "end_turn"}},
-        {"turn": 2, "action": {"type": "end_turn"}}
-    ],
-    "assertions": [
-        {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 14}, "message": "Poison should deal 2 damage per turn for 3 turns (20 - 6 = 14)"},
-        {"at_end": true, "check": {"type": "status_effect_count", "op": "eq", "value": 0}, "message": "Poison should expire after 3 turns"}
-    ]
+    { "turn": 0, "action": { "type": "end_turn" } },
+    { "turn": 1, "action": { "type": "end_turn" } },
+    { "turn": 2, "action": { "type": "end_turn" } }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": { "type": "player_hp", "op": "eq", "value": 14 },
+      "message": "Poison should deal 2 damage per turn for 3 turns (20 - 6 = 14)"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "status_effect_count", "op": "eq", "value": 0 },
+      "message": "Poison should expire after 3 turns"
+    }
+  ]
 }

@@ -62,6 +62,12 @@ pub enum Adaptation {
     Sunveins,
     MirageStep,
     Saltblood,
+    QuantumEntanglement,
+    PhaseWalking,
+    StormAffinity,
+    CollectiveInterface,
+    ArchiveResonance,
+    CrystallineConsciousness,
 }
 
 impl Adaptation {
@@ -71,6 +77,12 @@ impl Adaptation {
             "sunveins" => Some(Self::Sunveins),
             "mirage_step" => Some(Self::MirageStep),
             "saltblood" => Some(Self::Saltblood),
+            "quantum_entanglement" => Some(Self::QuantumEntanglement),
+            "phase_walking" => Some(Self::PhaseWalking),
+            "storm_affinity" => Some(Self::StormAffinity),
+            "collective_interface" => Some(Self::CollectiveInterface),
+            "archive_resonance" => Some(Self::ArchiveResonance),
+            "crystalline_consciousness" => Some(Self::CrystallineConsciousness),
             _ => None,
         }
     }
@@ -81,6 +93,12 @@ impl Adaptation {
             Self::Sunveins => "sunveins",
             Self::MirageStep => "mirage_step",
             Self::Saltblood => "saltblood",
+            Self::QuantumEntanglement => "quantum_entanglement",
+            Self::PhaseWalking => "phase_walking",
+            Self::StormAffinity => "storm_affinity",
+            Self::CollectiveInterface => "collective_interface",
+            Self::ArchiveResonance => "archive_resonance",
+            Self::CrystallineConsciousness => "crystalline_consciousness",
         }
     }
 

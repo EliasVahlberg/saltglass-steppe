@@ -237,6 +237,8 @@ pub struct GameState {
     pub debug_god_view: bool,
     #[serde(skip)]
     pub debug_phase: bool,
+    #[serde(skip)]
+    pub debug_disable_glare: bool,
 }
 
 /// Floating damage number for visual feedback
@@ -413,6 +415,7 @@ impl GameState {
             pending_dialogue: None,
             debug_god_view: false,
             debug_phase: false,
+            debug_disable_glare: false,
         };
         state.rebuild_spatial_index();
         state
@@ -1813,6 +1816,9 @@ impl GameState {
 
     /// Apply light-based effects (glare damage, visibility modifiers)
     pub fn apply_light_effects(&mut self) {
+        if self.debug_disable_glare {
+            return;
+        }
         let light_level = super::lighting::get_light_level(&self.light_map, self.player_x, self.player_y);
         
         // Glare damage
