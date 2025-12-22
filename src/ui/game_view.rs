@@ -211,8 +211,8 @@ fn render_tile(
                 "salt_mummy" => Color::White,
                 _ => Color::Red,
             };
-            let mut style = Style::default().fg(base_color);
             let light = state.get_light_level(x as i32, y as i32);
+            let mut style = Style::default().fg(dim_color(base_color, light));
             for effect in get_enemy_effects(&e.id) {
                 match effect {
                     VisualEffect::Blink { speed, color } => {
@@ -267,7 +267,8 @@ fn render_tile(
     if let Some(&ni) = state.npc_positions.get(&(x as i32, y as i32)) {
         let npc = &state.npcs[ni];
         if visible {
-            return (npc.glyph(), Style::default().fg(Color::Green).bold());
+            let light = state.get_light_level(x as i32, y as i32);
+            return (npc.glyph(), Style::default().fg(dim_color(Color::Green, light)).bold());
         } else if revealed {
             return (state.map.tiles[idx].glyph(), Style::default().fg(Color::DarkGray));
         }
@@ -278,7 +279,8 @@ fn render_tile(
     if let Some(items) = state.item_positions.get(&(x as i32, y as i32)) {
         let item = &state.items[items[0]];
         if visible {
-            return (item.glyph(), Style::default().fg(Color::LightMagenta));
+            let light = state.get_light_level(x as i32, y as i32);
+            return (item.glyph(), Style::default().fg(dim_color(Color::LightMagenta, light)));
         } else if revealed {
             return (state.map.tiles[idx].glyph(), Style::default().fg(Color::DarkGray));
         }
