@@ -107,6 +107,7 @@ pub enum AssertionCheck {
     PlayerArmor { op: CmpOp, value: i32 },
     EnemyProvoked { id: String, provoked: bool },
     EnemyHasItem { id: String, item: String },
+    EnemyHasStatus { id: String, effect: String },
     LightLevel { x: i32, y: i32, op: CmpOp, value: u8 },
     ItemInspectHasStat { item: String, stat: String },
     ItemInspectMissingStat { item: String, stat: String },
@@ -268,6 +269,7 @@ pub enum Action {
     RangedAttack { target_x: i32, target_y: i32 },
     ApplyStatus { effect: String, duration: u32, potency: i32 },
     UseItem { item_index: usize },
+    UseItemOn { item_index: usize, x: i32, y: i32 },
     Equip { item_index: usize, slot: String },
     Unequip { slot: String },
     AutoExplore,
@@ -298,6 +300,8 @@ pub enum Action {
     AddStation { station: String },
     SetFactionRep { faction: String, value: i32 },
     SetLevel { level: u32 },
+    SetSaltScrip { amount: u32 },
+    SetTile { x: i32, y: i32, tile_type: String, hp: Option<i32> },
     // Sanity actions
     LoseSanity { amount: u32, source: String },
     RestoreSanity { amount: u32, source: String },
@@ -317,6 +321,9 @@ pub enum Action {
     ChooseDialogueOption { option_index: usize },
     DialogueAction { action_type: String, parameters: HashMap<String, serde_json::Value> },
     GiveAdaptation { adaptation_id: String },
+    // Psychic actions
+    UnlockAbility { ability_id: String },
+    UseAbility { ability_id: String },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -740,6 +747,12 @@ impl DesExecutor {
                     .map(|e| e.inventory.contains(item))
                     .unwrap_or(false)
             }
+            AssertionCheck::EnemyHasStatus { id, effect } => {
+                self.state.enemies.iter()
+                    .find(|e| e.id == *id)
+                    .map(|e| e.has_status_effect(effect))
+                    .unwrap_or(false)
+            }
             AssertionCheck::LightLevel { x, y, op, value } => {
                 let level = self.state.get_light_level(*x, *y);
                 op.compare(level as i32, *value as i32)
@@ -1030,6 +1043,10 @@ impl DesExecutor {
                 self.state.use_item(*item_index);
                 self.log(format!("Player used item at index {}", item_index));
             }
+            Action::UseItemOn { item_index, x, y } => {
+                self.state.use_item_on_tile(*item_index, *x, *y);
+                self.log(format!("Player used item {} on ({}, {})", item_index, x, y));
+            }
             Action::Equip { item_index, slot } => {
                 if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>() {
                     self.state.equip_item(*item_index, equip_slot);
@@ -1151,6 +1168,34 @@ impl DesExecutor {
             Action::SetLevel { level } => {
                 self.state.player_level = *level;
                 self.log(format!("Set player level to {}", level));
+            }
+            Action::SetSaltScrip { amount } => {
+                self.state.salt_scrip = *amount;
+                self.log(format!("Set salt scrip to {}", amount));
+            }
+            Action::SetTile { x, y, tile_type, hp } => {
+                let idx = *y as usize * self.state.map.width + *x as usize;
+                if idx < self.state.map.tiles.len() {
+                    let tile = match tile_type.as_str() {
+                        "wall" => crate::game::map::Tile::Wall { 
+                            id: "sandstone".to_string(), 
+                            hp: hp.unwrap_or(50) 
+                        },
+                        "floor" => crate::game::map::Tile::Floor,
+                        "glass" => crate::game::map::Tile::Glass,
+                        _ => crate::game::map::Tile::Floor,
+                    };
+                    self.state.map.tiles[idx] = tile;
+                    self.log(format!("Set tile at ({}, {}) to {}", x, y, tile_type));
+                }
+            }
+            // Psychic actions
+            Action::UnlockAbility { ability_id } => {
+                self.state.psychic.unlocked_abilities.push(ability_id.clone());
+                self.log(format!("Unlocked ability: {}", ability_id));
+            }
+            Action::UseAbility { ability_id } => {
+                self.state.use_psychic_ability(ability_id);
             }
             // Sanity actions
             Action::LoseSanity { amount, source } => {

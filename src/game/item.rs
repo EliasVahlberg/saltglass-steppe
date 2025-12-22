@@ -60,9 +60,14 @@ pub struct ItemDef {
     pub pickup: bool,
     #[serde(default)]
     pub light_source: Option<LightSource>,
+    #[serde(default)]
+    pub enables_aria_dialogue: bool,
+    #[serde(default = "default_consumable")]
+    pub consumable: bool,
 }
 
 fn default_pickup() -> bool { true }
+fn default_consumable() -> bool { true }
 
 #[derive(Deserialize)]
 struct ItemsFile {

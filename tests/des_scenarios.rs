@@ -54,3 +54,24 @@ fn trade_ui_test() {
         .expect("Failed to run scenario");
     assert!(result.success, "Scenario failed: {:?}", result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
 }
+
+#[test]
+fn psychic_test() {
+    let result = run_scenario("tests/scenarios/psychic_test.json")
+        .expect("Failed to run scenario");
+    assert!(result.success, "Scenario failed: {:?}", result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn aria_test() {
+    let result = run_scenario("tests/scenarios/aria_test.json")
+        .expect("Failed to run scenario");
+    assert!(result.success, "Scenario failed: {:?}", result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn combat_behaviors_test() {
+    let result = run_scenario("tests/scenarios/combat_behaviors_test.json")
+        .expect("Failed to run scenario");
+    assert!(result.success, "Scenario failed: {:?}", result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}

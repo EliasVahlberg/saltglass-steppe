@@ -7,6 +7,8 @@ use super::adaptation::Adaptation;
 pub struct DialogueContext<'a> {
     pub adaptations: &'a [Adaptation],
     pub inventory: &'a [String],
+    pub salt_scrip: u32,
+    pub faction_reputation: &'a HashMap<String, i32>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -17,6 +19,10 @@ pub struct DialogueCondition {
     pub adaptation_count_gte: Option<usize>,
     #[serde(default)]
     pub has_item: Option<String>,
+    #[serde(default)]
+    pub min_salt_scrip: Option<u32>,
+    #[serde(default)]
+    pub min_reputation: Option<HashMap<String, i32>>,
 }
 
 impl DialogueCondition {
@@ -34,6 +40,19 @@ impl DialogueCondition {
         if let Some(ref item_id) = self.has_item {
             if !ctx.inventory.iter().any(|i| i == item_id) {
                 return false;
+            }
+        }
+        if let Some(amount) = self.min_salt_scrip {
+            if ctx.salt_scrip < amount {
+                return false;
+            }
+        }
+        if let Some(ref reqs) = self.min_reputation {
+            for (faction, min_rep) in reqs {
+                let current = ctx.faction_reputation.get(faction).copied().unwrap_or(0);
+                if current < *min_rep {
+                    return false;
+                }
             }
         }
         true

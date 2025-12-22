@@ -19,6 +19,7 @@ pub mod map_features;
 pub mod meta;
 pub mod npc;
 pub mod progression;
+pub mod psychic;
 pub mod quest;
 pub mod ritual;
 pub mod sanity;

@@ -23,6 +23,23 @@ impl GameState {
         result
     }
 
+    /// Trigger aggro for all nearby enemies of the same type (swarm behavior)
+    fn trigger_swarm_aggro(&mut self, target_id: &str, center_x: i32, center_y: i32, range: i32) {
+        let mut alerted_count = 0;
+        for enemy in &mut self.enemies {
+            if enemy.id == target_id && !enemy.provoked {
+                let dist = (enemy.x - center_x).abs() + (enemy.y - center_y).abs();
+                if dist <= range {
+                    enemy.provoked = true;
+                    alerted_count += 1;
+                }
+            }
+        }
+        if alerted_count > 0 {
+            self.log_typed("The swarm is alerted!", MsgType::Combat);
+        }
+    }
+
     /// Melee attack against enemy at position
     pub fn attack_melee(&mut self, target_x: i32, target_y: i32) -> bool {
         let ei = match self.enemy_at(target_x, target_y) {
@@ -35,6 +52,14 @@ impl GameState {
         self.player_ap -= cost;
 
         self.enemies[ei].provoked = true;
+        
+        // Swarm behavior
+        if self.enemies[ei].def().map(|d| d.swarm).unwrap_or(false) {
+            let id = self.enemies[ei].id.clone();
+            let x = self.enemies[ei].x;
+            let y = self.enemies[ei].y;
+            self.trigger_swarm_aggro(&id, x, y, 8);
+        }
 
         let weapon = self.equipped_weapon.as_ref()
             .and_then(|id| get_weapon_def(id))
@@ -99,6 +124,36 @@ impl GameState {
                 // Drop loot
                 if !def.loot_table.is_empty() {
                     self.drop_enemy_loot(&def.loot_table, enemy_x, enemy_y);
+                }
+                
+                // Split on death
+                for behavior in &def.behaviors {
+                    if behavior.behavior_type == "split_on_death" {
+                        if let Some(child_id) = &behavior.condition { // Using condition field for child ID
+                            let count = behavior.value.unwrap_or(2) as usize;
+                            let mut spawned = 0;
+                            // Try to spawn around death point
+                            for dy in -1..=1 {
+                                for dx in -1..=1 {
+                                    if dx == 0 && dy == 0 { continue; }
+                                    if spawned >= count { break; }
+                                    let nx = enemy_x + dx;
+                                    let ny = enemy_y + dy;
+                                    if self.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
+                                        && self.enemy_at(nx, ny).is_none() 
+                                        && !(nx == self.player_x && ny == self.player_y) {
+                                        
+                                        self.enemies.push(super::enemy::Enemy::new(nx, ny, child_id));
+                                        self.enemy_positions.insert((nx, ny), self.enemies.len() - 1);
+                                        spawned += 1;
+                                    }
+                                }
+                            }
+                            if spawned > 0 {
+                                self.log_typed(format!("The {} splits into smaller forms!", name), MsgType::Combat);
+                            }
+                        }
+                    }
                 }
             }
             self.quest_log.on_enemy_killed(&enemy_id);
@@ -166,6 +221,14 @@ impl GameState {
         };
 
         self.enemies[ei].provoked = true;
+        
+        // Swarm behavior
+        if self.enemies[ei].def().map(|d| d.swarm).unwrap_or(false) {
+            let id = self.enemies[ei].id.clone();
+            let x = self.enemies[ei].x;
+            let y = self.enemies[ei].y;
+            self.trigger_swarm_aggro(&id, x, y, 8);
+        }
 
         let enemy_reflex = self.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
         let enemy_armor = self.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
@@ -197,6 +260,36 @@ impl GameState {
                 // Drop loot
                 if !def.loot_table.is_empty() {
                     self.drop_enemy_loot(&def.loot_table, enemy_x, enemy_y);
+                }
+                
+                // Split on death
+                for behavior in &def.behaviors {
+                    if behavior.behavior_type == "split_on_death" {
+                        if let Some(child_id) = &behavior.condition { // Using condition field for child ID
+                            let count = behavior.value.unwrap_or(2) as usize;
+                            let mut spawned = 0;
+                            // Try to spawn around death point
+                            for dy in -1..=1 {
+                                for dx in -1..=1 {
+                                    if dx == 0 && dy == 0 { continue; }
+                                    if spawned >= count { break; }
+                                    let nx = enemy_x + dx;
+                                    let ny = enemy_y + dy;
+                                    if self.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
+                                        && self.enemy_at(nx, ny).is_none() 
+                                        && !(nx == self.player_x && ny == self.player_y) {
+                                        
+                                        self.enemies.push(super::enemy::Enemy::new(nx, ny, child_id));
+                                        self.enemy_positions.insert((nx, ny), self.enemies.len() - 1);
+                                        spawned += 1;
+                                    }
+                                }
+                            }
+                            if spawned > 0 {
+                                self.log_typed(format!("The {} splits into smaller forms!", name), MsgType::Combat);
+                            }
+                        }
+                    }
                 }
             }
             self.quest_log.on_enemy_killed(&enemy_id);

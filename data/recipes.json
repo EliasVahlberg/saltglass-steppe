@@ -71,6 +71,20 @@
       "skill_required": 3,
       "station_required": "glass_forge",
       "faction_required": "glasswright_guild"
+    },
+    {
+      "id": "health_potion",
+      "name": "Health Potion",
+      "description": "A potent healing brew",
+      "materials": {
+        "salt_crystal": 2,
+        "brine_vial": 1
+      },
+      "output": "health_potion",
+      "output_count": 1,
+      "skill_required": 0,
+      "station_required": null,
+      "faction_required": null
     }
   ]
 }

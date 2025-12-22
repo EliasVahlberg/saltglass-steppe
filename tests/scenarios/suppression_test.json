@@ -1,0 +1,50 @@
+{
+  "name": "suppression_test",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": ["veil_tincture"],
+    "adaptations": ["Prismhide"]
+  },
+  "entities": [{ "entity_type": "npc", "id": "mirror_monk", "x": 11, "y": 10 }],
+  "actions": [
+    { "turn": 0, "action": { "type": "move", "dx": 1, "dy": 0 } },
+    {
+      "turn": 1,
+      "action": {
+        "type": "log",
+        "query": { "custom": { "message": "Checking Prismhide dialogue" } }
+      }
+    },
+    { "turn": 2, "action": { "type": "move", "dx": -1, "dy": 0 } },
+    {
+      "turn": 3,
+      "action": {
+        "type": "use_item",
+        "item_index": 0
+      }
+    },
+    { "turn": 4, "action": { "type": "move", "dx": 1, "dy": 0 } },
+    {
+      "turn": 5,
+      "action": {
+        "type": "log",
+        "query": { "custom": { "message": "Checking suppressed dialogue" } }
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "check": {
+        "type": "message_contains",
+        "text": "Your skin refracts the light beautifully"
+      }
+    },
+    {
+      "check": {
+        "type": "message_contains",
+        "text": "You walk unmarked through the Saltglass Steppe"
+      }
+    }
+  ]
+}

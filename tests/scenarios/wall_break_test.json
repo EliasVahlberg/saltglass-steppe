@@ -1,0 +1,42 @@
+{
+  "name": "wall_break_test",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": ["glass_pick"]
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "set_tile",
+        "x": 11,
+        "y": 10,
+        "tile_type": "wall",
+        "hp": 10
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "use_item_on",
+        "item_index": 0,
+        "x": 11,
+        "y": 10
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    }
+  ],
+  "assertions": [
+    { "check": { "type": "message_contains", "text": "The wall shatters!" } },
+    { "check": { "type": "player_position", "x": 11, "y": 10 } }
+  ]
+}

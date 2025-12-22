@@ -1,0 +1,35 @@
+{
+  "name": "combat_behaviors_test",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 100,
+    "inventory": ["glass_shiv"]
+  },
+  "entities": [
+    { "entity_type": "enemy", "id": "laser_drone", "x": 14, "y": 10, "hp": 10 },
+    {
+      "entity_type": "enemy",
+      "id": "splitter_slime",
+      "x": 11,
+      "y": 10,
+      "hp": 1
+    }
+  ],
+  "actions": [
+    { "turn": 0, "action": { "type": "wait", "turns": 1 } },
+    {
+      "turn": 1,
+      "action": { "type": "attack", "target_x": 11, "target_y": 10 }
+    }
+  ],
+  "assertions": [
+    { "check": { "type": "message_contains", "text": "fires a laser beam" } },
+    {
+      "check": {
+        "type": "message_contains",
+        "text": "splits into smaller forms"
+      }
+    }
+  ]
+}

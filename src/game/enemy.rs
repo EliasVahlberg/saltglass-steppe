@@ -1,6 +1,7 @@
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use crate::game::status::StatusEffect;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -130,12 +131,19 @@ pub struct Enemy {
     pub provoked: bool,  // Set when attacked by player
     #[serde(default)]
     pub inventory: Vec<String>,  // Items carried by enemy
+    #[serde(default)]
+    pub status_effects: Vec<StatusEffect>,
 }
 
 impl Enemy {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
         let max_hp = get_enemy_def(id).map(|d| d.max_hp).unwrap_or(10);
-        Self { x, y, id: id.to_string(), hp: max_hp, ai_disabled: false, provoked: false, inventory: Vec::new() }
+        Self { 
+            x, y, id: id.to_string(), hp: max_hp, 
+            ai_disabled: false, provoked: false, 
+            inventory: Vec::new(),
+            status_effects: Vec::new(),
+        }
     }
 
     pub fn id(&self) -> &str {
@@ -180,5 +188,23 @@ impl Enemy {
             }
             _ => false,
         }
+    }
+
+    pub fn apply_status(&mut self, id: &str, duration: i32) {
+        if let Some(effect) = self.status_effects.iter_mut().find(|e| e.id == id) {
+            effect.duration = effect.duration.max(duration);
+            effect.stacks += 1;
+        } else {
+            self.status_effects.push(StatusEffect {
+                id: id.to_string(),
+                name: id.to_string(),
+                duration,
+                stacks: 1,
+            });
+        }
+    }
+
+    pub fn has_status_effect(&self, id: &str) -> bool {
+        self.status_effects.iter().any(|e| e.id == id)
     }
 }
