@@ -675,6 +675,10 @@ impl GameState {
 
     pub fn update_lighting(&mut self) {
         let mut sources = Vec::new();
+        
+        // Always add default player light
+        sources.push(LightSource { x: self.player_x, y: self.player_y, radius: 5, intensity: 100 });
+        
         // Equipped light sources (check all slots)
         for (_, slot_item) in self.equipment.iter() {
             if let Some(id) = slot_item {
@@ -684,10 +688,6 @@ impl GameState {
                     }
                 }
             }
-        }
-        // Default player light if no equipped light source (dim without torch)
-        if sources.is_empty() {
-            sources.push(LightSource { x: self.player_x, y: self.player_y, radius: 5, intensity: 100 });
         }
         // Map lights
         for ml in &self.map.lights {
