@@ -815,13 +815,14 @@ impl GameState {
     /// End turn: reset AP, tick status effects, run enemy turns, tick storm, tick time
     pub fn end_turn(&mut self) {
         self.player_ap = self.player_max_ap;
+        self.update_lighting(); // Update lighting at start of turn
         self.tick_status_effects();
         self.psychic.tick();
         self.tick_turn();
         self.update_enemies();
         if self.storm.tick() { self.apply_storm(); }
         self.tick_time();
-        self.update_lighting();
+        self.update_lighting(); // Update lighting at end of turn
     }
 
     /// Tick all status effects, apply damage, remove expired
