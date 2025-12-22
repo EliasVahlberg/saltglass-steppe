@@ -41,8 +41,8 @@
         { "item": "brine_vial", "weight": 1 }
       ],
       "effects": [
-        { "condition": "on_hit", "effect": "B(@2 &LightYellow)" },
-        { "condition": "on_death", "effect": "B(@1 &Yellow)" }
+        { "condition": "on_hit", "effect": "W(@4 &LightYellow)" },
+        { "condition": "on_death", "effect": "D(@8 &Yellow)" }
       ]
     },
     {
@@ -60,8 +60,8 @@
         { "item": "salt_crystal", "weight": 2 }
       ],
       "effects": [
-        { "condition": "on_hit", "effect": "B(@3 &Cyan)" },
-        { "condition": "on_death", "effect": "B(@1 &LightCyan)" }
+        { "condition": "on_hit", "effect": "S(@3 &Cyan &LightCyan)" },
+        { "condition": "on_death", "effect": "S(@2 &LightCyan &White)" }
       ]
     },
     {
@@ -80,8 +80,8 @@
         { "item": "rags", "weight": 1 }
       ],
       "effects": [
-        { "condition": "on_hit", "effect": "G(&White)" },
-        { "condition": "on_death", "effect": "B(@2 &DarkGray)" }
+        { "condition": "on_hit", "effect": "F(@20 &White)" },
+        { "condition": "on_death", "effect": "D(@12 &DarkGray)" }
       ]
     },
     {
@@ -102,8 +102,8 @@
       ],
       "behaviors": [{ "type": "reflect_damage", "percent": 25 }],
       "effects": [
-        { "condition": "on_hit", "effect": "B(@1 &White)" },
-        { "condition": "on_death", "effect": "B(@1 &LightCyan)" }
+        { "condition": "on_hit", "effect": "P(@2 &White)" },
+        { "condition": "on_death", "effect": "W(@4 &LightCyan)" }
       ]
     },
     {
@@ -123,8 +123,8 @@
       ],
       "behaviors": [{ "type": "on_hit_refraction", "value": 2 }],
       "effects": [
-        { "condition": "on_hit", "effect": "B(@2 &LightCyan)" },
-        { "condition": "on_death", "effect": "B(@1 &Cyan)" }
+        { "condition": "on_hit", "effect": "S(@2 &LightCyan &White)" },
+        { "condition": "on_death", "effect": "S(@1 &Cyan &LightCyan)" }
       ]
     },
     {
@@ -145,8 +145,8 @@
         { "type": "flee_if", "condition": "player_adaptations >= 2" }
       ],
       "effects": [
-        { "condition": "on_hit", "effect": "B(@2 &Yellow)" },
-        { "condition": "on_death", "effect": "B(@1 &DarkGray)" }
+        { "condition": "on_hit", "effect": "W(@3 &Yellow)" },
+        { "condition": "on_death", "effect": "D(@6 &DarkGray)" }
       ]
     },
     {
@@ -169,8 +169,8 @@
         { "type": "passive_if", "condition": "player_has_item:saint_key" }
       ],
       "effects": [
-        { "condition": "on_hit", "effect": "B(@1 &LightBlue)" },
-        { "condition": "on_death", "effect": "B(@1 &Blue)" }
+        { "condition": "on_hit", "effect": "P(@4 &LightBlue)" },
+        { "condition": "on_death", "effect": "W(@8 &Blue)" }
       ]
     },
     {
