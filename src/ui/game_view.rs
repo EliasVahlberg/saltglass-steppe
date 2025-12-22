@@ -152,6 +152,38 @@ fn render_tile(
                     }
                 }
                 VisualEffect::Glow { color } => style = style.fg(*color),
+                VisualEffect::Pulse { speed, color } => {
+                    let phase = (frame_count / *speed as u64) % 4;
+                    if phase < 2 {
+                        style = style.fg(*color);
+                    }
+                }
+                VisualEffect::Wave { speed, color } => {
+                    let wave_phase = ((frame_count / *speed as u64) + (x as u64 + y as u64)) % 6;
+                    if wave_phase < 3 {
+                        style = style.fg(*color);
+                    }
+                }
+                VisualEffect::Shimmer { speed, colors } => {
+                    let color_idx = ((frame_count / *speed as u64) + (x as u64 ^ y as u64)) % colors.len() as u64;
+                    style = style.fg(colors[color_idx as usize]);
+                }
+                VisualEffect::Rainbow { speed, colors } => {
+                    let color_idx = (frame_count / *speed as u64) % colors.len() as u64;
+                    style = style.fg(colors[color_idx as usize]);
+                }
+                VisualEffect::Fade { speed, color } => {
+                    let fade_phase = (frame_count / *speed as u64) % 8;
+                    if fade_phase < 4 {
+                        style = style.fg(*color);
+                    }
+                }
+                VisualEffect::Drift { speed, color } => {
+                    let drift_phase = ((frame_count / *speed as u64) + (x as u64 * 3 + y as u64 * 7)) % 10;
+                    if drift_phase < 3 {
+                        style = style.fg(*color);
+                    }
+                }
                 VisualEffect::HitFlash { .. } => {} // Handled above
             }
         }
@@ -180,6 +212,30 @@ fn render_tile(
                         if (frame_count / speed as u64) % 2 == 0 { style = style.fg(color); }
                     }
                     VisualEffect::Glow { color } => style = style.fg(color),
+                    VisualEffect::Pulse { speed, color } => {
+                        let phase = (frame_count / speed as u64) % 4;
+                        if phase < 2 { style = style.fg(color); }
+                    }
+                    VisualEffect::Wave { speed, color } => {
+                        let wave_phase = ((frame_count / speed as u64) + (x as u64 + y as u64)) % 6;
+                        if wave_phase < 3 { style = style.fg(color); }
+                    }
+                    VisualEffect::Shimmer { speed, colors } => {
+                        let color_idx = ((frame_count / speed as u64) + (x as u64 ^ y as u64)) % colors.len() as u64;
+                        style = style.fg(colors[color_idx as usize]);
+                    }
+                    VisualEffect::Rainbow { speed, colors } => {
+                        let color_idx = (frame_count / speed as u64) % colors.len() as u64;
+                        style = style.fg(colors[color_idx as usize]);
+                    }
+                    VisualEffect::Fade { speed, color } => {
+                        let fade_phase = (frame_count / speed as u64) % 8;
+                        if fade_phase < 4 { style = style.fg(color); }
+                    }
+                    VisualEffect::Drift { speed, color } => {
+                        let drift_phase = ((frame_count / speed as u64) + (x as u64 * 3 + y as u64 * 7)) % 10;
+                        if drift_phase < 3 { style = style.fg(color); }
+                    }
                     VisualEffect::HitFlash { .. } => {} // Handled above
                 }
             }
