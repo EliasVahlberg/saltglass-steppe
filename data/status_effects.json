@@ -54,6 +54,17 @@
       "reduces_accuracy": 0,
       "reduces_damage": 0,
       "grants_invisibility": false
+    },
+    {
+      "id": "blinded",
+      "name": "Blinded",
+      "description": "Vision is severely impaired",
+      "max_stacks": 1,
+      "tick_damage": 0,
+      "blocks_healing": false,
+      "reduces_accuracy": 50,
+      "reduces_damage": 0,
+      "grants_invisibility": false
     }
   ]
 }

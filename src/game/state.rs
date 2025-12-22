@@ -304,7 +304,14 @@ impl GameState {
             .take(max_enemies)
             .collect();
             
-        for &(rx, ry) in safe_rooms {
+        // Shuffle safe rooms to disperse enemy spawns
+        let mut safe_rooms_shuffled = safe_rooms;
+        for i in (1..safe_rooms_shuffled.len()).rev() {
+            let j = rng.gen_range(0..=i);
+            safe_rooms_shuffled.swap(i, j);
+        }
+            
+        for &(rx, ry) in safe_rooms_shuffled {
             if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
@@ -367,7 +374,7 @@ impl GameState {
         }
 
         let ambient = 100u8;
-        let light_sources = vec![LightSource { x: px, y: py, radius: 8, intensity: 150 }];
+        let light_sources = vec![LightSource { x: px, y: py, radius: 8, intensity: 120 }]; // Reduced from 150 to avoid glare
         let light_map = compute_lighting(&light_sources, ambient);
 
         let mut state = Self {
@@ -505,7 +512,14 @@ impl GameState {
             .take(enemy_count)
             .collect();
             
-        for &(rx, ry) in safe_rooms {
+        // Shuffle safe rooms to disperse enemy spawns
+        let mut safe_rooms_shuffled = safe_rooms;
+        for i in (1..safe_rooms_shuffled.len()).rev() {
+            let j = rng.gen_range(0..=i);
+            safe_rooms_shuffled.swap(i, j);
+        }
+            
+        for &(rx, ry) in safe_rooms_shuffled {
             if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
