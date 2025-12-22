@@ -47,3 +47,10 @@ fn item_pickup_scenario() {
     println!("Item pickup result: success={}, assertions={:?}", 
              result.success, result.assertion_results);
 }
+
+#[test]
+fn trade_ui_test() {
+    let result = run_scenario("tests/scenarios/trade_ui_test.json")
+        .expect("Failed to run scenario");
+    assert!(result.success, "Scenario failed: {:?}", result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}

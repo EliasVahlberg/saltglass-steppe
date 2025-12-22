@@ -96,6 +96,28 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 }
             }
         }
+        Action::TradeBuy(idx) => {
+            if let Some(interface) = &mut ui.trade_menu.interface {
+                if let Some(item) = interface.available_items.get(idx) {
+                    use tui_rpg::trading::execute_trade;
+                    match execute_trade(interface, &item.item_id.clone(), 1, &mut state.salt_scrip, &mut state.inventory) {
+                        Ok(msg) => state.log_typed(msg, tui_rpg::MsgType::Social),
+                        Err(e) => state.log(e),
+                    }
+                }
+            }
+        }
+        Action::TradeSell(idx) => {
+            if let Some(interface) = &ui.trade_menu.interface {
+                if let Some(item_id) = state.inventory.get(idx) {
+                    use tui_rpg::trading::execute_sell;
+                    match execute_sell(interface, &item_id.clone(), 1, &mut state.salt_scrip, &mut state.inventory) {
+                        Ok(msg) => state.log_typed(msg, tui_rpg::MsgType::Social),
+                        Err(e) => state.log(e),
+                    }
+                }
+            }
+        }
         Action::DebugCommand(cmd) => {
             state.debug_command(&cmd);
         }
@@ -149,6 +171,11 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
 
 fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     // Fullscreen menus
+    if ui.trade_menu.active {
+        use tui_rpg::ui::render_trade_menu;
+        render_trade_menu(frame, &ui.trade_menu, state);
+        return;
+    }
     if ui.inventory_menu.active {
         render_inventory_menu(frame, &ui.inventory_menu, &state.inventory, &state.equipment);
         return;
@@ -306,6 +333,22 @@ fn main() -> Result<()> {
             // Check for pending dialogue from NPC interaction
             if let Some((speaker, text)) = state.pending_dialogue.take() {
                 ui.dialog_box.show(&speaker, &text);
+            }
+            
+            // Check for pending trade
+            if let Some(trader_id) = state.pending_trade.take() {
+                use tui_rpg::trading::{get_trade_interface, calculate_area_tier};
+                let area_tier = calculate_area_tier(&state.enemies);
+                if let Some(interface) = get_trade_interface(
+                    &trader_id, 
+                    area_tier, 
+                    &state.faction_reputation, 
+                    None // Player faction not yet implemented
+                ) {
+                    ui.trade_menu.open(trader_id, interface);
+                } else {
+                    state.log("This merchant has nothing to trade.");
+                }
             }
             
             // Clear target if enemy is dead
