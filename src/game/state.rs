@@ -1985,6 +1985,7 @@ impl GameState {
         let data = fs::read_to_string(path).map_err(|e| e.to_string())?;
         let mut state: Self = ron::from_str(&data).map_err(|e| e.to_string())?;
         state.rebuild_spatial_index();
+        state.update_lighting(); // Recalculate lighting after loading
         Ok(state)
     }
 }
