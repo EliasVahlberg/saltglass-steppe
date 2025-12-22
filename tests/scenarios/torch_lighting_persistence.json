@@ -1,0 +1,41 @@
+{
+  "name": "Torch Lighting Persistence",
+  "description": "Test that torch lighting persists across multiple turns",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20
+  },
+  "items": [
+    {"id": "hand_torch", "x": 6, "y": 5}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 1, "action": {"type": "wait", "turns": 1}},
+    {"turn": 2, "action": {"type": "wait", "turns": 1}},
+    {"turn": 3, "action": {"type": "wait", "turns": 1}}
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {"type": "light_level", "x": 6, "y": 5, "op": "gt", "value": 150},
+      "message": "After picking up torch, player should have bright light"
+    },
+    {
+      "after_turn": 1,
+      "check": {"type": "light_level", "x": 6, "y": 5, "op": "gt", "value": 150},
+      "message": "After first wait, torch light should persist"
+    },
+    {
+      "after_turn": 2,
+      "check": {"type": "light_level", "x": 6, "y": 5, "op": "gt", "value": 150},
+      "message": "After second wait, torch light should persist"
+    },
+    {
+      "after_turn": 3,
+      "check": {"type": "light_level", "x": 6, "y": 5, "op": "gt", "value": 150},
+      "message": "After third wait, torch light should persist"
+    }
+  ]
+}
