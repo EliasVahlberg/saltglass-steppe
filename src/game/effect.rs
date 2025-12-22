@@ -8,6 +8,12 @@ pub enum VisualEffect {
     Blink { speed: u32, color: Color },
     Glow { color: Color },
     HitFlash { frames_remaining: u32, color: Color },
+    Pulse { speed: u32, color: Color },
+    Wave { speed: u32, color: Color },
+    Shimmer { speed: u32, colors: Vec<Color> },
+    Rainbow { speed: u32, colors: Vec<Color> },
+    Fade { speed: u32, color: Color },
+    Drift { speed: u32, color: Color },
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -24,6 +30,18 @@ pub struct EffectCondition {
     pub enemy_type: Option<String>,
     #[serde(default)]
     pub adaptations_hidden: Option<bool>,
+    #[serde(default)]
+    pub adaptation_count_gte: Option<u32>,
+    #[serde(default)]
+    pub in_storm_eye: Option<bool>,
+    #[serde(default)]
+    pub on_fragile_glass: Option<bool>,
+    #[serde(default)]
+    pub psychic_active: Option<bool>,
+    #[serde(default)]
+    pub high_salt_exposure: Option<bool>,
+    #[serde(default)]
+    pub void_exposure: Option<bool>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -96,6 +114,8 @@ fn parse_color(s: &str) -> Color {
 
 pub fn parse_effect(s: &str) -> Option<VisualEffect> {
     let s = s.trim();
+    
+    // Blink: B(@speed &color)
     if s.starts_with("B(") && s.ends_with(')') {
         let inner = &s[2..s.len()-1];
         let mut speed = 4u32;
@@ -109,6 +129,8 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         }
         return Some(VisualEffect::Blink { speed, color });
     }
+    
+    // Glow: G(&color)
     if s.starts_with("G(") && s.ends_with(')') {
         let inner = &s[2..s.len()-1];
         let mut color = Color::White;
@@ -119,6 +141,99 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         }
         return Some(VisualEffect::Glow { color });
     }
+    
+    // Pulse: P(@speed &color)
+    if s.starts_with("P(") && s.ends_with(')') {
+        let inner = &s[2..s.len()-1];
+        let mut speed = 8u32;
+        let mut color = Color::White;
+        for part in inner.split_whitespace() {
+            if part.starts_with('@') {
+                speed = part[1..].parse().unwrap_or(8);
+            } else if part.starts_with('&') {
+                color = parse_color(&part[1..]);
+            }
+        }
+        return Some(VisualEffect::Pulse { speed, color });
+    }
+    
+    // Wave: W(@speed &color)
+    if s.starts_with("W(") && s.ends_with(')') {
+        let inner = &s[2..s.len()-1];
+        let mut speed = 6u32;
+        let mut color = Color::White;
+        for part in inner.split_whitespace() {
+            if part.starts_with('@') {
+                speed = part[1..].parse().unwrap_or(6);
+            } else if part.starts_with('&') {
+                color = parse_color(&part[1..]);
+            }
+        }
+        return Some(VisualEffect::Wave { speed, color });
+    }
+    
+    // Shimmer: S(@speed &color1 &color2 ...)
+    if s.starts_with("S(") && s.ends_with(')') {
+        let inner = &s[2..s.len()-1];
+        let mut speed = 6u32;
+        let mut colors = Vec::new();
+        for part in inner.split_whitespace() {
+            if part.starts_with('@') {
+                speed = part[1..].parse().unwrap_or(6);
+            } else if part.starts_with('&') {
+                colors.push(parse_color(&part[1..]));
+            }
+        }
+        if colors.is_empty() { colors.push(Color::White); }
+        return Some(VisualEffect::Shimmer { speed, colors });
+    }
+    
+    // Rainbow: R(@speed &color1 &color2 ...)
+    if s.starts_with("R(") && s.ends_with(')') {
+        let inner = &s[2..s.len()-1];
+        let mut speed = 8u32;
+        let mut colors = Vec::new();
+        for part in inner.split_whitespace() {
+            if part.starts_with('@') {
+                speed = part[1..].parse().unwrap_or(8);
+            } else if part.starts_with('&') {
+                colors.push(parse_color(&part[1..]));
+            }
+        }
+        if colors.is_empty() { colors.push(Color::White); }
+        return Some(VisualEffect::Rainbow { speed, colors });
+    }
+    
+    // Fade: F(@speed &color)
+    if s.starts_with("F(") && s.ends_with(')') {
+        let inner = &s[2..s.len()-1];
+        let mut speed = 16u32;
+        let mut color = Color::White;
+        for part in inner.split_whitespace() {
+            if part.starts_with('@') {
+                speed = part[1..].parse().unwrap_or(16);
+            } else if part.starts_with('&') {
+                color = parse_color(&part[1..]);
+            }
+        }
+        return Some(VisualEffect::Fade { speed, color });
+    }
+    
+    // Drift: D(@speed &color)
+    if s.starts_with("D(") && s.ends_with(')') {
+        let inner = &s[2..s.len()-1];
+        let mut speed = 12u32;
+        let mut color = Color::White;
+        for part in inner.split_whitespace() {
+            if part.starts_with('@') {
+                speed = part[1..].parse().unwrap_or(12);
+            } else if part.starts_with('&') {
+                color = parse_color(&part[1..]);
+            }
+        }
+        return Some(VisualEffect::Drift { speed, color });
+    }
+    
     None
 }
 
@@ -128,6 +243,12 @@ pub struct EffectContext {
     pub has_adaptation: bool,
     pub on_glass: bool,
     pub adaptations_hidden: bool,
+    pub adaptation_count: u32,
+    pub in_storm_eye: bool,
+    pub on_fragile_glass: bool,
+    pub psychic_active: bool,
+    pub high_salt_exposure: bool,
+    pub void_exposure: bool,
 }
 
 impl EffectCondition {
@@ -146,6 +267,24 @@ impl EffectCondition {
         }
         if let Some(true) = self.adaptations_hidden {
             if !ctx.adaptations_hidden { return false; }
+        }
+        if let Some(count) = self.adaptation_count_gte {
+            if ctx.adaptation_count < count { return false; }
+        }
+        if let Some(true) = self.in_storm_eye {
+            if !ctx.in_storm_eye { return false; }
+        }
+        if let Some(true) = self.on_fragile_glass {
+            if !ctx.on_fragile_glass { return false; }
+        }
+        if let Some(true) = self.psychic_active {
+            if !ctx.psychic_active { return false; }
+        }
+        if let Some(true) = self.high_salt_exposure {
+            if !ctx.high_salt_exposure { return false; }
+        }
+        if let Some(true) = self.void_exposure {
+            if !ctx.void_exposure { return false; }
         }
         true
     }

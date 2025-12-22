@@ -462,7 +462,7 @@ Visual effects are condition-based animations applied to entities during renderi
 |-------|----------|-------------|
 | `id` | Yes | Unique identifier |
 | `condition` | Yes | Object with condition checks (see below) |
-| `target` | Yes | What to apply effect to: `player`, `enemy`, `ui` |
+| `target` | Yes | What to apply effect to: `player`, `enemy`, `ui`, `environment`, `tile` |
 | `effect` | Yes | Effect string (see syntax below) |
 
 ### Effect Syntax
@@ -471,7 +471,7 @@ Effects are encoded as strings with the format `TYPE(parameters)`.
 
 #### Blink: `B(@speed &color)`
 
-Alternates visibility/color at specified frame intervals.
+Simple on/off alternation at specified frame intervals.
 
 | Parameter | Prefix | Description |
 |-----------|--------|-------------|
@@ -490,6 +490,72 @@ Constant color overlay.
 
 Example: `G(&Magenta)` — Constant magenta glow
 
+#### Pulse: `P(@speed &color)`
+
+Rhythmic on/off pattern with longer "on" phases, like a heartbeat.
+
+| Parameter | Prefix | Description |
+|-----------|--------|-------------|
+| speed | `@` | Frames per pulse cycle |
+| color | `&` | Color name |
+
+Example: `P(@8 &LightRed)` — Pulse red every 8 frames
+
+#### Wave: `W(@speed &color)`
+
+Spatial wave effect that propagates across the map based on position.
+
+| Parameter | Prefix | Description |
+|-----------|--------|-------------|
+| speed | `@` | Frames per wave cycle |
+| color | `&` | Color name |
+
+Example: `W(@6 &Yellow)` — Wave effect with yellow color
+
+#### Shimmer: `S(@speed &color1 &color2 ...)`
+
+Cycles through multiple colors based on position, creating a shimmering effect.
+
+| Parameter | Prefix | Description |
+|-----------|--------|-------------|
+| speed | `@` | Frames per color change |
+| colors | `&` | Multiple color names |
+
+Example: `S(@4 &Cyan &LightCyan &White)` — Shimmer between cyan shades
+
+#### Rainbow: `R(@speed &color1 &color2 ...)`
+
+Cycles through colors over time (not position-based).
+
+| Parameter | Prefix | Description |
+|-----------|--------|-------------|
+| speed | `@` | Frames per color change |
+| colors | `&` | Multiple color names |
+
+Example: `R(@8 &Magenta &LightMagenta)` — Rainbow between magenta shades
+
+#### Fade: `F(@speed &color)`
+
+Slow fade in/out effect with longer cycles.
+
+| Parameter | Prefix | Description |
+|-----------|--------|-------------|
+| speed | `@` | Frames per fade cycle |
+| color | `&` | Color name |
+
+Example: `F(@16 &DarkGray)` — Slow fade with dark gray
+
+#### Drift: `D(@speed &color)`
+
+Particle-like drifting effect based on position and time.
+
+| Parameter | Prefix | Description |
+|-----------|--------|-------------|
+| speed | `@` | Frames per drift cycle |
+| color | `&` | Color name |
+
+Example: `D(@12 &DarkGray)` — Drifting particles effect
+
 ### Available Colors
 
 `Red`, `Green`, `Yellow`, `Blue`, `Magenta`, `Cyan`, `White`, `DarkGray`, `LightRed`, `LightGreen`, `LightYellow`, `LightBlue`, `LightMagenta`, `LightCyan`
@@ -504,8 +570,24 @@ Example: `G(&Magenta)` — Constant magenta glow
 | `on_tile` | `{"on_tile": "Glass"}` | Player standing on tile type |
 | `adaptations_hidden` | `{"adaptations_hidden": true}` | Veil Tincture active |
 | `enemy_type` | `{"enemy_type": "refraction_wraith"}` | For enemy-targeted effects |
+| `adaptation_count_gte` | `{"adaptation_count_gte": 3}` | Player has N or more adaptations |
+| `in_storm_eye` | `{"in_storm_eye": true}` | Storm is currently happening |
+| `on_fragile_glass` | `{"on_fragile_glass": true}` | On glass with low HP |
+| `psychic_active` | `{"psychic_active": true}` | Psychic boost status active |
+| `high_salt_exposure` | `{"high_salt_exposure": true}` | 2+ adaptations (salt exposure) |
+| `void_exposure` | `{"void_exposure": true}` | Void-touched status active |
 
 Multiple conditions can be combined—all must be true for effect to trigger.
+
+### Target Types
+
+| Target | Description | Usage |
+|--------|-------------|-------|
+| `player` | Applied to player character | Character status effects |
+| `enemy` | Applied to specific enemy types | Enemy visual identity |
+| `ui` | Applied to UI elements | Interface warnings |
+| `environment` | Applied to map background | Atmospheric effects |
+| `tile` | Applied to specific tiles | Tile-based warnings |
 
 ### Example: Adding a New Effect
 
@@ -514,32 +596,98 @@ Multiple conditions can be combined—all must be true for effect to trigger.
   "id": "critical_hp",
   "condition": {"low_hp": 3},
   "target": "player",
-  "effect": "B(@2 &LightRed)"
+  "effect": "P(@2 &LightRed)"
 }
 ```
 
-This creates a fast red blink when player HP drops to 3 or below.
+This creates a fast red pulse when player HP drops to 3 or below.
 
-### Example: Enemy-Specific Effect
+### Example: Multi-Color Shimmer Effect
 
 ```json
 {
-  "id": "dust_wraith_shimmer",
-  "condition": {"enemy_type": "dust_wraith"},
-  "target": "enemy",
-  "effect": "B(@5 &Yellow)"
+  "id": "glass_resonance",
+  "condition": {"on_tile": "Glass", "has_adaptation": true},
+  "target": "environment",
+  "effect": "S(@4 &Cyan &LightCyan &White)"
 }
 ```
 
+Creates a shimmering effect when adapted players stand on glass.
+
+### Example: Environmental Particle Effect
+
+```json
+{
+  "id": "storm_particle_drift",
+  "condition": {"storm_near": 8},
+  "target": "environment",
+  "effect": "D(@15 &DarkGray)"
+}
+```
+
+Shows drifting particles when a storm approaches.
+
 ### Current Effects
 
-| ID | Condition | Visual |
-|----|-----------|--------|
-| `low_hp_warning` | HP ≤ 5 | Red blink |
-| `storm_imminent` | Storm ≤ 3 turns | Yellow blink |
-| `adaptation_glow` | Has adaptation | Magenta glow |
-| `glass_shimmer` | On glass tile | Cyan blink |
-| `suppression_active` | Tincture active | Dark gray glow |
+| ID | Condition | Target | Visual | Description |
+|----|-----------|--------|--------|-------------|
+| `low_hp_warning` | HP ≤ 5 | player | Red blink | Health warning |
+| `critical_hp` | HP ≤ 3 | player | Red pulse | Critical health |
+| `storm_imminent` | Storm ≤ 3 turns | ui | Red wave | Storm warning |
+| `adaptation_glow` | Has adaptation | player | Magenta rainbow | Mutation indicator |
+| `glass_shimmer` | On glass tile | player | Cyan shimmer | Glass interaction |
+| `suppression_active` | Tincture active | player | Gray fade | Suppression effect |
+| `storm_particle_drift` | Storm ≤ 8 turns | environment | Gray drift | Atmospheric particles |
+| `glass_resonance` | On glass + adapted | environment | Cyan shimmer | Glass resonance |
+| `adaptation_surge` | 3+ adaptations | player | Magenta pulse | High mutation |
+
+### Effect Design Guidelines
+
+**Performance**: Effects are calculated per frame. Use reasonable speeds (4-20 frames) to avoid performance issues.
+
+**Readability**: Ensure effects enhance rather than obscure gameplay information. Avoid overly bright or distracting colors.
+
+**Thematic Consistency**: 
+- Glass effects: Cyan/LightCyan/White shimmer or wave patterns
+- Storm effects: Yellow/Red wave or drift patterns  
+- Adaptation effects: Magenta/LightMagenta rainbow or pulse
+- Danger effects: Red blink or pulse
+- Suppression effects: DarkGray fade
+
+**Layering**: Multiple effects can apply simultaneously. Design effects that work well together.
+
+**Spatial Effects**: Wave, Shimmer, and Drift effects use position-based calculations for more dynamic visuals.
+
+### Testing Effects
+
+1. Add effect to `effects.json`
+2. Run game with `cargo run`
+3. Trigger conditions (take damage, stand on glass, etc.)
+4. Observe visual effect in game
+5. Adjust speed/colors as needed
+
+### Common Effect Patterns
+
+**Status Warnings**: Use Pulse or Blink with red colors
+```json
+{"effect": "P(@4 &Red)"}
+```
+
+**Environmental Atmosphere**: Use Wave or Drift with muted colors
+```json
+{"effect": "W(@12 &DarkGray)"}
+```
+
+**Magical/Mystical**: Use Rainbow or Shimmer with bright colors
+```json
+{"effect": "R(@8 &Magenta &LightMagenta)"}
+```
+
+**Subtle Indicators**: Use Fade or Glow with appropriate colors
+```json
+{"effect": "F(@20 &LightBlue)"}
+```
 
 ---
 

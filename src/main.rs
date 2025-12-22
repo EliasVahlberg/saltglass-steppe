@@ -237,6 +237,12 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
         has_adaptation: !state.adaptations.is_empty(),
         on_glass,
         adaptations_hidden: state.adaptations_hidden_turns > 0,
+        adaptation_count: state.adaptations.len() as u32,
+        in_storm_eye: state.storm.turns_until == 0, // Storm is happening now
+        on_fragile_glass: on_glass && state.player_hp <= 3, // Fragile when low HP on glass
+        psychic_active: state.status_effects.iter().any(|e| e.id == "psychic_boost"),
+        high_salt_exposure: state.adaptations.len() >= 2,
+        void_exposure: state.status_effects.iter().any(|e| e.id == "void_touched"),
     };
     let mut player_effects = get_active_effects(&effect_ctx, "player");
     for te in &state.triggered_effects {
