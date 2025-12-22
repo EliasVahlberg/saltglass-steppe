@@ -704,13 +704,6 @@ impl GameState {
             }
         }
         self.light_map = compute_lighting(&sources, self.effective_ambient_light());
-        
-        // Debug: Log light sources
-        if !sources.is_empty() {
-            self.log(format!("Light sources: {} (player at {},{} has light {})", 
-                sources.len(), self.player_x, self.player_y, 
-                self.get_light_level(self.player_x, self.player_y)));
-        }
     }
 
     /// Calculate effective ambient light based on time of day and weather
