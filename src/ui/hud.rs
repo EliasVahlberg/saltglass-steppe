@@ -43,7 +43,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(9),  // Stats (expanded)
+            Constraint::Length(10),  // Stats (expanded for sanity)
             Constraint::Length(5),  // Status Effects
             Constraint::Length(9),  // Equipment
             Constraint::Min(3),     // Quests
@@ -68,6 +68,13 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::raw("AP "),
             Span::styled(ap_bar, Style::default().fg(Color::Cyan)),
             Span::styled(format!(" {}/{}", state.player_ap, state.player_max_ap), Style::default().fg(Color::Cyan)),
+        ]),
+        Line::from(vec![
+            Span::raw("Sanity: "),
+            Span::styled(format!("{}/{}", state.sanity.current_sanity, state.sanity.max_sanity), 
+                Style::default().fg(if state.sanity.current_sanity > 60 { Color::Green } 
+                    else if state.sanity.current_sanity > 30 { Color::Yellow } 
+                    else { Color::Red })),
         ]),
         Line::from(vec![
             Span::raw("Lvl: "),
