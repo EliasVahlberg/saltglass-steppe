@@ -1042,9 +1042,8 @@ impl GameState {
                 }
             }
             Some("create_sample_des") => {
-                let sample = super::des_testing::create_sample_des_test();
-                match sample.save_to_file("sample_test.des") {
-                    Ok(_) => self.log("Sample DES test created: sample_test.des"),
+                match super::des_testing::save_sample_des_test() {
+                    Ok(_) => self.log("Sample DES test created: tests/sample_test.des"),
                     Err(e) => self.log(format!("Failed to create sample: {}", e)),
                 }
             }

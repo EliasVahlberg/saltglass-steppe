@@ -51,7 +51,7 @@ Press `` ` `` (backtick) during gameplay to open the debug console.
 - `report_issue` - Open the guided issue reporter
 
 #### DES Testing
-- `run_des <file>` - Execute a DES test file
+- `run_des <file>` - Execute a DES test file (looks in tests/ directory)
 - `list_des` - List available DES test files
 - `create_sample_des` - Create a sample DES test file
 

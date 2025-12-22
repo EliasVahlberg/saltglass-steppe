@@ -233,3 +233,6 @@ issue_reports/*.json
 issue_reports/*.ron
 !debug_states/.gitkeep
 !issue_reports/.gitkeep
+
+# Debug logs
+debug_status_log.txt

@@ -196,18 +196,41 @@ impl DesTest {
 }
 
 pub fn run_des_test_file(path: &str) -> Result<DesTestResult, Box<dyn std::error::Error>> {
-    let test = DesTest::load_from_file(path)?;
+    // Try tests directory first, then current directory
+    let test_path = if std::path::Path::new(&format!("tests/{}", path)).exists() {
+        format!("tests/{}", path)
+    } else if std::path::Path::new(path).exists() {
+        path.to_string()
+    } else {
+        return Err(format!("Test file not found: {}", path).into());
+    };
+    
+    let test = DesTest::load_from_file(&test_path)?;
     test.execute()
 }
 
 pub fn list_des_tests() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let mut tests = Vec::new();
     
-    for entry in fs::read_dir(".")? {
-        let entry = entry?;
-        if let Some(name) = entry.file_name().to_str() {
-            if name.ends_with("_test.des") || name.ends_with(".des") {
-                tests.push(name.to_string());
+    // Check tests directory first, then current directory for backward compatibility
+    let dirs = ["tests", "."];
+    
+    for dir in &dirs {
+        if std::path::Path::new(dir).exists() {
+            for entry in fs::read_dir(dir)? {
+                let entry = entry?;
+                if let Some(name) = entry.file_name().to_str() {
+                    if name.ends_with("_test.des") || name.ends_with(".des") {
+                        let path = if *dir == "." { 
+                            name.to_string() 
+                        } else { 
+                            format!("{}/{}", dir, name) 
+                        };
+                        if !tests.contains(&path) {
+                            tests.push(path);
+                        }
+                    }
+                }
             }
         }
     }
@@ -246,4 +269,11 @@ pub fn create_sample_des_test() -> DesTest {
             },
         ],
     }
+}
+
+pub fn save_sample_des_test() -> Result<(), Box<dyn std::error::Error>> {
+    std::fs::create_dir_all("tests")?;
+    let sample = create_sample_des_test();
+    sample.save_to_file("tests/sample_test.des")?;
+    Ok(())
 }

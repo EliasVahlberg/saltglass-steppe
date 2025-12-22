@@ -59,4 +59,4 @@ pub use dialogue::{get_dialogue_tree, start_dialogue, continue_dialogue, Dialogu
 pub use meta::{all_classes, get_class, ClassDef, MetaProgress};
 pub use tutorial::{get_tutorial_data, TutorialProgress};
 pub use qa_tools::{DebugInfo, IssueCategory, IssueReport, IssueSeverity};
-pub use des_testing::{DesTest, DesTestResult, run_des_test_file, list_des_tests, create_sample_des_test};
+pub use des_testing::{DesTest, DesTestResult, run_des_test_file, list_des_tests, create_sample_des_test, save_sample_des_test};
