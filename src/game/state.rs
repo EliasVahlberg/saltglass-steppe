@@ -1946,14 +1946,14 @@ impl GameState {
         }
         let light_level = super::lighting::get_light_level(&self.light_map, self.player_x, self.player_y);
         
-        // Glare damage
-        if super::lighting::has_glare(&self.light_map, self.player_x, self.player_y, 250) {
-            if !self.has_status_effect("glare_protection") {
-                self.player_hp -= 1;
-                self.log_typed("The intense light burns your eyes!".to_string(), MsgType::Combat);
-                self.apply_status_effect("blinded", 2);
-            }
-        }
+        // Glare damage - disabled until lighting system is properly balanced
+        // if super::lighting::has_glare(&self.light_map, self.player_x, self.player_y, 250) {
+        //     if !self.has_status_effect("glare_protection") {
+        //         self.player_hp -= 1;
+        //         self.log_typed("The intense light burns your eyes!".to_string(), MsgType::Combat);
+        //         self.apply_status_effect("blinded", 2);
+        //     }
+        // }
         
         // Light-based item effects
         for item_id in &self.inventory.clone() {
