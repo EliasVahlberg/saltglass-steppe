@@ -155,33 +155,39 @@ fn render_tile(
                 VisualEffect::Pulse { speed, color } => {
                     let phase = (frame_count / *speed as u64) % 4;
                     if phase < 2 {
-                        style = style.fg(*color);
+                        let light = state.get_light_level(x as i32, y as i32);
+                        style = style.fg(dim_color(*color, light));
                     }
                 }
                 VisualEffect::Wave { speed, color } => {
                     let wave_phase = ((frame_count / *speed as u64) + (x as u64 + y as u64)) % 6;
                     if wave_phase < 3 {
-                        style = style.fg(*color);
+                        let light = state.get_light_level(x as i32, y as i32);
+                        style = style.fg(dim_color(*color, light));
                     }
                 }
                 VisualEffect::Shimmer { speed, colors } => {
                     let color_idx = ((frame_count / *speed as u64) + (x as u64 ^ y as u64)) % colors.len() as u64;
-                    style = style.fg(colors[color_idx as usize]);
+                    let light = state.get_light_level(x as i32, y as i32);
+                    style = style.fg(dim_color(colors[color_idx as usize], light));
                 }
                 VisualEffect::Rainbow { speed, colors } => {
                     let color_idx = (frame_count / *speed as u64) % colors.len() as u64;
-                    style = style.fg(colors[color_idx as usize]);
+                    let light = state.get_light_level(x as i32, y as i32);
+                    style = style.fg(dim_color(colors[color_idx as usize], light));
                 }
                 VisualEffect::Fade { speed, color } => {
                     let fade_phase = (frame_count / *speed as u64) % 8;
                     if fade_phase < 4 {
-                        style = style.fg(*color);
+                        let light = state.get_light_level(x as i32, y as i32);
+                        style = style.fg(dim_color(*color, light));
                     }
                 }
                 VisualEffect::Drift { speed, color } => {
                     let drift_phase = ((frame_count / *speed as u64) + (x as u64 * 3 + y as u64 * 7)) % 10;
                     if drift_phase < 3 {
-                        style = style.fg(*color);
+                        let light = state.get_light_level(x as i32, y as i32);
+                        style = style.fg(dim_color(*color, light));
                     }
                 }
                 VisualEffect::HitFlash { .. } => {} // Handled above
@@ -206,35 +212,46 @@ fn render_tile(
                 _ => Color::Red,
             };
             let mut style = Style::default().fg(base_color);
+            let light = state.get_light_level(x as i32, y as i32);
             for effect in get_enemy_effects(&e.id) {
                 match effect {
                     VisualEffect::Blink { speed, color } => {
-                        if (frame_count / speed as u64) % 2 == 0 { style = style.fg(color); }
+                        if (frame_count / speed as u64) % 2 == 0 { 
+                            style = style.fg(dim_color(color, light)); 
+                        }
                     }
-                    VisualEffect::Glow { color } => style = style.fg(color),
+                    VisualEffect::Glow { color } => style = style.fg(dim_color(color, light)),
                     VisualEffect::Pulse { speed, color } => {
                         let phase = (frame_count / speed as u64) % 4;
-                        if phase < 2 { style = style.fg(color); }
+                        if phase < 2 { 
+                            style = style.fg(dim_color(color, light)); 
+                        }
                     }
                     VisualEffect::Wave { speed, color } => {
                         let wave_phase = ((frame_count / speed as u64) + (x as u64 + y as u64)) % 6;
-                        if wave_phase < 3 { style = style.fg(color); }
+                        if wave_phase < 3 { 
+                            style = style.fg(dim_color(color, light)); 
+                        }
                     }
                     VisualEffect::Shimmer { speed, colors } => {
                         let color_idx = ((frame_count / speed as u64) + (x as u64 ^ y as u64)) % colors.len() as u64;
-                        style = style.fg(colors[color_idx as usize]);
+                        style = style.fg(dim_color(colors[color_idx as usize], light));
                     }
                     VisualEffect::Rainbow { speed, colors } => {
                         let color_idx = (frame_count / speed as u64) % colors.len() as u64;
-                        style = style.fg(colors[color_idx as usize]);
+                        style = style.fg(dim_color(colors[color_idx as usize], light));
                     }
                     VisualEffect::Fade { speed, color } => {
                         let fade_phase = (frame_count / speed as u64) % 8;
-                        if fade_phase < 4 { style = style.fg(color); }
+                        if fade_phase < 4 { 
+                            style = style.fg(dim_color(color, light)); 
+                        }
                     }
                     VisualEffect::Drift { speed, color } => {
                         let drift_phase = ((frame_count / speed as u64) + (x as u64 * 3 + y as u64 * 7)) % 10;
-                        if drift_phase < 3 { style = style.fg(color); }
+                        if drift_phase < 3 { 
+                            style = style.fg(dim_color(color, light)); 
+                        }
                     }
                     VisualEffect::HitFlash { .. } => {} // Handled above
                 }
