@@ -8,7 +8,7 @@
       "value": 25,
       "weight": 1,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Cyan)" }]
+      "effects": [{ "condition": "on_pickup", "effect": "S(@3 &Cyan &LightCyan)" }]
     },
     {
       "id": "scripture_shard",
@@ -19,7 +19,7 @@
       "weight": 0,
       "usable": false,
       "hidden_properties": ["value"],
-      "effects": [{ "condition": "on_pickup", "effect": "G(&Yellow)" }]
+      "effects": [{ "condition": "on_pickup", "effect": "F(@16 &Yellow)" }]
     },
     {
       "id": "brine_vial",
@@ -32,7 +32,7 @@
       "heal": 5,
       "effects": [
         { "condition": "on_pickup", "effect": "B(@4 &Green)" },
-        { "condition": "on_use", "effect": "G(&Green)" }
+        { "condition": "on_use", "effect": "P(@6 &Green)" }
       ]
     },
     {
@@ -43,7 +43,7 @@
       "value": 50,
       "weight": 1,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@2 &LightBlue)" }]
+      "effects": [{ "condition": "on_pickup", "effect": "P(@8 &LightBlue)" }]
     },
     {
       "id": "angle_lens",
@@ -55,8 +55,8 @@
       "usable": true,
       "reveals_map": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &Magenta)" },
-        { "condition": "on_use", "effect": "B(@1 &White)" }
+        { "condition": "on_pickup", "effect": "S(@3 &Magenta &LightMagenta)" },
+        { "condition": "on_use", "effect": "W(@4 &White)" }
       ]
     },
     {
@@ -70,7 +70,7 @@
       "heal": 8,
       "effects": [
         { "condition": "on_pickup", "effect": "B(@4 &Green)" },
-        { "condition": "on_use", "effect": "G(&LightGreen)" }
+        { "condition": "on_use", "effect": "P(@4 &LightGreen)" }
       ]
     },
     {
@@ -84,7 +84,7 @@
       "suppresses_adaptations": true,
       "effects": [
         { "condition": "on_pickup", "effect": "B(@4 &DarkGray)" },
-        { "condition": "on_use", "effect": "G(&DarkGray)" }
+        { "condition": "on_use", "effect": "F(@12 &DarkGray)" }
       ]
     },
     {
@@ -96,7 +96,7 @@
       "weight": 2,
       "usable": true,
       "breaks_walls": true,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@4 &Cyan)" }]
+      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &Cyan &White)" }]
     },
     {
       "id": "storm_compass",
@@ -109,7 +109,7 @@
       "reveals_storm_path": true,
       "effects": [
         { "condition": "on_pickup", "effect": "B(@3 &Yellow)" },
-        { "condition": "on_use", "effect": "B(@2 &LightYellow)" }
+        { "condition": "on_use", "effect": "W(@6 &LightYellow)" }
       ]
     },
     {
@@ -123,8 +123,8 @@
       "heal": 15,
       "reduces_refraction": 10,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@2 &White)" },
-        { "condition": "on_use", "effect": "G(&White)" }
+        { "condition": "on_pickup", "effect": "P(@8 &White)" },
+        { "condition": "on_use", "effect": "F(@20 &White)" }
       ]
     },
     {
@@ -154,7 +154,7 @@
       "weight": 1,
       "usable": true,
       "heal": 12,
-      "effects": [{ "condition": "on_use", "effect": "G(&LightGreen)" }]
+      "effects": [{ "condition": "on_use", "effect": "P(@4 &LightGreen)" }]
     },
     {
       "id": "salt_bomb",
@@ -165,7 +165,7 @@
       "weight": 2,
       "usable": true,
       "damage_area": 3,
-      "effects": [{ "condition": "on_use", "effect": "B(@5 &White)" }]
+      "effects": [{ "condition": "on_use", "effect": "W(@2 &White)" }]
     },
     {
       "id": "salt_crystal",
@@ -427,7 +427,8 @@
       "value": 90,
       "weight": 0,
       "usable": false,
-      "equip_slot": "accessory"
+      "equip_slot": "accessory",
+      "effects": [{ "condition": "on_equip", "effect": "W(@10 &White)" }]
     },
     {
       "id": "travelers_pack",
@@ -449,7 +450,8 @@
       "usable": false,
       "armor_value": 1,
       "equip_slot": "necklace",
-      "light_source": { "radius": 4, "intensity": 80 }
+      "light_source": { "radius": 4, "intensity": 80 },
+      "effects": [{ "condition": "on_equip", "effect": "F(@16 &LightBlue)" }]
     },
     {
       "id": "salt_knife",
@@ -528,7 +530,7 @@
       "weight": 1,
       "usable": true,
       "confuses_enemies": true,
-      "effects": [{ "condition": "on_use", "effect": "B(@3 &White)" }]
+      "effects": [{ "condition": "on_use", "effect": "R(@4 &Red &Yellow &Green &Cyan &Blue &Magenta)" }]
     },
     {
       "id": "salt_scrip",
@@ -559,7 +561,7 @@
       "usable": true,
       "heal": 12,
       "causes_pain": true,
-      "effects": [{ "condition": "on_use", "effect": "B(@2 &Red)" }]
+      "effects": [{ "condition": "on_use", "effect": "P(@2 &Red)" }]
     },
     {
       "id": "storm_chart",
@@ -600,7 +602,7 @@
       "weight": 1,
       "usable": true,
       "grants_invisibility": true,
-      "effects": [{ "condition": "on_use", "effect": "G(&DarkGray)" }]
+      "effects": [{ "condition": "on_use", "effect": "F(@16 &DarkGray)" }]
     },
     {
       "id": "archive_key_fragment",
@@ -621,7 +623,7 @@
       "usable": true,
       "heal": 6,
       "reduces_refraction": 2,
-      "effects": [{ "condition": "on_use", "effect": "G(&LightBlue)" }]
+      "effects": [{ "condition": "on_use", "effect": "S(@6 &LightBlue &Cyan)" }]
     },
     {
       "id": "monk_scripture",
@@ -663,7 +665,8 @@
       "usable": false,
       "equip_slot": "accessory",
       "light_source": { "radius": 8, "intensity": 150 },
-      "storm_enhanced": true
+      "storm_enhanced": true,
+      "effects": [{ "condition": "on_equip", "effect": "P(@12 &Yellow)" }]
     },
     {
       "id": "salt_rations",
@@ -705,7 +708,7 @@
       "usable": true,
       "heal": 10,
       "cures_poison": true,
-      "effects": [{ "condition": "on_use", "effect": "G(&Green)" }]
+      "effects": [{ "condition": "on_use", "effect": "P(@6 &Green)" }]
     },
     {
       "id": "archive_data_crystal",
@@ -716,7 +719,7 @@
       "weight": 1,
       "usable": true,
       "reveals_lore": true,
-      "effects": [{ "condition": "on_use", "effect": "B(@4 &LightBlue)" }]
+      "effects": [{ "condition": "on_use", "effect": "W(@8 &LightBlue)" }]
     },
     {
       "id": "refraction_detector",
@@ -770,7 +773,8 @@
       "usable": false,
       "armor_value": 5,
       "equip_slot": "jacket",
-      "reflects_light": true
+      "reflects_light": true,
+      "effects": [{ "condition": "on_equip", "effect": "S(@8 &Cyan &LightCyan)" }]
     },
     {
       "id": "monk_robes",
@@ -864,7 +868,7 @@
       "usable": false,
       "equip_slot": "weapon",
       "light_damage": true,
-      "effects": [{ "condition": "on_hit", "effect": "B(@1 &White)" }]
+      "effects": [{ "condition": "on_hit", "effect": "W(@2 &White)" }]
     },
     {
       "id": "storm_crossbow",
@@ -930,7 +934,7 @@
       "usable": true,
       "detects_quantum_fields": true,
       "reveals_adaptation_potential": true,
-      "effects": [{ "condition": "on_use", "effect": "B(@3 &LightBlue)" }]
+      "effects": [{ "condition": "on_use", "effect": "P(@6 &LightBlue)" }]
     },
     {
       "id": "synthesis_manual",
@@ -942,7 +946,7 @@
       "usable": true,
       "faction_item": "SynthesisSeekers",
       "grants_adaptation_control": true,
-      "effects": [{ "condition": "on_use", "effect": "G(&Magenta)" }]
+      "effects": [{ "condition": "on_use", "effect": "R(@8 &Magenta &LightMagenta)" }]
     },
     {
       "id": "null_field_generator",
@@ -955,7 +959,7 @@
       "faction_item": "IronCovenant",
       "suppresses_psychic_abilities": true,
       "damages_adapted": true,
-      "effects": [{ "condition": "on_use", "effect": "B(@2 &Red)" }]
+      "effects": [{ "condition": "on_use", "effect": "W(@4 &Red)" }]
     },
     {
       "id": "ascension_catalyst",
@@ -968,7 +972,7 @@
       "faction_item": "GlassProphets",
       "forces_adaptation": true,
       "dangerous": true,
-      "effects": [{ "condition": "on_use", "effect": "B(@1 &LightCyan)" }]
+      "effects": [{ "condition": "on_use", "effect": "P(@1 &LightCyan)" }]
     },
     {
       "id": "memory_crystal",
@@ -981,7 +985,7 @@
       "faction_item": "WanderingCourt",
       "reveals_lore": true,
       "restores_humanity": true,
-      "effects": [{ "condition": "on_use", "effect": "G(&LightYellow)" }]
+      "effects": [{ "condition": "on_use", "effect": "F(@20 &LightYellow)" }]
     },
     {
       "id": "aria_interface",
@@ -995,7 +999,7 @@
       "faction_item": "Archive",
       "enables_aria_dialogue": true,
       "requires_saint_key": true,
-      "effects": [{ "condition": "on_use", "effect": "B(@4 &Blue)" }]
+      "effects": [{ "condition": "on_use", "effect": "W(@8 &Blue)" }]
     },
     {
       "id": "quantum_stabilizer",
@@ -1007,7 +1011,7 @@
       "usable": true,
       "prevents_quantum_psychosis": true,
       "stabilizes_consciousness": true,
-      "effects": [{ "condition": "on_use", "effect": "G(&Green)" }]
+      "effects": [{ "condition": "on_use", "effect": "P(@8 &Green)" }]
     },
     {
       "id": "heliograph_fragment",
@@ -1019,7 +1023,7 @@
       "usable": false,
       "cosmic_artifact": true,
       "attracts_cosmic_entities": true,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@2 &White)" }]
+      "effects": [{ "condition": "on_pickup", "effect": "P(@4 &White)" }]
     },
     {
       "id": "probability_anchor",
@@ -1031,7 +1035,7 @@
       "usable": true,
       "prevents_probability_backlash": true,
       "enhances_luck_abilities": true,
-      "effects": [{ "condition": "on_use", "effect": "G(&Yellow)" }]
+      "effects": [{ "condition": "on_use", "effect": "F(@12 &Yellow)" }]
     },
     {
       "id": "consciousness_backup",
@@ -1044,7 +1048,7 @@
       "creates_mind_backup": true,
       "enables_resurrection": true,
       "faction_item": "Archive",
-      "effects": [{ "condition": "on_use", "effect": "B(@5 &LightBlue)" }]
+      "effects": [{ "condition": "on_use", "effect": "W(@10 &LightBlue)" }]
     },
     {
       "id": "temporal_anchor",
@@ -1056,7 +1060,7 @@
       "usable": true,
       "prevents_temporal_displacement": true,
       "stabilizes_timeline": true,
-      "effects": [{ "condition": "on_use", "effect": "G(&Cyan)" }]
+      "effects": [{ "condition": "on_use", "effect": "S(@8 &Cyan &LightCyan)" }]
     }
   ]
 }
