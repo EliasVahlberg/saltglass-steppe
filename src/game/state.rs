@@ -239,6 +239,9 @@ pub struct GameState {
     pub debug_phase: bool,
     #[serde(skip)]
     pub debug_disable_glare: bool,
+    /// Original seed for reproducibility
+    #[serde(default)]
+    pub seed: u64,
 }
 
 /// Floating damage number for visual feedback
@@ -416,6 +419,7 @@ impl GameState {
             debug_god_view: false,
             debug_phase: false,
             debug_disable_glare: false,
+            seed,
         };
         state.rebuild_spatial_index();
         state
@@ -951,10 +955,118 @@ impl GameState {
                 self.debug_phase = !self.debug_phase;
                 self.log(format!("Debug: Phase {}", if self.debug_phase { "enabled" } else { "disabled" }));
             }
-            Some("help") => {
-                self.log("Commands: show tile, hide tile, sturdy, phase");
+            Some("save_debug") => {
+                let filename = if parts.len() > 1 {
+                    format!("{}.ron", parts[1])
+                } else {
+                    format!("debug_{}.ron", chrono::Utc::now().format("%Y%m%d_%H%M%S"))
+                };
+                match self.save_debug_state(&filename) {
+                    Ok(_) => self.log(format!("Debug state saved: {}", filename)),
+                    Err(e) => self.log(format!("Failed to save debug state: {}", e)),
+                }
             }
-            _ => self.log(format!("Unknown command: {}", cmd)),
+            Some("load_debug") => {
+                if let Some(filename) = parts.get(1) {
+                    match Self::load_debug_state(filename) {
+                        Ok(state) => {
+                            *self = state;
+                            self.log(format!("Debug state loaded: {}", filename));
+                        }
+                        Err(e) => self.log(format!("Failed to load debug state: {}", e)),
+                    }
+                } else {
+                    self.log("Usage: load_debug <filename>");
+                }
+            }
+            Some("list_debug") => {
+                match Self::list_debug_states() {
+                    Ok(states) => {
+                        if states.is_empty() {
+                            self.log("No debug states found");
+                        } else {
+                            self.log("Debug states:");
+                            for state in states {
+                                self.log(format!("  {}", state));
+                            }
+                        }
+                    }
+                    Err(e) => self.log(format!("Failed to list debug states: {}", e)),
+                }
+            }
+            Some("debug_info") => {
+                let info = self.get_debug_info();
+                self.log(format!("Turn: {} | Pos: ({},{}) | HP: {}/{}", 
+                    info.turn, info.player_pos.0, info.player_pos.1, 
+                    info.player_hp.0, info.player_hp.1));
+                self.log(format!("Enemies: {} | Items: {} | Storm: {}/{}", 
+                    info.enemies_count, info.items_count, 
+                    info.storm_intensity, info.storm_turns));
+                self.log(format!("Seed: {} | Memory: {}", info.seed, info.memory_usage));
+            }
+            Some("run_des") => {
+                if let Some(filename) = parts.get(1) {
+                    match super::des_testing::run_des_test_file(filename) {
+                        Ok(result) => {
+                            self.log(format!("DES Test '{}': {}", result.test_name, 
+                                if result.passed { "PASSED" } else { "FAILED" }));
+                            for log_entry in result.execution_log {
+                                self.log(format!("  {}", log_entry));
+                            }
+                            if !result.failed_expectations.is_empty() {
+                                self.log("Failed expectations:");
+                                for failure in result.failed_expectations {
+                                    self.log(format!("  - {}", failure));
+                                }
+                            }
+                        }
+                        Err(e) => self.log(format!("DES test failed: {}", e)),
+                    }
+                } else {
+                    self.log("Usage: run_des <filename>");
+                }
+            }
+            Some("list_des") => {
+                match super::des_testing::list_des_tests() {
+                    Ok(tests) => {
+                        if tests.is_empty() {
+                            self.log("No DES test files found");
+                        } else {
+                            self.log("Available DES tests:");
+                            for test in tests {
+                                self.log(format!("  {}", test));
+                            }
+                        }
+                    }
+                    Err(e) => self.log(format!("Failed to list DES tests: {}", e)),
+                }
+            }
+            Some("create_sample_des") => {
+                let sample = super::des_testing::create_sample_des_test();
+                match sample.save_to_file("sample_test.des") {
+                    Ok(_) => self.log("Sample DES test created: sample_test.des"),
+                    Err(e) => self.log(format!("Failed to create sample: {}", e)),
+                }
+            }
+            Some("report_issue") => {
+                self.log("Issue reporting mode activated. Use UI to file report.");
+                // This will be handled by the UI
+            }
+            Some("help") => {
+                self.log("Debug Commands:");
+                self.log("  show tile, hide tile - Toggle god view");
+                self.log("  sturdy - Set HP to 9999");
+                self.log("  phase - Toggle wall phasing");
+                self.log("  save_debug [name] - Save debug state");
+                self.log("  load_debug <name> - Load debug state");
+                self.log("  list_debug - List saved debug states");
+                self.log("  debug_info - Show debug information");
+                self.log("  report_issue - Open issue reporter");
+                self.log("  run_des <file> - Run DES test");
+                self.log("  list_des - List DES test files");
+                self.log("  create_sample_des - Create sample DES test");
+            }
+            _ => self.log(format!("Unknown command: {}. Type 'help' for commands.", cmd)),
         }
     }
 

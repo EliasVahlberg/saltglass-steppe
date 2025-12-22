@@ -6,7 +6,7 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_dialog_box, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -120,6 +120,29 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::DebugCommand(cmd) => {
             state.debug_command(&cmd);
+        }
+        Action::SubmitIssueReport => {
+            let report = state.create_issue_report(
+                ui.issue_reporter.description.clone(),
+                ui.issue_reporter.steps.clone(),
+                ui.issue_reporter.expected.clone(),
+                ui.issue_reporter.actual.clone(),
+                ui.issue_reporter.severity.clone(),
+                ui.issue_reporter.category.clone(),
+            );
+            match state.save_issue_report(&report) {
+                Ok(_) => {
+                    state.log(format!("Issue report saved: {}", report.id));
+                    ui.issue_reporter.close();
+                }
+                Err(e) => state.log(format!("Failed to save issue report: {}", e)),
+            }
+        }
+        Action::OpenDebugMenu => {
+            ui.debug_menu.toggle();
+        }
+        Action::OpenIssueReporter => {
+            ui.issue_reporter.open();
         }
         Action::OpenInventory => {
             ui.inventory_menu.open();
@@ -273,6 +296,16 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
     // Debug console overlay
     if ui.debug_console.active {
         render_debug_console(frame, &ui.debug_console);
+    }
+    
+    // Debug menu overlay
+    if ui.debug_menu.active {
+        render_debug_menu(frame, &ui.debug_menu, state);
+    }
+    
+    // Issue reporter overlay
+    if ui.issue_reporter.active {
+        render_issue_reporter(frame, &ui.issue_reporter);
     }
     
     // Dialog box overlay (highest priority)
