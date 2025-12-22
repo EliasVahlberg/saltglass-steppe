@@ -3,7 +3,9 @@
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use std::io::Result;
 use crate::GameState;
-use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, MenuPanel, WorldMapView};
+use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, TradeMenu, MenuPanel, WorldMapView};
+use super::trade_menu::TradeMode;
+use crate::game::trading::{get_trade_interface, calculate_area_tier};
 use crate::all_recipe_ids;
 
 /// Look mode cursor state
@@ -116,6 +118,7 @@ pub struct UiState {
     pub crafting_menu: CraftingMenu,
     pub pause_menu: PauseMenu,
     pub wiki_menu: WikiMenu,
+    pub trade_menu: TradeMenu,
     pub world_map_view: WorldMapView,
     pub target_enemy: Option<usize>,
     pub debug_console: DebugConsole,
@@ -151,6 +154,7 @@ impl UiState {
             crafting_menu: CraftingMenu::default(),
             pause_menu: PauseMenu::default(),
             wiki_menu: WikiMenu::default(),
+            trade_menu: TradeMenu::default(),
             world_map_view: WorldMapView::default(),
             target_enemy: None,
             debug_console: DebugConsole::default(),
@@ -194,6 +198,8 @@ pub enum Action {
     OpenWorldMap,
     WorldMapTravel(usize, usize),
     Craft,
+    TradeBuy(usize),
+    TradeSell(usize),
     OpenPauseMenu,
     ReturnToMainMenu,
     SetTarget(i32, i32),
@@ -246,6 +252,10 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         // Wiki menu input
         if ui.wiki_menu.active {
             return Ok(handle_wiki_input(ui, state, key.code));
+        }
+        // Trade menu input
+        if ui.trade_menu.active {
+            return Ok(handle_trade_input(ui, state, key.code));
         }
         // Quest log input
         if ui.quest_log.active {
@@ -458,6 +468,45 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Left | KeyCode::Char('h') => Action::Move(-1, 0),
         KeyCode::Right | KeyCode::Char('l') => Action::Move(1, 0),
         KeyCode::Esc => Action::OpenPauseMenu,
+        _ => Action::None,
+    }
+}
+
+fn handle_trade_input(ui: &mut UiState, state: &GameState, key: KeyCode) -> Action {
+    let interface = match &ui.trade_menu.interface {
+        Some(i) => i,
+        None => return Action::None,
+    };
+    
+    let list_len = match ui.trade_menu.mode {
+        TradeMode::Buy => interface.available_items.len(),
+        TradeMode::Sell => state.inventory.len(),
+    };
+    
+    match key {
+        KeyCode::Esc => {
+            ui.trade_menu.close();
+            Action::None
+        },
+        KeyCode::Tab => {
+            ui.trade_menu.toggle_mode();
+            Action::None
+        },
+        KeyCode::Up | KeyCode::Char('w') | KeyCode::Char('k') => {
+            ui.trade_menu.navigate(-1, list_len);
+            Action::None
+        },
+        KeyCode::Down | KeyCode::Char('s') | KeyCode::Char('j') => {
+            ui.trade_menu.navigate(1, list_len);
+            Action::None
+        },
+        KeyCode::Enter => {
+            if list_len == 0 { return Action::None; }
+            match ui.trade_menu.mode {
+                TradeMode::Buy => Action::TradeBuy(ui.trade_menu.selected_index),
+                TradeMode::Sell => Action::TradeSell(ui.trade_menu.selected_index),
+            }
+        },
         _ => Action::None,
     }
 }

@@ -8,6 +8,7 @@ pub mod inventory_menu;
 pub mod menu;
 pub mod quest_log;
 pub mod theme;
+pub mod trade_menu;
 pub mod wiki;
 pub mod world_map;
 
@@ -19,5 +20,6 @@ pub use inventory_menu::{render_inventory_menu, InventoryMenu, MenuPanel};
 pub use menu::{handle_menu_input, render_menu, render_controls, render_pause_menu, MenuAction, MainMenuState};
 pub use quest_log::{render_quest_log, QuestLogMenu};
 pub use theme::{theme, Theme};
+pub use trade_menu::{render_trade_menu, TradeMenu};
 pub use wiki::{render_wiki, WikiMenu};
 pub use world_map::{render_world_map, WorldMapView};

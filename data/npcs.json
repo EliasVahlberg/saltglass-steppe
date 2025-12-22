@@ -742,6 +742,29 @@
         "storm_glass",
         "saints_tear"
       ]
+    },
+    {
+      "id": "merchant_keth",
+      "name": "Merchant Keth",
+      "glyph": "K",
+      "faction": "saltborn_collective",
+      "description": "A wandering merchant.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Greetings! Would you like to trade?"
+        }
+      ],
+      "actions": [
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [],
+          "effect": {
+            "trade": true
+          }
+        }
+      ]
     }
   ]
 }

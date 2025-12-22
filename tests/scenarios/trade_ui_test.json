@@ -1,0 +1,38 @@
+{
+  "name": "trade_ui_test",
+  "seed": 12345,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 100,
+    "inventory": ["glass_shard", "glass_shard"],
+    "salt_scrip": 100
+  },
+  "entities": [
+    {
+      "entity_type": "npc",
+      "id": "merchant_keth",
+      "x": 11,
+      "y": 10
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "pending_trade",
+        "trader_id": "merchant_keth"
+      }
+    }
+  ]
+}

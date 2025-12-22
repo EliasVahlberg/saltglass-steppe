@@ -1208,6 +1208,12 @@ impl GameState {
                     self.log_typed(format!("You rest. (+{} HP)", actual), MsgType::Status);
                     break;
                 }
+                // Trade action
+                if let Some(true) = action.effect.trade {
+                    self.pending_trade = Some(self.npcs[ni].id.clone());
+                    self.log_typed("The merchant opens their wares.", MsgType::Social);
+                    break;
+                }
             }
             
             self.npcs[ni].talked = true;
