@@ -43,6 +43,24 @@ All notable changes to this project will be documented in this file.
 - **Performance Optimized**: Frame-based calculations with configurable speeds
 - **Data-Driven**: All effects configurable via JSON without code changes
 
+#### Content Integration
+- **Items Enhanced**: Applied new effects to 30+ items
+  - Storm Glass: Shimmer effect for crystallized energy
+  - Scripture Shard: Fade effect for ancient knowledge
+  - Prism Lens: Full rainbow effect for light splitting
+  - Healing items: Pulse effects for active restoration
+  - Faction items: Thematic effects matching their power
+  - Equipment: Shimmer and wave effects for magical gear
+
+- **Enemies Enhanced**: Updated 7 enemy types with thematic effects
+  - Mirage Hound: Wave effect for heat-based hunting
+  - Glass Beetle: Shimmer effect for refractive carapace
+  - Salt Mummy: Fade and drift effects for desiccation
+  - Refraction Wraith: Pulse and wave for storm-born nature
+  - Shard Spider: Shimmer effects for glass-leg skittering
+  - Dust Wraith: Wave and drift for swirling sand form
+  - Archive Drone: Pulse and wave for scanning behavior
+
 #### Technical Improvements
 - **Expanded EffectContext**: Added 7 new context fields for complex conditions
 - **Enhanced Parser**: Robust parsing for multi-parameter effect strings
@@ -54,6 +72,7 @@ All notable changes to this project will be documented in this file.
 - **Character Status**: More nuanced health and adaptation indicators
 - **Enemy Identity**: Enhanced creature-specific visual effects
 - **Interactive Feedback**: Glass resonance and tile-based effects
+- **Equipment Feedback**: Visual indicators for magical and enhanced gear
 
 ### Documentation
 - **Updated Content Creation Guide**: Complete visual effects documentation
@@ -63,6 +82,8 @@ All notable changes to this project will be documented in this file.
 
 ### Files Modified
 - `data/effects.json`: Expanded from 14 to 22 effects
+- `data/items.json`: Enhanced 30+ items with new effect types
+- `data/enemies.json`: Updated 7 enemy types with thematic effects
 - `src/game/effect.rs`: Enhanced parsing and condition system
 - `src/ui/game_view.rs`: Improved rendering with spatial calculations
 - `src/main.rs`: Extended effect context with new conditions
