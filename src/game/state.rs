@@ -1463,6 +1463,13 @@ impl GameState {
                 }
             }
             self.inventory.push(id.clone());
+            
+            // Auto-equip hand torch to accessory slot if empty
+            if id == "hand_torch" && self.equipment.accessory.is_none() {
+                self.equipment.accessory = Some(id.clone());
+                self.log_typed("Hand torch equipped automatically.", MsgType::System);
+            }
+            
             self.quest_log.on_item_collected(&id);
             self.emit(GameEvent::ItemPickedUp { item_id: id.clone() });
             self.meta.discover_item(&id);
