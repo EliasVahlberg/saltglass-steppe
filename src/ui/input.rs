@@ -3,9 +3,8 @@
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use std::io::Result;
 use crate::GameState;
-use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, TradeMenu, MenuPanel, WorldMapView};
+use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, TradeMenu, MenuPanel, WorldMapView, DebugMenu, IssueReporter};
 use super::trade_menu::TradeMode;
-use crate::game::trading::{get_trade_interface, calculate_area_tier};
 use crate::all_recipe_ids;
 
 /// Look mode cursor state
@@ -122,6 +121,8 @@ pub struct UiState {
     pub world_map_view: WorldMapView,
     pub target_enemy: Option<usize>,
     pub debug_console: DebugConsole,
+    pub debug_menu: DebugMenu,
+    pub issue_reporter: IssueReporter,
     pub dialog_box: DialogBox,
     /// Smooth camera position (lerped toward player)
     pub camera_x: f32,
@@ -158,6 +159,8 @@ impl UiState {
             world_map_view: WorldMapView::default(),
             target_enemy: None,
             debug_console: DebugConsole::default(),
+            debug_menu: DebugMenu::default(),
+            issue_reporter: IssueReporter::default(),
             dialog_box: DialogBox::default(),
             camera_x: 0.0,
             camera_y: 0.0,
@@ -205,6 +208,9 @@ pub enum Action {
     SetTarget(i32, i32),
     UseStairs,
     DebugCommand(String),
+    OpenDebugMenu,
+    OpenIssueReporter,
+    SubmitIssueReport,
     None,
 }
 
@@ -241,6 +247,17 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         if ui.debug_console.active {
             return Ok(handle_debug_console_input(ui, key.code));
         }
+        
+        // Issue reporter input
+        if ui.issue_reporter.active {
+            return Ok(handle_issue_reporter_input(ui, key.code));
+        }
+        
+        // Debug menu input
+        if ui.debug_menu.active {
+            return Ok(handle_debug_menu_input(ui, key.code));
+        }
+        
         // Pause menu input
         if ui.pause_menu.active {
             return Ok(handle_pause_menu_input(ui, key.code));
@@ -411,6 +428,11 @@ fn handle_debug_console_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Esc | KeyCode::Char('`') => ui.debug_console.toggle(),
         KeyCode::Enter => {
             if let Some(cmd) = ui.debug_console.submit() {
+                if cmd == "report_issue" {
+                    ui.debug_console.toggle(); // Close debug console first
+                    ui.issue_reporter.open();
+                    return Action::None;
+                }
                 return Action::DebugCommand(cmd);
             }
         }
@@ -449,6 +471,7 @@ fn handle_world_map_input(ui: &mut UiState, state: &GameState, code: KeyCode) ->
 fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
     match code {
         KeyCode::Char('`') => { ui.debug_console.toggle(); Action::None }
+        KeyCode::F(12) => { ui.debug_menu.toggle(); Action::None }
         KeyCode::Char('S') => Action::Save,
         KeyCode::Char('L') => Action::Load,
         KeyCode::Char('x') => Action::EnterLook,
@@ -507,6 +530,92 @@ fn handle_trade_input(ui: &mut UiState, state: &GameState, key: KeyCode) -> Acti
                 TradeMode::Sell => Action::TradeSell(ui.trade_menu.selected_index),
             }
         },
+        _ => Action::None,
+    }
+}
+fn handle_debug_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
+    match code {
+        KeyCode::F(12) | KeyCode::Esc => {
+            ui.debug_menu.toggle();
+            Action::None
+        }
+        KeyCode::Tab => {
+            ui.debug_menu.next_tab();
+            Action::None
+        }
+        KeyCode::BackTab => {
+            ui.debug_menu.prev_tab();
+            Action::None
+        }
+        _ => Action::None,
+    }
+}
+
+fn handle_issue_reporter_input(ui: &mut UiState, code: KeyCode) -> Action {
+    use super::issue_reporter::IssueStep;
+    
+    match code {
+        KeyCode::Esc => {
+            ui.issue_reporter.close();
+            Action::None
+        }
+        KeyCode::Enter => {
+            match ui.issue_reporter.step {
+                IssueStep::Steps => {
+                    if !ui.issue_reporter.current_step.trim().is_empty() {
+                        ui.issue_reporter.add_step();
+                    } else {
+                        ui.issue_reporter.next_step();
+                    }
+                    Action::None
+                }
+                IssueStep::Review => {
+                    if ui.issue_reporter.is_complete() {
+                        Action::SubmitIssueReport
+                    } else {
+                        Action::None
+                    }
+                }
+                _ => {
+                    ui.issue_reporter.next_step();
+                    Action::None
+                }
+            }
+        }
+        KeyCode::Char('\n') if ui.issue_reporter.step == IssueStep::Steps => {
+            ui.issue_reporter.next_step();
+            Action::None
+        }
+        KeyCode::Backspace => {
+            match ui.issue_reporter.step {
+                IssueStep::Steps => {
+                    if ui.issue_reporter.current_step.is_empty() {
+                        ui.issue_reporter.remove_last_step();
+                    } else {
+                        ui.issue_reporter.pop_char();
+                    }
+                }
+                IssueStep::Review => {
+                    ui.issue_reporter.prev_step();
+                }
+                _ => {
+                    ui.issue_reporter.pop_char();
+                }
+            }
+            Action::None
+        }
+        KeyCode::Char(c) if matches!(ui.issue_reporter.step, IssueStep::Description | IssueStep::Steps | IssueStep::Expected | IssueStep::Actual) => {
+            ui.issue_reporter.push_char(c);
+            Action::None
+        }
+        KeyCode::Char(' ') if matches!(ui.issue_reporter.step, IssueStep::Severity | IssueStep::Category) => {
+            match ui.issue_reporter.step {
+                IssueStep::Severity => ui.issue_reporter.cycle_severity(),
+                IssueStep::Category => ui.issue_reporter.cycle_category(),
+                _ => {}
+            }
+            Action::None
+        }
         _ => Action::None,
     }
 }

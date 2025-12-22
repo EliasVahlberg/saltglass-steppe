@@ -226,3 +226,10 @@ untracked_docs
 .agentic-tools-mcp
 
 meta_progress.ron
+# QA Testing directories - keep structure but ignore contents
+debug_states/*.ron
+debug_states/*.json
+issue_reports/*.json
+issue_reports/*.ron
+!debug_states/.gitkeep
+!issue_reports/.gitkeep

@@ -1,4 +1,5 @@
 # tui-rpg
+
 A simple TUI RPG.
 
 ## Prerequisites
@@ -46,6 +47,7 @@ cargo run --bin mapgen-tool tile 42 dungeon  # Dungeon (archive) with chambers
 ```
 
 The tool displays ASCII representations of the generated maps:
+
 - **World Map**: Shows biomes, terrain, and points of interest across a 192x64 grid
 - **Tile Map**: Shows detailed organic terrain using Perlin noise generation (250x110 grid)
   - Uses data-driven terrain configuration for different biomes and terrain types
@@ -64,6 +66,18 @@ The new noise-based tile generation creates organic, Saltglass Steppe-appropriat
 - **Deterministic generation**: Same seed always produces identical results
 
 Use different seeds to test various generation patterns and ensure deterministic behavior.
+
+## QA / Debug Commands
+
+During gameplay, you can open the debug console by pressing `/`. The following commands are available to assist with testing:
+
+| Command     | Description                                                        |
+| ----------- | ------------------------------------------------------------------ |
+| `show tile` | Enables "God View", revealing the entire map and all entities.     |
+| `hide tile` | Disables "God View", returning to normal line-of-sight visibility. |
+| `sturdy`    | Sets player HP to 9999/9999 (God Mode).                            |
+| `phase`     | Toggles "Phase Mode", allowing movement through walls.             |
+| `help`      | Lists available debug commands in the game log.                    |
 
 ## Cross-compile for Windows (from Linux)
 
