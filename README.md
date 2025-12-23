@@ -1,6 +1,14 @@
-# tui-rpg
+# Saltglass Steppe (tui-rpg)
 
-A simple TUI RPG.
+A deterministic, data-driven, turn-based TUI RPG set in the harsh, crystalline wastelands of the Saltglass Steppe. Built with Rust, it features tactical combat, environmental survival mechanics, and a custom Debug Execution System (DES) for automated scenario testing.
+
+## Tech Stack
+
+- **Language**: Rust
+- **UI Framework**: `ratatui`
+- **Terminal Backend**: `crossterm`
+- **Data Serialization**: `serde`, `serde_json`
+- **RNG**: `rand_chacha` (Seeded for full determinism)
 
 ## Prerequisites
 
