@@ -1,8 +1,10 @@
 mod game;
 pub mod des;
 pub mod ui;
+pub mod renderer;
 
 pub use game::*;
+pub use renderer::Renderer;
 
 #[cfg(test)]
 mod tests {

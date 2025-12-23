@@ -1,0 +1,100 @@
+{
+  "colors": {
+    "entities": {
+      "player": {
+        "base": "Yellow",
+        "status_effects": {
+          "burn": "LightRed",
+          "poison": "Green",
+          "bleed": "Red",
+          "stun": "LightBlue"
+        }
+      },
+      "enemies": {
+        "mirage_hound": "LightYellow",
+        "glass_beetle": "Cyan",
+        "salt_mummy": "White",
+        "refraction_wraith": "LightCyan",
+        "shard_spider": "LightCyan",
+        "dust_wraith": "Yellow",
+        "archive_drone": "LightBlue",
+        "default": "Red"
+      },
+      "npcs": {
+        "base": "Green"
+      },
+      "items": {
+        "base": "LightMagenta"
+      }
+    },
+    "tiles": {
+      "floor": "DarkGray",
+      "wall": "Gray",
+      "glass": {
+        "base": "Cyan",
+        "shimmer": ["Cyan", "LightCyan", "White"]
+      },
+      "stairs_down": "Yellow",
+      "stairs_up": "Yellow",
+      "world_exit": "Green"
+    },
+    "lighting": {
+      "sources": {
+        "torch": "Rgb(255, 140, 0)",
+        "brazier": "Yellow",
+        "crystal": "Cyan",
+        "campfire": "Rgb(255, 80, 40)",
+        "default": "Yellow"
+      },
+      "ambient": 20,
+      "visibility_threshold": 50
+    },
+    "ui": {
+      "revealed_tile": "DarkGray",
+      "look_cursor": {
+        "bg": "White",
+        "fg": "Black"
+      },
+      "hit_flash": {
+        "bg": "Red",
+        "fg": "White"
+      }
+    }
+  },
+  "lighting": {
+    "enabled": true,
+    "ambient_level": 20,
+    "visibility_threshold": 50,
+    "glare_threshold": 220,
+    "player_light": {
+      "enabled": true,
+      "radius": 5,
+      "intensity": 100
+    },
+    "equipment_light_detection": true,
+    "smooth_falloff": true,
+    "recalculate_on_turn": true
+  },
+  "effects": {
+    "enabled": true,
+    "frame_rate": 60,
+    "max_effects_per_entity": 3,
+    "priority_order": ["HitFlash", "Blink", "Pulse", "Glow", "Wave", "Shimmer", "Rainbow", "Fade", "Drift"]
+  },
+  "animations": {
+    "glass_shimmer": {
+      "enabled": true,
+      "speed": 4,
+      "colors": ["Cyan", "LightCyan", "White"]
+    },
+    "tile_animations": true,
+    "entity_animations": true
+  },
+  "rendering": {
+    "god_view_override": false,
+    "smooth_camera": true,
+    "damage_numbers": true,
+    "status_effect_priority": ["burn", "poison", "bleed", "stun"],
+    "hit_flash_duration": 2
+  }
+}
