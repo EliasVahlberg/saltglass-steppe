@@ -335,6 +335,7 @@ pub enum LogQuery {
     EntityAt { x: i32, y: i32 },
     Turn,
     Custom { message: String },
+    RenderFrame { width: u16, height: u16 },
 }
 
 // ============================================================================
@@ -1328,7 +1329,50 @@ impl DesExecutor {
             LogQuery::EntityAt { x, y } => self.state.describe_at(*x, *y),
             LogQuery::Turn => format!("Turn: {}", self.state.turn),
             LogQuery::Custom { message } => message.clone(),
+            LogQuery::RenderFrame { width, height } => {
+                self.render_frame_to_string(*width, *height)
+            }
         }
+    }
+
+    fn render_frame_to_string(&self, width: u16, height: u16) -> String {
+        // Simple text representation of the game state
+        let mut lines = Vec::new();
+        
+        let start_x = self.state.player_x - (width as i32 / 2);
+        let start_y = self.state.player_y - (height as i32 / 2);
+        
+        for y in 0..height as i32 {
+            let mut line = String::new();
+            for x in 0..width as i32 {
+                let world_x = start_x + x;
+                let world_y = start_y + y;
+                
+                // Check for player
+                if world_x == self.state.player_x && world_y == self.state.player_y {
+                    line.push('@');
+                }
+                // Check for enemies
+                else if let Some(_) = self.state.enemies.iter().find(|e| e.x == world_x && e.y == world_y) {
+                    line.push('E');
+                }
+                // Check for items
+                else if let Some(_) = self.state.items.iter().find(|i| i.x == world_x && i.y == world_y) {
+                    line.push('i');
+                }
+                // Check for NPCs
+                else if let Some(_) = self.state.npcs.iter().find(|n| n.x == world_x && n.y == world_y) {
+                    line.push('N');
+                }
+                // Default to floor/wall based on simple pattern
+                else {
+                    line.push('.');
+                }
+            }
+            lines.push(line);
+        }
+        
+        format!("RENDERED FRAME ({}x{}):\n{}", width, height, lines.join("\n"))
     }
 
     fn log(&mut self, message: String) {

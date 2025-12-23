@@ -5,8 +5,8 @@ use crossterm::{
 };
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
-use tui_rpg::{get_active_effects, get_item_def, EffectContext, GameState, Tile};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, MenuAction, MainMenuState, render_map, render_death_screen, render_damage_numbers};
+use tui_rpg::{get_item_def, GameState, Renderer};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -192,7 +192,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
     Some(true)
 }
 
-fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
+fn render(frame: &mut Frame, state: &GameState, ui: &UiState, renderer: &mut Renderer) {
     // Fullscreen menus
     if ui.trade_menu.active {
         use tui_rpg::ui::render_trade_menu;
@@ -228,29 +228,6 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
         return;
     }
 
-    // Build effect context for player visual effects
-    let player_idx = state.map.idx(state.player_x, state.player_y);
-    let on_glass = state.map.tiles.get(player_idx).map(|t| *t == Tile::Glass).unwrap_or(false);
-    let effect_ctx = EffectContext {
-        player_hp: state.player_hp,
-        storm_turns: state.storm.turns_until,
-        has_adaptation: !state.adaptations.is_empty(),
-        on_glass,
-        adaptations_hidden: state.adaptations_hidden_turns > 0,
-        adaptation_count: state.adaptations.len() as u32,
-        in_storm_eye: state.storm.turns_until == 0, // Storm is happening now
-        on_fragile_glass: on_glass && state.player_hp <= 3, // Fragile when low HP on glass
-        psychic_active: state.status_effects.iter().any(|e| e.id == "psychic_boost"),
-        high_salt_exposure: state.adaptations.len() >= 2,
-        void_exposure: state.status_effects.iter().any(|e| e.id == "void_touched"),
-    };
-    let mut player_effects = get_active_effects(&effect_ctx, "player");
-    for te in &state.triggered_effects {
-        if let Some(effect) = tui_rpg::parse_effect(&te.effect) {
-            player_effects.push(effect);
-        }
-    }
-
     // Main layout: side panel + game area
     let main_chunks = Layout::default()
         .direction(Direction::Horizontal)
@@ -278,9 +255,9 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState) {
         frame.render_widget(Paragraph::new(desc).wrap(ratatui::widgets::Wrap { trim: true }).block(block), game_chunks[0]);
     }
 
-    // Render game map
+    // Render game map using new modular renderer
     let look_cursor = if ui.look_mode.active { Some((ui.look_mode.x, ui.look_mode.y)) } else { None };
-    render_map(frame, game_chunks[1], state, &player_effects, ui.frame_count, look_cursor, (ui.camera_x, ui.camera_y));
+    renderer.render_game(frame, game_chunks[1], state, ui.frame_count, look_cursor);
     render_damage_numbers(frame, game_chunks[1], state);
 
     // Bottom panel with log
@@ -322,6 +299,17 @@ fn main() -> Result<()> {
     stdout().execute(EnterAlternateScreen)?;
     enable_raw_mode()?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
+
+    // Initialize the new modular renderer
+    let mut renderer = match Renderer::new() {
+        Ok(r) => r,
+        Err(e) => {
+            eprintln!("Failed to initialize renderer: {}", e);
+            disable_raw_mode()?;
+            stdout().execute(LeaveAlternateScreen)?;
+            return Err(std::io::Error::new(std::io::ErrorKind::Other, e.to_string()));
+        }
+    };
 
     'main: loop {
         // Main menu loop
@@ -407,7 +395,7 @@ fn main() -> Result<()> {
                     }
                 }
             } else {
-                terminal.draw(|frame| render(frame, &state, &ui))?;
+                terminal.draw(|frame| render(frame, &state, &ui, &mut renderer))?;
                 let action = handle_input(&mut ui, &state)?;
                 match update(&mut state, action, &mut ui) {
                     Some(true) => {} // Continue game

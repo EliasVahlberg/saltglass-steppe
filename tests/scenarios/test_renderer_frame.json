@@ -1,0 +1,52 @@
+{
+    "name": "test_renderer_frame",
+    "seed": 42,
+    "player": {
+        "x": 10,
+        "y": 10,
+        "hp": 20,
+        "max_hp": 20,
+        "ap": 4,
+        "max_ap": 4,
+        "inventory": ["hand_torch"],
+        "equipped_accessory": "hand_torch"
+    },
+    "entities": [
+        {
+            "entity_type": "enemy",
+            "id": "salt_crawler",
+            "x": 12,
+            "y": 10,
+            "hp": 5,
+            "ai_disabled": true
+        },
+        {
+            "entity_type": "item",
+            "id": "brine_vial",
+            "x": 8,
+            "y": 10
+        }
+    ],
+    "actions": [
+        {
+            "turn": 0,
+            "action": {
+                "type": "log",
+                "query": {
+                    "render_frame": {
+                        "width": 80,
+                        "height": 24
+                    }
+                }
+            }
+        }
+    ],
+    "assertions": [
+        {
+            "at_end": true,
+            "check": {
+                "type": "player_alive"
+            }
+        }
+    ]
+}

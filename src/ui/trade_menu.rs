@@ -7,7 +7,7 @@ use ratatui::{
 };
 
 use crate::game::{
-    trading::{TradeInterface, AvailableTradeItem},
+    trading::{TradeInterface},
     get_item_def,
 };
 use crate::GameState;
