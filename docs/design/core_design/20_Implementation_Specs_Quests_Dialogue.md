@@ -42,9 +42,10 @@ pub struct QuestDef {
 ```
 
 ### Logic
-*   **Tracking:** `GameState` holds a `HashMap<String, QuestStatus>`.
-*   **Updates:** Event listeners (EnemyDeath, ItemPickup) trigger `update_objectives()`.
-*   **Completion:** When all objectives in a stage are met, advance stage. If last stage, mark Completed and grant rewards.
+
+- **Tracking:** `GameState` holds a `HashMap<String, QuestStatus>`.
+- **Updates:** Event listeners (EnemyDeath, ItemPickup) trigger `update_objectives()`.
+- **Completion:** When all objectives in a stage are met, advance stage. If last stage, mark Completed and grant rewards.
 
 ---
 
@@ -78,20 +79,23 @@ pub enum Condition {
 ```
 
 ### UI Implementation (`src/ui/dialogue_view.rs`)
-*   **Layout:** A modal popup over the map.
-*   **Text:** NPC text at the top, scrollable.
-*   **Options:** Numbered list at the bottom.
-*   **Styling:** Use Faction Colors for borders (e.g., Cyan for Monks, Orange for Engineers).
+
+- **Layout:** A modal popup over the map.
+- **Text:** NPC text at the top, scrollable.
+- **Options:** Numbered list at the bottom.
+- **Styling:** Use Faction Colors for borders (e.g., Cyan for Monks, Orange for Engineers).
 
 ---
 
 ## 3. End Game State
 
 ### The "Ending" Flag
-*   `GameState` needs a `game_over_state: Option<EndingType>`.
-*   When triggered, the Main Loop stops the game tick and renders the **Epilogue Screen**.
+
+- `GameState` needs a `game_over_state: Option<EndingType>`.
+- When triggered, the Main Loop stops the game tick and renders the **Epilogue Screen**.
 
 ### Epilogue Screen
-*   Displays a static image (ASCII art) representing the chosen ending.
-*   Displays text describing the consequences (based on `19_Quest_Structure_and_Endings.md`).
-*   "Press Any Key to Return to Menu".
+
+- Displays a static image (ASCII art) representing the chosen ending.
+- Displays text describing the consequences (based on `19_Quest_Structure_and_Endings.md`).
+- "Press Any Key to Return to Menu".

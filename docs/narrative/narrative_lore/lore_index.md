@@ -152,6 +152,11 @@ All mystical elements are explained through:
 - Water discipline and shelter construction
 - Cultural practices of the Salt Hermits
 
+### 17. [The_Dramatis_Personae.md](manuals/The_Dramatis_Personae.md) - NPC Profiles
+
+- Detailed profiles of Forge-Master Durgan, The High Prism, Saint Matthias, and The Architect
+- Speech patterns, motivations, and role in the story
+
 ## High-Priority Worldbuilding Documents:
 
 ### 10. [The_Atlas_of_Glass.md](The_Atlas_of_Glass.md) - Regional Gazetteer

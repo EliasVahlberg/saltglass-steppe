@@ -33,38 +33,41 @@ This file contains a comprehensive list of all project documentation with descri
 
 ### Core Design Subsection
 
-| Document                                                                                            | Description                                        |
-| --------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| [core_design_index.md](design/core_design/core_design_index.md)                                     | Index of core design documents                     |
-| [00_Pillars_OnePager.md](design/core_design/00_Pillars_OnePager.md)                                 | Core design pillars and principles                 |
-| [01_Creative_Pitch.md](design/core_design/01_Creative_Pitch.md)                                     | Creative pitch and vision statement                |
-| [02_Narrative_Bible.md](design/core_design/02_Narrative_Bible.md)                                   | Narrative framework and storytelling guidelines    |
-| [03_Design_Bible.md](design/core_design/03_Design_Bible.md)                                         | Comprehensive design bible                         |
-| [04_Storm_MapEdit_TDD.md](design/core_design/04_Storm_MapEdit_TDD.md)                               | Technical design for storm map editing system      |
-| [05_Combat_LightPhysics.md](design/core_design/05_Combat_LightPhysics.md)                           | Combat and lighting physics specifications         |
-| [06_Progression_Adaptations.md](design/core_design/06_Progression_Adaptations.md)                   | Character progression and adaptation systems       |
-| [07_Content_Kits/CONTENT_KITS_README.md](design/core_design/07_Content_Kits/CONTENT_KITS_README.md) | Content creation kits and tools                    |
-| [08_TUI_UX_Spec.md](design/core_design/08_TUI_UX_Spec.md)                                           | Terminal UI/UX specifications                      |
-| [09_Audio_Direction.md](design/core_design/09_Audio_Direction.md)                                   | Audio design and direction guidelines              |
-| [10_VerticalSlice_Plan.md](design/core_design/10_VerticalSlice_Plan.md)                             | Vertical slice development plan                    |
-| [11_World_History_Timeline.md](design/core_design/11_World_History_Timeline.md)                     | World history and timeline documentation           |
-| [12_Faction_Dynamics.md](design/core_design/12_Faction_Dynamics.md)                                 | Faction systems and relationships                  |
-| [13_Event_Systems.md](design/core_design/13_Event_Systems.md)                                       | Game event systems and mechanics                   |
-| [14_Regional_Gazetteer.md](design/core_design/14_Regional_Gazetteer.md)                             | World regions and geographical information         |
-| [15_World_Mechanics_Deep_Dive.md](design/core_design/15_World_Mechanics_Deep_Dive.md)               | Explanations of world mechanics and physics        |
-| [16_Implementation_Specs.md](design/core_design/16_Implementation_Specs.md)                         | Technical specs for world mechanics implementation |
-| [17_Material_Physics_and_Crafting.md](design/core_design/17_Material_Physics_and_Crafting.md)       | Physics of glass types and light spectrum       |
-| [18_Implementation_Specs_Crafting_Spectrum.md](design/core_design/18_Implementation_Specs_Crafting_Spectrum.md) | Technical specs for crafting and light systems  |
-| [19_Quest_Structure_and_Endings.md](design/core_design/19_Quest_Structure_and_Endings.md)           | The 3-Act structure and multiple endings        |
-| [20_Implementation_Specs_Quests_Dialogue.md](design/core_design/20_Implementation_Specs_Quests_Dialogue.md) | Technical specs for quest and dialogue systems  |
+| Document                                                                                                        | Description                                        |
+| --------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| [core_design_index.md](design/core_design/core_design_index.md)                                                 | Index of core design documents                     |
+| [00_Pillars_OnePager.md](design/core_design/00_Pillars_OnePager.md)                                             | Core design pillars and principles                 |
+| [01_Creative_Pitch.md](design/core_design/01_Creative_Pitch.md)                                                 | Creative pitch and vision statement                |
+| [02_Narrative_Bible.md](design/core_design/02_Narrative_Bible.md)                                               | Narrative framework and storytelling guidelines    |
+| [03_Design_Bible.md](design/core_design/03_Design_Bible.md)                                                     | Comprehensive design bible                         |
+| [04_Storm_MapEdit_TDD.md](design/core_design/04_Storm_MapEdit_TDD.md)                                           | Technical design for storm map editing system      |
+| [05_Combat_LightPhysics.md](design/core_design/05_Combat_LightPhysics.md)                                       | Combat and lighting physics specifications         |
+| [06_Progression_Adaptations.md](design/core_design/06_Progression_Adaptations.md)                               | Character progression and adaptation systems       |
+| [07_Content_Kits/CONTENT_KITS_README.md](design/core_design/07_Content_Kits/CONTENT_KITS_README.md)             | Content creation kits and tools                    |
+| [08_TUI_UX_Spec.md](design/core_design/08_TUI_UX_Spec.md)                                                       | Terminal UI/UX specifications                      |
+| [09_Audio_Direction.md](design/core_design/09_Audio_Direction.md)                                               | Audio design and direction guidelines              |
+| [10_VerticalSlice_Plan.md](design/core_design/10_VerticalSlice_Plan.md)                                         | Vertical slice development plan                    |
+| [11_World_History_Timeline.md](design/core_design/11_World_History_Timeline.md)                                 | World history and timeline documentation           |
+| [12_Faction_Dynamics.md](design/core_design/12_Faction_Dynamics.md)                                             | Faction systems and relationships                  |
+| [13_Event_Systems.md](design/core_design/13_Event_Systems.md)                                                   | Game event systems and mechanics                   |
+| [14_Regional_Gazetteer.md](design/core_design/14_Regional_Gazetteer.md)                                         | World regions and geographical information         |
+| [15_World_Mechanics_Deep_Dive.md](design/core_design/15_World_Mechanics_Deep_Dive.md)                           | Explanations of world mechanics and physics        |
+| [16_Implementation_Specs.md](design/core_design/16_Implementation_Specs.md)                                     | Technical specs for world mechanics implementation |
+| [17_Material_Physics_and_Crafting.md](design/core_design/17_Material_Physics_and_Crafting.md)                   | Physics of glass types and light spectrum          |
+| [18_Implementation_Specs_Crafting_Spectrum.md](design/core_design/18_Implementation_Specs_Crafting_Spectrum.md) | Technical specs for crafting and light systems     |
+| [19_Quest_Structure_and_Endings.md](design/core_design/19_Quest_Structure_and_Endings.md)                       | The 3-Act structure and multiple endings           |
+| [20_Implementation_Specs_Quests_Dialogue.md](design/core_design/20_Implementation_Specs_Quests_Dialogue.md)     | Technical specs for quest and dialogue systems     |
+| [21_Implementation_Specs_Narrative_Engine.md](design/core_design/21_Implementation_Specs_Narrative_Engine.md)   | Technical specs for story logging and epilogues    |
 
 ### Main Questline Subsection
 
-| Document                                                                   | Description                             |
-| -------------------------------------------------------------------------- | --------------------------------------- |
-| [Node_Graph_Main_Quest.md](design/Main_Questline/Node_Graph_Main_Quest.md) | Main quest node graph and structure     |
-| [Quest_Spine.md](design/Main_Questline/Quest_Spine.md)                     | Main questline backbone and progression |
+| Document                                                                   | Description                                    |
+| -------------------------------------------------------------------------- | ---------------------------------------------- |
+| [Node_Graph_Main_Quest.md](design/Main_Questline/Node_Graph_Main_Quest.md) | Main quest node graph and structure            |
+| [Quest_Spine.md](design/Main_Questline/Quest_Spine.md)                     | Main questline backbone and progression        |
+| [Quest_Dialogue_Tree.md](design/Main_Questline/Quest_Dialogue_Tree.md)     | Branching dialogue trees for key quest moments |
 | [Questline_Logic.yaml](design/Main_Questline/Questline_Logic.yaml)         | Quest logic and branching structure     |
+| [Side_Quests_Master_List.md](design/Main_Questline/Side_Quests_Master_List.md) | Master list of 25+ side quests          |
 
 ## Development Documentation
 
@@ -143,25 +146,26 @@ This file contains a comprehensive list of all project documentation with descri
 
 #### Manuals
 
-| Document                                                                                                  | Description                            |
-| --------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| [The_Medical_Compendium.md](narrative/narrative_lore/manuals/The_Medical_Compendium.md)                   | Medical and healing system lore        |
-| [The_Merchant_Protocols.md](narrative/narrative_lore/manuals/The_Merchant_Protocols.md)                   | Trading and commerce lore              |
-| [The_Psychic_Codex.md](narrative/narrative_lore/manuals/The_Psychic_Codex.md)                             | Psychic abilities and powers lore      |
-| [The_Resonance_Codex.md](narrative/narrative_lore/manuals/The_Resonance_Codex.md)                         | Resonance and energy system lore       |
-| [The_Ritual_Codex.md](narrative/narrative_lore/manuals/The_Ritual_Codex.md)                               | Ritual and ceremony lore               |
-| [Liturgies_of_the_Mirror_Order.md](narrative/narrative_lore/manuals/Liturgies_of_the_Mirror_Order.md)     | Prayers and chants of the Monks        |
-| [The_Technical_Codex.md](narrative/narrative_lore/manuals/The_Technical_Codex.md)                         | Technical and technological lore       |
-| [The_Wanderers_Almanac.md](narrative/narrative_lore/manuals/The_Wanderers_Almanac.md)                     | Travel and exploration lore            |
-| [Archive_Interaction_Protocols.md](narrative/narrative_lore/manuals/Archive_Interaction_Protocols.md)     | Guide to surviving drone encounters    |
-| [Psychi_World_Grounding.md](narrative/narrative_lore/manuals/Psychi_World_Grounding.md)                   | Psychic world building and grounding   |
-| [Scavengers_Guide_to_Storm_Glass.md](narrative/narrative_lore/manuals/Scavengers_Guide_to_Storm_Glass.md) | Practical guide to harvesting glass    |
-| [The_Crucible_Rites.md](narrative/narrative_lore/manuals/The_Crucible_Rites.md)                           | The ritual of becoming Glassborn       |
-| [Salt_Cured_Survival.md](narrative/narrative_lore/manuals/Salt_Cured_Survival.md)                         | Food and survival guide of the Hermits |
+| Document                                                                                                  | Description                                  |
+| --------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| [The_Medical_Compendium.md](narrative/narrative_lore/manuals/The_Medical_Compendium.md)                   | Medical and healing system lore              |
+| [The_Merchant_Protocols.md](narrative/narrative_lore/manuals/The_Merchant_Protocols.md)                   | Trading and commerce lore                    |
+| [The_Psychic_Codex.md](narrative/narrative_lore/manuals/The_Psychic_Codex.md)                             | Psychic abilities and powers lore            |
+| [The_Resonance_Codex.md](narrative/narrative_lore/manuals/The_Resonance_Codex.md)                         | Resonance and energy system lore             |
+| [The_Ritual_Codex.md](narrative/narrative_lore/manuals/The_Ritual_Codex.md)                               | Ritual and ceremony lore                     |
+| [Liturgies_of_the_Mirror_Order.md](narrative/narrative_lore/manuals/Liturgies_of_the_Mirror_Order.md)     | Prayers and chants of the Monks              |
+| [The_Technical_Codex.md](narrative/narrative_lore/manuals/The_Technical_Codex.md)                         | Technical and technological lore             |
+| [The_Wanderers_Almanac.md](narrative/narrative_lore/manuals/The_Wanderers_Almanac.md)                     | Travel and exploration lore                  |
+| [Archive_Interaction_Protocols.md](narrative/narrative_lore/manuals/Archive_Interaction_Protocols.md)     | Guide to surviving drone encounters          |
+| [Psychi_World_Grounding.md](narrative/narrative_lore/manuals/Psychi_World_Grounding.md)                   | Psychic world building and grounding         |
+| [Scavengers_Guide_to_Storm_Glass.md](narrative/narrative_lore/manuals/Scavengers_Guide_to_Storm_Glass.md) | Practical guide to harvesting glass          |
+| [The_Crucible_Rites.md](narrative/narrative_lore/manuals/The_Crucible_Rites.md)                           | The ritual of becoming Glassborn             |
+| [Salt_Cured_Survival.md](narrative/narrative_lore/manuals/Salt_Cured_Survival.md)                         | Food and survival guide of the Hermits       |
 | [The_Lithopedia_of_Glass.md](narrative/narrative_lore/manuals/The_Lithopedia_of_Glass.md)                 | Classification of glass types and properties |
 | [The_Null_Hypothesis.md](narrative/narrative_lore/manuals/The_Null_Hypothesis.md)                         | Theory of darkness as system deletion        |
 | [The_Prophecy_of_the_Prime_Lens.md](narrative/narrative_lore/manuals/The_Prophecy_of_the_Prime_Lens.md)   | The mythic goal and main quest prophecy      |
 | [The_Lexicon_of_Refraction.md](narrative/narrative_lore/manuals/The_Lexicon_of_Refraction.md)             | Dialects and slang of the factions           |
+| [The_Dramatis_Personae.md](narrative/narrative_lore/manuals/The_Dramatis_Personae.md)                     | Profiles of key NPCs and their motivations   |
 
 #### Stories
 
@@ -173,6 +177,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [The_Glass_Pilgrims_Journal.md](narrative/narrative_lore/stories/The_Glass_Pilgrims_Journal.md)                                       | A traveler's descent into the storm           |
 | [The_Merchant_of_Memories.md](narrative/narrative_lore/stories/The_Merchant_of_Memories.md)                                           | A folktale about trading memories             |
 | [The_Echoes_of_Sector_7.md](narrative/narrative_lore/stories/The_Echoes_of_Sector_7.md)                                               | A transcript of a data-ghost encounter        |
+| [The_Chronicle_of_Choices.md](narrative/narrative_lore/stories/The_Chronicle_of_Choices.md)                                           | Narrative accounts of the game endings        |
 
 ## Testing Documentation
 

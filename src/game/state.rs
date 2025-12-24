@@ -18,6 +18,7 @@ use super::{
     lighting::{compute_lighting, LightMap, LightSource},
     map::{Map, Tile},
     map_features::MapFeatures,
+    narrative::NarrativeGenerator,
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
@@ -251,6 +252,12 @@ pub struct GameState {
     /// Original seed for reproducibility
     #[serde(default)]
     pub seed: u64,
+    /// Procedural narrative generator
+    #[serde(skip)]
+    pub narrative_generator: Option<NarrativeGenerator>,
+    /// Generated world history
+    #[serde(default)]
+    pub world_history: Vec<String>,
 }
 
 /// Floating damage number for visual feedback
@@ -467,7 +474,18 @@ impl GameState {
             debug_phase: false,
             debug_disable_glare: false,
             seed,
+            narrative_generator: None,
+            world_history: Vec::new(),
         };
+        
+        // Initialize narrative generator and generate world history
+        if let Ok(generator) = NarrativeGenerator::new() {
+            let mut history_rng = ChaCha8Rng::seed_from_u64(seed + 2);
+            let history = generator.generate_world_history(&mut history_rng, 5);
+            state.world_history = history;
+            state.narrative_generator = Some(generator);
+        }
+        
         state.rebuild_spatial_index();
         state
     }
@@ -756,6 +774,38 @@ impl GameState {
         
         // Update revealed tiles
         self.revealed.extend(&self.visible);
+    }
+
+    /// Generate procedural item lore using narrative templates
+    pub fn generate_item_lore(&mut self, item_category: &str) -> Option<String> {
+        if let Some(ref generator) = self.narrative_generator {
+            generator.generate_item_lore(item_category, &mut self.rng)
+        } else {
+            None
+        }
+    }
+
+    /// Generate procedural location description
+    pub fn generate_location_description(&mut self, location_type: &str) -> Option<String> {
+        if let Some(ref generator) = self.narrative_generator {
+            generator.generate_location_description(location_type, &mut self.rng)
+        } else {
+            None
+        }
+    }
+
+    /// Generate markov chain text for flavor
+    pub fn generate_flavor_text(&mut self, max_words: usize) -> String {
+        if let Some(ref generator) = self.narrative_generator {
+            generator.generate_markov_text(&mut self.rng, max_words)
+        } else {
+            "The glass whispers secrets.".to_string()
+        }
+    }
+
+    /// Get the generated world history
+    pub fn get_world_history(&self) -> &[String] {
+        &self.world_history
     }
 
     /// Calculate effective ambient light based on time of day and weather

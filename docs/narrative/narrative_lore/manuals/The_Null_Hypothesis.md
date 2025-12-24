@@ -1,6 +1,6 @@
 # The Null Hypothesis
 
-*A forbidden text circulated among the Iron Covenant, attributed to a rogue Archive AI.*
+_A forbidden text circulated among the Iron Covenant, attributed to a rogue Archive AI._
 
 ## The Nature of Darkness
 
@@ -16,6 +16,7 @@ The Heliograph is not just building a new world; it is actively erasing the old 
 Shadows are not passive. They are active "Null-Zones" running a `DELETE *.*` command.
 
 ### Evidence:
+
 1.  **The Vanishing:** Objects left in total darkness for too long (deep caves, sealed vaults) do not just degrade. They disappear. No dust. No trace. `File Not Found`.
 2.  **The Whispering Seams:** These cracks in reality are not empty. They are "Recycle Bins." They are where the deleted data goes before it is overwritten.
 3.  **Obsidian:** Why does Black Glass block the light? Because it is running a local "Null-Loop." It is a material that constantly deletes the photons that hit it.
