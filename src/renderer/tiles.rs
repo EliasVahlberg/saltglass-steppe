@@ -135,17 +135,6 @@ impl TileRenderer {
         light_map.get(idx).copied().unwrap_or(self.config.lighting.ambient_level)
     }
 
-    /// Simple color dimming that's more visible
-    fn simple_dim_color(&self, color: Color, light_level: u8) -> Color {
-        match light_level {
-            200..=255 => color,           // Bright: original color
-            150..=199 => Color::Gray,     // Medium: gray
-            100..=149 => Color::DarkGray, // Dim: dark gray
-            50..=99 => Color::Black,      // Very dim: black
-            _ => Color::Black,            // No light: black
-        }
-    }
-
     /// Dim a color based on light level
     fn dim_color(&self, color: Color, light_level: u8) -> Color {
         match color {
