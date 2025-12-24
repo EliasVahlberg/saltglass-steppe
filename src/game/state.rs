@@ -1,6 +1,7 @@
 use bracket_pathfinding::prelude::*;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
+use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -187,6 +188,8 @@ pub struct GameState {
     #[serde(skip)]
     pub projectile_trails: Vec<ProjectileTrail>,
     #[serde(skip)]
+    pub light_beams: Vec<LightBeam>,
+    #[serde(skip)]
     pub mock_combat_hit: Option<bool>,
     #[serde(skip)]
     pub mock_combat_damage: Option<i32>,
@@ -229,6 +232,9 @@ pub struct GameState {
     /// Animation frame counter for ambient tile animations
     #[serde(skip)]
     pub animation_frame: u32,
+    /// Tiles changed by the last storm (for diff highlighting)
+    #[serde(skip)]
+    pub storm_changed_tiles: HashSet<usize>,
     /// Pending dialogue to show in UI (speaker, text)
     #[serde(skip)]
     pub pending_dialogue: Option<(String, String)>,
@@ -262,6 +268,25 @@ pub struct ProjectileTrail {
     pub frames_per_tile: u32,
     pub frame_counter: u32,
     pub char: char,
+}
+
+/// Light beam for tactical visualization
+#[derive(Clone)]
+pub struct LightBeam {
+    pub start_x: i32,
+    pub start_y: i32,
+    pub end_x: i32,
+    pub end_y: i32,
+    pub path: Vec<(i32, i32)>,
+    pub frames_remaining: u32,
+    pub beam_type: BeamType,
+}
+
+#[derive(Clone)]
+pub enum BeamType {
+    Laser,      // Red beam, damage
+    Light,      // Yellow beam, illumination
+    Reflection, // Cyan beam, mirror reflection
 }
 
 impl GameState {
@@ -406,6 +431,7 @@ impl GameState {
             hit_flash_positions: Vec::new(),
             damage_numbers: Vec::new(),
             projectile_trails: Vec::new(),
+            light_beams: Vec::new(),
             mock_combat_hit: None,
             mock_combat_damage: None,
             meta: super::meta::MetaProgress::load(),
@@ -422,6 +448,7 @@ impl GameState {
             psychic: super::psychic::PsychicState::default(),
             pending_trade: None,
             animation_frame: 0,
+            storm_changed_tiles: HashSet::new(),
             pending_dialogue: None,
             debug_god_view: false,
             debug_phase: false,
@@ -1158,27 +1185,142 @@ impl GameState {
         None
     }
 
+    /// Spawn a light beam from source to target
+    pub fn spawn_beam(&mut self, from: (i32, i32), to: (i32, i32), beam_type: BeamType, duration: u32) {
+        let path = line_path(from, to);
+        if path.len() > 1 {
+            self.light_beams.push(LightBeam {
+                start_x: from.0,
+                start_y: from.1,
+                end_x: to.0,
+                end_y: to.1,
+                path,
+                frames_remaining: duration,
+                beam_type,
+            });
+        }
+    }
+
+    /// Tick light beam animations
+    pub fn tick_light_beams(&mut self) {
+        self.light_beams.retain_mut(|beam| {
+            beam.frames_remaining = beam.frames_remaining.saturating_sub(1);
+            beam.frames_remaining > 0
+        });
+    }
+
+    /// Get beam character at position if any
+    pub fn get_beam_at(&self, x: i32, y: i32) -> Option<(char, BeamType)> {
+        for beam in &self.light_beams {
+            for &(bx, by) in &beam.path {
+                if bx == x && by == y {
+                    // Determine beam character based on direction
+                    let dx = beam.end_x - beam.start_x;
+                    let dy = beam.end_y - beam.start_y;
+                    let char = if dx.abs() > dy.abs() {
+                        '-' // Horizontal beam
+                    } else if dy.abs() > dx.abs() {
+                        '|' // Vertical beam
+                    } else if (dx > 0 && dy > 0) || (dx < 0 && dy < 0) {
+                        '\\' // Diagonal beam
+                    } else {
+                        '/' // Other diagonal
+                    };
+                    return Some((char, beam.beam_type.clone()));
+                }
+            }
+        }
+        None
+    }
+
+    /// Generate visual effects based on player adaptations
+    pub fn get_adaptation_visual_effects(&self) -> Vec<super::effect::VisualEffect> {
+        use super::effect::VisualEffect;
+        let mut effects = Vec::new();
+        
+        for adaptation in &self.adaptations {
+            match adaptation.name() {
+                "Prismhide" => {
+                    // Crystalline shimmer effect
+                    effects.push(VisualEffect::Shimmer {
+                        speed: 6,
+                        colors: vec![Color::Cyan, Color::LightCyan, Color::White],
+                    });
+                }
+                "Sunveins" => {
+                    // Pulsing inner light
+                    effects.push(VisualEffect::Pulse {
+                        speed: 4,
+                        color: Color::Yellow,
+                    });
+                }
+                "Mirage Step" => {
+                    // Flickering/fading effect
+                    effects.push(VisualEffect::Fade {
+                        speed: 8,
+                        color: Color::LightBlue,
+                    });
+                }
+                "Saltblood" => {
+                    // Subtle white glow
+                    effects.push(VisualEffect::Glow {
+                        color: Color::White,
+                    });
+                }
+                "Quantum Entanglement" => {
+                    // Rainbow psychic aura
+                    effects.push(VisualEffect::Rainbow {
+                        speed: 5,
+                        colors: vec![Color::Magenta, Color::Cyan, Color::Yellow, Color::Green],
+                    });
+                }
+                "Phase Walking" => {
+                    // Drifting translucent effect
+                    effects.push(VisualEffect::Drift {
+                        speed: 7,
+                        color: Color::LightMagenta,
+                    });
+                }
+                "Storm Affinity" => {
+                    // Storm-like wave effect
+                    effects.push(VisualEffect::Wave {
+                        speed: 3,
+                        color: Color::LightCyan,
+                    });
+                }
+                "Crystalline Consciousness" => {
+                    // Complex multi-effect for transcendent adaptation
+                    effects.push(VisualEffect::Rainbow {
+                        speed: 2,
+                        colors: vec![Color::White, Color::LightCyan, Color::LightMagenta, Color::LightYellow],
+                    });
+                    effects.push(VisualEffect::Pulse {
+                        speed: 3,
+                        color: Color::White,
+                    });
+                }
+                _ => {} // No visual effect for other adaptations
+            }
+        }
+        
+        effects
+    }
+
     pub fn apply_storm(&mut self) {
         self.log(format!("⚡ GLASS STORM! Intensity {}", self.storm.intensity));
         let refraction_gain = self.storm.intensity as u32 * super::storm::refraction_multiplier();
         self.refraction += refraction_gain;
         self.check_adaptation_threshold();
 
-        // Convert walls to glass and potentially drop storm_glass items
-        for _ in 0..(self.storm.intensity as usize * 5) {
-            let x = self.rng.gen_range(1..self.map.width - 1);
-            let y = self.rng.gen_range(1..self.map.height - 1);
-            if matches!(self.map.tiles[y * self.map.width + x], Tile::Wall { .. }) {
-                self.map.tiles[y * self.map.width + x] = Tile::Glass;
-                
-                // Chance to spawn storm_glass item at converted tile
-                let roll: f32 = self.rng.gen_range(0.0..1.0);
-                if roll < super::storm::storm_glass_drop_chance() {
-                    // Check if tile is walkable and no item already there
-                    if !self.items.iter().any(|item| item.x == x as i32 && item.y == y as i32) {
-                        self.items.push(super::item::Item::new(x as i32, y as i32, "storm_glass"));
-                    }
-                }
+        // Clear previous storm changes
+        self.storm_changed_tiles.clear();
+
+        // Apply each edit type
+        for edit_type in &self.storm.edit_types.clone() {
+            match edit_type {
+                super::storm::StormEditType::Glass => self.apply_glass_edit(),
+                super::storm::StormEditType::Rotate => self.apply_rotate_edit(),
+                super::storm::StormEditType::Swap => self.apply_swap_edit(),
             }
         }
         
@@ -1203,6 +1345,94 @@ impl GameState {
         self.storm = Storm::forecast(&mut self.rng);
         self.visible = compute_fov(&self.map, self.player_x, self.player_y);
         self.update_lighting();
+    }
+
+    fn apply_glass_edit(&mut self) {
+        // Convert walls to glass and potentially drop storm_glass items
+        for _ in 0..(self.storm.intensity as usize * 5) {
+            let x = self.rng.gen_range(1..self.map.width - 1);
+            let y = self.rng.gen_range(1..self.map.height - 1);
+            let idx = y * self.map.width + x;
+            
+            if matches!(self.map.tiles[idx], Tile::Wall { .. }) {
+                self.map.tiles[idx] = Tile::Glass;
+                self.storm_changed_tiles.insert(idx);
+                
+                // Chance to spawn storm_glass item at converted tile
+                let roll: f32 = self.rng.gen_range(0.0..1.0);
+                if roll < super::storm::storm_glass_drop_chance() {
+                    // Check if tile is walkable and no item already there
+                    if !self.items.iter().any(|item| item.x == x as i32 && item.y == y as i32) {
+                        self.items.push(super::item::Item::new(x as i32, y as i32, "storm_glass"));
+                    }
+                }
+            }
+        }
+    }
+
+    fn apply_rotate_edit(&mut self) {
+        // Rotate small 3x3 sections of the map
+        for _ in 0..(self.storm.intensity as usize * 2) {
+            let center_x = self.rng.gen_range(2..self.map.width - 2);
+            let center_y = self.rng.gen_range(2..self.map.height - 2);
+            
+            // Extract 3x3 area
+            let mut area = vec![vec![Tile::Floor; 3]; 3];
+            for dy in 0..3 {
+                for dx in 0..3 {
+                    let x = center_x + dx - 1;
+                    let y = center_y + dy - 1;
+                    area[dy][dx] = self.map.tiles[y * self.map.width + x].clone();
+                }
+            }
+            
+            // Rotate 90 degrees clockwise
+            let mut rotated = vec![vec![Tile::Floor; 3]; 3];
+            for dy in 0..3 {
+                for dx in 0..3 {
+                    rotated[dx][2 - dy] = area[dy][dx].clone();
+                }
+            }
+            
+            // Place back
+            for dy in 0..3 {
+                for dx in 0..3 {
+                    let x = center_x + dx - 1;
+                    let y = center_y + dy - 1;
+                    let idx = y * self.map.width + x;
+                    if self.map.tiles[idx] != rotated[dy][dx] {
+                        self.map.tiles[idx] = rotated[dy][dx].clone();
+                        self.storm_changed_tiles.insert(idx);
+                    }
+                }
+            }
+        }
+    }
+
+    fn apply_swap_edit(&mut self) {
+        // Swap terrain types in small areas
+        for _ in 0..(self.storm.intensity as usize * 3) {
+            let x = self.rng.gen_range(1..self.map.width - 1);
+            let y = self.rng.gen_range(1..self.map.height - 1);
+            let idx = y * self.map.width + x;
+            
+            let new_tile = match &self.map.tiles[idx] {
+                Tile::Floor => {
+                    let roll = self.rng.gen_range(0..100);
+                    if roll < 20 { Tile::Glass }
+                    else if roll < 25 { Tile::Glare }
+                    else { Tile::Floor }
+                },
+                Tile::Glass => if self.rng.gen_bool(0.5) { Tile::Floor } else { Tile::Glass },
+                Tile::Wall { .. } => if self.rng.gen_bool(0.2) { Tile::Floor } else { self.map.tiles[idx].clone() },
+                other => other.clone(),
+            };
+            
+            if self.map.tiles[idx] != new_tile {
+                self.map.tiles[idx] = new_tile;
+                self.storm_changed_tiles.insert(idx);
+            }
+        }
     }
 
     pub fn check_adaptation_threshold(&mut self) {
@@ -1372,6 +1602,7 @@ impl GameState {
         if let Some(tile) = self.map.get(new_x, new_y) {
             let walkable = tile.walkable() || self.debug_phase;
             let is_glass = *tile == Tile::Glass;
+            let is_glare = *tile == Tile::Glare;
             let is_world_exit = *tile == Tile::WorldExit;
             if walkable {
                 let cost = action_cost("move");
@@ -1387,6 +1618,11 @@ impl GameState {
                 
                 self.player_x = new_x;
                 self.player_y = new_y;
+                
+                // Clear storm change highlighting for visited tile
+                let player_idx = new_y as usize * self.map.width + new_x as usize;
+                self.storm_changed_tiles.remove(&player_idx);
+                
                 self.quest_log.on_position_changed(new_x, new_y);
                 self.visible = compute_fov(&self.map, new_x, new_y);
                 self.update_lighting();
@@ -1427,6 +1663,19 @@ impl GameState {
                         self.refraction += 1;
                         self.log("Sharp glass cuts you! (-1 HP, +1 Refraction)");
                         self.check_adaptation_threshold();
+                    }
+                }
+
+                // Handle glare tile effects
+                if is_glare {
+                    // Glare reduces AP and causes temporary blindness
+                    self.player_ap = (self.player_ap - 1).max(0);
+                    self.log("Intense glare impairs your movement! (-1 AP)");
+                    
+                    // Chance to cause temporary blindness (reduce FOV)
+                    if self.rng.gen_range(0..100) < 30 {
+                        self.log("The glare blinds you temporarily!");
+                        // Could add a status effect here for reduced vision
                     }
                 }
 

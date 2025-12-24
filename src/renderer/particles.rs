@@ -452,13 +452,15 @@ mod tests {
 
     #[test]
     fn test_particle_removal() {
-        let config = ParticleConfig::default();
+        let mut config = ParticleConfig::default();
+        config.sparkles.enabled = false; // Disable automatic spawning
         let mut system = ParticleSystem::new(config);
         
         system.add_particle(10.0, 10.0, ParticleType::Sparkle);
+        assert_eq!(system.particles().len(), 1);
         
         // Update many times to exceed lifetime
-        for _ in 0..100 {
+        for _ in 0..20 { // 2 seconds should be enough for 1.0s lifetime
             system.update(0.1);
         }
         

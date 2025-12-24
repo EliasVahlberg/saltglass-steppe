@@ -108,6 +108,7 @@ fn display_tile_map(seed: u64) {
                     Tile::Floor => '.',
                     Tile::Wall { .. } => '#',
                     Tile::Glass => 'g',
+                    Tile::Glare => 'G',
                     Tile::StairsDown => '>',
                     Tile::StairsUp => '<',
                     Tile::WorldExit => 'X',

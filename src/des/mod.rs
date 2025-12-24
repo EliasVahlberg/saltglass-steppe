@@ -125,6 +125,9 @@ pub enum AssertionCheck {
     QuestObjectiveComplete { quest_id: String, objective_id: String },
     // Storm assertions
     StormTimer { op: CmpOp, value: u32 },
+    StormIntensity { op: CmpOp, value: u8 },
+    StormHasEditType { edit_type: String },
+    StormChangedTilesCount { op: CmpOp, value: usize },
     ItemExistsOnMap { item_id: String, min_count: Option<usize> },
     TileTypeCount { tile_type: String, op: CmpOp, value: usize },
     // Ritual assertions
@@ -288,6 +291,7 @@ pub enum Action {
     SellItem { item_id: String },
     // Storm actions
     TriggerStorm { intensity: Option<u8> },
+    SetRefraction { value: u32 },
     // Ritual actions
     PerformRitual { ritual_id: String },
     SetLocationType { location_type: String },
@@ -823,6 +827,15 @@ impl DesExecutor {
             AssertionCheck::StormTimer { op, value } => {
                 op.compare(self.state.storm.turns_until, *value)
             }
+            AssertionCheck::StormIntensity { op, value } => {
+                op.compare(self.state.storm.intensity as u32, *value as u32)
+            }
+            AssertionCheck::StormHasEditType { edit_type } => {
+                self.state.storm.edit_types.iter().any(|et| et.display_name().to_lowercase() == edit_type.to_lowercase())
+            }
+            AssertionCheck::StormChangedTilesCount { op, value } => {
+                op.compare(self.state.storm_changed_tiles.len() as u32, *value as u32)
+            }
             AssertionCheck::ItemExistsOnMap { item_id, min_count } => {
                 let count = self.state.items.iter().filter(|item| item.id == *item_id).count();
                 if let Some(min) = min_count {
@@ -1133,6 +1146,11 @@ impl DesExecutor {
                 }
                 self.state.apply_storm();
                 self.log(format!("Storm triggered with intensity {}", self.state.storm.intensity));
+            }
+            Action::SetRefraction { value } => {
+                self.state.refraction = *value;
+                self.state.check_adaptation_threshold();
+                self.log(format!("Refraction set to {}", value));
             }
             Action::PerformRitual { ritual_id } => {
                 match self.state.perform_ritual(ritual_id) {

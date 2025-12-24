@@ -1,0 +1,59 @@
+{
+  "name": "storm_edit_types_test",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "trigger_storm",
+        "intensity": 3
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "storm_changed_tiles_count",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Storm should change some tiles"
+    },
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "tile_type_count",
+        "tile_type": "glass",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Storm should create glass tiles"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "storm_timer",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "New storm should be forecasted after triggering"
+    }
+  ]
+}

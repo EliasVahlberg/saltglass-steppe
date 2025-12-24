@@ -116,6 +116,82 @@ impl EntityRenderer {
             ));
         }
 
+        // Apply adaptation visual effects
+        for adaptation in &state.adaptations {
+            match adaptation.name() {
+                "Prismhide" => {
+                    // Crystalline shimmer effect
+                    let shimmer_phase = ((frame_count / 6) + (state.player_x as u64 ^ state.player_y as u64)) % 3;
+                    let color = match shimmer_phase {
+                        0 => Color::Cyan,
+                        1 => Color::LightCyan,
+                        _ => Color::White,
+                    };
+                    style = style.fg(color);
+                }
+                "Sunveins" => {
+                    // Pulsing inner light
+                    let pulse_phase = (frame_count / 4) % 4;
+                    if pulse_phase < 2 {
+                        style = style.fg(Color::Yellow);
+                    }
+                }
+                "Mirage Step" => {
+                    // Flickering/fading effect
+                    let fade_phase = (frame_count / 8) % 8;
+                    if fade_phase < 4 {
+                        style = style.fg(Color::LightBlue);
+                    }
+                }
+                "Saltblood" => {
+                    // Subtle white glow
+                    style = style.fg(Color::White);
+                }
+                "Quantum Entanglement" => {
+                    // Rainbow psychic aura
+                    let rainbow_phase = (frame_count / 5) % 4;
+                    let color = match rainbow_phase {
+                        0 => Color::Magenta,
+                        1 => Color::Cyan,
+                        2 => Color::Yellow,
+                        _ => Color::Green,
+                    };
+                    style = style.fg(color);
+                }
+                "Phase Walking" => {
+                    // Drifting translucent effect
+                    let drift_phase = ((frame_count / 7) + (state.player_x as u64 * 3 + state.player_y as u64 * 7)) % 10;
+                    if drift_phase < 3 {
+                        style = style.fg(Color::LightMagenta);
+                    }
+                }
+                "Storm Affinity" => {
+                    // Storm-like wave effect
+                    let wave_phase = ((frame_count / 3) + (state.player_x as u64 + state.player_y as u64)) % 6;
+                    if wave_phase < 3 {
+                        style = style.fg(Color::LightCyan);
+                    }
+                }
+                "Crystalline Consciousness" => {
+                    // Complex multi-effect for transcendent adaptation
+                    let rainbow_phase = (frame_count / 2) % 4;
+                    let pulse_phase = (frame_count / 3) % 4;
+                    let color = match rainbow_phase {
+                        0 => Color::White,
+                        1 => Color::LightCyan,
+                        2 => Color::LightMagenta,
+                        _ => Color::LightYellow,
+                    };
+                    if pulse_phase < 2 {
+                        style = style.fg(color);
+                    } else {
+                        style = style.fg(Color::White);
+                    }
+                }
+                _ => {} // No visual effect for other adaptations
+            }
+        }
+
         // Apply status effect colors (priority order from config)
         for status_name in &self.config.rendering.status_effect_priority {
             if state.status_effects.iter().any(|e| e.id == *status_name) {

@@ -163,7 +163,8 @@ impl GameState {
                     self.log_typed(format!("{} fires a laser beam for {} damage!", self.enemies[i].name(), laser_dmg), MsgType::Combat);
                     
                     // Visual effect for beam
-                    // We can't easily draw a line here without more helper functions, but we can log it
+                    self.spawn_beam((ex, ey), (self.player_x, self.player_y), super::state::BeamType::Laser, 8);
+                    
                     if self.player_hp <= 0 { return; }
                     
                     // Don't move if fired laser

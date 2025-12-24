@@ -92,6 +92,19 @@ pub fn render_map(
                 continue;
             }
             
+            // Check for light beam at this position
+            if let Some((beam_char, beam_type)) = state.get_beam_at(x as i32, y as i32) {
+                let beam_color = match beam_type {
+                    crate::game::state::BeamType::Laser => Color::Red,
+                    crate::game::state::BeamType::Light => Color::Yellow,
+                    crate::game::state::BeamType::Reflection => Color::Cyan,
+                };
+                let style = Style::default().fg(beam_color).bold();
+                let style = if is_look_cursor { style.bg(Color::White).fg(Color::Black) } else { style };
+                spans.push(Span::styled(beam_char.to_string(), style));
+                continue;
+            }
+            
             let (ch, style) = render_tile(state, x, y, idx, player_effects, frame_count, state.debug_god_view);
             let style = if is_look_cursor { style.bg(Color::White).fg(Color::Black) } else { style };
             spans.push(Span::styled(ch.to_string(), style));
@@ -311,15 +324,38 @@ fn render_tile(
         let tile = &state.map.tiles[idx];
         let light = state.get_light_level(x as i32, y as i32);
         
+        // Check if this tile was changed by the last storm
+        let is_storm_changed = state.storm_changed_tiles.contains(&idx);
+        
         // Animated tiles based on animation_frame
         let (glyph, base_color) = match tile {
             Tile::Glass => {
-                // Glass shimmers between cyan shades
+                // Glass shimmers between cyan shades with shimmer overlay
                 let phase = ((state.animation_frame / 4) + (x as u32 ^ y as u32)) % 3;
-                let color = match phase {
-                    0 => Color::Cyan,
-                    1 => Color::LightCyan,
-                    _ => Color::Rgb(100, 200, 220),
+                let shimmer_phase = ((state.animation_frame / 2) + (x as u32 * 3 + y as u32 * 7)) % 6;
+                
+                let (glyph, color) = if shimmer_phase < 2 {
+                    // Show shimmer overlay
+                    ('≈', Color::LightCyan)
+                } else {
+                    // Normal glass appearance
+                    let color = match phase {
+                        0 => Color::Cyan,
+                        1 => Color::LightCyan,
+                        _ => Color::Rgb(100, 200, 220),
+                    };
+                    ('░', color)
+                };
+                (glyph, color)
+            }
+            Tile::Glare => {
+                // Glare tiles pulse with bright light
+                let pulse_phase = ((state.animation_frame / 3) + (x as u32 + y as u32)) % 4;
+                let color = match pulse_phase {
+                    0 => Color::White,
+                    1 => Color::LightYellow,
+                    2 => Color::Yellow,
+                    _ => Color::Rgb(255, 255, 200),
                 };
                 ('░', color)
             }
@@ -329,7 +365,15 @@ fn render_tile(
             Tile::StairsUp => ('<', Color::Yellow),
             Tile::WorldExit => ('▣', Color::Green),
         };
-        return (glyph, Style::default().fg(dim_color(base_color, light)));
+        
+        // Apply storm change highlighting
+        let final_color = if is_storm_changed {
+            Color::LightCyan // Highlight changed tiles
+        } else {
+            dim_color(base_color, light)
+        };
+        
+        return (glyph, Style::default().fg(final_color));
     }
     
     // Revealed but not visible

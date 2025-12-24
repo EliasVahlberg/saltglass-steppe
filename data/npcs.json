@@ -163,6 +163,53 @@
       ]
     },
     {
+      "id": "tutorial_guide",
+      "name": "Weathered Pilgrim",
+      "glyph": "P",
+      "faction": "Unaffiliated",
+      "description": "An experienced traveler with knowing eyes and storm-scarred skin",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "By the glass! You've changed much since we last spoke. Two adaptations already?</nextpage>The storm works quickly in you. I've seen pilgrims take years to reach such transformation.</nextpage>Be careful, friend. The more you change, the more the factions will notice you. Some see opportunity, others see threat."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Prismhide" }],
+          "text": "Ah, Prismhide! I can see the light catching on your skin. Beautiful, but dangerous.</nextpage>The Mirror Monks will welcome you with open arms now. They see such adaptations as divine gifts.</nextpage>But the Sand-Engineers? They'll want to study you, maybe even harvest samples. Watch yourself around them."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Sunveins" }],
+          "text": "Sunveins! Rare and powerful. I've only seen it twice in my forty years on the steppe.</nextpage>That inner fire will serve you well in the dark places, but it marks you as special. The Glassborn will sense it from miles away.</nextpage>Learn to control it before it controls you, friend."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Saltblood" }],
+          "text": "Saltblood, eh? Practical adaptation. The glass won't cut you now, and the salt flats won't burn.</nextpage>The Sand-Engineers love folk like you—immune to the worst hazards of their work. They'll offer you good coin for dangerous jobs.</nextpage>Just remember: immunity isn't invincibility. Stay sharp out there."
+        },
+        {
+          "conditions": [{ "has_adaptation": "MirageStep" }],
+          "text": "Mirage Step! Now that's a gift I envy. The ability to leave echoes of yourself behind.</nextpage>I've seen adapted folk use it to escape the worst situations. Very useful against the Archive's security drones.</nextpage>Practice with it. The more you understand your abilities, the longer you'll survive."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "text": "I can see the storm has touched you. Your first adaptation, yes? Congratulations and condolences.</nextpage>You're no longer fully human, but you're not yet something else. This is the most dangerous time.</nextpage>The factions will start to notice you now. Choose your allies carefully—your survival may depend on it."
+        },
+        {
+          "conditions": [],
+          "text": "New to the Saltglass Steppe, I see. The unmarked flesh gives you away.</nextpage>Listen well, newcomer: the storms here don't just change the land—they change you. Each exposure brings... adaptations.</nextpage>Some call them gifts, others curses. I call them survival. When the glass cuts you, when the light burns—that's the storm speaking. Learn to listen."
+        }
+      ],
+      "actions": [
+        {
+          "id": "ask_advice",
+          "name": "Ask for Advice",
+          "conditions": [],
+          "effect": {
+            "gives_item": "brine_vial"
+          }
+        }
+      ]
+    },
+    {
       "id": "glass_merchant",
       "name": "Glass Merchant",
       "glyph": "$",
