@@ -461,6 +461,442 @@
       "tier": 3,
       "usable": false,
       "effects": [{ "condition": "on_pickup", "effect": "S(@5 &LightGray)" }]
+    },
+    {
+      "id": "old_world_boots",
+      "name": "Old World Running Shoes",
+      "glyph": "=",
+      "description": "Pre-Event footwear with synthetic soles",
+      "value": 35,
+      "weight": 2,
+      "tier": 2,
+      "usable": true,
+      "equip_slot": "boots",
+      "grants_sprint": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@3 &Gray)" },
+        { "condition": "on_equip", "effect": "P(@5 &LightGreen)" }
+      ]
+    },
+    {
+      "id": "void_glass_shard",
+      "name": "Void Glass Shard",
+      "glyph": "◆",
+      "description": "Black glass that absorbs light and heat",
+      "value": 200,
+      "weight": 1,
+      "tier": 4,
+      "usable": false,
+      "absorbs_light": true,
+      "effects": [{ "condition": "on_pickup", "effect": "F(@6 &Black)" }]
+    },
+    {
+      "id": "singing_glass",
+      "name": "Singing Glass",
+      "glyph": "♪",
+      "description": "Resonant glass that hums with stored vibrations",
+      "value": 45,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "sonic_weapon": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &Cyan)" },
+        { "condition": "on_use", "effect": "W(@8 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "prism_core",
+      "name": "Prism Core",
+      "glyph": "◊",
+      "description": "Perfect geometric glass that focuses light into beams",
+      "value": 300,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "laser_weapon": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@8 &White)" },
+        { "condition": "on_use", "effect": "F(@12 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "verdant_glass",
+      "name": "Verdant Glass",
+      "glyph": "♠",
+      "description": "Green bio-glass that slowly regenerates",
+      "value": 80,
+      "weight": 1,
+      "tier": 3,
+      "usable": false,
+      "self_repairing": true,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@5 &Green)" }]
+    },
+    {
+      "id": "sanguine_glass",
+      "name": "Sanguine Glass",
+      "glyph": "♥",
+      "description": "Crimson glass warm with trapped memories",
+      "value": 400,
+      "weight": 1,
+      "tier": 5,
+      "usable": true,
+      "contains_memories": true,
+      "bonds_with_flesh": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@8 &Red)" },
+        { "condition": "on_use", "effect": "F(@15 &LightRed)" }
+      ]
+    },
+    {
+      "id": "mirror_slate",
+      "name": "Mirror Slate",
+      "glyph": "□",
+      "description": "Perfectly reflective sheet used for signaling",
+      "value": 60,
+      "weight": 3,
+      "tier": 2,
+      "usable": true,
+      "reflects_beams": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@4 &White)" },
+        { "condition": "on_use", "effect": "W(@10 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "aero_glass",
+      "name": "Aero Glass",
+      "glyph": "○",
+      "description": "Frothy lightweight glass that floats on water",
+      "value": 25,
+      "weight": 0,
+      "tier": 2,
+      "usable": false,
+      "floats": true,
+      "effects": [{ "condition": "on_pickup", "effect": "F(@3 &LightCyan)" }]
+    },
+    {
+      "id": "fulgurite_rod",
+      "name": "Fulgurite Rod",
+      "glyph": "|",
+      "description": "Branching tube of storm-glass crackling with energy",
+      "value": 120,
+      "weight": 2,
+      "tier": 3,
+      "usable": true,
+      "equip_slot": "weapon",
+      "shock_weapon": true,
+      "explosive": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@6 &LightBlue)" },
+        { "condition": "on_use", "effect": "F(@10 &Yellow)" }
+      ]
+    },
+    {
+      "id": "obsidian_cloak",
+      "name": "Obsidian Cloak",
+      "glyph": "(",
+      "description": "Null-glass weave that blocks data transmission",
+      "value": 150,
+      "weight": 4,
+      "tier": 3,
+      "usable": false,
+      "equip_slot": "cloak",
+      "blocks_scanning": true,
+      "stealth_bonus": true,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@6 &Black)" }]
+    },
+    {
+      "id": "neural_crown",
+      "name": "Neural Interface Crown",
+      "glyph": "♔",
+      "description": "Archive technology for consciousness interfacing",
+      "value": 800,
+      "weight": 3,
+      "tier": 5,
+      "usable": true,
+      "equip_slot": "head",
+      "archive_interface": true,
+      "consciousness_link": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@10 &LightMagenta)" },
+        { "condition": "on_equip", "effect": "F(@20 &White)" }
+      ]
+    },
+    {
+      "id": "quantum_buffer",
+      "name": "Quantum Buffer Array",
+      "glyph": "≡",
+      "description": "Prevents information overload during data transfer",
+      "value": 250,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "prevents_overload": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &Magenta)" },
+        { "condition": "on_use", "effect": "P(@12 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "storm_battery",
+      "name": "Storm Battery",
+      "glyph": "⚡",
+      "description": "Capacitive fulgurite that stores electrical charge",
+      "value": 90,
+      "weight": 3,
+      "tier": 3,
+      "usable": true,
+      "powers_devices": true,
+      "explosive": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@5 &Yellow)" },
+        { "condition": "on_use", "effect": "F(@8 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "resonance_tuner",
+      "name": "Resonance Tuner",
+      "glyph": "♫",
+      "description": "Device that calibrates singing glass frequencies",
+      "value": 180,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "tunes_frequencies": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@6 &Cyan)" },
+        { "condition": "on_use", "effect": "W(@10 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "void_containment_box",
+      "name": "Void Containment Box",
+      "glyph": "■",
+      "description": "Lead-lined container for dangerous artifacts",
+      "value": 200,
+      "weight": 8,
+      "tier": 4,
+      "usable": true,
+      "contains_danger": true,
+      "radiation_shield": true,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &DarkGray)" }]
+    },
+    {
+      "id": "glassborn_prosthetic",
+      "name": "Glassborn Prosthetic",
+      "glyph": "⚕",
+      "description": "Sanguine glass limb that bonds with flesh",
+      "value": 600,
+      "weight": 5,
+      "tier": 5,
+      "usable": true,
+      "equip_slot": "prosthetic",
+      "bonds_with_flesh": true,
+      "enhanced_strength": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@10 &Red)" },
+        { "condition": "on_equip", "effect": "F(@15 &LightRed)" }
+      ]
+    },
+    {
+      "id": "echo_detector",
+      "name": "Echo Detector",
+      "glyph": "◐",
+      "description": "Senses consciousness bleed from transformed beings",
+      "value": 120,
+      "weight": 2,
+      "tier": 3,
+      "usable": true,
+      "detects_consciousness": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@5 &Magenta)" },
+        { "condition": "on_use", "effect": "W(@8 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "reality_anchor",
+      "name": "Reality Anchor",
+      "glyph": "⚓",
+      "description": "Stabilizes local physics in flux zones",
+      "value": 400,
+      "weight": 10,
+      "tier": 5,
+      "usable": true,
+      "stabilizes_reality": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@8 &White)" },
+        { "condition": "on_use", "effect": "F(@20 &LightGray)" }
+      ]
+    },
+    {
+      "id": "monk_prayer_beads",
+      "name": "Monk Prayer Beads",
+      "glyph": "○",
+      "description": "Geometric glass beads that focus meditation",
+      "value": 40,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "enhances_meditation": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@3 &Cyan)" },
+        { "condition": "on_use", "effect": "F(@8 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "engineer_multitool",
+      "name": "Engineer Multitool",
+      "glyph": "⚒",
+      "description": "Precision instrument for technical work",
+      "value": 80,
+      "weight": 2,
+      "tier": 3,
+      "usable": true,
+      "repairs_devices": true,
+      "breaks_walls": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &Gray)" },
+        { "condition": "on_use", "effect": "B(@6 &LightGray)" }
+      ]
+    },
+    {
+      "id": "wanderer_compass",
+      "name": "Wanderer's Compass",
+      "glyph": "⊗",
+      "description": "Points toward safe passage through flux zones",
+      "value": 100,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "finds_safe_paths": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Green)" },
+        { "condition": "on_use", "effect": "W(@8 &LightGreen)" }
+      ]
+    },
+    {
+      "id": "adaptation_suppressor",
+      "name": "Adaptation Suppressor",
+      "glyph": "◊",
+      "description": "Archive device that masks transformation signatures",
+      "value": 300,
+      "weight": 3,
+      "tier": 4,
+      "usable": true,
+      "suppresses_adaptations": true,
+      "archive_tech": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &DarkGray)" },
+        { "condition": "on_use", "effect": "F(@15 &Black)" }
+      ]
+    },
+    {
+      "id": "storm_caller",
+      "name": "Storm Caller",
+      "glyph": "☈",
+      "description": "Forbidden device that can trigger localized storms",
+      "value": 1000,
+      "weight": 5,
+      "tier": 5,
+      "usable": true,
+      "calls_storms": true,
+      "extremely_dangerous": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@15 &Red)" },
+        { "condition": "on_use", "effect": "W(@25 &LightRed)" }
+      ]
+    },
+    {
+      "id": "memory_crystal",
+      "name": "Memory Crystal",
+      "glyph": "◈",
+      "description": "Stores consciousness fragments and experiences",
+      "value": 150,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "stores_memories": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@5 &Magenta)" },
+        { "condition": "on_use", "effect": "F(@10 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "phase_cloak",
+      "name": "Phase Cloak",
+      "glyph": "~",
+      "description": "Experimental device allowing brief intangibility",
+      "value": 500,
+      "weight": 2,
+      "tier": 5,
+      "usable": true,
+      "equip_slot": "cloak",
+      "grants_phasing": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@8 &DarkGray)" },
+        { "condition": "on_equip", "effect": "P(@12 &Black)" }
+      ]
+    },
+    {
+      "id": "salt_miner_helmet",
+      "name": "Salt Miner's Helmet",
+      "glyph": "⌐",
+      "description": "Protective headgear with built-in light",
+      "value": 45,
+      "weight": 3,
+      "tier": 2,
+      "usable": false,
+      "equip_slot": "head",
+      "armor_value": 1,
+      "light_source": { "radius": 3, "intensity": 80 },
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Yellow)" }]
+    },
+    {
+      "id": "glass_weaver_gloves",
+      "name": "Glass Weaver's Gloves",
+      "glyph": "≈",
+      "description": "Allows safe handling of dangerous glass types",
+      "value": 70,
+      "weight": 1,
+      "tier": 2,
+      "usable": false,
+      "equip_slot": "gloves",
+      "safe_glass_handling": true,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@4 &Cyan)" }]
+    },
+    {
+      "id": "storm_prophet_staff",
+      "name": "Storm Prophet's Staff",
+      "glyph": "♦",
+      "description": "Monk artifact that channels storm energy",
+      "value": 350,
+      "weight": 4,
+      "tier": 4,
+      "usable": true,
+      "equip_slot": "weapon",
+      "channels_storms": true,
+      "monk_artifact": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@8 &LightCyan)" },
+        { "condition": "on_use", "effect": "F(@15 &White)" }
+      ]
+    },
+    {
+      "id": "archive_scanner",
+      "name": "Archive Scanner",
+      "glyph": "◎",
+      "description": "Identifies and catalogs unknown artifacts",
+      "value": 200,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "identifies_items": true,
+      "archive_tech": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &LightBlue)" },
+        { "condition": "on_use", "effect": "W(@10 &White)" }
+      ]
     }
   ]
 }

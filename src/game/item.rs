@@ -68,6 +68,77 @@ pub struct ItemDef {
     pub consumable: bool,
     #[serde(default = "default_tier")]
     pub tier: u32,
+    // New unique properties
+    #[serde(default)]
+    pub grants_sprint: bool,
+    #[serde(default)]
+    pub absorbs_light: bool,
+    #[serde(default)]
+    pub sonic_weapon: bool,
+    #[serde(default)]
+    pub laser_weapon: bool,
+    #[serde(default)]
+    pub self_repairing: bool,
+    #[serde(default)]
+    pub contains_memories: bool,
+    #[serde(default)]
+    pub bonds_with_flesh: bool,
+    #[serde(default)]
+    pub reflects_beams: bool,
+    #[serde(default)]
+    pub floats: bool,
+    #[serde(default)]
+    pub shock_weapon: bool,
+    #[serde(default)]
+    pub explosive: bool,
+    #[serde(default)]
+    pub blocks_scanning: bool,
+    #[serde(default)]
+    pub stealth_bonus: bool,
+    #[serde(default)]
+    pub archive_interface: bool,
+    #[serde(default)]
+    pub consciousness_link: bool,
+    #[serde(default)]
+    pub prevents_overload: bool,
+    #[serde(default)]
+    pub powers_devices: bool,
+    #[serde(default)]
+    pub tunes_frequencies: bool,
+    #[serde(default)]
+    pub contains_danger: bool,
+    #[serde(default)]
+    pub radiation_shield: bool,
+    #[serde(default)]
+    pub enhanced_strength: bool,
+    #[serde(default)]
+    pub detects_consciousness: bool,
+    #[serde(default)]
+    pub stabilizes_reality: bool,
+    #[serde(default)]
+    pub enhances_meditation: bool,
+    #[serde(default)]
+    pub repairs_devices: bool,
+    #[serde(default)]
+    pub finds_safe_paths: bool,
+    #[serde(default)]
+    pub archive_tech: bool,
+    #[serde(default)]
+    pub calls_storms: bool,
+    #[serde(default)]
+    pub extremely_dangerous: bool,
+    #[serde(default)]
+    pub stores_memories: bool,
+    #[serde(default)]
+    pub grants_phasing: bool,
+    #[serde(default)]
+    pub safe_glass_handling: bool,
+    #[serde(default)]
+    pub channels_storms: bool,
+    #[serde(default)]
+    pub monk_artifact: bool,
+    #[serde(default)]
+    pub identifies_items: bool,
 }
 
 fn default_pickup() -> bool { true }
