@@ -1,0 +1,52 @@
+{
+  "name": "Psychic Menu Integration Test",
+  "description": "Test psychic ability menu interface and ability usage",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 4,
+    "max_ap": 4
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "mirage_hound",
+      "x": 7,
+      "y": 5
+    },
+    {
+      "entity_type": "enemy", 
+      "id": "glass_beetle",
+      "x": 3,
+      "y": 5
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "unlock_ability",
+        "ability_id": "mind_pulse"
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "use_ability",
+        "ability_id": "mind_pulse"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "message_contains",
+        "text": "You use mind_pulse"
+      }
+    }
+  ]
+}

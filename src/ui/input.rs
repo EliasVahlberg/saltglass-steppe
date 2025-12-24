@@ -3,7 +3,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use std::io::Result;
 use crate::GameState;
-use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, TradeMenu, MenuPanel, WorldMapView, DebugMenu, IssueReporter};
+use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, TradeMenu, MenuPanel, WorldMapView, DebugMenu, IssueReporter, PsychicMenu};
 use super::trade_menu::TradeMode;
 use crate::all_recipe_ids;
 
@@ -123,6 +123,7 @@ pub struct UiState {
     pub debug_console: DebugConsole,
     pub debug_menu: DebugMenu,
     pub issue_reporter: IssueReporter,
+    pub psychic_menu: PsychicMenu,
     pub dialog_box: DialogBox,
     pub book_reader: BookReader,
     /// Smooth camera position (lerped toward player)
@@ -194,6 +195,7 @@ impl UiState {
             debug_console: DebugConsole::default(),
             debug_menu: DebugMenu::default(),
             issue_reporter: IssueReporter::default(),
+            psychic_menu: PsychicMenu::default(),
             dialog_box: DialogBox::default(),
             book_reader: BookReader::default(),
             camera_x: 0.0,
@@ -232,6 +234,10 @@ pub enum Action {
     OpenQuestLog,
     OpenCrafting,
     OpenWiki,
+    OpenPsychicMenu,
+    UsePsychicAbility(String),
+    RangedAttackMode,
+    TargetMode,
     OpenWorldMap,
     WorldMapTravel(usize, usize),
     Craft,
@@ -287,6 +293,10 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
             return Ok(handle_issue_reporter_input(ui, key.code));
         }
         
+        // Psychic menu input
+        if ui.psychic_menu.active {
+            return Ok(handle_psychic_menu_input(ui, state, key.code));
+        }
         // Debug menu input
         if ui.debug_menu.active {
             return Ok(handle_debug_menu_input(ui, key.code));
@@ -536,6 +546,9 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Char('q') => Action::OpenQuestLog,
         KeyCode::Char('c') => Action::OpenCrafting,
         KeyCode::Char('w') => Action::OpenWiki,
+        KeyCode::Char('p') => Action::OpenPsychicMenu,
+        KeyCode::Char('f') => Action::RangedAttackMode,
+        KeyCode::Char('t') => Action::TargetMode,
         KeyCode::Char('m') | KeyCode::Char('M') => Action::OpenWorldMap,
         KeyCode::Char('<') | KeyCode::Char('>') => Action::UseStairs,
         KeyCode::Char('1') => Action::UseItem(0),
@@ -671,6 +684,32 @@ fn handle_issue_reporter_input(ui: &mut UiState, code: KeyCode) -> Action {
             }
             Action::None
         }
+        _ => Action::None,
+    }
+}
+
+fn handle_psychic_menu_input(ui: &mut UiState, state: &GameState, code: KeyCode) -> Action {
+    match code {
+        KeyCode::Esc | KeyCode::Char('p') => {
+            ui.psychic_menu.close();
+            Action::None
+        },
+        KeyCode::Up | KeyCode::Char('k') => {
+            ui.psychic_menu.navigate(-1, state.psychic.unlocked_abilities.len());
+            Action::None
+        },
+        KeyCode::Down | KeyCode::Char('j') => {
+            ui.psychic_menu.navigate(1, state.psychic.unlocked_abilities.len());
+            Action::None
+        },
+        KeyCode::Enter => {
+            if let Some(ability_id) = ui.psychic_menu.get_selected_ability(state) {
+                ui.psychic_menu.close();
+                Action::UsePsychicAbility(ability_id)
+            } else {
+                Action::None
+            }
+        },
         _ => Action::None,
     }
 }

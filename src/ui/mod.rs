@@ -9,6 +9,7 @@ pub mod input;
 pub mod inventory_menu;
 pub mod issue_reporter;
 pub mod menu;
+pub mod psychic_menu;
 pub mod quest_log;
 pub mod storm_forecast;
 pub mod theme;
@@ -25,6 +26,7 @@ pub use input::{handle_input, Action, UiState, LookMode, PauseMenu, DebugConsole
 pub use inventory_menu::{render_inventory_menu, InventoryMenu, MenuPanel};
 pub use issue_reporter::{render_issue_reporter, IssueReporter};
 pub use menu::{handle_menu_input, render_menu, render_controls, render_pause_menu, MenuAction, MainMenuState};
+pub use psychic_menu::{render_psychic_menu, PsychicMenu};
 pub use quest_log::{render_quest_log, QuestLogMenu};
 pub use storm_forecast::render_storm_forecast;
 pub use theme::{theme, Theme};
