@@ -81,6 +81,24 @@
     "max_effects_per_entity": 3,
     "priority_order": ["HitFlash", "Blink", "Pulse", "Glow", "Wave", "Shimmer", "Rainbow", "Fade", "Drift"]
   },
+  "visual_animations": {
+    "blink": {
+      "duration_ms": 500,
+      "on_color": "White",
+      "off_color": "DarkGray"
+    },
+    "glow": {
+      "cycle_duration_ms": 1000,
+      "base_color": "Yellow",
+      "glow_color": "LightYellow",
+      "intensity_steps": 5
+    },
+    "screen_shake": {
+      "duration_ms": 200,
+      "intensity": 2,
+      "frequency_hz": 20.0
+    }
+  },
   "animations": {
     "glass_shimmer": {
       "enabled": true,
