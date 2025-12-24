@@ -1,0 +1,93 @@
+{
+  "name": "enhanced_storm_system_test",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "refraction": 0,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 1,
+      "action": {
+        "type": "trigger_storm",
+        "intensity": 8
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 3,
+      "action": {
+        "type": "trigger_storm",
+        "intensity": 2
+      }
+    },
+    {
+      "turn": 4,
+      "action": {
+        "type": "move",
+        "dx": 0,
+        "dy": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "storm_changed_tiles_count",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "High intensity storm should change many tiles"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "tile_type_count",
+        "tile_type": "glass",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Storm should create glass tiles"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "storm_changed_tiles_count",
+        "op": "gt",
+        "value": 10
+      },
+      "message": "High intensity storm should change many tiles"
+    },
+    {
+      "after_turn": 3,
+      "check": {
+        "type": "storm_changed_tiles_count",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Micro-storm should still change some tiles"
+    },
+    {
+      "after_turn": 4,
+      "check": {
+        "type": "storm_timer",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "New storm should be forecasted"
+    }
+  ]
+}

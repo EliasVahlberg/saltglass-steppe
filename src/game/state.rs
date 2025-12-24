@@ -1321,6 +1321,10 @@ impl GameState {
                 super::storm::StormEditType::Glass => self.apply_glass_edit(),
                 super::storm::StormEditType::Rotate => self.apply_rotate_edit(),
                 super::storm::StormEditType::Swap => self.apply_swap_edit(),
+                super::storm::StormEditType::Mirror => self.apply_mirror_edit(),
+                super::storm::StormEditType::Fracture => self.apply_fracture_edit(),
+                super::storm::StormEditType::Crystallize => self.apply_crystallize_edit(),
+                super::storm::StormEditType::Vortex => self.apply_vortex_edit(),
             }
         }
         
@@ -1431,6 +1435,151 @@ impl GameState {
             if self.map.tiles[idx] != new_tile {
                 self.map.tiles[idx] = new_tile;
                 self.storm_changed_tiles.insert(idx);
+            }
+        }
+    }
+
+    fn apply_mirror_edit(&mut self) {
+        // Mirror sections of the map horizontally or vertically
+        for _ in 0..(self.storm.intensity as usize) {
+            let size = self.rng.gen_range(3..8);
+            let x = self.rng.gen_range(1..self.map.width - size);
+            let y = self.rng.gen_range(1..self.map.height - size);
+            let horizontal = self.rng.gen_bool(0.5);
+            
+            if horizontal {
+                // Mirror horizontally
+                for dy in 0..size {
+                    for dx in 0..size/2 {
+                        let left_idx = (y + dy) * self.map.width + (x + dx);
+                        let right_idx = (y + dy) * self.map.width + (x + size - 1 - dx);
+                        
+                        let left_tile = self.map.tiles[left_idx].clone();
+                        self.map.tiles[left_idx] = self.map.tiles[right_idx].clone();
+                        self.map.tiles[right_idx] = left_tile;
+                        
+                        self.storm_changed_tiles.insert(left_idx);
+                        self.storm_changed_tiles.insert(right_idx);
+                    }
+                }
+            } else {
+                // Mirror vertically
+                for dy in 0..size/2 {
+                    for dx in 0..size {
+                        let top_idx = (y + dy) * self.map.width + (x + dx);
+                        let bottom_idx = (y + size - 1 - dy) * self.map.width + (x + dx);
+                        
+                        let top_tile = self.map.tiles[top_idx].clone();
+                        self.map.tiles[top_idx] = self.map.tiles[bottom_idx].clone();
+                        self.map.tiles[bottom_idx] = top_tile;
+                        
+                        self.storm_changed_tiles.insert(top_idx);
+                        self.storm_changed_tiles.insert(bottom_idx);
+                    }
+                }
+            }
+        }
+    }
+
+    fn apply_fracture_edit(&mut self) {
+        // Create glass seams/cracks through terrain
+        for _ in 0..(self.storm.intensity as usize * 2) {
+            let start_x = self.rng.gen_range(1..self.map.width - 1);
+            let start_y = self.rng.gen_range(1..self.map.height - 1);
+            let length = self.rng.gen_range(5..15);
+            let angle = self.rng.gen_range(0..8); // 8 directions
+            
+            let (dx, dy) = match angle {
+                0 => (1, 0), 1 => (1, 1), 2 => (0, 1), 3 => (-1, 1),
+                4 => (-1, 0), 5 => (-1, -1), 6 => (0, -1), _ => (1, -1),
+            };
+            
+            let mut x = start_x as i32;
+            let mut y = start_y as i32;
+            
+            for _ in 0..length {
+                if x >= 1 && x < (self.map.width - 1) as i32 && 
+                   y >= 1 && y < (self.map.height - 1) as i32 {
+                    let idx = (y as usize) * self.map.width + (x as usize);
+                    if !matches!(self.map.tiles[idx], Tile::Glass) {
+                        self.map.tiles[idx] = Tile::Glass;
+                        self.storm_changed_tiles.insert(idx);
+                    }
+                }
+                x += dx;
+                y += dy;
+            }
+        }
+    }
+
+    fn apply_crystallize_edit(&mut self) {
+        // Convert floor tiles to crystal formations (glare tiles)
+        for _ in 0..(self.storm.intensity as usize * 4) {
+            let center_x = self.rng.gen_range(2..self.map.width - 2);
+            let center_y = self.rng.gen_range(2..self.map.height - 2);
+            let radius = self.rng.gen_range(1..4);
+            
+            for dy in -(radius as i32)..=(radius as i32) {
+                for dx in -(radius as i32)..=(radius as i32) {
+                    if dx * dx + dy * dy <= (radius * radius) as i32 {
+                        let x = (center_x as i32 + dx) as usize;
+                        let y = (center_y as i32 + dy) as usize;
+                        
+                        if x < self.map.width && y < self.map.height {
+                            let idx = y * self.map.width + x;
+                            if matches!(self.map.tiles[idx], Tile::Floor) {
+                                self.map.tiles[idx] = Tile::Glare;
+                                self.storm_changed_tiles.insert(idx);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn apply_vortex_edit(&mut self) {
+        // Spiral rearrangement of map sections
+        for _ in 0..(self.storm.intensity as usize) {
+            let center_x = self.rng.gen_range(3..self.map.width - 3);
+            let center_y = self.rng.gen_range(3..self.map.height - 3);
+            let radius = 3;
+            
+            // Extract circular area
+            let mut tiles = Vec::new();
+            let mut positions = Vec::new();
+            
+            for r in 1..=radius {
+                for angle in 0..(r * 8) {
+                    let theta = (angle as f32) * std::f32::consts::PI * 2.0 / (r * 8) as f32;
+                    let x = center_x as i32 + (r as f32 * theta.cos()) as i32;
+                    let y = center_y as i32 + (r as f32 * theta.sin()) as i32;
+                    
+                    if x >= 0 && x < self.map.width as i32 && y >= 0 && y < self.map.height as i32 {
+                        let idx = (y as usize) * self.map.width + (x as usize);
+                        tiles.push(self.map.tiles[idx].clone());
+                        positions.push((x as usize, y as usize));
+                    }
+                }
+            }
+            
+            // Rotate tiles by one position
+            if !tiles.is_empty() {
+                let first_tile = tiles[0].clone();
+                let len = tiles.len();
+                for i in 0..len - 1 {
+                    tiles[i] = tiles[i + 1].clone();
+                }
+                tiles[len - 1] = first_tile;
+                
+                // Place back
+                for (i, &(x, y)) in positions.iter().enumerate() {
+                    let idx = y * self.map.width + x;
+                    if self.map.tiles[idx] != tiles[i] {
+                        self.map.tiles[idx] = tiles[i].clone();
+                        self.storm_changed_tiles.insert(idx);
+                    }
+                }
             }
         }
     }

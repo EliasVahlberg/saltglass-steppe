@@ -22,9 +22,13 @@ static STORM_CONFIG: Lazy<StormConfigFile> = Lazy::new(|| {
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub enum StormEditType {
-    Glass,   // Convert walls to glass (current behavior)
-    Rotate,  // Rotate map sections 90 degrees
-    Swap,    // Swap terrain types in areas
+    Glass,      // Convert walls to glass (current behavior)
+    Rotate,     // Rotate map sections 90 degrees
+    Swap,       // Swap terrain types in areas
+    Mirror,     // Reflect map sections horizontally/vertically
+    Fracture,   // Create glass seams/cracks through terrain
+    Crystallize,// Convert floor tiles to crystal formations
+    Vortex,     // Spiral rearrangement of map sections
 }
 
 impl StormEditType {
@@ -33,7 +37,23 @@ impl StormEditType {
             StormEditType::Glass => "GLASS",
             StormEditType::Rotate => "ROTATE", 
             StormEditType::Swap => "SWAP",
+            StormEditType::Mirror => "MIRROR",
+            StormEditType::Fracture => "FRACTURE",
+            StormEditType::Crystallize => "CRYSTAL",
+            StormEditType::Vortex => "VORTEX",
         }
+    }
+
+    pub fn all_types() -> Vec<StormEditType> {
+        vec![
+            StormEditType::Glass,
+            StormEditType::Rotate,
+            StormEditType::Swap,
+            StormEditType::Mirror,
+            StormEditType::Fracture,
+            StormEditType::Crystallize,
+            StormEditType::Vortex,
+        ]
     }
 }
 
@@ -49,26 +69,36 @@ impl Storm {
         let cfg = &*STORM_CONFIG;
         let intensity = cfg.base_intensity + rng.gen_range(0..=cfg.intensity_variance);
         
-        // Generate 1-3 edit types based on intensity
-        let num_edits = (intensity / 2).max(1).min(3) as usize;
-        let mut edit_types = Vec::new();
-        
-        let all_types = [StormEditType::Glass, StormEditType::Rotate, StormEditType::Swap];
-        for _ in 0..num_edits {
-            let edit_type = all_types[rng.gen_range(0..all_types.len())].clone();
-            if !edit_types.iter().any(|t| matches!((t, &edit_type), 
-                (StormEditType::Glass, StormEditType::Glass) |
-                (StormEditType::Rotate, StormEditType::Rotate) |
-                (StormEditType::Swap, StormEditType::Swap))) {
-                edit_types.push(edit_type);
-            }
-        }
+        // Generate edit types based on intensity
+        let edit_types = Self::generate_edit_types(intensity, rng);
         
         Self {
             turns_until: rng.gen_range(cfg.min_interval..=cfg.max_interval),
             intensity,
             edit_types,
         }
+    }
+
+    fn generate_edit_types(intensity: u8, rng: &mut ChaCha8Rng) -> Vec<StormEditType> {
+        let all_types = StormEditType::all_types();
+        let mut edit_types = Vec::new();
+        
+        // Number of edit types based on intensity
+        let num_types = match intensity {
+            1..=2 => 1,                    // Micro-storms: single effect
+            3..=5 => rng.gen_range(1..=2), // Normal storms: 1-2 effects
+            6..=7 => rng.gen_range(2..=3), // Strong storms: 2-3 effects
+            _ => rng.gen_range(3..=4),     // Mega-storms: 3-4 effects
+        };
+        
+        // Select random edit types without duplicates
+        let mut available = all_types;
+        for _ in 0..num_types.min(available.len()) {
+            let idx = rng.gen_range(0..available.len());
+            edit_types.push(available.remove(idx));
+        }
+        
+        edit_types
     }
     
     pub fn tick(&mut self) -> bool {
