@@ -13,6 +13,7 @@ pub mod performance;
 pub mod particles;
 pub mod animations;
 pub mod themes;
+pub mod procedural;
 
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use crate::GameState;
@@ -27,6 +28,7 @@ use self::{
     particles::{ParticleSystem, ParticleType},
     animations::AnimationSystem,
     themes::ThemeManager,
+    procedural::ProceduralEffects,
 };
 
 /// Main renderer that coordinates all rendering subsystems
@@ -42,6 +44,7 @@ pub struct Renderer {
     particle_system: ParticleSystem,
     animation_system: AnimationSystem,
     theme_manager: ThemeManager,
+    procedural_effects: ProceduralEffects,
 }
 
 impl Renderer {
@@ -64,6 +67,7 @@ impl Renderer {
             particle_system: ParticleSystem::new(config.particles.clone()),
             animation_system: AnimationSystem::new(config.visual_animations.clone()),
             theme_manager,
+            procedural_effects: ProceduralEffects::new(procedural::ProceduralConfig::default()),
             config,
         })
     }
@@ -91,6 +95,9 @@ impl Renderer {
 
         // Update animation system
         self.animation_system.update();
+
+        // Update procedural effects
+        self.procedural_effects.update(1.0 / 60.0, inner.width as i32, inner.height as i32);
 
         // Get screen shake offset
         let (shake_x, shake_y) = self.animation_system.get_screen_offset();
@@ -145,6 +152,9 @@ impl Renderer {
 
         // Render particles on top of everything else
         self.render_particles(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
+
+        // Render procedural effects
+        self.render_procedural_effects(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
 
         // Apply animation effects to all spans
         for row in &mut final_spans {
@@ -262,6 +272,34 @@ impl Renderer {
     /// Clear all particles
     pub fn clear_particles(&mut self) {
         self.particle_system.clear();
+    }
+
+    /// Render procedural effects onto the span grid
+    fn render_procedural_effects(&self, spans: &mut Vec<Vec<Span<'static>>>, cam_x: i32, cam_y: i32, view_width: i32, view_height: i32) {
+        // Render weather particles
+        for particle in self.procedural_effects.get_weather_particles() {
+            let screen_x = particle.x as i32 - cam_x;
+            let screen_y = particle.y as i32 - cam_y;
+            
+            // Check if particle is within viewport
+            if screen_x >= 0 && screen_x < view_width && 
+               screen_y >= 0 && screen_y < view_height {
+                let x = screen_x as usize;
+                let y = screen_y as usize;
+                
+                if y < spans.len() && x < spans[y].len() {
+                    // Apply alpha based on lifetime for fade effect
+                    let alpha = 1.0 - (particle.lifetime / particle.max_lifetime);
+                    if alpha > 0.1 {
+                        let weather_span = Span::styled(
+                            particle.character.to_string(),
+                            Style::default().fg(particle.color)
+                        );
+                        spans[y][x] = weather_span;
+                    }
+                }
+            }
+        }
     }
 
     /// Trigger a blink animation effect
