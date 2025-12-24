@@ -20,7 +20,7 @@ use super::{
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
-    spawn::{load_spawn_tables, weighted_pick},
+    spawn::{weighted_pick},
     storm::Storm,
     tutorial::TutorialProgress,
     world_map::WorldMap,
@@ -311,8 +311,7 @@ impl GameState {
         map.tiles[exit_y * map.width + exit_x] = Tile::WorldExit;
         
         let visible = compute_fov(&map, px, py);
-        let tables = load_spawn_tables();
-        let table = &tables.default;
+        let table = super::spawn::get_biome_spawn_table(&biome);
 
         // Spawn enemies (fewer on starting tile for hospitable start)
         let mut enemies = Vec::new();
@@ -520,8 +519,7 @@ impl GameState {
         let (px, py) = rooms[0];
         
         // Spawn enemies based on POI
-        let tables = load_spawn_tables();
-        let table = &tables.default;
+        let table = super::spawn::get_biome_spawn_table(&biome);
         let mut enemies = Vec::new();
         let enemy_count = match poi {
             super::world_map::POI::Town => 0,

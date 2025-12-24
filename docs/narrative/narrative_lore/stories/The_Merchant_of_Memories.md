@@ -1,6 +1,6 @@
 # The Merchant of Memories
 
-*A folktale told in the markets of the Steppe.*
+_A folktale told in the markets of the Steppe._
 
 There was once a trader named Oryn who dealt not in salt or glass, but in the things people wanted to forget.
 

@@ -1,0 +1,114 @@
+{
+  "default": {
+    "items": [
+      {"id": "storm_glass", "weight": 4},
+      {"id": "brine_vial", "weight": 3},
+      {"id": "scripture_shard", "weight": 2},
+      {"id": "saint_key", "weight": 1},
+      {"id": "angle_lens", "weight": 1, "room": "last"},
+      {"id": "salt_knife", "weight": 2},
+      {"id": "glass_shard", "weight": 2},
+      {"id": "rusty_blade", "weight": 1},
+      {"id": "salt_vest", "weight": 1},
+      {"id": "leather_jacket", "weight": 1},
+      {"id": "leather_boots", "weight": 1},
+      {"id": "leather_cap", "weight": 1},
+      {"id": "hand_torch", "weight": 1}
+    ],
+    "enemies": [
+      {"id": "mirage_hound", "weight": 3},
+      {"id": "glass_beetle", "weight": 3},
+      {"id": "salt_mummy", "weight": 2},
+      {"id": "shard_spider", "weight": 2},
+      {"id": "dust_wraith", "weight": 1}
+    ],
+    "npcs": [
+      {"id": "tutorial_guide", "weight": 3, "room": "first"},
+      {"id": "mirror_monk", "room": "late"},
+      {"id": "salt_hermit", "weight": 1},
+      {"id": "glass_merchant", "weight": 1},
+      {"id": "dying_pilgrim", "weight": 1}
+    ]
+  },
+  "saltflat": {
+    "items": [
+      {"id": "salt_crystal", "weight": 5},
+      {"id": "brine_vial", "weight": 4},
+      {"id": "salt_poultice", "weight": 3},
+      {"id": "crystalline_shard", "weight": 2},
+      {"id": "salt_knife", "weight": 3},
+      {"id": "salt_vest", "weight": 2}
+    ],
+    "enemies": [
+      {"id": "salt_mummy", "weight": 4},
+      {"id": "crystalline_spider", "weight": 3},
+      {"id": "brine_elemental", "weight": 2},
+      {"id": "salt_wraith", "weight": 1}
+    ],
+    "npcs": [
+      {"id": "salt_hermit", "weight": 3},
+      {"id": "crystalline_sage", "weight": 2},
+      {"id": "brine_trader", "weight": 1}
+    ]
+  },
+  "oasis": {
+    "items": [
+      {"id": "pure_water", "weight": 4},
+      {"id": "healing_herb", "weight": 3},
+      {"id": "archive_fragment", "weight": 2},
+      {"id": "data_crystal", "weight": 1},
+      {"id": "bio_scanner", "weight": 1}
+    ],
+    "enemies": [
+      {"id": "guardian_drone", "weight": 3},
+      {"id": "water_spirit", "weight": 2},
+      {"id": "corrupted_plant", "weight": 2},
+      {"id": "archive_sentinel", "weight": 1}
+    ],
+    "npcs": [
+      {"id": "archive_custodian", "weight": 2},
+      {"id": "water_keeper", "weight": 2},
+      {"id": "bio_researcher", "weight": 1}
+    ]
+  },
+  "ruins": {
+    "items": [
+      {"id": "ancient_gear", "weight": 4},
+      {"id": "corroded_circuit", "weight": 3},
+      {"id": "memory_core", "weight": 2},
+      {"id": "quantum_resonator", "weight": 1},
+      {"id": "null_field_generator", "weight": 1}
+    ],
+    "enemies": [
+      {"id": "security_drone", "weight": 3},
+      {"id": "corrupted_ai", "weight": 2},
+      {"id": "quantum_ghost", "weight": 2},
+      {"id": "void_stalker", "weight": 1}
+    ],
+    "npcs": [
+      {"id": "rogue_engineer", "weight": 2},
+      {"id": "memory_keeper", "weight": 2},
+      {"id": "quantum_researcher", "weight": 1}
+    ]
+  },
+  "scrubland": {
+    "items": [
+      {"id": "hardy_root", "weight": 4},
+      {"id": "thorn_extract", "weight": 3},
+      {"id": "survival_kit", "weight": 2},
+      {"id": "camouflage_cloak", "weight": 1},
+      {"id": "scavenger_tool", "weight": 2}
+    ],
+    "enemies": [
+      {"id": "thorn_beast", "weight": 3},
+      {"id": "scavenger_pack", "weight": 3},
+      {"id": "adapted_predator", "weight": 2},
+      {"id": "feral_mutant", "weight": 1}
+    ],
+    "npcs": [
+      {"id": "wasteland_scout", "weight": 2},
+      {"id": "plant_whisperer", "weight": 2},
+      {"id": "survival_expert", "weight": 1}
+    ]
+  }
+}

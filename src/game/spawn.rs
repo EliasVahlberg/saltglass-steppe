@@ -27,15 +27,34 @@ pub struct SpawnTable {
 #[derive(Debug, Deserialize)]
 pub struct SpawnTables {
     pub default: SpawnTable,
+    #[serde(default)]
+    pub saltflat: Option<SpawnTable>,
+    #[serde(default)]
+    pub oasis: Option<SpawnTable>,
+    #[serde(default)]
+    pub ruins: Option<SpawnTable>,
+    #[serde(default)]
+    pub scrubland: Option<SpawnTable>,
 }
 
 static SPAWN_TABLES: Lazy<SpawnTables> = Lazy::new(|| {
-    let data = include_str!("../../data/spawn_tables.json");
-    serde_json::from_str(data).expect("Failed to parse spawn_tables.json")
+    let data = include_str!("../../data/biome_spawn_tables.json");
+    serde_json::from_str(data).expect("Failed to parse biome_spawn_tables.json")
 });
 
 pub fn load_spawn_tables() -> &'static SpawnTables {
     &SPAWN_TABLES
+}
+
+pub fn get_biome_spawn_table(biome: &super::world_map::Biome) -> &'static SpawnTable {
+    let tables = &SPAWN_TABLES;
+    match biome {
+        super::world_map::Biome::Saltflat => tables.saltflat.as_ref().unwrap_or(&tables.default),
+        super::world_map::Biome::Oasis => tables.oasis.as_ref().unwrap_or(&tables.default),
+        super::world_map::Biome::Ruins => tables.ruins.as_ref().unwrap_or(&tables.default),
+        super::world_map::Biome::Scrubland => tables.scrubland.as_ref().unwrap_or(&tables.default),
+        _ => &tables.default,
+    }
 }
 
 pub fn weighted_pick<'a>(spawns: &'a [WeightedSpawn], rng: &mut ChaCha8Rng) -> Option<&'a str> {

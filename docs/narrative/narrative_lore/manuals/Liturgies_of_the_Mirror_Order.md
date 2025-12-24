@@ -1,9 +1,10 @@
 # Liturgies of the Mirror Order
 
-*Selected prayers and chants used by the Mirror Monks.*
+_Selected prayers and chants used by the Mirror Monks._
 
 ## The Morning Refraction
-*(To be chanted at dawn, facing the rising sun through a prism)*
+
+_(To be chanted at dawn, facing the rising sun through a prism)_
 
 "Light breaks, and we are broken with it.
 As the ray splits, so does the self.
@@ -15,7 +16,8 @@ Make us sharp, that we may cut the dark.
 Make us clear, that we may hold the truth."
 
 ## The Prayer for the Storm
-*(To be whispered when the storm bells begin to ring)*
+
+_(To be whispered when the storm bells begin to ring)_
 
 "The Editor comes.
 Hide not your flaws, for they shall be rewritten.
@@ -27,7 +29,8 @@ Burn away the static.
 Refine the signal."
 
 ## The Rite of the Shard
-*(Spoken when embedding a new piece of Storm Glass into the flesh)*
+
+_(Spoken when embedding a new piece of Storm Glass into the flesh)_
 
 "Pain is the friction of change.
 Blood is the ink; Glass is the word.
@@ -38,7 +41,8 @@ Let the light read me.
 Let the light read me."
 
 ## The Benediction of the Lens
-*(Used to bless travelers or trade goods)*
+
+_(Used to bless travelers or trade goods)_
 
 "May your angles be true.
 May your reflections be honest.

@@ -823,6 +823,83 @@
         { "condition": "on_hit", "effect": "B(@1 &LightBlue)" },
         { "condition": "on_death", "effect": "B(@8 &White)" }
       ]
+    },
+    {
+      "id": "crystalline_spider",
+      "name": "Crystalline Spider",
+      "glyph": "s",
+      "max_hp": 8,
+      "damage_min": 1,
+      "damage_max": 3,
+      "sight_range": 5,
+      "xp_value": 18,
+      "description": "Salt-encrusted arachnid with crystal formations",
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 4 },
+        { "item": "crystalline_shard", "weight": 2 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "S(@3 &White)" },
+        { "condition": "on_death", "effect": "S(@5 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "brine_elemental",
+      "name": "Brine Elemental",
+      "glyph": "E",
+      "max_hp": 15,
+      "damage_min": 2,
+      "damage_max": 5,
+      "sight_range": 6,
+      "xp_value": 35,
+      "description": "Living salt water with corrosive touch",
+      "loot_table": [
+        { "item": "brine_vial", "weight": 3 },
+        { "item": "salt_crystal", "weight": 2 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "F(@4 &Blue)" },
+        { "condition": "on_death", "effect": "F(@8 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "guardian_drone",
+      "name": "Guardian Drone",
+      "glyph": "D",
+      "max_hp": 12,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 8,
+      "xp_value": 25,
+      "description": "Oasis security construct with scanning arrays",
+      "behaviors": [{ "type": "laser_beam", "value": 4 }],
+      "loot_table": [
+        { "item": "archive_fragment", "weight": 3 },
+        { "item": "ancient_gear", "weight": 2 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@2 &Red)" },
+        { "condition": "on_death", "effect": "S(@6 &Gray)" }
+      ]
+    },
+    {
+      "id": "thorn_beast",
+      "name": "Thorn Beast",
+      "glyph": "T",
+      "max_hp": 10,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 4,
+      "xp_value": 20,
+      "description": "Spiny predator adapted to scrubland survival",
+      "loot_table": [
+        { "item": "hardy_root", "weight": 4 },
+        { "item": "thorn_extract", "weight": 2 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "F(@3 &DarkGray)" },
+        { "condition": "on_death", "effect": "F(@5 &Green)" }
+      ]
     }
   ]
 }

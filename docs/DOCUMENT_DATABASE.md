@@ -113,26 +113,26 @@ This file contains a comprehensive list of all project documentation with descri
 
 #### History
 
-| Document                                                                                                          | Description                                |
-| ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
-| [History_Narrative_Accounts.md](narrative/narrative_lore/history/History_Narrative_Accounts.md)                   | Historical narrative accounts              |
-| [A_Chronicle_of_the_Saltglass_Steppe.md](narrative/narrative_lore/history/A_Chronicle_of_the_Saltglass_Steppe.md) | Historical chronicle of the game world     |
-| [The_Heliograph_Expedition.md](narrative/narrative_lore/history/The_Heliograph_Expedition.md)                     | Historical expedition accounts             |
-| [The_Schism_Wars.md](narrative/narrative_lore/history/The_Schism_Wars.md)                                         | Historical conflict lore                   |
+| Document                                                                                                          | Description                                    |
+| ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
+| [History_Narrative_Accounts.md](narrative/narrative_lore/history/History_Narrative_Accounts.md)                   | Historical narrative accounts                  |
+| [A_Chronicle_of_the_Saltglass_Steppe.md](narrative/narrative_lore/history/A_Chronicle_of_the_Saltglass_Steppe.md) | Historical chronicle of the game world         |
+| [The_Heliograph_Expedition.md](narrative/narrative_lore/history/The_Heliograph_Expedition.md)                     | Historical expedition accounts                 |
+| [The_Schism_Wars.md](narrative/narrative_lore/history/The_Schism_Wars.md)                                         | Historical conflict lore                       |
 | [The_Siege_of_Silica.md](narrative/narrative_lore/history/The_Siege_of_Silica.md)                                 | Account of an Iron Covenant military operation |
-| [The_Calendar_of_Light.md](narrative/narrative_lore/history/The_Calendar_of_Light.md)                             | Temporal and lighting system lore          |
-| [The_Day_of_Broken_Mirrors.md](narrative/narrative_lore/history/The_Day_of_Broken_Mirrors.md)                     | The event that split the Mirror Monk order |
+| [The_Calendar_of_Light.md](narrative/narrative_lore/history/The_Calendar_of_Light.md)                             | Temporal and lighting system lore              |
+| [The_Day_of_Broken_Mirrors.md](narrative/narrative_lore/history/The_Day_of_Broken_Mirrors.md)                     | The event that split the Mirror Monk order     |
 
 #### World
 
-| Document                                                                                    | Description                          |
-| ------------------------------------------------------------------------------------------- | ------------------------------------ |
-| [The_Living_Steppe.md](narrative/narrative_lore/world/The_Living_Steppe.md)                 | Environmental and ecological lore    |
-| [The_Atlas_of_Glass.md](narrative/narrative_lore/world/The_Atlas_of_Glass.md)               | Geographical and material lore       |
-| [The_Quantum_Bestiary.md](narrative/narrative_lore/world/The_Quantum_Bestiary.md)           | Creature and entity lore             |
-| [The_Archive_Consciousness.md](narrative/narrative_lore/world/The_Archive_Consciousness.md) | Lore about the Archive Consciousness |
+| Document                                                                                    | Description                                     |
+| ------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [The_Living_Steppe.md](narrative/narrative_lore/world/The_Living_Steppe.md)                 | Environmental and ecological lore               |
+| [The_Atlas_of_Glass.md](narrative/narrative_lore/world/The_Atlas_of_Glass.md)               | Geographical and material lore                  |
+| [The_Quantum_Bestiary.md](narrative/narrative_lore/world/The_Quantum_Bestiary.md)           | Creature and entity lore                        |
+| [The_Archive_Consciousness.md](narrative/narrative_lore/world/The_Archive_Consciousness.md) | Lore about the Archive Consciousness            |
 | [The_Heliograph_Network.md](narrative/narrative_lore/world/The_Heliograph_Network.md)       | Technical analysis of the orbital mirror system |
-| [The_Whispering_Seams.md](narrative/narrative_lore/world/The_Whispering_Seams.md)           | Anomalous fissures in reality        |
+| [The_Whispering_Seams.md](narrative/narrative_lore/world/The_Whispering_Seams.md)           | Anomalous fissures in reality                   |
 
 #### Manuals
 

@@ -1,0 +1,32 @@
+{
+  "name": "biome_specific_content_test",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "refraction": 0,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 1,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "player_alive"
+      },
+      "message": "Player should be alive after movement"
+    }
+  ]
+}

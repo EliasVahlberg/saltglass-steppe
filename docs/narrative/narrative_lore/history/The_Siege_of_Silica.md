@@ -1,6 +1,6 @@
 # The Siege of Silica
 
-*From the war journals of Iron Covenant Commander Kaine Durgan.*
+_From the war journals of Iron Covenant Commander Kaine Durgan._
 
 ## The Objective
 
@@ -24,7 +24,7 @@ It was the first time we'd seen it on this scale. The storm clouds hit the invis
 
 We breached the southern gate using sonic rams. The resistance was fierce but disorganized. The Monks fought with mirrors and lenses, trying to blind us, but our polarized visors rendered their tactics obsolete.
 
-What we found in the sanctuary was... disturbing. They weren't just smuggling adapted people. They were *breeding* them. Children with skin like quartz, eyes that could see into the UV spectrum.
+What we found in the sanctuary was... disturbing. They weren't just smuggling adapted people. They were _breeding_ them. Children with skin like quartz, eyes that could see into the UV spectrum.
 
 ## The Aftermath
 
