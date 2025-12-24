@@ -58,6 +58,56 @@
       }
     ]
   },
+  "contextual_descriptions": {
+    "biome_specific": {
+      "Saltflats": {
+        "template": "The endless {surface} stretches before you, {feature} {detail}.",
+        "variables": {
+          "surface": ["salt plains", "crystalline expanse", "white wasteland", "mineral desert"],
+          "feature": ["broken by glass formations that", "marked by storm scars that", "dotted with salt pillars that"],
+          "detail": ["catch the light like frozen tears", "tell stories of ancient storms", "rise like monuments to forgotten gods", "shimmer with residual energy"]
+        }
+      },
+      "Dunes": {
+        "template": "Rolling {dunes} {movement}, {atmosphere}.",
+        "variables": {
+          "dunes": ["glass-sand dunes", "crystalline hills", "shifting mounds", "prismatic ridges"],
+          "movement": ["shift with each storm", "flow like frozen waves", "catch and scatter light", "whisper with the wind"],
+          "atmosphere": ["creating a maze of light and shadow", "hiding secrets beneath their surface", "reflecting the sky in fractured patterns", "singing with harmonic resonance"]
+        }
+      }
+    },
+    "adaptation_aware": {
+      "prismhide": {
+        "template": "Your crystalline skin {reaction} as you observe {subject}.",
+        "variables": {
+          "reaction": ["refracts the ambient light", "catches and bends nearby illumination", "creates small rainbows", "pulses with inner luminescence"],
+          "subject": ["the glass formations around you", "the play of light and shadow", "the storm-touched landscape", "the ancient ruins"]
+        }
+      },
+      "storm_sense": {
+        "template": "Your storm-touched senses {perception} {detail}.",
+        "variables": {
+          "perception": ["detect subtle energy patterns in", "feel the electromagnetic pulse of", "sense the quantum fluctuations within", "perceive the light-song emanating from"],
+          "detail": ["the crystalline structures", "the glass formations", "the ancient technology", "the storm-scarred terrain"]
+        }
+      }
+    },
+    "faction_influenced": {
+      "Mirror Monks": {
+        "template": "Through the lens of Mirror Monk teachings, you see {interpretation}.",
+        "variables": {
+          "interpretation": ["divine geometry in the crystal patterns", "sacred angles reflected in the glass", "the scripture written in light itself", "the path of enlightenment through refraction"]
+        }
+      },
+      "Sand-Engineers": {
+        "template": "Your engineering knowledge reveals {technical_insight}.",
+        "variables": {
+          "technical_insight": ["the structural integrity of these formations", "the energy distribution patterns", "the technological purpose behind this design", "the systematic approach to this construction"]
+        }
+      }
+    }
+  },
   "item_lore": {
     "artifacts": [
       {
@@ -66,6 +116,35 @@
           "item_type": ["lens", "shard", "crystal", "mirror", "prism"],
           "origin_story": ["was forged in the heart of a storm", "belonged to a forgotten saint", "was discovered in Archive ruins", "emerged from the Whispering Seams", "was blessed by the Mirror Monks"],
           "current_state": ["it still holds echoes of its past", "its power has been diminished by time", "it resonates with storm energy", "it reflects more than just light", "it whispers to those who listen"]
+        }
+      }
+    ],
+    "contextual_artifacts": [
+      {
+        "template": "This {item_type} {resonance} with your transformed nature, {effect}.",
+        "variables": {
+          "item_type": ["crystalline lens", "storm-touched shard", "refraction prism", "quantum mirror"],
+          "resonance": ["resonates deeply", "pulses in harmony", "vibrates sympathetically", "glows in response"],
+          "effect": ["amplifying your connection to the glass", "revealing hidden light patterns", "whispering secrets of transformation", "showing you paths through the storm"]
+        }
+      }
+    ]
+  },
+  "environmental_storytelling": {
+    "inscriptions": [
+      {
+        "template": "Etched into the {surface}: '{message}'",
+        "variables": {
+          "surface": ["glass wall", "crystal formation", "salt pillar", "mirror surface"],
+          "message": ["The angle reveals all truths", "Storm-touched, we transcend", "Light bends, reality follows", "In refraction, find salvation", "The Archive remembers"]
+        }
+      }
+    ],
+    "graffiti": [
+      {
+        "template": "Scratched hastily: '{urgent_message}'",
+        "variables": {
+          "urgent_message": ["Drones patrol sector 7", "Safe passage through the seams", "The storm comes at dawn", "Trust no reflection", "They watch from the glass"]
         }
       }
     ]
@@ -85,6 +164,11 @@
     "Ancient saints walked paths of light and shadow.",
     "The Saltglass Steppe remembers what others forget.",
     "Each storm brings new possibilities and dangers.",
-    "The void between light holds its own mysteries."
+    "The void between light holds its own mysteries.",
+    "Crystalline structures sing with harmonic resonance.",
+    "The quantum consciousness observes through fractured reality.",
+    "Salt-cured wisdom preserves ancient knowledge.",
+    "Mirror surfaces reflect more than mere images.",
+    "The angle of incidence determines the path of truth."
   ]
 }

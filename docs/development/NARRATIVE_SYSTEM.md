@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Procedural Narrative System generates dynamic story content for Saltglass Steppe using techniques inspired by Caves of Qud's approach to procedural storytelling. The system combines template-based generation with Markov chain text generation to create contextual lore, descriptions, and historical events.
+The Procedural Narrative System generates dynamic story content for Saltglass Steppe using techniques inspired by Caves of Qud's approach to procedural storytelling. The system combines template-based generation with Markov chain text generation to create contextual lore, descriptions, and historical events that respond to the player's current state, location, and actions.
 
 ## Architecture
 
@@ -10,8 +10,18 @@ The Procedural Narrative System generates dynamic story content for Saltglass St
 
 1. **NarrativeGenerator**: Main interface for generating procedural content
 2. **NarrativeTemplate**: Template system with variable substitution
-3. **MarkovChain**: Order-2 Markov chain for flavor text generation
-4. **HistoricalEvent**: Structured events with narrative templates
+3. **NarrativeContext**: Context-aware generation based on game state
+4. **MarkovChain**: Order-2 Markov chain for flavor text generation
+5. **HistoricalEvent**: Structured events with narrative templates
+
+### Context-Aware Generation
+
+The system now responds to:
+- **Player Adaptations**: Different descriptions for Prismhide, Storm Sense, etc.
+- **Current Biome**: Saltflats, Dunes, etc. get unique descriptions
+- **Faction Reputation**: High reputation with factions influences narrative tone
+- **Refraction Level**: High refraction unlocks special item lore
+- **Location Type**: Ruins, natural features, etc. get appropriate descriptions
 
 ### Data-Driven Design
 
@@ -27,8 +37,18 @@ All narrative content is defined in `data/narrative_templates.json`:
     "ruins": [...],
     "natural": [...]
   },
+  "contextual_descriptions": {
+    "biome_specific": {...},
+    "adaptation_aware": {...},
+    "faction_influenced": {...}
+  },
   "item_lore": {
-    "artifacts": [...]
+    "artifacts": [...],
+    "contextual_artifacts": [...]
+  },
+  "environmental_storytelling": {
+    "inscriptions": [...],
+    "graffiti": [...]
   },
   "markov_corpus": [...]
 }
@@ -44,22 +64,31 @@ Generates procedural world history using template-based events:
 - **Faction Conflicts**: Clashes between Mirror Monks, Sand-Engineers, etc.
 - **Discoveries**: Ancient artifacts and locations found by notable figures
 
-### 2. Location Descriptions
+### 2. Context-Aware Location Descriptions
 
-Procedural descriptions for different location types:
+Procedural descriptions that adapt to current game state:
 
-- **Ruins**: Ancient structures with mysterious purposes
-- **Natural Features**: Glass seams, salt formations, crystal groves
+- **Biome-Specific**: Different descriptions for Saltflats vs Dunes
+- **Adaptation-Aware**: Prismhide characters see light differently
+- **Faction-Influenced**: Mirror Monk reputation affects interpretation
 
-### 3. Item Lore Generation
+### 3. Dynamic Item Lore Generation
 
 Creates backstories for artifacts and items:
 
 - **Origin Stories**: How items were created or discovered
 - **Current State**: What condition they're in now
-- **Mystical Properties**: Hints at their powers
+- **Contextual Resonance**: High refraction items respond to player mutations
 
-### 4. Markov Chain Text Generation
+### 4. Environmental Storytelling
+
+Generates atmospheric text found in the world:
+
+- **Inscriptions**: Etched messages on glass and crystal
+- **Graffiti**: Urgent warnings and notes from other travelers
+- **Contextual Placement**: Appropriate to location and situation
+
+### 5. Markov Chain Text Generation
 
 Generates flavor text using order-2 Markov chains:
 
@@ -69,72 +98,78 @@ Generates flavor text using order-2 Markov chains:
 
 ## Implementation Details
 
+### Context System
+
+The `NarrativeContext` struct captures current game state:
+
+```rust
+pub struct NarrativeContext {
+    pub biome: Option<String>,
+    pub terrain: Option<String>,
+    pub adaptations: Vec<String>,
+    pub faction_reputation: HashMap<String, i32>,
+    pub refraction_level: u32,
+    pub location_type: Option<String>,
+}
+```
+
 ### Template System
 
 Templates use `{variable}` placeholders replaced with random choices:
 
 ```rust
 {
-  "template": "The {storm_name} Storm of {year} {action} the {location}.",
+  "template": "Your crystalline skin {reaction} as you observe {subject}.",
   "variables": {
-    "storm_name": ["Crimson", "Shattered", "Weeping"],
-    "action": ["shattered", "transformed", "consumed"],
-    "location": ["ancient citadel", "mirror gardens"]
+    "reaction": ["refracts the ambient light", "creates small rainbows"],
+    "subject": ["the glass formations around you", "the storm-touched landscape"]
   }
 }
 ```
 
-### Markov Chain Algorithm
-
-1. **Corpus Processing**: Split text into word pairs (order-2)
-2. **Chain Building**: Map word pairs to possible next words
-3. **Generation**: Start with opening words, follow chain until sentence end
-4. **Deterministic**: Seeded RNG ensures reproducibility
-
 ### Integration with GameState
 
-The narrative system is integrated into `GameState`:
+The narrative system is integrated into `GameState` with context-aware methods:
 
 ```rust
-pub struct GameState {
-    // ... other fields
-    pub narrative_generator: Option<NarrativeGenerator>,
-    pub world_history: Vec<String>,
+impl GameState {
+    pub fn generate_contextual_description(&mut self) -> Option<String>
+    pub fn generate_contextual_item_lore(&mut self, category: &str) -> Option<String>
+    pub fn generate_environmental_text(&mut self, env_type: &str) -> Option<String>
+    
+    fn create_narrative_context(&self) -> NarrativeContext
 }
 ```
-
-Methods available:
-- `generate_item_lore(category)`: Create item backstories
-- `generate_location_description(type)`: Describe locations
-- `generate_flavor_text(max_words)`: Generate atmospheric text
-- `get_world_history()`: Access generated historical events
 
 ## Usage Examples
 
-### Generating World History
+### Context-Aware Descriptions
 
 ```rust
-let mut state = GameState::new(seed);
-let history = state.get_world_history();
-for event in history {
-    println!("{}", event);
+// Generates description based on current biome, adaptations, faction rep
+if let Some(desc) = state.generate_contextual_description() {
+    println!("{}", desc);
 }
+// Output might be: "Your crystalline skin refracts the ambient light as you observe the glass formations around you."
 ```
 
-### Creating Item Lore
+### Environmental Storytelling
 
 ```rust
+if let Some(inscription) = state.generate_environmental_text("inscriptions") {
+    println!("{}", inscription);
+}
+// Output: "Etched into the crystal formation: 'The angle reveals all truths'"
+```
+
+### High-Refraction Item Lore
+
+```rust
+// With high refraction (>50), gets special contextual lore
 if let Some(lore) = state.generate_item_lore("artifacts") {
-    println!("Item description: {}", lore);
+    println!("{}", lore);
 }
-```
-
-### Location Descriptions
-
-```rust
-if let Some(desc) = state.generate_location_description("ruins") {
-    println!("You see: {}", desc);
-}
+// Output: "This quantum mirror resonates deeply with your transformed nature, revealing hidden light patterns."
 ```
 
 ## Creative Direction Alignment
@@ -147,34 +182,34 @@ The system maintains Saltglass Steppe's **mythic-reverent** tone:
 - Avoids modern slang or generic fantasy terms
 - Maintains mystery and wonder without comedy
 
-### Thematic Integration
+### Contextual Immersion
 
-All generated content supports the core pillars:
+All generated content responds to player state:
 
-1. **Mutation with Social Consequences**: References adaptations and faction reactions
-2. **Storms Rewrite Maps**: Historical events focus on transformative storms
-3. **Readable Light Tactics**: Descriptions emphasize light, reflection, angles
-4. **TUI as Aesthetic Strength**: Concise, evocative text suitable for terminal display
-5. **Authored Weirdness**: Strange but consistent world-building
+1. **Adaptation Awareness**: Prismhide characters see light differently
+2. **Faction Integration**: Mirror Monk reputation affects narrative perspective
+3. **Biome Specificity**: Saltflats and Dunes have distinct atmospheric descriptions
+4. **Progression Sensitivity**: High refraction unlocks deeper lore connections
 
 ## Performance Characteristics
 
 ### Memory Usage
 
 - Templates loaded once at startup
-- Markov chain built from small corpus (~15 sentences)
+- Context created on-demand from game state
 - Minimal runtime memory allocation
 
 ### Generation Speed
 
+- Context creation: O(1) - simple field copying
 - Template filling: O(n) where n = number of variables
-- Markov generation: O(m) where m = max_words parameter
+- Contextual selection: O(k) where k = number of context categories
 - Suitable for real-time generation during gameplay
 
 ### Determinism
 
 - All generation uses seeded ChaCha8Rng
-- Same seed + same parameters = identical output
+- Same seed + same context = identical output
 - Supports save/load and replay systems
 
 ## Testing
@@ -183,27 +218,28 @@ All generated content supports the core pillars:
 
 - `test_markov_chain()`: Validates chain building and generation
 - `test_template_filling()`: Ensures variable substitution works
+- `test_contextual_generation()`: Validates context structure
 
 ### DES Integration
 
 - `narrative_system_test.json`: Comprehensive scenario testing
-- Validates determinism, content quality, and integration
+- Validates determinism, content quality, context awareness, and integration
 
 ## Future Enhancements
 
 ### Planned Features
 
-1. **Context-Aware Generation**: Adapt content based on player location/state
-2. **Faction-Specific Vocabulary**: Different narrative styles per faction
-3. **Dynamic Event Chains**: Link historical events causally
-4. **Player Action Integration**: Generate lore based on player choices
+1. **Dynamic Event Chains**: Link historical events causally
+2. **Player Action Integration**: Generate lore based on player choices
+3. **Temporal Context**: Time-of-day and weather-influenced descriptions
+4. **Relationship Dynamics**: NPC-specific narrative variations
 
 ### Expansion Opportunities
 
-1. **NPC Dialogue Generation**: Procedural conversation trees
+1. **NPC Dialogue Generation**: Context-aware conversation trees
 2. **Quest Narrative**: Dynamic quest descriptions and objectives
-3. **Environmental Storytelling**: Procedural graffiti, inscriptions
-4. **Adaptive Difficulty**: Narrative complexity based on player progress
+3. **Adaptive Complexity**: Narrative sophistication based on player progress
+4. **Memory Integration**: Reference past player actions in generated content
 
 ## Technical Notes
 
@@ -211,20 +247,20 @@ All generated content supports the core pillars:
 
 - Graceful fallback if templates fail to load
 - Default text provided when generation fails
-- Non-blocking initialization (game continues without narrative system)
+- Context creation never fails (uses sensible defaults)
 
 ### Serialization
 
 - `NarrativeGenerator` marked with `#[serde(skip)]`
 - Generated content (world_history) is serialized
-- Templates reloaded on game load
+- Context created fresh from serialized game state
 
 ### Modularity
 
-- Self-contained module with minimal dependencies
-- Clean interface through GameState methods
-- Easy to disable or replace without affecting core gameplay
+- Self-contained module with clean interfaces
+- Context system decoupled from specific game mechanics
+- Easy to extend with new context types
 
 ---
 
-*This system provides the foundation for rich, procedural storytelling that enhances the Saltglass Steppe experience while maintaining performance and creative consistency.*
+*This enhanced system provides rich, context-aware procedural storytelling that dynamically responds to player state while maintaining the mythic-reverent tone and creative consistency of the Saltglass Steppe.*
