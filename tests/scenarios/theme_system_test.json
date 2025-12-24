@@ -1,0 +1,13 @@
+{
+  "name": "theme_system_test",
+  "seed": 42,
+  "actions": [
+    {"turn": 0, "action": {"type": "log", "query": "player_position"}},
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 1, "action": {"type": "move", "dx": 0, "dy": 1}},
+    {"turn": 2, "action": {"type": "log", "query": "player_hp"}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "player_alive"}}
+  ]
+}

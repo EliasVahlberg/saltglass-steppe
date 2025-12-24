@@ -12,6 +12,7 @@ pub mod camera;
 pub mod performance;
 pub mod particles;
 pub mod animations;
+pub mod themes;
 
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use crate::GameState;
@@ -24,7 +25,8 @@ use self::{
     camera::Camera,
     performance::{FrameLimiter, ViewportCuller},
     particles::{ParticleSystem, ParticleType},
-    animations::{AnimationSystem, VisualAnimationConfig},
+    animations::AnimationSystem,
+    themes::ThemeManager,
 };
 
 /// Main renderer that coordinates all rendering subsystems
@@ -39,12 +41,17 @@ pub struct Renderer {
     viewport_culler: ViewportCuller,
     particle_system: ParticleSystem,
     animation_system: AnimationSystem,
+    theme_manager: ThemeManager,
 }
 
 impl Renderer {
     /// Create a new renderer with configuration loaded from JSON
     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
         let config = RenderConfig::load("data/render_config.json")?;
+        
+        // Load theme manager
+        let theme_manager = ThemeManager::load_from_file("data/themes.json")
+            .unwrap_or_else(|_| ThemeManager::new());
         
         Ok(Self {
             lighting: LightingRenderer::new(&config),
@@ -56,6 +63,7 @@ impl Renderer {
             viewport_culler: ViewportCuller::new(),
             particle_system: ParticleSystem::new(config.particles.clone()),
             animation_system: AnimationSystem::new(config.visual_animations.clone()),
+            theme_manager,
             config,
         })
     }
@@ -269,6 +277,54 @@ impl Renderer {
     /// Trigger a screen shake effect
     pub fn add_screen_shake(&mut self) {
         self.animation_system.add_screen_shake();
+    }
+
+    /// Set the active theme
+    pub fn set_theme(&mut self, theme_name: &str) -> bool {
+        if let Some(theme) = self.theme_manager.get_theme(theme_name) {
+            let theme_colors = theme.colors.clone();
+            if self.theme_manager.set_active_theme(theme_name) {
+                self.apply_theme_to_config(&theme_colors);
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
+    }
+
+    /// Get list of available themes
+    pub fn list_themes(&self) -> Vec<String> {
+        self.theme_manager.list_themes().iter().map(|t| t.name.clone()).collect()
+    }
+
+    /// Get current active theme name
+    pub fn get_active_theme(&self) -> String {
+        self.theme_manager.get_active_theme()
+            .map(|t| t.name.clone())
+            .unwrap_or_else(|| "classic".to_string())
+    }
+
+    /// Apply theme colors to the render config
+    fn apply_theme_to_config(&mut self, theme_colors: &themes::ThemeColors) {
+        // Update entity colors
+        self.config.colors.entities.player.base = theme_colors.entities.player.clone();
+        
+        // Update tile colors
+        self.config.colors.tiles.floor = theme_colors.tiles.floor.clone();
+        self.config.colors.tiles.wall = theme_colors.tiles.wall.clone();
+        self.config.colors.tiles.glass.base = theme_colors.tiles.glass.clone();
+        self.config.colors.tiles.stairs_down = theme_colors.tiles.stairs.clone();
+        self.config.colors.tiles.stairs_up = theme_colors.tiles.stairs.clone();
+        self.config.colors.tiles.world_exit = theme_colors.tiles.world_exit.clone();
+        
+        // Update UI colors
+        self.config.colors.ui.revealed_tile = theme_colors.ui.revealed_tile.clone();
+        self.config.colors.ui.look_cursor.bg = theme_colors.ui.look_cursor_bg.clone();
+        self.config.colors.ui.look_cursor.fg = theme_colors.ui.look_cursor_fg.clone();
+        self.config.colors.ui.hit_flash.bg = theme_colors.ui.hit_flash_bg.clone();
+        self.config.colors.ui.hit_flash.fg = theme_colors.ui.hit_flash_fg.clone();
     }
 }
 
