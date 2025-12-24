@@ -6,6 +6,7 @@
 pub mod config;
 pub mod lighting;
 pub mod effects;
+pub mod effects_config;
 pub mod entities;
 pub mod tiles;
 pub mod camera;
@@ -29,6 +30,7 @@ use self::{
     animations::AnimationSystem,
     themes::ThemeManager,
     procedural::ProceduralEffects,
+    effects_config::EffectsManager,
 };
 
 /// Main renderer that coordinates all rendering subsystems
@@ -45,6 +47,7 @@ pub struct Renderer {
     animation_system: AnimationSystem,
     theme_manager: ThemeManager,
     procedural_effects: ProceduralEffects,
+    effects_manager: EffectsManager,
 }
 
 impl Renderer {
@@ -55,6 +58,10 @@ impl Renderer {
         // Load theme manager
         let theme_manager = ThemeManager::load_from_file("data/themes.json")
             .unwrap_or_else(|_| ThemeManager::new());
+        
+        // Load effects manager
+        let effects_manager = EffectsManager::load_from_file("data/effects_config.json")
+            .unwrap_or_else(|_| EffectsManager::new());
         
         Ok(Self {
             lighting: LightingRenderer::new(&config),
@@ -67,7 +74,8 @@ impl Renderer {
             particle_system: ParticleSystem::new(config.particles.clone()),
             animation_system: AnimationSystem::new(config.visual_animations.clone()),
             theme_manager,
-            procedural_effects: ProceduralEffects::new(procedural::ProceduralConfig::default()),
+            procedural_effects: ProceduralEffects::new(effects_manager.get_config().procedural.clone()),
+            effects_manager,
             config,
         })
     }
@@ -342,6 +350,21 @@ impl Renderer {
         self.theme_manager.get_active_theme()
             .map(|t| t.name.clone())
             .unwrap_or_else(|| "classic".to_string())
+    }
+
+    /// Set effects performance mode
+    pub fn set_effects_performance_mode(&mut self, mode: effects_config::PerformanceMode) {
+        self.effects_manager.set_performance_mode(mode);
+    }
+
+    /// Set effects quality level
+    pub fn set_effects_quality_level(&mut self, level: effects_config::QualityLevel) {
+        self.effects_manager.set_quality_level(level);
+    }
+
+    /// Save effects configuration to file
+    pub fn save_effects_config(&self) -> Result<(), Box<dyn std::error::Error>> {
+        self.effects_manager.save_to_file("data/effects_config.json")
     }
 
     /// Apply theme colors to the render config
