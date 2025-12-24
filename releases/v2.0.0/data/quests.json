@@ -1,0 +1,209 @@
+{
+  "quests": [
+    {
+      "id": "first_steps",
+      "name": "First Steps",
+      "description": "Learn the basics of survival in the Saltglass Steppe.",
+      "objectives": [
+        {
+          "id": "explore",
+          "description": "Move 10 steps in any direction",
+          "type": "reach",
+          "x": 15,
+          "y": 15
+        }
+      ],
+      "reward": {
+        "xp": 10,
+        "items": [],
+        "salt_scrip": 25,
+        "unlocks_quests": ["choose_your_path"]
+      }
+    },
+    {
+      "id": "choose_your_path",
+      "name": "Choose Your Path",
+      "description": "Decide whether to seek out the Glasswright faction or the Salt Nomads.",
+      "requires_quests_completed": ["first_steps"],
+      "objectives": [
+        {
+          "id": "find_guide",
+          "description": "Find the faction guide",
+          "type": "talk_to",
+          "npc_id": "faction_guide"
+        }
+      ],
+      "reward": {
+        "xp": 20,
+        "items": [],
+        "salt_scrip": 50,
+        "unlocks_quests": ["glasswright_introduction", "nomad_introduction"]
+      }
+    },
+    {
+      "id": "glasswright_introduction",
+      "name": "The Glasswright Way",
+      "description": "Learn about the Glasswright faction and their craft.",
+      "requires_quests_completed": ["choose_your_path"],
+      "objectives": [
+        {
+          "id": "meet_glasswright",
+          "description": "Meet the Glasswright representative",
+          "type": "talk_to",
+          "npc_id": "glasswright_elder"
+        },
+        {
+          "id": "gather_glass",
+          "description": "Collect 3 glass shards",
+          "type": "collect",
+          "item_id": "glass_shard",
+          "count": 3
+        }
+      ],
+      "reward": {
+        "xp": 40,
+        "items": ["glasswright_token"],
+        "salt_scrip": 75,
+        "unlocks_quests": ["craft_your_first_item"]
+      }
+    },
+    {
+      "id": "nomad_introduction",
+      "name": "The Nomad Trail",
+      "description": "Learn about the Salt Nomads and their traditions.",
+      "requires_quests_completed": ["choose_your_path"],
+      "objectives": [
+        {
+          "id": "meet_nomad",
+          "description": "Meet the Salt Nomad representative",
+          "type": "talk_to",
+          "npc_id": "nomad_elder"
+        },
+        {
+          "id": "gather_salt",
+          "description": "Collect 3 salt crystals",
+          "type": "collect",
+          "item_id": "salt_crystal",
+          "count": 3
+        }
+      ],
+      "reward": {
+        "xp": 40,
+        "items": ["nomad_token"],
+        "salt_scrip": 75,
+        "unlocks_quests": ["learn_to_hunt"]
+      }
+    },
+    {
+      "id": "craft_your_first_item",
+      "name": "Craft Your First Item",
+      "description": "Use the Glasswright teachings to craft a useful item.",
+      "requires_quests_completed": ["glasswright_introduction"],
+      "objectives": [
+        {
+          "id": "craft_item",
+          "description": "Craft any item using the crafting system",
+          "type": "collect",
+          "item_id": "crafted_item",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 50,
+        "items": ["brine_vial"],
+        "unlocks_quests": []
+      }
+    },
+    {
+      "id": "learn_to_hunt",
+      "name": "Learn to Hunt",
+      "description": "The Nomads teach you to hunt the creatures of the steppe.",
+      "requires_quests_completed": ["nomad_introduction"],
+      "objectives": [
+        {
+          "id": "kill_creatures",
+          "description": "Hunt 5 creatures",
+          "type": "kill",
+          "enemy_id": "salt_crawler",
+          "count": 5
+        }
+      ],
+      "reward": {
+        "xp": 50,
+        "items": ["salted_meat", "salted_meat"],
+        "unlocks_quests": []
+      }
+    },
+    {
+      "id": "pest_control",
+      "name": "Pest Control",
+      "description": "Clear out the salt beetles infesting the area.",
+      "objectives": [
+        {
+          "id": "kill_beetles",
+          "description": "Kill 3 salt beetles",
+          "type": "kill",
+          "enemy_id": "salt_beetle",
+          "count": 3
+        }
+      ],
+      "reward": {
+        "xp": 50,
+        "items": ["health_potion"]
+      }
+    },
+    {
+      "id": "supply_run",
+      "name": "Supply Run",
+      "description": "Gather supplies for the settlement.",
+      "objectives": [
+        {
+          "id": "collect_salt",
+          "description": "Collect 2 salt crystals",
+          "type": "collect",
+          "item_id": "salt_crystal",
+          "count": 2
+        }
+      ],
+      "reward": {
+        "xp": 30,
+        "items": []
+      }
+    },
+    {
+      "id": "scout_mission",
+      "name": "Scout Mission",
+      "description": "Scout the eastern ruins.",
+      "objectives": [
+        {
+          "id": "reach_ruins",
+          "description": "Reach the ruins entrance",
+          "type": "reach",
+          "x": 40,
+          "y": 20
+        }
+      ],
+      "reward": {
+        "xp": 25,
+        "items": []
+      }
+    },
+    {
+      "id": "meet_merchant",
+      "name": "Meet the Merchant",
+      "description": "Find and speak with the wandering merchant.",
+      "objectives": [
+        {
+          "id": "talk_merchant",
+          "description": "Talk to the merchant",
+          "type": "talk_to",
+          "npc_id": "merchant"
+        }
+      ],
+      "reward": {
+        "xp": 20,
+        "items": []
+      }
+    }
+  ]
+}

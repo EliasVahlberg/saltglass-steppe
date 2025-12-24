@@ -1,0 +1,97 @@
+[
+  {
+    "id": "monks",
+    "name": "Mirror Monks",
+    "description": "Interpreters of storm scripture who see adaptations as divine marks",
+    "base_reputation": 0,
+    "reputation_thresholds": {
+      "hostile": -50,
+      "unfriendly": -20,
+      "neutral": 0,
+      "friendly": 20,
+      "allied": 50
+    },
+    "values": ["adaptation", "mysticism", "transformation"],
+    "opposes": ["technology", "resistance_to_change"],
+    "greeting_hostile": "The unmarked have no place in our choir.",
+    "greeting_neutral": "The storm watches, pilgrim. Do you hear its whispers?",
+    "greeting_friendly": "Welcome, touched one. The light recognizes its own.",
+    "greeting_allied": "Brother/Sister in refraction! The angle has blessed our meeting."
+  },
+  {
+    "id": "engineers",
+    "name": "Sand-Engineers", 
+    "description": "Pragmatic builders who maintain civilization through technology",
+    "base_reputation": 0,
+    "reputation_thresholds": {
+      "hostile": -50,
+      "unfriendly": -20,
+      "neutral": 0,
+      "friendly": 20,
+      "allied": 50
+    },
+    "values": ["technology", "pragmatism", "survival"],
+    "opposes": ["mysticism", "excessive_adaptation"],
+    "greeting_hostile": "Another storm-touched fanatic. Keep moving.",
+    "greeting_neutral": "Fresh face. You look capable enough.",
+    "greeting_friendly": "Good to see someone practical around here.",
+    "greeting_allied": "Partner! Always glad to work with reliable folk."
+  },
+  {
+    "id": "glassborn",
+    "name": "Glassborn",
+    "description": "The transformed who have embraced their crystalline nature",
+    "base_reputation": 0,
+    "reputation_thresholds": {
+      "hostile": -50,
+      "unfriendly": -20,
+      "neutral": 0,
+      "friendly": 20,
+      "allied": 50
+    },
+    "values": ["transformation", "evolution", "storm_acceptance"],
+    "opposes": ["flesh_attachment", "fear_of_change"],
+    "greeting_hostile": "Soft-flesh clings to weakness. Pathetic.",
+    "greeting_neutral": "You will change, little pilgrim. The storm touches all.",
+    "greeting_friendly": "The shimmer begins to touch you. Good.",
+    "greeting_allied": "Crystal-kin! The refraction sings in harmony."
+  },
+  {
+    "id": "hermits",
+    "name": "Salt Hermits",
+    "description": "Solitary survivors who have made peace with the Steppe's harshness",
+    "base_reputation": 0,
+    "reputation_thresholds": {
+      "hostile": -30,
+      "unfriendly": -10,
+      "neutral": 0,
+      "friendly": 15,
+      "allied": 40
+    },
+    "values": ["endurance", "neutrality", "practical_wisdom"],
+    "opposes": ["fanaticism", "waste"],
+    "greeting_hostile": "You bring trouble. Move along.",
+    "greeting_neutral": "Another pilgrim. The Steppe will test you.",
+    "greeting_friendly": "You've got the look of a survivor. Rest if you need.",
+    "greeting_allied": "Old friend! The salt remembers its own."
+  },
+  {
+    "id": "archive",
+    "name": "Archive Systems",
+    "description": "Automated guardians of pre-storm knowledge and technology",
+    "base_reputation": -25,
+    "reputation_thresholds": {
+      "hostile": -75,
+      "unfriendly": -40,
+      "neutral": -10,
+      "friendly": 10,
+      "allied": 30
+    },
+    "values": ["order", "preservation", "protocol"],
+    "opposes": ["chaos", "unauthorized_access", "deviation"],
+    "greeting_hostile": "INTRUDER DETECTED. INITIATING TERMINATION PROTOCOLS.",
+    "greeting_neutral": "UNAUTHORIZED. CREDENTIALS REQUIRED.",
+    "greeting_friendly": "PROVISIONAL ACCESS GRANTED. COMPLY WITH PROTOCOLS.",
+    "greeting_allied": "WELCOME, AUTHORIZED PERSONNEL. ARCHIVE AT YOUR SERVICE."
+  }
+]

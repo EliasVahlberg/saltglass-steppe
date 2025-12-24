@@ -1,0 +1,147 @@
+[
+  {
+    "location": "saltflat",
+    "description": "Open salt plains with scattered glass formations",
+    "enemies": [
+      { "id": "salt_crawler", "weight": 30, "min_level": 1 },
+      { "id": "mirage_hound", "weight": 25, "min_level": 1 },
+      { "id": "glass_beetle", "weight": 20, "min_level": 2 },
+      { "id": "salt_mummy", "weight": 15, "min_level": 3 },
+      { "id": "dust_wraith", "weight": 10, "min_level": 2 }
+    ],
+    "items": [
+      { "id": "salt_crystal", "weight": 40 },
+      { "id": "glass_dust", "weight": 30 },
+      { "id": "brine_vial", "weight": 20 },
+      { "id": "storm_glass", "weight": 10 }
+    ]
+  },
+  {
+    "location": "glass_fields",
+    "description": "Dense formations of crystalline terrain from recent storms",
+    "enemies": [
+      { "id": "glass_beetle", "weight": 35, "min_level": 2 },
+      { "id": "shard_spider", "weight": 30, "min_level": 1 },
+      { "id": "crystalline_spider", "weight": 20, "min_level": 2 },
+      { "id": "glass_mantis", "weight": 10, "min_level": 3 },
+      { "id": "refraction_wraith", "weight": 5, "min_level": 4, "storm_only": true }
+    ],
+    "items": [
+      { "id": "storm_glass", "weight": 35 },
+      { "id": "glass_shard", "weight": 30 },
+      { "id": "glass_thread", "weight": 20 },
+      { "id": "prism_lens", "weight": 10 },
+      { "id": "glass_arrow", "weight": 25 }
+    ]
+  },
+  {
+    "location": "oasis",
+    "description": "Rare water sources surrounded by lush but dangerous vegetation",
+    "enemies": [
+      { "id": "brine_lurker", "weight": 40, "min_level": 3 },
+      { "id": "crystal_scorpion", "weight": 25, "min_level": 2 },
+      { "id": "sand_viper", "weight": 20, "min_level": 1 },
+      { "id": "mirage_phantom", "weight": 10, "min_level": 4 },
+      { "id": "brine_ooze", "weight": 15, "min_level": 3 }
+    ],
+    "items": [
+      { "id": "crystalline_water", "weight": 40 },
+      { "id": "brine_vial", "weight": 30 },
+      { "id": "hermit_salve", "weight": 15 },
+      { "id": "salt_poultice", "weight": 20 },
+      { "id": "pilgrim_journal", "weight": 5 }
+    ]
+  },
+  {
+    "location": "ruins",
+    "description": "Collapsed structures from before the storms, partially vitrified",
+    "enemies": [
+      { "id": "salt_mummy", "weight": 30, "min_level": 3 },
+      { "id": "archive_drone", "weight": 15, "min_level": 5 },
+      { "id": "pilgrim_shade", "weight": 25, "min_level": 2 },
+      { "id": "salt_wraith", "weight": 20, "min_level": 4 },
+      { "id": "glass_golem", "weight": 5, "min_level": 6 },
+      { "id": "archive_sentinel", "weight": 5, "min_level": 7 }
+    ],
+    "items": [
+      { "id": "scripture_shard", "weight": 25 },
+      { "id": "archive_key_fragment", "weight": 15 },
+      { "id": "rusted_gear", "weight": 30 },
+      { "id": "saint_key", "weight": 5 },
+      { "id": "archive_data_crystal", "weight": 10 },
+      { "id": "engineer_blueprint", "weight": 15 }
+    ]
+  },
+  {
+    "location": "storm_zone",
+    "description": "Areas of active or recent storm activity with unstable terrain",
+    "enemies": [
+      { "id": "refraction_wraith", "weight": 35, "min_level": 4 },
+      { "id": "storm_elemental", "weight": 20, "min_level": 5 },
+      { "id": "storm_wisp", "weight": 25, "min_level": 2 },
+      { "id": "glass_horror", "weight": 5, "min_level": 8 },
+      { "id": "storm_hawk", "weight": 15, "min_level": 3 }
+    ],
+    "items": [
+      { "id": "storm_glass", "weight": 50 },
+      { "id": "saints_tear", "weight": 10 },
+      { "id": "storm_seed", "weight": 15 },
+      { "id": "storm_compass", "weight": 8 },
+      { "id": "storm_lantern", "weight": 7 },
+      { "id": "wraith_essence", "weight": 20 }
+    ]
+  },
+  {
+    "location": "deep_caves",
+    "description": "Underground chambers that offer shelter from storms",
+    "enemies": [
+      { "id": "salt_guardian", "weight": 25, "min_level": 3 },
+      { "id": "crystalline_spider", "weight": 30, "min_level": 2 },
+      { "id": "brine_ooze", "weight": 20, "min_level": 3 },
+      { "id": "salt_elemental", "weight": 15, "min_level": 4 },
+      { "id": "glass_serpent", "weight": 10, "min_level": 5 }
+    ],
+    "items": [
+      { "id": "salt_crystal", "weight": 40 },
+      { "id": "brine_concentrate", "weight": 20 },
+      { "id": "meditation_crystal", "weight": 10 },
+      { "id": "hermit_salve", "weight": 15 },
+      { "id": "glass_thread", "weight": 15 }
+    ]
+  },
+  {
+    "location": "archive_facility",
+    "description": "Pre-storm technological installations with active security",
+    "enemies": [
+      { "id": "archive_drone", "weight": 40, "min_level": 5 },
+      { "id": "archive_sentinel", "weight": 20, "min_level": 7 },
+      { "id": "glass_golem", "weight": 15, "min_level": 6 },
+      { "id": "drone_commander_unit", "weight": 5, "min_level": 9 }
+    ],
+    "items": [
+      { "id": "saint_key", "weight": 15 },
+      { "id": "archive_data_crystal", "weight": 25 },
+      { "id": "archive_scanner", "weight": 10 },
+      { "id": "refraction_detector", "weight": 10 },
+      { "id": "engineer_blueprint", "weight": 20 },
+      { "id": "repair_kit", "weight": 20 }
+    ]
+  },
+  {
+    "location": "hermit_territory",
+    "description": "Isolated areas where salt hermits make their homes",
+    "enemies": [
+      { "id": "salt_beetle", "weight": 35, "min_level": 1 },
+      { "id": "glass_moth", "weight": 30, "min_level": 1 },
+      { "id": "salt_pilgrim", "weight": 20, "min_level": 1 },
+      { "id": "sand_viper", "weight": 15, "min_level": 1 }
+    ],
+    "items": [
+      { "id": "hermit_salve", "weight": 30 },
+      { "id": "salt_rations", "weight": 25 },
+      { "id": "crystalline_water", "weight": 20 },
+      { "id": "pilgrim_journal", "weight": 15 },
+      { "id": "veil_tincture", "weight": 10 }
+    ]
+  }
+]
