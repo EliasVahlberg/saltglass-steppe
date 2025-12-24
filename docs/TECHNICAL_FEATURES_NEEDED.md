@@ -2,6 +2,34 @@
 
 **Priority Focus:** Systems needed for a compelling first 60 minutes that demonstrate the game's core pillars and creative vision.
 
+## 🚨 URGENT COMBAT SYSTEM IMPROVEMENTS (December 24, 2024)
+
+**Critical Issue:** Combat system has solid mechanics but lacks player accessibility. Psychic abilities exist but are completely inaccessible to players.
+
+### Priority 1: Psychic Ability Interface Integration
+- **Status:** Implementation started (psychic_menu.rs created)
+- **Remaining:** Integrate menu into main UI system with proper event handling
+- **Impact:** Unlocks entire hidden combat system (16 abilities across 5 categories)
+- **DES Test:** Create psychic ability activation and usage scenarios
+
+### Priority 2: Ranged Combat Targeting System  
+- **Status:** Hotkeys added ('f' for ranged, 't' for targeting)
+- **Remaining:** Implement targeting cursor with range indicators and line-of-sight
+- **Impact:** Makes ranged weapons fully functional and tactical
+- **DES Test:** Ranged attack targeting and execution scenarios
+
+### Priority 3: Enhanced Combat HUD Information
+- **Status:** Coherence bar added to HUD
+- **Remaining:** Add weapon stats display (damage/range/AP cost) and enemy health indicators
+- **Impact:** Provides essential tactical information for combat decisions
+- **DES Test:** HUD information accuracy and display scenarios
+
+### Priority 4: Combat Action Menu System
+- **Status:** Hotkeys enhanced and documented
+- **Remaining:** Create alternative menu-based action selection
+- **Impact:** Improves accessibility and discoverability of combat options
+- **DES Test:** Menu navigation and action selection scenarios
+
 ## ✅ IMPLEMENTATION COMPLETE (December 24, 2024)
 
 All critical technical features for the first hour gameplay experience have been successfully implemented and tested. The game now demonstrates all five core pillars within the first 60 minutes of play.
