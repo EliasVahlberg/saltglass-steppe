@@ -1,0 +1,58 @@
+{
+  "name": "fov_system_test",
+  "description": "Test the new Field of View system with shadow casting algorithm",
+  "setup": {
+    "seed": 12345,
+    "player_position": [10, 10],
+    "map_size": [25, 25]
+  },
+  "steps": [
+    {
+      "action": "move",
+      "direction": "north",
+      "expected_results": {
+        "player_position": [10, 9],
+        "fov_updated": true,
+        "visible_tiles_count": "> 20"
+      }
+    },
+    {
+      "action": "move",
+      "direction": "east",
+      "expected_results": {
+        "player_position": [11, 9],
+        "fov_updated": true,
+        "visible_tiles_count": "> 20"
+      }
+    },
+    {
+      "action": "wait",
+      "expected_results": {
+        "fov_updated": true,
+        "turn_advanced": true
+      }
+    },
+    {
+      "action": "debug",
+      "command": "show tile",
+      "expected_results": {
+        "god_view_enabled": true,
+        "all_tiles_visible": true
+      }
+    },
+    {
+      "action": "debug",
+      "command": "hide tile",
+      "expected_results": {
+        "god_view_disabled": true,
+        "normal_fov_restored": true
+      }
+    }
+  ],
+  "validation": {
+    "fov_range": 8,
+    "diamond_walls": true,
+    "symmetric_visibility": true,
+    "performance": "< 10ms per calculation"
+  }
+}
