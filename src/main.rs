@@ -6,7 +6,7 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_item_def, GameState, Renderer};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, render_book_reader, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -273,7 +273,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState, renderer: &mut Ren
     
     // Pause menu overlay (rendered last)
     if ui.pause_menu.active {
-        render_pause_menu(frame, ui.pause_menu.selected);
+        render_pause_menu(frame, ui.pause_menu.selected_index);
     }
     
     // Debug console overlay
@@ -293,6 +293,9 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState, renderer: &mut Ren
     
     // Dialog box overlay (highest priority)
     render_dialog_box(frame, &ui.dialog_box);
+    
+    // Book reader overlay
+    render_book_reader(frame, ui);
 }
 
 fn main() -> Result<()> {
@@ -361,6 +364,11 @@ fn main() -> Result<()> {
             // Check for pending dialogue from NPC interaction
             if let Some((speaker, text)) = state.pending_dialogue.take() {
                 ui.dialog_box.show(&speaker, &text);
+            }
+            
+            // Check for pending book open
+            if let Some(book_id) = state.pending_book_open.take() {
+                ui.book_reader.open(&book_id);
             }
             
             // Check for pending trade

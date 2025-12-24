@@ -147,6 +147,8 @@ pub enum AssertionCheck {
     ItemCount { item: String, op: CmpOp, value: u32 },
     CraftingSuccess { recipe: String, op: CmpOp, value: f32 },
     AvailableRecipesCount { op: CmpOp, value: usize },
+    // Book assertions
+    PendingBookOpen { book_id: String },
     // Sanity assertions
     SanityCurrent { op: CmpOp, value: u32 },
     SanityMax { op: CmpOp, value: u32 },
@@ -933,6 +935,10 @@ impl DesExecutor {
                     &self.state.faction_reputation
                 );
                 op.compare(recipes.len(), *value)
+            }
+            // Book assertions
+            AssertionCheck::PendingBookOpen { book_id } => {
+                self.state.pending_book_open.as_ref() == Some(book_id)
             }
             // Sanity assertions
             AssertionCheck::SanityCurrent { op, value } => {

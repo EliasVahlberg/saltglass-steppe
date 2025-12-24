@@ -8,7 +8,9 @@
       "value": 25,
       "weight": 1,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@3 &Cyan &LightCyan)" }]
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@3 &Cyan &LightCyan)" }
+      ]
     },
     {
       "id": "book_soup",
@@ -574,7 +576,12 @@
       "weight": 1,
       "usable": true,
       "confuses_enemies": true,
-      "effects": [{ "condition": "on_use", "effect": "R(@4 &Red &Yellow &Green &Cyan &Blue &Magenta)" }]
+      "effects": [
+        {
+          "condition": "on_use",
+          "effect": "R(@4 &Red &Yellow &Green &Cyan &Blue &Magenta)"
+        }
+      ]
     },
     {
       "id": "salt_scrip",
@@ -818,7 +825,9 @@
       "armor_value": 5,
       "equip_slot": "jacket",
       "reflects_light": true,
-      "effects": [{ "condition": "on_equip", "effect": "S(@8 &Cyan &LightCyan)" }]
+      "effects": [
+        { "condition": "on_equip", "effect": "S(@8 &Cyan &LightCyan)" }
+      ]
     },
     {
       "id": "monk_robes",
@@ -990,7 +999,9 @@
       "usable": true,
       "faction_item": "SynthesisSeekers",
       "grants_adaptation_control": true,
-      "effects": [{ "condition": "on_use", "effect": "R(@8 &Magenta &LightMagenta)" }]
+      "effects": [
+        { "condition": "on_use", "effect": "R(@8 &Magenta &LightMagenta)" }
+      ]
     },
     {
       "id": "null_field_generator",

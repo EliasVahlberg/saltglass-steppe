@@ -200,6 +200,8 @@ pub struct GameState {
     #[serde(skip)]
     pub mock_combat_damage: Option<i32>,
     #[serde(skip)]
+    pub pending_book_open: Option<String>,
+    #[serde(skip)]
     pub meta: super::meta::MetaProgress,
     // World map for lazy tile generation
     #[serde(default)]
@@ -483,6 +485,7 @@ impl GameState {
             narrative_generator: None,
             world_history: Vec::new(),
             story_model: None,
+            pending_book_open: None,
         };
         
         // Initialize narrative generator and generate world history
@@ -2247,6 +2250,14 @@ impl GameState {
             self.log(format!("You can't use {} right now.", def.name));
             return false;
         }
+        
+        // Check if it's a book
+        if let Some(book_id) = &def.book_id {
+            self.pending_book_open = Some(book_id.clone());
+            self.log(format!("You read {}.", def.name));
+            return true;
+        }
+
         self.player_ap -= cost;
         if def.heal > 0 {
             let heal = def.heal.min(self.player_max_hp - self.player_hp);

@@ -1,5 +1,6 @@
 //! UI components
 
+pub mod book_reader;
 pub mod crafting_menu;
 pub mod debug_menu;
 pub mod game_view;
@@ -15,6 +16,7 @@ pub mod trade_menu;
 pub mod wiki;
 pub mod world_map;
 
+pub use book_reader::render_book_reader;
 pub use crafting_menu::{render_crafting_menu, CraftingMenu};
 pub use debug_menu::{render_debug_menu, DebugMenu};
 pub use game_view::{render_map, render_death_screen, render_damage_numbers, render_debug_console, render_dialog_box, dim_color};

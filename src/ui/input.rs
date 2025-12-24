@@ -170,10 +170,10 @@ pub struct PauseMenu {
 }
 
 impl PauseMenu {
-    pub fn open(&mut self) { self.active = true; self.selected = 0; }
+    pub fn open(&mut self) { self.active = true; self.selected_index = 0; }
     pub fn close(&mut self) { self.active = false; }
     pub fn navigate(&mut self, dy: i32, count: usize) {
-        self.selected = (self.selected as i32 + dy).rem_euclid(count as i32) as usize;
+        self.selected_index = (self.selected_index as i32 + dy).rem_euclid(count as i32) as usize;
     }
 }
 
@@ -300,6 +300,10 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         if ui.world_map_view.open {
             return Ok(handle_world_map_input(ui, state, key.code));
         }
+        // Book reader input
+        if ui.book_reader.active {
+            return Ok(handle_book_reader_input(ui, key.code));
+        }
         // Wiki menu input
         if ui.wiki_menu.active {
             return Ok(handle_wiki_input(ui, state, key.code));
@@ -328,6 +332,23 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         return Ok(handle_game_input(ui, key.code));
     }
     Ok(Action::None)
+}
+
+fn handle_book_reader_input(ui: &mut UiState, code: KeyCode) -> Action {
+    use crate::game::book::get_book_def;
+    
+    let total_pages = match get_book_def(&ui.book_reader.book_id) {
+        Some(def) => def.pages.len(),
+        None => 0,
+    };
+
+    match code {
+        KeyCode::Esc | KeyCode::Char('q') => ui.book_reader.close(),
+        KeyCode::Right | KeyCode::Char('l') | KeyCode::Char(' ') => ui.book_reader.next_page(total_pages),
+        KeyCode::Left | KeyCode::Char('h') => ui.book_reader.prev_page(),
+        _ => {}
+    }
+    Action::None
 }
 
 fn handle_wiki_input(ui: &mut UiState, _state: &GameState, code: KeyCode) -> Action {
@@ -441,7 +462,7 @@ fn handle_pause_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Up | KeyCode::Char('k') => ui.pause_menu.navigate(-1, PAUSE_OPTIONS.len()),
         KeyCode::Down | KeyCode::Char('j') => ui.pause_menu.navigate(1, PAUSE_OPTIONS.len()),
         KeyCode::Enter => {
-            let selected = ui.pause_menu.selected;
+            let selected = ui.pause_menu.selected_index;
             ui.pause_menu.close();
             return match selected {
                 0 => Action::None, // Resume
