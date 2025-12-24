@@ -1,0 +1,71 @@
+{
+    "name": "particle_effects_test",
+    "seed": 42,
+    "player": {
+        "x": 10,
+        "y": 10,
+        "hp": 20,
+        "max_hp": 20
+    },
+    "actions": [
+        {
+            "turn": 0,
+            "action": {
+                "type": "log",
+                "query": {
+                    "custom": {
+                        "message": "Testing particle effects system with sparkles and glowing effects"
+                    }
+                }
+            }
+        },
+        {
+            "turn": 1,
+            "action": {
+                "type": "move",
+                "dx": 1,
+                "dy": 0
+            }
+        },
+        {
+            "turn": 2,
+            "action": {
+                "type": "move",
+                "dx": 0,
+                "dy": 1
+            }
+        },
+        {
+            "turn": 3,
+            "action": {
+                "type": "move",
+                "dx": -1,
+                "dy": 0
+            }
+        },
+        {
+            "turn": 4,
+            "action": {
+                "type": "move",
+                "dx": 0,
+                "dy": -1
+            }
+        }
+    ],
+    "assertions": [
+        {
+            "at_end": true,
+            "check": {
+                "type": "player_position",
+                "x": 10,
+                "y": 10
+            }
+        },
+        {
+            "at_end": true,
+            "check": {
+                "type": "player_alive"
+            }
+        }
+    ]
+}

@@ -1,6 +1,7 @@
 //! Rendering configuration loaded from JSON
 
 use serde::{Deserialize, Serialize};
+use crate::renderer::particles::ParticleConfig;
 use ratatui::prelude::Color;
 use std::collections::HashMap;
 
@@ -12,6 +13,7 @@ pub struct RenderConfig {
     pub animations: AnimationConfig,
     pub rendering: RenderingConfig,
     pub performance: PerformanceConfig,
+    pub particles: ParticleConfig,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -290,6 +292,7 @@ mod tests {
                 frame_limiting: true,
                 optimization_level: "balanced".to_string(),
             },
+            particles: ParticleConfig::default(),
         };
 
         let json = serde_json::to_string(&config).unwrap();

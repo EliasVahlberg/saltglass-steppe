@@ -102,5 +102,47 @@
     "viewport_culling": true,
     "frame_limiting": true,
     "optimization_level": "balanced"
+  },
+  "particles": {
+    "sparkles": {
+      "enabled": true,
+      "spawn_rate": 2.0,
+      "lifetime": 1.0,
+      "colors": ["White", "Yellow", "Cyan"],
+      "characters": ["*", "✦", "✧", "◆"],
+      "intensity": 1.0
+    },
+    "glow": {
+      "enabled": true,
+      "pulse_speed": 0.1,
+      "min_brightness": 0.3,
+      "max_brightness": 1.0,
+      "colors": ["Yellow", "White"]
+    },
+    "float": {
+      "enabled": true,
+      "velocity_range": [0.5, 2.0],
+      "lifetime": 3.0,
+      "gravity": 0.1,
+      "characters": ["°", "·", "˚"]
+    },
+    "drift": {
+      "enabled": true,
+      "wind_strength": 0.5,
+      "turbulence": 0.1,
+      "fade_rate": 0.2
+    },
+    "pulse": {
+      "enabled": true,
+      "frequency": 0.2,
+      "amplitude": 0.3,
+      "wave_type": "sine"
+    },
+    "shimmer": {
+      "enabled": true,
+      "speed": 0.05,
+      "color_cycle": ["Cyan", "LightCyan", "White"],
+      "intensity_variation": 0.2
+    }
   }
 }

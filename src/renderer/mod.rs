@@ -10,6 +10,7 @@ pub mod entities;
 pub mod tiles;
 pub mod camera;
 pub mod performance;
+pub mod particles;
 
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use crate::GameState;
@@ -21,6 +22,7 @@ use self::{
     tiles::TileRenderer,
     camera::Camera,
     performance::{FrameLimiter, ViewportCuller},
+    particles::{ParticleSystem, ParticleType},
 };
 
 /// Main renderer that coordinates all rendering subsystems
@@ -33,6 +35,7 @@ pub struct Renderer {
     camera: Camera,
     frame_limiter: FrameLimiter,
     viewport_culler: ViewportCuller,
+    particle_system: ParticleSystem,
 }
 
 impl Renderer {
@@ -48,6 +51,7 @@ impl Renderer {
             camera: Camera::new(),
             frame_limiter: FrameLimiter::new(config.performance.target_fps),
             viewport_culler: ViewportCuller::new(),
+            particle_system: ParticleSystem::new(config.particles.clone()),
             config,
         })
     }
@@ -69,6 +73,9 @@ impl Renderer {
         // Update camera position
         self.camera.update(state.player_x, state.player_y, inner.width as i32, inner.height as i32);
         let (cam_x, cam_y) = self.camera.position();
+
+        // Update particle system
+        self.particle_system.update(1.0 / 60.0); // Assume 60 FPS for now
 
         // Get viewport bounds for culling
         let viewport_bounds = self.viewport_culler.get_bounds(
@@ -105,7 +112,7 @@ impl Renderer {
         );
 
         // Apply visual effects
-        let final_spans = self.effects.apply_effects(
+        let mut final_spans = self.effects.apply_effects(
             state,
             tile_spans,
             entity_spans,
@@ -115,6 +122,9 @@ impl Renderer {
             inner.width as i32,
             inner.height as i32,
         );
+
+        // Render particles on top of everything else
+        self.render_particles(&mut final_spans, cam_x, cam_y, inner.width as i32, inner.height as i32);
 
         // Apply look cursor highlighting
         let final_spans = if let Some((lx, ly)) = look_cursor {
@@ -172,6 +182,59 @@ impl Renderer {
     /// Get current target FPS
     pub fn fps(&self) -> u32 {
         self.frame_limiter.fps()
+    }
+
+    /// Render particles onto the span grid
+    fn render_particles(&self, spans: &mut Vec<Vec<Span<'static>>>, cam_x: i32, cam_y: i32, view_width: i32, view_height: i32) {
+        for particle in self.particle_system.particles() {
+            let screen_x = particle.position.0 as i32 - cam_x;
+            let screen_y = particle.position.1 as i32 - cam_y;
+            
+            // Check if particle is within viewport
+            if screen_x >= 0 && screen_x < view_width && 
+               screen_y >= 0 && screen_y < view_height {
+                let x = screen_x as usize;
+                let y = screen_y as usize;
+                
+                if y < spans.len() && x < spans[y].len() {
+                    // Apply brightness to particle color
+                    let mut color = particle.color;
+                    if particle.brightness < 1.0 {
+                        color = self.dim_particle_color(color, particle.brightness);
+                    }
+                    
+                    // Create particle span
+                    let particle_span = Span::styled(
+                        particle.character.to_string(),
+                        Style::default().fg(color)
+                    );
+                    
+                    spans[y][x] = particle_span;
+                }
+            }
+        }
+    }
+
+    /// Dim particle color based on brightness
+    fn dim_particle_color(&self, color: Color, brightness: f32) -> Color {
+        match color {
+            Color::Rgb(r, g, b) => Color::Rgb(
+                (r as f32 * brightness) as u8,
+                (g as f32 * brightness) as u8,
+                (b as f32 * brightness) as u8,
+            ),
+            _ => if brightness < 0.5 { Color::DarkGray } else { color },
+        }
+    }
+
+    /// Add a particle effect at a specific location
+    pub fn add_particle_effect(&mut self, x: f32, y: f32, effect_type: ParticleType) {
+        self.particle_system.add_particle(x, y, effect_type);
+    }
+
+    /// Clear all particles
+    pub fn clear_particles(&mut self) {
+        self.particle_system.clear();
     }
 }
 
