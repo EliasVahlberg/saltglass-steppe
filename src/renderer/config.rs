@@ -11,6 +11,7 @@ pub struct RenderConfig {
     pub effects: EffectsConfig,
     pub animations: AnimationConfig,
     pub rendering: RenderingConfig,
+    pub performance: PerformanceConfig,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -135,6 +136,14 @@ pub struct RenderingConfig {
     pub damage_numbers: bool,
     pub status_effect_priority: Vec<String>,
     pub hit_flash_duration: u64,
+}
+
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct PerformanceConfig {
+    pub target_fps: u32,
+    pub viewport_culling: bool,
+    pub frame_limiting: bool,
+    pub optimization_level: String,
 }
 
 impl RenderConfig {
@@ -274,6 +283,12 @@ mod tests {
                 damage_numbers: true,
                 status_effect_priority: vec!["burn".to_string()],
                 hit_flash_duration: 2,
+            },
+            performance: PerformanceConfig {
+                target_fps: 60,
+                viewport_culling: true,
+                frame_limiting: true,
+                optimization_level: "balanced".to_string(),
             },
         };
 
