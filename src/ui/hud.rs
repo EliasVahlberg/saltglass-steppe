@@ -175,6 +175,7 @@ pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
                 MsgType::Dialogue => t.msg_dialogue,
                 MsgType::System => t.msg_system,
                 MsgType::Social => t.msg_system, // Use same color as system for now
+                MsgType::Warning => Color::LightRed, // Bright red for warnings
             };
             // Fade older messages (dim if not recent)
             let age = total.saturating_sub(i + 1);

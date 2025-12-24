@@ -98,6 +98,7 @@ pub fn render_map(
                     crate::game::state::BeamType::Laser => Color::Red,
                     crate::game::state::BeamType::Light => Color::Yellow,
                     crate::game::state::BeamType::Reflection => Color::Cyan,
+                    crate::game::state::BeamType::Arrow => Color::Green,
                 };
                 let style = Style::default().fg(beam_color).bold();
                 let style = if is_look_cursor { style.bg(Color::White).fg(Color::Black) } else { style };

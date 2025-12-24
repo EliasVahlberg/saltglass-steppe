@@ -49,6 +49,8 @@ pub struct ItemDef {
     #[serde(default)]
     pub grows_over_time: bool,
     #[serde(default)]
+    pub book_id: Option<String>,
+    #[serde(default)]
     pub armor_value: i32,
     #[serde(default)]
     pub equip_slot: Option<String>,

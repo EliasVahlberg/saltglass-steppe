@@ -1,0 +1,116 @@
+{
+  "books": [
+    {
+      "id": "book_soup_twice",
+      "title": "The Day We Invented Soup Twice",
+      "author": "Engineer Vane Crew",
+      "pages": [
+        {
+          "text": "We were having a good day, which in Vane's well-town means nobody screamed before noon.\n\nThe pump was behaving. The intake wasn't singing. The glare off the salt had only made two people nauseous instead of five. Jori even found a crate in the fused district marked BEANS-the kind of word you only see in old-world relics and children's books.\n\nWe carried it back like a shrine. Forewoman Ressa Vane watched us set it down and said, \"If this is another box of screws labeled BEANS I'm promoting you all to bait.\"\n\nIt wasn't screws.\n\nIt was beans.",
+          "illustration": "   _____\n  /     \\\n | BEANS |\n |_______|"
+        },
+        {
+          "text": "We cheered-quietly, because the Steppe hates loud happiness and we've learned not to challenge it. Someone rang the dinner pipe anyway. Half the town came out with cups like we were about to receive communion. Even one Mirror Monk wandered over, pretending it was just curiosity and not the smell of mercy.\n\nThe first pot went on. The second pot too, because we're Engineers and redundancy is faith with math.\n\nThen we realized nobody knew how to open the crate without cracking the beans.\n\n\"Optics cutter,\" I suggested.\n\n\"Too delicate,\" said Jori.\n\n\"Explosives?\" asked someone from the salvage crew with the eager eyes of a person who misses problems.",
+          "illustration": "   _____\n  /     \\\n |  ? ?  |\n |_______|"
+        },
+        {
+          "text": "Vane came over, stared at the box, and produced a pry bar like it had been waiting in her spine all along. She wedged it under the lid and leaned. The lid groaned and gave. We all clapped like she'd just repaired the sun.\n\nInside: twenty jars. Sealed. Perfect.\n\nNone of us had a jar opener.\n\nWe tried cloth. We tried heat. We tried cursing in five dialects. The Monk offered to \"adjust the angle of our approach,\" which is a polite way of saying he wanted to stand there and be useful without admitting he enjoyed it.\n\nFinally, Vane held up a jar, squinted at the ridges, and said, \"Fine. We'll invent soup twice.\"",
+          "illustration": "   _____\n  /     \\\n | OPEN! |\n |_______|"
+        },
+        {
+          "text": "She took the jar outside and hammered the lid against a stone until it gave. Beans, brine, and a bit of old-world vinegar smell splashed into the dust.\n\nWe cooked it anyway. We ate it anyway. People laughed. Someone said it tasted like the past apologizing.\n\nThat night, the glass storm came early-six turns ahead of forecast. It rotated the whole east block so our mess hall door opened into a dead stairwell full of cyan *. We didn't lose anyone. We just lost the route to the salvage yard, the south brine line, and-strangest-half our laughter, as if it had been stored in a room the Steppe decided to erase.",
+          "illustration": "   _____\n  /     \\\n | EMPTY |\n |_______|"
+        },
+        {
+          "text": "In the morning, Vane wrote on the ration board:\n\n- SOUP: SUCCESS.\n- HAPPINESS: NONRENEWABLE RESOURCE. USE SPARINGLY.\n\nWe ate the last beans by candlelight, because glare makes you remember you're visible.",
+          "illustration": "   _____\n  /     \\\n |  FIN  |\n |_______|"
+        }
+      ]
+    },
+    {
+      "id": "book_wedding_refractions",
+      "title": "A Wedding in Three Refractions",
+      "author": "Glassborn Collective",
+      "pages": [
+        {
+          "text": "We held the wedding at a seam that only exists when the sun is low and the salt is still. Sable-of-the-Seam officiated, which sounds grand until you know Glassborn ceremonies: the officiant mostly makes sure the couple doesn't step into a corridor that wasn't there ten minutes ago.\n\nThe groom's left eye refracted into a soft prism when he smiled. The bride's skin had that faint, brave shimmer like a blade kept clean. Their families arrived in mismatched scarves and borrowed veils, pretending the veils were fashion and not camouflage.",
+          "illustration": "   /\\\n  /  \\\n /    \\\n/______\\"
+        },
+        {
+          "text": "Someone brought Storm Glass as a gift-the kind that hums when you hold it, like it remembers music. Someone else brought a jar of preserved peaches, which we treated with more awe than the glass, because sweetness is rarer than miracle out here.\n\nWe decorated with mirror-shards set into the salt in a wide circle. It looked like a crown laid down on the earth. The joke was that the Steppe finally had something it couldn't rotate: a promise.",
+          "illustration": "   /\\\n  /  \\\n / <> \\\n/______\\"
+        },
+        {
+          "text": "Sable began, as Pathspeakers do, with humor that hides instruction.\n\n\"We are gathered,\" Sable said, \"because these two have agreed to share water, shade, and blame.\"\n\nLaughter. Real laughter-sharp enough to cut glass dust out of the throat.\n\nSable continued. \"Also because they have agreed not to pretend their faces will stay the same.\"\n\nThe bride nodded, grinning. \"My face is overrated.\"\n\n\"Your face is under warranty,\" someone called, and everyone laughed again, because it's funny when you say it fast and horrifying when you say it slowly.",
+          "illustration": "   /\\\n  /  \\\n / :) \\\n/______\\"
+        },
+        {
+          "text": "They exchanged vows. Not grand ones. Practical ones.\n\n\"I will not flinch,\" the groom promised, \"when the Steppe edits you.\"\n\n\"I will not call you monster,\" the bride promised, \"when the old world calls you unauthorized.\"\n\nSable tied their wrists with a strip of cloth stained faintly blue from veilleaf. \"So you remember,\" Sable said, \"that Veil Tincture hides you from drones, not from each other.\"\n\nThen we ate peaches. Then we danced carefully, because the seam's floor was beautiful and full of sharp opinions.",
+          "illustration": "   /\\\n  /  \\\n / <3 \\\n/______\\"
+        },
+        {
+          "text": "At the height of it, a child asked why we didn't invite the unmarked town nearby.\n\nSable answered gently, still smiling. \"We did. They declined.\"\n\nThat wasn't the whole truth. The whole truth was that the last time the Glassborn hosted a celebration near that town, the town sent \"watchers.\" The watchers brought rope. They said it was for safety. They said it was for containment. They said many words that mean the same thing when you've heard them often enough.\n\nSo we danced anyway. We made the night bright on purpose.",
+          "illustration": "   /\\\n  /  \\\n / !! \\\n/______\\"
+        },
+        {
+          "text": "And when the storm came-only a small edit, more a punctuation than a sentence-it didn't take anyone.\n\nIt just turned the crown of mirror-shards into a corridor pointing east, as if the Steppe wanted to remind us: even your joy is a route out.\n\nThe couple kissed. Everyone cheered.\n\nIn the morning, they left together, hand in hand, walking the corridor the Steppe had made from their wedding decorations.\n\nWe called it a blessing because we needed a word that wasn't grief.",
+          "illustration": "   /\\\n  /  \\\n / -> \\\n/______\\"
+        }
+      ]
+    },
+    {
+      "id": "book_merchant_memories",
+      "title": "The Merchant of Memories",
+      "author": "Folktale",
+      "pages": [
+        {
+          "text": "There was once a trader named Oryn who dealt not in salt or glass, but in the things people wanted to forget.\n\nHe carried a set of Mnemosyne Lenses, rare artifacts from the deep Archives. If you looked through them and focused on a memory-a pain, a loss, a fear-the lens would pull it out of your mind and trap it in a small crystal bead.",
+          "illustration": "  (   )\n (  *  )\n  (   )"
+        },
+        {
+          "text": "A mother who lost her child to a storm came to him. \"Take the grief,\" she said. Oryn took it. She left smiling, but she also forgot she ever had a child. She walked past her son's grave without pausing.\n\nA warrior who fled a battle in cowardice came to him. \"Take the shame,\" he said. Oryn took it. The warrior became brave, reckless. He died a week later charging a Shard Spider nest, having forgotten the fear that keeps men alive.",
+          "illustration": "  (   )\n (  !  )\n  (   )"
+        },
+        {
+          "text": "One day, a Mirror Monk came to Oryn. The Monk was old, his skin crusted with beautiful, terrible jewels of refraction.\n\n\"Take the light,\" the Monk whispered. \"I have seen too much. The song of the Heliograph never stops. I want silence.\"\n\nOryn hesitated. To take a Monk's connection to the light was to take his soul. But the payment offered was a map to a pristine, pre-Collapse vault. Greed won.",
+          "illustration": "  (   )\n (  $  )\n  (   )"
+        },
+        {
+          "text": "Oryn raised the lens. He pulled the light from the Monk's mind. The bead that formed was blindingly bright, hot as a coal.\n\nThe Monk slumped, his eyes going dull and flat. He was silent. He was empty.\n\nBut the bead... the bead didn't stop growing. It fed on the ambient light of the market. It pulsed. It sang.",
+          "illustration": "  (   )\n ( *** )\n  (   )"
+        },
+        {
+          "text": "Oryn tried to put it in his pouch, but it burned through the leather. It burned through his table. It burned through the floor.\n\nThe bead became a seed. The seed became a storm.\n\nThey say the market at Oryn's Rest is still there, frozen in a perfect, eternal explosion of glass. And at the center, trapped in the amber of the storm, is Oryn, holding a lens, trying to sell a memory that was too heavy to carry.",
+          "illustration": "  (   )\n ( @@@ )\n  (   )"
+        }
+      ]
+    },
+    {
+      "id": "book_echoes_sector_7",
+      "title": "The Echoes of Sector 7",
+      "author": "Recovered Audio Log",
+      "pages": [
+        {
+          "text": "Voice 1 (Scavenger \"Rook\"): \"Light... look at the walls. They're not reflecting us.\"\n\nVoice 2 (Tech-Specialist \"Jinx\"): \"Don't look at them. Keep your eyes on the scanner. We're looking for the server core, not art.\"\n\nRook: \"No, Jinx, seriously. Look. The reflection... it's moving independently. It's walking away.\"\n\nJinx: \"Glitch in the glass. Stress fractures. Ignore it.\"",
+          "illustration": " [o_o]\n / | \\"
+        },
+        {
+          "text": "Rook: \"It's not a glitch. It's... people. I see a crowd. They're wearing pre-Collapse clothes. Suits. Lab coats. They're running.\"\n\n[Sound of weapon safety clicking off]\n\nJinx: \"Rook, snap out of it. Your refraction index is spiking. You're hallucinating.\"\n\nRook: \"I can hear them. They're screaming about the sky burning. They're... oh god, they're trying to get in.\"\n\n[Loud thudding sound, like fists on glass]",
+          "illustration": " [!_!]\n / | \\"
+        },
+        {
+          "text": "Jinx: \"Scanner is picking up... massive data traffic. But there's no cables. It's coming from the air. The ambient light is carrying packets.\"\n\nRook: \"They aren't ghosts, Jinx. They're backups. The system backed them up when the bombs fell. They're stored in the walls.\"\n\nJinx: \"That's impossible. The storage density required...\"\n\nRook: \"They see me. The one in the red coat. He sees me. He's... he's asking for a password.\"",
+          "illustration": " [?_?]\n / | \\"
+        },
+        {
+          "text": "Jinx: \"Rook, don't answer. Do not interact with the interface.\"\n\nRook: \"He says the password is Helios. He says... he says he wants to go home.\"\n\n[High-pitched digital screech. Glass shattering.]\n\nJinx: \"Containment breach! Rook, get back! The light is leaking!\"\n\nRook: \"I see it now. It's not a city. It's a circuit board. And we're the virus.\"",
+          "illustration": " [X_X]\n / | \\"
+        },
+        {
+          "text": "[AUDIO END]\n\nNote: The bodies of Rook and Jinx were never found. Only their equipment remained, fused into the floor. The walls of Sector 7 are now completely opaque black glass.",
+          "illustration": " [   ]\n /   \\"
+        }
+      ]
+    }
+  ]
+}

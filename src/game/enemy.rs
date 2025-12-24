@@ -36,6 +36,16 @@ pub struct Behavior {
     pub percent: Option<u32>,
     #[serde(default)]
     pub value: Option<u32>,
+    #[serde(default)]
+    pub range: Option<u32>,
+    #[serde(default)]
+    pub damage: Option<u32>,
+    #[serde(default)]
+    pub duration: Option<u32>,
+    #[serde(default)]
+    pub spawns: Option<String>,
+    #[serde(default)]
+    pub count: Option<u32>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -70,6 +80,24 @@ pub struct EnemyDef {
     pub effects: Vec<EntityEffect>,
     #[serde(default)]
     pub loot_table: Vec<LootEntry>,
+    #[serde(default)]
+    pub is_spawner: bool,
+    #[serde(default)]
+    pub spawn_rate: u32,
+    #[serde(default)]
+    pub max_spawns: u32,
+    #[serde(default)]
+    pub spawn_types: Vec<String>,
+    #[serde(default)]
+    pub ranged_attack: bool,
+    #[serde(default)]
+    pub attack_range: u32,
+    #[serde(default)]
+    pub aoe_attack: bool,
+    #[serde(default)]
+    pub aoe_radius: u32,
+    #[serde(default)]
+    pub aoe_warning_turns: u32,
 }
 
 fn default_sight() -> i32 { 6 }
@@ -133,6 +161,18 @@ pub struct Enemy {
     pub inventory: Vec<String>,  // Items carried by enemy
     #[serde(default)]
     pub status_effects: Vec<StatusEffect>,
+    #[serde(default)]
+    pub spawned_count: u32,  // For spawners
+    #[serde(default)]
+    pub last_spawn_turn: u32,  // For spawners
+    #[serde(default)]
+    pub aoe_target: Option<(i32, i32)>,  // AOE attack target
+    #[serde(default)]
+    pub aoe_warning_turns: u32,  // Turns until AOE attack
+    #[serde(default)]
+    pub swarm_leader: bool,  // Is this the swarm leader
+    #[serde(default)]
+    pub swarm_id: Option<String>,  // Swarm group identifier
 }
 
 impl Enemy {
@@ -143,7 +183,20 @@ impl Enemy {
             ai_disabled: false, provoked: false, 
             inventory: Vec::new(),
             status_effects: Vec::new(),
+            spawned_count: 0,
+            last_spawn_turn: 0,
+            aoe_target: None,
+            aoe_warning_turns: 0,
+            swarm_leader: false,
+            swarm_id: None,
         }
+    }
+
+    pub fn new_swarm_member(x: i32, y: i32, id: &str, swarm_id: String, is_leader: bool) -> Self {
+        let mut enemy = Self::new(x, y, id);
+        enemy.swarm_id = Some(swarm_id);
+        enemy.swarm_leader = is_leader;
+        enemy
     }
 
     pub fn id(&self) -> &str {
@@ -187,6 +240,50 @@ impl Enemy {
                 self.hp * 100 / max_hp < 30
             }
             _ => false,
+        }
+    }
+
+    pub fn can_spawn(&self, current_turn: u32) -> bool {
+        if let Some(def) = self.def() {
+            def.is_spawner && 
+            self.spawned_count < def.max_spawns &&
+            current_turn >= self.last_spawn_turn + def.spawn_rate
+        } else {
+            false
+        }
+    }
+
+    pub fn has_ranged_attack(&self) -> bool {
+        self.def().map(|d| d.ranged_attack).unwrap_or(false)
+    }
+
+    pub fn attack_range(&self) -> u32 {
+        self.def().map(|d| d.attack_range).unwrap_or(1)
+    }
+
+    pub fn has_aoe_attack(&self) -> bool {
+        self.def().map(|d| d.aoe_attack).unwrap_or(false)
+    }
+
+    pub fn is_preparing_aoe(&self) -> bool {
+        self.aoe_target.is_some() && self.aoe_warning_turns > 0
+    }
+
+    pub fn start_aoe_attack(&mut self, target_x: i32, target_y: i32) {
+        if let Some(def) = self.def() {
+            if def.aoe_attack {
+                self.aoe_target = Some((target_x, target_y));
+                self.aoe_warning_turns = def.aoe_warning_turns;
+            }
+        }
+    }
+
+    pub fn tick_aoe_warning(&mut self) -> bool {
+        if self.aoe_warning_turns > 0 {
+            self.aoe_warning_turns -= 1;
+            self.aoe_warning_turns == 0
+        } else {
+            false
         }
     }
 

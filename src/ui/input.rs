@@ -124,16 +124,49 @@ pub struct UiState {
     pub debug_menu: DebugMenu,
     pub issue_reporter: IssueReporter,
     pub dialog_box: DialogBox,
+    pub book_reader: BookReader,
     /// Smooth camera position (lerped toward player)
     pub camera_x: f32,
     pub camera_y: f32,
+}
+
+/// Book reader state
+#[derive(Default)]
+pub struct BookReader {
+    pub active: bool,
+    pub book_id: String,
+    pub current_page: usize,
+}
+
+impl BookReader {
+    pub fn open(&mut self, book_id: &str) {
+        self.active = true;
+        self.book_id = book_id.to_string();
+        self.current_page = 0;
+    }
+    
+    pub fn close(&mut self) {
+        self.active = false;
+    }
+    
+    pub fn next_page(&mut self, total_pages: usize) {
+        if self.current_page + 1 < total_pages {
+            self.current_page += 1;
+        }
+    }
+    
+    pub fn prev_page(&mut self) {
+        if self.current_page > 0 {
+            self.current_page -= 1;
+        }
+    }
 }
 
 /// Pause menu state
 #[derive(Default)]
 pub struct PauseMenu {
     pub active: bool,
-    pub selected: usize,
+    pub selected_index: usize,
 }
 
 impl PauseMenu {
@@ -162,6 +195,7 @@ impl UiState {
             debug_menu: DebugMenu::default(),
             issue_reporter: IssueReporter::default(),
             dialog_box: DialogBox::default(),
+            book_reader: BookReader::default(),
             camera_x: 0.0,
             camera_y: 0.0,
         }
