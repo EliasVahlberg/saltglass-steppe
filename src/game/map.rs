@@ -130,6 +130,15 @@ pub struct MapLight {
     pub id: String,
 }
 
+/// Inscription or graffiti placed on the map
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct MapInscription {
+    pub x: i32,
+    pub y: i32,
+    pub text: String,
+    pub inscription_type: String, // "inscription", "graffiti", "shrine_text"
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct Map {
     pub tiles: Vec<Tile>,
@@ -137,6 +146,10 @@ pub struct Map {
     pub height: usize,
     #[serde(default)]
     pub lights: Vec<MapLight>,
+    #[serde(default)]
+    pub inscriptions: Vec<MapInscription>,
+    #[serde(default)]
+    pub area_description: Option<String>,
 }
 
 static VOID_WALL: Lazy<Tile> = Lazy::new(|| Tile::Wall { id: "void".to_string(), hp: 1000 });
@@ -161,7 +174,12 @@ impl Map {
         poi: POI,
     ) -> (Self, Vec<(i32, i32)>) {
         let seed = rng.next_u32();
-        Self::generate_noise_terrain(seed, biome, terrain, poi)
+        let (mut map, clearings) = Self::generate_noise_terrain(seed, biome, terrain, poi);
+        
+        // Generate narrative content for the map
+        map.generate_narrative_content(rng, biome, terrain, poi);
+        
+        (map, clearings)
     }
 
     fn generate_noise_terrain(
@@ -258,6 +276,8 @@ impl Map {
             width: MAP_WIDTH,
             height: MAP_HEIGHT,
             lights: Vec::new(),
+            inscriptions: Vec::new(),
+            area_description: None,
         };
 
         (map, clearings)
@@ -371,7 +391,14 @@ impl Map {
             }
         }
 
-        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT, lights }, room_centers)
+        (Self { 
+            tiles, 
+            width: MAP_WIDTH, 
+            height: MAP_HEIGHT, 
+            lights,
+            inscriptions: Vec::new(),
+            area_description: None,
+        }, room_centers)
     }
 
     /// Generate a subterranean map (cave/dungeon)
@@ -427,7 +454,14 @@ impl Map {
             lights.push(MapLight { x: rx, y: ry, id: "crystal".to_string() });
         }
 
-        (Self { tiles, width: MAP_WIDTH, height: MAP_HEIGHT, lights }, room_centers)
+        (Self { 
+            tiles, 
+            width: MAP_WIDTH, 
+            height: MAP_HEIGHT, 
+            lights,
+            inscriptions: Vec::new(),
+            area_description: None,
+        }, room_centers)
     }
 
     pub fn get(&self, x: i32, y: i32) -> Option<&Tile> {
@@ -455,6 +489,123 @@ impl Map {
     /// Get tile at position, used by FOV system
     pub fn get_tile(&self, x: i32, y: i32) -> &Tile {
         self.get(x, y).unwrap_or(&VOID_WALL)
+    }
+    
+    /// Generate narrative content for the map
+    fn generate_narrative_content(&mut self, rng: &mut ChaCha8Rng, biome: Biome, terrain: Terrain, poi: POI) {
+        // Generate area description
+        self.area_description = self.generate_area_description(rng, biome, terrain, poi);
+        
+        // Place inscriptions and graffiti
+        self.place_inscriptions(rng, biome, poi);
+    }
+    
+    /// Generate contextual area description
+    fn generate_area_description(&self, rng: &mut ChaCha8Rng, biome: Biome, terrain: Terrain, poi: POI) -> Option<String> {
+        use super::narrative::{NarrativeGenerator, NarrativeContext};
+        
+        if let Ok(generator) = NarrativeGenerator::new() {
+            let biome_str = match biome {
+                Biome::Desert => "desert",
+                Biome::Saltflat => "saltflat", 
+                Biome::Scrubland => "scrubland",
+                Biome::Oasis => "oasis",
+                Biome::Ruins => "ruins",
+            };
+            
+            let terrain_str = match terrain {
+                Terrain::Flat => "flat",
+                Terrain::Hills => "hills",
+                Terrain::Dunes => "dunes", 
+                Terrain::Canyon => "canyon",
+                Terrain::Mesa => "mesa",
+            };
+            
+            let location_type = match poi {
+                POI::Town => "town",
+                POI::Shrine => "shrine", 
+                POI::Landmark => "ruins",
+                POI::Dungeon => "archive",
+                _ => "wilderness",
+            };
+            
+            let context = NarrativeContext {
+                biome: Some(biome_str.to_string()),
+                terrain: Some(terrain_str.to_string()),
+                adaptations: Vec::new(),
+                faction_reputation: std::collections::HashMap::new(),
+                refraction_level: 0,
+                location_type: Some(location_type.to_string()),
+            };
+            
+            generator.generate_contextual_description(&context, &mut rng.clone())
+        } else {
+            None
+        }
+    }
+    
+    /// Place inscriptions and graffiti on walls and glass
+    fn place_inscriptions(&mut self, rng: &mut ChaCha8Rng, _biome: Biome, poi: POI) {
+        use super::narrative::NarrativeGenerator;
+        
+        if let Ok(generator) = NarrativeGenerator::new() {
+            let inscription_count = match poi {
+                POI::Town => rng.gen_range(2..5),
+                POI::Shrine => rng.gen_range(3..6),
+                POI::Landmark => rng.gen_range(1..4),
+                POI::Dungeon => rng.gen_range(1..3),
+                _ => rng.gen_range(0..2),
+            };
+            
+            for _ in 0..inscription_count {
+                if let Some((x, y)) = self.find_inscription_location(rng) {
+                    let inscription_type = if matches!(poi, POI::Shrine) && rng.gen_bool(0.7) {
+                        "shrine_text"
+                    } else if rng.gen_bool(0.6) {
+                        "inscription"
+                    } else {
+                        "graffiti"
+                    };
+                    
+                    if let Some(text) = generator.generate_environmental_text(inscription_type, &mut rng.clone()) {
+                        self.inscriptions.push(MapInscription {
+                            x,
+                            y,
+                            text,
+                            inscription_type: inscription_type.to_string(),
+                        });
+                    }
+                }
+            }
+        }
+    }
+    
+    /// Find suitable location for inscription (wall or glass tile)
+    fn find_inscription_location(&self, rng: &mut ChaCha8Rng) -> Option<(i32, i32)> {
+        let mut candidates = Vec::new();
+        
+        for y in 0..self.height {
+            for x in 0..self.width {
+                let tile = &self.tiles[y * self.width + x];
+                if matches!(tile, Tile::Wall { .. } | Tile::Glass) {
+                    // Check if there's a floor tile adjacent (visible to players)
+                    for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+                        if let Some(adj_tile) = self.get(x as i32 + dx, y as i32 + dy) {
+                            if matches!(adj_tile, Tile::Floor) {
+                                candidates.push((x as i32, y as i32));
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        if candidates.is_empty() {
+            None
+        } else {
+            Some(candidates[rng.gen_range(0..candidates.len())])
+        }
     }
 }
 

@@ -128,11 +128,19 @@ pub struct Npc {
     pub y: i32,
     pub id: String,
     pub talked: bool,
+    #[serde(default)]
+    pub backstory: Option<String>,
 }
 
 impl Npc {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
-        Self { x, y, id: id.to_string(), talked: false }
+        Self { 
+            x, 
+            y, 
+            id: id.to_string(), 
+            talked: false,
+            backstory: None,
+        }
     }
 
     pub fn def(&self) -> Option<&'static NpcDef> {
@@ -145,6 +153,10 @@ impl Npc {
 
     pub fn name(&self) -> &str {
         self.def().map(|d| d.name.as_str()).unwrap_or("Unknown")
+    }
+
+    pub fn backstory(&self) -> Option<&str> {
+        self.backstory.as_deref()
     }
 
     pub fn dialogue(&self, ctx: &DialogueContext) -> &str {

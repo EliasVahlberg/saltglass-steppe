@@ -495,6 +495,9 @@ impl GameState {
         let story_model = StoryModel::new(seed + 3);
         state.story_model = Some(story_model);
         
+        // Generate backstories for NPCs now that story model is available
+        state.generate_npc_backstories();
+        
         state.rebuild_spatial_index();
         state
     }
@@ -839,6 +842,64 @@ impl GameState {
             generator.generate_markov_text(&mut self.rng, max_words)
         } else {
             "The glass whispers secrets.".to_string()
+        }
+    }
+
+    /// Get area description for current map
+    pub fn get_area_description(&self) -> Option<String> {
+        self.map.area_description.clone()
+    }
+    
+    /// Generate NPC backstory using story model
+    pub fn generate_npc_backstory(&mut self, npc_id: &str, story_model: &super::story::StoryModel) -> Option<String> {
+        if let Some(ref generator) = self.narrative_generator {
+            // Get NPC definition to understand their faction
+            if let Some(npc_def) = super::npc::get_npc_def(npc_id) {
+                // Try to find a character from the story model that matches this NPC's faction
+                let matching_character = story_model.characters.iter()
+                    .find(|(_, c)| c.faction == npc_def.faction);
+                
+                if let Some((_, character)) = matching_character {
+                    // Generate backstory based on the character's history
+                    let achievements = if character.achievements.is_empty() {
+                        "made their mark on history".to_string()
+                    } else {
+                        character.achievements.join(", ")
+                    };
+                    
+                    let backstory = format!(
+                        "{} has connections to {}. They remember when {}.",
+                        npc_def.name,
+                        character.name,
+                        achievements
+                    );
+                    Some(backstory)
+                } else {
+                    // Generate generic backstory using narrative templates
+                    generator.generate_environmental_text("npc_backstory", &mut self.rng)
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    /// Generate backstories for all NPCs using story model
+    pub fn generate_npc_backstories(&mut self) {
+        if let Some(ref story_model) = self.story_model.clone() {
+            // Collect NPC IDs that need backstories
+            let npc_ids: Vec<(usize, String)> = self.npcs.iter().enumerate()
+                .filter(|(_, npc)| npc.backstory.is_none())
+                .map(|(i, npc)| (i, npc.id.clone()))
+                .collect();
+            
+            // Generate backstories
+            for (index, npc_id) in npc_ids {
+                let backstory = self.generate_npc_backstory(&npc_id, &story_model);
+                self.npcs[index].backstory = backstory;
+            }
         }
     }
 
