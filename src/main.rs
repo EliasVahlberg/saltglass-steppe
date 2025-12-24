@@ -353,6 +353,7 @@ fn main() -> Result<()> {
             state.tick_hit_flash();
             state.tick_damage_numbers();
             state.tick_projectile_trails();
+            state.tick_light_beams();
             state.tick_animation();
             ui.update_camera(state.player_x, state.player_y);
             ui.dialog_box.tick(16); // ~60fps

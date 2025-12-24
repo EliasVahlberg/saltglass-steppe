@@ -103,6 +103,21 @@ impl TileRenderer {
                     ('░', color)
                 }
             }
+            Tile::Glare => {
+                // Glare tiles pulse with bright light
+                let color = if self.config.animations.tile_animations {
+                    let pulse_phase = ((animation_frame / 3) + (x as u32 + y as u32)) % 4;
+                    match pulse_phase {
+                        0 => Color::White,
+                        1 => Color::LightYellow,
+                        2 => Color::Yellow,
+                        _ => Color::Rgb(255, 255, 200),
+                    }
+                } else {
+                    Color::White
+                };
+                ('░', color)
+            }
             Tile::Floor => {
                 let color = parse_color(&self.config.colors.tiles.floor);
                 ('.', color)

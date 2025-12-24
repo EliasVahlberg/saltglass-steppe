@@ -316,7 +316,7 @@ mod tests {
         let mut config = create_test_config();
         config.lighting.enabled = false;
         
-        let mut lighting = LightingRenderer::new(&config);
+        let _lighting = LightingRenderer::new(&config);
         // Create a minimal game state for testing
         // This would need to be adapted based on your actual GameState structure
     }
@@ -327,9 +327,10 @@ mod tests {
         let lighting = LightingRenderer::new(&config);
         
         let bright_red = ratatui::prelude::Color::Red;
-        let dimmed = lighting.dim_color(bright_red, 128);
-        // Should be dimmed but still recognizable
+        let dimmed = lighting.dim_color(bright_red, 50); // Use low light level
+        // Should be dimmed to DarkGray
         assert_ne!(dimmed, bright_red);
+        assert_eq!(dimmed, ratatui::prelude::Color::DarkGray);
         
         let full_bright = lighting.dim_color(bright_red, 255);
         assert_eq!(full_bright, bright_red);

@@ -1,0 +1,59 @@
+{
+  "name": "storm_forecast_system",
+  "seed": 12345,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 1,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "move",
+        "dx": 0,
+        "dy": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "storm_timer",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Storm should be forecasted at start"
+    },
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "storm_intensity",
+        "op": "ge",
+        "value": 2
+      },
+      "message": "Storm should have reasonable intensity"
+    },
+    {
+      "after_turn": 2,
+      "check": {
+        "type": "storm_timer",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Storm forecast should persist"
+    }
+  ]
+}

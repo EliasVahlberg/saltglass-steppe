@@ -1,0 +1,101 @@
+{
+  "name": "first_hour_experience_comprehensive",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "refraction": 0,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 1,
+      "action": {
+        "type": "move",
+        "dx": 0,
+        "dy": 1
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "trigger_storm",
+        "intensity": 3
+      }
+    },
+    {
+      "turn": 3,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 4,
+      "action": {
+        "type": "set_refraction",
+        "value": 30
+      }
+    },
+    {
+      "turn": 5,
+      "action": {
+        "type": "move",
+        "dx": 0,
+        "dy": -1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 2,
+      "check": {
+        "type": "storm_changed_tiles_count",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Storm should change some tiles"
+    },
+    {
+      "after_turn": 2,
+      "check": {
+        "type": "tile_type_count",
+        "tile_type": "glass",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "Storm should create glass tiles"
+    },
+    {
+      "after_turn": 3,
+      "check": {
+        "type": "storm_changed_tiles_count",
+        "op": "lt",
+        "value": 100
+      },
+      "message": "Player movement should clear some changed tiles"
+    },
+    {
+      "after_turn": 4,
+      "check": {
+        "type": "adaptation_count",
+        "op": "ge",
+        "value": 1
+      },
+      "message": "Player should have gained at least one adaptation"
+    },
+    {
+      "after_turn": 5,
+      "check": {
+        "type": "storm_timer",
+        "op": "gt",
+        "value": 0
+      },
+      "message": "New storm should be forecasted"
+    }
+  ]
+}

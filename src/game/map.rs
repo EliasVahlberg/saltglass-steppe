@@ -76,6 +76,7 @@ pub enum Tile {
     Floor,
     Wall { id: String, hp: i32 },
     Glass,
+    Glare,      // Hot light tile that affects visibility and movement
     StairsDown,
     StairsUp,
     WorldExit,
@@ -87,19 +88,21 @@ impl Tile {
             Tile::Floor => '.',
             Tile::Wall { .. } => '#',
             Tile::Glass => '*',
+            Tile::Glare => '░',
             Tile::StairsDown => '>',
             Tile::StairsUp => '<',
             Tile::WorldExit => 'O',
         }
     }
-    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
-    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
+    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::Glare | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
+    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::Glare | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
 
     pub fn name(&self) -> &str {
         match self {
             Tile::Floor => "Floor",
             Tile::Wall { id, .. } => get_wall_def(id).map(|d| d.name.as_str()).unwrap_or("Wall"),
             Tile::Glass => "Glass",
+            Tile::Glare => "Glare",
             Tile::StairsDown => "Stairs Down",
             Tile::StairsUp => "Stairs Up",
             Tile::WorldExit => "World Map Exit",
@@ -111,6 +114,7 @@ impl Tile {
             Tile::Floor => "Dusty ground",
             Tile::Wall { id, .. } => get_wall_def(id).map(|d| d.description.as_str()).unwrap_or("Solid wall"),
             Tile::Glass => "Sharp refractive shards, dangerous to walk on",
+            Tile::Glare => "Intense light that impairs vision and movement",
             Tile::StairsDown => "Stairs leading down into darkness",
             Tile::StairsUp => "Stairs leading back to the surface",
             Tile::WorldExit => "A passage to the world map",

@@ -45,6 +45,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         .constraints([
             Constraint::Length(10),  // Stats (expanded for sanity)
             Constraint::Length(5),  // Status Effects
+            Constraint::Length(7),  // Storm Forecast
             Constraint::Length(9),  // Equipment
             Constraint::Min(3),     // Quests
         ])
@@ -54,9 +55,6 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     let bar_width = 10;
     let (hp_bar, hp_color) = render_bar(state.player_hp, state.player_max_hp, bar_width);
     let (ap_bar, _) = render_bar(state.player_ap, state.player_max_ap, bar_width);
-    let storm_color = if state.storm.turns_until <= 3 { Color::Red } 
-        else if state.storm.turns_until <= 5 { Color::Yellow } 
-        else { Color::Green };
 
     let stats = vec![
         Line::from(vec![
@@ -96,10 +94,6 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::styled(format!("{:02}:00", state.time_of_day), Style::default().fg(Color::White)),
             Span::raw(format!(" {:?}", state.weather)),
         ]),
-        Line::from(vec![
-            Span::raw("Storm: "),
-            Span::styled(format!("{} turns", state.storm.turns_until), Style::default().fg(storm_color)),
-        ]),
     ];
     frame.render_widget(Paragraph::new(stats), chunks[0]);
 
@@ -117,6 +111,9 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     }
     frame.render_widget(Paragraph::new(status_lines), chunks[1]);
 
+    // Storm Forecast section
+    super::storm_forecast::render_storm_forecast(frame, chunks[2], state);
+
     // Equipment section
     let mut equip_lines = vec![Line::from(Span::styled("─Equipment─", Style::default().fg(Color::DarkGray)))];
     for slot in EquipSlot::all() {
@@ -126,7 +123,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             .unwrap_or("-");
         equip_lines.push(Line::from(format!("{}: {}", slot.display_name(), item_name)));
     }
-    frame.render_widget(Paragraph::new(equip_lines), chunks[2]);
+    frame.render_widget(Paragraph::new(equip_lines), chunks[3]);
 
     // Active quests section
     let mut quest_lines = vec![Line::from(Span::styled("─Quests─", Style::default().fg(Color::DarkGray)))];
@@ -144,7 +141,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             }
         }
     }
-    frame.render_widget(Paragraph::new(quest_lines), chunks[3]);
+    frame.render_widget(Paragraph::new(quest_lines), chunks[4]);
 }
 
 /// Render the bottom panel with messages and hotkeys

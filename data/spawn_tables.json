@@ -23,6 +23,7 @@
       {"id": "dust_wraith", "weight": 1}
     ],
     "npcs": [
+      {"id": "tutorial_guide", "weight": 3, "room": "first"},
       {"id": "mirror_monk", "room": "late"},
       {"id": "salt_hermit", "weight": 1},
       {"id": "glass_merchant", "weight": 1},
