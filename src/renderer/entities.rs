@@ -365,6 +365,7 @@ mod tests {
                 optimization_level: "balanced".to_string(),
             },
             particles: crate::renderer::particles::ParticleConfig::default(),
+            visual_animations: crate::renderer::animations::VisualAnimationConfig::default(),
         };
         
         let renderer = EntityRenderer::new(&config);

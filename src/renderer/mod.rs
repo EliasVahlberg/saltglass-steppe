@@ -11,6 +11,7 @@ pub mod tiles;
 pub mod camera;
 pub mod performance;
 pub mod particles;
+pub mod animations;
 
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use crate::GameState;
@@ -23,6 +24,7 @@ use self::{
     camera::Camera,
     performance::{FrameLimiter, ViewportCuller},
     particles::{ParticleSystem, ParticleType},
+    animations::{AnimationSystem, VisualAnimationConfig},
 };
 
 /// Main renderer that coordinates all rendering subsystems
@@ -36,6 +38,7 @@ pub struct Renderer {
     frame_limiter: FrameLimiter,
     viewport_culler: ViewportCuller,
     particle_system: ParticleSystem,
+    animation_system: AnimationSystem,
 }
 
 impl Renderer {
@@ -52,6 +55,7 @@ impl Renderer {
             frame_limiter: FrameLimiter::new(config.performance.target_fps),
             viewport_culler: ViewportCuller::new(),
             particle_system: ParticleSystem::new(config.particles.clone()),
+            animation_system: AnimationSystem::new(config.visual_animations.clone()),
             config,
         })
     }
@@ -77,9 +81,17 @@ impl Renderer {
         // Update particle system
         self.particle_system.update(1.0 / 60.0); // Assume 60 FPS for now
 
+        // Update animation system
+        self.animation_system.update();
+
+        // Get screen shake offset
+        let (shake_x, shake_y) = self.animation_system.get_screen_offset();
+        let adjusted_cam_x = cam_x + shake_x as i32;
+        let adjusted_cam_y = cam_y + shake_y as i32;
+
         // Get viewport bounds for culling
-        let viewport_bounds = self.viewport_culler.get_bounds(
-            cam_x, cam_y, inner.width as i32, inner.height as i32
+        let _viewport_bounds = self.viewport_culler.get_bounds(
+            adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32
         );
 
         // Calculate lighting if enabled (only for visible area)
@@ -94,8 +106,8 @@ impl Renderer {
             state,
             &light_map,
             frame_count,
-            cam_x,
-            cam_y,
+            adjusted_cam_x,
+            adjusted_cam_y,
             inner.width as i32,
             inner.height as i32,
         );
@@ -105,8 +117,8 @@ impl Renderer {
             state,
             &light_map,
             frame_count,
-            cam_x,
-            cam_y,
+            adjusted_cam_x,
+            adjusted_cam_y,
             inner.width as i32,
             inner.height as i32,
         );
@@ -117,19 +129,26 @@ impl Renderer {
             tile_spans,
             entity_spans,
             frame_count,
-            cam_x,
-            cam_y,
+            adjusted_cam_x,
+            adjusted_cam_y,
             inner.width as i32,
             inner.height as i32,
         );
 
         // Render particles on top of everything else
-        self.render_particles(&mut final_spans, cam_x, cam_y, inner.width as i32, inner.height as i32);
+        self.render_particles(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
+
+        // Apply animation effects to all spans
+        for row in &mut final_spans {
+            for span in row {
+                span.style = self.animation_system.get_combined_style(span.style);
+            }
+        }
 
         // Apply look cursor highlighting
         let final_spans = if let Some((lx, ly)) = look_cursor {
-            let screen_x = lx - cam_x;
-            let screen_y = ly - cam_y;
+            let screen_x = lx - adjusted_cam_x;
+            let screen_y = ly - adjusted_cam_y;
             
             if screen_y >= 0 && screen_y < final_spans.len() as i32 &&
                screen_x >= 0 && screen_x < final_spans[screen_y as usize].len() as i32 {
@@ -235,6 +254,21 @@ impl Renderer {
     /// Clear all particles
     pub fn clear_particles(&mut self) {
         self.particle_system.clear();
+    }
+
+    /// Trigger a blink animation effect
+    pub fn add_blink_effect(&mut self) {
+        self.animation_system.add_blink();
+    }
+
+    /// Trigger a glow animation effect
+    pub fn add_glow_effect(&mut self) {
+        self.animation_system.add_glow();
+    }
+
+    /// Trigger a screen shake effect
+    pub fn add_screen_shake(&mut self) {
+        self.animation_system.add_screen_shake();
     }
 }
 
