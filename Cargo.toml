@@ -22,3 +22,10 @@ rayon = "1.11.0"
 noise = "0.9.0"
 textwrap = "0.16"
 chrono = { version = "0.4", features = ["serde"] }
+
+[profile.release]
+codegen-units = 1        # Better optimization
+lto = true              # Link-time optimization
+opt-level = 3           # Maximum speed optimization for TUI performance
+strip = true            # Remove debug symbols
+panic = "abort"         # Reduce binary size and avoid unwinding overhead
