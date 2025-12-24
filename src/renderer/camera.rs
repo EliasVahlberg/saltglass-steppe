@@ -17,7 +17,7 @@ impl Camera {
             target_y: 0.0,
             current_x: 0.0,
             current_y: 0.0,
-            smoothing: 0.15, // Smoothing factor (0.0 = no smoothing, 1.0 = instant)
+            smoothing: 1.0, // No smoothing - instant camera movement
         }
     }
 
