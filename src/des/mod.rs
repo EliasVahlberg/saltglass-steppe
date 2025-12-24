@@ -809,7 +809,7 @@ impl DesExecutor {
                 self.state.quest_log.completed.contains(quest_id)
             }
             AssertionCheck::QuestAvailable { quest_id } => {
-                self.state.quest_log.is_quest_available(quest_id)
+                self.state.quest_log.is_quest_available(quest_id, &self.state)
             }
             AssertionCheck::QuestObjectiveProgress { quest_id, objective_id, op, value } => {
                 self.state.quest_log.get_active(quest_id)

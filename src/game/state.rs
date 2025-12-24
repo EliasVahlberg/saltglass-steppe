@@ -2281,9 +2281,35 @@ impl GameState {
 
     /// Accept a quest by ID
     pub fn accept_quest(&mut self, quest_id: &str) -> bool {
-        if self.quest_log.accept(quest_id) {
+        // Check if quest can be accepted (need to do this separately to avoid borrowing issues)
+        let can_accept = self.quest_log.is_quest_available(quest_id, self);
+        if !can_accept {
+            return false;
+        }
+        
+        // Create the quest
+        if let Some(quest) = super::quest::ActiveQuest::new(quest_id) {
+            self.quest_log.active.push(quest);
+            
             if let Some(def) = super::quest::get_quest_def(quest_id) {
                 self.log(format!("Quest accepted: {}", def.name));
+                
+                // Handle faction alignment for main questline
+                if def.category == "main" && quest_id.starts_with("faction_choice_") {
+                    let faction = if quest_id.contains("monks") {
+                        "Mirror Monks"
+                    } else if quest_id.contains("engineers") {
+                        "Sand-Engineers"
+                    } else if quest_id.contains("glassborn") {
+                        "Glassborn"
+                    } else {
+                        return true;
+                    };
+                    
+                    if self.quest_log.set_faction_alignment(faction) {
+                        self.log(format!("You have aligned with the {}", faction));
+                    }
+                }
             }
             true
         } else {

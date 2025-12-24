@@ -13,9 +13,7 @@
             "Void",
             "Obsidian",
             "Silent",
-            "Fractured",
-            "Glass-Eater",
-            "Mirror-Breaker"
+            "Fractured"
           ],
           "action": [
             "shattered",
@@ -25,9 +23,7 @@
             "refracted",
             "vitrified",
             "erased",
-            "illuminated",
-            "rewrote",
-            "purified"
+            "illuminated"
           ],
           "location": [
             "ancient citadel",
@@ -37,9 +33,7 @@
             "sacred grove",
             "Archive vaults",
             "sunken city",
-            "whispering dunes",
-            "Heliograph Control Node",
-            "Monk Monastery"
+            "whispering dunes"
           ],
           "consequence": [
             "leaving only whispers in the glass",
@@ -49,9 +43,7 @@
             "sealing away forgotten knowledge",
             "twisting the local geometry",
             "awakening the dormant sentinels",
-            "scattering the light of a thousand suns",
-            "fusing flesh with crystal",
-            "revealing the code beneath the world"
+            "scattering the light of a thousand suns"
           ]
         }
       },
@@ -66,8 +58,7 @@
             "The Salt Prophet",
             "Glassborn Seer Naia",
             "Engineer Prime Rho",
-            "The Blind Cartographer",
-            "Saint Matthias"
+            "The Blind Cartographer"
           ],
           "artifact": [
             "Prime Lens",
@@ -76,9 +67,7 @@
             "Refraction Crown",
             "Void Mirror",
             "Singularity Prism",
-            "Echo Crystal",
-            "Saint-Key Omega",
-            "Atmospheric Regulator"
+            "Echo Crystal"
           ],
           "location": [
             "the Crucible Ruins",
@@ -87,8 +76,7 @@
             "the Whispering Seams",
             "Archive Sector 7",
             "the Mirror Maze",
-            "the Salt Cathedral",
-            "the Buried Observatory"
+            "the Salt Cathedral"
           ],
           "revelation": [
             "revealing the true nature of light",
@@ -97,8 +85,7 @@
             "awakening dormant Archive protocols",
             "bridging the gap between worlds",
             "shattering the illusion of stability",
-            "proving the existence of the Pre-Glass Era",
-            "confirming the Heliograph still functions"
+            "proving the existence of the Pre-Glass Era"
           ]
         }
       },
@@ -110,57 +97,54 @@
             "the Age of Silence",
             "the Third Refraction",
             "the Glass Epoch",
-            "the Salt Era",
-            "the Year of the Broken Sun"
+            "the Salt Era"
           ],
           "anomaly": [
             "rift in the sky",
             "singing crystal",
             "phantom city",
             "inverted storm",
-            "shadow of light",
-            "temporal echo",
-            "gravity well"
+            "shadow of light"
           ],
           "location": [
             "the Horizons Edge",
             "the Center of the Steppe",
             "the Forbidden Zone",
-            "the Monks Sanctuary",
-            "the Engineers Outpost"
+            "the Monks Sanctuary"
           ],
           "effect": [
             "mass hallucinations",
             "spontaneous crystallization",
             "time to flow backwards",
             "gravity to reverse",
-            "voices to be heard from the stone",
-            "machines to awaken without power",
-            "dreams to become solid"
+            "voices to be heard from the stone"
           ]
         }
       },
       {
         "type": "white_noon",
-        "template": "During White Noon, the {system} {failure_mode}, resulting in {catastrophe}.",
+        "template": "During the White Noon, the {structure} was {fate}, leaving behind {remnant}.",
         "variables": {
-          "system": [
-            "Heliograph Network",
-            "Orbital Mirror Array",
-            "Atmospheric Control Grid",
-            "Solar Focus Lens"
+          "structure": [
+            "Grand Library",
+            "Central Plaza",
+            "Heliograph Control Center",
+            "Market District",
+            "Cathedral of Light"
           ],
-          "failure_mode": [
-            "suffered a cascade failure",
-            "was sabotaged by unknown agents",
-            "received a corrupted command",
-            "aligned incorrectly"
+          "fate": [
+            "fused into a single block of glass",
+            "vaporized instantly",
+            "twisted into a labyrinth",
+            "sealed within a time-loop",
+            "crystallized mid-motion"
           ],
-          "catastrophe": [
-            "the instant vitrification of the capital",
-            "the birth of the first glass storm",
-            "the evaporation of the inland sea",
-            "the fracturing of the sky"
+          "remnant": [
+            "a field of silent statues",
+            "a prism of trapped souls",
+            "a zone of permanent glare",
+            "an echo that never fades",
+            "a scar on the world"
           ]
         }
       }
@@ -175,24 +159,21 @@
             "Sand-Engineers",
             "Glassborn Collective",
             "Archive Remnants",
-            "Synthesis Seekers",
-            "Iron Covenant"
+            "Synthesis Seekers"
           ],
           "faction2": [
             "Storm Cultists",
             "Salt Hermits",
             "Void Seekers",
             "Glass Merchants",
-            "Iron Covenant",
-            "Glass Prophets"
+            "Iron Covenant"
           ],
           "location": [
             "the Shattered Spire",
             "Refraction Point",
             "the Salt Wastes",
             "Archive Outpost Delta",
-            "the Crystal Bridge",
-            "Sector 4"
+            "the Crystal Bridge"
           ],
           "outcome": [
             "forging an uneasy alliance",
@@ -223,50 +204,19 @@
             "Pact of Refraction",
             "Treaty of Glass",
             "Accord of Silence",
-            "Protocol of Light",
-            "The Salt Truce"
+            "Protocol of Light"
           ],
           "location": [
             "the Neutral Zone",
             "the High Temple",
-            "the Engineering Hub",
-            "the Crossroads"
+            "the Engineering Hub"
           ],
           "terms": [
             "share storm predictions",
             "limit excavation rights",
             "protect the pilgrims",
             "seal the deep mines",
-            "exchange ancient knowledge",
-            "cease hostilities during storms"
-          ]
-        }
-      },
-      {
-        "type": "ritual",
-        "template": "The {faction} performed the {ritual_name} at {location}, hoping to {goal}.",
-        "variables": {
-          "faction": [
-            "Mirror Monks",
-            "Glassborn Collective",
-            "Storm Cultists"
-          ],
-          "ritual_name": [
-            "Rite of Reflection",
-            "Ceremony of Shards",
-            "Dance of the Prism",
-            "Song of the Silicate"
-          ],
-          "location": [
-            "the Sacred Mirror",
-            "the Storms Eye",
-            "the Crystal Peak"
-          ],
-          "goal": [
-            "summon a storm",
-            "commune with the saints",
-            "purify their flesh",
-            "ascend to a higher form of light"
+            "exchange ancient knowledge"
           ]
         }
       }
@@ -285,9 +235,7 @@
             "half-buried",
             "vitrified",
             "humming",
-            "spectral",
-            "ancient",
-            "forgotten"
+            "spectral"
           ],
           "name": [
             "an ancient observatory",
@@ -296,8 +244,7 @@
             "a storm shelter",
             "a heliograph station",
             "a data spire",
-            "a light refinery",
-            "a pre-storm city"
+            "a light refinery"
           ],
           "state": [
             "catch the dying light",
@@ -320,19 +267,19 @@
         }
       },
       {
-        "template": "Here lies {name}, a place where {history}.",
+        "template": "A {type} from the Heliograph Era, {condition}.",
         "variables": {
-          "name": [
-            "Sector 7",
-            "the Old Market",
-            "the Hall of Records",
-            "the Transit Hub"
+          "type": [
+            "targeting array",
+            "cooling tower",
+            "maintenance shaft",
+            "priest-quarters"
           ],
-          "history": [
-            "the first storm struck",
-            "the resistance made their last stand",
-            "the Archive sleeps",
-            "the glass sings"
+          "condition": [
+            "now fused with the bedrock",
+            "still tracking a missing sun",
+            "overgrown with crystal lichen",
+            "humming with unauthorized power"
           ]
         }
       }
@@ -348,8 +295,7 @@
             "mirror pool",
             "storm scar",
             "geode cavern",
-            "light fissure",
-            "obsidian ridge"
+            "light fissure"
           ],
           "description": [
             "stretches toward the horizon",
@@ -368,37 +314,6 @@
             "bending light in impossible ways",
             "disorienting the senses",
             "invoking a sense of awe"
-          ]
-        }
-      }
-    ],
-    "archive_facility": [
-      {
-        "template": "This {facility_type} remains {condition}, its {feature} {status}.",
-        "variables": {
-          "facility_type": [
-            "data center",
-            "drone fabricator",
-            "power relay",
-            "cooling tower"
-          ],
-          "condition": [
-            "surprisingly intact",
-            "heavily damaged",
-            "partially buried",
-            "locked down"
-          ],
-          "feature": [
-            "security systems",
-            "backup generators",
-            "memory banks",
-            "cooling vents"
-          ],
-          "status": [
-            "still active",
-            "flickering with weak power",
-            "silent and cold",
-            "emitting a warning signal"
           ]
         }
       }
@@ -510,28 +425,6 @@
             "the systematic approach to this construction"
           ]
         }
-      },
-      "Glassborn": {
-        "template": "Your kinship with the glass reveals {insight}.",
-        "variables": {
-          "insight": [
-            "the song of the crystal",
-            "the memory trapped within",
-            "the growth patterns of the shards",
-            "the hunger of the light"
-          ]
-        }
-      },
-      "Archive Systems": {
-        "template": "Your access credentials highlight {data}.",
-        "variables": {
-          "data": [
-            "structural weaknesses",
-            "power conduits",
-            "historical logs",
-            "security blindspots"
-          ]
-        }
       }
     }
   },
@@ -547,8 +440,7 @@
             "mirror",
             "prism",
             "circuit",
-            "core",
-            "Saint-Key"
+            "core"
           ],
           "origin_story": [
             "was forged in the heart of a storm",
@@ -577,16 +469,36 @@
             "focusing crystal",
             "memory shard",
             "light weaver",
-            "storm anchor",
-            "Heliograph key"
+            "storm anchor"
           ],
           "legend": [
             "hold the soul of a star",
             "open doors to other realms",
             "cure the crystal blight",
             "control the weather",
-            "speak with the dead",
-            "grant access to the orbital array"
+            "speak with the dead"
+          ]
+        }
+      },
+      {
+        "template": "A {relic} from the {era}, {property}.",
+        "variables": {
+          "relic": [
+            "Saint-Key",
+            "Scripture Shard",
+            "Brine Vial",
+            "Angle-Split Lens"
+          ],
+          "era": [
+            "Heliograph Era",
+            "Time of White Noon",
+            "First Refraction"
+          ],
+          "property": [
+            "vibrating with authority",
+            "containing a frozen prayer",
+            "smelling of ozone and salt",
+            "bending light around it"
           ]
         }
       }
@@ -636,8 +548,7 @@
             "In refraction, find salvation",
             "The Archive remembers",
             "Beware the silent storm",
-            "Flesh is weak, glass is eternal",
-            "The Heliograph watches"
+            "Flesh is weak, glass is eternal"
           ]
         }
       }
@@ -653,8 +564,7 @@
             "Trust no reflection",
             "They watch from the glass",
             "Dont look at the light",
-            "Run while you still have legs",
-            "The Monks lie"
+            "Run while you still have legs"
           ]
         }
       }
@@ -701,15 +611,15 @@
     "Your reflection in the glass is not always you.",
     "The monks say the light speaks, but the engineers say it calculates.",
     "In the silence of the salt flats, you can hear your own soul crack.",
-    "Before the storms, the Heliograph controlled the sky.",
-    "White Noon turned cities into glass tombs.",
-    "The first adaptations were seen as a curse.",
-    "Saint-Keys open doors that should remain closed.",
-    "The Crucible is where flesh meets storm.",
-    "Sand-Engineers build to survive, not to transcend.",
-    "Glassborn are the children of the new world.",
-    "The Archive remembers everything we have lost.",
-    "Salt Hermits know the true cost of survival.",
-    "The mirror does not lie, it only shows a different truth."
+    "The Heliograph was an opinion the sky had about us.",
+    "White Noon was the day cities became labyrinths.",
+    "Storm Glass is the crystallized anger of the sky.",
+    "A Saint-Key is a ghost of authority.",
+    "The Archive remembers everything but forgiveness.",
+    "To the Monks, a scar is just a place where the light gets in.",
+    "Engineers trust what they can measure, Monks trust what they can feel.",
+    "The Steppe does not reward permanence.",
+    "Maps are promises that storms love to break.",
+    "Light is dangerous: glare can kill, beams can betray."
   ]
 }
