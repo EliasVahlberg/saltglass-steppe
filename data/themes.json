@@ -1,0 +1,125 @@
+{
+  "themes": {
+    "classic": {
+      "name": "Classic",
+      "description": "Traditional roguelike colors",
+      "colors": {
+        "entities": {
+          "player": "Yellow",
+          "enemies": "Red",
+          "npcs": "Green",
+          "items": "LightMagenta"
+        },
+        "tiles": {
+          "floor": "DarkGray",
+          "wall": "Gray",
+          "glass": "Cyan",
+          "stairs": "Yellow",
+          "world_exit": "Green"
+        },
+        "lighting": {
+          "torch": "Yellow",
+          "ambient": "DarkGray"
+        },
+        "ui": {
+          "revealed_tile": "DarkGray",
+          "look_cursor_bg": "White",
+          "look_cursor_fg": "Black",
+          "hit_flash_bg": "Red",
+          "hit_flash_fg": "White"
+        }
+      }
+    },
+    "dark": {
+      "name": "Dark",
+      "description": "Dark mode with muted colors",
+      "colors": {
+        "entities": {
+          "player": "LightYellow",
+          "enemies": "LightRed",
+          "npcs": "LightGreen",
+          "items": "LightMagenta"
+        },
+        "tiles": {
+          "floor": "Black",
+          "wall": "DarkGray",
+          "glass": "DarkGray",
+          "stairs": "LightYellow",
+          "world_exit": "LightGreen"
+        },
+        "lighting": {
+          "torch": "LightYellow",
+          "ambient": "Black"
+        },
+        "ui": {
+          "revealed_tile": "Black",
+          "look_cursor_bg": "Gray",
+          "look_cursor_fg": "White",
+          "hit_flash_bg": "DarkGray",
+          "hit_flash_fg": "LightRed"
+        }
+      }
+    },
+    "high_contrast": {
+      "name": "High Contrast",
+      "description": "High contrast for accessibility",
+      "colors": {
+        "entities": {
+          "player": "White",
+          "enemies": "Red",
+          "npcs": "Green",
+          "items": "Magenta"
+        },
+        "tiles": {
+          "floor": "Black",
+          "wall": "White",
+          "glass": "White",
+          "stairs": "Yellow",
+          "world_exit": "Green"
+        },
+        "lighting": {
+          "torch": "White",
+          "ambient": "Black"
+        },
+        "ui": {
+          "revealed_tile": "Black",
+          "look_cursor_bg": "Yellow",
+          "look_cursor_fg": "Black",
+          "hit_flash_bg": "White",
+          "hit_flash_fg": "Black"
+        }
+      }
+    },
+    "neon": {
+      "name": "Neon",
+      "description": "Bright neon cyberpunk colors",
+      "colors": {
+        "entities": {
+          "player": "LightCyan",
+          "enemies": "LightRed",
+          "npcs": "LightGreen",
+          "items": "LightMagenta"
+        },
+        "tiles": {
+          "floor": "Black",
+          "wall": "LightBlue",
+          "glass": "LightCyan",
+          "stairs": "LightYellow",
+          "world_exit": "LightGreen"
+        },
+        "lighting": {
+          "torch": "LightCyan",
+          "ambient": "Black"
+        },
+        "ui": {
+          "revealed_tile": "Black",
+          "look_cursor_bg": "LightMagenta",
+          "look_cursor_fg": "Black",
+          "hit_flash_bg": "LightRed",
+          "hit_flash_fg": "Black"
+        }
+      }
+    }
+  },
+  "active_theme": "classic"
+}
