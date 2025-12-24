@@ -364,6 +364,7 @@ mod tests {
                 frame_limiting: true,
                 optimization_level: "balanced".to_string(),
             },
+            particles: crate::renderer::particles::ParticleConfig::default(),
         };
         
         let renderer = EntityRenderer::new(&config);
