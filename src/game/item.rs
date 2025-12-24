@@ -66,10 +66,13 @@ pub struct ItemDef {
     pub enables_aria_dialogue: bool,
     #[serde(default = "default_consumable")]
     pub consumable: bool,
+    #[serde(default = "default_tier")]
+    pub tier: u32,
 }
 
 fn default_pickup() -> bool { true }
 fn default_consumable() -> bool { true }
+fn default_tier() -> u32 { 1 }
 
 #[derive(Deserialize)]
 struct ItemsFile {

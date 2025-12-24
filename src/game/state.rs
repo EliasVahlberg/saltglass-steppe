@@ -22,7 +22,7 @@ use super::{
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
-    spawn::{weighted_pick_by_level},
+    spawn::{weighted_pick_by_level_and_tier},
     storm::Storm,
     story::StoryModel,
     tutorial::TutorialProgress,
@@ -364,7 +364,7 @@ impl GameState {
         }
             
         for &(rx, ry) in safe_rooms_shuffled {
-            if let Some(id) = weighted_pick_by_level(&table.enemies, level, &mut rng) {
+            if let Some(id) = weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
         }
@@ -408,7 +408,15 @@ impl GameState {
                 if let Some(&(rx, ry)) = rooms.last() {
                     if !used_positions.contains(&(rx, ry)) {
                         used_positions.insert((rx, ry));
-                        items.push(Item::new(rx, ry, &spawn.id));
+                        // Check tier eligibility for last room items
+                        if let Some(item_def) = super::item::get_item_def(&spawn.id) {
+                            let tier_threshold = match level {
+                                1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
+                            };
+                            if item_def.tier <= tier_threshold {
+                                items.push(Item::new(rx, ry, &spawn.id));
+                            }
+                        }
                     }
                 }
                 continue;
@@ -419,7 +427,15 @@ impl GameState {
                     let iy = ry + rng.gen_range(-1..=1);
                     if !used_positions.contains(&(ix, iy)) {
                         used_positions.insert((ix, iy));
-                        items.push(Item::new(ix, iy, &spawn.id));
+                        // Check tier eligibility for regular items
+                        if let Some(item_def) = super::item::get_item_def(&spawn.id) {
+                            let tier_threshold = match level {
+                                1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
+                            };
+                            if item_def.tier <= tier_threshold {
+                                items.push(Item::new(ix, iy, &spawn.id));
+                            }
+                        }
                     }
                 }
             }
@@ -594,7 +610,7 @@ impl GameState {
         }
             
         for &(rx, ry) in safe_rooms_shuffled {
-            if let Some(id) = weighted_pick_by_level(&table.enemies, level, &mut rng) {
+            if let Some(id) = weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
         }
@@ -609,7 +625,15 @@ impl GameState {
                     let iy = ry + rng.gen_range(-1..=1);
                     if !used_positions.contains(&(ix, iy)) {
                         used_positions.insert((ix, iy));
-                        items.push(Item::new(ix, iy, &spawn.id));
+                        // Check tier eligibility for travel items
+                        if let Some(item_def) = super::item::get_item_def(&spawn.id) {
+                            let tier_threshold = match level {
+                                1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
+                            };
+                            if item_def.tier <= tier_threshold {
+                                items.push(Item::new(ix, iy, &spawn.id));
+                            }
+                        }
                     }
                 }
             }
@@ -1457,6 +1481,19 @@ impl GameState {
                 };
                 self.log(format!("Current tile level: {} ({})", level, threat_desc));
             }
+            Some("show_item_tiers") => {
+                self.log("Items by tier:");
+                for tier in 1..=5 {
+                    self.log(format!("Tier {} items:", tier));
+                    for id in super::item::all_item_ids() {
+                        if let Some(def) = super::item::get_item_def(id) {
+                            if def.tier == tier {
+                                self.log(format!("  {} - {} (value: {})", id, def.name, def.value));
+                            }
+                        }
+                    }
+                }
+            }
             Some("help") => {
                 self.log("Debug Commands:");
                 self.log("  show tile, hide tile - Toggle god view");
@@ -1478,6 +1515,7 @@ impl GameState {
                 self.log("  spawn_enemy <id> [x] [y] - Spawn enemy at position");
                 self.log("  spawn_swarm <id> <count> - Spawn enemy swarm");
                 self.log("  show_level - Show current tile threat level");
+                self.log("  show_item_tiers - Show items organized by tier");
             }
             _ => self.log(format!("Unknown command: {}. Type 'help' for commands.", cmd)),
         }
