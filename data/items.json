@@ -7,155 +7,66 @@
       "description": "Crystallized storm energy, valuable for trade",
       "value": 25,
       "weight": 1,
+      "tier": 1,
       "usable": false,
       "effects": [
         { "condition": "on_pickup", "effect": "S(@3 &Cyan &LightCyan)" }
       ]
     },
     {
-      "id": "book_soup",
-      "name": "Book: Soup Twice",
-      "glyph": "B",
-      "description": "A worn Engineer's log about beans.",
-      "value": 20,
+      "id": "pristine_storm_glass",
+      "name": "Pristine Storm Glass",
+      "glyph": "◆",
+      "description": "Flawless crystallized storm energy, extremely valuable",
+      "value": 100,
       "weight": 1,
-      "usable": true,
-      "book_id": "book_soup_twice",
-      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &White)" }]
-    },
-    {
-      "id": "book_wedding",
-      "name": "Book: Wedding",
-      "glyph": "B",
-      "description": "A Glassborn account of a wedding.",
-      "value": 20,
-      "weight": 1,
-      "usable": true,
-      "book_id": "book_wedding_refractions",
-      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Cyan)" }]
-    },
-    {
-      "id": "book_merchant",
-      "name": "Book: Memories",
-      "glyph": "B",
-      "description": "A folktale about a memory merchant.",
-      "value": 20,
-      "weight": 1,
-      "usable": true,
-      "book_id": "book_merchant_memories",
-      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Yellow)" }]
-    },
-    {
-      "id": "book_sector7",
-      "name": "Log: Sector 7",
-      "glyph": "B",
-      "description": "Recovered audio log transcript.",
-      "value": 30,
-      "weight": 1,
-      "usable": true,
-      "book_id": "book_echoes_sector_7",
-      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Red)" }]
-    },
-    {
-      "id": "scripture_shard",
-      "name": "Scripture Shard",
-      "glyph": "?",
-      "description": "Fragment of ancient religious text",
-      "value": 15,
-      "weight": 0,
+      "tier": 3,
       "usable": false,
-      "hidden_properties": ["value"],
-      "effects": [{ "condition": "on_pickup", "effect": "F(@16 &Yellow)" }]
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@5 &LightCyan &White)" }
+      ]
+    },
+    {
+      "id": "storm_core",
+      "name": "Storm Core",
+      "glyph": "◆",
+      "description": "Concentrated essence of a storm's heart, priceless",
+      "value": 500,
+      "weight": 1,
+      "tier": 5,
+      "usable": false,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@8 &White &LightCyan)" }
+      ]
     },
     {
       "id": "brine_vial",
       "name": "Brine Vial",
       "glyph": "!",
-      "description": "Salty healing draught",
+      "description": "Concentrated salt water that heals wounds",
       "value": 10,
       "weight": 1,
+      "tier": 1,
       "usable": true,
       "heal": 5,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Green)" },
-        { "condition": "on_use", "effect": "P(@6 &Green)" }
+        { "condition": "on_pickup", "effect": "B(@3 &Blue)" },
+        { "condition": "on_use", "effect": "P(@3 &LightBlue)" }
       ]
     },
     {
-      "id": "saint_key",
-      "name": "Saint-Key",
-      "glyph": "⚷",
-      "description": "Opens Archive doors",
-      "value": 50,
-      "weight": 1,
-      "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "P(@8 &LightBlue)" }]
-    },
-    {
-      "id": "angle_lens",
-      "name": "Angle-Split Lens",
-      "glyph": "◎",
-      "description": "Reveals hidden paths when used",
-      "value": 100,
-      "weight": 1,
-      "usable": true,
-      "reveals_map": true,
-      "effects": [
-        { "condition": "on_pickup", "effect": "S(@3 &Magenta &LightMagenta)" },
-        { "condition": "on_use", "effect": "W(@4 &White)" }
-      ]
-    },
-    {
-      "id": "salt_poultice",
-      "name": "Salt Poultice",
-      "glyph": "+",
-      "description": "Crystallized salve that seals wounds with brine",
-      "value": 15,
-      "weight": 1,
-      "usable": true,
-      "heal": 8,
-      "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Green)" },
-        { "condition": "on_use", "effect": "P(@4 &LightGreen)" }
-      ]
-    },
-    {
-      "id": "veil_tincture",
-      "name": "Veil Tincture",
+      "id": "greater_brine_vial",
+      "name": "Greater Brine Vial",
       "glyph": "!",
-      "description": "Dulls refraction glow—adaptations hidden briefly",
+      "description": "Potent concentrated salt water with healing minerals",
       "value": 40,
       "weight": 1,
+      "tier": 3,
       "usable": true,
-      "suppresses_adaptations": true,
+      "heal": 12,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &DarkGray)" },
-        { "condition": "on_use", "effect": "F(@12 &DarkGray)" }
-      ]
-    },
-    {
-      "id": "glass_pick",
-      "name": "Glass Pick",
-      "glyph": "/",
-      "description": "Vitrified tool for breaking walls and glass seams",
-      "value": 30,
-      "weight": 2,
-      "usable": true,
-      "breaks_walls": true,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &Cyan &White)" }]
-    },
-    {
-      "id": "storm_compass",
-      "name": "Storm Compass",
-      "glyph": "⊕",
-      "description": "Needle trembles toward the next storm's origin",
-      "value": 60,
-      "weight": 1,
-      "usable": true,
-      "reveals_storm_path": true,
-      "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &Yellow)" },
-        { "condition": "on_use", "effect": "W(@6 &LightYellow)" }
+        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" },
+        { "condition": "on_use", "effect": "P(@6 &White)" }
       ]
     },
     {
@@ -165,6 +76,7 @@
       "description": "Vitrified droplet from a machine-saint's eye",
       "value": 75,
       "weight": 0,
+      "tier": 4,
       "usable": true,
       "heal": 15,
       "reduces_refraction": 10,
@@ -174,1030 +86,381 @@
       ]
     },
     {
-      "id": "brine_shot",
-      "name": "Brine Shot",
-      "glyph": "•",
-      "description": "Pressurized salt water cartridge",
-      "value": 5,
-      "weight": 0,
-      "usable": false
-    },
-    {
-      "id": "glass_arrow",
-      "name": "Glass Arrow",
-      "glyph": "→",
-      "description": "Glass-tipped arrow for storm bows",
-      "value": 3,
-      "weight": 0,
-      "usable": false
-    },
-    {
-      "id": "health_potion",
-      "name": "Health Potion",
-      "glyph": "!",
-      "description": "Potent healing brew",
-      "value": 25,
-      "weight": 1,
-      "usable": true,
-      "heal": 12,
-      "effects": [{ "condition": "on_use", "effect": "P(@4 &LightGreen)" }]
-    },
-    {
-      "id": "salt_bomb",
-      "name": "Salt Bomb",
-      "glyph": "*",
-      "description": "Explosive salt device",
-      "value": 40,
-      "weight": 2,
-      "usable": true,
-      "damage_area": 3,
-      "effects": [{ "condition": "on_use", "effect": "W(@2 &White)" }]
-    },
-    {
-      "id": "salt_crystal",
-      "name": "Salt Crystal",
-      "glyph": "◇",
-      "description": "Raw crystallized salt, useful for crafting",
-      "value": 5,
-      "weight": 1,
-      "usable": false
-    },
-    {
-      "id": "wall_torch",
-      "name": "Wall Torch",
-      "glyph": "†",
-      "description": "A flickering torch mounted on the wall",
-      "pickup": false,
-      "light_source": { "radius": 6, "intensity": 120 }
-    },
-    {
-      "id": "hand_torch",
-      "name": "Hand Torch",
-      "glyph": "†",
-      "description": "A portable torch that illuminates your surroundings",
-      "value": 15,
-      "weight": 1,
-      "usable": false,
-      "equip_slot": "accessory",
-      "light_source": { "radius": 12, "intensity": 80 }
-    },
-    {
-      "id": "salted_meat",
-      "name": "Salted Meat",
-      "glyph": "%",
-      "description": "Preserved meat, restores some health",
-      "value": 8,
-      "weight": 1,
-      "usable": true,
-      "heal": 3
-    },
-    {
-      "id": "rusted_gear",
-      "name": "Rusted Gear",
-      "glyph": "*",
-      "description": "Old mechanical part, might be useful",
-      "value": 12,
-      "weight": 2,
-      "usable": false
-    },
-    {
-      "id": "rags",
-      "name": "Rags",
-      "glyph": "~",
-      "description": "Tattered cloth scraps",
-      "value": 2,
-      "weight": 0,
-      "usable": false
-    },
-    {
-      "id": "salt_vest",
-      "name": "Salt Vest",
-      "glyph": "[",
-      "description": "Crystallized salt armor, light but protective",
-      "value": 50,
-      "weight": 3,
-      "usable": false,
-      "armor_value": 3,
-      "equip_slot": "jacket"
-    },
-    {
-      "id": "storm_boots",
-      "name": "Storm Boots",
-      "glyph": "]",
-      "description": "Glass-soled boots that resist storm damage",
-      "value": 45,
-      "weight": 2,
-      "usable": false,
-      "armor_value": 1,
-      "equip_slot": "boots"
-    },
-    {
-      "id": "brine_gloves",
-      "name": "Brine Gloves",
-      "glyph": "]",
-      "description": "Salt-treated gloves for handling dangerous materials",
-      "value": 30,
-      "weight": 1,
-      "usable": false,
-      "armor_value": 1,
-      "equip_slot": "gloves"
-    },
-    {
-      "id": "pilgrim_pack",
-      "name": "Pilgrim Pack",
-      "glyph": "∩",
-      "description": "Sturdy backpack for long journeys",
-      "value": 35,
-      "weight": 1,
-      "usable": false,
-      "equip_slot": "backpack"
-    },
-    {
-      "id": "salt_amulet",
-      "name": "Salt Amulet",
-      "glyph": "☼",
-      "description": "Protective charm blessed by salt-priests",
-      "value": 55,
-      "weight": 0,
-      "usable": false,
-      "armor_value": 1,
-      "equip_slot": "necklace"
-    },
-    {
-      "id": "glass_dagger",
-      "name": "Glass Dagger",
-      "glyph": "/",
-      "description": "Sharp but fragile blade of storm glass",
+      "id": "scripture_shard",
+      "name": "Scripture Shard",
+      "glyph": "?",
+      "description": "Fragment of ancient religious text",
       "value": 20,
       "weight": 1,
-      "usable": false,
-      "equip_slot": "weapon"
+      "tier": 1,
+      "usable": true,
+      "reveals_map": true,
+      "hidden_properties": ["value"],
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@3 &Magenta &LightMagenta)" },
+        { "condition": "on_use", "effect": "W(@4 &White)" }
+      ]
     },
     {
-      "id": "crystal_shield",
-      "name": "Crystal Shield",
-      "glyph": "O",
-      "description": "Refractive shield that deflects light attacks",
-      "value": 60,
-      "weight": 4,
-      "usable": false,
-      "armor_value": 2,
-      "equip_slot": "accessory"
-    },
-    {
-      "id": "iron_helm",
-      "name": "Iron Helm",
-      "glyph": "^",
-      "description": "Heavy iron helmet, good protection",
-      "value": 40,
-      "weight": 3,
-      "usable": false,
-      "armor_value": 2,
-      "equip_slot": "head"
-    },
-    {
-      "id": "glass_helm",
-      "name": "Glass Helm",
-      "glyph": "^",
-      "description": "Transparent crystalline headgear",
-      "value": 65,
+      "id": "illuminated_scripture",
+      "name": "Illuminated Scripture",
+      "glyph": "?",
+      "description": "Complete religious text with golden illuminations",
+      "value": 150,
       "weight": 2,
-      "usable": false,
-      "armor_value": 3,
-      "equip_slot": "head"
+      "tier": 4,
+      "usable": true,
+      "reveals_map": true,
+      "reveals_locations": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@6 &Yellow &White)" },
+        { "condition": "on_use", "effect": "W(@8 &LightYellow)" }
+      ]
     },
     {
-      "id": "leather_cap",
-      "name": "Leather Cap",
-      "glyph": "^",
-      "description": "Simple leather head protection",
-      "value": 15,
+      "id": "saint_key",
+      "name": "Saint-Key",
+      "glyph": "⚷",
+      "description": "Pre-storm credential that grants Archive access",
+      "value": 100,
       "weight": 1,
+      "tier": 2,
       "usable": false,
-      "armor_value": 1,
-      "equip_slot": "head"
+      "effects": [{ "condition": "on_pickup", "effect": "B(@4 &Yellow)" }]
     },
     {
-      "id": "chain_vest",
-      "name": "Chain Vest",
-      "glyph": "[",
-      "description": "Interlocking metal rings for protection",
-      "value": 70,
-      "weight": 5,
-      "usable": false,
-      "armor_value": 4,
-      "equip_slot": "jacket"
-    },
-    {
-      "id": "leather_jacket",
-      "name": "Leather Jacket",
-      "glyph": "[",
-      "description": "Tough leather body armor",
-      "value": 30,
-      "weight": 2,
-      "usable": false,
-      "armor_value": 2,
-      "equip_slot": "jacket"
-    },
-    {
-      "id": "glass_plate",
-      "name": "Glass Plate",
-      "glyph": "[",
-      "description": "Heavy crystalline armor, maximum protection",
-      "value": 120,
-      "weight": 8,
-      "usable": false,
-      "armor_value": 6,
-      "equip_slot": "jacket"
-    },
-    {
-      "id": "iron_boots",
-      "name": "Iron Boots",
-      "glyph": "]",
-      "description": "Heavy metal footwear",
-      "value": 35,
-      "weight": 3,
-      "usable": false,
-      "armor_value": 2,
-      "equip_slot": "boots"
-    },
-    {
-      "id": "leather_boots",
-      "name": "Leather Boots",
-      "glyph": "]",
-      "description": "Comfortable walking boots",
-      "value": 20,
+      "id": "master_saint_key",
+      "name": "Master Saint-Key",
+      "glyph": "⚷",
+      "description": "Highest-level Archive credential with unlimited access",
+      "value": 400,
       "weight": 1,
+      "tier": 5,
       "usable": false,
-      "armor_value": 1,
-      "equip_slot": "boots"
+      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &LightYellow)" }]
     },
     {
-      "id": "iron_gauntlets",
-      "name": "Iron Gauntlets",
-      "glyph": "]",
-      "description": "Metal hand protection",
-      "value": 40,
-      "weight": 2,
-      "usable": false,
-      "armor_value": 2,
-      "equip_slot": "gloves"
-    },
-    {
-      "id": "glass_gauntlets",
-      "name": "Glass Gauntlets",
-      "glyph": "]",
-      "description": "Crystalline hand armor",
-      "value": 55,
-      "weight": 2,
-      "usable": false,
-      "armor_value": 3,
-      "equip_slot": "gloves"
-    },
-    {
-      "id": "storm_cloak",
-      "name": "Storm Cloak",
-      "glyph": "(",
-      "description": "Flowing cloak that resists storm winds",
+      "id": "angle_lens",
+      "name": "Angle-Split Lens",
+      "glyph": "◎",
+      "description": "Refracts light into precise geometric patterns",
       "value": 80,
       "weight": 1,
+      "tier": 2,
       "usable": false,
-      "armor_value": 1,
-      "equip_slot": "accessory"
+      "effects": [{ "condition": "on_pickup", "effect": "P(@4 &LightCyan)" }]
     },
     {
-      "id": "refraction_ring",
-      "name": "Refraction Ring",
-      "glyph": "o",
-      "description": "Ring that bends light around the wearer",
-      "value": 90,
-      "weight": 0,
+      "id": "perfect_lens",
+      "name": "Perfect Lens",
+      "glyph": "◎",
+      "description": "Flawless optical element that bends reality itself",
+      "value": 300,
+      "weight": 1,
+      "tier": 4,
       "usable": false,
-      "equip_slot": "accessory",
-      "effects": [{ "condition": "on_equip", "effect": "W(@10 &White)" }]
-    },
-    {
-      "id": "travelers_pack",
-      "name": "Traveler's Pack",
-      "glyph": "∩",
-      "description": "Large backpack for extended journeys",
-      "value": 50,
-      "weight": 2,
-      "usable": false,
-      "equip_slot": "backpack"
-    },
-    {
-      "id": "crystal_pendant",
-      "name": "Crystal Pendant",
-      "glyph": "☼",
-      "description": "Glowing crystal on a chain",
-      "value": 45,
-      "weight": 0,
-      "usable": false,
-      "armor_value": 1,
-      "equip_slot": "necklace",
-      "light_source": { "radius": 4, "intensity": 80 },
-      "effects": [{ "condition": "on_equip", "effect": "F(@16 &LightBlue)" }]
+      "effects": [{ "condition": "on_pickup", "effect": "P(@8 &White)" }]
     },
     {
       "id": "salt_knife",
       "name": "Salt Knife",
       "glyph": "/",
-      "description": "Crystallized blade that never dulls",
-      "value": 25,
-      "weight": 1,
+      "description": "Crude blade carved from crystallized salt",
+      "value": 15,
+      "weight": 2,
+      "tier": 1,
       "usable": false,
-      "equip_slot": "weapon"
+      "equip_slot": "weapon",
+      "effects": [{ "condition": "on_pickup", "effect": "S(@2 &White)" }]
+    },
+    {
+      "id": "glass_blade",
+      "name": "Glass Blade",
+      "glyph": "/",
+      "description": "Razor-sharp sword forged from storm glass",
+      "value": 80,
+      "weight": 3,
+      "tier": 3,
+      "usable": false,
+      "equip_slot": "weapon",
+      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &LightCyan)" }]
+    },
+    {
+      "id": "saint_blade",
+      "name": "Saint's Blade",
+      "glyph": "/",
+      "description": "Legendary weapon blessed by the machine-saints",
+      "value": 400,
+      "weight": 4,
+      "tier": 5,
+      "usable": false,
+      "equip_slot": "weapon",
+      "effects": [{ "condition": "on_pickup", "effect": "S(@8 &LightYellow)" }]
     },
     {
       "id": "glass_shard",
       "name": "Glass Shard",
-      "glyph": "▲",
-      "description": "Jagged storm glass, cuts both ways",
-      "value": 15,
+      "glyph": "*",
+      "description": "Sharp fragment of storm-touched glass",
+      "value": 5,
       "weight": 1,
+      "tier": 1,
       "usable": false,
-      "equip_slot": "weapon"
+      "effects": [{ "condition": "on_pickup", "effect": "S(@1 &Cyan)" }]
     },
     {
-      "id": "rusty_blade",
-      "name": "Rusty Blade",
-      "glyph": "/",
-      "description": "Old corroded sword, still sharp",
-      "value": 20,
-      "weight": 2,
-      "usable": false,
-      "equip_slot": "weapon"
-    },
-    {
-      "id": "brine_pistol",
-      "name": "Brine Pistol",
-      "glyph": "┘",
-      "description": "Fires pressurized salt water",
-      "value": 60,
-      "weight": 2,
-      "usable": false,
-      "equip_slot": "ranged_weapon"
-    },
-    {
-      "id": "storm_bow",
-      "name": "Storm Bow",
-      "glyph": ")",
-      "description": "Launches glass-tipped arrows",
-      "value": 50,
-      "weight": 2,
-      "usable": false,
-      "equip_slot": "ranged_weapon"
-    },
-    {
-      "id": "beetle_carapace",
-      "name": "Beetle Carapace",
-      "glyph": "◐",
-      "description": "Curved shell from a glass beetle, useful for crafting",
-      "value": 18,
-      "weight": 2,
-      "usable": false
-    },
-    {
-      "id": "wraith_essence",
-      "name": "Wraith Essence",
-      "glyph": "~",
-      "description": "Ghostly residue that phases through solid matter",
-      "value": 35,
-      "weight": 0,
-      "usable": false
-    },
-    {
-      "id": "prism_lens",
-      "name": "Prism Lens",
-      "glyph": "◎",
-      "description": "Splits light into rainbow patterns, confuses enemies",
-      "value": 45,
-      "weight": 1,
-      "usable": true,
-      "confuses_enemies": true,
-      "effects": [
-        {
-          "condition": "on_use",
-          "effect": "R(@4 &Red &Yellow &Green &Cyan &Blue &Magenta)"
-        }
-      ]
-    },
-    {
-      "id": "salt_scrip",
-      "name": "Salt Scrip",
-      "glyph": "$",
-      "description": "Crystallized currency of the steppe settlements",
-      "value": 1,
-      "weight": 0,
-      "usable": false,
-      "stackable": true
-    },
-    {
-      "id": "mirror_shard",
-      "name": "Mirror Shard",
-      "glyph": "◊",
-      "description": "Reflective fragment from a monk's meditation mirror",
-      "value": 22,
-      "weight": 1,
-      "usable": false
-    },
-    {
-      "id": "brine_concentrate",
-      "name": "Brine Concentrate",
-      "glyph": "!",
-      "description": "Potent salt solution that burns wounds clean",
-      "value": 20,
-      "weight": 1,
-      "usable": true,
-      "heal": 12,
-      "causes_pain": true,
-      "effects": [{ "condition": "on_use", "effect": "P(@2 &Red)" }]
-    },
-    {
-      "id": "storm_chart",
-      "name": "Storm Chart",
-      "glyph": "≡",
-      "description": "Weather patterns scrawled on glass parchment",
-      "value": 40,
-      "weight": 0,
-      "usable": true,
-      "reveals_storm_timing": true
-    },
-    {
-      "id": "pilgrim_journal",
-      "name": "Pilgrim Journal",
-      "glyph": "≡",
-      "description": "Diary of a lost traveler, contains route information",
+      "id": "refined_glass_shard",
+      "name": "Refined Glass Shard",
+      "glyph": "*",
+      "description": "Carefully shaped glass fragment with enhanced properties",
       "value": 25,
       "weight": 1,
-      "usable": true,
-      "reveals_locations": true
-    },
-    {
-      "id": "glass_dust",
-      "name": "Glass Dust",
-      "glyph": "·",
-      "description": "Fine powder that sparkles in the light",
-      "value": 8,
-      "weight": 0,
+      "tier": 2,
       "usable": false,
-      "stackable": true
+      "effects": [{ "condition": "on_pickup", "effect": "S(@3 &LightCyan)" }]
     },
     {
-      "id": "refraction_oil",
-      "name": "Refraction Oil",
-      "glyph": "!",
-      "description": "Slick substance that bends light around objects",
+      "id": "salt_vest",
+      "name": "Salt Vest",
+      "glyph": "[",
+      "description": "Crude armor made from crystallized salt plates",
       "value": 30,
-      "weight": 1,
-      "usable": true,
-      "grants_invisibility": true,
-      "effects": [{ "condition": "on_use", "effect": "F(@16 &DarkGray)" }]
-    },
-    {
-      "id": "archive_key_fragment",
-      "name": "Archive Key Fragment",
-      "glyph": "⚷",
-      "description": "Broken piece of a saint-key, might be repairable",
-      "value": 35,
-      "weight": 1,
-      "usable": false
-    },
-    {
-      "id": "crystalline_water",
-      "name": "Crystalline Water",
-      "glyph": "!",
-      "description": "Pure water that has been touched by storm glass",
-      "value": 15,
-      "weight": 1,
-      "usable": true,
-      "heal": 6,
-      "reduces_refraction": 2,
-      "effects": [{ "condition": "on_use", "effect": "S(@6 &LightBlue &Cyan)" }]
-    },
-    {
-      "id": "monk_scripture",
-      "name": "Monk Scripture",
-      "glyph": "≡",
-      "description": "Religious text about storm interpretation",
-      "value": 28,
-      "weight": 1,
+      "weight": 5,
+      "tier": 1,
+      "armor_value": 2,
+      "equip_slot": "armor",
       "usable": false,
-      "faction_item": "MirrorMonks"
-    },
-    {
-      "id": "engineer_blueprint",
-      "name": "Engineer Blueprint",
-      "glyph": "≡",
-      "description": "Technical diagrams for storm-resistant structures",
-      "value": 32,
-      "weight": 1,
-      "usable": false,
-      "faction_item": "SandEngineers"
-    },
-    {
-      "id": "glassborn_relic",
-      "name": "Glassborn Relic",
-      "glyph": "◊",
-      "description": "Artifact from the first transformed ones",
-      "value": 55,
-      "weight": 1,
-      "usable": false,
-      "faction_item": "Glassborn"
-    },
-    {
-      "id": "storm_lantern",
-      "name": "Storm Lantern",
-      "glyph": "☼",
-      "description": "Lamp that burns brighter during glass storms",
-      "value": 65,
-      "weight": 2,
-      "usable": false,
-      "equip_slot": "accessory",
-      "light_source": { "radius": 8, "intensity": 150 },
-      "storm_enhanced": true,
-      "effects": [{ "condition": "on_equip", "effect": "P(@12 &Yellow)" }]
-    },
-    {
-      "id": "salt_rations",
-      "name": "Salt Rations",
-      "glyph": "%",
-      "description": "Preserved food that lasts indefinitely",
-      "value": 12,
-      "weight": 1,
-      "usable": true,
-      "heal": 4,
-      "stackable": true
-    },
-    {
-      "id": "glass_needle",
-      "name": "Glass Needle",
-      "glyph": "|",
-      "description": "Surgical tool for removing glass shards",
-      "value": 18,
-      "weight": 0,
-      "usable": true,
-      "removes_glass_wounds": true
-    },
-    {
-      "id": "storm_cloak_fragment",
-      "name": "Storm Cloak Fragment",
-      "glyph": "~",
-      "description": "Torn piece of weather-resistant fabric",
-      "value": 15,
-      "weight": 1,
-      "usable": false
-    },
-    {
-      "id": "hermit_salve",
-      "name": "Hermit Salve",
-      "glyph": "+",
-      "description": "Healing paste made from rare desert plants",
-      "value": 25,
-      "weight": 1,
-      "usable": true,
-      "heal": 10,
-      "cures_poison": true,
-      "effects": [{ "condition": "on_use", "effect": "P(@6 &Green)" }]
-    },
-    {
-      "id": "archive_data_crystal",
-      "name": "Archive Data Crystal",
-      "glyph": "◆",
-      "description": "Information storage device from the old world",
-      "value": 80,
-      "weight": 1,
-      "usable": true,
-      "reveals_lore": true,
-      "effects": [{ "condition": "on_use", "effect": "W(@8 &LightBlue)" }]
-    },
-    {
-      "id": "refraction_detector",
-      "name": "Refraction Detector",
-      "glyph": "⊕",
-      "description": "Device that measures adaptation levels in living beings",
-      "value": 70,
-      "weight": 2,
-      "usable": true,
-      "detects_adaptations": true
-    },
-    {
-      "id": "glass_thread",
-      "name": "Glass Thread",
-      "glyph": "~",
-      "description": "Impossibly thin strands of spun glass",
-      "value": 12,
-      "weight": 0,
-      "usable": false,
-      "stackable": true
-    },
-    {
-      "id": "storm_seed",
-      "name": "Storm Seed",
-      "glyph": "•",
-      "description": "Crystalline core that might grow into storm glass",
-      "value": 45,
-      "weight": 1,
-      "usable": false,
-      "grows_over_time": true
-    },
-    {
-      "id": "pilgrim_boots",
-      "name": "Pilgrim Boots",
-      "glyph": "]",
-      "description": "Well-worn boots that have walked many miles",
-      "value": 25,
-      "weight": 2,
-      "usable": false,
-      "armor_value": 1,
-      "equip_slot": "boots",
-      "movement_bonus": 1
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &White)" }]
     },
     {
       "id": "glass_mail",
       "name": "Glass Mail",
       "glyph": "[",
-      "description": "Armor made from interlocking glass scales",
-      "value": 95,
-      "weight": 6,
-      "usable": false,
+      "description": "Flexible armor woven from glass fibers",
+      "value": 120,
+      "weight": 8,
+      "tier": 3,
       "armor_value": 5,
-      "equip_slot": "jacket",
-      "reflects_light": true,
-      "effects": [
-        { "condition": "on_equip", "effect": "S(@8 &Cyan &LightCyan)" }
-      ]
+      "equip_slot": "armor",
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@5 &LightCyan)" }]
     },
     {
-      "id": "monk_robes",
-      "name": "Monk Robes",
+      "id": "saint_aegis",
+      "name": "Saint's Aegis",
       "glyph": "[",
-      "description": "Ceremonial garments embedded with mirror fragments",
-      "value": 60,
-      "weight": 2,
+      "description": "Divine protection forged by the machine-saints",
+      "value": 600,
+      "weight": 10,
+      "tier": 5,
+      "armor_value": 10,
+      "equip_slot": "armor",
       "usable": false,
-      "armor_value": 2,
-      "equip_slot": "jacket",
-      "faction_item": "MirrorMonks"
+      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &LightYellow)" }]
     },
     {
-      "id": "engineer_goggles",
-      "name": "Engineer Goggles",
-      "glyph": "^",
-      "description": "Protective eyewear with multiple lenses",
-      "value": 40,
-      "weight": 1,
-      "usable": false,
+      "id": "leather_jacket",
+      "name": "Leather Jacket",
+      "glyph": "[",
+      "description": "Worn leather jacket offering basic protection",
+      "value": 20,
+      "weight": 3,
+      "tier": 1,
       "armor_value": 1,
-      "equip_slot": "head",
-      "faction_item": "SandEngineers",
-      "protects_from_glare": true
+      "equip_slot": "armor",
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@2 &DarkGray)" }]
     },
     {
-      "id": "glassborn_mask",
-      "name": "Glassborn Mask",
-      "glyph": "^",
-      "description": "Crystalline face covering that filters light",
-      "value": 75,
-      "weight": 2,
-      "usable": false,
+      "id": "reinforced_jacket",
+      "name": "Reinforced Jacket",
+      "glyph": "[",
+      "description": "Leather jacket reinforced with metal plates",
+      "value": 60,
+      "weight": 5,
+      "tier": 2,
       "armor_value": 3,
-      "equip_slot": "head",
-      "faction_item": "Glassborn"
-    },
-    {
-      "id": "storm_resistant_cloak",
-      "name": "Storm-Resistant Cloak",
-      "glyph": "(",
-      "description": "Heavy cloak that deflects glass shards",
-      "value": 85,
-      "weight": 3,
+      "equip_slot": "armor",
       "usable": false,
-      "armor_value": 2,
-      "equip_slot": "accessory",
-      "storm_protection": 3
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Gray)" }]
     },
     {
-      "id": "hermit_staff",
-      "name": "Hermit Staff",
-      "glyph": "|",
-      "description": "Walking stick topped with a salt crystal",
-      "value": 35,
-      "weight": 3,
-      "usable": false,
-      "equip_slot": "weapon",
-      "light_source": { "radius": 3, "intensity": 60 }
-    },
-    {
-      "id": "glass_spear",
-      "name": "Glass Spear",
+      "id": "glass_pick",
+      "name": "Glass Pick",
       "glyph": "/",
-      "description": "Long weapon with a crystalline point",
-      "value": 40,
-      "weight": 3,
-      "usable": false,
-      "equip_slot": "weapon",
-      "reach": 2
+      "description": "Vitrified tool for breaking walls and glass seams",
+      "value": 30,
+      "weight": 2,
+      "tier": 1,
+      "usable": true,
+      "breaks_walls": true,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &Cyan &White)" }]
     },
     {
-      "id": "salt_mace",
-      "name": "Salt Mace",
+      "id": "master_glass_pick",
+      "name": "Master Glass Pick",
       "glyph": "/",
-      "description": "Blunt weapon with a crystallized head",
-      "value": 35,
-      "weight": 4,
-      "usable": false,
-      "equip_slot": "weapon",
-      "armor_piercing": 2
-    },
-    {
-      "id": "refraction_blade",
-      "name": "Refraction Blade",
-      "glyph": "/",
-      "description": "Sword that bends light along its edge",
-      "value": 90,
-      "weight": 2,
-      "usable": false,
-      "equip_slot": "weapon",
-      "light_damage": true,
-      "effects": [{ "condition": "on_hit", "effect": "W(@2 &White)" }]
-    },
-    {
-      "id": "storm_crossbow",
-      "name": "Storm Crossbow",
-      "glyph": ")",
-      "description": "Mechanical weapon that fires glass bolts",
-      "value": 75,
-      "weight": 4,
-      "usable": false,
-      "equip_slot": "ranged_weapon",
-      "armor_piercing": 1
-    },
-    {
-      "id": "glass_bolt",
-      "name": "Glass Bolt",
-      "glyph": "→",
-      "description": "Crossbow ammunition made of sharp glass",
-      "value": 4,
-      "weight": 0,
-      "usable": false,
-      "stackable": true
-    },
-    {
-      "id": "archive_scanner",
-      "name": "Archive Scanner",
-      "glyph": "⊕",
-      "description": "Device that identifies pre-storm technology",
-      "value": 120,
-      "weight": 2,
-      "usable": true,
-      "identifies_artifacts": true,
-      "faction_item": "Archive"
-    },
-    {
-      "id": "meditation_crystal",
-      "name": "Meditation Crystal",
-      "glyph": "◆",
-      "description": "Focus stone used by monks for contemplation",
-      "value": 50,
-      "weight": 1,
-      "usable": true,
-      "restores_sanity": 5,
-      "faction_item": "MirrorMonks"
-    },
-    {
-      "id": "repair_kit",
-      "name": "Repair Kit",
-      "glyph": "∩",
-      "description": "Tools and materials for fixing equipment",
-      "value": 45,
-      "weight": 2,
-      "usable": true,
-      "repairs_equipment": true,
-      "faction_item": "SandEngineers"
-    },
-    {
-      "id": "quantum_resonator",
-      "name": "Quantum Resonator",
-      "glyph": "◎",
-      "description": "Dr. Thorne's device for measuring quantum coherence",
+      "description": "Superior tool that can break any barrier",
       "value": 150,
-      "weight": 2,
+      "weight": 3,
+      "tier": 4,
       "usable": true,
-      "detects_quantum_fields": true,
-      "reveals_adaptation_potential": true,
-      "effects": [{ "condition": "on_use", "effect": "P(@6 &LightBlue)" }]
+      "breaks_walls": true,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@6 &White &LightCyan)" }]
     },
     {
-      "id": "synthesis_manual",
-      "name": "Synthesis Manual",
-      "glyph": "≡",
-      "description": "Saint Matthias's guide to balanced transformation",
-      "value": 80,
+      "id": "storm_compass",
+      "name": "Storm Compass",
+      "glyph": "⊕",
+      "description": "Needle trembles toward the next storm's origin",
+      "value": 60,
       "weight": 1,
+      "tier": 2,
       "usable": true,
-      "faction_item": "SynthesisSeekers",
-      "grants_adaptation_control": true,
+      "reveals_storm_path": true,
       "effects": [
-        { "condition": "on_use", "effect": "R(@8 &Magenta &LightMagenta)" }
+        { "condition": "on_pickup", "effect": "B(@3 &Yellow)" },
+        { "condition": "on_use", "effect": "W(@6 &LightYellow)" }
       ]
     },
     {
-      "id": "null_field_generator",
-      "name": "Null Field Generator",
-      "glyph": "⊗",
-      "description": "Iron Covenant device that disrupts quantum coherence",
-      "value": 200,
-      "weight": 4,
-      "usable": true,
-      "faction_item": "IronCovenant",
-      "suppresses_psychic_abilities": true,
-      "damages_adapted": true,
-      "effects": [{ "condition": "on_use", "effect": "W(@4 &Red)" }]
-    },
-    {
-      "id": "ascension_catalyst",
-      "name": "Ascension Catalyst",
-      "glyph": "◆",
-      "description": "Glass Prophet serum that accelerates transformation",
+      "id": "storm_oracle",
+      "name": "Storm Oracle",
+      "glyph": "⊕",
+      "description": "Advanced device that predicts storm patterns perfectly",
       "value": 300,
-      "weight": 1,
-      "usable": true,
-      "faction_item": "GlassProphets",
-      "forces_adaptation": true,
-      "dangerous": true,
-      "effects": [{ "condition": "on_use", "effect": "P(@1 &LightCyan)" }]
-    },
-    {
-      "id": "memory_crystal",
-      "name": "Memory Crystal",
-      "glyph": "◊",
-      "description": "Wandering Court artifact preserving pre-storm culture",
-      "value": 120,
-      "weight": 1,
-      "usable": true,
-      "faction_item": "WanderingCourt",
-      "reveals_lore": true,
-      "restores_humanity": true,
-      "effects": [{ "condition": "on_use", "effect": "F(@20 &LightYellow)" }]
-    },
-    {
-      "id": "aria_interface",
-      "name": "ARIA Interface",
-      "glyph": "⊕",
-      "description": "Direct communication device with the Archive Consciousness",
-      "value": 500,
-      "weight": 3,
-      "usable": true,
-      "consumable": false,
-      "faction_item": "Archive",
-      "enables_aria_dialogue": true,
-      "requires_saint_key": true,
-      "effects": [{ "condition": "on_use", "effect": "W(@8 &Blue)" }]
-    },
-    {
-      "id": "quantum_stabilizer",
-      "name": "Quantum Stabilizer",
-      "glyph": "⊕",
-      "description": "Prevents quantum psychosis and adaptation overload",
-      "value": 180,
       "weight": 2,
+      "tier": 4,
       "usable": true,
-      "prevents_quantum_psychosis": true,
-      "stabilizes_consciousness": true,
-      "effects": [{ "condition": "on_use", "effect": "P(@8 &Green)" }]
+      "reveals_storm_path": true,
+      "reveals_storm_timing": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &LightYellow)" },
+        { "condition": "on_use", "effect": "W(@10 &White)" }
+      ]
     },
     {
-      "id": "heliograph_fragment",
-      "name": "Heliograph Fragment",
-      "glyph": "◊",
-      "description": "Piece of the orbital array, pulses with residual energy",
-      "value": 400,
-      "weight": 2,
-      "usable": false,
-      "cosmic_artifact": true,
-      "attracts_cosmic_entities": true,
-      "effects": [{ "condition": "on_pickup", "effect": "P(@4 &White)" }]
+      "id": "veil_tincture",
+      "name": "Veil Tincture",
+      "glyph": "!",
+      "description": "Dulls refraction glow—adaptations hidden briefly",
+      "value": 40,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "suppresses_adaptations": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &DarkGray)" },
+        { "condition": "on_use", "effect": "F(@12 &DarkGray)" }
+      ]
     },
     {
-      "id": "probability_anchor",
-      "name": "Probability Anchor",
-      "glyph": "⚓",
-      "description": "Stabilizes quantum probability states around the user",
+      "id": "perfect_veil",
+      "name": "Perfect Veil",
+      "glyph": "!",
+      "description": "Complete adaptation suppression with no side effects",
+      "value": 200,
+      "weight": 1,
+      "tier": 4,
+      "usable": true,
+      "suppresses_adaptations": true,
+      "grants_invisibility": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &DarkGray)" },
+        { "condition": "on_use", "effect": "F(@20 &Black)" }
+      ]
+    },
+    {
+      "id": "salt_poultice",
+      "name": "Salt Poultice",
+      "glyph": "+",
+      "description": "Crystallized salve that seals wounds with brine",
+      "value": 15,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "heal": 8,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Green)" },
+        { "condition": "on_use", "effect": "P(@4 &LightGreen)" }
+      ]
+    },
+    {
+      "id": "master_salve",
+      "name": "Master's Salve",
+      "glyph": "+",
+      "description": "Legendary healing compound that mends any wound",
       "value": 250,
-      "weight": 3,
-      "usable": true,
-      "prevents_probability_backlash": true,
-      "enhances_luck_abilities": true,
-      "effects": [{ "condition": "on_use", "effect": "F(@12 &Yellow)" }]
-    },
-    {
-      "id": "consciousness_backup",
-      "name": "Consciousness Backup",
-      "glyph": "◎",
-      "description": "Archive device that stores a copy of the user's mind",
-      "value": 600,
       "weight": 1,
+      "tier": 5,
       "usable": true,
-      "creates_mind_backup": true,
-      "enables_resurrection": true,
-      "faction_item": "Archive",
-      "effects": [{ "condition": "on_use", "effect": "W(@10 &LightBlue)" }]
+      "heal": 25,
+      "reduces_refraction": 5,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@8 &LightGreen)" },
+        { "condition": "on_use", "effect": "P(@10 &White)" }
+      ]
     },
     {
-      "id": "temporal_anchor",
-      "name": "Temporal Anchor",
-      "glyph": "⧗",
-      "description": "Prevents temporal displacement from psychic abilities",
-      "value": 220,
+      "id": "hand_torch",
+      "name": "Hand Torch",
+      "glyph": "i",
+      "description": "Simple torch that provides light",
+      "value": 5,
+      "weight": 1,
+      "tier": 1,
+      "usable": false,
+      "equip_slot": "light",
+      "light_source": { "radius": 4, "intensity": 100 },
+      "effects": [{ "condition": "on_pickup", "effect": "F(@3 &Yellow)" }]
+    },
+    {
+      "id": "storm_lantern",
+      "name": "Storm Lantern",
+      "glyph": "i",
+      "description": "Advanced lantern powered by storm glass",
+      "value": 80,
       "weight": 2,
-      "usable": true,
-      "prevents_temporal_displacement": true,
-      "stabilizes_timeline": true,
-      "effects": [{ "condition": "on_use", "effect": "S(@8 &Cyan &LightCyan)" }]
+      "tier": 3,
+      "usable": false,
+      "equip_slot": "light",
+      "light_source": { "radius": 8, "intensity": 150 },
+      "effects": [{ "condition": "on_pickup", "effect": "F(@6 &LightCyan)" }]
+    },
+    {
+      "id": "saint_beacon",
+      "name": "Saint's Beacon",
+      "glyph": "i",
+      "description": "Divine light that pierces any darkness",
+      "value": 400,
+      "weight": 3,
+      "tier": 5,
+      "usable": false,
+      "equip_slot": "light",
+      "light_source": { "radius": 15, "intensity": 200 },
+      "effects": [{ "condition": "on_pickup", "effect": "F(@10 &White)" }]
     },
     {
       "id": "salt_crystal",
       "name": "Salt Crystal",
-      "glyph": "◇",
-      "description": "Pure crystallized salt from the flats",
+      "glyph": "*",
+      "description": "Pure crystallized salt with various uses",
       "value": 8,
       "weight": 1,
+      "tier": 1,
       "usable": false,
       "effects": [{ "condition": "on_pickup", "effect": "S(@2 &White)" }]
     },
     {
-      "id": "crystalline_shard",
-      "name": "Crystalline Shard",
-      "glyph": "◆",
-      "description": "Refractive crystal formation",
-      "value": 20,
+      "id": "perfect_salt_crystal",
+      "name": "Perfect Salt Crystal",
+      "glyph": "*",
+      "description": "Flawless salt crystal with enhanced purity",
+      "value": 50,
       "weight": 1,
+      "tier": 3,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &LightCyan)" }]
-    },
-    {
-      "id": "pure_water",
-      "name": "Pure Water",
-      "glyph": "!",
-      "description": "Clean water from an oasis spring",
-      "value": 15,
-      "weight": 1,
-      "usable": true,
-      "heal": 8,
-      "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &Blue)" },
-        { "condition": "on_use", "effect": "P(@8 &Blue)" }
-      ]
-    },
-    {
-      "id": "healing_herb",
-      "name": "Healing Herb",
-      "glyph": "♠",
-      "description": "Medicinal plant from oasis gardens",
-      "value": 12,
-      "weight": 0,
-      "usable": true,
-      "heal": 6,
-      "effects": [
-        { "condition": "on_pickup", "effect": "F(@4 &Green)" },
-        { "condition": "on_use", "effect": "P(@6 &Green)" }
-      ]
-    },
-    {
-      "id": "archive_fragment",
-      "name": "Archive Fragment",
-      "glyph": "□",
-      "description": "Piece of pre-storm technology",
-      "value": 30,
-      "weight": 1,
-      "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@5 &LightBlue)" }]
-    },
-    {
-      "id": "ancient_gear",
-      "name": "Ancient Gear",
-      "glyph": "⚙",
-      "description": "Mechanical component from the old world",
-      "value": 18,
-      "weight": 2,
-      "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "F(@3 &Gray)" }]
-    },
-    {
-      "id": "hardy_root",
-      "name": "Hardy Root",
-      "glyph": "♠",
-      "description": "Tough plant root that survives harsh conditions",
-      "value": 6,
-      "weight": 1,
-      "usable": true,
-      "heal": 3,
-      "effects": [
-        { "condition": "on_pickup", "effect": "F(@2 &DarkGray)" },
-        { "condition": "on_use", "effect": "P(@4 &Green)" }
-      ]
+      "effects": [{ "condition": "on_pickup", "effect": "S(@5 &LightGray)" }]
     }
   ]
 }
