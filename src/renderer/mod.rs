@@ -9,6 +9,7 @@ pub mod effects;
 pub mod entities;
 pub mod tiles;
 pub mod camera;
+pub mod performance;
 
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use crate::GameState;
@@ -19,6 +20,7 @@ use self::{
     entities::EntityRenderer,
     tiles::TileRenderer,
     camera::Camera,
+    performance::{FrameLimiter, ViewportCuller},
 };
 
 /// Main renderer that coordinates all rendering subsystems
@@ -29,6 +31,8 @@ pub struct Renderer {
     entities: EntityRenderer,
     tiles: TileRenderer,
     camera: Camera,
+    frame_limiter: FrameLimiter,
+    viewport_culler: ViewportCuller,
 }
 
 impl Renderer {
@@ -42,6 +46,8 @@ impl Renderer {
             entities: EntityRenderer::new(&config),
             tiles: TileRenderer::new(&config),
             camera: Camera::new(),
+            frame_limiter: FrameLimiter::new(config.performance.target_fps),
+            viewport_culler: ViewportCuller::new(),
             config,
         })
     }
@@ -64,7 +70,12 @@ impl Renderer {
         self.camera.update(state.player_x, state.player_y, inner.width as i32, inner.height as i32);
         let (cam_x, cam_y) = self.camera.position();
 
-        // Calculate lighting if enabled
+        // Get viewport bounds for culling
+        let viewport_bounds = self.viewport_culler.get_bounds(
+            cam_x, cam_y, inner.width as i32, inner.height as i32
+        );
+
+        // Calculate lighting if enabled (only for visible area)
         let light_map = if self.config.lighting.enabled {
             self.lighting.calculate_lighting(state)
         } else {
@@ -146,6 +157,21 @@ impl Renderer {
     /// Get current configuration
     pub fn config(&self) -> &RenderConfig {
         &self.config
+    }
+
+    /// Limit frame rate to prevent excessive CPU usage
+    pub fn limit_frame_rate(&mut self) {
+        self.frame_limiter.limit();
+    }
+
+    /// Set target FPS for frame rate limiting
+    pub fn set_fps(&mut self, fps: u32) {
+        self.frame_limiter.set_fps(fps);
+    }
+
+    /// Get current target FPS
+    pub fn fps(&self) -> u32 {
+        self.frame_limiter.fps()
     }
 }
 

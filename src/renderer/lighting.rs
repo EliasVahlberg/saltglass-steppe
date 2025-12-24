@@ -300,6 +300,12 @@ mod tests {
                 status_effect_priority: vec![],
                 hit_flash_duration: 2,
             },
+            performance: PerformanceConfig {
+                target_fps: 60,
+                viewport_culling: true,
+                frame_limiting: true,
+                optimization_level: "balanced".to_string(),
+            },
         }
     }
 

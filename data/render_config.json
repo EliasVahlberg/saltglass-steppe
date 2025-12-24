@@ -96,5 +96,11 @@
     "damage_numbers": true,
     "status_effect_priority": ["burn", "poison", "bleed", "stun"],
     "hit_flash_duration": 2
+  },
+  "performance": {
+    "target_fps": 60,
+    "viewport_culling": true,
+    "frame_limiting": true,
+    "optimization_level": "balanced"
   }
 }

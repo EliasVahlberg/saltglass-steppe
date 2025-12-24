@@ -1,0 +1,81 @@
+{
+    "name": "performance_optimization_test",
+    "seed": 42,
+    "player": {
+        "x": 50,
+        "y": 50,
+        "hp": 20,
+        "max_hp": 20
+    },
+    "entities": [
+        {
+            "entity_type": "enemy",
+            "id": "mirage_hound",
+            "x": 55,
+            "y": 55,
+            "hp": 10,
+            "ai_disabled": true
+        }
+    ],
+    "actions": [
+        {
+            "turn": 0,
+            "action": {
+                "type": "log",
+                "query": {
+                    "custom": {
+                        "message": "Testing performance optimizations with viewport culling"
+                    }
+                }
+            }
+        },
+        {
+            "turn": 1,
+            "action": {
+                "type": "move",
+                "dx": 1,
+                "dy": 0
+            }
+        },
+        {
+            "turn": 2,
+            "action": {
+                "type": "move",
+                "dx": 0,
+                "dy": 1
+            }
+        },
+        {
+            "turn": 3,
+            "action": {
+                "type": "move",
+                "dx": -1,
+                "dy": 0
+            }
+        },
+        {
+            "turn": 4,
+            "action": {
+                "type": "move",
+                "dx": 0,
+                "dy": -1
+            }
+        }
+    ],
+    "assertions": [
+        {
+            "at_end": true,
+            "check": {
+                "type": "player_position",
+                "x": 50,
+                "y": 50
+            }
+        },
+        {
+            "at_end": true,
+            "check": {
+                "type": "player_alive"
+            }
+        }
+    ]
+}
