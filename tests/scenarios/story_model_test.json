@@ -1,0 +1,78 @@
+{
+  "name": "story_model_test",
+  "description": "Test persistent story model with characters, relationships, and faction dynamics",
+  "seed": 12345,
+  "steps": [
+    {
+      "action": "start_game",
+      "expected": {
+        "player_hp": 20,
+        "turn": 0
+      }
+    },
+    {
+      "action": "check_story_model",
+      "expected": {
+        "has_characters": true,
+        "has_factions": true,
+        "has_events": true,
+        "character_count_min": 5,
+        "faction_count": 5,
+        "event_count_min": 8
+      }
+    },
+    {
+      "action": "test_faction_lore",
+      "params": {
+        "faction": "Mirror Monks"
+      },
+      "expected": {
+        "contains_keywords": ["Mirror Monks", "ideology"],
+        "min_length": 20
+      }
+    },
+    {
+      "action": "test_artifact_inscription",
+      "params": {
+        "artifact": "test_artifact"
+      },
+      "expected": {
+        "fallback_behavior": true
+      }
+    },
+    {
+      "action": "test_shrine_text",
+      "params": {
+        "location": "test_location"
+      },
+      "expected": {
+        "fallback_behavior": true
+      }
+    },
+    {
+      "action": "add_player_event",
+      "params": {
+        "event_type": "Discovery",
+        "description": "Player discovered a hidden chamber"
+      },
+      "expected": {
+        "event_added": true
+      }
+    },
+    {
+      "action": "test_character_relationships",
+      "params": {
+        "character_id": "founder_0"
+      },
+      "expected": {
+        "relationship_format": true
+      }
+    },
+    {
+      "action": "test_deterministic_generation",
+      "expected": {
+        "same_seed_same_story": true
+      }
+    }
+  ]
+}
