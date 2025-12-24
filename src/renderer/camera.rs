@@ -24,9 +24,12 @@ impl Camera {
     /// Update camera to follow a target position
     pub fn update(&mut self, target_x: i32, target_y: i32, view_width: i32, view_height: i32) {
         // Set target position (centered on target)
-        // Camera position is top-left, so subtract half viewport to center target
-        self.target_x = target_x as f32 - (view_width as f32 / 2.0);
-        self.target_y = target_y as f32 - (view_height as f32 / 2.0);
+        // Use integer division to avoid fractional centering that causes jitter
+        let half_width = view_width / 2;
+        let half_height = view_height / 2;
+        
+        self.target_x = (target_x - half_width) as f32;
+        self.target_y = (target_y - half_height) as f32;
 
         // Smooth interpolation towards target
         let dx = self.target_x - self.current_x;
