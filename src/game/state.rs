@@ -265,6 +265,9 @@ pub struct GameState {
     /// Persistent story model with characters and relationships
     #[serde(default)]
     pub story_model: Option<StoryModel>,
+    /// Physical skills and abilities system
+    #[serde(default)]
+    pub skills: super::skills::SkillsState,
 }
 
 /// Floating damage number for visual feedback
@@ -502,6 +505,7 @@ impl GameState {
             world_history: Vec::new(),
             story_model: None,
             pending_book_open: None,
+            skills: super::skills::SkillsState::default(),
         };
         
         // Initialize narrative generator and generate world history
@@ -1068,7 +1072,9 @@ impl GameState {
                 self.player_level += 1;
                 let points = stat_points_per_level();
                 self.pending_stat_points += points;
-                self.log(format!("⬆ LEVEL {}! (+{} stat points)", self.player_level, points));
+                // Also gain skill points
+                self.skills.skill_points += 2;
+                self.log(format!("⬆ LEVEL {}! (+{} stat points, +2 skill points)", self.player_level, points));
                 self.emit(GameEvent::LevelUp { level: self.player_level });
             } else {
                 break;
@@ -1100,6 +1106,7 @@ impl GameState {
         self.player_ap = self.player_max_ap;
         self.tick_status_effects();
         self.psychic.tick();
+        self.skills.tick();
         self.tick_turn();
         self.update_enemies();
         if self.storm.tick() { self.apply_storm(); }
@@ -1412,6 +1419,63 @@ impl GameState {
                     self.log("Usage: set_coherence <amount>");
                 }
             }
+            Some("add_skill_points") => {
+                if let Some(amount_str) = parts.get(1) {
+                    if let Ok(amount) = amount_str.parse::<u32>() {
+                        self.skills.skill_points += amount;
+                        self.log(format!("Added {} skill points (total: {})", amount, self.skills.skill_points));
+                    } else {
+                        self.log("Invalid amount. Use a number.");
+                    }
+                } else {
+                    self.skills.skill_points += 10;
+                    self.log(format!("Added 10 skill points (total: {})", self.skills.skill_points));
+                }
+            }
+            Some("set_stamina") => {
+                if let Some(amount_str) = parts.get(1) {
+                    if let Ok(amount) = amount_str.parse::<u32>() {
+                        self.skills.stamina = amount;
+                        self.skills.max_stamina = amount.max(self.skills.max_stamina);
+                        self.log(format!("Set stamina to: {}", amount));
+                    } else {
+                        self.log("Invalid amount. Use a number.");
+                    }
+                } else {
+                    self.log("Usage: set_stamina <amount>");
+                }
+            }
+            Some("unlock_skill") => {
+                if let Some(skill_id) = parts.get(1) {
+                    if super::skills::get_skill_def(skill_id).is_some() {
+                        self.skills.skills.insert(skill_id.to_string(), 1);
+                        self.skills.check_ability_unlocks();
+                        self.log(format!("Unlocked skill: {}", skill_id));
+                    } else {
+                        self.log(format!("Unknown skill: {}", skill_id));
+                    }
+                } else {
+                    self.log("Usage: unlock_skill <skill_id>");
+                }
+            }
+            Some("list_skills") => {
+                self.log("Available skills:");
+                for id in super::skills::all_skill_ids() {
+                    if let Some(def) = super::skills::get_skill_def(id) {
+                        let level = self.skills.get_skill_level(id);
+                        self.log(format!("  {} - {} (Lv.{})", id, def.name, level));
+                    }
+                }
+            }
+            Some("list_abilities") => {
+                self.log("Available abilities:");
+                for id in super::skills::all_ability_ids() {
+                    if let Some(def) = super::skills::get_ability_def(id) {
+                        let unlocked = self.skills.unlocked_abilities.contains(&id.to_string());
+                        self.log(format!("  {} - {} {}", id, def.name, if unlocked { "[UNLOCKED]" } else { "" }));
+                    }
+                }
+            }
             Some("spawn_enemy") => {
                 if let Some(id) = parts.get(1) {
                     if super::enemy::get_enemy_def(id).is_some() {
@@ -1512,6 +1576,11 @@ impl GameState {
                 self.log("  add_psychic <id> - Add psychic ability");
                 self.log("  list_psychic - List available psychic abilities");
                 self.log("  set_coherence <amount> - Set psychic coherence");
+                self.log("  add_skill_points [amount] - Add skill points");
+                self.log("  set_stamina <amount> - Set stamina");
+                self.log("  unlock_skill <id> - Unlock a skill");
+                self.log("  list_skills - List available skills");
+                self.log("  list_abilities - List available abilities");
                 self.log("  spawn_enemy <id> [x] [y] - Spawn enemy at position");
                 self.log("  spawn_swarm <id> <count> - Spawn enemy swarm");
                 self.log("  show_level - Show current tile threat level");

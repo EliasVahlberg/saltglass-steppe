@@ -56,6 +56,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     let (hp_bar, hp_color) = render_bar(state.player_hp, state.player_max_hp, bar_width);
     let (ap_bar, _) = render_bar(state.player_ap, state.player_max_ap, bar_width);
     let (coherence_bar, _) = render_bar(state.psychic.coherence as i32, state.psychic.max_coherence as i32, bar_width);
+    let (stamina_bar, _) = render_bar(state.skills.stamina as i32, state.skills.max_stamina as i32, bar_width);
 
     let stats = vec![
         Line::from(vec![
@@ -72,6 +73,11 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::raw("Co "),
             Span::styled(coherence_bar, Style::default().fg(Color::Magenta)),
             Span::styled(format!(" {}/{}", state.psychic.coherence, state.psychic.max_coherence), Style::default().fg(Color::Magenta)),
+        ]),
+        Line::from(vec![
+            Span::raw("St "),
+            Span::styled(stamina_bar, Style::default().fg(Color::Green)),
+            Span::styled(format!(" {}/{}", state.skills.stamina, state.skills.max_stamina), Style::default().fg(Color::Green)),
         ]),
         Line::from(vec![
             Span::raw("Sanity: "),
@@ -197,6 +203,7 @@ pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         "hjkl  Move/Attack",
         "f     Ranged attack",
         "p     Psychic abilities",
+        "s     Skills & abilities",
         "t     Target mode",
         "i     Inventory",
         "c     Craft",

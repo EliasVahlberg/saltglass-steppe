@@ -6,7 +6,7 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_item_def, GameState, Renderer};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_psychic_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, render_book_reader, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_psychic_menu, render_skills_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, render_book_reader, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -177,6 +177,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenPsychicMenu => {
             ui.psychic_menu.toggle();
         }
+        Action::OpenSkillsMenu => {
+            ui.skills_menu.open();
+        }
         Action::UsePsychicAbility(ability_id) => {
             state.use_psychic_ability(&ability_id);
         }
@@ -229,6 +232,10 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState, renderer: &mut Ren
     }
     if ui.psychic_menu.active {
         render_psychic_menu(frame, frame.area(), state, &ui.psychic_menu);
+        return;
+    }
+    if ui.skills_menu.active {
+        render_skills_menu(frame, state, &ui.skills_menu);
         return;
     }
     if ui.world_map_view.open {
@@ -421,7 +428,7 @@ fn main() -> Result<()> {
                 }
             } else {
                 terminal.draw(|frame| render(frame, &state, &ui, &mut renderer))?;
-                let action = handle_input(&mut ui, &state)?;
+                let action = handle_input(&mut ui, &mut state)?;
                 match update(&mut state, action, &mut ui) {
                     Some(true) => {} // Continue game
                     Some(false) => break 'main, // Quit

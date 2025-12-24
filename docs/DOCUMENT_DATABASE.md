@@ -77,6 +77,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [DES_TODO.md](development/DES_TODO.md)                                 | DES development tasks and improvements           |
 | [DES_USAGE.md](development/DES_USAGE.md)                               | How to use the Debug Execution System            |
 | [DES_README.md](development/DES_README.md)                             | DES technical documentation                      |
+| [PSYCHIC_MENU_SYSTEM.md](development/PSYCHIC_MENU_SYSTEM.md)           | Psychic abilities menu implementation guide     |
 | [CONTENT_CREATION_GUIDE.md](development/CONTENT_CREATION_GUIDE.md)     | Guide for creating game content                  |
 | [copilot-instructions.md](development/copilot-instructions.md)         | GitHub Copilot configuration and guidelines      |
 | [DOCUMENTATION_GUIDELINES.md](development/DOCUMENTATION_GUIDELINES.md) | Documentation writing and maintenance guidelines |
@@ -217,4 +218,4 @@ This file contains a comprehensive list of all project documentation with descri
 ---
 
 _Last updated: 2025-12-24_
-_Total documents: 85_
+_Total documents: 86_

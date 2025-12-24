@@ -3,7 +3,7 @@
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use std::io::Result;
 use crate::GameState;
-use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, TradeMenu, MenuPanel, WorldMapView, DebugMenu, IssueReporter, PsychicMenu};
+use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, TradeMenu, MenuPanel, WorldMapView, DebugMenu, IssueReporter, PsychicMenu, SkillsMenu};
 use super::trade_menu::TradeMode;
 use crate::all_recipe_ids;
 
@@ -124,6 +124,7 @@ pub struct UiState {
     pub debug_menu: DebugMenu,
     pub issue_reporter: IssueReporter,
     pub psychic_menu: PsychicMenu,
+    pub skills_menu: SkillsMenu,
     pub dialog_box: DialogBox,
     pub book_reader: BookReader,
     /// Smooth camera position (lerped toward player)
@@ -196,6 +197,7 @@ impl UiState {
             debug_menu: DebugMenu::default(),
             issue_reporter: IssueReporter::default(),
             psychic_menu: PsychicMenu::default(),
+            skills_menu: SkillsMenu::default(),
             dialog_box: DialogBox::default(),
             book_reader: BookReader::default(),
             camera_x: 0.0,
@@ -235,6 +237,7 @@ pub enum Action {
     OpenCrafting,
     OpenWiki,
     OpenPsychicMenu,
+    OpenSkillsMenu,
     UsePsychicAbility(String),
     RangedAttackMode,
     TargetMode,
@@ -255,7 +258,7 @@ pub enum Action {
 }
 
 /// Handle input and return the resulting action
-pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
+pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
     if !event::poll(std::time::Duration::from_millis(16))? {
         return Ok(Action::None);
     }
@@ -296,6 +299,10 @@ pub fn handle_input(ui: &mut UiState, state: &GameState) -> Result<Action> {
         // Psychic menu input
         if ui.psychic_menu.active {
             return Ok(handle_psychic_menu_input(ui, state, key.code));
+        }
+        // Skills menu input
+        if ui.skills_menu.active {
+            return Ok(handle_skills_menu_input(ui, state, key.code));
         }
         // Debug menu input
         if ui.debug_menu.active {
@@ -361,7 +368,7 @@ fn handle_book_reader_input(ui: &mut UiState, code: KeyCode) -> Action {
     Action::None
 }
 
-fn handle_wiki_input(ui: &mut UiState, _state: &GameState, code: KeyCode) -> Action {
+fn handle_wiki_input(ui: &mut UiState, _state: &mut GameState, code: KeyCode) -> Action {
     use crate::game::{all_item_ids, all_enemy_ids};
     use crate::game::npc::all_npc_ids;
     use super::wiki::WikiTab;
@@ -382,7 +389,7 @@ fn handle_wiki_input(ui: &mut UiState, _state: &GameState, code: KeyCode) -> Act
     Action::None
 }
 
-fn handle_quest_log_input(ui: &mut UiState, state: &GameState, code: KeyCode) -> Action {
+fn handle_quest_log_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
     let total = state.quest_log.active.len() + state.quest_log.completed.len() + 3;
     match code {
         KeyCode::Esc | KeyCode::Char('q') => ui.quest_log.close(),
@@ -404,7 +411,7 @@ fn handle_crafting_input(ui: &mut UiState, code: KeyCode) -> Action {
     Action::None
 }
 
-fn handle_inventory_input(ui: &mut UiState, state: &GameState, code: KeyCode) -> Action {
+fn handle_inventory_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
     match code {
         KeyCode::Esc | KeyCode::Char('i') => ui.inventory_menu.close(),
         KeyCode::Char('j') | KeyCode::Down => ui.inventory_menu.navigate(1, state.inventory.len()),
@@ -508,7 +515,7 @@ fn handle_debug_console_input(ui: &mut UiState, code: KeyCode) -> Action {
     Action::None
 }
 
-fn handle_world_map_input(ui: &mut UiState, state: &GameState, code: KeyCode) -> Action {
+fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
     match code {
         KeyCode::Esc | KeyCode::Char('m') | KeyCode::Char('M') => {
             ui.world_map_view.open = false;
@@ -547,6 +554,7 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Char('c') => Action::OpenCrafting,
         KeyCode::Char('w') => Action::OpenWiki,
         KeyCode::Char('p') => Action::OpenPsychicMenu,
+        KeyCode::Char('s') => Action::OpenSkillsMenu,
         KeyCode::Char('f') => Action::RangedAttackMode,
         KeyCode::Char('t') => Action::TargetMode,
         KeyCode::Char('m') | KeyCode::Char('M') => Action::OpenWorldMap,
@@ -563,7 +571,7 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
     }
 }
 
-fn handle_trade_input(ui: &mut UiState, state: &GameState, key: KeyCode) -> Action {
+fn handle_trade_input(ui: &mut UiState, state: &mut GameState, key: KeyCode) -> Action {
     let interface = match &ui.trade_menu.interface {
         Some(i) => i,
         None => return Action::None,
@@ -688,7 +696,7 @@ fn handle_issue_reporter_input(ui: &mut UiState, code: KeyCode) -> Action {
     }
 }
 
-fn handle_psychic_menu_input(ui: &mut UiState, state: &GameState, code: KeyCode) -> Action {
+fn handle_psychic_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
     match code {
         KeyCode::Esc | KeyCode::Char('p') => {
             ui.psychic_menu.close();
@@ -709,6 +717,68 @@ fn handle_psychic_menu_input(ui: &mut UiState, state: &GameState, code: KeyCode)
             } else {
                 Action::None
             }
+        },
+        _ => Action::None,
+    }
+}
+
+fn handle_skills_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
+    use crate::game::skills::{get_skills_by_category, get_abilities_by_category};
+    use super::skills_menu::SkillsMenuMode;
+    
+    match code {
+        KeyCode::Esc | KeyCode::Char('s') => {
+            ui.skills_menu.active = false;
+            Action::None
+        },
+        KeyCode::Tab => {
+            ui.skills_menu.toggle_mode();
+            Action::None
+        },
+        KeyCode::Left | KeyCode::Char('h') => {
+            ui.skills_menu.prev_category();
+            Action::None
+        },
+        KeyCode::Right | KeyCode::Char('l') => {
+            ui.skills_menu.next_category();
+            Action::None
+        },
+        KeyCode::Up | KeyCode::Char('k') => {
+            ui.skills_menu.navigate_up();
+            Action::None
+        },
+        KeyCode::Down | KeyCode::Char('j') => {
+            let max_items = match ui.skills_menu.mode {
+                SkillsMenuMode::Skills => get_skills_by_category(&ui.skills_menu.selected_category).len(),
+                SkillsMenuMode::Abilities => get_abilities_by_category(&ui.skills_menu.selected_category).len(),
+            };
+            ui.skills_menu.navigate_down(max_items);
+            Action::None
+        },
+        KeyCode::Enter => {
+            match ui.skills_menu.mode {
+                SkillsMenuMode::Skills => {
+                    match ui.skills_menu.upgrade_skill(state) {
+                        Ok(()) => {
+                            // Success message will be logged by the upgrade function
+                        },
+                        Err(e) => {
+                            state.log(e);
+                        }
+                    }
+                },
+                SkillsMenuMode::Abilities => {
+                    match ui.skills_menu.use_ability(state) {
+                        Ok(()) => {
+                            ui.skills_menu.active = false;
+                        },
+                        Err(e) => {
+                            state.log(e);
+                        }
+                    }
+                },
+            }
+            Action::None
         },
         _ => Action::None,
     }

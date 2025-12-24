@@ -1,0 +1,49 @@
+{
+  "test_name": "Skills System Test",
+  "description": "Test the skills and abilities system functionality",
+  "actions": [
+    {
+      "action_type": "debug_command",
+      "command": "add_skill_points 20",
+      "turn": 1
+    },
+    {
+      "action_type": "debug_command", 
+      "command": "unlock_skill melee_combat",
+      "turn": 2
+    },
+    {
+      "action_type": "debug_command",
+      "command": "list_skills",
+      "turn": 3
+    },
+    {
+      "action_type": "debug_command",
+      "command": "list_abilities", 
+      "turn": 4
+    },
+    {
+      "action_type": "debug_command",
+      "command": "set_stamina 100",
+      "turn": 5
+    }
+  ],
+  "expectations": [
+    {
+      "type": "message_contains",
+      "text": "Added 20 skill points"
+    },
+    {
+      "type": "message_contains", 
+      "text": "Unlocked skill: melee_combat"
+    },
+    {
+      "type": "message_contains",
+      "text": "melee_combat - Melee Combat"
+    },
+    {
+      "type": "message_contains",
+      "text": "Set stamina to: 100"
+    }
+  ]
+}
