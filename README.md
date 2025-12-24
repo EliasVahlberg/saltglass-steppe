@@ -2,6 +2,19 @@
 
 A deterministic, data-driven, turn-based TUI RPG set in the harsh, crystalline wastelands of the Saltglass Steppe. Built with Rust, it features tactical combat, environmental survival mechanics, and a custom Debug Execution System (DES) for automated scenario testing.
 
+## Documentation
+
+📚 **[Complete Documentation](docs/)** - Comprehensive project documentation
+
+### Quick Links
+- **[Architecture](docs/architecture/)** - Technical architecture and system design
+- **[Design](docs/design/)** - Game design and creative vision
+- **[Development](docs/development/)** - Development guides and tools
+- **[Features](docs/features/)** - Feature specifications and implementation
+- **[Narrative](docs/narrative/)** - World lore and storytelling
+- **[Testing](docs/testing/)** - QA procedures and guidelines
+- **[Document Database](docs/DOCUMENT_DATABASE.md)** - Complete document listing
+
 ## Tech Stack
 
 - **Language**: Rust
