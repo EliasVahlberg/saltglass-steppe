@@ -13,9 +13,10 @@ use super::{
     enemy::Enemy,
     equipment::{EquipSlot, Equipment},
     event::GameEvent,
+    fov::FieldOfView,
     item::{get_item_def, Item},
     lighting::{compute_lighting, LightMap, LightSource},
-    map::{compute_fov, Map, Tile},
+    map::{Map, Tile},
     map_features::MapFeatures,
     npc::Npc,
     quest::QuestLog,
@@ -155,6 +156,8 @@ pub struct GameState {
     pub items: Vec<Item>,
     pub inventory: Vec<String>,
     pub visible: HashSet<usize>, pub revealed: HashSet<usize>,
+    #[serde(skip)]
+    pub player_fov: FieldOfView,
     #[serde(skip)]
     pub light_map: LightMap,
     #[serde(default = "default_ambient_light")]
@@ -310,7 +313,17 @@ impl GameState {
         let exit_y = py as usize;
         map.tiles[exit_y * map.width + exit_x] = Tile::WorldExit;
         
-        let visible = compute_fov(&map, px, py);
+        let visible = {
+            let mut fov = FieldOfView::new(super::constants::FOV_RANGE);
+            fov.calculate(&map, (px, py));
+            let mut vis = HashSet::new();
+            for &(x, y) in &fov.visible_tiles {
+                if let Some(idx) = map.pos_to_idx(x, y) {
+                    vis.insert(idx);
+                }
+            }
+            vis
+        };
         let table = super::spawn::get_biome_spawn_table(&biome);
 
         // Spawn enemies (fewer on starting tile for hospitable start)
@@ -416,6 +429,7 @@ impl GameState {
             status_effects: Vec::new(),
             map, enemies, npcs, items, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
+            player_fov: FieldOfView::new(super::constants::FOV_RANGE),
             light_map, ambient_light: ambient,
             messages: vec![GameMessage::new("Welcome to the Saltglass Steppe.", MsgType::System, 0)],
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
@@ -575,8 +589,7 @@ impl GameState {
         self.npcs = Vec::new(); // NPCs are tile-specific
         self.player_x = px;
         self.player_y = py;
-        self.visible = compute_fov(&self.map, px, py);
-        self.revealed = self.visible.clone();
+        self.update_fov();
         self.rebuild_spatial_index();
         self.update_lighting();
         
@@ -619,8 +632,7 @@ impl GameState {
         
         self.player_x = px;
         self.player_y = py;
-        self.visible = compute_fov(&self.map, px, py);
-        self.revealed = self.visible.clone();
+        self.update_fov();
         self.update_lighting();
     }
 
@@ -647,8 +659,7 @@ impl GameState {
         self.npcs = Vec::new();
         self.player_x = px;
         self.player_y = py;
-        self.visible = compute_fov(&self.map, px, py);
-        self.revealed = self.visible.clone();
+        self.update_fov();
         self.rebuild_spatial_index();
         self.update_lighting();
         
@@ -688,8 +699,7 @@ impl GameState {
             self.npcs = Vec::new();
             self.player_x = px;
             self.player_y = py;
-            self.visible = compute_fov(&self.map, px, py);
-            self.revealed = self.visible.clone();
+            self.update_fov();
             self.rebuild_spatial_index();
             self.update_lighting();
             
@@ -729,6 +739,23 @@ impl GameState {
             }
         }
         self.light_map = compute_lighting(&sources, self.effective_ambient_light());
+    }
+
+    /// Update player field of view using shadow casting algorithm
+    pub fn update_fov(&mut self) {
+        self.player_fov.mark_dirty();
+        self.player_fov.calculate(&self.map, (self.player_x, self.player_y));
+        
+        // Update legacy visible set for compatibility
+        self.visible.clear();
+        for &(x, y) in &self.player_fov.visible_tiles {
+            if let Some(idx) = self.map.pos_to_idx(x, y) {
+                self.visible.insert(idx);
+            }
+        }
+        
+        // Update revealed tiles
+        self.revealed.extend(&self.visible);
     }
 
     /// Calculate effective ambient light based on time of day and weather
@@ -847,6 +874,7 @@ impl GameState {
         if self.storm.tick() { self.apply_storm(); }
         self.tick_time();
         self.update_lighting();
+        self.update_fov();
     }
 
     /// Tick all status effects, apply damage, remove expired
@@ -1345,7 +1373,7 @@ impl GameState {
         }
         
         self.storm = Storm::forecast(&mut self.rng);
-        self.visible = compute_fov(&self.map, self.player_x, self.player_y);
+        self.update_fov();
         self.update_lighting();
     }
 
@@ -1771,9 +1799,8 @@ impl GameState {
                 self.storm_changed_tiles.remove(&player_idx);
                 
                 self.quest_log.on_position_changed(new_x, new_y);
-                self.visible = compute_fov(&self.map, new_x, new_y);
+                self.update_fov();
                 self.update_lighting();
-                self.revealed.extend(&self.visible);
                 self.pickup_items();
 
                 // Handle world exit at map edges

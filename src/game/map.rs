@@ -139,6 +139,8 @@ pub struct Map {
     pub lights: Vec<MapLight>,
 }
 
+static VOID_WALL: Lazy<Tile> = Lazy::new(|| Tile::Wall { id: "void".to_string(), hp: 1000 });
+
 impl Map {
     /// Generate a tile map from world context
     pub fn generate_from_world(
@@ -435,6 +437,25 @@ impl Map {
     }
 
     pub fn idx(&self, x: i32, y: i32) -> usize { y as usize * self.width + x as usize }
+
+    /// Convert position to index, returning None if out of bounds
+    pub fn pos_to_idx(&self, x: i32, y: i32) -> Option<usize> {
+        if self.is_valid_position(x, y) {
+            Some(self.idx(x, y))
+        } else {
+            None
+        }
+    }
+
+    /// Check if position is within map bounds
+    pub fn is_valid_position(&self, x: i32, y: i32) -> bool {
+        x >= 0 && y >= 0 && (x as usize) < self.width && (y as usize) < self.height
+    }
+
+    /// Get tile at position, used by FOV system
+    pub fn get_tile(&self, x: i32, y: i32) -> &Tile {
+        self.get(x, y).unwrap_or(&VOID_WALL)
+    }
 }
 
 impl BaseMap for Map {
