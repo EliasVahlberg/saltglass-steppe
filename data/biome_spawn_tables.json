@@ -1,121 +1,129 @@
 {
   "default": {
     "items": [
-      {"id": "storm_glass", "weight": 4},
-      {"id": "brine_vial", "weight": 3},
-      {"id": "scripture_shard", "weight": 2},
-      {"id": "saint_key", "weight": 1},
-      {"id": "angle_lens", "weight": 1, "room": "last"},
-      {"id": "salt_knife", "weight": 2},
-      {"id": "glass_shard", "weight": 2},
-      {"id": "rusty_blade", "weight": 1},
-      {"id": "salt_vest", "weight": 1},
-      {"id": "leather_jacket", "weight": 1},
-      {"id": "leather_boots", "weight": 1},
-      {"id": "leather_cap", "weight": 1},
-      {"id": "hand_torch", "weight": 1}
+      {"id": "storm_glass", "weight": 4, "min_level": 1, "max_level": 10},
+      {"id": "brine_vial", "weight": 3, "min_level": 1, "max_level": 10},
+      {"id": "scripture_shard", "weight": 2, "min_level": 1, "max_level": 10},
+      {"id": "saint_key", "weight": 1, "min_level": 3, "max_level": 10, "room": "last"},
+      {"id": "angle_lens", "weight": 1, "min_level": 4, "max_level": 10, "room": "last"},
+      {"id": "salt_knife", "weight": 2, "min_level": 1, "max_level": 6},
+      {"id": "glass_shard", "weight": 2, "min_level": 1, "max_level": 10},
+      {"id": "rusty_blade", "weight": 1, "min_level": 1, "max_level": 4},
+      {"id": "salt_vest", "weight": 1, "min_level": 2, "max_level": 8},
+      {"id": "leather_jacket", "weight": 1, "min_level": 1, "max_level": 5},
+      {"id": "leather_boots", "weight": 1, "min_level": 1, "max_level": 5},
+      {"id": "leather_cap", "weight": 1, "min_level": 1, "max_level": 5},
+      {"id": "hand_torch", "weight": 1, "min_level": 1, "max_level": 3}
     ],
     "enemies": [
-      {"id": "mirage_hound", "weight": 3},
-      {"id": "glass_beetle", "weight": 3},
-      {"id": "salt_mummy", "weight": 2},
-      {"id": "shard_spider", "weight": 2},
-      {"id": "dust_wraith", "weight": 1},
-      {"id": "shard_nest", "weight": 1},
-      {"id": "storm_archer", "weight": 1},
-      {"id": "glass_bomber", "weight": 1},
-      {"id": "psychic_wraith", "weight": 1}
+      {"id": "mirage_hound", "weight": 4, "min_level": 1, "max_level": 3},
+      {"id": "glass_beetle", "weight": 3, "min_level": 2, "max_level": 4},
+      {"id": "salt_mummy", "weight": 3, "min_level": 2, "max_level": 5},
+      {"id": "shard_spider", "weight": 3, "min_level": 1, "max_level": 3},
+      {"id": "dust_wraith", "weight": 2, "min_level": 2, "max_level": 4},
+      {"id": "shard_nest", "weight": 1, "min_level": 3, "max_level": 6},
+      {"id": "storm_archer", "weight": 2, "min_level": 3, "max_level": 6},
+      {"id": "glass_bomber", "weight": 1, "min_level": 4, "max_level": 7},
+      {"id": "psychic_wraith", "weight": 1, "min_level": 5, "max_level": 8},
+      {"id": "alpha_mirage_hound", "weight": 1, "min_level": 4, "max_level": 7},
+      {"id": "crystal_scarab", "weight": 1, "min_level": 6, "max_level": 9},
+      {"id": "crystal_widow", "weight": 1, "min_level": 7, "max_level": 10},
+      {"id": "storm_marksman", "weight": 1, "min_level": 8, "max_level": 10},
+      {"id": "adaptation_horror", "weight": 1, "min_level": 6, "max_level": 9},
+      {"id": "salt_lord", "weight": 1, "min_level": 8, "max_level": 10},
+      {"id": "storm_phantom", "weight": 1, "min_level": 9, "max_level": 10},
+      {"id": "crystal_devastator", "weight": 1, "min_level": 10, "max_level": 10},
+      {"id": "mind_sovereign", "weight": 1, "min_level": 10, "max_level": 10},
+      {"id": "sandstorm_elemental", "weight": 1, "min_level": 9, "max_level": 10}
     ],
     "npcs": [
-      {"id": "tutorial_guide", "weight": 3, "room": "first"},
-      {"id": "mirror_monk", "room": "late"},
-      {"id": "salt_hermit", "weight": 1},
-      {"id": "glass_merchant", "weight": 1},
-      {"id": "dying_pilgrim", "weight": 1},
-      {"id": "mirror_monk_friendly", "weight": 2},
-      {"id": "sand_engineer_friendly", "weight": 2},
-      {"id": "glassborn_friendly", "weight": 1}
+      {"id": "tutorial_guide", "weight": 3, "min_level": 1, "max_level": 2, "room": "first"},
+      {"id": "mirror_monk", "weight": 1, "min_level": 1, "max_level": 10, "room": "late"},
+      {"id": "salt_hermit", "weight": 1, "min_level": 1, "max_level": 6},
+      {"id": "glass_merchant", "weight": 1, "min_level": 2, "max_level": 8},
+      {"id": "dying_pilgrim", "weight": 1, "min_level": 1, "max_level": 5},
+      {"id": "mirror_monk_friendly", "weight": 2, "min_level": 3, "max_level": 8},
+      {"id": "sand_engineer_friendly", "weight": 2, "min_level": 4, "max_level": 9},
+      {"id": "glassborn_friendly", "weight": 1, "min_level": 5, "max_level": 10}
     ]
   },
   "saltflat": {
     "items": [
-      {"id": "salt_crystal", "weight": 5},
-      {"id": "brine_vial", "weight": 4},
-      {"id": "salt_poultice", "weight": 3},
-      {"id": "crystalline_shard", "weight": 2},
-      {"id": "salt_knife", "weight": 3},
-      {"id": "salt_vest", "weight": 2}
+      {"id": "salt_crystal", "weight": 5, "min_level": 1, "max_level": 10},
+      {"id": "brine_vial", "weight": 4, "min_level": 1, "max_level": 10},
+      {"id": "salt_poultice", "weight": 3, "min_level": 2, "max_level": 8},
+      {"id": "crystalline_shard", "weight": 2, "min_level": 3, "max_level": 10},
+      {"id": "salt_knife", "weight": 3, "min_level": 1, "max_level": 6},
+      {"id": "salt_vest", "weight": 2, "min_level": 2, "max_level": 8}
     ],
     "enemies": [
-      {"id": "salt_mummy", "weight": 4},
-      {"id": "crystalline_spider", "weight": 3},
-      {"id": "brine_elemental", "weight": 2},
-      {"id": "salt_wraith", "weight": 1}
+      {"id": "salt_mummy", "weight": 5, "min_level": 2, "max_level": 6},
+      {"id": "mirage_hound", "weight": 3, "min_level": 1, "max_level": 4},
+      {"id": "dust_wraith", "weight": 4, "min_level": 2, "max_level": 5},
+      {"id": "salt_lord", "weight": 1, "min_level": 8, "max_level": 10},
+      {"id": "sandstorm_elemental", "weight": 1, "min_level": 9, "max_level": 10}
     ],
     "npcs": [
-      {"id": "salt_hermit", "weight": 3},
-      {"id": "crystalline_sage", "weight": 2},
-      {"id": "brine_trader", "weight": 1}
+      {"id": "salt_hermit", "weight": 3, "min_level": 1, "max_level": 8},
+      {"id": "mirror_monk_friendly", "weight": 2, "min_level": 3, "max_level": 8}
     ]
   },
   "oasis": {
     "items": [
-      {"id": "pure_water", "weight": 4},
-      {"id": "healing_herb", "weight": 3},
-      {"id": "archive_fragment", "weight": 2},
-      {"id": "data_crystal", "weight": 1},
-      {"id": "bio_scanner", "weight": 1}
+      {"id": "fresh_water", "weight": 6, "min_level": 1, "max_level": 10},
+      {"id": "healing_herb", "weight": 4, "min_level": 1, "max_level": 8},
+      {"id": "fruit_ration", "weight": 3, "min_level": 1, "max_level": 6},
+      {"id": "oasis_crystal", "weight": 2, "min_level": 3, "max_level": 10}
     ],
     "enemies": [
-      {"id": "guardian_drone", "weight": 3},
-      {"id": "water_spirit", "weight": 2},
-      {"id": "corrupted_plant", "weight": 2},
-      {"id": "archive_sentinel", "weight": 1}
+      {"id": "glass_beetle", "weight": 3, "min_level": 2, "max_level": 5},
+      {"id": "mirage_hound", "weight": 2, "min_level": 1, "max_level": 4},
+      {"id": "crystal_scarab", "weight": 1, "min_level": 6, "max_level": 9}
     ],
     "npcs": [
-      {"id": "archive_custodian", "weight": 2},
-      {"id": "water_keeper", "weight": 2},
-      {"id": "bio_researcher", "weight": 1}
+      {"id": "oasis_guardian", "weight": 2, "min_level": 3, "max_level": 8},
+      {"id": "water_trader", "weight": 3, "min_level": 1, "max_level": 6},
+      {"id": "glassborn_friendly", "weight": 1, "min_level": 5, "max_level": 10}
     ]
   },
   "ruins": {
     "items": [
-      {"id": "ancient_gear", "weight": 4},
-      {"id": "corroded_circuit", "weight": 3},
-      {"id": "memory_core", "weight": 2},
-      {"id": "quantum_resonator", "weight": 1},
-      {"id": "null_field_generator", "weight": 1}
+      {"id": "ancient_gear", "weight": 4, "min_level": 2, "max_level": 10},
+      {"id": "rusted_weapon", "weight": 3, "min_level": 1, "max_level": 6},
+      {"id": "scripture_shard", "weight": 4, "min_level": 1, "max_level": 10},
+      {"id": "saint_key", "weight": 2, "min_level": 4, "max_level": 10},
+      {"id": "archive_data", "weight": 2, "min_level": 5, "max_level": 10}
     ],
     "enemies": [
-      {"id": "security_drone", "weight": 3},
-      {"id": "corrupted_ai", "weight": 2},
-      {"id": "quantum_ghost", "weight": 2},
-      {"id": "void_stalker", "weight": 1}
+      {"id": "refraction_wraith", "weight": 4, "min_level": 3, "max_level": 7},
+      {"id": "psychic_wraith", "weight": 3, "min_level": 5, "max_level": 8},
+      {"id": "adaptation_horror", "weight": 2, "min_level": 6, "max_level": 9},
+      {"id": "storm_phantom", "weight": 1, "min_level": 9, "max_level": 10},
+      {"id": "mind_sovereign", "weight": 1, "min_level": 10, "max_level": 10}
     ],
     "npcs": [
-      {"id": "rogue_engineer", "weight": 2},
-      {"id": "memory_keeper", "weight": 2},
-      {"id": "quantum_researcher", "weight": 1}
+      {"id": "archive_scholar", "weight": 2, "min_level": 4, "max_level": 9},
+      {"id": "ruin_explorer", "weight": 3, "min_level": 2, "max_level": 7},
+      {"id": "sand_engineer_friendly", "weight": 2, "min_level": 4, "max_level": 9}
     ]
   },
   "scrubland": {
     "items": [
-      {"id": "hardy_root", "weight": 4},
-      {"id": "thorn_extract", "weight": 3},
-      {"id": "survival_kit", "weight": 2},
-      {"id": "camouflage_cloak", "weight": 1},
-      {"id": "scavenger_tool", "weight": 2}
+      {"id": "dried_herbs", "weight": 5, "min_level": 1, "max_level": 8},
+      {"id": "thorn_spear", "weight": 3, "min_level": 2, "max_level": 6},
+      {"id": "cactus_water", "weight": 4, "min_level": 1, "max_level": 6},
+      {"id": "fiber_rope", "weight": 3, "min_level": 1, "max_level": 5}
     ],
     "enemies": [
-      {"id": "thorn_beast", "weight": 3},
-      {"id": "scavenger_pack", "weight": 3},
-      {"id": "adapted_predator", "weight": 2},
-      {"id": "feral_mutant", "weight": 1}
+      {"id": "shard_spider", "weight": 4, "min_level": 1, "max_level": 4},
+      {"id": "glass_bomber", "weight": 2, "min_level": 4, "max_level": 7},
+      {"id": "storm_archer", "weight": 3, "min_level": 3, "max_level": 6},
+      {"id": "crystal_widow", "weight": 1, "min_level": 7, "max_level": 10},
+      {"id": "storm_marksman", "weight": 1, "min_level": 8, "max_level": 10}
     ],
     "npcs": [
-      {"id": "wasteland_scout", "weight": 2},
-      {"id": "plant_whisperer", "weight": 2},
-      {"id": "survival_expert", "weight": 1}
+      {"id": "scrub_ranger", "weight": 3, "min_level": 2, "max_level": 7},
+      {"id": "plant_whisperer", "weight": 2, "min_level": 3, "max_level": 8}
     ]
   }
 }

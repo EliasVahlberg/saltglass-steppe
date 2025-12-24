@@ -10,9 +10,15 @@ pub struct WeightedSpawn {
     pub weight: u32,
     #[serde(default)]
     pub room: Option<String>, // "first", "last", "late" (last 2)
+    #[serde(default = "default_min_level")]
+    pub min_level: u32,
+    #[serde(default = "default_max_level")]
+    pub max_level: u32,
 }
 
 fn default_weight() -> u32 { 1 }
+fn default_min_level() -> u32 { 1 }
+fn default_max_level() -> u32 { 10 }
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct SpawnTable {
@@ -62,6 +68,24 @@ pub fn weighted_pick<'a>(spawns: &'a [WeightedSpawn], rng: &mut ChaCha8Rng) -> O
     if total == 0 { return None; }
     let mut roll = rng.gen_range(0..total);
     for spawn in spawns {
+        if roll < spawn.weight {
+            return Some(&spawn.id);
+        }
+        roll -= spawn.weight;
+    }
+    None
+}
+
+pub fn weighted_pick_by_level<'a>(spawns: &'a [WeightedSpawn], level: u32, rng: &mut ChaCha8Rng) -> Option<&'a str> {
+    let valid_spawns: Vec<_> = spawns.iter()
+        .filter(|s| level >= s.min_level && level <= s.max_level)
+        .collect();
+    
+    let total: u32 = valid_spawns.iter().map(|s| s.weight).sum();
+    if total == 0 { return None; }
+    
+    let mut roll = rng.gen_range(0..total);
+    for spawn in valid_spawns {
         if roll < spawn.weight {
             return Some(&spawn.id);
         }

@@ -1,7 +1,7 @@
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
-    text::{Line, Span},
+    text::Span,
     widgets::{Block, Borders, Paragraph, Wrap},
     Frame,
 };
@@ -19,7 +19,7 @@ pub fn render_book_reader(f: &mut Frame, ui_state: &UiState) {
         None => return,
     };
 
-    let area = f.size();
+    let area = f.area();
     let popup_area = Rect::new(
         area.width / 2 - 35,
         area.height / 2 - 15,

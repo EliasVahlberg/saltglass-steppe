@@ -22,7 +22,7 @@ use super::{
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
-    spawn::{weighted_pick},
+    spawn::{weighted_pick_by_level},
     storm::Storm,
     story::StoryModel,
     tutorial::TutorialProgress,
@@ -315,7 +315,7 @@ impl GameState {
         let world_y = super::world_map::WORLD_HEIGHT / 2;
         
         // Get world context for starting tile
-        let (biome, terrain, elevation, poi, _resources, _connected) = world_map.get(world_x, world_y);
+        let (biome, terrain, elevation, poi, _resources, _connected, level) = world_map.get(world_x, world_y);
         
         // Generate tile map using world context
         let tile_seed = world_map.tile_seed(world_x, world_y);
@@ -364,7 +364,7 @@ impl GameState {
         }
             
         for &(rx, ry) in safe_rooms_shuffled {
-            if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
+            if let Some(id) = weighted_pick_by_level(&table.enemies, level, &mut rng) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
         }
@@ -559,7 +559,7 @@ impl GameState {
             None => return,
         };
         
-        let (biome, terrain, elevation, poi, _resources, _connected) = world_map.get(new_wx, new_wy);
+        let (biome, terrain, elevation, poi, _resources, _connected, level) = world_map.get(new_wx, new_wy);
         let tile_seed = world_map.tile_seed(new_wx, new_wy);
         let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
         
@@ -594,7 +594,7 @@ impl GameState {
         }
             
         for &(rx, ry) in safe_rooms_shuffled {
-            if let Some(id) = weighted_pick(&table.enemies, &mut rng) {
+            if let Some(id) = weighted_pick_by_level(&table.enemies, level, &mut rng) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
         }
@@ -911,7 +911,7 @@ impl GameState {
     /// Create narrative context from current game state
     fn create_narrative_context(&self) -> NarrativeContext {
         let biome = if let Some(ref world_map) = self.world_map {
-            let (biome, _, _, _, _, _) = world_map.get(self.world_x, self.world_y);
+            let (biome, _, _, _, _, _, _) = world_map.get(self.world_x, self.world_y);
             Some(format!("{:?}", biome))
         } else {
             None
@@ -1445,6 +1445,18 @@ impl GameState {
                     self.log("Usage: spawn_swarm <id> <count>");
                 }
             }
+            Some("show_level") => {
+                let level = self.get_current_tile_level();
+                let threat_desc = match level {
+                    1 => "Safe",
+                    2..=3 => "Low Threat",
+                    4..=6 => "Medium Threat",
+                    7..=8 => "High Threat",
+                    9..=10 => "EXTREME THREAT",
+                    _ => "Unknown Threat",
+                };
+                self.log(format!("Current tile level: {} ({})", level, threat_desc));
+            }
             Some("help") => {
                 self.log("Debug Commands:");
                 self.log("  show tile, hide tile - Toggle god view");
@@ -1465,6 +1477,7 @@ impl GameState {
                 self.log("  set_coherence <amount> - Set psychic coherence");
                 self.log("  spawn_enemy <id> [x] [y] - Spawn enemy at position");
                 self.log("  spawn_swarm <id> <count> - Spawn enemy swarm");
+                self.log("  show_level - Show current tile threat level");
             }
             _ => self.log(format!("Unknown command: {}. Type 'help' for commands.", cmd)),
         }
@@ -2799,4 +2812,19 @@ fn line_path(from: (i32, i32), to: (i32, i32)) -> Vec<(i32, i32)> {
         if e2 <= dx { err += dx; y0 += sy; }
     }
     path
+}
+
+impl GameState {
+    pub fn get_current_tile_level(&self) -> u32 {
+        if let Some(ref world_map) = self.world_map {
+            let (_, _, _, _, _, _, level) = world_map.get(self.world_x, self.world_y);
+            level
+        } else {
+            1
+        }
+    }
+
+    pub fn get_world_map(&self) -> Option<&WorldMap> {
+        self.world_map.as_ref()
+    }
 }
