@@ -1,0 +1,22 @@
+{
+  "name": "book_test",
+  "seed": 12345,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": ["book_soup"]
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "use_item", "item_index": 0 }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": { "type": "pending_book_open", "book_id": "book_soup_twice" }
+    }
+  ]
+}

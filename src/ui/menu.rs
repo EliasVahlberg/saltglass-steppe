@@ -244,7 +244,7 @@ pub fn render_controls(frame: &mut Frame) {
 }
 
 /// Render the pause menu overlay
-pub fn render_pause_menu(frame: &mut Frame, selected: usize) {
+pub fn render_pause_menu(frame: &mut Frame, selected_index: usize) {
     let area = frame.area();
     
     // Centered popup
@@ -257,7 +257,7 @@ pub fn render_pause_menu(frame: &mut Frame, selected: usize) {
     frame.render_widget(Clear, popup);
     
     let items: Vec<ListItem> = PAUSE_OPTIONS.iter().enumerate().map(|(i, opt)| {
-        let style = if i == selected {
+        let style = if i == selected_index {
             Style::default().fg(Color::Black).bg(Color::Yellow)
         } else {
             Style::default()

@@ -48,6 +48,7 @@ fn item_pickup_scenario() {
              result.success, result.assertion_results);
 }
 
+
 #[test]
 fn trade_ui_test() {
     let result = run_scenario("tests/scenarios/trade_ui_test.json")
