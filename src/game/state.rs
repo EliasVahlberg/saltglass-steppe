@@ -24,6 +24,7 @@ use super::{
     sanity::SanitySystem,
     spawn::{weighted_pick},
     storm::Storm,
+    story::StoryModel,
     tutorial::TutorialProgress,
     world_map::WorldMap,
 };
@@ -258,6 +259,9 @@ pub struct GameState {
     /// Generated world history
     #[serde(default)]
     pub world_history: Vec<String>,
+    /// Persistent story model with characters and relationships
+    #[serde(default)]
+    pub story_model: Option<StoryModel>,
 }
 
 /// Floating damage number for visual feedback
@@ -476,6 +480,7 @@ impl GameState {
             seed,
             narrative_generator: None,
             world_history: Vec::new(),
+            story_model: None,
         };
         
         // Initialize narrative generator and generate world history
@@ -485,6 +490,10 @@ impl GameState {
             state.world_history = history;
             state.narrative_generator = Some(generator);
         }
+        
+        // Initialize story model
+        let story_model = StoryModel::new(seed + 3);
+        state.story_model = Some(story_model);
         
         state.rebuild_spatial_index();
         state
@@ -799,6 +808,16 @@ impl GameState {
     pub fn generate_contextual_description(&mut self) -> Option<String> {
         if let Some(ref generator) = self.narrative_generator {
             let context = self.create_narrative_context();
+            
+            // Try story-based description first
+            if let Some(ref story_model) = self.story_model {
+                if let Some(faction_lore) = story_model.get_faction_lore("Mirror Monks") {
+                    if context.faction_reputation.get("Mirror Monks").unwrap_or(&0) > &50 {
+                        return Some(format!("Your understanding of the Mirror Monks deepens: {}", faction_lore));
+                    }
+                }
+            }
+            
             generator.generate_contextual_description(&context, &mut self.rng)
         } else {
             None
@@ -849,6 +868,35 @@ impl GameState {
     /// Get the generated world history
     pub fn get_world_history(&self) -> &[String] {
         &self.world_history
+    }
+
+    /// Get artifact inscription from story model
+    pub fn get_artifact_inscription(&self, artifact_name: &str) -> Option<String> {
+        self.story_model.as_ref()?.get_artifact_inscription(artifact_name)
+    }
+
+    /// Get shrine text from story model
+    pub fn get_shrine_text(&self, location: &str) -> Option<String> {
+        self.story_model.as_ref()?.get_shrine_text(location)
+    }
+
+    /// Get character relationships from story model
+    pub fn get_character_relationships(&self, character_id: &str) -> Vec<String> {
+        self.story_model.as_ref()
+            .map(|sm| sm.get_character_relationships(character_id))
+            .unwrap_or_default()
+    }
+
+    /// Get faction lore from story model
+    pub fn get_faction_lore(&self, faction_name: &str) -> Option<String> {
+        self.story_model.as_ref()?.get_faction_lore(faction_name)
+    }
+
+    /// Add player event to story model
+    pub fn add_story_event(&mut self, event_type: super::story::EventType, description: String) {
+        if let Some(ref mut story_model) = self.story_model {
+            story_model.add_player_event(event_type, description);
+        }
     }
 
     /// Calculate effective ambient light based on time of day and weather

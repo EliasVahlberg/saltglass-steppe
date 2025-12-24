@@ -5,20 +5,120 @@
         "type": "great_storm",
         "template": "The {storm_name} Storm of {year} {action} the {location}, {consequence}.",
         "variables": {
-          "storm_name": ["Crimson", "Shattered", "Weeping", "Prismatic", "Void"],
-          "action": ["shattered", "transformed", "consumed", "crystallized", "refracted"],
-          "location": ["ancient citadel", "mirror gardens", "salt flats", "glass spires", "sacred grove"],
-          "consequence": ["leaving only whispers in the glass", "birthing new seams of power", "creating the first Glassborn", "opening paths to the Archive", "sealing away forgotten knowledge"]
+          "storm_name": [
+            "Crimson",
+            "Shattered",
+            "Weeping",
+            "Prismatic",
+            "Void",
+            "Obsidian",
+            "Silent",
+            "Fractured"
+          ],
+          "action": [
+            "shattered",
+            "transformed",
+            "consumed",
+            "crystallized",
+            "refracted",
+            "vitrified",
+            "erased",
+            "illuminated"
+          ],
+          "location": [
+            "ancient citadel",
+            "mirror gardens",
+            "salt flats",
+            "glass spires",
+            "sacred grove",
+            "Archive vaults",
+            "sunken city",
+            "whispering dunes"
+          ],
+          "consequence": [
+            "leaving only whispers in the glass",
+            "birthing new seams of power",
+            "creating the first Glassborn",
+            "opening paths to the Archive",
+            "sealing away forgotten knowledge",
+            "twisting the local geometry",
+            "awakening the dormant sentinels",
+            "scattering the light of a thousand suns"
+          ]
         }
       },
       {
         "type": "discovery",
         "template": "{discoverer} discovered the {artifact} beneath {location}, {revelation}.",
         "variables": {
-          "discoverer": ["Saint Vex", "The Wandering Monk", "Archive Seeker Keth", "The Salt Prophet", "Glassborn Seer Naia"],
-          "artifact": ["Prime Lens", "Heliograph Fragment", "Storm Glass Codex", "Refraction Crown", "Void Mirror"],
-          "location": ["the Crucible Ruins", "shifting dunes", "crystalline caverns", "the Whispering Seams", "Archive Sector 7"],
-          "revelation": ["revealing the true nature of light", "unlocking the storm's secrets", "prophesying the coming convergence", "awakening dormant Archive protocols", "bridging the gap between worlds"]
+          "discoverer": [
+            "Saint Vex",
+            "The Wandering Monk",
+            "Archive Seeker Keth",
+            "The Salt Prophet",
+            "Glassborn Seer Naia",
+            "Engineer Prime Rho",
+            "The Blind Cartographer"
+          ],
+          "artifact": [
+            "Prime Lens",
+            "Heliograph Fragment",
+            "Storm Glass Codex",
+            "Refraction Crown",
+            "Void Mirror",
+            "Singularity Prism",
+            "Echo Crystal"
+          ],
+          "location": [
+            "the Crucible Ruins",
+            "shifting dunes",
+            "crystalline caverns",
+            "the Whispering Seams",
+            "Archive Sector 7",
+            "the Mirror Maze",
+            "the Salt Cathedral"
+          ],
+          "revelation": [
+            "revealing the true nature of light",
+            "unlocking the storms secrets",
+            "prophesying the coming convergence",
+            "awakening dormant Archive protocols",
+            "bridging the gap between worlds",
+            "shattering the illusion of stability",
+            "proving the existence of the Pre-Glass Era"
+          ]
+        }
+      },
+      {
+        "type": "anomaly",
+        "template": "In {year}, a {anomaly} appeared near {location}, causing {effect}.",
+        "variables": {
+          "year": [
+            "the Age of Silence",
+            "the Third Refraction",
+            "the Glass Epoch",
+            "the Salt Era"
+          ],
+          "anomaly": [
+            "rift in the sky",
+            "singing crystal",
+            "phantom city",
+            "inverted storm",
+            "shadow of light"
+          ],
+          "location": [
+            "the Horizons Edge",
+            "the Center of the Steppe",
+            "the Forbidden Zone",
+            "the Monks Sanctuary"
+          ],
+          "effect": [
+            "mass hallucinations",
+            "spontaneous crystallization",
+            "time to flow backwards",
+            "gravity to reverse",
+            "voices to be heard from the stone"
+          ]
         }
       }
     ],
@@ -27,10 +127,70 @@
         "type": "conflict",
         "template": "The {faction1} clashed with the {faction2} at {location}, {outcome}.",
         "variables": {
-          "faction1": ["Mirror Monks", "Sand-Engineers", "Glassborn Collective", "Archive Remnants"],
-          "faction2": ["Storm Cultists", "Salt Hermits", "Void Seekers", "Glass Merchants"],
-          "location": ["the Shattered Spire", "Refraction Point", "the Salt Wastes", "Archive Outpost Delta"],
-          "outcome": ["forging an uneasy alliance", "scattering both forces to the winds", "revealing a greater threat", "uncovering ancient technology", "awakening something best left sleeping"]
+          "faction1": [
+            "Mirror Monks",
+            "Sand-Engineers",
+            "Glassborn Collective",
+            "Archive Remnants",
+            "Synthesis Seekers"
+          ],
+          "faction2": [
+            "Storm Cultists",
+            "Salt Hermits",
+            "Void Seekers",
+            "Glass Merchants",
+            "Iron Covenant"
+          ],
+          "location": [
+            "the Shattered Spire",
+            "Refraction Point",
+            "the Salt Wastes",
+            "Archive Outpost Delta",
+            "the Crystal Bridge"
+          ],
+          "outcome": [
+            "forging an uneasy alliance",
+            "scattering both forces to the winds",
+            "revealing a greater threat",
+            "uncovering ancient technology",
+            "awakening something best left sleeping",
+            "leaving the land scarred with glass",
+            "changing the balance of power forever"
+          ]
+        }
+      },
+      {
+        "type": "treaty",
+        "template": "The {faction1} and {faction2} signed the {treaty_name} at {location}, agreeing to {terms}.",
+        "variables": {
+          "faction1": [
+            "Mirror Monks",
+            "Sand-Engineers",
+            "Glassborn Collective"
+          ],
+          "faction2": [
+            "Archive Remnants",
+            "Salt Hermits",
+            "Wandering Court"
+          ],
+          "treaty_name": [
+            "Pact of Refraction",
+            "Treaty of Glass",
+            "Accord of Silence",
+            "Protocol of Light"
+          ],
+          "location": [
+            "the Neutral Zone",
+            "the High Temple",
+            "the Engineering Hub"
+          ],
+          "terms": [
+            "share storm predictions",
+            "limit excavation rights",
+            "protect the pilgrims",
+            "seal the deep mines",
+            "exchange ancient knowledge"
+          ]
         }
       }
     ]
@@ -40,10 +200,43 @@
       {
         "template": "The {adjective} ruins of {name} {state}, {detail}.",
         "variables": {
-          "adjective": ["crystalline", "shattered", "gleaming", "twisted", "half-buried"],
-          "name": ["an ancient observatory", "a mirror temple", "a glass foundry", "a storm shelter", "a heliograph station"],
-          "state": ["catch the dying light", "hum with residual energy", "reflect distorted images", "whisper in the wind", "pulse with inner fire"],
-          "detail": ["their purpose lost to time", "still serving their ancient function", "guarded by spectral sentinels", "hiding secrets in their depths", "slowly being reclaimed by the desert"]
+          "adjective": [
+            "crystalline",
+            "shattered",
+            "gleaming",
+            "twisted",
+            "half-buried",
+            "vitrified",
+            "humming",
+            "spectral"
+          ],
+          "name": [
+            "an ancient observatory",
+            "a mirror temple",
+            "a glass foundry",
+            "a storm shelter",
+            "a heliograph station",
+            "a data spire",
+            "a light refinery"
+          ],
+          "state": [
+            "catch the dying light",
+            "hum with residual energy",
+            "reflect distorted images",
+            "whisper in the wind",
+            "pulse with inner fire",
+            "stand defiant against the storm",
+            "crumble into salt and memory"
+          ],
+          "detail": [
+            "their purpose lost to time",
+            "still serving their ancient function",
+            "guarded by spectral sentinels",
+            "hiding secrets in their depths",
+            "slowly being reclaimed by the desert",
+            "marked with the symbols of the Archive",
+            "vibrating with a low frequency"
+          ]
         }
       }
     ],
@@ -51,9 +244,33 @@
       {
         "template": "The {feature} {description}, {atmosphere}.",
         "variables": {
-          "feature": ["glass seam", "salt formation", "crystal grove", "mirror pool", "storm scar"],
-          "description": ["stretches toward the horizon", "pulses with inner light", "reflects the sky above", "hums with ancient power", "shifts with the wind"],
-          "atmosphere": ["creating an otherworldly beauty", "filling the air with strange harmonics", "casting prismatic shadows", "whispering secrets of the past", "bending light in impossible ways"]
+          "feature": [
+            "glass seam",
+            "salt formation",
+            "crystal grove",
+            "mirror pool",
+            "storm scar",
+            "geode cavern",
+            "light fissure"
+          ],
+          "description": [
+            "stretches toward the horizon",
+            "pulses with inner light",
+            "reflects the sky above",
+            "hums with ancient power",
+            "shifts with the wind",
+            "glows with a soft luminescence",
+            "cracks the earth open"
+          ],
+          "atmosphere": [
+            "creating an otherworldly beauty",
+            "filling the air with strange harmonics",
+            "casting prismatic shadows",
+            "whispering secrets of the past",
+            "bending light in impossible ways",
+            "disorienting the senses",
+            "invoking a sense of awe"
+          ]
         }
       }
     ]
@@ -63,17 +280,46 @@
       "Saltflats": {
         "template": "The endless {surface} stretches before you, {feature} {detail}.",
         "variables": {
-          "surface": ["salt plains", "crystalline expanse", "white wasteland", "mineral desert"],
-          "feature": ["broken by glass formations that", "marked by storm scars that", "dotted with salt pillars that"],
-          "detail": ["catch the light like frozen tears", "tell stories of ancient storms", "rise like monuments to forgotten gods", "shimmer with residual energy"]
+          "surface": [
+            "salt plains",
+            "crystalline expanse",
+            "white wasteland",
+            "mineral desert"
+          ],
+          "feature": [
+            "broken by glass formations that",
+            "marked by storm scars that",
+            "dotted with salt pillars that"
+          ],
+          "detail": [
+            "catch the light like frozen tears",
+            "tell stories of ancient storms",
+            "rise like monuments to forgotten gods",
+            "shimmer with residual energy"
+          ]
         }
       },
       "Dunes": {
         "template": "Rolling {dunes} {movement}, {atmosphere}.",
         "variables": {
-          "dunes": ["glass-sand dunes", "crystalline hills", "shifting mounds", "prismatic ridges"],
-          "movement": ["shift with each storm", "flow like frozen waves", "catch and scatter light", "whisper with the wind"],
-          "atmosphere": ["creating a maze of light and shadow", "hiding secrets beneath their surface", "reflecting the sky in fractured patterns", "singing with harmonic resonance"]
+          "dunes": [
+            "glass-sand dunes",
+            "crystalline hills",
+            "shifting mounds",
+            "prismatic ridges"
+          ],
+          "movement": [
+            "shift with each storm",
+            "flow like frozen waves",
+            "catch and scatter light",
+            "whisper with the wind"
+          ],
+          "atmosphere": [
+            "creating a maze of light and shadow",
+            "hiding secrets beneath their surface",
+            "reflecting the sky in fractured patterns",
+            "singing with harmonic resonance"
+          ]
         }
       }
     },
@@ -81,15 +327,35 @@
       "prismhide": {
         "template": "Your crystalline skin {reaction} as you observe {subject}.",
         "variables": {
-          "reaction": ["refracts the ambient light", "catches and bends nearby illumination", "creates small rainbows", "pulses with inner luminescence"],
-          "subject": ["the glass formations around you", "the play of light and shadow", "the storm-touched landscape", "the ancient ruins"]
+          "reaction": [
+            "refracts the ambient light",
+            "catches and bends nearby illumination",
+            "creates small rainbows",
+            "pulses with inner luminescence"
+          ],
+          "subject": [
+            "the glass formations around you",
+            "the play of light and shadow",
+            "the storm-touched landscape",
+            "the ancient ruins"
+          ]
         }
       },
       "storm_sense": {
         "template": "Your storm-touched senses {perception} {detail}.",
         "variables": {
-          "perception": ["detect subtle energy patterns in", "feel the electromagnetic pulse of", "sense the quantum fluctuations within", "perceive the light-song emanating from"],
-          "detail": ["the crystalline structures", "the glass formations", "the ancient technology", "the storm-scarred terrain"]
+          "perception": [
+            "detect subtle energy patterns in",
+            "feel the electromagnetic pulse of",
+            "sense the quantum fluctuations within",
+            "perceive the light-song emanating from"
+          ],
+          "detail": [
+            "the crystalline structures",
+            "the glass formations",
+            "the ancient technology",
+            "the storm-scarred terrain"
+          ]
         }
       }
     },
@@ -97,13 +363,23 @@
       "Mirror Monks": {
         "template": "Through the lens of Mirror Monk teachings, you see {interpretation}.",
         "variables": {
-          "interpretation": ["divine geometry in the crystal patterns", "sacred angles reflected in the glass", "the scripture written in light itself", "the path of enlightenment through refraction"]
+          "interpretation": [
+            "divine geometry in the crystal patterns",
+            "sacred angles reflected in the glass",
+            "the scripture written in light itself",
+            "the path of enlightenment through refraction"
+          ]
         }
       },
       "Sand-Engineers": {
         "template": "Your engineering knowledge reveals {technical_insight}.",
         "variables": {
-          "technical_insight": ["the structural integrity of these formations", "the energy distribution patterns", "the technological purpose behind this design", "the systematic approach to this construction"]
+          "technical_insight": [
+            "the structural integrity of these formations",
+            "the energy distribution patterns",
+            "the technological purpose behind this design",
+            "the systematic approach to this construction"
+          ]
         }
       }
     }
@@ -113,38 +389,117 @@
       {
         "template": "This {item_type} {origin_story}, {current_state}.",
         "variables": {
-          "item_type": ["lens", "shard", "crystal", "mirror", "prism"],
-          "origin_story": ["was forged in the heart of a storm", "belonged to a forgotten saint", "was discovered in Archive ruins", "emerged from the Whispering Seams", "was blessed by the Mirror Monks"],
-          "current_state": ["it still holds echoes of its past", "its power has been diminished by time", "it resonates with storm energy", "it reflects more than just light", "it whispers to those who listen"]
+          "item_type": [
+            "lens",
+            "shard",
+            "crystal",
+            "mirror",
+            "prism",
+            "circuit",
+            "core"
+          ],
+          "origin_story": [
+            "was forged in the heart of a storm",
+            "belonged to a forgotten saint",
+            "was discovered in Archive ruins",
+            "emerged from the Whispering Seams",
+            "was blessed by the Mirror Monks",
+            "fell from the sky during the Great Shattering",
+            "was crafted by the First Engineer"
+          ],
+          "current_state": [
+            "it still holds echoes of its past",
+            "its power has been diminished by time",
+            "it resonates with storm energy",
+            "it reflects more than just light",
+            "it whispers to those who listen",
+            "it feels warm to the touch",
+            "it vibrates when near glass"
+          ]
+        }
+      },
+      {
+        "template": "A rare {item_type}, said to {legend}.",
+        "variables": {
+          "item_type": [
+            "focusing crystal",
+            "memory shard",
+            "light weaver",
+            "storm anchor"
+          ],
+          "legend": [
+            "hold the soul of a star",
+            "open doors to other realms",
+            "cure the crystal blight",
+            "control the weather",
+            "speak with the dead"
+          ]
         }
       }
     ],
-    "contextual_artifacts": [
-      {
+    "contextual_artifacts": {
+      "high_refraction": {
         "template": "This {item_type} {resonance} with your transformed nature, {effect}.",
         "variables": {
-          "item_type": ["crystalline lens", "storm-touched shard", "refraction prism", "quantum mirror"],
-          "resonance": ["resonates deeply", "pulses in harmony", "vibrates sympathetically", "glows in response"],
-          "effect": ["amplifying your connection to the glass", "revealing hidden light patterns", "whispering secrets of transformation", "showing you paths through the storm"]
+          "item_type": [
+            "crystalline lens",
+            "storm-touched shard",
+            "refraction prism",
+            "quantum mirror"
+          ],
+          "resonance": [
+            "resonates deeply",
+            "pulses in harmony",
+            "vibrates sympathetically",
+            "glows in response"
+          ],
+          "effect": [
+            "amplifying your connection to the glass",
+            "revealing hidden light patterns",
+            "whispering secrets of transformation",
+            "showing you paths through the storm"
+          ]
         }
       }
-    ]
+    }
   },
   "environmental_storytelling": {
     "inscriptions": [
       {
-        "template": "Etched into the {surface}: '{message}'",
+        "template": "Etched into the {surface}: \"{message}\"",
         "variables": {
-          "surface": ["glass wall", "crystal formation", "salt pillar", "mirror surface"],
-          "message": ["The angle reveals all truths", "Storm-touched, we transcend", "Light bends, reality follows", "In refraction, find salvation", "The Archive remembers"]
+          "surface": [
+            "glass wall",
+            "crystal formation",
+            "salt pillar",
+            "mirror surface",
+            "metal plate"
+          ],
+          "message": [
+            "The angle reveals all truths",
+            "Storm-touched, we transcend",
+            "Light bends, reality follows",
+            "In refraction, find salvation",
+            "The Archive remembers",
+            "Beware the silent storm",
+            "Flesh is weak, glass is eternal"
+          ]
         }
       }
     ],
     "graffiti": [
       {
-        "template": "Scratched hastily: '{urgent_message}'",
+        "template": "Scratched hastily: \"{urgent_message}\"",
         "variables": {
-          "urgent_message": ["Drones patrol sector 7", "Safe passage through the seams", "The storm comes at dawn", "Trust no reflection", "They watch from the glass"]
+          "urgent_message": [
+            "Drones patrol sector 7",
+            "Safe passage through the seams",
+            "The storm comes at dawn",
+            "Trust no reflection",
+            "They watch from the glass",
+            "Dont look at the light",
+            "Run while you still have legs"
+          ]
         }
       }
     ]
@@ -160,7 +515,7 @@
     "Glassborn see through spectrums invisible to others.",
     "The Whispering Seams leak secrets from other dimensions.",
     "Refraction adaptations change more than just flesh.",
-    "The Prime Lens awaits discovery in the storm's heart.",
+    "The Prime Lens awaits discovery in the storm heart.",
     "Ancient saints walked paths of light and shadow.",
     "The Saltglass Steppe remembers what others forget.",
     "Each storm brings new possibilities and dangers.",
@@ -169,6 +524,26 @@
     "The quantum consciousness observes through fractured reality.",
     "Salt-cured wisdom preserves ancient knowledge.",
     "Mirror surfaces reflect more than mere images.",
-    "The angle of incidence determines the path of truth."
+    "The angle of incidence determines the path of truth.",
+    "The sun is a broken lens.",
+    "We are but light trapped in salt.",
+    "The geometry of the divine is sharp.",
+    "Do not look directly into the storm eye, for it looks back.",
+    "Flesh is temporary, crystal is eternal.",
+    "The Archive does not forgive unauthorized access.",
+    "Silence is the sound of light waiting to break.",
+    "The dunes shift like sleeping giants.",
+    "Every reflection is a potential world.",
+    "To be vitrified is to be preserved.",
+    "The wind carries the names of the lost.",
+    "Shadows here have weight and substance.",
+    "The light does not just illuminate, it changes.",
+    "Beware the beauty of the glass, for it cuts deep.",
+    "The old world is buried beneath layers of salt and regret.",
+    "Technology and magic are but two sides of the same prism.",
+    "The storm is not a weather event, it is a rewrite.",
+    "Your reflection in the glass is not always you.",
+    "The monks say the light speaks, but the engineers say it calculates.",
+    "In the silence of the salt flats, you can hear your own soul crack."
   ]
 }
