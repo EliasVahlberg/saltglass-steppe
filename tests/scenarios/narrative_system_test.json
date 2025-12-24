@@ -1,0 +1,58 @@
+{
+  "name": "narrative_system_test",
+  "description": "Test procedural narrative generation system",
+  "seed": 12345,
+  "steps": [
+    {
+      "action": "start_game",
+      "expected": {
+        "player_hp": 20,
+        "turn": 0
+      }
+    },
+    {
+      "action": "check_world_history",
+      "expected": {
+        "history_count_min": 3,
+        "history_count_max": 7,
+        "contains_keywords": ["Storm", "discovered", "clashed"]
+      }
+    },
+    {
+      "action": "generate_item_lore",
+      "params": {
+        "category": "artifacts"
+      },
+      "expected": {
+        "contains_keywords": ["lens", "shard", "crystal", "mirror", "prism"],
+        "min_length": 20
+      }
+    },
+    {
+      "action": "generate_location_description", 
+      "params": {
+        "type": "ruins"
+      },
+      "expected": {
+        "contains_keywords": ["ruins", "ancient", "crystalline", "shattered"],
+        "min_length": 30
+      }
+    },
+    {
+      "action": "generate_flavor_text",
+      "params": {
+        "max_words": 15
+      },
+      "expected": {
+        "max_words": 15,
+        "contains_keywords": ["glass", "storm", "light", "crystal"]
+      }
+    },
+    {
+      "action": "test_markov_determinism",
+      "expected": {
+        "same_seed_same_output": true
+      }
+    }
+  ]
+}

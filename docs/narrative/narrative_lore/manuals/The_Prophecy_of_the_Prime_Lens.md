@@ -1,30 +1,33 @@
 # The Prophecy of the Prime Lens
 
-*A fragment of the "First Revelation," inscribed on the central pillar of the Nexus Plateau.*
+_A fragment of the "First Revelation," inscribed on the central pillar of the Nexus Plateau._
 
 ## The Shattered Key
 
 Before the White Noon, the Architect forged a master key—a lens of such perfect geometry that it could focus the entire Heliograph array into a single point.
 This was the **Prime Lens**.
-When the bombs fell, the Lens did not break. It *refracted*.
+When the bombs fell, the Lens did not break. It _refracted_.
 It split into three "Aspects," scattered across the Steppe.
 
 ## The Three Aspects
 
 ### 1. The Shard of Clarity (The Mind)
-*   **Location:** Hidden within the deepest databanks of the **Archive Core**.
-*   **Nature:** Pure information. It allows the bearer to *understand* the Heliograph's code.
-*   **Guardian:** The Logic-Gatekeeper (A rogue AI defense system).
+
+- **Location:** Hidden within the deepest databanks of the **Archive Core**.
+- **Nature:** Pure information. It allows the bearer to _understand_ the Heliograph's code.
+- **Guardian:** The Logic-Gatekeeper (A rogue AI defense system).
 
 ### 2. The Shard of Will (The Body)
-*   **Location:** Buried in the **Magma-Glass Caverns** beneath the Iron Covenant's fortress.
-*   **Nature:** Pure energy. It allows the bearer to *endure* the Heliograph's output.
-*   **Guardian:** The Forge-Beast (A massive, heat-resistant biological experiment).
+
+- **Location:** Buried in the **Magma-Glass Caverns** beneath the Iron Covenant's fortress.
+- **Nature:** Pure energy. It allows the bearer to _endure_ the Heliograph's output.
+- **Guardian:** The Forge-Beast (A massive, heat-resistant biological experiment).
 
 ### 3. The Shard of Soul (The Spirit)
-*   **Location:** Worn by the **High Prism** of the Glass Prophets, in the shifting Glass Gardens.
-*   **Nature:** Pure resonance. It allows the bearer to *command* the Heliograph's intent.
-*   **Guardian:** The High Prism themselves (A fully ascended Glassborn).
+
+- **Location:** Worn by the **High Prism** of the Glass Prophets, in the shifting Glass Gardens.
+- **Nature:** Pure resonance. It allows the bearer to _command_ the Heliograph's intent.
+- **Guardian:** The High Prism themselves (A fully ascended Glassborn).
 
 ## The Convergence
 

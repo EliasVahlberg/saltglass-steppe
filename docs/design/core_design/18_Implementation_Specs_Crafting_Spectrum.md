@@ -39,10 +39,11 @@ pub struct ItemDef {
 ```
 
 ### Logic
+
 1.  **Recipe Lookup:** When player combines two items, check `recipes.json` (new data file).
 2.  **Dynamic Generation (Optional):** If no explicit recipe exists, generate a new item:
-    *   Name: `{Material} {BaseName}` (e.g., "Fulgurite Sword")
-    *   Stats: Base Stats + Material Modifier.
+    - Name: `{Material} {BaseName}` (e.g., "Fulgurite Sword")
+    - Stats: Base Stats + Material Modifier.
 
 ---
 
@@ -75,12 +76,16 @@ pub struct LitState {
 ```
 
 ### The Lighting Algorithm (Update to `src/game/map.rs`)
+
 Current algorithm likely just checks FOV/Distance. Needs to propagate Color.
-*   **Mixing:** If Red and Blue overlap -> Purple? Or dominant wins?
-    *   *Simplification:* Dominant wins (highest intensity). If equal, White.
+
+- **Mixing:** If Red and Blue overlap -> Purple? Or dominant wins?
+  - _Simplification:_ Dominant wins (highest intensity). If equal, White.
 
 ### Effect Application (`src/game/systems.rs`)
+
 In `end_turn()`:
+
 ```rust
 fn apply_light_effects(state: &mut GameState) {
     for entity in state.entities.iter_mut() {
@@ -104,26 +109,28 @@ fn apply_light_effects(state: &mut GameState) {
 ## 3. Hard Light & Void Mechanics
 
 ### Hard Light Tiles
-*   **TileType:** New variant `TileType::HardLightBridge`.
-*   **Logic:**
-    *   Is Walkable = `true`.
-    *   Is Transparent = `true`.
-    *   **Dependency:** Needs a `source_entity_id`. If source is destroyed/off, tile reverts to `TileType::Chasm`.
+
+- **TileType:** New variant `TileType::HardLightBridge`.
+- **Logic:**
+  - Is Walkable = `true`.
+  - Is Transparent = `true`.
+  - **Dependency:** Needs a `source_entity_id`. If source is destroyed/off, tile reverts to `TileType::Chasm`.
 
 ### Void Decay
-*   **Component:** `DecayTimer(u32)` on Item Entities.
-*   **System:**
-    ```rust
-    fn process_decay(state: &mut GameState) {
-        for item in state.items.iter_mut() {
-            if !state.map.is_lit(item.pos) {
-                item.decay_timer += 1;
-                if item.decay_timer > 100 {
-                    item.mark_for_deletion = true;
-                }
-            } else {
-                item.decay_timer = 0; // Reset if lit
-            }
-        }
-    }
-    ```
+
+- **Component:** `DecayTimer(u32)` on Item Entities.
+- **System:**
+  ```rust
+  fn process_decay(state: &mut GameState) {
+      for item in state.items.iter_mut() {
+          if !state.map.is_lit(item.pos) {
+              item.decay_timer += 1;
+              if item.decay_timer > 100 {
+                  item.mark_for_deletion = true;
+              }
+          } else {
+              item.decay_timer = 0; // Reset if lit
+          }
+      }
+  }
+  ```
