@@ -16,7 +16,7 @@
   "entities": [
     {
       "entity_type": "enemy",
-      "id": "salt_guardian",
+      "id": "salt_mummy",
       "x": 29,
       "y": 8,
       "hp": 15,
@@ -31,22 +31,22 @@
     {
       "at_start": true,
       "check": {"type": "enemy_at", "x": 29, "y": 8, "alive": true},
-      "message": "Salt guardian should be at (29,8) at start"
+      "message": "Salt mummy should be at (29,8) at start"
     },
     {
       "at_start": true,
-      "check": {"type": "enemy_hp", "id": "salt_guardian", "op": "eq", "value": 15},
-      "message": "Salt guardian should have 15 HP at start"
+      "check": {"type": "enemy_hp", "id": "salt_mummy", "op": "eq", "value": 15},
+      "message": "Salt mummy should have 15 HP at start"
     },
     {
       "at_end": true,
-      "check": {"type": "enemy_hp", "id": "salt_guardian", "op": "eq", "value": 3},
-      "message": "Salt guardian should have 3 HP after 12 damage (below 30%)"
+      "check": {"type": "enemy_hp", "id": "salt_mummy", "op": "eq", "value": 3},
+      "message": "Salt mummy should have 3 HP after 12 damage (below 30%)"
     },
     {
       "at_end": true,
       "check": {"type": "no_enemy_at", "x": 29, "y": 8},
-      "message": "Salt guardian should have retreated from (29,8)"
+      "message": "Salt mummy should have retreated from (29,8)"
     }
   ]
 }

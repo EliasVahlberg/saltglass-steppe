@@ -1,6 +1,16 @@
 {
   "abilities": [
     {
+      "id": "mind_pulse",
+      "name": "Mind Pulse",
+      "category": "telepathy",
+      "description": "Stun nearby enemies with a psychic blast.",
+      "coherence_cost": 20,
+      "cooldown": 5,
+      "min_adaptation_level": 1,
+      "effect": "stun_aoe"
+    },
+    {
       "id": "mind_probe",
       "name": "Mind Probe",
       "category": "telepathy",

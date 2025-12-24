@@ -63,6 +63,18 @@ fn terrain_glyph(terrain: Terrain) -> char {
     }
 }
 
+/// Get color intensity based on level (for background/border)
+fn level_color(level: u32) -> Color {
+    match level {
+        1 => Color::DarkGray,      // Safe areas
+        2..=3 => Color::Gray,      // Low threat
+        4..=6 => Color::Yellow,    // Medium threat  
+        7..=8 => Color::LightRed,  // High threat
+        9..=10 => Color::Red,      // Extreme threat
+        _ => Color::Red,
+    }
+}
+
 /// Render the world map view
 pub fn render_world_map(
     frame: &mut Frame,
@@ -95,7 +107,7 @@ pub fn render_world_map(
     // Render map tiles
     for (screen_y, world_y) in (start_y..end_y).enumerate() {
         for (screen_x, world_x) in (start_x..end_x).enumerate() {
-            let (biome, terrain, _elev, poi, resources, connected) = world_map.get(world_x, world_y);
+            let (biome, terrain, _elev, poi, resources, connected, level) = world_map.get(world_x, world_y);
             
             let (ch, fg) = if world_x == player_wx && world_y == player_wy {
                 ('@', Color::White)
@@ -111,11 +123,19 @@ pub fn render_world_map(
                 (terrain_glyph(terrain), biome_color(biome))
             };
 
+            // Use level for background color to show threat zones
+            let bg = if level > 1 { Some(level_color(level)) } else { None };
+            let style = if let Some(bg_color) = bg {
+                Style::default().fg(fg).bg(bg_color)
+            } else {
+                Style::default().fg(fg)
+            };
+
             let x = inner.x + screen_x as u16;
             let y = inner.y + screen_y as u16;
             if x < inner.x + inner.width && y < inner.y + inner.height.saturating_sub(2) {
                 frame.render_widget(
-                    Paragraph::new(ch.to_string()).style(Style::default().fg(fg)),
+                    Paragraph::new(ch.to_string()).style(style),
                     Rect::new(x, y, 1, 1),
                 );
             }
@@ -123,7 +143,7 @@ pub fn render_world_map(
     }
 
     // Render info bar at bottom
-    let (biome, terrain, _elev, poi, resources, _connected) = world_map.get(view.cursor_x, view.cursor_y);
+    let (biome, terrain, _elev, poi, resources, _connected, level) = world_map.get(view.cursor_x, view.cursor_y);
     let poi_str = match poi {
         POI::None => "",
         POI::Town => " [Town]",
@@ -132,9 +152,17 @@ pub fn render_world_map(
         POI::Shrine => " [Shrine]",
     };
     let res_str = if resources.water { " Water" } else { "" };
+    let level_str = match level {
+        1 => " [Safe]",
+        2..=3 => " [Low Threat]",
+        4..=6 => " [Medium Threat]",
+        7..=8 => " [High Threat]",
+        9..=10 => " [EXTREME THREAT]",
+        _ => " [UNKNOWN THREAT]",
+    };
     let info = format!(
-        "({},{}) {:?} {:?}{}{} | @ = You, X = Cursor",
-        view.cursor_x, view.cursor_y, biome, terrain, poi_str, res_str
+        "({},{}) {:?} {:?}{}{}{} | @ = You, X = Cursor | Level {}",
+        view.cursor_x, view.cursor_y, biome, terrain, poi_str, res_str, level_str, level
     );
     let info_y = inner.y + inner.height.saturating_sub(1);
     frame.render_widget(

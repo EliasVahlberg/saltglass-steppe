@@ -42,6 +42,8 @@ pub struct WorldMap {
     pub resources: Vec<Resources>,
     #[serde(default)]
     pub connected: Vec<Connected>,
+    #[serde(default)]
+    pub levels: Vec<u32>,  // Threat level for each tile
 }
 
 impl WorldMap {
@@ -151,10 +153,53 @@ impl WorldMap {
             }
         }
 
-        Self { seed, biomes, terrain, elevation, pois, resources, connected }
+        let levels = Self::generate_levels(&pois, &terrain);
+        Self { seed, biomes, terrain, elevation, pois, resources, connected, levels }
     }
 
-    pub fn get(&self, x: usize, y: usize) -> (Biome, Terrain, u8, POI, Resources, Connected) {
+    fn generate_levels(pois: &[POI], terrain: &[Terrain]) -> Vec<u32> {
+        let mut levels = vec![1u32; WORLD_WIDTH * WORLD_HEIGHT];
+        let start_x = WORLD_WIDTH / 2;
+        let start_y = WORLD_HEIGHT / 2;
+
+        for y in 0..WORLD_HEIGHT {
+            for x in 0..WORLD_WIDTH {
+                let idx = y * WORLD_WIDTH + x;
+                
+                // Base level from distance to start (center)
+                let dx = (x as i32 - start_x as i32).abs() as f64;
+                let dy = (y as i32 - start_y as i32).abs() as f64;
+                let distance = (dx * dx + dy * dy).sqrt();
+                
+                // Level increases with distance from center
+                let base_level = 1 + (distance / 15.0) as u32;
+                
+                // Terrain modifiers
+                let terrain_mod = match terrain[idx] {
+                    Terrain::Canyon => 1,  // Dangerous terrain
+                    Terrain::Mesa => 1,    // High elevation = higher threat
+                    Terrain::Hills => 0,   // Moderate
+                    Terrain::Dunes => 0,   // Standard
+                    Terrain::Flat => 0,    // Easy terrain
+                };
+                
+                // POI modifiers
+                let poi_mod = match pois[idx] {
+                    POI::Dungeon => 2,     // Dungeons are much more dangerous
+                    POI::Landmark => 1,    // Ruins have threats
+                    POI::Town => -1,       // Towns are safer (but min 1)
+                    POI::Shrine => 0,      // Neutral
+                    POI::None => 0,
+                };
+                
+                levels[idx] = (base_level + terrain_mod).saturating_add_signed(poi_mod).max(1).min(10);
+            }
+        }
+        
+        levels
+    }
+
+    pub fn get(&self, x: usize, y: usize) -> (Biome, Terrain, u8, POI, Resources, Connected, u32) {
         let idx = y * WORLD_WIDTH + x;
         (
             self.biomes[idx],
@@ -163,6 +208,7 @@ impl WorldMap {
             self.pois[idx],
             self.resources.get(idx).copied().unwrap_or_default(),
             self.connected.get(idx).copied().unwrap_or_default(),
+            self.levels.get(idx).copied().unwrap_or(1),
         )
     }
 

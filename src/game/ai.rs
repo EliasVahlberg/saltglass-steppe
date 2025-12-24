@@ -124,7 +124,7 @@ impl GameState {
             let mut attacks = 1;
             let mut laser_dmg = 0;
             let mut has_laser = false;
-            let mut has_ranged = def.ranged_attack;
+            let has_ranged = def.ranged_attack;
             let attack_range = def.attack_range as i32;
 
             for behavior in &def.behaviors {
@@ -206,7 +206,7 @@ impl GameState {
             // Check if preparing AOE attack
             if self.enemies[i].is_preparing_aoe() {
                 // Show warning effect
-                if let Some((target_x, target_y)) = self.enemies[i].aoe_target {
+                if let Some((_target_x, _target_y)) = self.enemies[i].aoe_target {
                     self.trigger_effect("F(@2 &Red)", 1);
                     if self.enemies[i].aoe_warning_turns == 1 {
                         self.log_typed(format!("{} is preparing a devastating attack!", self.enemies[i].name()), MsgType::Warning);

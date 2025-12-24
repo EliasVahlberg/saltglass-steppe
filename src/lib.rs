@@ -127,7 +127,7 @@ mod tests {
     fn items_spawn_in_map() {
         let state = GameState::new(42);
         assert!(!state.items.is_empty());
-        assert!(state.items.iter().any(|i| i.id == "angle_lens"));
+        assert!(state.items.iter().any(|i| i.id == "storm_glass"));
     }
 
     #[test]

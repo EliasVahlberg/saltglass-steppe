@@ -98,9 +98,12 @@ pub struct EnemyDef {
     pub aoe_radius: u32,
     #[serde(default)]
     pub aoe_warning_turns: u32,
+    #[serde(default = "default_level")]
+    pub level: u32,
 }
 
 fn default_sight() -> i32 { 6 }
+fn default_level() -> u32 { 1 }
 
 #[derive(Deserialize)]
 struct EnemiesFile {
