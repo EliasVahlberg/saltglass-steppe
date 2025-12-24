@@ -18,7 +18,7 @@ use super::{
     lighting::{compute_lighting, LightMap, LightSource},
     map::{Map, Tile},
     map_features::MapFeatures,
-    narrative::NarrativeGenerator,
+    narrative::{NarrativeGenerator, NarrativeContext},
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
@@ -779,7 +779,8 @@ impl GameState {
     /// Generate procedural item lore using narrative templates
     pub fn generate_item_lore(&mut self, item_category: &str) -> Option<String> {
         if let Some(ref generator) = self.narrative_generator {
-            generator.generate_item_lore(item_category, &mut self.rng)
+            let context = self.create_narrative_context();
+            generator.generate_contextual_item_lore(item_category, &context, &mut self.rng)
         } else {
             None
         }
@@ -794,12 +795,54 @@ impl GameState {
         }
     }
 
+    /// Generate contextual description based on current game state
+    pub fn generate_contextual_description(&mut self) -> Option<String> {
+        if let Some(ref generator) = self.narrative_generator {
+            let context = self.create_narrative_context();
+            generator.generate_contextual_description(&context, &mut self.rng)
+        } else {
+            None
+        }
+    }
+
+    /// Generate environmental storytelling text
+    pub fn generate_environmental_text(&mut self, environment_type: &str) -> Option<String> {
+        if let Some(ref generator) = self.narrative_generator {
+            generator.generate_environmental_text(environment_type, &mut self.rng)
+        } else {
+            None
+        }
+    }
+
     /// Generate markov chain text for flavor
     pub fn generate_flavor_text(&mut self, max_words: usize) -> String {
         if let Some(ref generator) = self.narrative_generator {
             generator.generate_markov_text(&mut self.rng, max_words)
         } else {
             "The glass whispers secrets.".to_string()
+        }
+    }
+
+    /// Create narrative context from current game state
+    fn create_narrative_context(&self) -> NarrativeContext {
+        let biome = if let Some(ref world_map) = self.world_map {
+            let (biome, _, _, _, _, _) = world_map.get(self.world_x, self.world_y);
+            Some(format!("{:?}", biome))
+        } else {
+            None
+        };
+
+        let adaptations = self.adaptations.iter()
+            .map(|a| format!("{:?}", a).to_lowercase())
+            .collect();
+
+        NarrativeContext {
+            biome,
+            terrain: None,
+            adaptations,
+            faction_reputation: self.faction_reputation.clone(),
+            refraction_level: self.refraction,
+            location_type: None,
         }
     }
 

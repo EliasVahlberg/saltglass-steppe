@@ -61,13 +61,13 @@ This file contains a comprehensive list of all project documentation with descri
 
 ### Main Questline Subsection
 
-| Document                                                                   | Description                                    |
-| -------------------------------------------------------------------------- | ---------------------------------------------- |
-| [Node_Graph_Main_Quest.md](design/Main_Questline/Node_Graph_Main_Quest.md) | Main quest node graph and structure            |
-| [Quest_Spine.md](design/Main_Questline/Quest_Spine.md)                     | Main questline backbone and progression        |
-| [Quest_Dialogue_Tree.md](design/Main_Questline/Quest_Dialogue_Tree.md)     | Branching dialogue trees for key quest moments |
-| [Questline_Logic.yaml](design/Main_Questline/Questline_Logic.yaml)         | Quest logic and branching structure     |
-| [Side_Quests_Master_List.md](design/Main_Questline/Side_Quests_Master_List.md) | Master list of 25+ side quests          |
+| Document                                                                       | Description                                    |
+| ------------------------------------------------------------------------------ | ---------------------------------------------- |
+| [Node_Graph_Main_Quest.md](design/Main_Questline/Node_Graph_Main_Quest.md)     | Main quest node graph and structure            |
+| [Quest_Spine.md](design/Main_Questline/Quest_Spine.md)                         | Main questline backbone and progression        |
+| [Quest_Dialogue_Tree.md](design/Main_Questline/Quest_Dialogue_Tree.md)         | Branching dialogue trees for key quest moments |
+| [Questline_Logic.yaml](design/Main_Questline/Questline_Logic.yaml)             | Quest logic and branching structure            |
+| [Side_Quests_Master_List.md](design/Main_Questline/Side_Quests_Master_List.md) | Master list of 25+ side quests                 |
 
 ## Development Documentation
 

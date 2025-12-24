@@ -21,8 +21,20 @@ pub struct HistoricalEvent {
 pub struct NarrativeTemplates {
     pub historical_events: HashMap<String, Vec<HistoricalEvent>>,
     pub location_descriptions: HashMap<String, Vec<NarrativeTemplate>>,
+    pub contextual_descriptions: HashMap<String, HashMap<String, NarrativeTemplate>>,
     pub item_lore: HashMap<String, Vec<NarrativeTemplate>>,
+    pub environmental_storytelling: HashMap<String, Vec<NarrativeTemplate>>,
     pub markov_corpus: Vec<String>,
+}
+
+#[derive(Debug, Clone)]
+pub struct NarrativeContext {
+    pub biome: Option<String>,
+    pub terrain: Option<String>,
+    pub adaptations: Vec<String>,
+    pub faction_reputation: HashMap<String, i32>,
+    pub refraction_level: u32,
+    pub location_type: Option<String>,
 }
 
 pub struct NarrativeGenerator {
@@ -112,9 +124,72 @@ impl NarrativeGenerator {
         Some(self.fill_template(template, rng))
     }
     
+    pub fn generate_contextual_description(&self, context: &NarrativeContext, rng: &mut ChaCha8Rng) -> Option<String> {
+        // Try biome-specific descriptions first
+        if let Some(ref biome) = context.biome {
+            if let Some(biome_templates) = self.templates.contextual_descriptions.get("biome_specific") {
+                if let Some(template) = biome_templates.get(biome) {
+                    return Some(self.fill_template(template, rng));
+                }
+            }
+        }
+        
+        // Try adaptation-aware descriptions
+        if !context.adaptations.is_empty() {
+            if let Some(adaptation_templates) = self.templates.contextual_descriptions.get("adaptation_aware") {
+                for adaptation in &context.adaptations {
+                    if let Some(template) = adaptation_templates.get(adaptation) {
+                        return Some(self.fill_template(template, rng));
+                    }
+                }
+            }
+        }
+        
+        // Try faction-influenced descriptions
+        if let Some(faction_templates) = self.templates.contextual_descriptions.get("faction_influenced") {
+            let mut best_faction = None;
+            let mut best_reputation = i32::MIN;
+            
+            for (faction, reputation) in &context.faction_reputation {
+                if *reputation > best_reputation && *reputation > 20 {
+                    best_reputation = *reputation;
+                    best_faction = Some(faction);
+                }
+            }
+            
+            if let Some(faction) = best_faction {
+                if let Some(template) = faction_templates.get(faction) {
+                    return Some(self.fill_template(template, rng));
+                }
+            }
+        }
+        
+        None
+    }
+    
     pub fn generate_item_lore(&self, item_category: &str, rng: &mut ChaCha8Rng) -> Option<String> {
         let lore_templates = self.templates.item_lore.get(item_category)?;
         let template = lore_templates.choose(rng)?;
+        Some(self.fill_template(template, rng))
+    }
+    
+    pub fn generate_contextual_item_lore(&self, item_category: &str, context: &NarrativeContext, rng: &mut ChaCha8Rng) -> Option<String> {
+        // Try contextual item lore first
+        if context.refraction_level > 50 {
+            if let Some(contextual_templates) = self.templates.item_lore.get("contextual_artifacts") {
+                if let Some(template) = contextual_templates.choose(rng) {
+                    return Some(self.fill_template(template, rng));
+                }
+            }
+        }
+        
+        // Fall back to regular item lore
+        self.generate_item_lore(item_category, rng)
+    }
+    
+    pub fn generate_environmental_text(&self, environment_type: &str, rng: &mut ChaCha8Rng) -> Option<String> {
+        let env_templates = self.templates.environmental_storytelling.get(environment_type)?;
+        let template = env_templates.choose(rng)?;
         Some(self.fill_template(template, rng))
     }
     
@@ -191,7 +266,9 @@ mod tests {
             templates: NarrativeTemplates {
                 historical_events: HashMap::new(),
                 location_descriptions: HashMap::new(),
+                contextual_descriptions: HashMap::new(),
                 item_lore: HashMap::new(),
+                environmental_storytelling: HashMap::new(),
                 markov_corpus: Vec::new(),
             },
             markov_chain: MarkovChain::new(&[]),
@@ -203,5 +280,26 @@ mod tests {
         assert!(result.starts_with("The "));
         assert!(!result.contains("{"));
         assert!(!result.contains("}"));
+    }
+    
+    #[test]
+    fn test_contextual_generation() {
+        let context = NarrativeContext {
+            biome: Some("Saltflats".to_string()),
+            terrain: None,
+            adaptations: vec!["prismhide".to_string()],
+            faction_reputation: {
+                let mut rep = HashMap::new();
+                rep.insert("Mirror Monks".to_string(), 50);
+                rep
+            },
+            refraction_level: 75,
+            location_type: None,
+        };
+        
+        // Test that context is properly structured
+        assert_eq!(context.biome, Some("Saltflats".to_string()));
+        assert_eq!(context.adaptations.len(), 1);
+        assert_eq!(context.refraction_level, 75);
     }
 }
