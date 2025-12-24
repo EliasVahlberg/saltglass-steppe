@@ -88,7 +88,14 @@ impl GameState {
         if let Some(ni) = self.npc_at(x, y) {
             let n = &self.npcs[ni];
             let desc = n.def().map(|d| d.description.as_str()).unwrap_or("A person");
-            return format!("{} - {}", n.name(), desc);
+            let mut info = format!("{} - {}", n.name(), desc);
+            
+            // Add backstory if available
+            if let Some(backstory) = n.backstory() {
+                info.push_str(&format!(" ({})", backstory));
+            }
+            
+            return info;
         }
         if let Some(item) = self.items.iter().find(|i| i.x == x && i.y == y) {
             if let Some(def) = get_item_def(&item.id) {
@@ -107,6 +114,17 @@ impl GameState {
                 return format!("{} (light source)", def.name);
             }
         }
+        
+        // Check for inscriptions at this position
+        if let Some(inscription) = self.map.inscriptions.iter().find(|i| i.x == x && i.y == y) {
+            let inscription_desc = match inscription.inscription_type.as_str() {
+                "shrine_text" => "Sacred text",
+                "graffiti" => "Graffiti",
+                _ => "Inscription",
+            };
+            return format!("{}: \"{}\"", inscription_desc, inscription.text);
+        }
+        
         if let Some(tile) = self.map.get(x, y) {
             return format!("{} - {}", tile.name(), tile.description());
         }
