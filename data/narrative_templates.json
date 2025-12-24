@@ -501,6 +501,36 @@
             "bending light around it"
           ]
         }
+      },
+      {
+        "template": "A set of {item_name}, said to {function}. Dangerous to use, dangerous to keep.",
+        "variables": {
+          "item_name": [
+            "Mnemosyne Lenses",
+            "Memory Traps",
+            "Soul Prisms"
+          ],
+          "function": [
+            "trap memories in crystal beads",
+            "steal the light from your eyes",
+            "make you forget your own name"
+          ]
+        }
+      },
+      {
+        "template": "A jar of {food}, rarer than a miracle. It tastes like {taste}.",
+        "variables": {
+          "food": [
+            "preserved peaches",
+            "ancient beans",
+            "honeyed roots"
+          ],
+          "taste": [
+            "the past apologizing",
+            "sunlight before the storms",
+            "sweetness and dust"
+          ]
+        }
       }
     ],
     "contextual_artifacts": {
@@ -570,6 +600,77 @@
       }
     ]
   },
+  "rumors": [
+    {
+      "template": "Did you hear about {subject}? They say {rumor}.",
+      "variables": {
+        "subject": [
+          "the wedding at the seam",
+          "Vanes crew",
+          "the Merchant Oryn",
+          "the new Saint",
+          "the Archive drone"
+        ],
+        "rumor": [
+          "the storm made a corridor just for them",
+          "they found actual beans",
+          "he trapped a Monks soul in a bead",
+          "she speaks to the glass",
+          "it ignored a scavenger with a fake key"
+        ]
+      }
+    },
+    {
+      "template": "Dont trust {thing}. {reason}.",
+      "variables": {
+        "thing": [
+          "the quiet storms",
+          "a smiling Monk",
+          "an Engineer with clean hands",
+          "the salt that tastes sweet"
+        ],
+        "reason": [
+          "its a trap",
+          "they want your reflection",
+          "they havent worked a day in the dust",
+          "its poison"
+        ]
+      }
+    }
+  ],
+  "folktales": [
+    {
+      "title": "The Merchant of Memories",
+      "template": "There was once a trader named {name} who dealt in {trade}. He took a {customer}s {payment} and became {fate}.",
+      "variables": {
+        "name": [
+          "Oryn",
+          "Kael",
+          "Silas"
+        ],
+        "trade": [
+          "memories",
+          "shadows",
+          "regrets"
+        ],
+        "customer": [
+          "Monk",
+          "Wraith",
+          "Saint"
+        ],
+        "payment": [
+          "light",
+          "voice",
+          "name"
+        ],
+        "fate": [
+          "a storm of eternal glass",
+          "a shadow on the wall",
+          "a statue of salt"
+        ]
+      }
+    }
+  ],
   "markov_corpus": [
     "The glass storms reshape the world with each passing.",
     "Light bends through crystal formations creating impossible angles.",
@@ -620,6 +721,15 @@
     "Engineers trust what they can measure, Monks trust what they can feel.",
     "The Steppe does not reward permanence.",
     "Maps are promises that storms love to break.",
-    "Light is dangerous: glare can kill, beams can betray."
+    "Light is dangerous: glare can kill, beams can betray.",
+    "Happiness is a nonrenewable resource.",
+    "The Steppe hates loud happiness.",
+    "Even your joy is a route out.",
+    "We called it a blessing because we needed a word that wasnt grief.",
+    "The light heated the dust until the atmosphere hardened.",
+    "The watchers brought rope and said it was for safety.",
+    "To take a Monks connection to the light is to take his soul.",
+    "The bead became a seed, the seed became a storm.",
+    "Some threats you can see coming, but that doesnt make them less dangerous."
   ]
 }

@@ -58,6 +58,7 @@ pub enum MsgType {
     Loot,
     Status,
     Dialogue,
+    Warning,
 }
 
 /// Game message with type for color-coding
@@ -301,6 +302,7 @@ pub enum BeamType {
     Laser,      // Red beam, damage
     Light,      // Yellow beam, illumination
     Reflection, // Cyan beam, mirror reflection
+    Arrow,      // Green beam, ranged attack
 }
 
 impl GameState {
@@ -1320,6 +1322,126 @@ impl GameState {
                 self.log("Issue reporting mode activated. Use UI to file report.");
                 // This will be handled by the UI
             }
+            Some("add_adaptation") => {
+                if let Some(id) = parts.get(1) {
+                    if let Some(adaptation) = super::adaptation::Adaptation::from_id(id) {
+                        if !self.adaptations.contains(&adaptation) {
+                            self.adaptations.push(adaptation);
+                            self.log(format!("Added adaptation: {}", adaptation.name()));
+                        } else {
+                            self.log(format!("Already have adaptation: {}", adaptation.name()));
+                        }
+                    } else {
+                        self.log(format!("Unknown adaptation: {}", id));
+                    }
+                } else {
+                    self.log("Usage: add_adaptation <id>");
+                }
+            }
+            Some("list_adaptations") => {
+                self.log("Available adaptations:");
+                for id in super::adaptation::all_adaptation_ids() {
+                    if let Some(def) = super::adaptation::get_adaptation_def(id) {
+                        let has = self.adaptations.iter().any(|a| a.id() == id);
+                        self.log(format!("  {} - {} {}", id, def.name, if has { "[HAVE]" } else { "" }));
+                    }
+                }
+            }
+            Some("add_psychic") => {
+                if let Some(id) = parts.get(1) {
+                    if super::psychic::get_ability_def(id).is_some() {
+                        if !self.psychic.unlocked_abilities.contains(&id.to_string()) {
+                            self.psychic.unlocked_abilities.push(id.to_string());
+                            self.log(format!("Added psychic ability: {}", id));
+                        } else {
+                            self.log(format!("Already have psychic ability: {}", id));
+                        }
+                    } else {
+                        self.log(format!("Unknown psychic ability: {}", id));
+                    }
+                } else {
+                    self.log("Usage: add_psychic <id>");
+                }
+            }
+            Some("list_psychic") => {
+                self.log("Available psychic abilities:");
+                for id in super::psychic::all_ability_ids() {
+                    if let Some(def) = super::psychic::get_ability_def(id) {
+                        let has = self.psychic.unlocked_abilities.contains(&id.to_string());
+                        self.log(format!("  {} - {} (Cost: {}) {}", id, def.name, def.coherence_cost, if has { "[HAVE]" } else { "" }));
+                    }
+                }
+            }
+            Some("set_coherence") => {
+                if let Some(amount_str) = parts.get(1) {
+                    if let Ok(amount) = amount_str.parse::<u32>() {
+                        self.psychic.coherence = amount;
+                        self.psychic.max_coherence = amount.max(self.psychic.max_coherence);
+                        self.log(format!("Set coherence to: {}", amount));
+                    } else {
+                        self.log("Invalid amount. Use a number.");
+                    }
+                } else {
+                    self.log("Usage: set_coherence <amount>");
+                }
+            }
+            Some("spawn_enemy") => {
+                if let Some(id) = parts.get(1) {
+                    if super::enemy::get_enemy_def(id).is_some() {
+                        let x = parts.get(2).and_then(|s| s.parse().ok()).unwrap_or(self.player_x + 1);
+                        let y = parts.get(3).and_then(|s| s.parse().ok()).unwrap_or(self.player_y);
+                        
+                        if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
+                            let enemy = super::enemy::Enemy::new(x, y, id);
+                            self.enemies.push(enemy);
+                            self.log(format!("Spawned {} at ({}, {})", id, x, y));
+                        } else {
+                            self.log("Cannot spawn at that location (not walkable)");
+                        }
+                    } else {
+                        self.log(format!("Unknown enemy: {}", id));
+                    }
+                } else {
+                    self.log("Usage: spawn_enemy <id> [x] [y]");
+                }
+            }
+            Some("spawn_swarm") => {
+                if let Some(id) = parts.get(1) {
+                    if let Some(count_str) = parts.get(2) {
+                        if let Ok(count) = count_str.parse::<u32>() {
+                            if super::enemy::get_enemy_def(id).is_some() {
+                                let swarm_id = format!("swarm_{}", self.turn);
+                                let mut spawned = 0;
+                                
+                                for dx in -2..=2 {
+                                    for dy in -2..=2 {
+                                        if spawned >= count { break; }
+                                        let x = self.player_x + dx;
+                                        let y = self.player_y + dy;
+                                        
+                                        if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
+                                            let enemy = super::enemy::Enemy::new_swarm_member(x, y, id, swarm_id.clone(), spawned == 0);
+                                            self.enemies.push(enemy);
+                                            spawned += 1;
+                                        }
+                                    }
+                                    if spawned >= count { break; }
+                                }
+                                
+                                self.log(format!("Spawned swarm of {} {} (count: {})", spawned, id, count));
+                            } else {
+                                self.log(format!("Unknown enemy: {}", id));
+                            }
+                        } else {
+                            self.log("Invalid count. Use a number.");
+                        }
+                    } else {
+                        self.log("Usage: spawn_swarm <id> <count>");
+                    }
+                } else {
+                    self.log("Usage: spawn_swarm <id> <count>");
+                }
+            }
             Some("help") => {
                 self.log("Debug Commands:");
                 self.log("  show tile, hide tile - Toggle god view");
@@ -1333,6 +1455,13 @@ impl GameState {
                 self.log("  run_des <file> - Run DES test");
                 self.log("  list_des - List DES test files");
                 self.log("  create_sample_des - Create sample DES test");
+                self.log("  add_adaptation <id> - Add adaptation");
+                self.log("  list_adaptations - List available adaptations");
+                self.log("  add_psychic <id> - Add psychic ability");
+                self.log("  list_psychic - List available psychic abilities");
+                self.log("  set_coherence <amount> - Set psychic coherence");
+                self.log("  spawn_enemy <id> [x] [y] - Spawn enemy at position");
+                self.log("  spawn_swarm <id> <count> - Spawn enemy swarm");
             }
             _ => self.log(format!("Unknown command: {}. Type 'help' for commands.", cmd)),
         }

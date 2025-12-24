@@ -11,6 +11,50 @@
       "effects": [{ "condition": "on_pickup", "effect": "S(@3 &Cyan &LightCyan)" }]
     },
     {
+      "id": "book_soup",
+      "name": "Book: Soup Twice",
+      "glyph": "B",
+      "description": "A worn Engineer's log about beans.",
+      "value": 20,
+      "weight": 1,
+      "usable": true,
+      "book_id": "book_soup_twice",
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &White)" }]
+    },
+    {
+      "id": "book_wedding",
+      "name": "Book: Wedding",
+      "glyph": "B",
+      "description": "A Glassborn account of a wedding.",
+      "value": 20,
+      "weight": 1,
+      "usable": true,
+      "book_id": "book_wedding_refractions",
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Cyan)" }]
+    },
+    {
+      "id": "book_merchant",
+      "name": "Book: Memories",
+      "glyph": "B",
+      "description": "A folktale about a memory merchant.",
+      "value": 20,
+      "weight": 1,
+      "usable": true,
+      "book_id": "book_merchant_memories",
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Yellow)" }]
+    },
+    {
+      "id": "book_sector7",
+      "name": "Log: Sector 7",
+      "glyph": "B",
+      "description": "Recovered audio log transcript.",
+      "value": 30,
+      "weight": 1,
+      "usable": true,
+      "book_id": "book_echoes_sector_7",
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Red)" }]
+    },
+    {
       "id": "scripture_shard",
       "name": "Scripture Shard",
       "glyph": "?",

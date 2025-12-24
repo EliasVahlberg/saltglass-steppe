@@ -128,6 +128,214 @@
       ]
     },
     {
+      "id": "shard_nest",
+      "name": "Shard Nest",
+      "glyph": "N",
+      "max_hp": 25,
+      "damage_min": 0,
+      "damage_max": 0,
+      "sight_range": 6,
+      "xp_value": 40,
+      "description": "Crystalline spawning chamber that produces shard spiders",
+      "is_spawner": true,
+      "spawn_rate": 3,
+      "max_spawns": 8,
+      "spawn_types": ["shard_spider"],
+      "demeanor": "defensive",
+      "loot_table": [
+        { "item": "glass_shard", "weight": 8 },
+        { "item": "spider_silk", "weight": 3 },
+        { "item": "nest_core", "weight": 1 }
+      ],
+      "effects": [
+        { "condition": "on_spawn", "effect": "S(@3 &LightCyan &White)" },
+        { "condition": "on_death", "effect": "S(@5 &Cyan &LightCyan)" }
+      ]
+    },
+    {
+      "id": "storm_archer",
+      "name": "Storm Archer",
+      "glyph": "A",
+      "max_hp": 12,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 8,
+      "xp_value": 35,
+      "description": "Spectral bowman that fires glass arrows from afar",
+      "ranged_attack": true,
+      "attack_range": 6,
+      "loot_table": [
+        { "item": "glass_arrow", "weight": 5 },
+        { "item": "storm_bow", "weight": 1 },
+        { "item": "archer_cloak", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "kite_enemy", "range": 6 },
+        { "type": "precise_shot", "accuracy_bonus": 20 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &LightBlue)" },
+        { "condition": "on_death", "effect": "B(@3 &Blue)" }
+      ]
+    },
+    {
+      "id": "glass_bomber",
+      "name": "Glass Bomber",
+      "glyph": "B",
+      "max_hp": 8,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 6,
+      "xp_value": 45,
+      "description": "Volatile creature that explodes in a shower of glass shards",
+      "aoe_attack": true,
+      "aoe_radius": 2,
+      "aoe_warning_turns": 2,
+      "loot_table": [
+        { "item": "glass_shard", "weight": 6 },
+        { "item": "explosive_core", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "suicide_bomber", "damage": 8, "radius": 2 },
+        { "type": "charge_enemy" }
+      ],
+      "effects": [
+        { "condition": "on_warning", "effect": "F(@2 &Red)" },
+        { "condition": "on_death", "effect": "B(@2 &LightRed)" }
+      ]
+    },
+    {
+      "id": "mirror_monk_friendly",
+      "name": "Mirror Monk",
+      "glyph": "M",
+      "max_hp": 15,
+      "damage_min": 2,
+      "damage_max": 5,
+      "sight_range": 7,
+      "demeanor": "friendly",
+      "xp_value": 0,
+      "description": "Contemplative monk who seeks the angles of truth",
+      "loot_table": [
+        { "item": "monk_scripture", "weight": 3 },
+        { "item": "meditation_crystal", "weight": 2 },
+        { "item": "brine_vial", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "offer_blessing", "effect": "refraction_resistance" },
+        { "type": "share_wisdom", "effect": "temporary_adaptation" }
+      ],
+      "effects": [
+        { "condition": "on_interact", "effect": "G(&LightCyan)" },
+        { "condition": "on_death", "effect": "B(@4 &White)" }
+      ]
+    },
+    {
+      "id": "sand_engineer_friendly",
+      "name": "Sand Engineer",
+      "glyph": "E",
+      "max_hp": 18,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 6,
+      "demeanor": "friendly",
+      "xp_value": 0,
+      "description": "Pragmatic engineer working to stabilize the storms",
+      "loot_table": [
+        { "item": "engineering_tool", "weight": 3 },
+        { "item": "storm_stabilizer", "weight": 1 },
+        { "item": "repair_kit", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "offer_repairs", "effect": "equipment_repair" },
+        { "type": "share_maps", "effect": "reveal_area" }
+      ],
+      "effects": [
+        { "condition": "on_interact", "effect": "G(&Yellow)" },
+        { "condition": "on_death", "effect": "B(@3 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "glassborn_friendly",
+      "name": "Glassborn Wanderer",
+      "glyph": "G",
+      "max_hp": 20,
+      "damage_min": 4,
+      "damage_max": 7,
+      "sight_range": 8,
+      "demeanor": "friendly",
+      "xp_value": 0,
+      "description": "Transformed being who has embraced the storm's gifts",
+      "loot_table": [
+        { "item": "storm_glass", "weight": 4 },
+        { "item": "adaptation_catalyst", "weight": 1 },
+        { "item": "glass_thread", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "offer_transformation", "effect": "forced_adaptation" },
+        { "type": "storm_guidance", "effect": "storm_prediction" }
+      ],
+      "effects": [
+        { "condition": "on_interact", "effect": "G(&LightMagenta)" },
+        { "condition": "on_death", "effect": "B(@5 &Magenta)" }
+      ]
+    },
+    {
+      "id": "psychic_wraith",
+      "name": "Psychic Wraith",
+      "glyph": "Ψ",
+      "max_hp": 10,
+      "damage_min": 2,
+      "damage_max": 8,
+      "sight_range": 10,
+      "xp_value": 50,
+      "description": "Consciousness fragment with telepathic abilities",
+      "ranged_attack": true,
+      "attack_range": 8,
+      "loot_table": [
+        { "item": "psychic_crystal", "weight": 3 },
+        { "item": "consciousness_fragment", "weight": 1 },
+        { "item": "wraith_essence", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "mind_blast", "range": 8, "damage": 6 },
+        { "type": "telepathic_confusion", "duration": 3 },
+        { "type": "phase_through_walls" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&Magenta)" },
+        { "condition": "on_death", "effect": "B(@4 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "adaptation_horror",
+      "name": "Adaptation Horror",
+      "glyph": "H",
+      "max_hp": 30,
+      "damage_min": 5,
+      "damage_max": 10,
+      "sight_range": 8,
+      "xp_value": 80,
+      "description": "Grotesque fusion of multiple adaptations gone wrong",
+      "aoe_attack": true,
+      "aoe_radius": 3,
+      "aoe_warning_turns": 3,
+      "loot_table": [
+        { "item": "corrupted_adaptation", "weight": 2 },
+        { "item": "horror_essence", "weight": 1 },
+        { "item": "storm_glass", "weight": 4 }
+      ],
+      "behaviors": [
+        { "type": "adaptation_drain", "effect": "remove_adaptation" },
+        { "type": "mutation_aura", "radius": 3, "effect": "forced_refraction" },
+        { "type": "regenerate", "hp_per_turn": 3 }
+      ],
+      "effects": [
+        { "condition": "on_warning", "effect": "F(@3 &Red)" },
+        { "condition": "on_hit", "effect": "G(&Red)" },
+        { "condition": "on_death", "effect": "B(@6 &LightRed)" }
+      ]
+    },
+    {
       "id": "dust_wraith",
       "name": "Dust Wraith",
       "glyph": "w",
@@ -596,7 +804,7 @@
       ],
       "behaviors": [
         { "type": "engulf", "damage_per_turn": 1 },
-        { "type": "split_on_death", "spawns": 2 }
+        { "type": "split_on_death", "spawns": "brine_ooze", "count": 2 }
       ],
       "effects": [
         { "condition": "on_hit", "effect": "G(&Blue)" },

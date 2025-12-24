@@ -1,6 +1,7 @@
 pub mod action;
 pub mod adaptation;
 pub mod ai;
+pub mod book;
 pub mod combat;
 pub mod combat_actions;
 pub mod constants;

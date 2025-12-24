@@ -1,0 +1,150 @@
+{
+  "name": "Enhanced Enemy Systems Test",
+  "description": "Test new enemy variations, ranged attacks, AOE attacks, swarms, spawners, friendly NPCs, and debug commands",
+  "setup": {
+    "player_position": [10, 10],
+    "player_hp": 50,
+    "player_max_hp": 50,
+    "refraction": 25,
+    "adaptations": ["prismhide"],
+    "psychic_coherence": 100,
+    "psychic_abilities": ["mind_probe", "telepathic_strike"],
+    "inventory": ["storm_glass", "brine_vial", "saint_key"],
+    "map_override": {
+      "width": 25,
+      "height": 25,
+      "fill_tile": "floor",
+      "walls": [
+        [0, 0, 24, 0],
+        [0, 24, 24, 24],
+        [0, 0, 0, 24],
+        [24, 0, 24, 24]
+      ]
+    },
+    "enemies": [
+      {"id": "shard_nest", "position": [5, 5]},
+      {"id": "storm_archer", "position": [20, 5]},
+      {"id": "glass_bomber", "position": [5, 20]},
+      {"id": "psychic_wraith", "position": [20, 20]},
+      {"id": "adaptation_horror", "position": [12, 5]},
+      {"id": "shard_spider", "position": [6, 6]},
+      {"id": "shard_spider", "position": [7, 6]},
+      {"id": "shard_spider", "position": [6, 7]}
+    ],
+    "npcs": [
+      {"id": "mirror_monk_friendly", "position": [15, 10]},
+      {"id": "sand_engineer_friendly", "position": [15, 12]},
+      {"id": "glassborn_friendly", "position": [15, 14]}
+    ]
+  },
+  "tests": [
+    {
+      "name": "Test Debug Commands - Add Adaptation",
+      "type": "debug_command",
+      "command": "add_adaptation sunveins",
+      "expected_log": "Added adaptation: Sunveins"
+    },
+    {
+      "name": "Test Debug Commands - List Adaptations",
+      "type": "debug_command", 
+      "command": "list_adaptations",
+      "expected_log": "Available adaptations:"
+    },
+    {
+      "name": "Test Debug Commands - Add Psychic Ability",
+      "type": "debug_command",
+      "command": "add_psychic quantum_dodge",
+      "expected_log": "Added psychic ability: quantum_dodge"
+    },
+    {
+      "name": "Test Debug Commands - List Psychic Abilities",
+      "type": "debug_command",
+      "command": "list_psychic",
+      "expected_log": "Available psychic abilities:"
+    },
+    {
+      "name": "Test Debug Commands - Set Coherence",
+      "type": "debug_command",
+      "command": "set_coherence 150",
+      "expected_log": "Set coherence to: 150"
+    },
+    {
+      "name": "Test Debug Commands - Spawn Enemy",
+      "type": "debug_command",
+      "command": "spawn_enemy glass_wasp 8 8",
+      "expected_log": "Spawned glass_wasp at (8, 8)"
+    },
+    {
+      "name": "Test Debug Commands - Spawn Swarm",
+      "type": "debug_command",
+      "command": "spawn_swarm shard_spider 3",
+      "expected_log": "Spawned swarm of"
+    },
+    {
+      "name": "Test Spawner Behavior",
+      "type": "wait_turns",
+      "turns": 5,
+      "expected_log": "spawns a"
+    },
+    {
+      "name": "Test Ranged Attack",
+      "type": "move_toward_enemy",
+      "enemy_type": "storm_archer",
+      "stop_distance": 4,
+      "expected_log": "fires a ranged attack"
+    },
+    {
+      "name": "Test AOE Warning",
+      "type": "move_toward_enemy", 
+      "enemy_type": "glass_bomber",
+      "stop_distance": 3,
+      "expected_log": "begins charging an area attack"
+    },
+    {
+      "name": "Test AOE Attack Execution",
+      "type": "wait_turns",
+      "turns": 3,
+      "expected_log": "unleashes an area attack"
+    },
+    {
+      "name": "Test Psychic Attack",
+      "type": "move_toward_enemy",
+      "enemy_type": "psychic_wraith", 
+      "stop_distance": 6,
+      "expected_log": "mind blast"
+    },
+    {
+      "name": "Test Friendly NPC Interaction",
+      "type": "move_to_position",
+      "position": [15, 10],
+      "expected_log": "Mirror Monk"
+    },
+    {
+      "name": "Test Swarm Coordination",
+      "type": "move_toward_enemy",
+      "enemy_type": "shard_spider",
+      "stop_distance": 2,
+      "expected_log": "Shard Spider"
+    },
+    {
+      "name": "Test Adaptation Horror AOE",
+      "type": "move_toward_enemy",
+      "enemy_type": "adaptation_horror",
+      "stop_distance": 4,
+      "expected_log": "preparing a devastating attack"
+    }
+  ],
+  "success_criteria": {
+    "min_passed_tests": 12,
+    "required_logs": [
+      "Added adaptation:",
+      "Added psychic ability:",
+      "Set coherence to:",
+      "Spawned",
+      "spawns a",
+      "fires a ranged attack",
+      "begins charging",
+      "unleashes an area attack"
+    ]
+  }
+}

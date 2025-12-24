@@ -18,12 +18,23 @@ pub struct HistoricalEvent {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FolktaleTemplate {
+    pub title: String,
+    #[serde(flatten)]
+    pub template: NarrativeTemplate,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct NarrativeTemplates {
     pub historical_events: HashMap<String, Vec<HistoricalEvent>>,
     pub location_descriptions: HashMap<String, Vec<NarrativeTemplate>>,
     pub contextual_descriptions: HashMap<String, HashMap<String, NarrativeTemplate>>,
     pub item_lore: HashMap<String, Vec<NarrativeTemplate>>,
     pub environmental_storytelling: HashMap<String, Vec<NarrativeTemplate>>,
+    #[serde(default)]
+    pub rumors: Vec<NarrativeTemplate>,
+    #[serde(default)]
+    pub folktales: Vec<FolktaleTemplate>,
     pub markov_corpus: Vec<String>,
 }
 
@@ -192,6 +203,23 @@ impl NarrativeGenerator {
         let template = env_templates.choose(rng)?;
         Some(self.fill_template(template, rng))
     }
+
+    pub fn generate_rumor(&self, rng: &mut ChaCha8Rng) -> Option<String> {
+        if self.templates.rumors.is_empty() {
+            return None;
+        }
+        let template = self.templates.rumors.choose(rng)?;
+        Some(self.fill_template(template, rng))
+    }
+
+    pub fn generate_folktale(&self, rng: &mut ChaCha8Rng) -> Option<(String, String)> {
+        if self.templates.folktales.is_empty() {
+            return None;
+        }
+        let folktale = self.templates.folktales.choose(rng)?;
+        let content = self.fill_template(&folktale.template, rng);
+        Some((folktale.title.clone(), content))
+    }
     
     pub fn generate_markov_text(&self, rng: &mut ChaCha8Rng, max_words: usize) -> String {
         self.markov_chain.generate(rng, max_words)
@@ -269,6 +297,8 @@ mod tests {
                 contextual_descriptions: HashMap::new(),
                 item_lore: HashMap::new(),
                 environmental_storytelling: HashMap::new(),
+                rumors: Vec::new(),
+                folktales: Vec::new(),
                 markov_corpus: Vec::new(),
             },
             markov_chain: MarkovChain::new(&[]),

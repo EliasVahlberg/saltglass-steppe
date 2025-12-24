@@ -20,14 +20,21 @@
       {"id": "glass_beetle", "weight": 3},
       {"id": "salt_mummy", "weight": 2},
       {"id": "shard_spider", "weight": 2},
-      {"id": "dust_wraith", "weight": 1}
+      {"id": "dust_wraith", "weight": 1},
+      {"id": "shard_nest", "weight": 1},
+      {"id": "storm_archer", "weight": 1},
+      {"id": "glass_bomber", "weight": 1},
+      {"id": "psychic_wraith", "weight": 1}
     ],
     "npcs": [
       {"id": "tutorial_guide", "weight": 3, "room": "first"},
       {"id": "mirror_monk", "room": "late"},
       {"id": "salt_hermit", "weight": 1},
       {"id": "glass_merchant", "weight": 1},
-      {"id": "dying_pilgrim", "weight": 1}
+      {"id": "dying_pilgrim", "weight": 1},
+      {"id": "mirror_monk_friendly", "weight": 2},
+      {"id": "sand_engineer_friendly", "weight": 2},
+      {"id": "glassborn_friendly", "weight": 1}
     ]
   },
   "saltflat": {
