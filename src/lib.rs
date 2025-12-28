@@ -2,6 +2,10 @@ mod game;
 pub mod des;
 pub mod ui;
 pub mod renderer;
+pub mod ipc;
+pub mod cli;
+pub mod satellite;
+pub mod terminal_spawn;
 
 pub use game::*;
 pub use renderer::Renderer;

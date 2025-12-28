@@ -1,0 +1,54 @@
+# Multi-Terminal IPC Test
+# Tests the IPC communication system between main game and satellite terminals
+
+test_name: "Multi-Terminal IPC Communication"
+description: "Test IPC message passing and terminal spawning functionality"
+
+setup:
+  - new_game: "scavenger"
+  - set_player_pos: [10, 10]
+  - set_player_hp: [20, 20]
+
+steps:
+  # Test debug commands for terminal spawning
+  - action: debug_command
+    command: "terminals"
+    expect_log: "Available terminals:"
+  
+  # Test spawn commands (these will fail in test environment but should not crash)
+  - action: debug_command
+    command: "spawn log"
+    # Don't expect success since no terminal emulator in test environment
+  
+  - action: debug_command
+    command: "spawn status"
+  
+  - action: debug_command
+    command: "spawn inventory"
+  
+  # Test help command includes new commands
+  - action: debug_command
+    command: "help"
+    expect_log: "spawn <log|status|inventory> - Spawn satellite terminal"
+    expect_log: "terminals - List available terminal emulators"
+  
+  # Test game state changes that would be sent via IPC
+  - action: move
+    direction: [1, 0]
+    expect_log: "You move east"
+  
+  # Test refraction change (would trigger IPC update)
+  - action: debug_command
+    command: "sturdy"
+    expect_log: "HP set to 9999/9999"
+  
+  # Test adaptation addition (would trigger IPC update)
+  - action: debug_command
+    command: "add_adaptation prismhide"
+    expect_log: "Added adaptation: Prismhide"
+
+expectations:
+  - player_alive: true
+  - player_pos: [11, 10]
+  - has_adaptation: "prismhide"
+  - player_hp: [9999, 9999]

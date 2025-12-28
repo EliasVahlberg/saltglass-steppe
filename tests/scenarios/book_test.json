@@ -4,7 +4,7 @@
   "player": {
     "x": 10,
     "y": 10,
-    "inventory": ["book_soup"]
+    "inventory": ["item_book_white_noon"]
   },
   "entities": [],
   "actions": [
@@ -16,7 +16,7 @@
   "assertions": [
     {
       "at_end": true,
-      "check": { "type": "pending_book_open", "book_id": "book_soup_twice" }
+      "check": { "type": "pending_book_open", "book_id": "book_white_noon" }
     }
   ]
 }

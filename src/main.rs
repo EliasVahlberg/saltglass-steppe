@@ -7,6 +7,8 @@ use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_item_def, GameState, Renderer};
 use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_psychic_menu, render_skills_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, render_book_reader, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
+use tui_rpg::cli::{parse_args, LaunchMode};
+use tui_rpg::satellite::SatelliteApp;
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -322,9 +324,47 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState, renderer: &mut Ren
 }
 
 fn main() -> Result<()> {
+    let launch_mode = parse_args();
+    
+    match launch_mode {
+        LaunchMode::MainGame => run_main_game(),
+        LaunchMode::LogUi => run_satellite_ui("log-ui"),
+        LaunchMode::StatusUi => run_satellite_ui("status-ui"),
+        LaunchMode::InventoryUi => run_satellite_ui("inventory-ui"),
+        LaunchMode::DebugUi => run_satellite_ui("debug-ui"),
+    }
+}
+
+fn run_satellite_ui(ui_type: &str) -> Result<()> {
+    let socket_path = "/tmp/tui-rpg.sock";
+    let mut app = match SatelliteApp::new(socket_path) {
+        Ok(app) => app,
+        Err(e) => {
+            eprintln!("Failed to connect to main game: {}", e);
+            eprintln!("Make sure the main game is running first.");
+            return Err(e);
+        }
+    };
+    
+    match ui_type {
+        "log-ui" => app.run_log_ui(),
+        "status-ui" => app.run_status_ui(),
+        "inventory-ui" => app.run_inventory_ui(),
+        "debug-ui" => app.run_debug_ui(),
+        _ => Err(std::io::Error::new(std::io::ErrorKind::InvalidInput, "Unknown UI type")),
+    }
+}
+
+fn run_main_game() -> Result<()> {
     stdout().execute(EnterAlternateScreen)?;
     enable_raw_mode()?;
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
+
+    // Initialize IPC server
+    use tui_rpg::ipc::{IpcServer, IpcMessage};
+    let socket_path = "/tmp/tui-rpg.sock";
+    let ipc_server = IpcServer::new(socket_path)?;
+    ipc_server.start()?;
 
     // Initialize the new modular renderer
     let mut renderer = match Renderer::new() {
@@ -430,7 +470,39 @@ fn main() -> Result<()> {
                 terminal.draw(|frame| render(frame, &state, &ui, &mut renderer))?;
                 let action = handle_input(&mut ui, &mut state)?;
                 match update(&mut state, action, &mut ui) {
-                    Some(true) => {} // Continue game
+                    Some(true) => {
+                        // Send game state update to satellite terminals
+                        let adaptations: Vec<String> = state.adaptations.iter()
+                            .map(|a| a.name().to_string())
+                            .collect();
+                        
+                        ipc_server.send_message(IpcMessage::GameState {
+                            hp: state.player_hp,
+                            max_hp: state.player_max_hp,
+                            refraction: state.refraction as i32,
+                            turn: state.turn as u32,
+                            storm_countdown: state.storm.turns_until,
+                            adaptations,
+                        });
+                        
+                        // Send debug info update
+                        ipc_server.send_message(IpcMessage::DebugInfo {
+                            player_pos: (state.player_x, state.player_y),
+                            enemies_count: state.enemies.len(),
+                            items_count: state.inventory.len(),
+                            storm_intensity: state.storm.intensity,
+                            seed: state.seed,
+                            god_view: state.debug_god_view,
+                            phase_mode: state.debug_phase,
+                        });
+                        
+                        // Handle incoming commands from debug terminal
+                        while let Some(message) = ipc_server.try_recv_message() {
+                            if let IpcMessage::Command { action } = message {
+                                state.debug_command(&action);
+                            }
+                        }
+                    }
                     Some(false) => break 'main, // Quit
                     None => break, // Return to main menu
                 }
