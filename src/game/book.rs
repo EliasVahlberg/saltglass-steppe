@@ -14,6 +14,8 @@ pub struct BookDef {
     pub id: String,
     pub title: String,
     pub author: String,
+    #[serde(default)]
+    pub tags: Vec<String>,
     pub pages: Vec<BookPage>,
 }
 
@@ -34,4 +36,24 @@ static BOOKS: Lazy<HashMap<String, BookDef>> = Lazy::new(|| {
 
 pub fn get_book_def(id: &str) -> Option<BookDef> {
     BOOKS.get(id).cloned()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_books_have_tags() {
+        // Check a few specific books to ensure tags are loaded correctly
+        let soup_book = get_book_def("book_soup_twice").expect("book_soup_twice not found");
+        assert!(soup_book.tags.contains(&"History".to_string()));
+        assert!(soup_book.tags.contains(&"Engineers".to_string()));
+
+        let wedding_book = get_book_def("book_wedding_refractions").expect("book_wedding_refractions not found");
+        assert!(wedding_book.tags.contains(&"Culture".to_string()));
+        assert!(wedding_book.tags.contains(&"Glassborn".to_string()));
+        
+        // Check that all books have at least one tag (optional, but good practice if that's the goal)
+        // Note: We can't iterate over BOOKS directly as it's private, but we can check known IDs.
+    }
 }

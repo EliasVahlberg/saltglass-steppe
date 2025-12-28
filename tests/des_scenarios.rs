@@ -48,6 +48,14 @@ fn item_pickup_scenario() {
              result.success, result.assertion_results);
 }
 
+#[test]
+fn book_test_scenario() {
+    let result = run_scenario("tests/scenarios/book_test.json")
+        .expect("Failed to run scenario");
+    assert!(result.success, "Book test failed: {:?}", result.assertion_results);
+}
+
+
 
 #[test]
 fn trade_ui_test() {

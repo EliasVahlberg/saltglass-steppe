@@ -1348,8 +1348,49 @@ impl GameState {
             }
             Some("create_sample_des") => {
                 match super::des_testing::save_sample_des_test() {
-                    Ok(_) => self.log("Sample DES test created: tests/sample_test.des"),
-                    Err(e) => self.log(format!("Failed to create sample: {}", e)),
+                    Ok(()) => self.log("Sample DES test created: tests/sample_test.des"),
+                    Err(e) => self.log(format!("Failed to create sample DES test: {}", e)),
+                }
+            }
+            Some("spawn") => {
+                if let Some(ui_type) = parts.get(1) {
+                    match ui_type {
+                        &"log" => {
+                            match crate::terminal_spawn::spawn_terminal_window("log-ui") {
+                                Ok(()) => self.log("Spawned log terminal"),
+                                Err(e) => self.log(format!("Failed to spawn log terminal: {}", e)),
+                            }
+                        }
+                        &"status" => {
+                            match crate::terminal_spawn::spawn_terminal_window("status-ui") {
+                                Ok(()) => self.log("Spawned status terminal"),
+                                Err(e) => self.log(format!("Failed to spawn status terminal: {}", e)),
+                            }
+                        }
+                        &"inventory" => {
+                            match crate::terminal_spawn::spawn_terminal_window("inventory-ui") {
+                                Ok(()) => self.log("Spawned inventory terminal"),
+                                Err(e) => self.log(format!("Failed to spawn inventory terminal: {}", e)),
+                            }
+                        }
+                        &"debug" => {
+                            match crate::terminal_spawn::spawn_terminal_window("debug-ui") {
+                                Ok(()) => self.log("Spawned debug terminal"),
+                                Err(e) => self.log(format!("Failed to spawn debug terminal: {}", e)),
+                            }
+                        }
+                        _ => self.log("Usage: spawn <log|status|inventory|debug>"),
+                    }
+                } else {
+                    self.log("Usage: spawn <log|status|inventory|debug>");
+                }
+            }
+            Some("terminals") => {
+                let available = crate::terminal_spawn::get_available_terminals();
+                if available.is_empty() {
+                    self.log("No supported terminal emulators found");
+                } else {
+                    self.log(format!("Available terminals: {}", available.join(", ")));
                 }
             }
             Some("report_issue") => {
@@ -1571,6 +1612,8 @@ impl GameState {
                 self.log("  run_des <file> - Run DES test");
                 self.log("  list_des - List DES test files");
                 self.log("  create_sample_des - Create sample DES test");
+                self.log("  spawn <log|status|inventory|debug> - Spawn satellite terminal");
+                self.log("  terminals - List available terminal emulators");
                 self.log("  add_adaptation <id> - Add adaptation");
                 self.log("  list_adaptations - List available adaptations");
                 self.log("  add_psychic <id> - Add psychic ability");
