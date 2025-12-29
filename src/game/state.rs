@@ -10,12 +10,14 @@ use std::path::Path;
 use super::{
     action::{action_cost, default_player_ap},
     adaptation::Adaptation,
+    chest::Chest,
     enemy::Enemy,
     equipment::{EquipSlot, Equipment},
     event::GameEvent,
     fov::FieldOfView,
     item::{get_item_def, Item},
     lighting::{compute_lighting, LightMap, LightSource},
+    loot::generate_loot,
     map::{Map, Tile},
     map_features::MapFeatures,
     narrative::{NarrativeGenerator, NarrativeContext},
@@ -157,6 +159,7 @@ pub struct GameState {
     pub map: Map, pub enemies: Vec<Enemy>,
     pub npcs: Vec<Npc>,
     pub items: Vec<Item>,
+    pub chests: Vec<Chest>,
     pub inventory: Vec<String>,
     pub visible: HashSet<usize>, pub revealed: HashSet<usize>,
     #[serde(skip)]
@@ -185,6 +188,8 @@ pub struct GameState {
     pub npc_positions: HashMap<(i32, i32), usize>,
     #[serde(skip)]
     pub item_positions: HashMap<(i32, i32), Vec<usize>>,
+    #[serde(skip)]
+    pub chest_positions: HashMap<(i32, i32), usize>,
     #[serde(skip)]
     pub event_queue: Vec<GameEvent>,
     #[serde(skip)]
@@ -356,17 +361,18 @@ impl GameState {
                 let dy = (ry - py).abs();
                 dx >= safe_distance || dy >= safe_distance
             })
-            .take(max_enemies)
+            .cloned()
             .collect();
             
-        // Shuffle safe rooms to disperse enemy spawns
-        let mut safe_rooms_shuffled = safe_rooms;
-        for i in (1..safe_rooms_shuffled.len()).rev() {
-            let j = rng.gen_range(0..=i);
-            safe_rooms_shuffled.swap(i, j);
-        }
+        // Use spatial distribution to spread out enemy spawns
+        let distributed_positions = super::spatial::distribute_points_grid(
+            &safe_rooms, 
+            max_enemies, 
+            20, // Minimum distance between enemies
+            &mut rng
+        );
             
-        for &(rx, ry) in safe_rooms_shuffled {
+        for (rx, ry) in distributed_positions {
             if let Some(id) = weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
@@ -466,6 +472,32 @@ impl GameState {
             }
         }
 
+        // Spawn chests in some rooms
+        let mut chests = Vec::new();
+        let chest_rooms: Vec<_> = rooms.iter()
+            .skip(2) // Skip first two rooms (player start and adjacent)
+            .take(3) // Limit to 3 chests per tile
+            .collect();
+            
+        for &(rx, ry) in chest_rooms {
+            if rng.gen_ratio(3, 10) { // 30% chance for chest in each room
+                let chest_types = ["wooden_chest", "supply_crate", "glass_cache"];
+                let chest_id = chest_types[rng.gen_range(0..chest_types.len())];
+                
+                // Generate loot for the chest
+                let mut chest = Chest::new(rx, ry, chest_id);
+                if let Some(def) = super::chest::get_chest_def(chest_id) {
+                    if let Some(loot_table) = &def.loot_table {
+                        let loot = generate_loot(loot_table, rx, ry, &mut rng);
+                        for item in loot {
+                            chest.add_item(item);
+                        }
+                    }
+                }
+                chests.push(chest);
+            }
+        }
+
         let ambient = 100u8;
         let light_sources = vec![LightSource { x: px, y: py, radius: 8, intensity: 120 }]; // Reduced from 150 to avoid glare
         let light_map = compute_lighting(&light_sources, ambient);
@@ -483,7 +515,7 @@ impl GameState {
             completed_rituals: Vec::new(),
             equipment: Equipment::default(),
             status_effects: Vec::new(),
-            map, enemies, npcs, items, inventory: Vec::new(),
+            map, enemies, npcs, items, chests, inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
             player_fov: FieldOfView::new(super::constants::FOV_RANGE),
             light_map, ambient_light: ambient,
@@ -496,6 +528,7 @@ impl GameState {
             enemy_positions: HashMap::new(),
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
+            chest_positions: HashMap::new(),
             event_queue: Vec::new(),
             hit_flash_positions: Vec::new(),
             damage_numbers: Vec::new(),
@@ -625,17 +658,18 @@ impl GameState {
                 let dy = (ry - py).abs();
                 dx >= safe_distance || dy >= safe_distance
             })
-            .take(enemy_count)
+            .cloned()
             .collect();
             
-        // Shuffle safe rooms to disperse enemy spawns
-        let mut safe_rooms_shuffled = safe_rooms;
-        for i in (1..safe_rooms_shuffled.len()).rev() {
-            let j = rng.gen_range(0..=i);
-            safe_rooms_shuffled.swap(i, j);
-        }
+        // Use spatial distribution to spread out enemy spawns
+        let distributed_positions = super::spatial::distribute_points_grid(
+            &safe_rooms, 
+            enemy_count, 
+            20, // Minimum distance between enemies
+            &mut rng
+        );
             
-        for &(rx, ry) in safe_rooms_shuffled {
+        for (rx, ry) in distributed_positions {
             if let Some(id) = weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false) {
                 enemies.push(Enemy::new(rx, ry, id));
             }
