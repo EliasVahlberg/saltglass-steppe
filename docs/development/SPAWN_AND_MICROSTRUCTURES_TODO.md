@@ -34,26 +34,24 @@ Based on research into games like Caves of Qud, RimWorld, and other roguelikes:
 
 ### 3. Design Micro-Structure Types
 Saltglass Steppe-appropriate micro-structures:
-- [ ] **Scavenger Camp** - Bedroll, fire pit, supply cache (trader NPC)
-- [ ] **Abandoned Outpost** - Ruined walls, broken equipment (hostile mobs)
-- [ ] **Glass Garden** - Cultivated glass formations (hermit NPC)
-- [ ] **Storm Shelter** - Reinforced hut with supplies (neutral NPC)
-- [ ] **Shrine Remnant** - Broken altar, scripture fragments (monk NPC)
-- [ ] **Archive Cache** - Buried tech, data storage (drone guardian)
-- [ ] **Salt Harvester** - Evaporation pools, tools (worker NPC)
-- [ ] **Refraction Laboratory** - Lens arrays, experiments (researcher NPC)
+- [x] **Scavenger Camp** - Bedroll, fire pit, supply cache (trader NPC)
+- [x] **Abandoned Outpost** - Ruined walls, broken equipment (hostile mobs)
+- [x] **Glass Garden** - Cultivated glass formations (hermit NPC)
+- [x] **Storm Shelter** - Reinforced hut with supplies (neutral NPC)
+- [x] **Shrine Remnant** - Broken altar, scripture fragments (monk NPC)
+- [x] **Salt Harvester** - Evaporation pools, tools (worker NPC)
 
 ### 4. Implement Micro-Structure Generation
-- [ ] **Structure templates** - Define layouts and tile patterns
-- [ ] **Placement algorithm** - Spatial distribution avoiding overlap
-- [ ] **Biome integration** - Structure types appropriate to terrain
-- [ ] **Data-driven config** - JSON templates for easy content expansion
+- [x] **Structure templates** - Define layouts and tile patterns
+- [x] **Placement algorithm** - Spatial distribution avoiding overlap
+- [x] **Biome integration** - Structure types appropriate to terrain
+- [x] **Data-driven config** - JSON templates for easy content expansion
 - [ ] **DES test** - Test structure generation and placement
 - [ ] **Document** - Micro-structure system guide
 
 ### 5. Integrate NPCs with Structures
-- [ ] **NPC-structure associations** - Link NPC types to structure types
-- [ ] **Contextual spawning** - NPCs spawn with appropriate structures
+- [x] **NPC-structure associations** - Link NPC types to structure types
+- [x] **Contextual spawning** - NPCs spawn with appropriate structures
 - [ ] **Behavior patterns** - NPCs interact with their environment
 - [ ] **Dialogue integration** - Structure-specific conversation topics
 - [ ] **DES test** - Test NPC-structure relationships

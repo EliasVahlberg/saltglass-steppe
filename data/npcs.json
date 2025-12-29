@@ -847,6 +847,135 @@
           }
         }
       ]
+    },
+    {
+      "id": "scavenger_trader",
+      "name": "Scavenger Trader",
+      "glyph": "s",
+      "faction": "Unaffiliated",
+      "description": "Weathered trader with a pack full of salvaged goods",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Welcome to my camp, traveler. I've got supplies if you need them.</nextpage>Been scavenging these wastes for years. Know where to find the good stuff.</nextpage>Fair prices, honest deals. That's how you survive out here."
+        }
+      ],
+      "actions": [
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [],
+          "effect": { "trade": true }
+        }
+      ],
+      "shop_inventory": [
+        "brine_vial",
+        "salt_poultice",
+        "hand_torch",
+        "storm_glass"
+      ]
+    },
+    {
+      "id": "glass_hermit",
+      "name": "Glass Hermit",
+      "glyph": "h",
+      "faction": "Unaffiliated",
+      "description": "Solitary figure who tends crystalline formations",
+      "dialogue": [
+        {
+          "conditions": [{ "has_adaptation": "Prismhide" }],
+          "text": "Ah, your skin catches the light beautifully. You understand the glass as I do.</nextpage>I've been cultivating these formations for decades. Each one unique, each one precious.</nextpage>Take this lens—it will help you see the hidden patterns in the storm glass."
+        },
+        {
+          "conditions": [],
+          "text": "Few visitors come to my garden. The glass speaks to those who listen.</nextpage>I tend these formations, help them grow. They're more alive than most realize.</nextpage>The storms bring chaos, but also beauty. One must learn to see both."
+        }
+      ],
+      "actions": [
+        {
+          "id": "glass_wisdom",
+          "name": "Learn Glass Cultivation",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "gives_item": "angle_split_lens" }
+        }
+      ]
+    },
+    {
+      "id": "storm_watcher",
+      "name": "Storm Watcher",
+      "glyph": "w",
+      "faction": "Unaffiliated",
+      "description": "Vigilant guardian who monitors approaching storms",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Another storm approaches from the east. Should hit in three days.</nextpage>I've been watching the patterns for years. The storms follow routes, if you know how to read them.</nextpage>Stay here if you need shelter. This hut has weathered worse."
+        }
+      ],
+      "actions": [
+        {
+          "id": "storm_forecast",
+          "name": "Get Storm Forecast",
+          "conditions": [],
+          "effect": { "reveals_storm_timing": true }
+        },
+        {
+          "id": "rest",
+          "name": "Rest in Shelter",
+          "conditions": [],
+          "effect": { "heal": 2 }
+        }
+      ]
+    },
+    {
+      "id": "wandering_monk",
+      "name": "Wandering Monk",
+      "glyph": "m",
+      "faction": "MirrorMonks",
+      "description": "Traveling monk seeking lost scripture fragments",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "scripture_shard" }],
+          "text": "You carry a scripture shard! These fragments hold the wisdom of the old order.</nextpage>I've been collecting them, trying to piece together the lost teachings.</nextpage>Would you be willing to share what you've learned from it?"
+        },
+        {
+          "conditions": [],
+          "text": "The old shrines lie broken, but their wisdom endures in fragments.</nextpage>I wander the wastes, seeking the scattered pieces of our faith.</nextpage>Each shard tells part of the story. Together, they might reveal the truth."
+        }
+      ],
+      "actions": [
+        {
+          "id": "share_scripture",
+          "name": "Share Scripture Knowledge",
+          "conditions": [{ "has_item": "scripture_shard" }],
+          "effect": { "gains_religious_insight": true }
+        }
+      ]
+    },
+    {
+      "id": "salt_worker",
+      "name": "Salt Worker",
+      "glyph": "w",
+      "faction": "SandEngineers",
+      "description": "Hardy laborer who extracts salt from the flats",
+      "dialogue": [
+        {
+          "conditions": [{ "has_adaptation": "Saltblood" }],
+          "text": "Saltblood! Perfect for this work. The brine won't burn you like it does the others.</nextpage>I could use someone with your... modifications. The deep pools are dangerous for normal folk.</nextpage>Interested in some contract work? Pay's good for hazard duty."
+        },
+        {
+          "conditions": [],
+          "text": "Hard work, salt harvesting. But it pays well, and someone's got to do it.</nextpage>The settlements need salt for preservation, medicine, trade. We keep civilization running.</nextpage>Dangerous work though. The brine pools can blind you if you're not careful."
+        }
+      ],
+      "actions": [
+        {
+          "id": "salt_work",
+          "name": "Accept Salt Harvesting Job",
+          "conditions": [],
+          "effect": { "starts_quest": "salt_harvesting", "pays": 25 }
+        }
+      ]
     }
   ]
 }
