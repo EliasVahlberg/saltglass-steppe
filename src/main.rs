@@ -64,6 +64,11 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 state.end_turn();
             }
         }
+        Action::Wait => {
+            if state.player_hp > 0 {
+                state.wait_turn();
+            }
+        }
         Action::AutoExplore => {
             if state.player_hp > 0 {
                 state.auto_explore();

@@ -165,12 +165,36 @@ pub fn calculate_skill_cost(skill_id: &str, current_level: u32) -> u32 {
 // Data loading
 static SKILLS: Lazy<HashMap<String, SkillDef>> = Lazy::new(|| {
     let data = include_str!("../../data/skills.json");
-    serde_json::from_str(data).unwrap_or_default()
+    match serde_json::from_str::<Vec<SkillDef>>(data) {
+        Ok(skills_vec) => {
+            let mut skills_map = HashMap::new();
+            for skill in skills_vec {
+                skills_map.insert(skill.id.clone(), skill);
+            }
+            skills_map
+        },
+        Err(e) => {
+            eprintln!("Failed to parse skills.json: {}", e);
+            HashMap::new()
+        }
+    }
 });
 
 static ABILITIES: Lazy<HashMap<String, AbilityDef>> = Lazy::new(|| {
     let data = include_str!("../../data/abilities.json");
-    serde_json::from_str(data).unwrap_or_default()
+    match serde_json::from_str::<Vec<AbilityDef>>(data) {
+        Ok(abilities_vec) => {
+            let mut abilities_map = HashMap::new();
+            for ability in abilities_vec {
+                abilities_map.insert(ability.id.clone(), ability);
+            }
+            abilities_map
+        },
+        Err(e) => {
+            eprintln!("Failed to parse abilities.json: {}", e);
+            HashMap::new()
+        }
+    }
 });
 
 pub fn get_skill_def(id: &str) -> Option<&SkillDef> {
