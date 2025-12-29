@@ -1177,7 +1177,7 @@ impl GameState {
             self.wait_counter += 1;
             // Auto-rest after 10 consecutive waits
             if self.wait_counter >= 10 && self.player_hp < self.player_max_hp {
-                let heal = (self.player_max_hp / 10).max(1);
+                let heal = (self.player_max_hp / 20).max(1); // 5% instead of 10%
                 self.player_hp = (self.player_hp + heal).min(self.player_max_hp);
                 self.log_typed(format!("You rest and recover {} HP.", heal), MsgType::Status);
                 self.wait_counter = 0;
