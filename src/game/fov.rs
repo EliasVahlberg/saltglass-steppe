@@ -1,8 +1,8 @@
 use crate::game::map::{Map, Tile};
 use std::collections::HashSet;
 
-/// Field of View calculation using shadow casting algorithm
-/// Based on Ruggrogue's implementation with diamond-shaped walls
+/// Field of View calculation using simple line-of-sight algorithm
+/// Temporary replacement for broken shadow casting implementation
 #[derive(Debug, Clone)]
 pub struct FieldOfView {
     pub visible_tiles: HashSet<(i32, i32)>,
@@ -43,148 +43,70 @@ impl FieldOfView {
         // Always see the starting position
         self.visible_tiles.insert(start_pos);
 
-        // Calculate FOV for all 8 octants
-        for octant in 0..8 {
-            self.calculate_octant(map, start_pos, octant);
+        // Simple circular FOV with line-of-sight checks
+        for dy in -self.range..=self.range {
+            for dx in -self.range..=self.range {
+                let x = start_pos.0 + dx;
+                let y = start_pos.1 + dy;
+                
+                // Check if within range (circular)
+                let distance_sq = dx * dx + dy * dy;
+                if distance_sq > self.range * self.range {
+                    continue;
+                }
+                
+                // Check if position is valid
+                if !map.is_valid_position(x, y) {
+                    continue;
+                }
+                
+                // Simple line-of-sight check
+                if self.has_line_of_sight(map, start_pos, (x, y)) {
+                    self.visible_tiles.insert((x, y));
+                }
+            }
         }
 
         self.dirty = false;
     }
-
-    fn calculate_octant(&mut self, map: &Map, start: (i32, i32), octant: usize) {
-        let mut sights_even = Vec::new();
-        let mut sights_odd = vec![Sight::new(Slope::new(0, 1), Slope::new(1, 1))];
-
-        for column in 1..=self.range {
-            let (current_sights, next_sights) = if column % 2 == 0 {
-                (&mut sights_odd, &mut sights_even)
-            } else {
-                (&mut sights_even, &mut sights_odd)
-            };
-
-            next_sights.clear();
-
-            for sight in current_sights.iter() {
-                self.process_sight(map, start, octant, column, sight, next_sights);
+    
+    // Simple line-of-sight using Bresenham's line algorithm
+    fn has_line_of_sight(&self, map: &Map, start: (i32, i32), end: (i32, i32)) -> bool {
+        let mut x0 = start.0;
+        let mut y0 = start.1;
+        let x1 = end.0;
+        let y1 = end.1;
+        
+        let dx = (x1 - x0).abs();
+        let dy = (y1 - y0).abs();
+        let sx = if x0 < x1 { 1 } else { -1 };
+        let sy = if y0 < y1 { 1 } else { -1 };
+        let mut err = dx - dy;
+        
+        loop {
+            // Check if current position blocks vision (but allow seeing the blocking tile itself)
+            if (x0, y0) != end {
+                let tile = map.get_tile(x0, y0);
+                if matches!(tile, Tile::Wall { .. }) {
+                    return false;
+                }
             }
-        }
-    }
-
-    fn process_sight(
-        &mut self,
-        map: &Map,
-        start: (i32, i32),
-        octant: usize,
-        column: i32,
-        sight: &Sight,
-        next_sights: &mut Vec<Sight>,
-    ) {
-        let (low_y, high_y) = self.calculate_y_range(column, sight);
-        let mut working_slope: Option<Slope> = None;
-
-        for y in low_y..=high_y {
-            let (real_x, real_y) = self.octant_to_real(start, octant, column, y);
             
-            // Check if tile is in bounds and within range
-            if !map.is_valid_position(real_x, real_y) {
-                continue;
+            if x0 == x1 && y0 == y1 {
+                break;
             }
-
-            let distance_sq = (real_x - start.0).pow(2) + (real_y - start.1).pow(2);
-            if distance_sq > (self.range * self.range) {
-                continue;
-            }
-
-            let low_mid_slope = Slope::new(2 * y - 1, 2 * column);
-            let is_wall = matches!(map.get_tile(real_x, real_y), Tile::Wall { .. });
-
-            // Handle sight transitions
-            if is_wall && working_slope.is_some() {
-                // End of floor run - add sight
-                next_sights.push(Sight::new(working_slope.unwrap(), low_mid_slope));
-                working_slope = None;
-            } else if !is_wall && working_slope.is_none() {
-                // Start of floor run
-                working_slope = Some(low_mid_slope.max(sight.low));
-            }
-
-            // Mark tile as visible
-            let tile_center_slope = Slope::new(2 * y, 2 * column);
-            let is_symmetric = sight.low <= tile_center_slope && tile_center_slope <= sight.high;
             
-            if is_symmetric || is_wall {
-                self.visible_tiles.insert((real_x, real_y));
+            let e2 = 2 * err;
+            if e2 > -dy {
+                err -= dy;
+                x0 += sx;
+            }
+            if e2 < dx {
+                err += dx;
+                y0 += sy;
             }
         }
-
-        // Handle final sight if we ended on floors
-        if let Some(slope) = working_slope {
-            next_sights.push(Sight::new(slope, sight.high));
-        }
-    }
-
-    fn calculate_y_range(&self, column: i32, sight: &Sight) -> (i32, i32) {
-        let low_y = (2 * column * sight.low.rise / sight.low.run + 1) / 2;
-        let high_y = (2 * column * sight.high.rise / sight.high.run + 1) / 2;
-        (low_y, high_y)
-    }
-
-    fn octant_to_real(&self, start: (i32, i32), octant: usize, x: i32, y: i32) -> (i32, i32) {
-        let (rx_from_x, rx_from_y, ry_from_x, ry_from_y) = match octant {
-            0 => (1, 0, 0, 1),
-            1 => (0, 1, 1, 0),
-            2 => (0, -1, 1, 0),
-            3 => (-1, 0, 0, 1),
-            4 => (-1, 0, 0, -1),
-            5 => (0, -1, -1, 0),
-            6 => (0, 1, -1, 0),
-            7 => (1, 0, 0, -1),
-            _ => panic!("Invalid octant: {}", octant),
-        };
-
-        (
-            start.0 + x * rx_from_x + y * rx_from_y,
-            start.1 + x * ry_from_x + y * ry_from_y,
-        )
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-struct Sight {
-    low: Slope,
-    high: Slope,
-}
-
-impl Sight {
-    fn new(low: Slope, high: Slope) -> Self {
-        Self { low, high }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-struct Slope {
-    rise: i32,
-    run: i32,
-}
-
-impl Slope {
-    fn new(rise: i32, run: i32) -> Self {
-        Self { rise, run }
-    }
-
-    fn max(self, other: Self) -> Self {
-        if self <= other { other } else { self }
-    }
-}
-
-impl PartialOrd for Slope {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Slope {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        (self.rise * other.run).cmp(&(other.rise * self.run))
+        
+        true
     }
 }
