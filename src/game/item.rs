@@ -164,7 +164,7 @@ pub fn all_item_ids() -> Vec<&'static str> {
     ITEM_DEFS.keys().map(|s| s.as_str()).collect()
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Item {
     pub x: i32,
     pub y: i32,

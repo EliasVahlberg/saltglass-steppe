@@ -1,0 +1,14 @@
+{
+  "name": "spawn_distribution_test",
+  "seed": 42,
+  "world_x": 5,
+  "world_y": 5,
+  "player": {"x": 10, "y": 10, "hp": 50, "max_hp": 50},
+  "actions": [
+    {"turn": 0, "action": {"type": "wait"}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "enemy_count_min", "count": 2}},
+    {"at_end": true, "check": {"type": "player_alive"}}
+  ]
+}
