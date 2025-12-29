@@ -15,22 +15,36 @@ Based on research into games like Caves of Qud, RimWorld, and other roguelikes:
 - **Loot tables** should be data-driven and contextual to structure type
 - **NPCs** should have logical associations with their structures
 
+## Implementation Status
+
+**COMPLETED MAJOR SYSTEMS:**
+1. ✅ **Spatial Spawn Distribution** - Fixed enemy clustering with 20-tile minimum separation
+2. ✅ **Comprehensive Chest System** - 5 chest types with data-driven loot tables
+3. ✅ **Micro-Structures System** - 6 structure types with biome-specific placement
+4. ✅ **NPC Integration** - 5 new NPCs with structure-specific roles
+5. ✅ **Documentation** - Complete technical documentation for both systems
+
+**REMAINING TASKS:**
+- Chest UI system for player interaction
+- Advanced NPC behavior patterns
+- Structure-specific dialogue integration
+
 ## Tasks
 
 ### 1. Fix Mob/NPC Spawn Distribution
 - [x] **Analyze current spawn system** - Identified clustering due to old room-based logic
 - [x] **Implement spatial distribution** - Created Poisson disk sampling and grid-based distribution
 - [x] **Add spawn constraints** - Minimum distance between hostile mobs (20 tiles)
-- [ ] **DES test** - Create test scenario for spawn distribution
-- [ ] **Document** - Update spawn system documentation
+- [x] **DES test** - Create test scenario for spawn distribution
+- [x] **Document** - Update spawn system documentation
 
 ### 2. Implement Chest System
 - [x] **Create Chest entity** - Basic chest with inventory storage
 - [ ] **Chest UI system** - Transfer interface between player and chest inventory
 - [x] **Chest types** - Multiple chest variants (wooden, metal, glass, etc.)
 - [x] **Loot table system** - Data-driven loot generation
-- [ ] **DES test** - Test chest interaction and loot generation
-- [ ] **Document** - Chest system implementation guide
+- [x] **DES test** - Test chest interaction and loot generation
+- [x] **Document** - Chest system implementation guide
 
 ### 3. Design Micro-Structure Types
 Saltglass Steppe-appropriate micro-structures:
@@ -46,16 +60,16 @@ Saltglass Steppe-appropriate micro-structures:
 - [x] **Placement algorithm** - Spatial distribution avoiding overlap
 - [x] **Biome integration** - Structure types appropriate to terrain
 - [x] **Data-driven config** - JSON templates for easy content expansion
-- [ ] **DES test** - Test structure generation and placement
-- [ ] **Document** - Micro-structure system guide
+- [x] **DES test** - Test structure generation and placement
+- [x] **Document** - Micro-structure system guide
 
 ### 5. Integrate NPCs with Structures
 - [x] **NPC-structure associations** - Link NPC types to structure types
 - [x] **Contextual spawning** - NPCs spawn with appropriate structures
 - [ ] **Behavior patterns** - NPCs interact with their environment
 - [ ] **Dialogue integration** - Structure-specific conversation topics
-- [ ] **DES test** - Test NPC-structure relationships
-- [ ] **Document** - NPC integration guide
+- [x] **DES test** - Test NPC-structure relationships
+- [x] **Document** - NPC integration guide
 
 ### 6. Loot Table System
 - [ ] **Loot table format** - JSON schema for item generation
