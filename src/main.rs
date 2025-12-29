@@ -6,7 +6,7 @@ use crossterm::{
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
 use tui_rpg::{get_item_def, GameState, Renderer};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_psychic_menu, render_skills_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, render_book_reader, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
+use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_psychic_menu, render_skills_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, render_book_reader, render_chest_ui, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
 use tui_rpg::cli::{parse_args, LaunchMode};
 use tui_rpg::satellite::SatelliteApp;
 
@@ -178,6 +178,29 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenCrafting => {
             ui.crafting_menu.open();
         }
+        Action::OpenChest(_) => {
+            // Check if player is standing on a chest
+            if let Some(&chest_idx) = state.chest_positions.get(&(state.player_x, state.player_y)) {
+                if state.open_chest(chest_idx) {
+                    ui.chest_ui = Some(tui_rpg::ui::ChestUI::new(chest_idx));
+                }
+            } else {
+                state.log("No chest here.");
+            }
+        }
+        Action::ChestTransfer => {
+            if let Some(ref chest_ui) = ui.chest_ui {
+                let chest_index = chest_ui.chest_index;
+                if let Some(chest_item_idx) = chest_ui.get_selected_chest_item() {
+                    state.transfer_from_chest(chest_index, chest_item_idx);
+                } else if let Some(inv_item_idx) = chest_ui.get_selected_inventory_item() {
+                    state.transfer_to_chest(chest_index, inv_item_idx);
+                }
+            }
+        }
+        Action::CloseChest => {
+            ui.chest_ui = None;
+        }
         Action::OpenWiki => {
             ui.wiki_menu.open();
         }
@@ -214,7 +237,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
     Some(true)
 }
 
-fn render(frame: &mut Frame, state: &GameState, ui: &UiState, renderer: &mut Renderer) {
+fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut Renderer) {
     // Fullscreen menus
     if ui.trade_menu.active {
         use tui_rpg::ui::render_trade_menu;
@@ -223,6 +246,12 @@ fn render(frame: &mut Frame, state: &GameState, ui: &UiState, renderer: &mut Ren
     }
     if ui.inventory_menu.active {
         render_inventory_menu(frame, &ui.inventory_menu, &state.inventory, &state.equipment);
+        return;
+    }
+    if let Some(ref mut chest_ui) = ui.chest_ui {
+        if chest_ui.chest_index < state.chests.len() {
+            render_chest_ui(frame, frame.area(), &state.chests[chest_ui.chest_index], &state.inventory, chest_ui);
+        }
         return;
     }
     if ui.quest_log.active {
@@ -475,7 +504,7 @@ fn run_main_game() -> Result<()> {
                     }
                 }
             } else {
-                terminal.draw(|frame| render(frame, &state, &ui, &mut renderer))?;
+                terminal.draw(|frame| render(frame, &state, &mut ui, &mut renderer))?;
                 let action = handle_input(&mut ui, &mut state)?;
                 match update(&mut state, action, &mut ui) {
                     Some(true) => {

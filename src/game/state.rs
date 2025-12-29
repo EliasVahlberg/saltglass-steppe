@@ -647,6 +647,10 @@ impl GameState {
         for (i, item) in self.items.iter().enumerate() {
             self.item_positions.entry((item.x, item.y)).or_default().push(i);
         }
+        self.chest_positions.clear();
+        for (i, chest) in self.chests.iter().enumerate() {
+            self.chest_positions.insert((chest.x, chest.y), i);
+        }
     }
 
     /// Travel to a new world tile (lazy generation)
@@ -2478,10 +2482,89 @@ impl GameState {
         for i in picked_up {
             self.items.remove(i);
         }
-        // Rebuild item positions since indices shifted
-        self.item_positions.clear();
-        for (i, item) in self.items.iter().enumerate() {
-            self.item_positions.entry((item.x, item.y)).or_default().push(i);
+    }
+
+    pub fn can_open_chest(&self, chest_index: usize) -> bool {
+        if chest_index >= self.chests.len() {
+            return false;
+        }
+        
+        let chest = &self.chests[chest_index];
+        let player_pos = (self.player_x, self.player_y);
+        let chest_pos = (chest.x, chest.y);
+        
+        // Check if player is adjacent to chest
+        let dx = (player_pos.0 - chest_pos.0).abs();
+        let dy = (player_pos.1 - chest_pos.1).abs();
+        dx <= 1 && dy <= 1 && (dx + dy) > 0 // Adjacent but not same position
+    }
+
+    pub fn open_chest(&mut self, chest_index: usize) -> bool {
+        if !self.can_open_chest(chest_index) {
+            return false;
+        }
+        
+        // Check if chest is locked and handle unlocking
+        let chest_id = self.chests[chest_index].id.clone();
+        let is_locked = self.chests[chest_index].is_locked();
+        
+        if is_locked {
+            if let Some(def) = super::chest::get_chest_def(&chest_id) {
+                if let Some(key_id) = &def.key_required {
+                    if self.inventory.contains(key_id) {
+                        self.chests[chest_index].unlock();
+                        self.log(format!("Unlocked {} with {}.", def.name, key_id));
+                    } else {
+                        self.log(format!("{} is locked. You need a {}.", def.name, key_id));
+                        return false;
+                    }
+                }
+            }
+        }
+        
+        self.chests[chest_index].opened = true;
+        let def = super::chest::get_chest_def(&chest_id);
+        let name = def.map(|d| d.name.as_str()).unwrap_or("chest");
+        self.log(format!("Opened {}.", name));
+        true
+    }
+
+    pub fn transfer_to_chest(&mut self, chest_index: usize, inventory_index: usize) -> bool {
+        if chest_index >= self.chests.len() || inventory_index >= self.inventory.len() {
+            return false;
+        }
+        
+        let chest = &mut self.chests[chest_index];
+        if !chest.can_add_item() {
+            self.log("Chest is full.");
+            return false;
+        }
+        
+        let item_id = self.inventory.remove(inventory_index);
+        let item = Item::new(chest.x, chest.y, &item_id);
+        chest.add_item(item);
+        
+        let item_def = super::item::get_item_def(&item_id);
+        let name = item_def.map(|d| d.name.as_str()).unwrap_or(&item_id);
+        self.log(format!("Stored {} in chest.", name));
+        true
+    }
+
+    pub fn transfer_from_chest(&mut self, chest_index: usize, chest_item_index: usize) -> bool {
+        if chest_index >= self.chests.len() {
+            return false;
+        }
+        
+        let chest = &mut self.chests[chest_index];
+        if let Some(item) = chest.remove_item(chest_item_index) {
+            self.inventory.push(item.id.clone());
+            
+            let item_def = super::item::get_item_def(&item.id);
+            let name = item_def.map(|d| d.name.as_str()).unwrap_or(&item.id);
+            self.log(format!("Took {} from chest.", name));
+            true
+        } else {
+            false
         }
     }
 
