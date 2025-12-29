@@ -389,7 +389,29 @@ impl GameState {
             if let Some(idx) = room_idx {
                 if idx < rooms.len() {
                     let (rx, ry) = rooms[idx];
-                    npcs.push(Npc::new(rx, ry, &spawn.id));
+                    // If spawning in first room (where player is), find adjacent position
+                    let (npc_x, npc_y) = if idx == 0 {
+                        // Try adjacent positions around the room center
+                        let offsets = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)];
+                        let mut spawn_pos = (rx, ry);
+                        for &(dx, dy) in &offsets {
+                            let test_x = rx + dx;
+                            let test_y = ry + dy;
+                            if test_x >= 0 && test_y >= 0 && 
+                               test_x < map.width as i32 && test_y < map.height as i32 {
+                                let test_idx = map.idx(test_x, test_y);
+                                if map.tiles[test_idx].walkable() && 
+                                   (test_x != px || test_y != py) { // Don't spawn on player
+                                    spawn_pos = (test_x, test_y);
+                                    break;
+                                }
+                            }
+                        }
+                        spawn_pos
+                    } else {
+                        (rx, ry)
+                    };
+                    npcs.push(Npc::new(npc_x, npc_y, &spawn.id));
                 }
             }
         }
@@ -1152,8 +1174,8 @@ impl GameState {
             self.wait_counter = 0;
         } else {
             self.wait_counter += 1;
-            // Auto-rest after 5 consecutive waits
-            if self.wait_counter >= 5 && self.player_hp < self.player_max_hp {
+            // Auto-rest after 10 consecutive waits
+            if self.wait_counter >= 10 && self.player_hp < self.player_max_hp {
                 let heal = (self.player_max_hp / 10).max(1);
                 self.player_hp = (self.player_hp + heal).min(self.player_max_hp);
                 self.log_typed(format!("You rest and recover {} HP.", heal), MsgType::Status);
@@ -1373,16 +1395,22 @@ impl GameState {
                                 Err(e) => self.log(format!("Failed to spawn inventory terminal: {}", e)),
                             }
                         }
+                        &"gamelog" => {
+                            match crate::terminal_spawn::spawn_terminal_window("game-log-ui") {
+                                Ok(()) => self.log("Spawned game log terminal"),
+                                Err(e) => self.log(format!("Failed to spawn game log terminal: {}", e)),
+                            }
+                        }
                         &"debug" => {
                             match crate::terminal_spawn::spawn_terminal_window("debug-ui") {
                                 Ok(()) => self.log("Spawned debug terminal"),
                                 Err(e) => self.log(format!("Failed to spawn debug terminal: {}", e)),
                             }
                         }
-                        _ => self.log("Usage: spawn <log|status|inventory|debug>"),
+                        _ => self.log("Usage: spawn <log|gamelog|status|inventory|debug>"),
                     }
                 } else {
-                    self.log("Usage: spawn <log|status|inventory|debug>");
+                    self.log("Usage: spawn <log|gamelog|status|inventory|debug>");
                 }
             }
             Some("terminals") => {
@@ -1612,7 +1640,7 @@ impl GameState {
                 self.log("  run_des <file> - Run DES test");
                 self.log("  list_des - List DES test files");
                 self.log("  create_sample_des - Create sample DES test");
-                self.log("  spawn <log|status|inventory|debug> - Spawn satellite terminal");
+                self.log("  spawn <log|gamelog|status|inventory|debug> - Spawn satellite terminal");
                 self.log("  terminals - List available terminal emulators");
                 self.log("  add_adaptation <id> - Add adaptation");
                 self.log("  list_adaptations - List available adaptations");

@@ -4,6 +4,7 @@ use clap::{Arg, Command};
 pub enum LaunchMode {
     MainGame,
     LogUi,
+    GameLogUi,
     StatusUi,
     InventoryUi,
     DebugUi,
@@ -32,6 +33,12 @@ pub fn parse_args() -> LaunchMode {
                 .action(clap::ArgAction::SetTrue),
         )
         .arg(
+            Arg::new("game-log-ui")
+                .long("game-log-ui")
+                .help("Launch as game log viewer terminal (in-game messages only)")
+                .action(clap::ArgAction::SetTrue),
+        )
+        .arg(
             Arg::new("debug-ui")
                 .long("debug-ui")
                 .help("Launch as debug console terminal")
@@ -41,6 +48,8 @@ pub fn parse_args() -> LaunchMode {
 
     if matches.get_flag("log-ui") {
         LaunchMode::LogUi
+    } else if matches.get_flag("game-log-ui") {
+        LaunchMode::GameLogUi
     } else if matches.get_flag("status-ui") {
         LaunchMode::StatusUi
     } else if matches.get_flag("inventory-ui") {

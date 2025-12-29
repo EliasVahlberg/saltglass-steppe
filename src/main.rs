@@ -329,6 +329,7 @@ fn main() -> Result<()> {
     match launch_mode {
         LaunchMode::MainGame => run_main_game(),
         LaunchMode::LogUi => run_satellite_ui("log-ui"),
+        LaunchMode::GameLogUi => run_satellite_ui("game-log-ui"),
         LaunchMode::StatusUi => run_satellite_ui("status-ui"),
         LaunchMode::InventoryUi => run_satellite_ui("inventory-ui"),
         LaunchMode::DebugUi => run_satellite_ui("debug-ui"),
@@ -348,6 +349,7 @@ fn run_satellite_ui(ui_type: &str) -> Result<()> {
     
     match ui_type {
         "log-ui" => app.run_log_ui(),
+        "game-log-ui" => app.run_game_log_ui(),
         "status-ui" => app.run_status_ui(),
         "inventory-ui" => app.run_inventory_ui(),
         "debug-ui" => app.run_debug_ui(),
@@ -365,6 +367,7 @@ fn run_main_game() -> Result<()> {
     let socket_path = "/tmp/tui-rpg.sock";
     let ipc_server = IpcServer::new(socket_path)?;
     ipc_server.start()?;
+    let mut last_message_count = 0;
 
     // Initialize the new modular renderer
     let mut renderer = match Renderer::new() {
@@ -484,6 +487,43 @@ fn run_main_game() -> Result<()> {
                             storm_countdown: state.storm.turns_until,
                             adaptations,
                         });
+                        
+                        // Send inventory update
+                        let equipped_items: Vec<String> = [
+                            ("Weapon", &state.equipment.weapon),
+                            ("Ranged", &state.equipment.ranged_weapon),
+                            ("Head", &state.equipment.head),
+                            ("Jacket", &state.equipment.jacket),
+                            ("Pants", &state.equipment.pants),
+                            ("Boots", &state.equipment.boots),
+                            ("Gloves", &state.equipment.gloves),
+                            ("L.Wrist", &state.equipment.left_wrist),
+                            ("R.Wrist", &state.equipment.right_wrist),
+                            ("Necklace", &state.equipment.necklace),
+                            ("Accessory", &state.equipment.accessory),
+                            ("Backpack", &state.equipment.backpack),
+                        ]
+                        .iter()
+                        .filter_map(|(slot, item)| {
+                            item.as_ref().map(|i| format!("{}: {}", slot, i))
+                        })
+                        .collect();
+                        
+                        ipc_server.send_message(IpcMessage::InventoryUpdate {
+                            items: state.inventory.clone(),
+                            equipped: equipped_items,
+                        });
+                        
+                        // Send new log messages only
+                        if state.messages.len() > last_message_count {
+                            for message in &state.messages[last_message_count..] {
+                                ipc_server.send_message(IpcMessage::LogEntry {
+                                    message: message.text.clone(),
+                                    timestamp: message.turn as u64,
+                                });
+                            }
+                            last_message_count = state.messages.len();
+                        }
                         
                         // Send debug info update
                         ipc_server.send_message(IpcMessage::DebugInfo {

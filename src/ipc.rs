@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::io::{BufRead, BufReader, Write};
 use std::os::unix::net::{UnixListener, UnixStream};
 use std::path::Path;
-use std::sync::mpsc;
+use std::sync::{mpsc, Arc, Mutex};
 use std::thread;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,6 +21,7 @@ pub enum IpcMessage {
     },
     InventoryUpdate {
         items: Vec<String>,
+        equipped: Vec<String>,
     },
     DebugInfo {
         player_pos: (i32, i32),
@@ -38,7 +39,7 @@ pub enum IpcMessage {
 
 pub struct IpcServer {
     socket_path: String,
-    sender: mpsc::Sender<IpcMessage>,
+    clients: Arc<Mutex<Vec<UnixStream>>>,
     receiver: mpsc::Receiver<IpcMessage>,
 }
 
@@ -51,36 +52,45 @@ impl IpcServer {
             std::fs::remove_file(socket_path)?;
         }
         
+        let clients = Arc::new(Mutex::new(Vec::new()));
+        let clients_clone = clients.clone();
+        let socket_path_clone = socket_path.to_string();
+        
+        // Start server thread
+        thread::spawn(move || {
+            if let Ok(listener) = UnixListener::bind(&socket_path_clone) {
+                for stream in listener.incoming() {
+                    if let Ok(stream) = stream {
+                        if let Ok(mut clients) = clients_clone.lock() {
+                            clients.push(stream);
+                        }
+                    }
+                }
+            }
+        });
+        
         Ok(Self {
             socket_path: socket_path.to_string(),
-            sender,
+            clients,
             receiver,
         })
     }
     
     pub fn start(&self) -> std::io::Result<()> {
-        let listener = UnixListener::bind(&self.socket_path)?;
-        let sender = self.sender.clone();
-        
-        thread::spawn(move || {
-            for stream in listener.incoming() {
-                match stream {
-                    Ok(stream) => {
-                        let sender = sender.clone();
-                        thread::spawn(move || {
-                            handle_client(stream, sender);
-                        });
-                    }
-                    Err(err) => eprintln!("Connection failed: {}", err),
-                }
-            }
-        });
-        
+        // Server is already started in new()
         Ok(())
     }
     
     pub fn send_message(&self, message: IpcMessage) {
-        let _ = self.sender.send(message);
+        if let Ok(mut clients) = self.clients.lock() {
+            let json = serde_json::to_string(&message).unwrap_or_default();
+            let data = format!("{}\n", json);
+            
+            // Send to all clients, remove disconnected ones
+            clients.retain_mut(|client| {
+                client.write_all(data.as_bytes()).is_ok() && client.flush().is_ok()
+            });
+        }
     }
     
     pub fn try_recv_message(&self) -> Option<IpcMessage> {
@@ -118,16 +128,26 @@ impl IpcClient {
     }
     
     pub fn read_messages(&mut self) -> std::io::Result<Vec<IpcMessage>> {
-        let mut reader = BufReader::new(&self.stream);
+        use std::io::Read;
+        let mut buffer = [0; 4096];
         let mut messages = Vec::new();
-        let mut line = String::new();
         
-        while reader.read_line(&mut line)? > 0 {
-            if let Ok(message) = serde_json::from_str::<IpcMessage>(&line.trim()) {
-                messages.push(message);
+        // Non-blocking read
+        self.stream.set_nonblocking(true)?;
+        match self.stream.read(&mut buffer) {
+            Ok(0) => {}, // No data available
+            Ok(n) => {
+                let data = String::from_utf8_lossy(&buffer[..n]);
+                for line in data.lines() {
+                    if let Ok(message) = serde_json::from_str::<IpcMessage>(line.trim()) {
+                        messages.push(message);
+                    }
+                }
             }
-            line.clear();
+            Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {}, // No data available
+            Err(e) => return Err(e),
         }
+        self.stream.set_nonblocking(false)?;
         
         Ok(messages)
     }

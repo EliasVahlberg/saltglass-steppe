@@ -1,0 +1,36 @@
+test_name: "Bug Fixes Test"
+description: "Test HP regeneration, NPC spawning, and entity visibility"
+steps:
+  # Test 1: HP regeneration after 10 turns of waiting
+  - action: debug_command
+    command: "sturdy"
+    expect_log: "God mode enabled"
+  
+  - action: set_hp
+    hp: 10
+    max_hp: 20
+    
+  # Wait 9 turns - should not heal yet
+  - action: wait
+    turns: 9
+    
+  - action: check_hp
+    expected_hp: 10
+    
+  # Wait 1 more turn (total 10) - should heal now
+  - action: wait
+    turns: 1
+    expect_log: "You rest and recover"
+    
+  - action: check_hp
+    expected_min_hp: 11
+    
+  # Test 2: Check that skills menu opens
+  - action: key_press
+    key: "s"
+    expect_ui: "skills_menu_active"
+    
+  # Test 3: Check that enemies and items are visible with god view
+  - action: debug_command
+    command: "show tile"
+    expect_log: "God view enabled"
