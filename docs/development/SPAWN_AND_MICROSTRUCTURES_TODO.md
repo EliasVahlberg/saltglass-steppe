@@ -20,14 +20,14 @@ Based on research into games like Caves of Qud, RimWorld, and other roguelikes:
 **COMPLETED MAJOR SYSTEMS:**
 1. ✅ **Spatial Spawn Distribution** - Fixed enemy clustering with 20-tile minimum separation
 2. ✅ **Comprehensive Chest System** - 5 chest types with data-driven loot tables
-3. ✅ **Micro-Structures System** - 6 structure types with biome-specific placement
-4. ✅ **NPC Integration** - 5 new NPCs with structure-specific roles
-5. ✅ **Documentation** - Complete technical documentation for both systems
+3. ✅ **Chest UI System** - Dual-panel interface with keyboard navigation and item transfer
+4. ✅ **Micro-Structures System** - 6 structure types with biome-specific placement
+5. ✅ **NPC Integration** - 5 new NPCs with structure-specific roles
+6. ✅ **Documentation** - Complete technical documentation for all systems
 
 **REMAINING TASKS:**
-- Chest UI system for player interaction
-- Advanced NPC behavior patterns
-- Structure-specific dialogue integration
+- Advanced NPC behavior patterns (future enhancement)
+- Structure-specific dialogue integration (content expansion)
 
 ## Tasks
 
@@ -40,7 +40,7 @@ Based on research into games like Caves of Qud, RimWorld, and other roguelikes:
 
 ### 2. Implement Chest System
 - [x] **Create Chest entity** - Basic chest with inventory storage
-- [ ] **Chest UI system** - Transfer interface between player and chest inventory
+- [x] **Chest UI system** - Transfer interface between player and chest inventory
 - [x] **Chest types** - Multiple chest variants (wooden, metal, glass, etc.)
 - [x] **Loot table system** - Data-driven loot generation
 - [x] **DES test** - Test chest interaction and loot generation
