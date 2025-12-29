@@ -20,6 +20,7 @@ use super::{
     loot::generate_loot,
     map::{Map, Tile},
     map_features::MapFeatures,
+    microstructures::{place_microstructures, PlacedMicroStructure},
     narrative::{NarrativeGenerator, NarrativeContext},
     npc::Npc,
     quest::QuestLog,
@@ -273,6 +274,9 @@ pub struct GameState {
     /// Physical skills and abilities system
     #[serde(default)]
     pub skills: super::skills::SkillsState,
+    /// Placed micro-structures on the current tile
+    #[serde(default)]
+    pub microstructures: Vec<PlacedMicroStructure>,
 }
 
 /// Floating damage number for visual feedback
@@ -498,6 +502,23 @@ impl GameState {
             }
         }
 
+        // Place micro-structures
+        let biome_str = match biome {
+            super::world_map::Biome::Saltflat => "saltflat",
+            super::world_map::Biome::Oasis => "oasis", 
+            super::world_map::Biome::Ruins => "ruins",
+            super::world_map::Biome::Scrubland => "scrubland",
+            _ => "saltflat",
+        };
+        
+        let (microstructures, mut structure_npcs, mut structure_chests, mut structure_items) = 
+            place_microstructures(&mut map, biome_str, &rooms, (px, py), &mut rng);
+        
+        // Add structure entities to main collections
+        npcs.append(&mut structure_npcs);
+        chests.append(&mut structure_chests);
+        items.append(&mut structure_items);
+
         let ambient = 100u8;
         let light_sources = vec![LightSource { x: px, y: py, radius: 8, intensity: 120 }]; // Reduced from 150 to avoid glare
         let light_map = compute_lighting(&light_sources, ambient);
@@ -561,6 +582,7 @@ impl GameState {
             story_model: None,
             pending_book_open: None,
             skills: super::skills::SkillsState::default(),
+            microstructures,
         };
         
         // Initialize narrative generator and generate world history

@@ -1,0 +1,15 @@
+{
+  "name": "microstructures_test",
+  "seed": 123,
+  "world_x": 8,
+  "world_y": 8,
+  "player": {"x": 10, "y": 10, "hp": 50, "max_hp": 50},
+  "actions": [
+    {"turn": 0, "action": {"type": "wait"}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "player_alive"}},
+    {"at_end": true, "check": {"type": "chest_count_min", "count": 1}},
+    {"at_end": true, "check": {"type": "npc_count_min", "count": 1}}
+  ]
+}
