@@ -54,7 +54,7 @@ impl Default for SkillsState {
             skills: HashMap::new(),
             unlocked_abilities: Vec::new(),
             cooldowns: HashMap::new(),
-            skill_points: 0,
+            skill_points: 5, // Start with 5 skill points
         }
     }
 }

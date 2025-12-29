@@ -1161,13 +1161,14 @@ impl GameState {
         self.status_effects.push(effect);
     }
 
-    /// Wait in place (costs 0 AP, ends turn). Auto-heals after 5 consecutive waits with no enemies nearby.
+    /// Wait in place (costs 0 AP, ends turn). Auto-heals after 10 consecutive waits with no enemies nearby.
     pub fn wait_turn(&mut self) {
-        // Check for nearby enemies
+        // Check for nearby enemies (within 8 tiles, not FOV range)
         let enemies_nearby = self.enemies.iter().any(|e| {
+            if e.hp <= 0 { return false; } // Ignore dead enemies
             let dx = (e.x - self.player_x).abs();
             let dy = (e.y - self.player_y).abs();
-            dx <= super::constants::FOV_RANGE && dy <= super::constants::FOV_RANGE
+            dx <= 8 && dy <= 8 // Much smaller range for healing
         });
         
         if enemies_nearby {
