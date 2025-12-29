@@ -43,6 +43,36 @@ cargo build
 cargo run
 ```
 
+## Multi-Terminal UI System
+
+The game supports running across multiple terminal windows for enhanced gameplay experience:
+
+### Manual Launch
+```bash
+# Start main game
+cargo run
+
+# In separate terminals:
+cargo run -- --log-ui      # Real-time game log display
+cargo run -- --status-ui   # Player stats and status
+cargo run -- --inventory-ui # Inventory display (placeholder)
+```
+
+### Automatic Spawn (from game)
+Press `` ` `` to open debug console, then:
+- `spawn log` - Spawns log terminal
+- `spawn status` - Spawns status terminal  
+- `spawn inventory` - Spawns inventory terminal
+- `terminals` - Lists available terminal emulators
+
+**Supported Terminals**: gnome-terminal, konsole, xterm, alacritty, kitty
+
+**Features**:
+- Real-time IPC communication via Unix domain sockets
+- Automatic terminal emulator detection
+- Non-blocking updates to prevent game lag
+- JSON-serialized message format for reliability
+
 ## Testing Map Generation
 
 A dedicated tool is available for testing world and tile generation without running the full game:
