@@ -127,6 +127,7 @@ pub struct UiState {
     pub skills_menu: SkillsMenu,
     pub dialog_box: DialogBox,
     pub book_reader: BookReader,
+    pub chest_ui: Option<super::ChestUI>,
     /// Smooth camera position (lerped toward player)
     pub camera_x: f32,
     pub camera_y: f32,
@@ -200,6 +201,7 @@ impl UiState {
             skills_menu: SkillsMenu::default(),
             dialog_box: DialogBox::default(),
             book_reader: BookReader::default(),
+            chest_ui: None,
             camera_x: 0.0,
             camera_y: 0.0,
         }
@@ -255,6 +257,9 @@ pub enum Action {
     OpenDebugMenu,
     OpenIssueReporter,
     SubmitIssueReport,
+    OpenChest(usize),
+    ChestTransfer,
+    CloseChest,
     None,
 }
 
@@ -325,6 +330,10 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
         // Wiki menu input
         if ui.wiki_menu.active {
             return Ok(handle_wiki_input(ui, state, key.code));
+        }
+        // Chest UI input
+        if ui.chest_ui.is_some() {
+            return Ok(handle_chest_input(ui, key.code));
         }
         // Trade menu input
         if ui.trade_menu.active {
@@ -553,6 +562,7 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Char('i') => Action::OpenInventory,
         KeyCode::Char('q') => Action::OpenQuestLog,
         KeyCode::Char('c') => Action::OpenCrafting,
+        KeyCode::Char('C') => Action::OpenChest(0), // Placeholder, will be handled in main loop
         KeyCode::Char('w') => Action::OpenWiki,
         KeyCode::Char('p') => Action::OpenPsychicMenu,
         KeyCode::Char('s') => Action::OpenSkillsMenu,
@@ -568,6 +578,32 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Left | KeyCode::Char('h') => Action::Move(-1, 0),
         KeyCode::Right | KeyCode::Char('l') => Action::Move(1, 0),
         KeyCode::Esc => Action::OpenPauseMenu,
+        _ => Action::None,
+    }
+}
+
+fn handle_chest_input(ui: &mut UiState, key: KeyCode) -> Action {
+    match key {
+        KeyCode::Up | KeyCode::Char('k') => {
+            if let Some(ref mut chest_ui) = ui.chest_ui {
+                chest_ui.move_selection(-1);
+            }
+            Action::None
+        },
+        KeyCode::Down | KeyCode::Char('j') => {
+            if let Some(ref mut chest_ui) = ui.chest_ui {
+                chest_ui.move_selection(1);
+            }
+            Action::None
+        },
+        KeyCode::Tab => {
+            if let Some(ref mut chest_ui) = ui.chest_ui {
+                chest_ui.switch_panel();
+            }
+            Action::None
+        },
+        KeyCode::Enter => Action::ChestTransfer,
+        KeyCode::Esc => Action::CloseChest,
         _ => Action::None,
     }
 }
