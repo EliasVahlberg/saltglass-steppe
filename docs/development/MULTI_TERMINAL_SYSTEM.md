@@ -7,7 +7,7 @@ The multi-terminal UI system allows the TUI RPG to run across multiple terminal 
 ## Architecture
 
 ### IPC Communication (`src/ipc.rs`)
-- **Unix Domain Sockets**: Uses `/tmp/tui-rpg.sock` for inter-process communication
+- **Unix Domain Sockets**: Uses `/tmp/saltglass-steppe.sock` for inter-process communication
 - **Message Types**: GameState updates, LogEntry messages, InventoryUpdate, Commands
 - **Server/Client Model**: Main game runs IPC server, satellite terminals connect as clients
 

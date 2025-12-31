@@ -371,7 +371,7 @@ fn main() -> Result<()> {
 }
 
 fn run_satellite_ui(ui_type: &str) -> Result<()> {
-    let socket_path = "/tmp/tui-rpg.sock";
+    let socket_path = "/tmp/saltglass-steppe.sock";
     let mut app = match SatelliteApp::new(socket_path) {
         Ok(app) => app,
         Err(e) => {
@@ -398,7 +398,7 @@ fn run_main_game() -> Result<()> {
 
     // Initialize IPC server
     use tui_rpg::ipc::{IpcServer, IpcMessage};
-    let socket_path = "/tmp/tui-rpg.sock";
+    let socket_path = "/tmp/saltglass-steppe.sock";
     let ipc_server = IpcServer::new(socket_path)?;
     ipc_server.start()?;
     let mut last_message_count = 0;

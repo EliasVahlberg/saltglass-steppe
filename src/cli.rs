@@ -11,7 +11,7 @@ pub enum LaunchMode {
 }
 
 pub fn parse_args() -> LaunchMode {
-    let matches = Command::new("tui-rpg")
+    let matches = Command::new("saltglass-steppe")
         .version("0.1.0")
         .about("Saltglass Steppe - A TUI RPG")
         .arg(

@@ -1,4 +1,5 @@
-# Saltglass Steppe (tui-rpg)
+# Saltglass Steppe
+
 
 A deterministic, data-driven, turn-based TUI RPG set in the harsh, crystalline wastelands of the Saltglass Steppe. Built with Rust, it features tactical combat, environmental survival mechanics, and a custom Debug Execution System (DES) for automated scenario testing.
 
@@ -142,9 +143,9 @@ cargo build --release --target x86_64-pc-windows-gnu
 
 # Package for distribution
 mkdir dist
-cp target/x86_64-pc-windows-gnu/release/tui-rpg.exe dist/
+cp target/x86_64-pc-windows-gnu/release/saltglass-steppe.exe dist/
 cp -r data dist/
-zip -r tui-rpg-windows.zip dist
+zip -r saltglass-steppe-windows.zip dist
 ```
 
-The tester should extract the zip and run `tui-rpg.exe` from Command Prompt (not by double-clicking).
+The tester should extract the zip and run `saltglass-steppe.exe` from Command Prompt (not by double-clicking).

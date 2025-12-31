@@ -210,7 +210,7 @@ impl SatelliteApp {
                         state.adaptations.join(", ")
                     )
                 } else {
-                    "Waiting for game data...\n\nMake sure the main game is running first.\nSocket: /tmp/tui-rpg.sock".to_string()
+                    "Waiting for game data...\n\nMake sure the main game is running first.\nSocket: /tmp/saltglass-steppe.sock".to_string()
                 };
                 
                 let paragraph = Paragraph::new(content)
@@ -261,7 +261,7 @@ impl SatelliteApp {
                         inv.items.join("\n")
                     }
                 } else {
-                    "Waiting for inventory data...\n\nMake sure the main game is running first.\nSocket: /tmp/tui-rpg.sock".to_string()
+                    "Waiting for inventory data...\n\nMake sure the main game is running first.\nSocket: /tmp/saltglass-steppe.sock".to_string()
                 };
                 
                 let inventory_paragraph = Paragraph::new(inventory_content)
@@ -328,7 +328,7 @@ impl SatelliteApp {
                         state.storm_countdown, state.adaptations.join(", ")
                     )
                 } else {
-                    "Waiting for game data...\n\nMake sure the main game is running first.\nSocket: /tmp/tui-rpg.sock".to_string()
+                    "Waiting for game data...\n\nMake sure the main game is running first.\nSocket: /tmp/saltglass-steppe.sock".to_string()
                 };
                 
                 let debug_paragraph = Paragraph::new(debug_content)

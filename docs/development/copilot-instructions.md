@@ -1,4 +1,4 @@
-# Copilot Instructions for tui-rpg
+# Copilot Instructions for saltglass-steppe
 
 ## Project Overview
 Rust-based turn-based TUI RPG ("Saltglass Steppe") using `ratatui`/`crossterm`. Deterministic seeded RNG (`rand_chacha`) enables reproducible gameplay and automated testing.
