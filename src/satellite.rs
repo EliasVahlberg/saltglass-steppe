@@ -19,6 +19,7 @@ pub struct SatelliteApp {
     inventory_data: Option<InventoryData>,
     log_scroll: usize,
     game_log_scroll: usize,
+    #[allow(dead_code)]
     last_update: Instant,
 }
 
@@ -383,9 +384,9 @@ impl SatelliteApp {
         if let Ok(messages) = self.client.read_messages() {
             for message in messages {
                 match message {
-                    IpcMessage::GameState { hp, max_hp, refraction, turn, storm_countdown, adaptations } => {
+                    IpcMessage::GameState { hp, max_hp, refraction, turn, storm_countdown, adaptations, .. } => {
                         self.game_state = Some(GameStateData {
-                            hp, max_hp, refraction, turn, storm_countdown, adaptations
+                            hp, max_hp, refraction, turn, storm_countdown: storm_countdown as u32, adaptations
                         });
                     }
                     IpcMessage::LogEntry { message, .. } => {

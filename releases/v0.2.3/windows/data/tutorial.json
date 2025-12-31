@@ -1,0 +1,59 @@
+{
+  "messages": [
+    {
+      "id": "game_start",
+      "trigger": "game_start",
+      "text": "Welcome to the Saltglass Steppe. Arrow keys to move.",
+      "highlight": "movement",
+      "dismiss_key": "any"
+    },
+    {
+      "id": "first_enemy_visible",
+      "trigger": "first_enemy_visible",
+      "text": "Press Space to attack adjacent enemies. Combat consumes AP.",
+      "highlight": "combat",
+      "dismiss_key": "any"
+    },
+    {
+      "id": "first_item_visible",
+      "trigger": "first_item_visible",
+      "text": "Walk over items to pick them up. Press 'i' to view inventory.",
+      "highlight": "inventory",
+      "dismiss_key": "any"
+    },
+    {
+      "id": "low_hp",
+      "trigger": "low_hp",
+      "text": "Your HP is low! Use healing items with 'u' or rest with 'r'.",
+      "highlight": "healing",
+      "dismiss_key": "any"
+    },
+    {
+      "id": "first_npc",
+      "trigger": "first_npc_visible",
+      "text": "Press 't' to talk to NPCs. They may offer quests or trade.",
+      "highlight": "interaction",
+      "dismiss_key": "any"
+    },
+    {
+      "id": "ap_depleted",
+      "trigger": "ap_depleted",
+      "text": "AP depleted! Turn auto-ends. Press 'w' to wait/end turn early.",
+      "highlight": "turns",
+      "dismiss_key": "any"
+    }
+  ],
+  "control_hints": [
+    "↑↓←→: Move",
+    "Space: Attack",
+    "i: Inventory",
+    "u: Use item",
+    "t: Talk",
+    "r: Rest",
+    "w: Wait/End turn",
+    "Q: Quest log",
+    "c: Craft",
+    "x: Look mode",
+    "?: Help"
+  ]
+}

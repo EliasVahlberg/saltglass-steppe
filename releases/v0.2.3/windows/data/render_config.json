@@ -1,0 +1,166 @@
+{
+  "colors": {
+    "entities": {
+      "player": {
+        "base": "Yellow",
+        "status_effects": {
+          "burn": "LightRed",
+          "poison": "Green",
+          "bleed": "Red",
+          "stun": "LightBlue"
+        }
+      },
+      "enemies": {
+        "mirage_hound": "LightYellow",
+        "glass_beetle": "Cyan",
+        "salt_mummy": "White",
+        "refraction_wraith": "LightCyan",
+        "shard_spider": "LightCyan",
+        "dust_wraith": "Yellow",
+        "archive_drone": "LightBlue",
+        "default": "Red"
+      },
+      "npcs": {
+        "base": "Green"
+      },
+      "items": {
+        "base": "LightMagenta"
+      }
+    },
+    "tiles": {
+      "floor": "DarkGray",
+      "wall": "Gray",
+      "glass": {
+        "base": "Cyan",
+        "shimmer": ["Cyan", "LightCyan", "White"]
+      },
+      "stairs_down": "Yellow",
+      "stairs_up": "Yellow",
+      "world_exit": "Green"
+    },
+    "lighting": {
+      "sources": {
+        "torch": "Rgb(255, 140, 0)",
+        "brazier": "Yellow",
+        "crystal": "Cyan",
+        "campfire": "Rgb(255, 80, 40)",
+        "default": "Yellow"
+      },
+      "ambient": 20,
+      "visibility_threshold": 50
+    },
+    "ui": {
+      "revealed_tile": "DarkGray",
+      "look_cursor": {
+        "bg": "White",
+        "fg": "Black"
+      },
+      "hit_flash": {
+        "bg": "Red",
+        "fg": "White"
+      }
+    }
+  },
+  "lighting": {
+    "enabled": true,
+    "ambient_level": 20,
+    "visibility_threshold": 50,
+    "glare_threshold": 220,
+    "player_light": {
+      "enabled": true,
+      "radius": 5,
+      "intensity": 100
+    },
+    "equipment_light_detection": true,
+    "smooth_falloff": true,
+    "recalculate_on_turn": true
+  },
+  "effects": {
+    "enabled": true,
+    "frame_rate": 60,
+    "max_effects_per_entity": 3,
+    "priority_order": ["HitFlash", "Blink", "Pulse", "Glow", "Wave", "Shimmer", "Rainbow", "Fade", "Drift"]
+  },
+  "visual_animations": {
+    "blink": {
+      "duration_ms": 500,
+      "on_color": "White",
+      "off_color": "DarkGray"
+    },
+    "glow": {
+      "cycle_duration_ms": 1000,
+      "base_color": "Yellow",
+      "glow_color": "LightYellow",
+      "intensity_steps": 5
+    },
+    "screen_shake": {
+      "duration_ms": 200,
+      "intensity": 2,
+      "frequency_hz": 20.0
+    }
+  },
+  "animations": {
+    "glass_shimmer": {
+      "enabled": true,
+      "speed": 4,
+      "colors": ["Cyan", "LightCyan", "White"]
+    },
+    "tile_animations": true,
+    "entity_animations": true
+  },
+  "rendering": {
+    "god_view_override": false,
+    "smooth_camera": true,
+    "damage_numbers": true,
+    "status_effect_priority": ["burn", "poison", "bleed", "stun"],
+    "hit_flash_duration": 2
+  },
+  "performance": {
+    "target_fps": 60,
+    "viewport_culling": true,
+    "frame_limiting": true,
+    "optimization_level": "balanced"
+  },
+  "particles": {
+    "sparkles": {
+      "enabled": true,
+      "spawn_rate": 2.0,
+      "lifetime": 1.0,
+      "colors": ["White", "Yellow", "Cyan"],
+      "characters": ["*", "✦", "✧", "◆"],
+      "intensity": 1.0
+    },
+    "glow": {
+      "enabled": true,
+      "pulse_speed": 0.1,
+      "min_brightness": 0.3,
+      "max_brightness": 1.0,
+      "colors": ["Yellow", "White"]
+    },
+    "float": {
+      "enabled": true,
+      "velocity_range": [0.5, 2.0],
+      "lifetime": 3.0,
+      "gravity": 0.1,
+      "characters": ["°", "·", "˚"]
+    },
+    "drift": {
+      "enabled": true,
+      "wind_strength": 0.5,
+      "turbulence": 0.1,
+      "fade_rate": 0.2
+    },
+    "pulse": {
+      "enabled": true,
+      "frequency": 0.2,
+      "amplitude": 0.3,
+      "wave_type": "sine"
+    },
+    "shimmer": {
+      "enabled": true,
+      "speed": 0.05,
+      "color_cycle": ["Cyan", "LightCyan", "White"],
+      "intensity_variation": 0.2
+    }
+  }
+}

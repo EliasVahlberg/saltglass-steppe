@@ -1,0 +1,96 @@
+{
+  "adaptations": [
+    {
+      "id": "prismhide",
+      "name": "Prismhide",
+      "description": "Crystalline skin reduces damage and refracts light",
+      "threshold": 25,
+      "stat_modifiers": { "armor": 2, "stealth": 1 },
+      "effects": [{ "type": "light_refraction", "value": 1 }],
+      "psychic_stage": 1
+    },
+    {
+      "id": "sunveins",
+      "name": "Sunveins",
+      "description": "Store light charge, +2 attack damage and energy projection",
+      "threshold": 50,
+      "stat_modifiers": { "damage_bonus": 2, "energy_damage": 1 },
+      "effects": [{ "type": "damage_bonus", "value": 2 }, { "type": "energy_projection", "value": 1 }],
+      "psychic_stage": 2
+    },
+    {
+      "id": "mirage_step",
+      "name": "Mirage Step",
+      "description": "Leave decoy when moving, basic probability manipulation",
+      "threshold": 75,
+      "stat_modifiers": { "luck": 2 },
+      "effects": [{ "type": "special_ability", "value": 0, "ability": "mirage_step" }, { "type": "probability_influence", "value": 1 }],
+      "psychic_stage": 3
+    },
+    {
+      "id": "saltblood",
+      "name": "Saltblood",
+      "description": "Immune to glass terrain damage, enhanced toxin resistance",
+      "threshold": 100,
+      "stat_modifiers": { "poison_resistance": 3 },
+      "effects": [{ "type": "immunity", "damage_source": "glass" }, { "type": "toxin_resistance", "value": 3 }]
+    },
+    {
+      "id": "quantum_entanglement",
+      "name": "Quantum Entanglement",
+      "description": "Basic telepathic abilities and emotional resonance",
+      "threshold": 30,
+      "stat_modifiers": { "psychic_power": 1 },
+      "effects": [{ "type": "telepathy", "range": 5 }, { "type": "emotional_resonance", "value": 1 }],
+      "psychic_stage": 1
+    },
+    {
+      "id": "phase_walking",
+      "name": "Phase Walking",
+      "description": "Temporarily phase through solid matter",
+      "threshold": 80,
+      "stat_modifiers": { "movement_abilities": 2 },
+      "effects": [{ "type": "wall_phasing", "duration": 3 }, { "type": "quantum_invisibility", "duration": 2 }],
+      "psychic_stage": 3,
+      "energy_cost": "high"
+    },
+    {
+      "id": "storm_affinity",
+      "name": "Storm Affinity",
+      "description": "Sense and partially influence glass storm patterns",
+      "threshold": 60,
+      "stat_modifiers": { "storm_prediction": 2 },
+      "effects": [{ "type": "storm_sensing", "range": 10 }, { "type": "minor_storm_influence", "value": 1 }],
+      "environmental_bonus": "storm_zones"
+    },
+    {
+      "id": "collective_interface",
+      "name": "Collective Interface",
+      "description": "Temporarily join collective consciousness networks",
+      "threshold": 70,
+      "stat_modifiers": { "shared_knowledge": true },
+      "effects": [{ "type": "hive_mind_access", "duration": 10 }, { "type": "collective_processing", "value": 2 }],
+      "psychic_stage": 3,
+      "social_consequences": "high"
+    },
+    {
+      "id": "archive_resonance",
+      "name": "Archive Resonance",
+      "description": "Quantum signature harmonizes with Archive systems",
+      "threshold": 85,
+      "stat_modifiers": { "archive_access": 2 },
+      "effects": [{ "type": "archive_interface", "value": 1 }, { "type": "drone_communication", "range": 8 }],
+      "faction_bonus": "Archive"
+    },
+    {
+      "id": "crystalline_consciousness",
+      "name": "Crystalline Consciousness",
+      "description": "Mind becomes quantum-coherent, enabling reality manipulation",
+      "threshold": 120,
+      "stat_modifiers": { "psychic_power": 5, "reality_influence": 1 },
+      "effects": [{ "type": "matter_manipulation", "range": 3 }, { "type": "local_reality_editing", "value": 1 }],
+      "psychic_stage": 5,
+      "transformation_level": "transcendent"
+    }
+  ]
+}

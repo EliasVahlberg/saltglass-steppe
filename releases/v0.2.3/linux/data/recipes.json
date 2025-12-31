@@ -1,0 +1,90 @@
+{
+  "recipes": [
+    {
+      "id": "basic_torch",
+      "name": "Basic Torch",
+      "description": "A simple torch made from cloth and oil",
+      "materials": {
+        "cloth_scrap": 1,
+        "oil_vial": 1
+      },
+      "output": "hand_torch",
+      "output_count": 1,
+      "skill_required": 0,
+      "station_required": null,
+      "faction_required": null
+    },
+    {
+      "id": "glass_shard_blade",
+      "name": "Glass Shard Blade",
+      "description": "A crude but sharp weapon from glass shards",
+      "materials": {
+        "glass_shard": 3,
+        "cloth_scrap": 1
+      },
+      "output": "glass_blade",
+      "output_count": 1,
+      "skill_required": 1,
+      "station_required": null,
+      "faction_required": null
+    },
+    {
+      "id": "salt_preserves",
+      "name": "Salt Preserves",
+      "description": "Preserved food using salt crystals",
+      "materials": {
+        "raw_meat": 1,
+        "salt_crystal": 2
+      },
+      "output": "preserved_rations",
+      "output_count": 2,
+      "skill_required": 0,
+      "station_required": null,
+      "faction_required": null
+    },
+    {
+      "id": "faction_banner",
+      "name": "Faction Banner",
+      "description": "A banner showing allegiance to the Glasswright Guild",
+      "materials": {
+        "cloth_scrap": 2,
+        "dye_powder": 1,
+        "metal_wire": 1
+      },
+      "output": "guild_banner",
+      "output_count": 1,
+      "skill_required": 2,
+      "station_required": "crafting_table",
+      "faction_required": "glasswright_guild"
+    },
+    {
+      "id": "advanced_optics",
+      "name": "Advanced Optics",
+      "description": "Precision glass lenses for enhanced vision",
+      "materials": {
+        "pure_glass": 2,
+        "metal_frame": 1,
+        "precision_tools": 1
+      },
+      "output": "enhanced_goggles",
+      "output_count": 1,
+      "skill_required": 3,
+      "station_required": "glass_forge",
+      "faction_required": "glasswright_guild"
+    },
+    {
+      "id": "health_potion",
+      "name": "Health Potion",
+      "description": "A potent healing brew",
+      "materials": {
+        "salt_crystal": 2,
+        "brine_vial": 1
+      },
+      "output": "health_potion",
+      "output_count": 1,
+      "skill_required": 0,
+      "station_required": null,
+      "faction_required": null
+    }
+  ]
+}

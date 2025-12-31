@@ -1,0 +1,136 @@
+{
+  "effects": [
+    {
+      "id": "low_hp_warning",
+      "condition": {"low_hp": 5},
+      "target": "player",
+      "effect": "B(@4 &Red)"
+    },
+    {
+      "id": "critical_hp",
+      "condition": {"low_hp": 3},
+      "target": "player",
+      "effect": "P(@2 &LightRed)"
+    },
+    {
+      "id": "storm_imminent",
+      "condition": {"storm_near": 3},
+      "target": "ui",
+      "effect": "W(@6 &Red)"
+    },
+    {
+      "id": "storm_approaching",
+      "condition": {"storm_near": 5},
+      "target": "ui",
+      "effect": "B(@12 &Yellow)"
+    },
+    {
+      "id": "adaptation_glow",
+      "condition": {"has_adaptation": true},
+      "target": "player",
+      "effect": "R(@8 &Magenta &LightMagenta)"
+    },
+    {
+      "id": "glass_shimmer",
+      "condition": {"on_tile": "Glass"},
+      "target": "player",
+      "effect": "S(@4 &Cyan &LightCyan &White)"
+    },
+    {
+      "id": "suppression_active",
+      "condition": {"adaptations_hidden": true},
+      "target": "player",
+      "effect": "F(@16 &DarkGray)"
+    },
+    {
+      "id": "refraction_wraith_phase",
+      "condition": {"enemy_type": "refraction_wraith"},
+      "target": "enemy",
+      "effect": "P(@3 &White)"
+    },
+    {
+      "id": "mirage_hound_shimmer",
+      "condition": {"enemy_type": "mirage_hound"},
+      "target": "enemy",
+      "effect": "W(@5 &LightYellow)"
+    },
+    {
+      "id": "glass_beetle_glint",
+      "condition": {"enemy_type": "glass_beetle"},
+      "target": "enemy",
+      "effect": "S(@8 &Cyan &LightCyan)"
+    },
+    {
+      "id": "dust_wraith_swirl",
+      "condition": {"enemy_type": "dust_wraith"},
+      "target": "enemy",
+      "effect": "W(@4 &Yellow)"
+    },
+    {
+      "id": "shard_spider_glitter",
+      "condition": {"enemy_type": "shard_spider"},
+      "target": "enemy",
+      "effect": "S(@6 &LightCyan &White)"
+    },
+    {
+      "id": "archive_drone_scan",
+      "condition": {"enemy_type": "archive_drone"},
+      "target": "enemy",
+      "effect": "P(@10 &LightBlue)"
+    },
+    {
+      "id": "salt_mummy_pale",
+      "condition": {"enemy_type": "salt_mummy"},
+      "target": "enemy",
+      "effect": "F(@20 &White)"
+    },
+    {
+      "id": "storm_particle_drift",
+      "condition": {"storm_near": 8},
+      "target": "environment",
+      "effect": "D(@15 &DarkGray)"
+    },
+    {
+      "id": "glass_resonance",
+      "condition": {"on_tile": "Glass", "has_adaptation": true},
+      "target": "environment",
+      "effect": "R(@12 &Cyan &LightCyan &White)"
+    },
+    {
+      "id": "adaptation_surge",
+      "condition": {"adaptation_count_gte": 3},
+      "target": "player",
+      "effect": "P(@3 &Magenta)"
+    },
+    {
+      "id": "storm_eye_calm",
+      "condition": {"in_storm_eye": true},
+      "target": "environment",
+      "effect": "F(@30 &LightBlue)"
+    },
+    {
+      "id": "glass_fracture_warning",
+      "condition": {"on_fragile_glass": true},
+      "target": "tile",
+      "effect": "B(@8 &Red)"
+    },
+    {
+      "id": "psychic_resonance",
+      "condition": {"psychic_active": true},
+      "target": "player",
+      "effect": "W(@6 &LightMagenta)"
+    },
+    {
+      "id": "salt_crystallization",
+      "condition": {"high_salt_exposure": true},
+      "target": "player",
+      "effect": "S(@10 &White &LightGray)"
+    },
+    {
+      "id": "void_touched",
+      "condition": {"void_exposure": true},
+      "target": "player",
+      "effect": "F(@8 &DarkGray)"
+    }
+  ]
+}

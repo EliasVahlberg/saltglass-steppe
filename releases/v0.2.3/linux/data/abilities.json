@@ -1,0 +1,156 @@
+[
+  {
+    "id": "power_strike",
+    "name": "Power Strike",
+    "category": "combat",
+    "description": "A devastating melee attack that deals extra damage",
+    "stamina_cost": 15,
+    "cooldown": 3,
+    "required_skill": "melee_combat",
+    "required_level": 2,
+    "effect": "power_strike"
+  },
+  {
+    "id": "whirlwind",
+    "name": "Whirlwind",
+    "category": "combat", 
+    "description": "Attack all adjacent enemies in a spinning motion",
+    "stamina_cost": 25,
+    "cooldown": 5,
+    "required_skill": "melee_combat",
+    "required_level": 5,
+    "effect": "whirlwind_attack"
+  },
+  {
+    "id": "precise_shot",
+    "name": "Precise Shot",
+    "category": "combat",
+    "description": "A carefully aimed shot with increased accuracy and damage",
+    "stamina_cost": 12,
+    "cooldown": 2,
+    "required_skill": "ranged_combat", 
+    "required_level": 3,
+    "effect": "precise_shot"
+  },
+  {
+    "id": "rapid_fire",
+    "name": "Rapid Fire",
+    "category": "combat",
+    "description": "Fire multiple shots in quick succession",
+    "stamina_cost": 20,
+    "cooldown": 4,
+    "required_skill": "ranged_combat",
+    "required_level": 6,
+    "effect": "rapid_fire"
+  },
+  {
+    "id": "defensive_stance",
+    "name": "Defensive Stance",
+    "category": "combat",
+    "description": "Reduce incoming damage for several turns",
+    "stamina_cost": 10,
+    "cooldown": 6,
+    "required_skill": "defense",
+    "required_level": 2,
+    "effect": "defensive_stance"
+  },
+  {
+    "id": "shield_bash",
+    "name": "Shield Bash",
+    "category": "combat",
+    "description": "Stun an enemy with your shield or armor",
+    "stamina_cost": 8,
+    "cooldown": 3,
+    "required_skill": "defense",
+    "required_level": 4,
+    "effect": "shield_bash"
+  },
+  {
+    "id": "sprint",
+    "name": "Sprint",
+    "category": "athletics",
+    "description": "Move multiple tiles in one turn",
+    "stamina_cost": 15,
+    "cooldown": 4,
+    "required_skill": "athletics",
+    "required_level": 2,
+    "effect": "sprint"
+  },
+  {
+    "id": "dodge_roll",
+    "name": "Dodge Roll",
+    "category": "athletics",
+    "description": "Quickly evade attacks for the next turn",
+    "stamina_cost": 12,
+    "cooldown": 3,
+    "required_skill": "athletics",
+    "required_level": 4,
+    "effect": "dodge_roll"
+  },
+  {
+    "id": "sneak_attack",
+    "name": "Sneak Attack",
+    "category": "athletics",
+    "description": "Deal massive damage when attacking from stealth",
+    "stamina_cost": 18,
+    "cooldown": 5,
+    "required_skill": "stealth",
+    "required_level": 3,
+    "effect": "sneak_attack"
+  },
+  {
+    "id": "vanish",
+    "name": "Vanish",
+    "category": "athletics",
+    "description": "Become temporarily invisible to enemies",
+    "stamina_cost": 25,
+    "cooldown": 8,
+    "required_skill": "stealth",
+    "required_level": 6,
+    "effect": "vanish"
+  },
+  {
+    "id": "field_medicine",
+    "name": "Field Medicine",
+    "category": "survival",
+    "description": "Quickly heal yourself in combat",
+    "stamina_cost": 20,
+    "cooldown": 6,
+    "required_skill": "medicine",
+    "required_level": 2,
+    "effect": "field_medicine"
+  },
+  {
+    "id": "antidote",
+    "name": "Antidote",
+    "category": "survival",
+    "description": "Cure poison and other harmful effects",
+    "stamina_cost": 15,
+    "cooldown": 4,
+    "required_skill": "medicine",
+    "required_level": 4,
+    "effect": "antidote"
+  },
+  {
+    "id": "scavenge",
+    "name": "Scavenge",
+    "category": "survival",
+    "description": "Find useful items in the environment",
+    "stamina_cost": 10,
+    "cooldown": 10,
+    "required_skill": "survival",
+    "required_level": 2,
+    "effect": "scavenge"
+  },
+  {
+    "id": "quick_craft",
+    "name": "Quick Craft",
+    "category": "crafting",
+    "description": "Rapidly create basic items from materials",
+    "stamina_cost": 12,
+    "cooldown": 5,
+    "required_skill": "crafting",
+    "required_level": 3,
+    "effect": "quick_craft"
+  }
+]

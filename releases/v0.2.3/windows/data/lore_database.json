@@ -1,0 +1,158 @@
+[
+  {
+    "id": "heliograph_era",
+    "title": "The Heliograph Era",
+    "category": "history",
+    "content": "Before the storms, an orbital mirror network called the Heliograph controlled climate and illumination. The machine-priests, known as saints, carried keys that granted access to its controls. Light was not just illumination—it was surveillance, enforcement, and ritual.",
+    "reveals_on": ["archive_access", "saint_key_use"],
+    "faction_perspective": {
+      "monks": "The Heliograph was divine will made manifest, a tool of cosmic order.",
+      "engineers": "Advanced climate control technology that we could rebuild if we understood it.",
+      "glassborn": "The first step in humanity's evolution toward our crystalline perfection.",
+      "archive": "PRIMARY CLIMATE MANAGEMENT SYSTEM. STATUS: OFFLINE. RESTORATION PRIORITY: MAXIMUM."
+    }
+  },
+  {
+    "id": "white_noon",
+    "title": "White Noon - The Day of Transformation",
+    "category": "history",
+    "content": "The catastrophic day when the Heliograph's beams turned from illumination to fusion. Cities became glass labyrinths, people became salt sculptures, and the first Storm Glass crystallized from superheated air. The cause remains disputed—sabotage, cascade failure, or divine judgment.",
+    "reveals_on": ["scripture_shard_study", "archive_data_analysis"],
+    "faction_perspective": {
+      "monks": "The day the divine light purified the world, beginning our transformation.",
+      "engineers": "A catastrophic system failure that could have been prevented with proper maintenance.",
+      "glassborn": "Our birth-moment, when the weak flesh was first offered the gift of glass.",
+      "archive": "CRITICAL SYSTEM MALFUNCTION. CAUSE: UNKNOWN. DAMAGE ASSESSMENT: TOTAL."
+    }
+  },
+  {
+    "id": "first_adaptations",
+    "title": "The First Adaptations",
+    "category": "biology",
+    "content": "The earliest survivors of White Noon began showing physical changes within days. Skin that refracted light, blood that crystallized, eyes that could see through glass. These changes were initially seen as contamination, then blessing, then evolution.",
+    "reveals_on": ["adaptation_study", "glassborn_dialogue"],
+    "faction_perspective": {
+      "monks": "The first words in the storm's scripture, written in living flesh.",
+      "engineers": "Biological responses to exotic radiation exposure. Potentially reversible.",
+      "glassborn": "The beginning of our ascension beyond the limitations of soft flesh.",
+      "archive": "BIOLOGICAL DEVIATION DETECTED. CLASSIFICATION: UNKNOWN. CONTAINMENT PROTOCOLS: FAILED."
+    }
+  },
+  {
+    "id": "storm_patterns",
+    "title": "The Nature of Glass Storms",
+    "category": "phenomena",
+    "content": "Glass storms are not weather—they are targeted edits to reality. They follow the old Heliograph targeting patterns, suggesting the orbital system still functions in some capacity. Each storm rewrites the landscape according to unknown parameters.",
+    "reveals_on": ["storm_observation", "compass_study"],
+    "faction_perspective": {
+      "monks": "Divine revisions to the world's scripture, each storm a new verse.",
+      "engineers": "Automated terraforming protocols still executing their original programming.",
+      "glassborn": "The continuing birth-process of our crystalline world.",
+      "archive": "ENVIRONMENTAL MODIFICATION SUBROUTINES ACTIVE. CONTROL INTERFACE: INACCESSIBLE."
+    }
+  },
+  {
+    "id": "crucible_origin",
+    "title": "The Crucible of Transformation",
+    "category": "locations",
+    "content": "A hidden chamber where the most extreme adaptations occur. Some believe it's a natural formation where storm energy concentrates. Others think it's a pre-storm facility designed for human enhancement. The Glassborn guard its location jealously.",
+    "reveals_on": ["glassborn_trust", "crucible_pilgrimage"],
+    "faction_perspective": {
+      "monks": "The holiest site, where the storm's will is made manifest in flesh.",
+      "engineers": "Possibly a prototype enhancement facility from the Heliograph era.",
+      "glassborn": "Our sacred birthplace, where flesh transcends its limitations.",
+      "archive": "LOCATION: CLASSIFIED. ACCESS LEVEL: SAINT-KEY OMEGA REQUIRED."
+    }
+  },
+  {
+    "id": "saint_keys",
+    "title": "The Saint-Keys",
+    "category": "artifacts",
+    "content": "Credential devices carried by the machine-priests of the Heliograph era. They still function, granting access to Archive systems and revealing the true scope of the old world's technology. Each key is unique, tied to its original bearer's biometrics.",
+    "reveals_on": ["saint_key_discovery", "archive_interaction"],
+    "faction_perspective": {
+      "monks": "Sacred relics of the divine servants, proof of our connection to the light.",
+      "engineers": "Administrative access tokens for pre-storm infrastructure systems.",
+      "glassborn": "Tools of the old flesh-bound, now serving our crystalline purposes.",
+      "archive": "VALID CREDENTIALS. BEARER CLASSIFICATION: AUTHORIZED PERSONNEL."
+    }
+  },
+  {
+    "id": "mirror_orders",
+    "title": "The Mirror Orders",
+    "category": "factions",
+    "content": "Religious communities that formed around the interpretation of storm patterns and adaptations. They embed glass shards in their skin deliberately, seeking visions in the refraction. Their monasteries are built to channel and focus storm light.",
+    "reveals_on": ["monk_dialogue", "monastery_visit"],
+    "faction_perspective": {
+      "monks": "We are the interpreters of divine will, the readers of light's scripture.",
+      "engineers": "Religious extremists who've turned radiation sickness into a death cult.",
+      "glassborn": "Useful allies who understand transformation, though they lack commitment.",
+      "archive": "RELIGIOUS ORGANIZATION. THREAT LEVEL: MODERATE. CONTAINMENT: UNNECESSARY."
+    }
+  },
+  {
+    "id": "sand_engineers",
+    "title": "The Sand-Engineers",
+    "category": "factions",
+    "content": "Pragmatic survivors who maintain what technology remains functional. They view adaptations as tools rather than blessings, and seek to understand and control the storms through science rather than faith. Their settlements are marvels of jury-rigged efficiency.",
+    "reveals_on": ["engineer_dialogue", "settlement_visit"],
+    "faction_perspective": {
+      "monks": "Faithless tinkerers who refuse to see the divine in the storm's gifts.",
+      "engineers": "The only sane people left, trying to rebuild civilization properly.",
+      "glassborn": "Useful for their tools, but trapped by their attachment to the old ways.",
+      "archive": "MAINTENANCE PERSONNEL. AUTHORIZATION LEVEL: PROVISIONAL. PERFORMANCE: ADEQUATE."
+    }
+  },
+  {
+    "id": "adaptation_stages",
+    "title": "Stages of Adaptation",
+    "category": "biology",
+    "content": "Transformation follows predictable patterns: first the skin changes, then the blood, then deeper structures. Each stage brings new abilities but also new social consequences. The fully adapted are barely recognizable as human.",
+    "reveals_on": ["adaptation_experience", "medical_study"],
+    "faction_perspective": {
+      "monks": "The sacred progression from flesh to light, each stage a holy milestone.",
+      "engineers": "Documented biological responses to continued exotic exposure.",
+      "glassborn": "The beautiful journey from weakness to crystalline perfection.",
+      "archive": "MUTATION PROGRESSION DOCUMENTED. REVERSAL PROTOCOLS: THEORETICAL."
+    }
+  },
+  {
+    "id": "storm_glass_properties",
+    "title": "The Nature of Storm Glass",
+    "category": "materials",
+    "content": "Storm Glass is crystallized storm energy—air and light fused into solid form. It serves as currency because it's proof of survival, but also because it has unique properties: it resonates with storm patterns, can store energy, and seems to 'remember' the conditions of its formation.",
+    "reveals_on": ["storm_glass_study", "merchant_knowledge"],
+    "faction_perspective": {
+      "monks": "Sacred crystallized prayer, each piece a word in the storm's language.",
+      "engineers": "Exotic matter with useful electromagnetic and optical properties.",
+      "glassborn": "The blood of our crystalline world, precious beyond measure.",
+      "archive": "UNKNOWN MATERIAL. PROPERTIES: ANOMALOUS. STUDY PRIORITY: HIGH."
+    }
+  },
+  {
+    "id": "archive_purpose",
+    "title": "The True Purpose of the Archives",
+    "category": "secrets",
+    "content": "The Archives weren't just libraries—they were control centers for the Heliograph system. Each facility could override local weather patterns, redirect storm paths, and even trigger targeted transformations. The knowledge to restart or stop the storms lies buried in their data cores.",
+    "reveals_on": ["archive_infiltration", "custodian_trust"],
+    "faction_perspective": {
+      "monks": "The sacred repositories where divine will was first encoded.",
+      "engineers": "Command and control infrastructure for the entire climate system.",
+      "glassborn": "The birthplace of our transformation, where our evolution was planned.",
+      "archive": "PRIMARY FUNCTION: HELIOGRAPH CONTROL. STATUS: AWAITING AUTHORIZED COMMANDS."
+    }
+  },
+  {
+    "id": "hermit_wisdom",
+    "title": "The Hermit Philosophy",
+    "category": "philosophy",
+    "content": "The Salt Hermits have developed a unique perspective: they see the storms not as divine or technological, but as natural forces to be endured. They've learned to live between the extremes, adapting just enough to survive without losing their humanity.",
+    "reveals_on": ["hermit_dialogue", "survival_experience"],
+    "faction_perspective": {
+      "monks": "Faithless wanderers who refuse to embrace their divine calling.",
+      "engineers": "Practical survivors with valuable knowledge of the wasteland.",
+      "glassborn": "Cowards who cling to their flesh-weakness out of fear.",
+      "archive": "UNAFFILIATED PERSONNEL. THREAT LEVEL: MINIMAL. STATUS: IGNORED."
+    }
+  }
+]

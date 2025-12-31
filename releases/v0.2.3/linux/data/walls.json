@@ -1,0 +1,25 @@
+{
+  "walls": [
+    {
+      "id": "sandstone",
+      "name": "Sandstone Wall",
+      "glyph": "#",
+      "hp": 10,
+      "description": "Crumbling sandstone, worn by wind and salt"
+    },
+    {
+      "id": "shale",
+      "name": "Shale Wall",
+      "glyph": "#",
+      "hp": 15,
+      "description": "Layered dark stone, harder than sandstone"
+    },
+    {
+      "id": "salt_crystal",
+      "name": "Salt Crystal Wall",
+      "glyph": "#",
+      "hp": 8,
+      "description": "Brittle crystalline formation, glints in the light"
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "terrain_types": {
+    "canyon": {
+      "floor_threshold": 0.1,
+      "glass_density": 0.15,
+      "noise_scale": 8.0,
+      "wall_type": "sandstone"
+    },
+    "mesa": {
+      "floor_threshold": 0.0,
+      "glass_density": 0.1,
+      "noise_scale": 6.0,
+      "wall_type": "shale"
+    },
+    "hills": {
+      "floor_threshold": 0.2,
+      "glass_density": 0.08,
+      "noise_scale": 10.0,
+      "wall_type": "sandstone"
+    },
+    "dunes": {
+      "floor_threshold": 0.15,
+      "glass_density": 0.12,
+      "noise_scale": 12.0,
+      "wall_type": "sandstone"
+    },
+    "flat": {
+      "floor_threshold": 0.25,
+      "glass_density": 0.05,
+      "noise_scale": 15.0,
+      "wall_type": "salt_crystal"
+    }
+  },
+  "biome_modifiers": {
+    "saltflat": {
+      "glass_density_multiplier": 2.5,
+      "wall_type_override": "salt_crystal"
+    },
+    "oasis": {
+      "glass_density_multiplier": 0.3,
+      "floor_threshold_bonus": 0.1
+    },
+    "ruins": {
+      "wall_type_override": "shale"
+    }
+  },
+  "poi_layouts": {
+    "town": {
+      "central_clearing_size": 15
+    },
+    "ruins": {
+      "central_clearing_size": 8
+    },
+    "shrine": {
+      "central_clearing_size": 6
+    },
+    "archive": {
+      "central_clearing_size": 12
+    }
+  }
+}
