@@ -1,5 +1,22 @@
 # Game Systems Architecture Analysis
 
+## Progress Summary (Updated 2024-12-31)
+
+| Anti-Pattern | Status | Notes |
+|-------------|--------|-------|
+| 1. God Object | In Progress | Systems extracted: Combat, AI |
+| 2. Unused Event Bus | **FIXED** | Events now processed in `end_turn()` |
+| 3. Mixed Abstraction Levels | Not Started | `try_move()` still monolithic |
+| 4. Spatial Index Sync | Not Started | Manual rebuild required |
+| 5. Test Schema Drift | Partially Fixed | New assertions added |
+| 6. Hardcoded Entity Checks | **FIXED** | Laser beam is data-driven |
+| 7. Panic on Missing Defs | **FIXED** | Safe patterns used |
+| 8. Code Duplication | **FIXED** | `process_enemy_death()` extracted |
+
+**Tests**: 67 passing, 10 broken scenarios in `tests/scenarios/broken/`
+
+---
+
 ## Current Architecture Overview
 
 The current architecture of Saltglass Steppe revolves around a central "God Object" pattern. The `GameState` struct (defined in `src/game/state.rs`) holds all game data and implements the majority of the game logic.
@@ -401,9 +418,11 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
     -   Subscribe to `GameEvent::EnemyKilled`.
     -   Remove direct calls from `CombatSystem`.
 
-6.  **Add Missing DES Assertions**
-    -   Implement `chest_count_min`, `npc_count_min`, `enemy_count_min`.
-    -   Add `chest` as valid entity type.
+6.  **Add Missing DES Assertions** (COMPLETED 2024-12-31)
+    -   ~~Implement `chest_count_min`, `npc_count_min`, `enemy_count_min`.~~
+    -   Implemented as `enemy_count`, `npc_count`, `chest_count` with `op` comparison.
+    -   ~~Add `chest` as valid entity type.~~
+    -   Added `Chest` entity type with inventory support.
 
 ### Long-term (Future Phases)
 
