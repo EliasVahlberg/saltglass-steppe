@@ -109,11 +109,17 @@ mod tests {
     #[test]
     fn glass_increases_refraction() {
         let mut state = GameState::new(42);
+        // Clear enemies and NPCs to avoid collision
+        state.enemies.clear();
+        state.npcs.clear();
+        state.rebuild_spatial_index(); // Rebuild indices after clearing
+        // Make sure the tile is walkable first
         let idx = state.map.idx(state.player_x + 1, state.player_y);
         state.map.tiles[idx] = Tile::Glass;
         let initial_refraction = state.refraction;
-        state.try_move(1, 0);
-        assert!(state.refraction > initial_refraction);
+        let moved = state.try_move(1, 0);
+        assert!(moved, "Player should be able to move onto glass tile");
+        assert!(state.refraction > initial_refraction, "Refraction should increase after walking on glass");
     }
 
     #[test]
@@ -137,6 +143,9 @@ mod tests {
     #[test]
     fn item_removed_after_walking_onto_it() {
         let mut state = GameState::new(42);
+        // Clear entities to avoid collision
+        state.enemies.clear();
+        state.npcs.clear();
         // Place item one tile to the right
         let item_x = state.player_x + 1;
         let item_y = state.player_y;
@@ -149,10 +158,11 @@ mod tests {
         state.rebuild_spatial_index();
         assert_eq!(state.items.len(), 1);
         // Move onto item
-        state.try_move(1, 0);
+        let moved = state.try_move(1, 0);
+        assert!(moved, "Player should be able to move onto the item tile");
         // Item should be removed from map
-        assert_eq!(state.items.len(), 0);
-        assert_eq!(state.inventory.len(), 1);
+        assert_eq!(state.items.len(), 0, "Item should be removed after walking onto it");
+        assert_eq!(state.inventory.len(), 1, "Inventory should have 1 item");
     }
 
     #[test]

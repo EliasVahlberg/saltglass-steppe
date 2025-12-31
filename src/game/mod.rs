@@ -1,6 +1,5 @@
 pub mod action;
 pub mod adaptation;
-pub mod ai;
 pub mod book;
 pub mod chest;
 pub mod combat;
@@ -38,6 +37,7 @@ pub mod state;
 pub mod status;
 pub mod story;
 pub mod storm;
+pub mod systems;
 pub mod trading;
 pub mod tutorial;
 pub mod world_map;

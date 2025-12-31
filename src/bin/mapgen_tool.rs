@@ -1,5 +1,5 @@
 use std::env;
-use tui_rpg::{Map, WorldMap, Tile, Biome, Terrain, POI};
+use saltglass_steppe::{Map, WorldMap, Tile, Biome, Terrain, POI};
 
 const WORLD_WIDTH: usize = 192;
 const WORLD_HEIGHT: usize = 64;

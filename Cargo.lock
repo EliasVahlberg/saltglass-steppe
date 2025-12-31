@@ -795,6 +795,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "saltglass-steppe"
+version = "0.1.0"
+dependencies = [
+ "bracket-pathfinding",
+ "chrono",
+ "clap",
+ "crossterm",
+ "noise",
+ "once_cell",
+ "rand",
+ "rand_chacha",
+ "ratatui",
+ "rayon",
+ "ron",
+ "serde",
+ "serde_json",
+ "textwrap",
+ "which",
+]
+
+[[package]]
 name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -945,27 +966,6 @@ dependencies = [
  "smawk",
  "unicode-linebreak",
  "unicode-width 0.2.2",
-]
-
-[[package]]
-name = "tui-rpg"
-version = "0.1.0"
-dependencies = [
- "bracket-pathfinding",
- "chrono",
- "clap",
- "crossterm",
- "noise",
- "once_cell",
- "rand",
- "rand_chacha",
- "ratatui",
- "rayon",
- "ron",
- "serde",
- "serde_json",
- "textwrap",
- "which",
 ]
 
 [[package]]

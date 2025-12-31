@@ -1,7 +1,7 @@
 //! Integration tests for DES scenarios
 
 use std::fs;
-use tui_rpg::des::{run_scenario, run_parallel, Scenario};
+use saltglass_steppe::des::{run_scenario, run_parallel, Scenario};
 
 #[test]
 fn run_all_scenarios() {
@@ -81,6 +81,13 @@ fn aria_test() {
 #[test]
 fn combat_behaviors_test() {
     let result = run_scenario("tests/scenarios/combat_behaviors_test.json")
+        .expect("Failed to run scenario");
+    assert!(result.success, "Scenario failed: {:?}", result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn ranged_attack_test() {
+    let result = run_scenario("tests/scenarios/ranged_attack.json")
         .expect("Failed to run scenario");
     assert!(result.success, "Scenario failed: {:?}", result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
 }

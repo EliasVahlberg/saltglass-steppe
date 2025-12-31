@@ -1,4 +1,4 @@
-use tui_rpg::des::run_scenario;
+use saltglass_steppe::des::run_scenario;
 use std::fs::File;
 use std::io::Write;
 

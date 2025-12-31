@@ -5,10 +5,10 @@ use crossterm::{
 };
 use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
 use std::io::{stdout, Result};
-use tui_rpg::{get_item_def, GameState, Renderer};
-use tui_rpg::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_psychic_menu, render_skills_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, render_book_reader, render_chest_ui, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
-use tui_rpg::cli::{parse_args, LaunchMode};
-use tui_rpg::satellite::SatelliteApp;
+use saltglass_steppe::{get_item_def, GameState, Renderer};
+use saltglass_steppe::ui::{render_inventory_menu, render_quest_log, render_crafting_menu, render_wiki, render_psychic_menu, render_skills_menu, render_side_panel, render_bottom_panel, render_target_hud, handle_input, Action, UiState, handle_menu_input, render_menu, render_controls, render_pause_menu, render_debug_console, render_debug_menu, render_issue_reporter, render_dialog_box, render_book_reader, render_chest_ui, MenuAction, MainMenuState, render_damage_numbers, render_death_screen};
+use saltglass_steppe::cli::{parse_args, LaunchMode};
+use saltglass_steppe::satellite::SatelliteApp;
 
 const SAVE_FILE: &str = "savegame.ron";
 
@@ -91,9 +91,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 // Check what tile we're standing on
                 if let Some(tile) = state.map.get(state.player_x, state.player_y) {
                     match tile {
-                        tui_rpg::Tile::StairsDown => { state.enter_subterranean(); }
-                        tui_rpg::Tile::StairsUp => { state.exit_subterranean(); }
-                        tui_rpg::Tile::WorldExit => {
+                        saltglass_steppe::Tile::StairsDown => { state.enter_subterranean(); }
+                        saltglass_steppe::Tile::StairsUp => { state.exit_subterranean(); }
+                        saltglass_steppe::Tile::WorldExit => {
                             // Simple world map travel - for now just show a message
                             // TODO: Add proper world map UI
                             state.log("Use arrow keys to choose direction, then press > again.");
@@ -106,9 +106,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::TradeBuy(idx) => {
             if let Some(interface) = &mut ui.trade_menu.interface {
                 if let Some(item) = interface.available_items.get(idx) {
-                    use tui_rpg::trading::execute_trade;
+                    use saltglass_steppe::trading::execute_trade;
                     match execute_trade(interface, &item.item_id.clone(), 1, &mut state.salt_scrip, &mut state.inventory) {
-                        Ok(msg) => state.log_typed(msg, tui_rpg::MsgType::Social),
+                        Ok(msg) => state.log_typed(msg, saltglass_steppe::MsgType::Social),
                         Err(e) => state.log(e),
                     }
                 }
@@ -117,9 +117,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::TradeSell(idx) => {
             if let Some(interface) = &ui.trade_menu.interface {
                 if let Some(item_id) = state.inventory.get(idx) {
-                    use tui_rpg::trading::execute_sell;
+                    use saltglass_steppe::trading::execute_sell;
                     match execute_sell(interface, &item_id.clone(), 1, &mut state.salt_scrip, &mut state.inventory) {
-                        Ok(msg) => state.log_typed(msg, tui_rpg::MsgType::Social),
+                        Ok(msg) => state.log_typed(msg, saltglass_steppe::MsgType::Social),
                         Err(e) => state.log(e),
                     }
                 }
@@ -159,7 +159,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 if idx < state.inventory.len() {
                     if let Some(def) = get_item_def(&state.inventory[idx]) {
                         if let Some(slot_str) = &def.equip_slot {
-                            if let Ok(slot) = slot_str.parse::<tui_rpg::EquipSlot>() {
+                            if let Ok(slot) = slot_str.parse::<saltglass_steppe::EquipSlot>() {
                                 state.equip_item(idx, slot);
                             }
                         }
@@ -182,7 +182,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             // Check if player is standing on a chest
             if let Some(&chest_idx) = state.chest_positions.get(&(state.player_x, state.player_y)) {
                 if state.open_chest(chest_idx) {
-                    ui.chest_ui = Some(tui_rpg::ui::ChestUI::new(chest_idx));
+                    ui.chest_ui = Some(saltglass_steppe::ui::ChestUI::new(chest_idx));
                 }
             } else {
                 state.log("No chest here.");
@@ -240,7 +240,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
 fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut Renderer) {
     // Fullscreen menus
     if ui.trade_menu.active {
-        use tui_rpg::ui::render_trade_menu;
+        use saltglass_steppe::ui::render_trade_menu;
         render_trade_menu(frame, &ui.trade_menu, state);
         return;
     }
@@ -276,7 +276,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
     }
     if ui.world_map_view.open {
         if let Some(ref world_map) = state.world_map {
-            tui_rpg::ui::render_world_map(frame, frame.area(), world_map, state.world_x, state.world_y, &ui.world_map_view);
+            saltglass_steppe::ui::render_world_map(frame, frame.area(), world_map, state.world_x, state.world_y, &ui.world_map_view);
         }
         return;
     }
@@ -397,7 +397,7 @@ fn run_main_game() -> Result<()> {
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
     // Initialize IPC server
-    use tui_rpg::ipc::{IpcServer, IpcMessage};
+    use saltglass_steppe::ipc::{IpcServer, IpcMessage};
     let socket_path = "/tmp/saltglass-steppe.sock";
     let ipc_server = IpcServer::new(socket_path)?;
     ipc_server.start()?;
@@ -473,7 +473,7 @@ fn run_main_game() -> Result<()> {
             
             // Check for pending trade
             if let Some(trader_id) = state.pending_trade.take() {
-                use tui_rpg::trading::{get_trade_interface, calculate_area_tier};
+                use saltglass_steppe::trading::{get_trade_interface, calculate_area_tier};
                 let area_tier = calculate_area_tier(&state.enemies);
                 if let Some(interface) = get_trade_interface(
                     &trader_id, 
