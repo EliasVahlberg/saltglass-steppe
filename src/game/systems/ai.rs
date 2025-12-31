@@ -118,6 +118,8 @@ impl AiBehavior for StandardMeleeBehavior {
                                 }
                                 
                                 state.enemies.push(new_enemy);
+                                // Update spatial index for new enemy
+                                state.enemy_positions.insert((sx, sy), state.enemies.len() - 1);
                                 state.enemies[i].spawned_count += 1;
                                 state.enemies[i].last_spawn_turn = state.turn;
                                 

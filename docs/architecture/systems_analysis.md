@@ -7,7 +7,7 @@
 | 1. God Object | In Progress | Systems extracted: Combat, AI, Movement |
 | 2. Unused Event Bus | **FIXED** | Events now processed in `end_turn()` |
 | 3. Mixed Abstraction Levels | **FIXED** | `try_move()` extracted to `MovementSystem` |
-| 4. Spatial Index Sync | Not Started | Manual rebuild required |
+| 4. Spatial Index Sync | Partially Fixed | Added missing index updates in AI spawning |
 | 5. Test Schema Drift | Partially Fixed | New assertions added |
 | 6. Hardcoded Entity Checks | **FIXED** | Laser beam is data-driven |
 | 7. Panic on Missing Defs | **FIXED** | Safe patterns used |
@@ -17,7 +17,7 @@
 
 **Line Counts**:
 - `src/game/state.rs`: 3009 lines (down from 3150)
-- `src/game/systems/`: 1006 lines (combat: 292, ai: 402, movement: 297)
+- `src/game/systems/`: 1008 lines (combat: 292, ai: 404, movement: 297)
 
 ---
 
