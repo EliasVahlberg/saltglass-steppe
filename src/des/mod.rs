@@ -65,6 +65,38 @@ pub struct Scenario {
     pub base: Option<String>,
     #[serde(default)]
     pub variables: HashMap<String, serde_json::Value>,
+    #[serde(default)]
+    pub map_setup: MapSetup,
+}
+
+/// Map setup options for test scenarios
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+pub struct MapSetup {
+    /// Clear a rectangular area around player (make all tiles Floor)
+    #[serde(default)]
+    pub clear_radius: Option<i32>,
+    /// Specific areas to clear (list of {x, y, width, height})
+    #[serde(default)]
+    pub clear_areas: Vec<ClearArea>,
+    /// Ensure path is walkable between two points
+    #[serde(default)]
+    pub ensure_paths: Vec<EnsurePath>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ClearArea {
+    pub x: i32,
+    pub y: i32,
+    pub width: i32,
+    pub height: i32,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EnsurePath {
+    pub from_x: i32,
+    pub from_y: i32,
+    pub to_x: i32,
+    pub to_y: i32,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -511,6 +543,9 @@ impl DesExecutor {
             state.revealed.extend(&state.visible);
         }
 
+        // Apply map_setup options
+        Self::apply_map_setup(&mut state, &scenario.map_setup);
+
         // Check for debug flags in variables
         if let Some(val) = scenario.variables.get("debug_disable_glare") {
             if val.as_bool().unwrap_or(false) {
@@ -600,6 +635,98 @@ impl DesExecutor {
             current_trade_interface: None,
             current_dialogue: None,
             last_trade_result: None,
+        }
+    }
+
+    /// Apply map setup options (clear areas, ensure paths)
+    fn apply_map_setup(state: &mut GameState, setup: &MapSetup) {
+        use crate::game::map::Tile;
+        
+        // Clear radius around player
+        if let Some(radius) = setup.clear_radius {
+            let px = state.player_x;
+            let py = state.player_y;
+            for dy in -radius..=radius {
+                for dx in -radius..=radius {
+                    let nx = px + dx;
+                    let ny = py + dy;
+                    if nx >= 1 && ny >= 1 && nx < (state.map.width - 1) as i32 && ny < (state.map.height - 1) as i32 {
+                        let idx = ny as usize * state.map.width + nx as usize;
+                        if !state.map.tiles[idx].walkable() {
+                            state.map.tiles[idx] = Tile::Floor;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Clear specific areas
+        for area in &setup.clear_areas {
+            for y in area.y..(area.y + area.height) {
+                for x in area.x..(area.x + area.width) {
+                    if x >= 1 && y >= 1 && x < (state.map.width - 1) as i32 && y < (state.map.height - 1) as i32 {
+                        let idx = y as usize * state.map.width + x as usize;
+                        if !state.map.tiles[idx].walkable() {
+                            state.map.tiles[idx] = Tile::Floor;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Ensure paths between points (simple line carving)
+        for path in &setup.ensure_paths {
+            Self::carve_path(state, path.from_x, path.from_y, path.to_x, path.to_y);
+        }
+        
+        // Recompute FOV if any changes were made
+        if setup.clear_radius.is_some() || !setup.clear_areas.is_empty() || !setup.ensure_paths.is_empty() {
+            state.visible = crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
+            state.revealed.extend(&state.visible);
+        }
+    }
+    
+    /// Carve a walkable path between two points using Bresenham's line algorithm
+    fn carve_path(state: &mut GameState, x0: i32, y0: i32, x1: i32, y1: i32) {
+        use crate::game::map::Tile;
+        
+        let dx = (x1 - x0).abs();
+        let dy = -(y1 - y0).abs();
+        let sx = if x0 < x1 { 1 } else { -1 };
+        let sy = if y0 < y1 { 1 } else { -1 };
+        let mut err = dx + dy;
+        
+        let mut x = x0;
+        let mut y = y0;
+        
+        loop {
+            // Carve the tile and adjacent tiles for a wider path
+            for oy in -1..=1 {
+                for ox in -1..=1 {
+                    let nx = x + ox;
+                    let ny = y + oy;
+                    if nx >= 1 && ny >= 1 && nx < (state.map.width - 1) as i32 && ny < (state.map.height - 1) as i32 {
+                        let idx = ny as usize * state.map.width + nx as usize;
+                        if !state.map.tiles[idx].walkable() {
+                            state.map.tiles[idx] = Tile::Floor;
+                        }
+                    }
+                }
+            }
+            
+            if x == x1 && y == y1 { break; }
+            
+            let e2 = 2 * err;
+            if e2 >= dy {
+                if x == x1 { break; }
+                err += dy;
+                x += sx;
+            }
+            if e2 <= dx {
+                if y == y1 { break; }
+                err += dx;
+                y += sy;
+            }
         }
     }
 

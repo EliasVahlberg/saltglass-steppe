@@ -1,0 +1,20 @@
+{
+    "name": "enemy_hp_check",
+    "description": "Test that attacking reduces enemy HP",
+    "seed": 42,
+    "world_x": 5,
+    "world_y": 5,
+    "mocks": {"combat_always_hit": true, "combat_fixed_damage": 3},
+    "map_setup": {"clear_radius": 5},
+    "player": {"x": 10, "y": 10, "hp": 20, "max_hp": 20},
+    "entities": [
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 11, "y": 10, "hp": 10, "ai_disabled": true}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}, "comment": "Bump attack"}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "enemy_hp", "id": "mirage_hound", "op": "lt", "value": 10}, "message": "Enemy took damage"},
+        {"at_end": true, "check": {"type": "enemy_alive", "id": "mirage_hound"}}
+    ]
+}

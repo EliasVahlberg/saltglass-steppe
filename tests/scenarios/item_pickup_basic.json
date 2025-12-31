@@ -1,0 +1,35 @@
+{
+  "name": "Item Pickup Test",
+  "description": "Test that items are picked up when walking over them",
+  "seed": 12345,
+  "world_x": 5,
+  "world_y": 5,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20
+  },
+  "map_setup": {
+    "clear_radius": 5
+  },
+  "entities": [
+    {"entity_type": "item", "id": "brine_vial", "x": 11, "y": 10},
+    {"entity_type": "item", "id": "salted_meat", "x": 12, "y": 10}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}, "comment": "Walk onto brine_vial"},
+    {"turn": 1, "action": {"type": "move", "dx": 1, "dy": 0}, "comment": "Walk onto salted_meat"}
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {"type": "inventory_contains", "item": "brine_vial"},
+      "message": "Brine vial should be picked up"
+    },
+    {
+      "after_turn": 1,
+      "check": {"type": "inventory_size", "op": "eq", "value": 2},
+      "message": "Both items should be in inventory"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+    "name": "combat_basic",
+    "description": "Test basic melee combat - bump attack kills 1HP enemy",
+    "seed": 42,
+    "world_x": 5,
+    "world_y": 5,
+    "player": {"x": 10, "y": 10, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10},
+    "mocks": {"combat_always_hit": true, "combat_fixed_damage": 5},
+    "map_setup": {
+        "clear_radius": 5
+    },
+    "entities": [
+        {"entity_type": "enemy", "id": "mirage_hound", "x": 11, "y": 10, "hp": 1, "ai_disabled": true}
+    ],
+    "actions": [
+        {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}, "comment": "Bump into enemy to attack"}
+    ],
+    "assertions": [
+        {"at_end": true, "check": {"type": "enemy_count", "op": "eq", "value": 0}, "message": "Enemy should be dead after bump attack"},
+        {"at_end": true, "check": {"type": "player_alive"}}
+    ]
+}

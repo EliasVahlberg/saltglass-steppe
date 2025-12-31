@@ -435,12 +435,13 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
     -   Provides helper functions: `player_is_stunned`, `enemy_is_stunned`, `player_accuracy_penalty`
     -   Enemies killed by status effects emit `EnemyKilled` event
 
-8.  **Fix Broken Combat Test Scenarios**
-    -   10 scenarios in `tests/scenarios/broken/` fail due to:
-        -   Map generation blocking player movement to target
-        -   Missing world coordinates causing random map generation
-    -   TODO: Add `ensure_path` action or `clear_path` setup option
-    -   TODO: Consider deterministic test map generation
+8.  ~~**Fix Broken Combat Test Scenarios**~~ - **COMPLETED**
+    -   Added `MapSetup` struct to DES framework with:
+        -   `clear_radius`: Clear circular area around player
+        -   `clear_areas`: Clear specific rectangular regions
+        -   `ensure_paths`: Carve walkable paths between points using Bresenham's algorithm
+    -   Fixed 6 broken scenarios: combat_basic, item_pickup_basic, combat_kill_xp, combat_ranged_kill, mock_combat, enemy_hp_check
+    -   Remaining scenarios in broken/ are feature-specific (equipment, skills, quests)
 
 ### Long-term (Future Phases)
 
