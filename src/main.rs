@@ -513,13 +513,15 @@ fn run_main_game() -> Result<()> {
                             .map(|a| a.name().to_string())
                             .collect();
                         
-                        ipc_server.send_message(IpcMessage::GameState {
+                        let _ = ipc_server.send_message(IpcMessage::GameState {
                             hp: state.player_hp,
                             max_hp: state.player_max_hp,
                             refraction: state.refraction as i32,
                             turn: state.turn as u32,
-                            storm_countdown: state.storm.turns_until,
+                            storm_countdown: state.storm.turns_until as i32,
                             adaptations,
+                            god_view: state.debug_god_view,
+                            phase_mode: state.debug_phase,
                         });
                         
                         // Send inventory update
@@ -543,7 +545,7 @@ fn run_main_game() -> Result<()> {
                         })
                         .collect();
                         
-                        ipc_server.send_message(IpcMessage::InventoryUpdate {
+                        let _ = ipc_server.send_message(IpcMessage::InventoryUpdate {
                             items: state.inventory.clone(),
                             equipped: equipped_items,
                         });
@@ -551,20 +553,21 @@ fn run_main_game() -> Result<()> {
                         // Send new log messages only
                         if state.messages.len() > last_message_count {
                             for message in &state.messages[last_message_count..] {
-                                ipc_server.send_message(IpcMessage::LogEntry {
+                                let _ = ipc_server.send_message(IpcMessage::LogEntry {
                                     message: message.text.clone(),
-                                    timestamp: message.turn as u64,
+                                    msg_type: format!("{:?}", message.msg_type),
+                                    turn: message.turn,
                                 });
                             }
                             last_message_count = state.messages.len();
                         }
                         
                         // Send debug info update
-                        ipc_server.send_message(IpcMessage::DebugInfo {
+                        let _ = ipc_server.send_message(IpcMessage::DebugInfo {
                             player_pos: (state.player_x, state.player_y),
                             enemies_count: state.enemies.len(),
                             items_count: state.inventory.len(),
-                            storm_intensity: state.storm.intensity,
+                            storm_intensity: state.storm.intensity as i32,
                             seed: state.seed,
                             god_view: state.debug_god_view,
                             phase_mode: state.debug_phase,

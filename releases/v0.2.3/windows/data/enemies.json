@@ -1,0 +1,651 @@
+{
+  "enemies": [
+    {
+      "id": "laser_drone",
+      "name": "Laser Drone",
+      "glyph": "d",
+      "max_hp": 10,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 8,
+      "xp_value": 20,
+      "level": 2,
+      "description": "Ancient security drone",
+      "behaviors": [{ "type": "laser_beam", "value": 5 }]
+    },
+    {
+      "id": "splitter_slime",
+      "name": "Splitter Slime",
+      "glyph": "o",
+      "max_hp": 10,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 4,
+      "xp_value": 10,
+      "level": 1,
+      "description": "Unstable biological mass",
+      "behaviors": [
+        { "type": "split_on_death", "condition": "glass_beetle", "value": 2 }
+      ]
+    },
+    {
+      "id": "mirage_hound",
+      "name": "Mirage Hound",
+      "glyph": "h",
+      "max_hp": 8,
+      "damage_min": 1,
+      "damage_max": 3,
+      "sight_range": 6,
+      "xp_value": 15,
+      "level": 1,
+      "description": "Shimmering predator that hunts by heat",
+      "loot_table": [
+        { "item": "salted_meat", "weight": 3 },
+        { "item": "brine_vial", "weight": 1 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "W(@4 &LightYellow)" },
+        { "condition": "on_death", "effect": "D(@8 &Yellow)" }
+      ]
+    },
+    {
+      "id": "alpha_mirage_hound",
+      "name": "Alpha Mirage Hound",
+      "glyph": "H",
+      "max_hp": 15,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 8,
+      "xp_value": 35,
+      "level": 4,
+      "description": "Pack leader with enhanced heat vision and coordinated attacks",
+      "loot_table": [
+        { "item": "salted_meat", "weight": 5 },
+        { "item": "alpha_fang", "weight": 2 },
+        { "item": "pack_leader_hide", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "pack_coordination", "effect": "buff_nearby_hounds" },
+        { "type": "heat_vision", "range": 10 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "W(@6 &Red)" },
+        { "condition": "on_death", "effect": "D(@12 &LightRed)" }
+      ]
+    },
+    {
+      "id": "glass_beetle",
+      "name": "Glass Beetle",
+      "glyph": "b",
+      "max_hp": 12,
+      "damage_min": 1,
+      "damage_max": 4,
+      "sight_range": 5,
+      "xp_value": 20,
+      "level": 2,
+      "description": "Armored insect with refractive carapace",
+      "loot_table": [
+        { "item": "glass_shard", "weight": 5 },
+        { "item": "salt_crystal", "weight": 2 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "S(@3 &Cyan &LightCyan)" },
+        { "condition": "on_death", "effect": "S(@2 &LightCyan &White)" }
+      ]
+    },
+    {
+      "id": "crystal_scarab",
+      "name": "Crystal Scarab",
+      "glyph": "B",
+      "max_hp": 25,
+      "damage_min": 4,
+      "damage_max": 8,
+      "sight_range": 6,
+      "armor": 3,
+      "xp_value": 60,
+      "level": 6,
+      "description": "Massive beetle with crystalline armor that reflects attacks",
+      "loot_table": [
+        { "item": "crystal_carapace", "weight": 3 },
+        { "item": "scarab_core", "weight": 1 },
+        { "item": "glass_shard", "weight": 8 }
+      ],
+      "behaviors": [
+        { "type": "reflect_damage", "percent": 50 },
+        { "type": "crystal_charge", "damage": 12 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "S(@5 &LightCyan &White)" },
+        { "condition": "on_death", "effect": "S(@8 &Cyan &LightCyan)" }
+      ]
+    },
+    {
+      "id": "salt_mummy",
+      "name": "Salt Mummy",
+      "glyph": "m",
+      "max_hp": 15,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 4,
+      "xp_value": 25,
+      "level": 2,
+      "demeanor": "defensive",
+      "description": "Desiccated pilgrim risen from the salt flats",
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 4 },
+        { "item": "rusted_gear", "weight": 2 },
+        { "item": "rags", "weight": 1 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "F(@20 &White)" },
+        { "condition": "on_death", "effect": "D(@12 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "salt_lord",
+      "name": "Salt Lord",
+      "glyph": "M",
+      "max_hp": 40,
+      "damage_min": 6,
+      "damage_max": 12,
+      "sight_range": 8,
+      "armor": 2,
+      "xp_value": 100,
+      "level": 8,
+      "description": "Ancient ruler preserved in salt, commands lesser undead",
+      "is_spawner": true,
+      "spawn_rate": 4,
+      "max_spawns": 6,
+      "spawn_types": ["salt_mummy"],
+      "loot_table": [
+        { "item": "salt_crown", "weight": 1 },
+        { "item": "royal_scepter", "weight": 1 },
+        { "item": "salt_crystal", "weight": 10 }
+      ],
+      "behaviors": [
+        { "type": "command_undead", "range": 10 },
+        { "type": "salt_storm", "radius": 3, "damage": 8 }
+      ],
+      "effects": [
+        { "condition": "on_spawn", "effect": "F(@30 &White)" },
+        { "condition": "on_death", "effect": "D(@20 &LightGray)" }
+      ]
+    },
+    {
+      "id": "refraction_wraith",
+      "name": "Refraction Wraith",
+      "glyph": "◊",
+      "max_hp": 6,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 8,
+      "xp_value": 30,
+      "level": 3,
+      "description": "Storm-born specter that phases through glass",
+      "spawns_during_storm": true,
+      "loot_table": [
+        { "item": "storm_glass", "weight": 3 },
+        { "item": "glass_arrow", "weight": 2 },
+        { "item": "scripture_shard", "weight": 1 }
+      ],
+      "behaviors": [{ "type": "reflect_damage", "percent": 25 }],
+      "effects": [
+        { "condition": "on_hit", "effect": "P(@2 &White)" },
+        { "condition": "on_death", "effect": "W(@4 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "storm_phantom",
+      "name": "Storm Phantom",
+      "glyph": "Φ",
+      "max_hp": 20,
+      "damage_min": 8,
+      "damage_max": 15,
+      "sight_range": 12,
+      "xp_value": 120,
+      "level": 9,
+      "description": "Powerful storm entity that manipulates reality itself",
+      "spawns_during_storm": true,
+      "ranged_attack": true,
+      "attack_range": 10,
+      "aoe_attack": true,
+      "aoe_radius": 4,
+      "aoe_warning_turns": 3,
+      "loot_table": [
+        { "item": "storm_core", "weight": 1 },
+        { "item": "phantom_essence", "weight": 2 },
+        { "item": "storm_glass", "weight": 8 }
+      ],
+      "behaviors": [
+        { "type": "reality_warp", "effect": "change_terrain" },
+        { "type": "storm_call", "effect": "mini_storm" },
+        { "type": "phase_through_walls" }
+      ],
+      "effects": [
+        { "condition": "on_warning", "effect": "F(@4 &LightMagenta)" },
+        { "condition": "on_hit", "effect": "P(@6 &Magenta)" },
+        { "condition": "on_death", "effect": "W(@10 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "shard_spider",
+      "name": "Shard Spider",
+      "glyph": "s",
+      "max_hp": 5,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 4,
+      "xp_value": 10,
+      "level": 1,
+      "description": "Skitters on glass legs—attacks in swarms",
+      "swarm": true,
+      "loot_table": [
+        { "item": "glass_arrow", "weight": 4 },
+        { "item": "brine_vial", "weight": 1 }
+      ],
+      "behaviors": [{ "type": "on_hit_refraction", "value": 2 }],
+      "effects": [
+        { "condition": "on_hit", "effect": "S(@2 &LightCyan &White)" },
+        { "condition": "on_death", "effect": "S(@1 &Cyan &LightCyan)" }
+      ]
+    },
+    {
+      "id": "crystal_widow",
+      "name": "Crystal Widow",
+      "glyph": "S",
+      "max_hp": 30,
+      "damage_min": 6,
+      "damage_max": 12,
+      "sight_range": 8,
+      "xp_value": 80,
+      "level": 7,
+      "description": "Massive spider queen that weaves webs of crystallized light",
+      "is_spawner": true,
+      "spawn_rate": 2,
+      "max_spawns": 12,
+      "spawn_types": ["shard_spider"],
+      "ranged_attack": true,
+      "attack_range": 6,
+      "loot_table": [
+        { "item": "crystal_web", "weight": 3 },
+        { "item": "widow_venom", "weight": 2 },
+        { "item": "spider_queen_crown", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "web_trap", "range": 6, "duration": 5 },
+        { "type": "venom_spit", "range": 6, "damage": 8 },
+        { "type": "spider_coordination", "effect": "buff_spiders" }
+      ],
+      "effects": [
+        { "condition": "on_spawn", "effect": "S(@4 &LightCyan &White)" },
+        { "condition": "on_hit", "effect": "S(@6 &Cyan &LightCyan)" },
+        { "condition": "on_death", "effect": "S(@10 &LightCyan &White)" }
+      ]
+    },
+    {
+      "id": "shard_nest",
+      "name": "Shard Nest",
+      "glyph": "N",
+      "max_hp": 25,
+      "damage_min": 0,
+      "damage_max": 0,
+      "sight_range": 6,
+      "xp_value": 40,
+      "level": 3,
+      "description": "Crystalline spawning chamber that produces shard spiders",
+      "is_spawner": true,
+      "spawn_rate": 3,
+      "max_spawns": 8,
+      "spawn_types": ["shard_spider"],
+      "demeanor": "defensive",
+      "loot_table": [
+        { "item": "glass_shard", "weight": 8 },
+        { "item": "spider_silk", "weight": 3 },
+        { "item": "nest_core", "weight": 1 }
+      ],
+      "effects": [
+        { "condition": "on_spawn", "effect": "S(@3 &LightCyan &White)" },
+        { "condition": "on_death", "effect": "S(@5 &Cyan &LightCyan)" }
+      ]
+    },
+    {
+      "id": "storm_archer",
+      "name": "Storm Archer",
+      "glyph": "A",
+      "max_hp": 12,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 8,
+      "xp_value": 35,
+      "level": 3,
+      "description": "Spectral bowman that fires glass arrows from afar",
+      "ranged_attack": true,
+      "attack_range": 6,
+      "loot_table": [
+        { "item": "glass_arrow", "weight": 5 },
+        { "item": "storm_bow", "weight": 1 },
+        { "item": "archer_cloak", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "kite_enemy", "range": 6 },
+        { "type": "precise_shot", "accuracy_bonus": 20 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &LightBlue)" },
+        { "condition": "on_death", "effect": "B(@3 &Blue)" }
+      ]
+    },
+    {
+      "id": "storm_marksman",
+      "name": "Storm Marksman",
+      "glyph": "Å",
+      "max_hp": 20,
+      "damage_min": 8,
+      "damage_max": 15,
+      "sight_range": 12,
+      "accuracy": 25,
+      "xp_value": 90,
+      "level": 8,
+      "description": "Elite archer with piercing shots that ignore armor",
+      "ranged_attack": true,
+      "attack_range": 10,
+      "loot_table": [
+        { "item": "piercing_arrow", "weight": 8 },
+        { "item": "master_bow", "weight": 1 },
+        { "item": "marksman_scope", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "piercing_shot", "effect": "ignore_armor" },
+        { "type": "headshot", "crit_chance": 30 },
+        { "type": "tactical_retreat", "range": 8 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@3 &LightBlue)" },
+        { "condition": "on_death", "effect": "B(@6 &Blue)" }
+      ]
+    },
+    {
+      "id": "glass_bomber",
+      "name": "Glass Bomber",
+      "glyph": "B",
+      "max_hp": 8,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 6,
+      "xp_value": 45,
+      "level": 4,
+      "description": "Volatile creature that explodes in a shower of glass shards",
+      "aoe_attack": true,
+      "aoe_radius": 2,
+      "aoe_warning_turns": 2,
+      "loot_table": [
+        { "item": "glass_shard", "weight": 6 },
+        { "item": "explosive_core", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "suicide_bomber", "damage": 8, "radius": 2 },
+        { "type": "charge_enemy" }
+      ],
+      "effects": [
+        { "condition": "on_warning", "effect": "F(@2 &Red)" },
+        { "condition": "on_death", "effect": "B(@2 &LightRed)" }
+      ]
+    },
+    {
+      "id": "crystal_devastator",
+      "name": "Crystal Devastator",
+      "glyph": "Ð",
+      "max_hp": 35,
+      "damage_min": 10,
+      "damage_max": 20,
+      "sight_range": 8,
+      "armor": 4,
+      "xp_value": 150,
+      "level": 10,
+      "description": "Massive crystalline war machine with devastating area attacks",
+      "aoe_attack": true,
+      "aoe_radius": 4,
+      "aoe_warning_turns": 3,
+      "loot_table": [
+        { "item": "devastator_core", "weight": 1 },
+        { "item": "crystal_armor_plate", "weight": 3 },
+        { "item": "glass_shard", "weight": 15 }
+      ],
+      "behaviors": [
+        { "type": "crystal_nova", "damage": 25, "radius": 4 },
+        { "type": "siege_mode", "effect": "increased_damage_reduced_speed" },
+        { "type": "crystal_regeneration", "hp_per_turn": 5 }
+      ],
+      "effects": [
+        { "condition": "on_warning", "effect": "F(@4 &Red)" },
+        { "condition": "on_hit", "effect": "S(@8 &LightCyan &White)" },
+        { "condition": "on_death", "effect": "B(@8 &LightRed)" }
+      ]
+    },
+    {
+      "id": "mirror_monk_friendly",
+      "name": "Mirror Monk",
+      "glyph": "M",
+      "max_hp": 15,
+      "damage_min": 2,
+      "damage_max": 5,
+      "sight_range": 7,
+      "demeanor": "friendly",
+      "xp_value": 0,
+      "level": 3,
+      "description": "Contemplative monk who seeks the angles of truth",
+      "loot_table": [
+        { "item": "monk_scripture", "weight": 3 },
+        { "item": "meditation_crystal", "weight": 2 },
+        { "item": "brine_vial", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "offer_blessing", "effect": "refraction_resistance" },
+        { "type": "share_wisdom", "effect": "temporary_adaptation" }
+      ],
+      "effects": [
+        { "condition": "on_interact", "effect": "G(&LightCyan)" },
+        { "condition": "on_death", "effect": "B(@4 &White)" }
+      ]
+    },
+    {
+      "id": "sand_engineer_friendly",
+      "name": "Sand Engineer",
+      "glyph": "E",
+      "max_hp": 18,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 6,
+      "demeanor": "friendly",
+      "xp_value": 0,
+      "level": 4,
+      "description": "Pragmatic engineer working to stabilize the storms",
+      "loot_table": [
+        { "item": "engineering_tool", "weight": 3 },
+        { "item": "storm_stabilizer", "weight": 1 },
+        { "item": "repair_kit", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "offer_repairs", "effect": "equipment_repair" },
+        { "type": "share_maps", "effect": "reveal_area" }
+      ],
+      "effects": [
+        { "condition": "on_interact", "effect": "G(&Yellow)" },
+        { "condition": "on_death", "effect": "B(@3 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "glassborn_friendly",
+      "name": "Glassborn Wanderer",
+      "glyph": "G",
+      "max_hp": 20,
+      "damage_min": 4,
+      "damage_max": 7,
+      "sight_range": 8,
+      "demeanor": "friendly",
+      "xp_value": 0,
+      "level": 5,
+      "description": "Transformed being who has embraced the storm's gifts",
+      "loot_table": [
+        { "item": "storm_glass", "weight": 4 },
+        { "item": "adaptation_catalyst", "weight": 1 },
+        { "item": "glass_thread", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "offer_transformation", "effect": "forced_adaptation" },
+        { "type": "storm_guidance", "effect": "storm_prediction" }
+      ],
+      "effects": [
+        { "condition": "on_interact", "effect": "G(&LightMagenta)" },
+        { "condition": "on_death", "effect": "B(@5 &Magenta)" }
+      ]
+    },
+    {
+      "id": "psychic_wraith",
+      "name": "Psychic Wraith",
+      "glyph": "Ψ",
+      "max_hp": 10,
+      "damage_min": 2,
+      "damage_max": 8,
+      "sight_range": 10,
+      "xp_value": 50,
+      "level": 5,
+      "description": "Consciousness fragment with telepathic abilities",
+      "ranged_attack": true,
+      "attack_range": 8,
+      "loot_table": [
+        { "item": "psychic_crystal", "weight": 3 },
+        { "item": "consciousness_fragment", "weight": 1 },
+        { "item": "wraith_essence", "weight": 2 }
+      ],
+      "behaviors": [
+        { "type": "mind_blast", "range": 8, "damage": 6 },
+        { "type": "telepathic_confusion", "duration": 3 },
+        { "type": "phase_through_walls" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&Magenta)" },
+        { "condition": "on_death", "effect": "B(@4 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "mind_sovereign",
+      "name": "Mind Sovereign",
+      "glyph": "Ω",
+      "max_hp": 45,
+      "damage_min": 12,
+      "damage_max": 25,
+      "sight_range": 15,
+      "xp_value": 200,
+      "level": 10,
+      "description": "Apex psychic entity that commands reality through pure thought",
+      "ranged_attack": true,
+      "attack_range": 12,
+      "aoe_attack": true,
+      "aoe_radius": 5,
+      "aoe_warning_turns": 4,
+      "is_spawner": true,
+      "spawn_rate": 5,
+      "max_spawns": 4,
+      "spawn_types": ["psychic_wraith"],
+      "loot_table": [
+        { "item": "sovereign_crown", "weight": 1 },
+        { "item": "mind_crystal", "weight": 2 },
+        { "item": "psychic_amplifier", "weight": 1 }
+      ],
+      "behaviors": [
+        { "type": "mass_mind_control", "range": 15, "duration": 10 },
+        { "type": "reality_rewrite", "effect": "change_map_layout" },
+        { "type": "psychic_storm", "radius": 5, "damage": 20 },
+        { "type": "teleportation", "range": 20 }
+      ],
+      "effects": [
+        { "condition": "on_warning", "effect": "G(&LightMagenta)" },
+        { "condition": "on_spawn", "effect": "G(&Magenta)" },
+        { "condition": "on_hit", "effect": "P(@8 &Magenta)" },
+        { "condition": "on_death", "effect": "B(@15 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "adaptation_horror",
+      "name": "Adaptation Horror",
+      "glyph": "H",
+      "max_hp": 30,
+      "damage_min": 5,
+      "damage_max": 10,
+      "sight_range": 8,
+      "xp_value": 80,
+      "level": 6,
+      "description": "Grotesque fusion of multiple adaptations gone wrong",
+      "aoe_attack": true,
+      "aoe_radius": 3,
+      "aoe_warning_turns": 3,
+      "loot_table": [
+        { "item": "corrupted_adaptation", "weight": 2 },
+        { "item": "horror_essence", "weight": 1 },
+        { "item": "storm_glass", "weight": 4 }
+      ],
+      "behaviors": [
+        { "type": "adaptation_drain", "effect": "remove_adaptation" },
+        { "type": "mutation_aura", "radius": 3, "effect": "forced_refraction" },
+        { "type": "regenerate", "hp_per_turn": 3 }
+      ],
+      "effects": [
+        { "condition": "on_warning", "effect": "F(@3 &Red)" },
+        { "condition": "on_hit", "effect": "G(&Red)" },
+        { "condition": "on_death", "effect": "B(@6 &LightRed)" }
+      ]
+    },
+    {
+      "id": "dust_wraith",
+      "name": "Dust Wraith",
+      "glyph": "w",
+      "max_hp": 7,
+      "damage_min": 2,
+      "damage_max": 5,
+      "sight_range": 7,
+      "xp_value": 20,
+      "level": 2,
+      "description": "Swirling sand given malevolent form",
+      "loot_table": [
+        { "item": "salt_crystal", "weight": 3 },
+        { "item": "veil_tincture", "weight": 1 }
+      ],
+      "behaviors": [{ "type": "dust_cloud", "radius": 2, "duration": 3 }],
+      "effects": [
+        { "condition": "on_hit", "effect": "D(@6 &DarkGray)" },
+        { "condition": "on_death", "effect": "D(@10 &Gray)" }
+      ]
+    },
+    {
+      "id": "sandstorm_elemental",
+      "name": "Sandstorm Elemental",
+      "glyph": "W",
+      "max_hp": 50,
+      "damage_min": 8,
+      "damage_max": 16,
+      "sight_range": 12,
+      "xp_value": 120,
+      "level": 9,
+      "description": "Massive whirlwind of animated sand and glass particles",
+      "aoe_attack": true,
+      "aoe_radius": 6,
+      "aoe_warning_turns": 2,
+      "loot_table": [
+        { "item": "elemental_core", "weight": 1 },
+        { "item": "storm_essence", "weight": 3 },
+        { "item": "compressed_sand", "weight": 5 }
+      ],
+      "behaviors": [
+        { "type": "sandstorm", "radius": 6, "damage": 12, "duration": 5 },
+        { "type": "whirlwind_movement", "effect": "teleport_randomly" },
+        { "type": "sand_armor", "effect": "damage_reduction" }
+      ],
+      "effects": [
+        { "condition": "on_warning", "effect": "D(@6 &Yellow)" },
+        { "condition": "on_hit", "effect": "D(@10 &DarkGray)" },
+        { "condition": "on_death", "effect": "D(@20 &Gray)" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "lights": [
+    {
+      "id": "torch",
+      "name": "Wall Torch",
+      "glyph": "†",
+      "radius": 6,
+      "intensity": 120,
+      "color": "orange"
+    },
+    {
+      "id": "brazier",
+      "name": "Brazier",
+      "glyph": "¤",
+      "radius": 8,
+      "intensity": 180,
+      "color": "yellow"
+    },
+    {
+      "id": "crystal",
+      "name": "Glowing Crystal",
+      "glyph": "◊",
+      "radius": 4,
+      "intensity": 100,
+      "color": "cyan"
+    },
+    {
+      "id": "campfire",
+      "name": "Campfire",
+      "glyph": "≈",
+      "radius": 5,
+      "intensity": 140,
+      "color": "red"
+    }
+  ],
+  "spawn_rules": {
+    "default": {
+      "lights_per_room": [0, 2],
+      "weights": {
+        "torch": 5,
+        "crystal": 2
+      }
+    },
+    "saltflat": {
+      "lights_per_room": [0, 3],
+      "weights": {
+        "crystal": 8,
+        "torch": 1
+      }
+    },
+    "ruins": {
+      "lights_per_room": [1, 3],
+      "weights": {
+        "torch": 4,
+        "brazier": 3
+      }
+    }
+  }
+}

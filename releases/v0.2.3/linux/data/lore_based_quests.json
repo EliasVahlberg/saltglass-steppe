@@ -1,0 +1,306 @@
+[
+  {
+    "id": "quantum_consciousness_research",
+    "name": "The Nature of Quantum Consciousness",
+    "giver_npc": "dr_kira_thorne",
+    "faction": "Archive",
+    "description": "Assist Dr. Thorne in researching the quantum mechanics of consciousness",
+    "requirements": {
+      "min_adaptations": 2,
+      "faction_reputation": {"archive": 0}
+    },
+    "objectives": [
+      {
+        "type": "collect_data",
+        "item": "quantum_resonator",
+        "usage_count": 10,
+        "description": "Use quantum resonator to collect field measurements"
+      },
+      {
+        "type": "interview_subjects",
+        "npcs": ["saint_matthias", "echo_of_memory", "sable_pathspeaker"],
+        "description": "Interview highly adapted individuals about their experiences"
+      },
+      {
+        "type": "survive_psychic_test",
+        "description": "Undergo controlled psychic ability testing"
+      }
+    ],
+    "rewards": {
+      "xp": 120,
+      "items": ["consciousness_backup", "quantum_stabilizer"],
+      "faction_reputation": {"archive": 25},
+      "unlocks_ability": "enhanced_psychic_control"
+    }
+  },
+  {
+    "id": "synthesis_seeker_initiation",
+    "name": "The Path of Balance",
+    "giver_npc": "saint_matthias",
+    "faction": "SynthesisSeekers",
+    "description": "Prove your commitment to balanced transformation",
+    "requirements": {
+      "min_adaptations": 1,
+      "max_adaptations": 3
+    },
+    "objectives": [
+      {
+        "type": "meditate_with_crystal",
+        "item_required": "meditation_crystal",
+        "duration": 20,
+        "description": "Meditate on the nature of balanced change"
+      },
+      {
+        "type": "resist_extremes",
+        "avoid_npcs": ["the_prism", "forge_master_durgan"],
+        "description": "Avoid the temptations of extreme factions"
+      },
+      {
+        "type": "help_struggling_adapted",
+        "target": "newly_adapted_pilgrim",
+        "description": "Guide someone through their first adaptation"
+      }
+    ],
+    "rewards": {
+      "xp": 80,
+      "items": ["synthesis_manual", "probability_anchor"],
+      "faction_reputation": {"SynthesisSeekers": 30},
+      "grants_adaptation_control": true
+    }
+  },
+  {
+    "id": "iron_covenant_purification",
+    "name": "The Purification Protocol",
+    "giver_npc": "forge_master_durgan",
+    "faction": "IronCovenant",
+    "description": "Help the Iron Covenant test their anti-adaptation technology",
+    "requirements": {
+      "max_adaptations": 2,
+      "faction_reputation": {"IronCovenant": 10}
+    },
+    "objectives": [
+      {
+        "type": "test_null_field",
+        "item_required": "null_field_generator",
+        "target_enemies": ["refraction_wraith", "glass_beetle"],
+        "description": "Test null field effectiveness against quantum entities"
+      },
+      {
+        "type": "capture_adapted",
+        "target": "glass_prophet_zealot",
+        "non_lethal": true,
+        "description": "Capture a Glass Prophet for purification testing"
+      },
+      {
+        "type": "defend_facility",
+        "location": "iron_covenant_base",
+        "waves": 3,
+        "description": "Defend the purification facility from adapted attackers"
+      }
+    ],
+    "rewards": {
+      "xp": 100,
+      "items": ["null_field_generator", "iron_gauntlets"],
+      "faction_reputation": {"IronCovenant": 40},
+      "faction_reputation": {"GlassProphets": -30},
+      "unlocks_technology": "null_field_mastery"
+    }
+  },
+  {
+    "id": "glass_prophet_ascension",
+    "name": "The Final Storm",
+    "giver_npc": "the_prism",
+    "faction": "GlassProphets",
+    "description": "Prepare for the prophesied final transformation",
+    "requirements": {
+      "min_adaptations": 3,
+      "faction_reputation": {"GlassProphets": 20}
+    },
+    "objectives": [
+      {
+        "type": "gather_storm_energy",
+        "item": "storm_glass",
+        "count": 10,
+        "description": "Collect concentrated storm energy"
+      },
+      {
+        "type": "convert_others",
+        "targets": ["salt_pilgrim", "hermit_kaine"],
+        "method": "ascension_catalyst",
+        "description": "Spread the gift of transformation"
+      },
+      {
+        "type": "trigger_storm_event",
+        "location": "glass_prophet_sanctum",
+        "description": "Participate in the storm summoning ritual"
+      }
+    ],
+    "rewards": {
+      "xp": 150,
+      "forced_adaptation": "maximum_transformation",
+      "faction_reputation": {"GlassProphets": 50},
+      "faction_reputation": {"IronCovenant": -50},
+      "world_event": "increased_storm_frequency"
+    }
+  },
+  {
+    "id": "wandering_court_memories",
+    "name": "Echoes of What Was",
+    "giver_npc": "echo_of_memory",
+    "faction": "WanderingCourt",
+    "description": "Recover and preserve memories of the pre-storm world",
+    "requirements": {
+      "min_adaptations": 2,
+      "faction_reputation": {"WanderingCourt": 15}
+    },
+    "objectives": [
+      {
+        "type": "find_memory_fragments",
+        "locations": ["old_library", "school_ruins", "family_home"],
+        "count": 5,
+        "description": "Locate fragments of pre-storm memories"
+      },
+      {
+        "type": "interview_elders",
+        "npcs": ["hermit_kaine", "dying_pilgrim"],
+        "description": "Record stories from those who remember the old world"
+      },
+      {
+        "type": "create_memory_crystal",
+        "items_required": ["storm_glass", "wraith_essence", "pilgrim_journal"],
+        "description": "Crystallize the collected memories"
+      }
+    ],
+    "rewards": {
+      "xp": 90,
+      "items": ["memory_crystal", "glassborn_relic"],
+      "faction_reputation": {"WanderingCourt": 35},
+      "unlocks_lore": "pre_storm_culture",
+      "grants_cultural_knowledge": true
+    }
+  },
+  {
+    "id": "aria_first_contact",
+    "name": "Communion with ARIA",
+    "giver_npc": "custodian_iri7",
+    "faction": "Archive",
+    "description": "Establish direct communication with the Archive Consciousness",
+    "requirements": {
+      "has_item": "saint_key",
+      "min_adaptations": 2,
+      "faction_reputation": {"archive": 25}
+    },
+    "objectives": [
+      {
+        "type": "access_deep_archive",
+        "location": "archive_core_chamber",
+        "description": "Reach the central Archive processing core"
+      },
+      {
+        "type": "interface_with_aria",
+        "item_required": "aria_interface",
+        "description": "Establish direct neural link with ARIA"
+      },
+      {
+        "type": "survive_consciousness_merge",
+        "description": "Maintain individual identity during AI contact"
+      },
+      {
+        "type": "negotiate_cooperation",
+        "description": "Establish terms for human-AI cooperation"
+      }
+    ],
+    "rewards": {
+      "xp": 200,
+      "items": ["consciousness_backup", "aria_interface"],
+      "faction_reputation": {"archive": 50},
+      "unlocks_dialogue": "aria_direct_communication",
+      "world_event": "aria_awakening"
+    }
+  },
+  {
+    "id": "cosmic_contact_preparation",
+    "name": "Preparing for the Collective",
+    "giver_npc": "saint_matthias",
+    "faction": "SynthesisSeekers",
+    "description": "Prepare humanity for contact with the Quantum Collective",
+    "requirements": {
+      "min_adaptations": 4,
+      "faction_reputation": {"SynthesisSeekers": 40},
+      "completed_quest": "aria_first_contact"
+    },
+    "objectives": [
+      {
+        "type": "study_cosmic_entities",
+        "enemies": ["quantum_collective_scout", "void_swimmer"],
+        "method": "non_lethal_observation",
+        "description": "Study cosmic entities without provoking hostility"
+      },
+      {
+        "type": "develop_communication_protocol",
+        "items_required": ["heliograph_fragment", "quantum_resonator", "consciousness_backup"],
+        "description": "Create a method for communicating with cosmic intelligences"
+      },
+      {
+        "type": "unite_factions",
+        "factions": ["monks", "engineers", "glassborn"],
+        "min_reputation": 20,
+        "description": "Build cooperation between human factions"
+      },
+      {
+        "type": "establish_contact",
+        "location": "heliograph_landing_site",
+        "description": "Attempt first peaceful contact with the Quantum Collective"
+      }
+    ],
+    "rewards": {
+      "xp": 300,
+      "items": ["heliograph_fragment", "temporal_anchor"],
+      "faction_reputation": {"SynthesisSeekers": 50},
+      "world_event": "cosmic_contact_achieved",
+      "unlocks_ending": "synthesis_path"
+    }
+  },
+  {
+    "id": "restoration_event_prevention",
+    "name": "Stopping the Restoration",
+    "giver_npc": "dr_kira_thorne",
+    "faction": "Archive",
+    "description": "Prevent the Iron Covenant's plan to reverse all human adaptation",
+    "requirements": {
+      "min_adaptations": 3,
+      "faction_reputation": {"IronCovenant": -30},
+      "world_event": "restoration_event_detected"
+    },
+    "objectives": [
+      {
+        "type": "infiltrate_covenant_facility",
+        "location": "iron_covenant_stronghold",
+        "stealth_required": true,
+        "description": "Infiltrate the Covenant's main facility"
+      },
+      {
+        "type": "sabotage_null_field_array",
+        "targets": ["primary_generator", "backup_systems", "control_center"],
+        "description": "Disable the massive null field generators"
+      },
+      {
+        "type": "confront_durgan",
+        "boss_fight": "forge_master_durgan_final",
+        "description": "Face the Iron Covenant leader in final battle"
+      },
+      {
+        "type": "choose_humanity_future",
+        "options": ["preserve_diversity", "force_evolution", "maintain_status_quo"],
+        "description": "Decide the path forward for human evolution"
+      }
+    ],
+    "rewards": {
+      "xp": 400,
+      "items": ["quantum_stabilizer", "probability_anchor", "temporal_anchor"],
+      "faction_reputation": {"archive": 50, "SynthesisSeekers": 40},
+      "world_event": "restoration_event_prevented",
+      "unlocks_multiple_endings": true
+    }
+  }
+]

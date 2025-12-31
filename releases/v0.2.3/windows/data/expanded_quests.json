@@ -1,0 +1,268 @@
+[
+  {
+    "id": "glass_field_mapping",
+    "name": "Glass Field Survey",
+    "giver_npc": "forewoman_ressa",
+    "faction": "SandEngineers",
+    "description": "Map the newly formed glass fields for safe passage routes",
+    "requirements": {
+      "faction_reputation": {"engineers": 0},
+      "min_adaptations": 1
+    },
+    "objectives": [
+      {
+        "type": "reach_location",
+        "location": "glass_fields_north",
+        "description": "Survey the northern glass formations"
+      },
+      {
+        "type": "collect_samples",
+        "item": "glass_shard",
+        "count": 5,
+        "description": "Collect glass samples for analysis"
+      },
+      {
+        "type": "survive_storm",
+        "count": 1,
+        "description": "Observe storm effects on the glass fields"
+      }
+    ],
+    "rewards": {
+      "xp": 75,
+      "salt_scrip": 100,
+      "items": ["storm_compass", "engineer_goggles"],
+      "faction_reputation": {"engineers": 15}
+    }
+  },
+  {
+    "id": "scripture_recovery",
+    "name": "The Lost Verses",
+    "giver_npc": "brother_halix",
+    "faction": "MirrorMonks",
+    "description": "Recover ancient scripture shards from the Archive ruins",
+    "requirements": {
+      "faction_reputation": {"monks": 10},
+      "min_refraction": 20
+    },
+    "objectives": [
+      {
+        "type": "collect",
+        "item": "scripture_shard",
+        "count": 3,
+        "description": "Find three scripture shards in the ruins"
+      },
+      {
+        "type": "avoid_detection",
+        "enemy": "archive_drone",
+        "description": "Retrieve the shards without triggering Archive security"
+      }
+    ],
+    "rewards": {
+      "xp": 100,
+      "items": ["monk_scripture", "meditation_crystal"],
+      "faction_reputation": {"monks": 20},
+      "unlocks_ritual": "storm_walk"
+    }
+  },
+  {
+    "id": "crucible_pilgrimage",
+    "name": "The Crucible Awaits",
+    "giver_npc": "sable_pathspeaker",
+    "faction": "Glassborn",
+    "description": "Undertake the pilgrimage to the Crucible of Transformation",
+    "requirements": {
+      "faction_reputation": {"glassborn": 25},
+      "min_adaptations": 2
+    },
+    "objectives": [
+      {
+        "type": "reach_location",
+        "location": "crucible_chamber",
+        "description": "Find the hidden Crucible chamber"
+      },
+      {
+        "type": "ritual_preparation",
+        "items": ["storm_glass", "saints_tear", "wraith_essence"],
+        "description": "Gather the ritual components"
+      },
+      {
+        "type": "undergo_transformation",
+        "description": "Submit to the Crucible's transformation"
+      }
+    ],
+    "rewards": {
+      "xp": 150,
+      "forced_adaptation": "glass_skin",
+      "faction_reputation": {"glassborn": 30},
+      "title": "Crucible-Born"
+    }
+  },
+  {
+    "id": "archive_infiltration",
+    "name": "Secrets of the Archive",
+    "giver_npc": "custodian_iri7",
+    "faction": "Archive",
+    "description": "Retrieve classified data from the deep Archive vaults",
+    "requirements": {
+      "has_item": "saint_key",
+      "faction_reputation": {"archive": 0}
+    },
+    "objectives": [
+      {
+        "type": "reach_location",
+        "location": "archive_core",
+        "description": "Access the Archive's central data core"
+      },
+      {
+        "type": "download_data",
+        "item": "archive_data_crystal",
+        "description": "Extract the classified information"
+      },
+      {
+        "type": "escape_security",
+        "description": "Evade Archive security systems"
+      }
+    ],
+    "rewards": {
+      "xp": 125,
+      "items": ["archive_scanner", "refraction_detector"],
+      "faction_reputation": {"archive": 25},
+      "reveals_lore": "heliograph_truth"
+    }
+  },
+  {
+    "id": "hermit_cache_recovery",
+    "name": "The Hermit's Cache",
+    "giver_npc": "hermit_kaine",
+    "faction": "Unaffiliated",
+    "description": "Recover supplies from a buried cache in the salt flats",
+    "requirements": {
+      "has_currency": 50,
+      "has_adaptation": "Saltblood"
+    },
+    "objectives": [
+      {
+        "type": "reach_location",
+        "location": "hermit_cache_site",
+        "description": "Find the buried cache using the coordinates"
+      },
+      {
+        "type": "excavate",
+        "tool_required": "glass_pick",
+        "description": "Dig up the buried supplies"
+      },
+      {
+        "type": "defend_cache",
+        "enemies": ["salt_crawler", "brine_ooze"],
+        "description": "Fight off creatures attracted to the disturbance"
+      }
+    ],
+    "rewards": {
+      "xp": 50,
+      "items": ["hermit_salve", "salt_poultice", "crystalline_water", "pilgrim_boots"],
+      "salt_scrip": 75
+    }
+  },
+  {
+    "id": "storm_prediction",
+    "name": "Reading the Winds",
+    "giver_npc": "pilgrim_thane",
+    "faction": "Unaffiliated",
+    "description": "Help map storm patterns for safer travel routes",
+    "requirements": {
+      "has_item": "storm_compass"
+    },
+    "objectives": [
+      {
+        "type": "observe_storms",
+        "count": 3,
+        "description": "Record data from three different storm events"
+      },
+      {
+        "type": "map_safe_zones",
+        "locations": ["oasis_shelter", "archive_wing", "hermit_cave"],
+        "description": "Identify areas protected from storm effects"
+      },
+      {
+        "type": "create_chart",
+        "item": "storm_chart",
+        "description": "Compile the data into a usable storm chart"
+      }
+    ],
+    "rewards": {
+      "xp": 80,
+      "items": ["detailed_map_set", "storm_lantern"],
+      "reveals_safe_routes": true
+    }
+  },
+  {
+    "id": "adaptation_study",
+    "name": "The Nature of Change",
+    "giver_npc": "novice_mir",
+    "faction": "MirrorMonks",
+    "description": "Study the effects of adaptation on consciousness and identity",
+    "requirements": {
+      "min_adaptations": 2,
+      "faction_reputation": {"monks": 5}
+    },
+    "objectives": [
+      {
+        "type": "meditation",
+        "item_required": "meditation_crystal",
+        "duration": 10,
+        "description": "Meditate on the nature of transformation"
+      },
+      {
+        "type": "interview_adapted",
+        "npcs": ["glassborn", "hermit_kaine", "sable_pathspeaker"],
+        "description": "Speak with others who have undergone transformation"
+      },
+      {
+        "type": "document_findings",
+        "item": "adaptation_journal",
+        "description": "Record your observations and insights"
+      }
+    ],
+    "rewards": {
+      "xp": 60,
+      "items": ["monk_scripture", "prism_lens"],
+      "faction_reputation": {"monks": 10},
+      "gains_insight": "adaptation_nature"
+    }
+  },
+  {
+    "id": "merchant_escort",
+    "name": "Caravan Guard Duty",
+    "giver_npc": "merchant_vex",
+    "faction": "Unaffiliated",
+    "description": "Escort a merchant caravan through dangerous territory",
+    "requirements": {
+      "min_level": 3
+    },
+    "objectives": [
+      {
+        "type": "escort",
+        "npc": "merchant_vex",
+        "destination": "trading_post",
+        "description": "Safely escort the merchant to the trading post"
+      },
+      {
+        "type": "defend_caravan",
+        "enemies": ["mirage_hound", "glass_beetle", "salt_crawler"],
+        "waves": 3,
+        "description": "Fight off attacks on the caravan"
+      },
+      {
+        "type": "negotiate_passage",
+        "faction": "hermits",
+        "description": "Secure safe passage through hermit territory"
+      }
+    ],
+    "rewards": {
+      "xp": 90,
+      "salt_scrip": 150,
+      "items": ["storm_resistant_cloak", "glass_spear"],
+      "merchant_discount": 20
+    }
+  }
+]
