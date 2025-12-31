@@ -1204,18 +1204,23 @@ impl GameState {
     /// Process all queued game events
     /// This enables decoupled communication between systems
     fn process_events(&mut self) {
+        use super::systems::{System, LootSystem, QuestSystem};
+        
         let events = self.drain_events();
         for event in events {
+            // Dispatch to systems
+            LootSystem.on_event(self, &event);
+            QuestSystem.on_event(self, &event);
+            
+            // Internal logging/handling
             self.handle_event(&event);
         }
     }
     
-    /// Handle a single game event - dispatches to appropriate handlers
+    /// Handle a single game event - internal logging and state updates
     fn handle_event(&mut self, event: &GameEvent) {
         match event {
             GameEvent::EnemyKilled { enemy_id, x, y } => {
-                // Log for debugging - systems can react to this
-                // Future: QuestSystem, AchievementSystem could listen here
                 self.log_typed(
                     format!("[Event] Enemy '{}' killed at ({}, {})", enemy_id, x, y),
                     MsgType::System
@@ -1227,9 +1232,8 @@ impl GameState {
                     MsgType::Status
                 );
             }
-            GameEvent::ItemPickedUp { item_id } => {
-                // Could trigger achievements, tutorial tips, etc.
-                let _ = item_id; // Suppress unused warning for now
+            GameEvent::ItemPickedUp { .. } => {
+                // Handled by QuestSystem
             }
             GameEvent::AdaptationGained { name } => {
                 self.log_typed(
@@ -1243,7 +1247,6 @@ impl GameState {
                     MsgType::Warning
                 );
             }
-            // Other events can be handled as systems are added
             _ => {}
         }
     }
@@ -2764,36 +2767,6 @@ impl GameState {
     /// Mark a tutorial message as shown
     pub fn dismiss_tutorial_message(&mut self, message_id: &str) {
         self.tutorial_progress.mark_shown(message_id);
-    }
-
-    /// Drop loot from an enemy at a specific position
-    pub(crate) fn drop_enemy_loot(&mut self, loot_table: &[super::enemy::LootEntry], x: i32, y: i32) {
-        if loot_table.is_empty() {
-            return;
-        }
-
-        // Calculate total weight
-        let total_weight: u32 = loot_table.iter().map(|entry| entry.weight).sum();
-        if total_weight == 0 {
-            return;
-        }
-
-        // Roll for loot drop
-        let roll = self.rng.gen_range(0..total_weight);
-        let mut cumulative = 0;
-        for entry in loot_table {
-            cumulative += entry.weight;
-            if roll < cumulative {
-                // Drop this item
-                let item = Item::new(x, y, &entry.item);
-                self.items.push(item);
-                self.rebuild_spatial_index();
-                if let Some(def) = get_item_def(&entry.item) {
-                    self.log_typed(format!("The enemy drops {}.", def.name), MsgType::Loot);
-                }
-                return;
-            }
-        }
     }
 
     /// Modify faction reputation (clamped to -100 to +100)

@@ -45,11 +45,6 @@ impl CombatSystem {
                 state.gain_xp(def.xp_value);
             }
             
-            // Drop loot
-            if !def.loot_table.is_empty() {
-                state.drop_enemy_loot(&def.loot_table, enemy_x, enemy_y);
-            }
-            
             // Handle split_on_death behavior
             for behavior in &def.behaviors {
                 if behavior.behavior_type == "split_on_death" {
@@ -86,8 +81,7 @@ impl CombatSystem {
             }
         }
         
-        // Notify systems
-        state.quest_log.on_enemy_killed(&enemy_id);
+        // Emit event - LootSystem and QuestSystem handle loot drops and quest progress
         state.emit(GameEvent::EnemyKilled {
             enemy_id: enemy_id.clone(),
             x: death_x, 

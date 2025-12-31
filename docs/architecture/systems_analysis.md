@@ -418,11 +418,11 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
     -   TODO: Implement `SuicideBomberBehavior`, `HealerBehavior`, `RangedOnlyBehavior` as separate structs
     -   TODO: Dispatch to specific behaviors based on enemy definition
 
-5.  **Create LootSystem and QuestSystem as Event Listeners**
-    -   Current: `CombatSystem::process_enemy_death()` directly calls `quest_log.on_enemy_killed()` and `drop_enemy_loot()`
-    -   TODO: Create `LootSystem` that subscribes to `GameEvent::EnemyKilled`
-    -   TODO: Create `QuestSystem` that subscribes to `GameEvent::EnemyKilled`, `ItemPickedUp`, etc.
-    -   TODO: Remove direct calls from `CombatSystem`
+5.  ~~**Create LootSystem and QuestSystem as Event Listeners**~~ - **COMPLETED**
+    -   Created `LootSystem` (`src/game/systems/loot.rs`) that subscribes to `EnemyKilled` events
+    -   Created `QuestSystem` (`src/game/systems/quest.rs`) that subscribes to `EnemyKilled`, `ItemPickedUp`
+    -   Removed direct calls from `CombatSystem::process_enemy_death()`
+    -   Events now dispatched via `process_events()` in `state.rs`
 
 6.  ~~**Add Missing DES Assertions**~~ - **COMPLETED**
     -   Added `enemy_count`, `npc_count`, `chest_count` assertions with `op` comparison

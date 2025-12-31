@@ -4,6 +4,11 @@ use super::event::GameEvent;
 pub mod combat;
 pub mod ai;
 pub mod movement;
+pub mod loot;
+pub mod quest;
+
+pub use loot::LootSystem;
+pub use quest::QuestSystem;
 
 /// Trait for game systems that operate on GameState
 pub trait System {
