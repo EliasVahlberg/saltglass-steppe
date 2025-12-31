@@ -2,7 +2,7 @@
 //!
 //! Runs game scenarios without rendering for automated testing and validation.
 
-use crate::game::{adaptation::Adaptation, inspect::inspect_item, Enemy, GameState, Item, Npc};
+use crate::game::{adaptation::Adaptation, chest::Chest, inspect::inspect_item, Enemy, GameState, Item, Npc};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
@@ -175,6 +175,10 @@ pub enum AssertionCheck {
     PendingTrade { trader_id: String },
     DialogueEnded,
     DialogueConditionMet { condition_type: String, value: String },
+    // Entity count assertions
+    EnemyCount { op: CmpOp, value: usize },
+    NpcCount { op: CmpOp, value: usize },
+    ChestCount { op: CmpOp, value: usize },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -247,6 +251,7 @@ pub enum EntityType {
     Enemy,
     Npc,
     Item,
+    Chest,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -566,6 +571,14 @@ impl DesExecutor {
                 }
                 EntityType::Item => {
                     state.items.push(Item::new(spawn.x, spawn.y, &spawn.id));
+                }
+                EntityType::Chest => {
+                    let mut chest = Chest::new(spawn.x, spawn.y, &spawn.id);
+                    // Convert item IDs to Item objects
+                    chest.inventory = spawn.inventory.iter()
+                        .map(|id| Item::new(spawn.x, spawn.y, id))
+                        .collect();
+                    state.chests.push(chest);
                 }
             }
         }
@@ -1001,6 +1014,16 @@ impl DesExecutor {
             AssertionCheck::AreaTier { op, value } => {
                 let tier = crate::game::trading::calculate_area_tier(&self.state.enemies);
                 op.compare(tier as i32, *value as i32)
+            }
+            AssertionCheck::EnemyCount { op, value } => {
+                let count = self.state.enemies.iter().filter(|e| e.hp > 0).count();
+                op.compare(count, *value)
+            }
+            AssertionCheck::NpcCount { op, value } => {
+                op.compare(self.state.npcs.len(), *value)
+            }
+            AssertionCheck::ChestCount { op, value } => {
+                op.compare(self.state.chests.len(), *value)
             }
             // Simplified implementations for other assertions
             _ => {

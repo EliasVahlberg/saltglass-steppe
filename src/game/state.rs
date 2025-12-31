@@ -1195,6 +1195,56 @@ impl GameState {
         self.tick_time();
         self.update_lighting();
         self.update_fov();
+        
+        // Process queued events
+        self.process_events();
+    }
+    
+    /// Process all queued game events
+    /// This enables decoupled communication between systems
+    fn process_events(&mut self) {
+        let events = self.drain_events();
+        for event in events {
+            self.handle_event(&event);
+        }
+    }
+    
+    /// Handle a single game event - dispatches to appropriate handlers
+    fn handle_event(&mut self, event: &GameEvent) {
+        match event {
+            GameEvent::EnemyKilled { enemy_id, x, y } => {
+                // Log for debugging - systems can react to this
+                // Future: QuestSystem, AchievementSystem could listen here
+                self.log_typed(
+                    format!("[Event] Enemy '{}' killed at ({}, {})", enemy_id, x, y),
+                    MsgType::System
+                );
+            }
+            GameEvent::LevelUp { level } => {
+                self.log_typed(
+                    format!("[Event] Player reached level {}!", level),
+                    MsgType::Status
+                );
+            }
+            GameEvent::ItemPickedUp { item_id } => {
+                // Could trigger achievements, tutorial tips, etc.
+                let _ = item_id; // Suppress unused warning for now
+            }
+            GameEvent::AdaptationGained { name } => {
+                self.log_typed(
+                    format!("[Event] Gained adaptation: {}", name),
+                    MsgType::Status
+                );
+            }
+            GameEvent::StormArrived { intensity } => {
+                self.log_typed(
+                    format!("[Event] Storm arrived with intensity {}", intensity),
+                    MsgType::Warning
+                );
+            }
+            // Other events can be handled as systems are added
+            _ => {}
+        }
     }
 
     /// Tick all status effects, apply damage, remove expired

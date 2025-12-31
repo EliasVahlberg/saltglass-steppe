@@ -1,0 +1,23 @@
+{
+  "name": "Entity Count Assertions Test",
+  "description": "Test enemy_count, npc_count, chest_count assertions",
+  "seed": 42,
+  "world_x": 5,
+  "world_y": 5,
+  "player": {"x": 10, "y": 10, "hp": 50, "max_hp": 50},
+  "entities": [
+    {"entity_type": "enemy", "id": "shard_spider", "x": 12, "y": 10, "hp": 5, "ai_disabled": true},
+    {"entity_type": "enemy", "id": "glass_beetle", "x": 14, "y": 10, "hp": 5, "ai_disabled": true},
+    {"entity_type": "npc", "id": "merchant", "x": 8, "y": 10},
+    {"entity_type": "chest", "id": "wooden_chest", "x": 10, "y": 12, "inventory": ["brine_vial"]}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "wait", "turns": 1}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "enemy_count", "op": "ge", "value": 2}, "message": "Should have at least 2 enemies"},
+    {"at_end": true, "check": {"type": "npc_count", "op": "ge", "value": 1}, "message": "Should have at least 1 NPC"},
+    {"at_end": true, "check": {"type": "chest_count", "op": "ge", "value": 1}, "message": "Should have at least 1 chest"},
+    {"at_end": true, "check": {"type": "player_alive"}}
+  ]
+}

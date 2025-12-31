@@ -1,0 +1,18 @@
+{
+  "name": "Chest Spawn Test",
+  "description": "Test that chests can be spawned via DES",
+  "seed": 456,
+  "world_x": 10,
+  "world_y": 10,
+  "player": {"x": 15, "y": 15, "hp": 50, "max_hp": 50},
+  "entities": [
+    {"entity_type": "chest", "id": "wooden_chest", "x": 16, "y": 15, "inventory": ["brine_vial", "storm_glass"]}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "wait", "turns": 1}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "player_alive"}},
+    {"at_end": true, "check": {"type": "chest_count", "op": "ge", "value": 1}, "message": "Should have at least 1 chest"}
+  ]
+}

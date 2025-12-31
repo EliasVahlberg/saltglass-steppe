@@ -65,28 +65,30 @@ struct StandardMeleeBehavior;
 
 impl AiBehavior for StandardMeleeBehavior {
     fn execute(&self, i: usize, state: &mut GameState) -> bool {
-        // Re-implementing the logic from src/game/ai.rs
-        // We need to be careful about borrowing here.
-        
-        let (ex, ey, _id, sight, attack_range, has_ranged, has_laser, laser_dmg, attacks) = {
+        // Extract enemy properties, using data-driven behavior flags
+        let (ex, ey, sight, attack_range, has_ranged, laser_damage, attacks) = {
             let e = &state.enemies[i];
             let def = e.def();
+            
+            // Check for laser_beam behavior in enemy definition
+            let laser_dmg = def.as_ref()
+                .and_then(|d| d.behaviors.iter()
+                    .find(|b| b.behavior_type == "laser_beam")
+                    .and_then(|b| b.value.or(b.damage)))
+                .map(|v| v as i32)
+                .unwrap_or(0);
+            
             (
-                e.x, e.y, e.id.clone(),
+                e.x, e.y,
                 def.map(|d| d.sight_range).unwrap_or(6),
                 def.map(|d| d.attack_range).unwrap_or(1),
                 def.map(|d| d.ranged_attack).unwrap_or(false),
-                false, // Laser logic was hardcoded in ai.rs, need to check where it came from
-                0, // Laser dmg
-                1, // Attacks count
+                laser_dmg,
+                1, // Attacks count - could also be data-driven
             )
         };
         
-        // Check specific behaviors from def
-        // This is where we would dispatch to other behaviors if we had them registered
-        // For now, we'll keep the monolithic logic but inside this struct
-        
-        // ... (Logic implementation to follow)
+        let has_laser = laser_damage > 0;
         
         // First pass: handle spawners and AOE warnings
         // This logic was in the outer loop in ai.rs, but we can put it here for now
@@ -349,10 +351,10 @@ impl AiBehavior for StandardMeleeBehavior {
             // Laser beam check
             if has_laser && !target_is_decoy && state.visible.contains(&state.map.idx(ex, ey)) {
                 // Fire laser
-                state.player_hp -= laser_dmg;
+                state.player_hp -= laser_damage;
                 state.trigger_hit_flash(state.player_x, state.player_y);
-                state.spawn_damage_number(state.player_x, state.player_y, laser_dmg, false);
-                state.log_typed(format!("{} fires a laser beam for {} damage!", state.enemies[i].name(), laser_dmg), MsgType::Combat);
+                state.spawn_damage_number(state.player_x, state.player_y, laser_damage, false);
+                state.log_typed(format!("{} fires a laser beam for {} damage!", state.enemies[i].name(), laser_damage), MsgType::Combat);
                 
                 // Visual effect for beam
                 state.spawn_beam((ex, ey), (state.player_x, state.player_y), crate::game::state::BeamType::Laser, 8);

@@ -5,6 +5,7 @@ use crate::game::{
     action::action_cost,
     combat::{default_weapon, get_weapon_def, roll_attack, CombatResult},
     adaptation::total_stat_modifiers,
+    enemy::Enemy,
 };
 
 pub struct CombatSystem;
@@ -20,6 +21,83 @@ impl System for CombatSystem {
 }
 
 impl CombatSystem {
+    /// Process enemy death: effects, XP, loot, split behavior, quest tracking
+    /// Returns the enemy name for logging purposes
+    fn process_enemy_death(state: &mut GameState, enemy_idx: usize, death_x: i32, death_y: i32) -> String {
+        let enemy_id = state.enemies[enemy_idx].id.clone();
+        let enemy_name = state.enemies[enemy_idx].name().to_string();
+        let enemy_x = state.enemies[enemy_idx].x;
+        let enemy_y = state.enemies[enemy_idx].y;
+        
+        // Remove from spatial index
+        state.enemy_positions.remove(&(death_x, death_y));
+        
+        if let Some(def) = state.enemies[enemy_idx].def() {
+            // Trigger on_death visual effects
+            for e in &def.effects {
+                if e.condition == "on_death" {
+                    state.trigger_effect(&e.effect, 3);
+                }
+            }
+            
+            // Award XP
+            if def.xp_value > 0 {
+                state.gain_xp(def.xp_value);
+            }
+            
+            // Drop loot
+            if !def.loot_table.is_empty() {
+                state.drop_enemy_loot(&def.loot_table, enemy_x, enemy_y);
+            }
+            
+            // Handle split_on_death behavior
+            for behavior in &def.behaviors {
+                if behavior.behavior_type == "split_on_death" {
+                    if let Some(child_id) = &behavior.condition {
+                        let count = behavior.value.unwrap_or(2) as usize;
+                        let mut spawned = 0;
+                        
+                        for dy in -1..=1 {
+                            for dx in -1..=1 {
+                                if dx == 0 && dy == 0 { continue; }
+                                if spawned >= count { break; }
+                                let nx = enemy_x + dx;
+                                let ny = enemy_y + dy;
+                                
+                                if state.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
+                                    && state.enemy_at(nx, ny).is_none() 
+                                    && !(nx == state.player_x && ny == state.player_y) 
+                                {
+                                    state.enemies.push(Enemy::new(nx, ny, child_id));
+                                    state.enemy_positions.insert((nx, ny), state.enemies.len() - 1);
+                                    spawned += 1;
+                                }
+                            }
+                        }
+                        
+                        if spawned > 0 {
+                            state.log_typed(
+                                format!("The {} splits into smaller forms!", enemy_name), 
+                                MsgType::Combat
+                            );
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Notify systems
+        state.quest_log.on_enemy_killed(&enemy_id);
+        state.emit(GameEvent::EnemyKilled {
+            enemy_id: enemy_id.clone(),
+            x: death_x, 
+            y: death_y
+        });
+        state.meta.discover_enemy(&enemy_id);
+        
+        enemy_name
+    }
+
     /// Apply mock settings to combat result if configured
     fn apply_combat_mocks(state: &GameState, mut result: CombatResult) -> CombatResult {
         if let Some(force_hit) = state.mock_combat_hit {
@@ -115,63 +193,8 @@ impl CombatSystem {
         state.last_damage_dealt = dmg as u32;
 
         if state.enemies[ei].hp <= 0 {
-            let enemy_id = state.enemies[ei].id.clone();
-            let enemy_x = state.enemies[ei].x;
-            let enemy_y = state.enemies[ei].y;
-            state.enemy_positions.remove(&(target_x, target_y));
-            if let Some(def) = state.enemies[ei].def() {
-                // Trigger on_death effects
-                for e in &def.effects {
-                    if e.condition == "on_death" {
-                        state.trigger_effect(&e.effect, 3);
-                    }
-                }
-                // Award XP
-                if def.xp_value > 0 {
-                    state.gain_xp(def.xp_value);
-                }
-                // Drop loot
-                if !def.loot_table.is_empty() {
-                    state.drop_enemy_loot(&def.loot_table, enemy_x, enemy_y);
-                }
-                
-                // Split on death
-                for behavior in &def.behaviors {
-                    if behavior.behavior_type == "split_on_death" {
-                        if let Some(child_id) = &behavior.condition { // Using condition field for child ID
-                            let count = behavior.value.unwrap_or(2) as usize;
-                            let mut spawned = 0;
-                            // Try to spawn around death point
-                            for dy in -1..=1 {
-                                for dx in -1..=1 {
-                                    if dx == 0 && dy == 0 { continue; }
-                                    if spawned >= count { break; }
-                                    let nx = enemy_x + dx;
-                                    let ny = enemy_y + dy;
-                                    if state.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
-                                        && state.enemy_at(nx, ny).is_none() 
-                                        && !(nx == state.player_x && ny == state.player_y) {
-                                        
-                                        state.enemies.push(crate::game::enemy::Enemy::new(nx, ny, child_id));
-                                        state.enemy_positions.insert((nx, ny), state.enemies.len() - 1);
-                                        spawned += 1;
-                                    }
-                                }
-                            }
-                            if spawned > 0 {
-                                state.log_typed(format!("The {} splits into smaller forms!", name), MsgType::Combat);
-                            }
-                        }
-                    }
-                }
-            }
-            state.quest_log.on_enemy_killed(&enemy_id);
-            state.emit(GameEvent::EnemyKilled {
-                enemy_id: enemy_id.clone(),
-                x: target_x, y: target_y
-            });
-            state.meta.discover_enemy(&enemy_id);
-            state.log_typed(format!("You kill the {} {}!", name, dir), MsgType::Combat);
+            let enemy_name = Self::process_enemy_death(state, ei, target_x, target_y);
+            state.log_typed(format!("You kill the {} {}!", enemy_name, dir), MsgType::Combat);
         } else {
             let crit_str = if result.crit { " CRITICAL!" } else { "" };
             state.log_typed(format!("You hit the {} {} for {} damage.{}", name, dir, dmg, crit_str), MsgType::Combat);
@@ -256,57 +279,8 @@ impl CombatSystem {
         state.spawn_damage_number(target_x, target_y, dmg, false);
 
         if state.enemies[ei].hp <= 0 {
-            let enemy_id = state.enemies[ei].id.clone();
-            let enemy_x = state.enemies[ei].x;
-            let enemy_y = state.enemies[ei].y;
-            state.enemy_positions.remove(&(target_x, target_y));
-            if let Some(def) = state.enemies[ei].def() {
-                // Award XP
-                if def.xp_value > 0 {
-                    state.gain_xp(def.xp_value);
-                }
-                // Drop loot
-                if !def.loot_table.is_empty() {
-                    state.drop_enemy_loot(&def.loot_table, enemy_x, enemy_y);
-                }
-                
-                // Split on death
-                for behavior in &def.behaviors {
-                    if behavior.behavior_type == "split_on_death" {
-                        if let Some(child_id) = &behavior.condition { // Using condition field for child ID
-                            let count = behavior.value.unwrap_or(2) as usize;
-                            let mut spawned = 0;
-                            // Try to spawn around death point
-                            for dy in -1..=1 {
-                                for dx in -1..=1 {
-                                    if dx == 0 && dy == 0 { continue; }
-                                    if spawned >= count { break; }
-                                    let nx = enemy_x + dx;
-                                    let ny = enemy_y + dy;
-                                    if state.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) 
-                                        && state.enemy_at(nx, ny).is_none() 
-                                        && !(nx == state.player_x && ny == state.player_y) {
-                                        
-                                        state.enemies.push(crate::game::enemy::Enemy::new(nx, ny, child_id));
-                                        state.enemy_positions.insert((nx, ny), state.enemies.len() - 1);
-                                        spawned += 1;
-                                    }
-                                }
-                            }
-                            if spawned > 0 {
-                                state.log_typed(format!("The {} splits into smaller forms!", name), MsgType::Combat);
-                            }
-                        }
-                    }
-                }
-            }
-            state.quest_log.on_enemy_killed(&enemy_id);
-            state.emit(GameEvent::EnemyKilled {
-                enemy_id: enemy_id.clone(),
-                x: target_x, y: target_y
-            });
-            state.meta.discover_enemy(&enemy_id);
-            state.log_typed(format!("You kill the {} with a ranged shot!", name), MsgType::Combat);
+            let enemy_name = Self::process_enemy_death(state, ei, target_x, target_y);
+            state.log_typed(format!("You kill the {} with a ranged shot!", enemy_name), MsgType::Combat);
         } else {
             let crit_str = if result.crit { " CRITICAL!" } else { "" };
             state.log_typed(format!("You hit the {} for {} damage.{}", name, dmg, crit_str), MsgType::Combat);

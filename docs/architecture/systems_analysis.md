@@ -347,20 +347,28 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
 **Impact**: Tests fail silently when indices are stale. Easy to forget `rebuild_spatial_index()`.
 **Mitigation**: Consider on-demand spatial queries or automatic index invalidation.
 
-### 5. Test Scenarios Schema Drift
+### 5. Test Scenarios Schema Drift (PARTIALLY FIXED 2024-12-31)
 **Symptom**: Old test scenarios use outdated schemas (missing `turns`, wrong assertion types).
 **Impact**: `run_all_scenarios` fails on valid scenarios due to parse errors.
 **Mitigation**: Add schema versioning or validation. Document required fields.
+**Progress**: Added `enemy_count`, `npc_count`, `chest_count` assertions. Added `Chest` entity type.
 
-### 6. Hardcoded Entity Checks
+### 6. Hardcoded Entity Checks (FIXED 2024-12-31)
 **Symptom**: `if enemy.id == "laser_drone"` instead of `if enemy.def().has_laser`.
 **Impact**: Adding new laser enemies requires code changes, not just data.
 **Mitigation**: Move special abilities to enemy definition flags or behavior system.
+**Resolution**: Laser beam damage now read from `behaviors` in enemy definition.
 
-### 7. Panic on Missing Definitions
+### 7. Panic on Missing Definitions (FIXED 2024-12-31)
 **Symptom**: `enemy.def().unwrap()` assumes all enemies have valid definitions.
 **Impact**: Runtime panics when enemy ID doesn't match any definition.
-**Mitigation**: Use `let Some(def) = enemy.def() else { ... };` pattern (partially fixed).
+**Mitigation**: Use `let Some(def) = enemy.def() else { ... };` pattern.
+**Resolution**: All `unwrap()` calls on enemy definitions replaced with safe patterns.
+
+### 8. Code Duplication in CombatSystem (FIXED 2024-12-31)
+**Symptom**: `attack_melee` and `ranged_attack` had duplicated "on death" logic (~50 lines each).
+**Impact**: Bug fixes need to be applied in multiple places. Ranged was missing `on_death` effects.
+**Resolution**: Extracted `process_enemy_death()` helper function.
 
 ---
 
