@@ -3,6 +3,7 @@ use super::event::GameEvent;
 
 pub mod combat;
 pub mod ai;
+pub mod movement;
 
 /// Trait for game systems that operate on GameState
 pub trait System {

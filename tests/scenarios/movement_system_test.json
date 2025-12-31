@@ -1,0 +1,19 @@
+{
+  "name": "Movement System Test",
+  "description": "Test that MovementSystem handles tile effects correctly",
+  "seed": 42,
+  "world_x": 5,
+  "world_y": 5,
+  "player": {"x": 10, "y": 10, "hp": 50, "max_hp": 50},
+  "actions": [
+    {"turn": 0, "action": {"type": "set_tile", "x": 11, "y": 10, "tile_type": "glass"}},
+    {"turn": 1, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 2, "action": {"type": "wait", "turns": 1}}
+  ],
+  "assertions": [
+    {"after_turn": 1, "check": {"type": "player_position", "x": 11, "y": 10}, "message": "Player should have moved to glass tile"},
+    {"after_turn": 1, "check": {"type": "player_hp", "op": "lt", "value": 50}, "message": "Player should take damage from glass"},
+    {"after_turn": 1, "check": {"type": "refraction", "op": "gt", "value": 0}, "message": "Refraction should increase from glass"},
+    {"at_end": true, "check": {"type": "player_alive"}}
+  ]
+}

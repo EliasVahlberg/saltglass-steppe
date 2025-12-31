@@ -28,6 +28,7 @@ use super::{
     spawn::{weighted_pick_by_level_and_tier},
     storm::Storm,
     story::StoryModel,
+    systems::movement::MovementSystem,
     tutorial::TutorialProgress,
     world_map::WorldMap,
 };
@@ -2334,206 +2335,14 @@ impl GameState {
         }
     }
 
+    /// Move player by delta - delegates to MovementSystem
     pub fn try_move(&mut self, dx: i32, dy: i32) -> bool {
-        self.wait_counter = 0; // Reset auto-rest counter on movement
-        let new_x = self.player_x + dx;
-        let new_y = self.player_y + dy;
-
-        // NPC interaction (bump to talk)
-        if let Some(ni) = self.npc_at(new_x, new_y) {
-            let cost = action_cost("interact");
-            if self.player_ap < cost { return false; }
-            self.player_ap -= cost;
-            let visible_adaptations: Vec<Adaptation> = if self.adaptations_hidden_turns > 0 {
-                Vec::new()
-            } else {
-                self.adaptations.clone()
-            };
-            let inventory_snapshot = self.inventory.clone();
-            let ctx = super::npc::DialogueContext {
-                adaptations: &visible_adaptations,
-                inventory: &inventory_snapshot,
-                salt_scrip: self.salt_scrip,
-                faction_reputation: &self.faction_reputation,
-            };
-            let dialogue = self.npcs[ni].dialogue(&ctx).to_string();
-            let name = self.npcs[ni].name().to_string();
-            let actions: Vec<_> = self.npcs[ni].available_actions(&ctx).into_iter().cloned().collect();
-            
-            // Store pending dialogue for UI to display
-            self.pending_dialogue = Some((name.clone(), dialogue.clone()));
-            // Also log for DES tests and message history
-            self.log_typed(format!("{}: \"{}\"", name, dialogue.replace("</nextpage>", " ")), MsgType::Dialogue);
-            
-            // Execute first available action
-            for action in &actions {
-                // Item exchange
-                if let (Some(gives), Some(consumes)) = (&action.effect.gives_item, &action.effect.consumes) {
-                    if let Some(idx) = self.inventory.iter().position(|id| id == consumes) {
-                        self.inventory.remove(idx);
-                        self.inventory.push(gives.clone());
-                        let gives_name = get_item_def(gives).map(|d| d.name.as_str()).unwrap_or("item");
-                        self.log_typed(format!("The pilgrim presses {} into your hand.", gives_name), MsgType::Loot);
-                        break;
-                    }
-                }
-                // Heal action
-                if let Some(heal) = action.effect.heal {
-                    let actual = heal.min(self.player_max_hp - self.player_hp);
-                    self.player_hp += actual;
-                    self.log_typed(format!("You rest. (+{} HP)", actual), MsgType::Status);
-                    break;
-                }
-                // Trade action
-                if let Some(true) = action.effect.trade {
-                    self.pending_trade = Some(self.npcs[ni].id.clone());
-                    self.log_typed("The merchant opens their wares.", MsgType::Social);
-                    break;
-                }
-            }
-            
-            self.npcs[ni].talked = true;
-            self.quest_log.on_npc_talked(&self.npcs[ni].id);
-            self.meta.discover_npc(&self.npcs[ni].id);
-            self.check_auto_end_turn();
-            return true;
-        }
-
-        if self.enemy_at(new_x, new_y).is_some() {
-            // If not enough AP, end turn first then attack
-            let cost = action_cost("attack_melee");
-            if self.player_ap < cost {
-                self.end_turn();
-            }
-            let hit = self.attack_melee(new_x, new_y);
-            if hit { self.check_auto_end_turn(); }
-            return hit;
-        }
-
-        if let Some(tile) = self.map.get(new_x, new_y) {
-            let walkable = tile.walkable() || self.debug_phase;
-            let is_glass = *tile == Tile::Glass;
-            let is_glare = *tile == Tile::Glare;
-            let is_world_exit = *tile == Tile::WorldExit;
-            if walkable {
-                let cost = action_cost("move");
-                if self.player_ap < cost { return false; }
-                self.player_ap -= cost;
-                
-                // Mirage Step: leave decoy at old position
-                let old_x = self.player_x;
-                let old_y = self.player_y;
-                if self.adaptations.iter().any(|a| a.has_ability("mirage_step")) {
-                    self.decoys.push(Decoy { x: old_x, y: old_y, turns_remaining: 3 });
-                }
-                
-                self.player_x = new_x;
-                self.player_y = new_y;
-                
-                // Clear storm change highlighting for visited tile
-                let player_idx = new_y as usize * self.map.width + new_x as usize;
-                self.storm_changed_tiles.remove(&player_idx);
-                
-                self.quest_log.on_position_changed(new_x, new_y);
-                self.update_fov();
-                self.update_lighting();
-                self.pickup_items();
-
-                // Handle world exit at map edges
-                if is_world_exit && self.layer == 0 {
-                    let at_north = new_y == 0;
-                    let at_south = new_y == self.map.height as i32 - 1;
-                    let at_west = new_x == 0;
-                    let at_east = new_x == self.map.width as i32 - 1;
-                    
-                    if at_north && self.world_y > 0 {
-                        self.travel_to_tile(self.world_x, self.world_y - 1);
-                        // Spawn at south edge of new tile
-                        self.player_y = self.map.height as i32 - 2;
-                    } else if at_south && self.world_y < super::world_map::WORLD_HEIGHT - 1 {
-                        self.travel_to_tile(self.world_x, self.world_y + 1);
-                        // Spawn at north edge of new tile
-                        self.player_y = 1;
-                    } else if at_west && self.world_x > 0 {
-                        self.travel_to_tile(self.world_x - 1, self.world_y);
-                        // Spawn at east edge of new tile
-                        self.player_x = self.map.width as i32 - 2;
-                    } else if at_east && self.world_x < super::world_map::WORLD_WIDTH - 1 {
-                        self.travel_to_tile(self.world_x + 1, self.world_y);
-                        // Spawn at west edge of new tile
-                        self.player_x = 1;
-                    }
-                }
-
-                if is_glass {
-                    if self.adaptations.iter().any(|a| a.has_immunity("glass")) {
-                        self.log("Your saltblood protects you from the glass.");
-                    } else {
-                        self.player_hp -= 1;
-                        self.refraction += 1;
-                        self.log("Sharp glass cuts you! (-1 HP, +1 Refraction)");
-                        self.check_adaptation_threshold();
-                    }
-                }
-
-                // Handle glare tile effects
-                if is_glare {
-                    // Glare reduces AP and causes temporary blindness
-                    self.player_ap = (self.player_ap - 1).max(0);
-                    self.log("Intense glare impairs your movement! (-1 AP)");
-                    
-                    // Chance to cause temporary blindness (reduce FOV)
-                    if self.rng.gen_range(0..100) < 30 {
-                        self.log("The glare blinds you temporarily!");
-                        // Could add a status effect here for reduced vision
-                    }
-                }
-
-                self.check_auto_end_turn();
-                return true;
-            }
-        }
-        false
+        MovementSystem::try_move(self, dx, dy)
     }
 
-
+    /// Pickup items at player position - delegates to MovementSystem
     pub fn pickup_items(&mut self) {
-        let px = self.player_x;
-        let py = self.player_y;
-        let indices = match self.item_positions.remove(&(px, py)) {
-            Some(v) => v,
-            None => return,
-        };
-        let mut picked_up = Vec::new();
-        // Process in reverse order to maintain valid indices during removal
-        for &i in indices.iter().rev() {
-            let id = self.items[i].id.clone();
-            let def = get_item_def(&id);
-            // Skip non-pickup items (e.g., light sources)
-            if !def.map(|d| d.pickup).unwrap_or(true) {
-                continue;
-            }
-            let name = def.map(|d| d.name.as_str()).unwrap_or("item");
-            if let Some(d) = def {
-                for e in &d.effects {
-                    if e.condition == "on_pickup" {
-                        self.trigger_effect(&e.effect, 3);
-                    }
-                }
-            }
-            self.inventory.push(id.clone());
-            self.quest_log.on_item_collected(&id);
-            self.emit(GameEvent::ItemPickedUp { item_id: id.clone() });
-            self.meta.discover_item(&id);
-            self.log_typed(format!("Picked up {}.", name), MsgType::Loot);
-            picked_up.push(i);
-        }
-        // Remove picked up items (in reverse order to maintain valid indices)
-        for &i in picked_up.iter().rev() {
-            self.items.remove(i);
-        }
-        // Rebuild position maps since item indices have changed
-        self.rebuild_spatial_index();
+        MovementSystem::pickup_items(self)
     }
 
     pub fn can_open_chest(&self, chest_index: usize) -> bool {

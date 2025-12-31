@@ -4,16 +4,20 @@
 
 | Anti-Pattern | Status | Notes |
 |-------------|--------|-------|
-| 1. God Object | In Progress | Systems extracted: Combat, AI |
+| 1. God Object | In Progress | Systems extracted: Combat, AI, Movement |
 | 2. Unused Event Bus | **FIXED** | Events now processed in `end_turn()` |
-| 3. Mixed Abstraction Levels | Not Started | `try_move()` still monolithic |
+| 3. Mixed Abstraction Levels | **FIXED** | `try_move()` extracted to `MovementSystem` |
 | 4. Spatial Index Sync | Not Started | Manual rebuild required |
 | 5. Test Schema Drift | Partially Fixed | New assertions added |
 | 6. Hardcoded Entity Checks | **FIXED** | Laser beam is data-driven |
 | 7. Panic on Missing Defs | **FIXED** | Safe patterns used |
 | 8. Code Duplication | **FIXED** | `process_enemy_death()` extracted |
 
-**Tests**: 67 passing, 10 broken scenarios in `tests/scenarios/broken/`
+**Tests**: 68 passing, 10 broken scenarios in `tests/scenarios/broken/`
+
+**Line Counts**:
+- `src/game/state.rs`: 3009 lines (down from 3150)
+- `src/game/systems/`: 1006 lines (combat: 292, ai: 402, movement: 297)
 
 ---
 
