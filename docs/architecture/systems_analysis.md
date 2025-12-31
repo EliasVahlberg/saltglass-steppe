@@ -449,9 +449,11 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
     -   Simplify systems that need to operate on "any entity"
     -   Would enable generic `DamageSystem`, `HealSystem`
 
-10. **Storm System Extraction**
-    -   Move `apply_storm()`, `apply_glass_edit()`, etc. to `StormSystem`
-    -   ~200 lines of storm logic still in `state.rs`
+10. ~~**Storm System Extraction**~~ - **COMPLETED**
+    -   Created `StormSystem` (`src/game/systems/storm.rs`, 319 lines)
+    -   Moved all storm edit types: Glass, Rotate, Swap, Mirror, Fracture, Crystallize, Vortex
+    -   Removed ~277 lines from `state.rs` (now 2689 lines, down from 3150)
+    -   Updated DES framework and unit tests to use `StormSystem::apply_storm()`
 
 11. **Performance Optimization**
     -   Profile A* pathfinding for large maps

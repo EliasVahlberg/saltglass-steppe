@@ -1,0 +1,17 @@
+{
+  "name": "Storm System Test",
+  "description": "Test that StormSystem correctly transforms the map",
+  "seed": 42,
+  "world_x": 5,
+  "world_y": 5,
+  "player": {"x": 10, "y": 10, "hp": 100, "max_hp": 100, "refraction": 0},
+  "entities": [],
+  "actions": [
+    {"turn": 0, "action": {"type": "trigger_storm", "intensity": 5}, "comment": "Trigger high intensity storm"}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "tile_type_count", "tile_type": "glass", "op": "gt", "value": 0}, "message": "Storm should create glass tiles"},
+    {"at_end": true, "check": {"type": "refraction", "op": "gt", "value": 0}, "message": "Storm should increase refraction"},
+    {"at_end": true, "check": {"type": "message_contains", "text": "GLASS STORM"}, "message": "Storm message should be logged"}
+  ]
+}

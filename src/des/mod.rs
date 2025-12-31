@@ -1170,10 +1170,11 @@ impl DesExecutor {
                 }
             }
             Action::TriggerStorm { intensity } => {
+                use crate::game::systems::StormSystem;
                 if let Some(intensity_val) = intensity {
                     self.state.storm.intensity = *intensity_val;
                 }
-                self.state.apply_storm();
+                StormSystem::apply_storm(&mut self.state);
                 self.log(format!("Storm triggered with intensity {}", self.state.storm.intensity));
             }
             Action::SetRefraction { value } => {

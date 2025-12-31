@@ -7,10 +7,12 @@ pub mod movement;
 pub mod loot;
 pub mod quest;
 pub mod status;
+pub mod storm;
 
 pub use loot::LootSystem;
 pub use quest::QuestSystem;
 pub use status::StatusEffectSystem;
+pub use storm::StormSystem;
 
 /// Trait for game systems that operate on GameState
 pub trait System {
