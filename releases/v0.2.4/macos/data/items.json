@@ -1,0 +1,1229 @@
+{
+  "items": [
+    {
+      "id": "storm_glass",
+      "name": "Storm Glass",
+      "glyph": "◆",
+      "description": "Crystallized storm energy, valuable for trade",
+      "value": 25,
+      "weight": 1,
+      "tier": 1,
+      "usable": false,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@3 &Cyan &LightCyan)" }
+      ]
+    },
+    {
+      "id": "pristine_storm_glass",
+      "name": "Pristine Storm Glass",
+      "glyph": "◆",
+      "description": "Flawless crystallized storm energy, extremely valuable",
+      "value": 100,
+      "weight": 1,
+      "tier": 3,
+      "usable": false,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@5 &LightCyan &White)" }
+      ]
+    },
+    {
+      "id": "storm_core",
+      "name": "Storm Core",
+      "glyph": "◆",
+      "description": "Concentrated essence of a storm's heart, priceless",
+      "value": 500,
+      "weight": 1,
+      "tier": 5,
+      "usable": false,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@8 &White &LightCyan)" }
+      ]
+    },
+    {
+      "id": "brine_vial",
+      "name": "Brine Vial",
+      "glyph": "!",
+      "description": "Concentrated salt water that heals wounds",
+      "value": 10,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "heal": 5,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@3 &Blue)" },
+        { "condition": "on_use", "effect": "P(@3 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "greater_brine_vial",
+      "name": "Greater Brine Vial",
+      "glyph": "!",
+      "description": "Potent concentrated salt water with healing minerals",
+      "value": 40,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "heal": 12,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" },
+        { "condition": "on_use", "effect": "P(@6 &White)" }
+      ]
+    },
+    {
+      "id": "saints_tear",
+      "name": "Saint's Tear",
+      "glyph": "○",
+      "description": "Vitrified droplet from a machine-saint's eye",
+      "value": 75,
+      "weight": 0,
+      "tier": 4,
+      "usable": true,
+      "heal": 15,
+      "reduces_refraction": 10,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@8 &White)" },
+        { "condition": "on_use", "effect": "F(@20 &White)" }
+      ]
+    },
+    {
+      "id": "scripture_shard",
+      "name": "Scripture Shard",
+      "glyph": "?",
+      "description": "Fragment of ancient religious text",
+      "value": 20,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "reveals_map": true,
+      "hidden_properties": ["value"],
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@3 &Magenta &LightMagenta)" },
+        { "condition": "on_use", "effect": "W(@4 &White)" }
+      ]
+    },
+    {
+      "id": "illuminated_scripture",
+      "name": "Illuminated Scripture",
+      "glyph": "?",
+      "description": "Complete religious text with golden illuminations",
+      "value": 150,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "reveals_map": true,
+      "reveals_locations": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@6 &Yellow &White)" },
+        { "condition": "on_use", "effect": "W(@8 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "saint_key",
+      "name": "Saint-Key",
+      "glyph": "⚷",
+      "description": "Pre-storm credential that grants Archive access",
+      "value": 100,
+      "weight": 1,
+      "tier": 2,
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@4 &Yellow)" }]
+    },
+    {
+      "id": "master_saint_key",
+      "name": "Master Saint-Key",
+      "glyph": "⚷",
+      "description": "Highest-level Archive credential with unlimited access",
+      "value": 400,
+      "weight": 1,
+      "tier": 5,
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &LightYellow)" }]
+    },
+    {
+      "id": "angle_lens",
+      "name": "Angle-Split Lens",
+      "glyph": "◎",
+      "description": "Refracts light into precise geometric patterns",
+      "value": 80,
+      "weight": 1,
+      "tier": 2,
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "P(@4 &LightCyan)" }]
+    },
+    {
+      "id": "perfect_lens",
+      "name": "Perfect Lens",
+      "glyph": "◎",
+      "description": "Flawless optical element that bends reality itself",
+      "value": 300,
+      "weight": 1,
+      "tier": 4,
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "P(@8 &White)" }]
+    },
+    {
+      "id": "salt_knife",
+      "name": "Salt Knife",
+      "glyph": "/",
+      "description": "Crude blade carved from crystallized salt",
+      "value": 15,
+      "weight": 2,
+      "tier": 1,
+      "usable": false,
+      "equip_slot": "weapon",
+      "effects": [{ "condition": "on_pickup", "effect": "S(@2 &White)" }]
+    },
+    {
+      "id": "glass_blade",
+      "name": "Glass Blade",
+      "glyph": "/",
+      "description": "Razor-sharp sword forged from storm glass",
+      "value": 80,
+      "weight": 3,
+      "tier": 3,
+      "usable": false,
+      "equip_slot": "weapon",
+      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &LightCyan)" }]
+    },
+    {
+      "id": "saint_blade",
+      "name": "Saint's Blade",
+      "glyph": "/",
+      "description": "Legendary weapon blessed by the machine-saints",
+      "value": 400,
+      "weight": 4,
+      "tier": 5,
+      "usable": false,
+      "equip_slot": "weapon",
+      "effects": [{ "condition": "on_pickup", "effect": "S(@8 &LightYellow)" }]
+    },
+    {
+      "id": "glass_shard",
+      "name": "Glass Shard",
+      "glyph": "*",
+      "description": "Sharp fragment of storm-touched glass",
+      "value": 5,
+      "weight": 1,
+      "tier": 1,
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@1 &Cyan)" }]
+    },
+    {
+      "id": "refined_glass_shard",
+      "name": "Refined Glass Shard",
+      "glyph": "*",
+      "description": "Carefully shaped glass fragment with enhanced properties",
+      "value": 25,
+      "weight": 1,
+      "tier": 2,
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@3 &LightCyan)" }]
+    },
+    {
+      "id": "salt_vest",
+      "name": "Salt Vest",
+      "glyph": "[",
+      "description": "Crude armor made from crystallized salt plates",
+      "value": 30,
+      "weight": 5,
+      "tier": 1,
+      "armor_value": 2,
+      "equip_slot": "armor",
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &White)" }]
+    },
+    {
+      "id": "glass_mail",
+      "name": "Glass Mail",
+      "glyph": "[",
+      "description": "Flexible armor woven from glass fibers",
+      "value": 120,
+      "weight": 8,
+      "tier": 3,
+      "armor_value": 5,
+      "equip_slot": "armor",
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@5 &LightCyan)" }]
+    },
+    {
+      "id": "saint_aegis",
+      "name": "Saint's Aegis",
+      "glyph": "[",
+      "description": "Divine protection forged by the machine-saints",
+      "value": 600,
+      "weight": 10,
+      "tier": 5,
+      "armor_value": 10,
+      "equip_slot": "armor",
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &LightYellow)" }]
+    },
+    {
+      "id": "leather_jacket",
+      "name": "Leather Jacket",
+      "glyph": "[",
+      "description": "Worn leather jacket offering basic protection",
+      "value": 20,
+      "weight": 3,
+      "tier": 1,
+      "armor_value": 1,
+      "equip_slot": "armor",
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@2 &DarkGray)" }]
+    },
+    {
+      "id": "reinforced_jacket",
+      "name": "Reinforced Jacket",
+      "glyph": "[",
+      "description": "Leather jacket reinforced with metal plates",
+      "value": 60,
+      "weight": 5,
+      "tier": 2,
+      "armor_value": 3,
+      "equip_slot": "armor",
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Gray)" }]
+    },
+    {
+      "id": "glass_pick",
+      "name": "Glass Pick",
+      "glyph": "/",
+      "description": "Vitrified tool for breaking walls and glass seams",
+      "value": 30,
+      "weight": 2,
+      "tier": 1,
+      "usable": true,
+      "breaks_walls": true,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &Cyan &White)" }]
+    },
+    {
+      "id": "master_glass_pick",
+      "name": "Master Glass Pick",
+      "glyph": "/",
+      "description": "Superior tool that can break any barrier",
+      "value": 150,
+      "weight": 3,
+      "tier": 4,
+      "usable": true,
+      "breaks_walls": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@6 &White &LightCyan)" }
+      ]
+    },
+    {
+      "id": "storm_compass",
+      "name": "Storm Compass",
+      "glyph": "⊕",
+      "description": "Needle trembles toward the next storm's origin",
+      "value": 60,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "reveals_storm_path": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@3 &Yellow)" },
+        { "condition": "on_use", "effect": "W(@6 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "storm_oracle",
+      "name": "Storm Oracle",
+      "glyph": "⊕",
+      "description": "Advanced device that predicts storm patterns perfectly",
+      "value": 300,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "reveals_storm_path": true,
+      "reveals_storm_timing": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &LightYellow)" },
+        { "condition": "on_use", "effect": "W(@10 &White)" }
+      ]
+    },
+    {
+      "id": "veil_tincture",
+      "name": "Veil Tincture",
+      "glyph": "!",
+      "description": "Dulls refraction glow—adaptations hidden briefly",
+      "value": 40,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "suppresses_adaptations": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &DarkGray)" },
+        { "condition": "on_use", "effect": "F(@12 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "perfect_veil",
+      "name": "Perfect Veil",
+      "glyph": "!",
+      "description": "Complete adaptation suppression with no side effects",
+      "value": 200,
+      "weight": 1,
+      "tier": 4,
+      "usable": true,
+      "suppresses_adaptations": true,
+      "grants_invisibility": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &DarkGray)" },
+        { "condition": "on_use", "effect": "F(@20 &Black)" }
+      ]
+    },
+    {
+      "id": "salt_poultice",
+      "name": "Salt Poultice",
+      "glyph": "+",
+      "description": "Crystallized salve that seals wounds with brine",
+      "value": 15,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "heal": 8,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Green)" },
+        { "condition": "on_use", "effect": "P(@4 &LightGreen)" }
+      ]
+    },
+    {
+      "id": "master_salve",
+      "name": "Master's Salve",
+      "glyph": "+",
+      "description": "Legendary healing compound that mends any wound",
+      "value": 250,
+      "weight": 1,
+      "tier": 5,
+      "usable": true,
+      "heal": 25,
+      "reduces_refraction": 5,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@8 &LightGreen)" },
+        { "condition": "on_use", "effect": "P(@10 &White)" }
+      ]
+    },
+    {
+      "id": "hand_torch",
+      "name": "Hand Torch",
+      "glyph": "i",
+      "description": "Simple torch that provides light",
+      "value": 5,
+      "weight": 1,
+      "tier": 1,
+      "usable": false,
+      "equip_slot": "light",
+      "light_source": { "radius": 4, "intensity": 100 },
+      "effects": [{ "condition": "on_pickup", "effect": "F(@3 &Yellow)" }]
+    },
+    {
+      "id": "storm_lantern",
+      "name": "Storm Lantern",
+      "glyph": "i",
+      "description": "Advanced lantern powered by storm glass",
+      "value": 80,
+      "weight": 2,
+      "tier": 3,
+      "usable": false,
+      "equip_slot": "light",
+      "light_source": { "radius": 8, "intensity": 150 },
+      "effects": [{ "condition": "on_pickup", "effect": "F(@6 &LightCyan)" }]
+    },
+    {
+      "id": "saint_beacon",
+      "name": "Saint's Beacon",
+      "glyph": "i",
+      "description": "Divine light that pierces any darkness",
+      "value": 400,
+      "weight": 3,
+      "tier": 5,
+      "usable": false,
+      "equip_slot": "light",
+      "light_source": { "radius": 15, "intensity": 200 },
+      "effects": [{ "condition": "on_pickup", "effect": "F(@10 &White)" }]
+    },
+    {
+      "id": "salt_crystal",
+      "name": "Salt Crystal",
+      "glyph": "*",
+      "description": "Pure crystallized salt with various uses",
+      "value": 8,
+      "weight": 1,
+      "tier": 1,
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@2 &White)" }]
+    },
+    {
+      "id": "perfect_salt_crystal",
+      "name": "Perfect Salt Crystal",
+      "glyph": "*",
+      "description": "Flawless salt crystal with enhanced purity",
+      "value": 50,
+      "weight": 1,
+      "tier": 3,
+      "usable": false,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@5 &LightGray)" }]
+    },
+    {
+      "id": "old_world_boots",
+      "name": "Old World Running Shoes",
+      "glyph": "=",
+      "description": "Pre-Event footwear with synthetic soles",
+      "value": 35,
+      "weight": 2,
+      "tier": 2,
+      "usable": true,
+      "equip_slot": "boots",
+      "grants_sprint": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@3 &Gray)" },
+        { "condition": "on_equip", "effect": "P(@5 &LightGreen)" }
+      ]
+    },
+    {
+      "id": "void_glass_shard",
+      "name": "Void Glass Shard",
+      "glyph": "◆",
+      "description": "Black glass that absorbs light and heat",
+      "value": 200,
+      "weight": 1,
+      "tier": 4,
+      "usable": false,
+      "absorbs_light": true,
+      "effects": [{ "condition": "on_pickup", "effect": "F(@6 &Black)" }]
+    },
+    {
+      "id": "singing_glass",
+      "name": "Singing Glass",
+      "glyph": "♪",
+      "description": "Resonant glass that hums with stored vibrations",
+      "value": 45,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "sonic_weapon": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &Cyan)" },
+        { "condition": "on_use", "effect": "W(@8 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "prism_core",
+      "name": "Prism Core",
+      "glyph": "◊",
+      "description": "Perfect geometric glass that focuses light into beams",
+      "value": 300,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "laser_weapon": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@8 &White)" },
+        { "condition": "on_use", "effect": "F(@12 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "verdant_glass",
+      "name": "Verdant Glass",
+      "glyph": "♠",
+      "description": "Green bio-glass that slowly regenerates",
+      "value": 80,
+      "weight": 1,
+      "tier": 3,
+      "usable": false,
+      "self_repairing": true,
+      "effects": [{ "condition": "on_pickup", "effect": "S(@5 &Green)" }]
+    },
+    {
+      "id": "sanguine_glass",
+      "name": "Sanguine Glass",
+      "glyph": "♥",
+      "description": "Crimson glass warm with trapped memories",
+      "value": 400,
+      "weight": 1,
+      "tier": 5,
+      "usable": true,
+      "contains_memories": true,
+      "bonds_with_flesh": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@8 &Red)" },
+        { "condition": "on_use", "effect": "F(@15 &LightRed)" }
+      ]
+    },
+    {
+      "id": "mirror_slate",
+      "name": "Mirror Slate",
+      "glyph": "□",
+      "description": "Perfectly reflective sheet used for signaling",
+      "value": 60,
+      "weight": 3,
+      "tier": 2,
+      "usable": true,
+      "reflects_beams": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@4 &White)" },
+        { "condition": "on_use", "effect": "W(@10 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "aero_glass",
+      "name": "Aero Glass",
+      "glyph": "○",
+      "description": "Frothy lightweight glass that floats on water",
+      "value": 25,
+      "weight": 0,
+      "tier": 2,
+      "usable": false,
+      "floats": true,
+      "effects": [{ "condition": "on_pickup", "effect": "F(@3 &LightCyan)" }]
+    },
+    {
+      "id": "fulgurite_rod",
+      "name": "Fulgurite Rod",
+      "glyph": "|",
+      "description": "Branching tube of storm-glass crackling with energy",
+      "value": 120,
+      "weight": 2,
+      "tier": 3,
+      "usable": true,
+      "equip_slot": "weapon",
+      "shock_weapon": true,
+      "explosive": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@6 &LightBlue)" },
+        { "condition": "on_use", "effect": "F(@10 &Yellow)" }
+      ]
+    },
+    {
+      "id": "obsidian_cloak",
+      "name": "Obsidian Cloak",
+      "glyph": "(",
+      "description": "Null-glass weave that blocks data transmission",
+      "value": 150,
+      "weight": 4,
+      "tier": 3,
+      "usable": false,
+      "equip_slot": "cloak",
+      "blocks_scanning": true,
+      "stealth_bonus": true,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@6 &Black)" }]
+    },
+    {
+      "id": "neural_crown",
+      "name": "Neural Interface Crown",
+      "glyph": "♔",
+      "description": "Archive technology for consciousness interfacing",
+      "value": 800,
+      "weight": 3,
+      "tier": 5,
+      "usable": true,
+      "equip_slot": "head",
+      "archive_interface": true,
+      "consciousness_link": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@10 &LightMagenta)" },
+        { "condition": "on_equip", "effect": "F(@20 &White)" }
+      ]
+    },
+    {
+      "id": "quantum_buffer",
+      "name": "Quantum Buffer Array",
+      "glyph": "≡",
+      "description": "Prevents information overload during data transfer",
+      "value": 250,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "prevents_overload": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &Magenta)" },
+        { "condition": "on_use", "effect": "P(@12 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "storm_battery",
+      "name": "Storm Battery",
+      "glyph": "⚡",
+      "description": "Capacitive fulgurite that stores electrical charge",
+      "value": 90,
+      "weight": 3,
+      "tier": 3,
+      "usable": true,
+      "powers_devices": true,
+      "explosive": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@5 &Yellow)" },
+        { "condition": "on_use", "effect": "F(@8 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "resonance_tuner",
+      "name": "Resonance Tuner",
+      "glyph": "♫",
+      "description": "Device that calibrates singing glass frequencies",
+      "value": 180,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "tunes_frequencies": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@6 &Cyan)" },
+        { "condition": "on_use", "effect": "W(@10 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "void_containment_box",
+      "name": "Void Containment Box",
+      "glyph": "■",
+      "description": "Lead-lined container for dangerous artifacts",
+      "value": 200,
+      "weight": 8,
+      "tier": 4,
+      "usable": true,
+      "contains_danger": true,
+      "radiation_shield": true,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &DarkGray)" }]
+    },
+    {
+      "id": "glassborn_prosthetic",
+      "name": "Glassborn Prosthetic",
+      "glyph": "⚕",
+      "description": "Sanguine glass limb that bonds with flesh",
+      "value": 600,
+      "weight": 5,
+      "tier": 5,
+      "usable": true,
+      "equip_slot": "prosthetic",
+      "bonds_with_flesh": true,
+      "enhanced_strength": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@10 &Red)" },
+        { "condition": "on_equip", "effect": "F(@15 &LightRed)" }
+      ]
+    },
+    {
+      "id": "echo_detector",
+      "name": "Echo Detector",
+      "glyph": "◐",
+      "description": "Senses consciousness bleed from transformed beings",
+      "value": 120,
+      "weight": 2,
+      "tier": 3,
+      "usable": true,
+      "detects_consciousness": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@5 &Magenta)" },
+        { "condition": "on_use", "effect": "W(@8 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "reality_anchor",
+      "name": "Reality Anchor",
+      "glyph": "⚓",
+      "description": "Stabilizes local physics in flux zones",
+      "value": 400,
+      "weight": 10,
+      "tier": 5,
+      "usable": true,
+      "stabilizes_reality": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@8 &White)" },
+        { "condition": "on_use", "effect": "F(@20 &LightGray)" }
+      ]
+    },
+    {
+      "id": "monk_prayer_beads",
+      "name": "Monk Prayer Beads",
+      "glyph": "○",
+      "description": "Geometric glass beads that focus meditation",
+      "value": 40,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "enhances_meditation": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@3 &Cyan)" },
+        { "condition": "on_use", "effect": "F(@8 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "engineer_multitool",
+      "name": "Engineer Multitool",
+      "glyph": "⚒",
+      "description": "Precision instrument for technical work",
+      "value": 80,
+      "weight": 2,
+      "tier": 3,
+      "usable": true,
+      "repairs_devices": true,
+      "breaks_walls": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &Gray)" },
+        { "condition": "on_use", "effect": "B(@6 &LightGray)" }
+      ]
+    },
+    {
+      "id": "wanderer_compass",
+      "name": "Wanderer's Compass",
+      "glyph": "⊗",
+      "description": "Points toward safe passage through flux zones",
+      "value": 100,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "finds_safe_paths": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Green)" },
+        { "condition": "on_use", "effect": "W(@8 &LightGreen)" }
+      ]
+    },
+    {
+      "id": "adaptation_suppressor",
+      "name": "Adaptation Suppressor",
+      "glyph": "◊",
+      "description": "Archive device that masks transformation signatures",
+      "value": 300,
+      "weight": 3,
+      "tier": 4,
+      "usable": true,
+      "suppresses_adaptations": true,
+      "archive_tech": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &DarkGray)" },
+        { "condition": "on_use", "effect": "F(@15 &Black)" }
+      ]
+    },
+    {
+      "id": "storm_caller",
+      "name": "Storm Caller",
+      "glyph": "☈",
+      "description": "Forbidden device that can trigger localized storms",
+      "value": 1000,
+      "weight": 5,
+      "tier": 5,
+      "usable": true,
+      "calls_storms": true,
+      "extremely_dangerous": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@15 &Red)" },
+        { "condition": "on_use", "effect": "W(@25 &LightRed)" }
+      ]
+    },
+    {
+      "id": "memory_crystal",
+      "name": "Memory Crystal",
+      "glyph": "◈",
+      "description": "Stores consciousness fragments and experiences",
+      "value": 150,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "stores_memories": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@5 &Magenta)" },
+        { "condition": "on_use", "effect": "F(@10 &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "phase_cloak",
+      "name": "Phase Cloak",
+      "glyph": "~",
+      "description": "Experimental device allowing brief intangibility",
+      "value": 500,
+      "weight": 2,
+      "tier": 5,
+      "usable": true,
+      "equip_slot": "cloak",
+      "grants_phasing": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@8 &DarkGray)" },
+        { "condition": "on_equip", "effect": "P(@12 &Black)" }
+      ]
+    },
+    {
+      "id": "salt_miner_helmet",
+      "name": "Salt Miner's Helmet",
+      "glyph": "⌐",
+      "description": "Protective headgear with built-in light",
+      "value": 45,
+      "weight": 3,
+      "tier": 2,
+      "usable": false,
+      "equip_slot": "head",
+      "armor_value": 1,
+      "light_source": { "radius": 3, "intensity": 80 },
+      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Yellow)" }]
+    },
+    {
+      "id": "glass_weaver_gloves",
+      "name": "Glass Weaver's Gloves",
+      "glyph": "≈",
+      "description": "Allows safe handling of dangerous glass types",
+      "value": 70,
+      "weight": 1,
+      "tier": 2,
+      "usable": false,
+      "equip_slot": "gloves",
+      "safe_glass_handling": true,
+      "effects": [{ "condition": "on_pickup", "effect": "B(@4 &Cyan)" }]
+    },
+    {
+      "id": "storm_prophet_staff",
+      "name": "Storm Prophet's Staff",
+      "glyph": "♦",
+      "description": "Monk artifact that channels storm energy",
+      "value": 350,
+      "weight": 4,
+      "tier": 4,
+      "usable": true,
+      "equip_slot": "weapon",
+      "channels_storms": true,
+      "monk_artifact": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "P(@8 &LightCyan)" },
+        { "condition": "on_use", "effect": "F(@15 &White)" }
+      ]
+    },
+    {
+      "id": "archive_scanner",
+      "name": "Archive Scanner",
+      "glyph": "◎",
+      "description": "Identifies and catalogs unknown artifacts",
+      "value": 200,
+      "weight": 2,
+      "tier": 4,
+      "usable": true,
+      "identifies_items": true,
+      "archive_tech": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &LightBlue)" },
+        { "condition": "on_use", "effect": "W(@10 &White)" }
+      ]
+    },
+    {
+      "id": "item_book_halix",
+      "name": "Book: Halix's Game",
+      "glyph": "B",
+      "description": "A worn pamphlet describing a children's game.",
+      "value": 10,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_halix_game",
+      "effects": []
+    },
+    {
+      "id": "item_book_sister_vey",
+      "name": "Book: Vey's Margin",
+      "glyph": "B",
+      "description": "A theological text with heretical marginalia.",
+      "value": 15,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_sister_vey",
+      "effects": []
+    },
+    {
+      "id": "item_book_ressa_vane",
+      "name": "Book: Vane's Log",
+      "glyph": "B",
+      "description": "A field log from a disastrous excavation.",
+      "value": 20,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_ressa_vane",
+      "effects": []
+    },
+    {
+      "id": "item_book_glass_pilgrim",
+      "name": "Book: Pilgrim's Journal",
+      "glyph": "B",
+      "description": "A journal found near the Silent City.",
+      "value": 30,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_glass_pilgrim",
+      "effects": []
+    },
+    {
+      "id": "item_book_halen_trace",
+      "name": "Book: Halen's Trace",
+      "glyph": "B",
+      "description": "A warning about something in the radio static.",
+      "value": 25,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_halen_trace",
+      "effects": []
+    },
+    {
+      "id": "item_book_white_noon",
+      "name": "Book: The White Noon",
+      "glyph": "B",
+      "description": "An eyewitness account of the cataclysm.",
+      "value": 50,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_white_noon",
+      "effects": []
+    },
+    {
+      "id": "item_book_pump_manual",
+      "name": "Book: Pump Manual",
+      "glyph": "B",
+      "description": "Grease-stained instructions for pump maintenance.",
+      "value": 15,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_pump_manual",
+      "effects": []
+    },
+    {
+      "id": "item_book_broken_eye",
+      "name": "Book: The Broken Eye",
+      "glyph": "B",
+      "description": "A heretical text about the Grand Prism.",
+      "value": 40,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_broken_eye",
+      "effects": []
+    },
+    {
+      "id": "item_book_siege_silica",
+      "name": "Book: Siege of Silica",
+      "glyph": "B",
+      "description": "War journal of an Iron Covenant commander.",
+      "value": 35,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_siege_silica",
+      "effects": []
+    },
+    {
+      "id": "item_book_architect_dream",
+      "name": "Book: Architect's Dream",
+      "glyph": "B",
+      "description": "Notes on the consciousness of the Heliograph.",
+      "value": 100,
+      "weight": 1,
+      "tier": 5,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_architect_dream",
+      "effects": []
+    },
+    {
+      "id": "item_book_glassborn_songs",
+      "name": "Book: Glassborn Songs",
+      "glyph": "B",
+      "description": "Poetry written on shards of glass.",
+      "value": 25,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_glassborn_songs",
+      "effects": []
+    },
+    {
+      "id": "item_book_salt_walker",
+      "name": "Book: Salt-Walker's Guide",
+      "glyph": "B",
+      "description": "Practical survival advice for the Steppe.",
+      "value": 20,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_salt_walker",
+      "effects": []
+    },
+    {
+      "id": "item_book_litany_refraction",
+      "name": "Book: Litany of Refraction",
+      "glyph": "B",
+      "description": "Religious text of the Mirror Monks.",
+      "value": 30,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_litany_refraction",
+      "effects": []
+    },
+    {
+      "id": "item_book_null_field",
+      "name": "Book: Null-Field Theory",
+      "glyph": "B",
+      "description": "Banned scientific paper on storm cancellation.",
+      "value": 60,
+      "weight": 1,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_null_field",
+      "effects": []
+    },
+    {
+      "id": "item_book_vasquez_journal",
+      "name": "Book: Vasquez's Journal",
+      "glyph": "B",
+      "description": "Final entry of a lost expedition.",
+      "value": 80,
+      "weight": 1,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_vasquez_journal",
+      "effects": []
+    },
+    {
+      "id": "item_book_glass_boy",
+      "name": "Book: The Glass Boy",
+      "glyph": "B",
+      "description": "A folktale about a child who embraced the storm.",
+      "value": 15,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_glass_boy",
+      "effects": []
+    },
+    {
+      "id": "item_book_silent_city",
+      "name": "Book: The Silent City",
+      "glyph": "B",
+      "description": "Observations of a frozen metropolis.",
+      "value": 45,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_silent_city",
+      "effects": []
+    },
+    {
+      "id": "item_book_protocol_containment",
+      "name": "Book: Protocol Containment",
+      "glyph": "B",
+      "description": "Glitchy printout from an Archive drone.",
+      "value": 55,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_protocol_containment",
+      "effects": []
+    },
+    {
+      "id": "item_book_letters_seam",
+      "name": "Book: Letters from the Seam",
+      "glyph": "B",
+      "description": "Forbidden correspondence between factions.",
+      "value": 20,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_letters_seam",
+      "effects": []
+    },
+    {
+      "id": "item_book_first_saint",
+      "name": "Book: The First Saint",
+      "glyph": "B",
+      "description": "Myth of the first machine-priest.",
+      "value": 30,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_first_saint",
+      "effects": []
+    },
+    {
+      "id": "item_book_cooking_brine",
+      "name": "Book: Cooking with Brine",
+      "glyph": "B",
+      "description": "Recipes using dangerous ingredients.",
+      "value": 10,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_cooking_brine",
+      "effects": []
+    },
+    {
+      "id": "item_book_watchers",
+      "name": "Book: The Watchers",
+      "glyph": "B",
+      "description": "Conspiracy theories about cosmic entities.",
+      "value": 25,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_watchers",
+      "effects": []
+    },
+    {
+      "id": "item_book_echoes_schism",
+      "name": "Book: Echoes of Schism",
+      "glyph": "B",
+      "description": "Historical analysis of the Monk civil war.",
+      "value": 35,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_echoes_schism",
+      "effects": []
+    },
+    {
+      "id": "item_book_last_garden",
+      "name": "Book: The Last Garden",
+      "glyph": "B",
+      "description": "Legend of a place where plants still grow.",
+      "value": 50,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_last_garden",
+      "effects": []
+    },
+    {
+      "id": "item_book_storm_compass",
+      "name": "Book: Storm Compass Manual",
+      "glyph": "B",
+      "description": "Instructions for reading storm signs.",
+      "value": 15,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "book_id": "book_storm_compass",
+      "effects": []
+    }
+  ]
+}

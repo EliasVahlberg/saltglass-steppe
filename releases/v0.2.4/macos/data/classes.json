@@ -1,0 +1,34 @@
+{
+  "classes": [
+    {
+      "id": "wanderer",
+      "name": "Wanderer",
+      "description": "A survivor of the glass storms. Balanced stats.",
+      "unlocked_by_default": true,
+      "starting_hp": 20,
+      "starting_ap": 4,
+      "starting_items": ["bandage", "waterskin"]
+    },
+    {
+      "id": "scavenger",
+      "name": "Scavenger",
+      "description": "Expert at finding useful items. Starts with extra supplies.",
+      "unlocked_by_default": false,
+      "unlock_condition": "collect_50_items",
+      "starting_hp": 15,
+      "starting_ap": 5,
+      "starting_items": ["bandage", "bandage", "salt_crystal", "waterskin"]
+    },
+    {
+      "id": "glasstouched",
+      "name": "Glasstouched",
+      "description": "Partially adapted to the storms. Resistant to glass damage.",
+      "unlocked_by_default": false,
+      "unlock_condition": "reach_refraction_50",
+      "starting_hp": 18,
+      "starting_ap": 4,
+      "starting_items": ["bandage"],
+      "starting_adaptations": ["saltblood"]
+    }
+  ]
+}

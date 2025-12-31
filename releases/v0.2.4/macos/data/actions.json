@@ -1,0 +1,13 @@
+{
+  "actions": {
+    "move": 1,
+    "attack_melee": 2,
+    "attack_ranged": 2,
+    "use_item": 1,
+    "wait": 0,
+    "interact": 1,
+    "break_wall": 2
+  },
+  "default_player_ap": 4,
+  "default_enemy_ap": 2
+}

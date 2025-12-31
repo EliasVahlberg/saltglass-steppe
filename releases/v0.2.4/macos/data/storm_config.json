@@ -1,0 +1,10 @@
+{
+  "min_interval": 50,
+  "max_interval": 100,
+  "base_intensity": 2,
+  "intensity_variance": 2,
+  "glass_conversion_chance": 0.3,
+  "storm_glass_drop_chance": 0.15,
+  "wraith_spawn_max": 2,
+  "refraction_multiplier": 10
+}
