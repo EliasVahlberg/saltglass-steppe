@@ -1,0 +1,19 @@
+{
+  "name": "Status Effect System Test",
+  "description": "Test that StatusEffectSystem processes player status effects",
+  "seed": 42,
+  "world_x": 5,
+  "world_y": 5,
+  "player": {"x": 10, "y": 10, "hp": 100, "max_hp": 100},
+  "entities": [],
+  "actions": [
+    {"turn": 0, "action": {"type": "apply_status", "effect": "poison", "duration": 3, "potency": 1}, "comment": "Apply poison"},
+    {"turn": 1, "action": {"type": "end_turn"}, "comment": "Tick poison damage"},
+    {"turn": 2, "action": {"type": "end_turn"}, "comment": "Tick poison again"},
+    {"turn": 3, "action": {"type": "end_turn"}, "comment": "Tick poison final"}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "player_hp", "op": "lt", "value": 100}, "message": "Poison should deal damage"},
+    {"at_end": true, "check": {"type": "message_contains", "text": "Poison deals"}, "message": "Poison damage should be logged"}
+  ]
+}

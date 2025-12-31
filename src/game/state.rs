@@ -1186,8 +1186,10 @@ impl GameState {
 
     /// End turn: reset AP, tick status effects, run enemy turns, tick storm, tick time
     pub fn end_turn(&mut self) {
+        use super::systems::{System, StatusEffectSystem};
+        
         self.player_ap = self.player_max_ap;
-        self.tick_status_effects();
+        StatusEffectSystem.update(self);
         self.psychic.tick();
         self.skills.tick();
         self.tick_turn();
@@ -1249,24 +1251,6 @@ impl GameState {
             }
             _ => {}
         }
-    }
-
-    /// Tick all status effects, apply damage, remove expired
-    fn tick_status_effects(&mut self) {
-        let mut total_damage = 0;
-        let mut messages = Vec::new();
-        for effect in &mut self.status_effects {
-            let dmg = effect.tick();
-            if dmg > 0 {
-                total_damage += dmg;
-                messages.push(format!("{} deals {} damage.", effect.name, dmg));
-            }
-        }
-        for msg in messages {
-            self.log(msg);
-        }
-        self.player_hp -= total_damage;
-        self.status_effects.retain(|e| !e.is_expired());
     }
 
     /// Apply a status effect to the player

@@ -428,10 +428,12 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
     -   Added `enemy_count`, `npc_count`, `chest_count` assertions with `op` comparison
     -   Added `Chest` entity type with inventory support
 
-7.  **Extract StatusEffectSystem**
-    -   Current: `GameState::tick_status_effects()` handles all status effect logic
-    -   TODO: Create `StatusEffectSystem` that can handle both player and enemy status effects
-    -   TODO: Support data-driven status effects from `data/status_effects.json`
+7.  ~~**Extract StatusEffectSystem**~~ - **COMPLETED**
+    -   Created `StatusEffectSystem` (`src/game/systems/status.rs`)
+    -   Handles player and enemy status effect ticking
+    -   Reads tick_damage from `data/status_effects.json`
+    -   Provides helper functions: `player_is_stunned`, `enemy_is_stunned`, `player_accuracy_penalty`
+    -   Enemies killed by status effects emit `EnemyKilled` event
 
 8.  **Fix Broken Combat Test Scenarios**
     -   10 scenarios in `tests/scenarios/broken/` fail due to:

@@ -6,9 +6,11 @@ pub mod ai;
 pub mod movement;
 pub mod loot;
 pub mod quest;
+pub mod status;
 
 pub use loot::LootSystem;
 pub use quest::QuestSystem;
+pub use status::StatusEffectSystem;
 
 /// Trait for game systems that operate on GameState
 pub trait System {
