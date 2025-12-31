@@ -1,0 +1,23 @@
+{
+  "tiles": [
+    {
+      "id": "floor",
+      "name": "Floor",
+      "glyph": ".",
+      "walkable": true,
+      "transparent": true,
+      "description": "Dusty ground"
+    },
+    {
+      "id": "glass",
+      "name": "Glass",
+      "glyph": "*",
+      "walkable": true,
+      "transparent": true,
+      "damage_on_enter": 1,
+      "refraction_on_enter": 1,
+      "description": "Sharp refractive shards, dangerous to walk on"
+    }
+  ],
+  "_note": "Wall types are in walls.json. This file defines base tile types for future full data-driven tiles."
+}
