@@ -193,6 +193,8 @@ pub struct GameState {
     #[serde(skip)]
     pub chest_positions: HashMap<(i32, i32), usize>,
     #[serde(skip)]
+    spatial_dirty: bool,
+    #[serde(skip)]
     pub event_queue: Vec<GameEvent>,
     #[serde(skip)]
     pub hit_flash_positions: Vec<(i32, i32, u32)>,
@@ -551,6 +553,7 @@ impl GameState {
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
             chest_positions: HashMap::new(),
+            spatial_dirty: true,
             event_queue: Vec::new(),
             hit_flash_positions: Vec::new(),
             damage_numbers: Vec::new(),
@@ -633,7 +636,20 @@ impl GameState {
         state
     }
 
-    pub fn rebuild_spatial_index(&mut self) {
+    /// Mark spatial index as dirty, requiring rebuild on next query
+    pub fn mark_spatial_dirty(&mut self) {
+        self.spatial_dirty = true;
+    }
+    
+    /// Ensure spatial index is up to date before querying
+    fn ensure_spatial_index(&mut self) {
+        if self.spatial_dirty {
+            self.rebuild_spatial_index_internal();
+        }
+    }
+    
+    /// Internal rebuild that clears the dirty flag
+    fn rebuild_spatial_index_internal(&mut self) {
         self.enemy_positions.clear();
         for (i, e) in self.enemies.iter().enumerate() {
             if e.hp > 0 {
@@ -652,6 +668,12 @@ impl GameState {
         for (i, chest) in self.chests.iter().enumerate() {
             self.chest_positions.insert((chest.x, chest.y), i);
         }
+        self.spatial_dirty = false;
+    }
+
+    /// Rebuild spatial index (public, for backwards compatibility)
+    pub fn rebuild_spatial_index(&mut self) {
+        self.rebuild_spatial_index_internal();
     }
 
     /// Travel to a new world tile (lazy generation)
@@ -1187,6 +1209,9 @@ impl GameState {
     /// End turn: reset AP, tick status effects, run enemy turns, tick storm, tick time
     pub fn end_turn(&mut self) {
         use super::systems::{System, StatusEffectSystem, StormSystem};
+        
+        // Ensure spatial index is up to date before AI/systems run
+        self.ensure_spatial_index();
         
         self.player_ap = self.player_max_ap;
         StatusEffectSystem.update(self);

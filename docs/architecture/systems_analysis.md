@@ -460,10 +460,12 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
     -   Consider spatial partitioning for enemy lookups (current: O(n) scan)
     -   Potential: Lazy FOV computation
 
-12. **Spatial Index Improvements**
-    -   Current: Manual `rebuild_spatial_index()` calls required
-    -   TODO: Consider dirty-flag pattern for automatic invalidation
-    -   TODO: Or switch to on-demand queries without caching
+12. ~~**Spatial Index Improvements**~~ - **PARTIALLY COMPLETED**
+    -   Added `spatial_dirty` flag for lazy invalidation
+    -   Added `mark_spatial_dirty()` and `ensure_spatial_index()` methods
+    -   `ensure_spatial_index()` called at start of `end_turn()` before AI runs
+    -   Explicit `rebuild_spatial_index()` still available for backwards compatibility
+    -   Note: Query functions still take `&self`, not `&mut self` to avoid breaking changes
 
 ---
 
