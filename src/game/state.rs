@@ -2478,10 +2478,12 @@ impl GameState {
             self.log_typed(format!("Picked up {}.", name), MsgType::Loot);
             picked_up.push(i);
         }
-        // Remove picked up items
-        for i in picked_up {
+        // Remove picked up items (in reverse order to maintain valid indices)
+        for &i in picked_up.iter().rev() {
             self.items.remove(i);
         }
+        // Rebuild position maps since item indices have changed
+        self.rebuild_spatial_index();
     }
 
     pub fn can_open_chest(&self, chest_index: usize) -> bool {
