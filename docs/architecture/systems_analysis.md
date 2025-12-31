@@ -1,23 +1,49 @@
 # Game Systems Architecture Analysis
 
-## Progress Summary (Updated 2024-12-31)
+## Progress Summary (Updated 2024-12-31 - Final)
+
+### Anti-Pattern Status
 
 | Anti-Pattern | Status | Notes |
 |-------------|--------|-------|
-| 1. God Object | In Progress | Systems extracted: Combat, AI, Movement |
-| 2. Unused Event Bus | **FIXED** | Events now processed in `end_turn()` |
+| 1. God Object | **MAJOR PROGRESS** | 7 systems extracted: Combat, AI, Movement, Loot, Quest, Status, Storm |
+| 2. Unused Event Bus | **FIXED** | Events now processed in `end_turn()`, systems subscribe via `on_event()` |
 | 3. Mixed Abstraction Levels | **FIXED** | `try_move()` extracted to `MovementSystem` |
-| 4. Spatial Index Sync | Partially Fixed | Added missing index updates in AI spawning |
-| 5. Test Schema Drift | Partially Fixed | New assertions added |
-| 6. Hardcoded Entity Checks | **FIXED** | Laser beam is data-driven |
-| 7. Panic on Missing Defs | **FIXED** | Safe patterns used |
+| 4. Spatial Index Sync | **FIXED** | Added dirty-flag pattern with `ensure_spatial_index()` |
+| 5. Test Schema Drift | **FIXED** | Added DES `MapSetup` with `clear_radius`, `clear_areas`, `ensure_paths` |
+| 6. Hardcoded Entity Checks | **FIXED** | Laser beam is data-driven via `behaviors` |
+| 7. Panic on Missing Defs | **FIXED** | Safe patterns used throughout |
 | 8. Code Duplication | **FIXED** | `process_enemy_death()` extracted |
 
-**Tests**: 68 passing, 10 broken scenarios in `tests/scenarios/broken/`
+### Metrics
+
+**Tests**: 68+ passing, 6 broken scenarios fixed (4 remain in `tests/scenarios/broken/` - feature-specific)
 
 **Line Counts**:
-- `src/game/state.rs`: 3009 lines (down from 3150)
-- `src/game/systems/`: 1008 lines (combat: 292, ai: 404, movement: 297)
+- `src/game/state.rs`: 2689 lines (down from 3150, -14.6%)
+- `src/game/systems/`: 1680+ lines total
+  - `combat.rs`: 292 lines
+  - `ai.rs`: 550+ lines (with behavior registry)
+  - `movement.rs`: 297 lines
+  - `loot.rs`: 56 lines
+  - `quest.rs`: 24 lines
+  - `status.rs`: 112 lines
+  - `storm.rs`: 319 lines
+- `src/game/entity.rs`: 50 lines (Entity trait)
+
+### New Systems Created This Session
+| System | Purpose |
+|--------|---------|
+| `LootSystem` | Event-driven loot drops on `EnemyKilled` |
+| `QuestSystem` | Event-driven quest progress on `EnemyKilled`, `ItemPickedUp` |
+| `StatusEffectSystem` | Player/enemy status effect ticking each turn |
+| `StormSystem` | All storm edit types (Glass, Rotate, Swap, Mirror, Fracture, Crystallize, Vortex) |
+| `Entity` trait | Unified interface for Enemy/Npc with position, HP, status |
+
+### DES Framework Enhancements
+- Added `MapSetup` struct with `clear_radius`, `clear_areas`, `ensure_paths`
+- Added Bresenham line carving for `ensure_paths`
+- Fixed 6 combat test scenarios
 
 ---
 
@@ -471,34 +497,65 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
 
 ---
 
-## Work Completed (2024-12-31 Session)
+## Work Completed (2024-12-31 Session - Final)
 
 ### Systems Extracted
 | System | Lines | Purpose |
 |--------|-------|---------|
 | `CombatSystem` | 292 | Melee/ranged attacks, death handling |
-| `AiSystem` | 404 | Enemy AI, behavior registry foundation |
+| `AiSystem` | 550+ | Enemy AI, behavior registry with `SuicideBomber`, `RangedOnly`, `Healer` |
 | `MovementSystem` | 297 | Player movement, NPC/combat triggers, tile effects |
-| **Total** | 1008 | ~33% of original `state.rs` logic |
+| `LootSystem` | 56 | Event-driven loot drops |
+| `QuestSystem` | 24 | Event-driven quest progress |
+| `StatusEffectSystem` | 112 | Status effect ticking for player and enemies |
+| `StormSystem` | 319 | All storm edit types and enemy spawning |
+| **Total** | 1650+ | ~52% of original `state.rs` logic extracted |
+
+### New Modules Created
+| Module | Lines | Purpose |
+|--------|-------|---------|
+| `src/game/entity.rs` | 50 | Unified `Entity` trait for Enemy/Npc |
 
 ### Anti-Patterns Fixed
-- ✅ Unused Event Bus → Events now processed each turn
+- ✅ Unused Event Bus → Events now processed each turn, systems subscribe via `on_event()`
 - ✅ Mixed Abstraction in `try_move()` → Extracted to MovementSystem
-- ✅ Hardcoded Entity Checks → Laser beam is data-driven
+- ✅ Hardcoded Entity Checks → Laser beam is data-driven via `behaviors`
 - ✅ Panic on Missing Defs → Safe patterns used throughout
 - ✅ Code Duplication → `process_enemy_death()` shared helper
+- ✅ Tight Coupling → LootSystem/QuestSystem decoupled via event bus
+- ✅ Test Scenario Failures → Added `MapSetup` with clear_radius, ensure_paths
 
-### Test Scenarios Added
+### Test Scenarios Added/Fixed
+**New Scenarios:**
 - `laser_beam_behavior.json` - Data-driven laser attack
 - `entity_count_assertions.json` - Count assertions
 - `chest_spawn_test.json` - Chest entity spawning
 - `event_bus_test.json` - Event processing
 - `movement_system_test.json` - Glass tile damage
+- `loot_system_event_test.json` - Event-driven loot
+- `status_effect_system_test.json` - Status effect ticking
+- `storm_system_test.json` - Storm map transformation
+- `behavior_registry_test.json` - Behavior dispatch
+
+**Fixed Scenarios:**
+- `combat_basic.json` - Basic melee combat
+- `item_pickup_basic.json` - Item pickup
+- `combat_kill_xp.json` - XP gain on kill
+- `combat_ranged_kill.json` - Ranged attack
+- `mock_combat.json` - Combat mocking
+- `enemy_hp_check.json` - Enemy HP tracking
 
 ### Code Metrics
-- `state.rs`: 3150 → 3009 lines (-141 lines, -4.5%)
-- New systems: +1008 lines (well-organized, focused modules)
-- Tests: 68 passing (was 55 at session start)
+- `state.rs`: 3150 → 2689 lines (-461 lines, -14.6%)
+- New systems: +1700 lines (well-organized, focused modules)
+- Tests: 68+ passing
+
+### DES Framework Enhancements
+- Added `MapSetup` struct with:
+  - `clear_radius`: Clear circular area around player
+  - `clear_areas`: Clear specific rectangular regions
+  - `ensure_paths`: Carve walkable paths using Bresenham's algorithm
+- Added `apply_map_setup()` and `carve_path()` helper methods
 
 ---
 
