@@ -412,11 +412,11 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
 
 ### Short-term (1-2 Sprints) - REMAINING WORK
 
-4.  **Complete Behavior Registry**
-    -   Current: `StandardMeleeBehavior` handles all enemies
-    -   TODO: Add `"behavior_id"` field to `EnemyDef` in `data/enemies.json`
-    -   TODO: Implement `SuicideBomberBehavior`, `HealerBehavior`, `RangedOnlyBehavior` as separate structs
-    -   TODO: Dispatch to specific behaviors based on enemy definition
+4.  ~~**Complete Behavior Registry**~~ - **COMPLETED**
+    -   Added `behavior_id` field to `EnemyDef` in `src/game/enemy.rs`
+    -   Implemented `SuicideBomberBehavior`, `HealerBehavior`, `RangedOnlyBehavior` as separate structs
+    -   AI system now dispatches to specific behaviors based on enemy definition's `behavior_id`
+    -   Added `behavior_id` to `glass_bomber` (suicide_bomber) and `storm_archer` (ranged_only)
 
 5.  ~~**Create LootSystem and QuestSystem as Event Listeners**~~ - **COMPLETED**
     -   Created `LootSystem` (`src/game/systems/loot.rs`) that subscribes to `EnemyKilled` events

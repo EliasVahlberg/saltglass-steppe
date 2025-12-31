@@ -89,6 +89,8 @@ pub struct EnemyDef {
     #[serde(default)]
     pub spawn_types: Vec<String>,
     #[serde(default)]
+    pub behavior_id: Option<String>,
+    #[serde(default)]
     pub ranged_attack: bool,
     #[serde(default)]
     pub attack_range: u32,

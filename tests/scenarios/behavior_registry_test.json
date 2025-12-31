@@ -1,0 +1,22 @@
+{
+  "name": "Behavior Registry Test",
+  "description": "Test that enemies with behavior_id use the correct behavior",
+  "seed": 42,
+  "world_x": 5,
+  "world_y": 5,
+  "player": {"x": 10, "y": 10, "hp": 100, "max_hp": 100},
+  "mocks": {"combat_always_hit": true},
+  "entities": [
+    {"entity_type": "enemy", "id": "glass_bomber", "x": 12, "y": 10, "hp": 8, "ai_disabled": false}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "wait", "turns": 1}, "comment": "Let bomber approach"},
+    {"turn": 1, "action": {"type": "wait", "turns": 1}, "comment": "Bomber should approach"},
+    {"turn": 2, "action": {"type": "wait", "turns": 1}, "comment": "Bomber adjacent - should explode"}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "enemy_count", "op": "eq", "value": 0}, "message": "Bomber should explode and die"},
+    {"at_end": true, "check": {"type": "player_hp", "op": "lt", "value": 100}, "message": "Player should take explosion damage"},
+    {"at_end": true, "check": {"type": "message_contains", "text": "explodes"}, "message": "Explosion message should be logged"}
+  ]
+}

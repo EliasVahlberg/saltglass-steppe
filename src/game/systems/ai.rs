@@ -30,18 +30,15 @@ impl System for AiSystem {
             // Skip if AI disabled
             if state.enemies[i].ai_disabled { continue; }
             
-            // Determine behavior
-            let behavior_id = "standard_melee"; // Default
-            
-            // TODO: Look up behavior from enemy def
-            // For now, we'll just use the standard logic which handles everything
-            // In the future, we'll look up specific behaviors from the registry
+            // Determine behavior from enemy definition
+            let behavior_id = state.enemies[i].def()
+                .and_then(|d| d.behavior_id.as_deref())
+                .unwrap_or("standard_melee");
             
             if let Some(behavior) = BEHAVIOR_REGISTRY.get(behavior_id) {
                 behavior.execute(i, state);
             } else {
-                // Fallback to legacy logic if behavior not found
-                // But for now, we'll implement the legacy logic AS the standard behavior
+                // Fallback to standard behavior if specified behavior not found
                 StandardMeleeBehavior.execute(i, state);
             }
         }
@@ -397,8 +394,162 @@ impl AiBehavior for StandardMeleeBehavior {
     }
 }
 
+/// Ranged-only behavior: maintains distance and fires ranged attacks
+struct RangedOnlyBehavior;
+
+impl AiBehavior for RangedOnlyBehavior {
+    fn execute(&self, i: usize, state: &mut GameState) -> bool {
+        let ex = state.enemies[i].x;
+        let ey = state.enemies[i].y;
+        let px = state.player_x;
+        let py = state.player_y;
+        let dist = (ex - px).abs() + (ey - py).abs();
+        
+        let sight = state.enemies[i].def().map(|d| d.sight_range).unwrap_or(6);
+        let attack_range = state.enemies[i].def().map(|d| d.attack_range).unwrap_or(4) as i32;
+        let min_range = 3; // Try to stay at least this far away
+        
+        // Only act if player in sight
+        if dist > sight { return true; }
+        
+        // If too close, retreat
+        if dist < min_range {
+            let dx = (ex - px).signum();
+            let dy = (ey - py).signum();
+            let nx = ex + dx;
+            let ny = ey + dy;
+            
+            if state.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+                && state.enemy_at(nx, ny).is_none() 
+                && !(nx == px && ny == py) {
+                state.enemy_positions.remove(&(ex, ey));
+                state.enemies[i].x = nx;
+                state.enemies[i].y = ny;
+                state.enemy_positions.insert((nx, ny), i);
+                return true;
+            }
+        }
+        
+        // If in range, fire
+        if dist <= attack_range {
+            if let Some(def) = state.enemies[i].def() {
+                let dmg = state.rng.gen_range(def.damage_min..=def.damage_max);
+                state.player_hp -= dmg;
+                state.log_typed(
+                    format!("{} shoots you for {} damage!", state.enemies[i].name(), dmg),
+                    MsgType::Combat
+                );
+                state.spawn_damage_number(px, py, dmg, true);
+            }
+        }
+        true
+    }
+}
+
+/// Suicide bomber: rushes player and explodes on contact
+struct SuicideBomberBehavior;
+
+impl AiBehavior for SuicideBomberBehavior {
+    fn execute(&self, i: usize, state: &mut GameState) -> bool {
+        let ex = state.enemies[i].x;
+        let ey = state.enemies[i].y;
+        let px = state.player_x;
+        let py = state.player_y;
+        let dist = (ex - px).abs() + (ey - py).abs();
+        
+        let sight = state.enemies[i].def().map(|d| d.sight_range).unwrap_or(8);
+        
+        if dist > sight { return true; }
+        
+        // Adjacent to player - explode!
+        if dist == 1 {
+            let bomb_damage = state.enemies[i].def()
+                .and_then(|d| d.behaviors.iter().find(|b| b.behavior_type == "suicide_bomber"))
+                .and_then(|b| b.damage)
+                .unwrap_or(15) as i32;
+            
+            state.player_hp -= bomb_damage;
+            state.log_typed(
+                format!("{} explodes for {} damage!", state.enemies[i].name(), bomb_damage),
+                MsgType::Combat
+            );
+            state.spawn_damage_number(px, py, bomb_damage, true);
+            
+            // Kill self
+            state.enemies[i].hp = 0;
+            state.enemy_positions.remove(&(ex, ey));
+            return true;
+        }
+        
+        // Rush toward player
+        let dx = (px - ex).signum();
+        let dy = (py - ey).signum();
+        let nx = ex + dx;
+        let ny = ey + dy;
+        
+        if state.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+            && state.enemy_at(nx, ny).is_none() 
+            && !(nx == px && ny == py) {
+            state.enemy_positions.remove(&(ex, ey));
+            state.enemies[i].x = nx;
+            state.enemies[i].y = ny;
+            state.enemy_positions.insert((nx, ny), i);
+        }
+        true
+    }
+}
+
+/// Healer behavior: heals nearby allies instead of attacking
+struct HealerBehavior;
+
+impl AiBehavior for HealerBehavior {
+    fn execute(&self, i: usize, state: &mut GameState) -> bool {
+        let ex = state.enemies[i].x;
+        let ey = state.enemies[i].y;
+        let heal_range = 4;
+        let heal_amount = 5;
+        
+        // Find injured nearby ally
+        let mut healed_idx = None;
+        let mut lowest_hp_ratio = 1.0f32;
+        
+        for (idx, enemy) in state.enemies.iter().enumerate() {
+            if idx == i || enemy.hp <= 0 { continue; }
+            
+            let dist = (enemy.x - ex).abs() + (enemy.y - ey).abs();
+            if dist > heal_range { continue; }
+            
+            if let Some(def) = enemy.def() {
+                let ratio = enemy.hp as f32 / def.max_hp as f32;
+                if ratio < lowest_hp_ratio && ratio < 1.0 {
+                    lowest_hp_ratio = ratio;
+                    healed_idx = Some(idx);
+                }
+            }
+        }
+        
+        if let Some(idx) = healed_idx {
+            let target_name = state.enemies[idx].name().to_string();
+            if let Some(def) = state.enemies[idx].def() {
+                state.enemies[idx].hp = (state.enemies[idx].hp + heal_amount).min(def.max_hp);
+            }
+            state.log_typed(
+                format!("{} heals {} for {} HP!", state.enemies[i].name(), target_name, heal_amount),
+                MsgType::Combat
+            );
+            return true;
+        }
+        
+        // No one to heal - fall back to standard behavior
+        StandardMeleeBehavior.execute(i, state)
+    }
+}
+
 static BEHAVIOR_REGISTRY: Lazy<HashMap<String, Box<dyn AiBehavior>>> = Lazy::new(|| {
     let mut m: HashMap<String, Box<dyn AiBehavior>> = HashMap::new();
     m.insert("standard_melee".to_string(), Box::new(StandardMeleeBehavior));
+    m.insert("ranged_only".to_string(), Box::new(RangedOnlyBehavior));
+    m.insert("suicide_bomber".to_string(), Box::new(SuicideBomberBehavior));
+    m.insert("healer".to_string(), Box::new(HealerBehavior));
     m
 });

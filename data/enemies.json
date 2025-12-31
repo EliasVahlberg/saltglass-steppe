@@ -319,6 +319,7 @@
       "xp_value": 35,
       "level": 3,
       "description": "Spectral bowman that fires glass arrows from afar",
+      "behavior_id": "ranged_only",
       "ranged_attack": true,
       "attack_range": 6,
       "loot_table": [
@@ -372,6 +373,7 @@
       "damage_min": 2,
       "damage_max": 4,
       "sight_range": 6,
+      "behavior_id": "suicide_bomber",
       "xp_value": 45,
       "level": 4,
       "description": "Volatile creature that explodes in a shower of glass shards",
