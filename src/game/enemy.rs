@@ -2,6 +2,7 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use crate::game::status::StatusEffect;
+use crate::game::entity::Entity;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -310,3 +311,34 @@ impl Enemy {
         self.status_effects.iter().any(|e| e.id == id)
     }
 }
+
+impl Entity for Enemy {
+    fn x(&self) -> i32 { self.x }
+    fn y(&self) -> i32 { self.y }
+    
+    fn set_position(&mut self, x: i32, y: i32) {
+        self.x = x;
+        self.y = y;
+    }
+    
+    fn hp(&self) -> Option<i32> { Some(self.hp) }
+    
+    fn set_hp(&mut self, hp: i32) { self.hp = hp; }
+    
+    fn max_hp(&self) -> Option<i32> {
+        self.def().map(|d| d.max_hp)
+    }
+    
+    fn status_effects(&self) -> &[StatusEffect] { &self.status_effects }
+    
+    fn status_effects_mut(&mut self) -> &mut Vec<StatusEffect> { &mut self.status_effects }
+    
+    fn name(&self) -> &str {
+        self.def().map(|d| d.name.as_str()).unwrap_or(&self.id)
+    }
+    
+    fn glyph(&self) -> char {
+        self.def().and_then(|d| d.glyph.chars().next()).unwrap_or('?')
+    }
+}
+

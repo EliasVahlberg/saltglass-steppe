@@ -444,10 +444,11 @@ Combine `src/game/storm.rs` (data/forecasting) with the effect logic currently s
 
 ### Long-term (Future Phases)
 
-9.  **Unified Entity Model**
-    -   Create `Entity` trait with position, hp, status effects
-    -   Simplify systems that need to operate on "any entity"
-    -   Would enable generic `DamageSystem`, `HealSystem`
+9.  ~~**Unified Entity Model**~~ - **COMPLETED**
+    -   Created `Entity` trait (`src/game/entity.rs`) with position, hp, status effects
+    -   Implemented `Entity` for `Enemy` and `Npc`
+    -   Provides: `x()`, `y()`, `set_position()`, `hp()`, `max_hp()`, `status_effects()`, `name()`, `glyph()`
+    -   Enables generic systems that operate on any entity type
 
 10. ~~**Storm System Extraction**~~ - **COMPLETED**
     -   Created `StormSystem` (`src/game/systems/storm.rs`, 319 lines)

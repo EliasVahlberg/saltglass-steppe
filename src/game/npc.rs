@@ -2,6 +2,8 @@ use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use super::adaptation::Adaptation;
+use super::entity::Entity;
+use super::status::StatusEffect;
 
 /// Context for evaluating dialogue conditions
 pub struct DialogueContext<'a> {
@@ -182,3 +184,31 @@ impl Npc {
         }
     }
 }
+
+impl Entity for Npc {
+    fn x(&self) -> i32 { self.x }
+    fn y(&self) -> i32 { self.y }
+    
+    fn set_position(&mut self, x: i32, y: i32) {
+        self.x = x;
+        self.y = y;
+    }
+    
+    fn hp(&self) -> Option<i32> { None }
+    fn set_hp(&mut self, _hp: i32) {}
+    fn max_hp(&self) -> Option<i32> { None }
+    
+    fn status_effects(&self) -> &[StatusEffect] { &[] }
+    fn status_effects_mut(&mut self) -> &mut Vec<StatusEffect> {
+        panic!("NPCs do not have status effects")
+    }
+    
+    fn name(&self) -> &str {
+        self.def().map(|d| d.name.as_str()).unwrap_or(&self.id)
+    }
+    
+    fn glyph(&self) -> char {
+        self.def().and_then(|d| d.glyph.chars().next()).unwrap_or('@')
+    }
+}
+
