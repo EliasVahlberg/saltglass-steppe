@@ -236,3 +236,4 @@ issue_reports/*.ron
 
 # Debug logs
 debug_status_log.txt
+releases/
