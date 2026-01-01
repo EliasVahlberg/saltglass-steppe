@@ -1,0 +1,20 @@
+{
+  "name": "generation_pipeline_basic",
+  "description": "Test basic generation pipeline execution with dependency resolution",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 10
+  },
+  "player": {
+    "x": 50,
+    "y": 50
+  },
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

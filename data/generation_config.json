@@ -1,0 +1,41 @@
+{
+  "passes": [
+    {
+      "id": "terrain_base",
+      "pass_type": "Terrain",
+      "config": {
+        "noise_scale": 0.1,
+        "octaves": 4,
+        "persistence": 0.5
+      },
+      "dependencies": []
+    },
+    {
+      "id": "glass_features",
+      "pass_type": "Features",
+      "config": {
+        "glass_density": 0.15,
+        "shard_clusters": true
+      },
+      "dependencies": ["terrain_base"]
+    },
+    {
+      "id": "entity_spawns",
+      "pass_type": "Entities",
+      "config": {
+        "spawn_density": 0.05,
+        "avoid_glass": true
+      },
+      "dependencies": ["terrain_base", "glass_features"]
+    },
+    {
+      "id": "story_elements",
+      "pass_type": "Narrative",
+      "config": {
+        "fragment_density": 0.02,
+        "faction_influence": true
+      },
+      "dependencies": ["terrain_base", "glass_features", "entity_spawns"]
+    }
+  ]
+}
