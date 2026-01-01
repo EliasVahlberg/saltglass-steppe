@@ -102,6 +102,8 @@ This file contains a comprehensive list of all project documentation with descri
 | [MICROSTRUCTURES_SYSTEM.md](development/MICROSTRUCTURES_SYSTEM.md)             | Microstructure placement system                    |
 | [MULTI_TERMINAL_SYSTEM.md](development/MULTI_TERMINAL_SYSTEM.md)               | Multi-terminal satellite window system             |
 | [NARRATIVE_SYSTEM.md](development/NARRATIVE_SYSTEM.md)                         | Narrative generation system                        |
+| [PROCEDURAL_GENERATION_OVERHAUL.md](development/PROCEDURAL_GENERATION_OVERHAUL.md) | Procedural generation system overhaul          |
+| [PROCEDURAL_GENERATION_INTEGRATION.md](development/PROCEDURAL_GENERATION_INTEGRATION.md) | Integration of procedural systems into main game |
 | [SAMPLE_GENERATED_STORIES.md](development/SAMPLE_GENERATED_STORIES.md)         | Example generated narrative content                |
 | [SPAWN_AND_MICROSTRUCTURES_TODO.md](development/SPAWN_AND_MICROSTRUCTURES_TODO.md) | Spawn system TODO list                         |
 | [SPAWN_DISTRIBUTION_SYSTEM.md](development/SPAWN_DISTRIBUTION_SYSTEM.md)       | Entity spawn distribution system                   |
@@ -228,5 +230,5 @@ This file contains a comprehensive list of all project documentation with descri
 
 ---
 
-_Last updated: 2025-12-31_
-_Total documents: 135_
+_Last updated: 2026-01-01_
+_Total documents: 137_

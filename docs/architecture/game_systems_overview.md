@@ -9,6 +9,8 @@
 | Add a new item                   | `data/items.json`, see [Data Files](#data-files)           |
 | Add a new enemy                  | `data/enemies.json`, see [Enemy System](#enemy-system)     |
 | Add a new quest                  | `data/quests.json`, see [Quest System](#quest-system)      |
+| Add a dynamic event              | `data/dynamic_events.json`, see [Event System](#event-system) |
+| Add a story fragment             | `data/narrative_integration.json`, see [Narrative System](#narrative-system) |
 | Create a test scenario           | `tests/scenarios/`, see [DES Testing](#des-testing-system) |
 | Add a new AI behavior            | `src/game/systems/ai.rs`, see [AI System](#ai-system)      |
 | Add a new game mechanic          | `src/game/systems/`, see [Systems Layer](#systems-layer)   |
@@ -99,6 +101,10 @@ pub struct GameState {
     pub events: Vec<GameEvent>,
     pub messages: Vec<GameMessage>,
     
+    // Procedural Generation Systems
+    pub event_system: Option<EventSystem>,
+    pub narrative_integration: Option<NarrativeIntegration>,
+    
     // Seeded RNG (critical for determinism)
     #[serde(with = "rng_serde")]
     pub rng: ChaCha8Rng,
@@ -150,6 +156,8 @@ pub trait System {
 | `QuestSystem`        | `systems/quest.rs`            | Listens to events, updates quest progress   |
 | `StatusEffectSystem` | `systems/status.rs`           | Ticks status effects each turn              |
 | `StormSystem`        | `systems/storm.rs`            | Storm progression, map transformations      |
+| `EventSystem`        | `generation/events.rs`        | Dynamic events based on player/world state |
+| `NarrativeIntegration` | `generation/narrative.rs`   | Story fragment placement and faction influence |
 
 ### Adding a New System
 
@@ -248,10 +256,61 @@ pub fn all_item_ids() -> Vec<&'static str> {
 | `loot_tables.json`       | `loot.rs`       | Weighted loot distributions     |
 | `biome_spawn_tables.json`| `spawn.rs`      | Per-biome enemy spawns          |
 | `status_effects.json`    | `status.rs`     | Status effect definitions       |
+| `dynamic_events.json`    | `events.rs`     | Dynamic events and triggers     |
+| `narrative_integration.json` | `narrative.rs` | Story seeds, fragments, factions |
 
 ---
 
 ## Key Systems Detail
+
+### Event System
+
+**Location**: `src/game/generation/events.rs`
+
+**Integration**: Called during `end_turn()` via `check_dynamic_events()`
+
+**Flow**:
+```
+end_turn() → check_dynamic_events()
+  → EventSystem::check_triggers() (evaluate player state)
+  → EventSystem::apply_consequences() (modify game state)
+  → Track narrative momentum
+  → Log event messages
+```
+
+**Event Types**:
+- `player_hp_below` — Trigger when HP drops below threshold
+- `biome_match` — Trigger in specific biomes
+- `storm_intensity` — Trigger during intense storms
+- `turn_multiple` — Trigger on specific turn intervals
+- `refraction_level` — Trigger at high refraction levels
+
+**Consequences**:
+- `damage_player` — Apply damage to player
+- `heal_player` — Restore player health
+- `add_refraction` — Increase refraction level
+- `environmental_story` — Display atmospheric messages
+
+### Narrative System
+
+**Location**: `src/game/generation/narrative.rs`
+
+**Integration**: Called during `travel_to_tile()` via `generate_narrative_fragments()`
+
+**Flow**:
+```
+travel_to_tile() → generate_narrative_fragments()
+  → NarrativeIntegration::generate_fragments() (create story content)
+  → Place fragments based on biome rules
+  → Track narrative momentum
+  → Log fragment discovery
+```
+
+**Components**:
+- **Narrative Seeds**: 5 thematic seeds (ancient mysteries, faction conflict, etc.)
+- **Story Fragments**: 8 placeable story elements with biome rules
+- **Faction Influence**: 5 faction systems affecting narrative content
+- **Emergent Tracking**: Momentum system driving story thread activation
 
 ### Combat System
 
@@ -467,6 +526,7 @@ cargo test --test des_scenarios -- --nocapture
 │     ├─ AI runs → AiSystem                   │
 │     ├─ Status effects tick                  │
 │     ├─ Storm progresses                     │
+│     ├─ Dynamic events → EventSystem         │
 │     └─ Events processed                     │
 │  4. Render → Renderer reads GameState       │
 └─────────────────────────────────────────────┘
@@ -533,21 +593,60 @@ pub fn can_craft(recipe: &Recipe, inventory: &[String]) -> bool {
 
 2. Add to spawn tables in `data/biome_spawn_tables.json` if needed.
 
-### New Quest
+### New Dynamic Event
 
-1. Add to `data/quests.json`:
+1. Add to `data/dynamic_events.json`:
 ```json
 {
-  "id": "hunt_wraiths",
-  "name": "Wraith Hunter",
-  "description": "Eliminate the salt wraiths.",
-  "objectives": [
-    {"id": "kill_wraiths", "description": "Kill 5 salt wraiths",
-     "type": "kill", "enemy_id": "salt_wraith", "count": 5}
+  "id": "glass_resonance",
+  "name": "Glass Resonance",
+  "description": "High refraction causes glass to resonate",
+  "triggers": [
+    {
+      "trigger_type": "refraction_level",
+      "conditions": {"min_level": 75},
+      "probability": 0.4
+    }
   ],
-  "reward": {"xp": 200, "salt_scrip": 100}
+  "consequences": [
+    {
+      "consequence_type": "environmental_story",
+      "parameters": {
+        "message": "Your crystalline skin hums with resonant energy."
+      }
+    }
+  ],
+  "weight": 1.0,
+  "cooldown_turns": 15
 }
 ```
+
+2. That's it! Event is now active in the game loop.
+
+### New Story Fragment
+
+1. Add to `data/narrative_integration.json`:
+```json
+{
+  "fragment_id": "crystal_garden",
+  "narrative_seed": "adaptation_journey",
+  "fragment_type": "discovery",
+  "content": "Crystalline formations grow in impossible spirals, each one unique yet harmonious.",
+  "placement_rules": {
+    "biomes": ["saltflat", "ruins"],
+    "min_distance_from_player": 8,
+    "max_distance_from_player": 20,
+    "requires_poi": null,
+    "exclusion_zones": ["desert"]
+  },
+  "faction_influence": {
+    "glassborn": 0.4
+  },
+  "prerequisites": []
+}
+```
+
+2. Fragment will be placed during tile travel based on rules.
 
 ### New Mechanic
 
