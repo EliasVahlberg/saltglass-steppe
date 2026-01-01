@@ -15,6 +15,8 @@ use crate::game::{all_classes, MetaProgress};
 pub enum MenuAction {
     NewGame(String), // class_id
     LoadGame(String), // save file path
+    GenerateWorld,
+    GenerateWorldWithSeed(u64),
     Controls,
     Quit,
     None,
@@ -26,6 +28,8 @@ pub struct MainMenuState {
     pub selected: usize,
     pub class_select: bool,
     pub class_index: usize,
+    pub seed_input: bool,
+    pub seed_text: String,
     pub meta: MetaProgress,
 }
 
@@ -38,7 +42,7 @@ impl MainMenuState {
     }
 }
 
-const MAIN_OPTIONS: &[&str] = &["New Game", "Controls", "Quit"];
+const MAIN_OPTIONS: &[&str] = &["New Game", "Generate World", "Controls", "Quit"];
 
 /// Handle main menu input
 pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
@@ -48,6 +52,38 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
     if let Event::Key(key) = event::read()? {
         if key.kind != KeyEventKind::Press {
             return Ok(MenuAction::None);
+        }
+        
+        if state.seed_input {
+            // Seed input mode
+            return Ok(match key.code {
+                KeyCode::Esc => { 
+                    state.seed_input = false; 
+                    state.seed_text.clear(); 
+                    MenuAction::None 
+                }
+                KeyCode::Enter => {
+                    let seed = if state.seed_text.is_empty() {
+                        12345 // Default seed
+                    } else {
+                        state.seed_text.parse().unwrap_or(12345)
+                    };
+                    state.seed_input = false;
+                    state.seed_text.clear();
+                    MenuAction::GenerateWorldWithSeed(seed)
+                }
+                KeyCode::Backspace => {
+                    state.seed_text.pop();
+                    MenuAction::None
+                }
+                KeyCode::Char(c) if c.is_ascii_digit() => {
+                    if state.seed_text.len() < 20 { // Reasonable limit
+                        state.seed_text.push(c);
+                    }
+                    MenuAction::None
+                }
+                _ => MenuAction::None,
+            });
         }
         
         if state.class_select {
@@ -92,8 +128,9 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
             }
             KeyCode::Enter => match state.selected {
                 0 => { state.class_select = true; state.class_index = 0; MenuAction::None }
-                1 => MenuAction::Controls,
-                2 => MenuAction::Quit,
+                1 => { state.seed_input = true; state.seed_text.clear(); MenuAction::None }
+                2 => MenuAction::Controls,
+                3 => MenuAction::Quit,
                 _ => MenuAction::None,
             },
             KeyCode::Char('q') | KeyCode::Esc => MenuAction::Quit,
@@ -166,6 +203,50 @@ pub fn render_menu(frame: &mut Frame, tick: u64, state: &MainMenuState) {
     if state.class_select {
         render_class_select(frame, state);
     }
+    
+    // Seed input overlay
+    if state.seed_input {
+        render_seed_input(frame, state);
+    }
+}
+
+fn render_seed_input(frame: &mut Frame, state: &MainMenuState) {
+    let area = frame.area();
+    
+    let width = 50u16.min(area.width - 4);
+    let height = 8u16.min(area.height - 4);
+    let x = (area.width.saturating_sub(width)) / 2;
+    let y = (area.height.saturating_sub(height)) / 2;
+    let popup = Rect::new(x, y, width, height);
+    
+    frame.render_widget(Clear, popup);
+    
+    let mut lines: Vec<Line> = Vec::new();
+    lines.push(Line::from(""));
+    lines.push(Line::from("Enter a world seed (numbers only):"));
+    lines.push(Line::from(""));
+    
+    let input_text = if state.seed_text.is_empty() {
+        "12345 (default)".to_string()
+    } else {
+        state.seed_text.clone()
+    };
+    
+    let input_style = if state.seed_text.is_empty() {
+        Style::default().fg(Color::DarkGray)
+    } else {
+        Style::default().fg(Color::Yellow)
+    };
+    
+    lines.push(Line::from(Span::styled(format!("> {}", input_text), input_style)));
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled("[Enter] Generate  [Esc] Cancel", Style::default().fg(Color::DarkGray))));
+    
+    let block = Block::default()
+        .title(" Generate World from Seed ")
+        .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black));
+    frame.render_widget(Paragraph::new(lines).block(block), popup);
 }
 
 fn render_class_select(frame: &mut Frame, state: &MainMenuState) {

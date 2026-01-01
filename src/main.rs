@@ -423,6 +423,72 @@ fn run_main_game() -> Result<()> {
             menu_tick = menu_tick.wrapping_add(1);
             match handle_menu_input(&mut menu_state)? {
                 MenuAction::NewGame(class) => break class,
+                MenuAction::GenerateWorldWithSeed(seed) => {
+                    // Generate and display world with the provided seed
+                    use saltglass_steppe::{WorldMap, Biome, Terrain, POI};
+                    let world_map = WorldMap::generate(seed);
+                    
+                    // Create ASCII display similar to mapgen-tool
+                    const WORLD_WIDTH: usize = 192;
+                    const WORLD_HEIGHT: usize = 64;
+                    
+                    let mut display_lines = Vec::new();
+                    for y in 0..WORLD_HEIGHT {
+                        let mut line = String::new();
+                        for x in 0..WORLD_WIDTH {
+                            let idx = y * WORLD_WIDTH + x;
+                            let biome = world_map.biomes[idx];
+                            let terrain = world_map.terrain[idx];
+                            let poi = world_map.pois[idx];
+                            
+                            let char = match poi {
+                                POI::Town => 'T',
+                                POI::Dungeon => 'D',
+                                POI::Landmark => 'L',
+                                POI::Shrine => 'S',
+                                POI::None => match biome {
+                                    Biome::Desert => match terrain {
+                                        Terrain::Dunes => '~',
+                                        Terrain::Flat => '.',
+                                        _ => '^',
+                                    },
+                                    Biome::Saltflat => '_',
+                                    Biome::Scrubland => ',',
+                                    Biome::Oasis => 'O',
+                                    Biome::Ruins => 'R',
+                                },
+                            };
+                            line.push(char);
+                        }
+                        display_lines.push(ratatui::text::Line::from(line));
+                    }
+                    
+                    // Add legend
+                    display_lines.push(ratatui::text::Line::from(""));
+                    display_lines.push(ratatui::text::Line::from("Legend:"));
+                    display_lines.push(ratatui::text::Line::from("T=Town, D=Dungeon, L=Landmark, S=Shrine"));
+                    display_lines.push(ratatui::text::Line::from("~=Dunes, .=Desert, ^=Hills/Mesa/Canyon, _=Saltflat, ,=Scrubland, O=Oasis, R=Ruins"));
+                    
+                    // Display the generated world
+                    loop {
+                        terminal.draw(|f| {
+                            let area = f.area();
+                            let content = ratatui::widgets::Paragraph::new(display_lines.clone())
+                                .block(ratatui::widgets::Block::default()
+                                    .title(format!(" Generated World (Seed: {}) - Press any key to return ", seed))
+                                    .borders(ratatui::widgets::Borders::ALL))
+                                .scroll((0, 0));
+                            f.render_widget(content, area);
+                        })?;
+                        
+                        if event::poll(std::time::Duration::from_millis(16))? {
+                            if let Event::Key(key) = event::read()? {
+                                if key.kind == KeyEventKind::Press { break; }
+                            }
+                        }
+                    }
+                    continue 'main;
+                }
                 MenuAction::Controls => {
                     // Show controls screen
                     loop {
@@ -439,7 +505,7 @@ fn run_main_game() -> Result<()> {
                     stdout().execute(LeaveAlternateScreen)?;
                     return Ok(());
                 }
-                MenuAction::LoadGame(_) | MenuAction::None => {}
+                MenuAction::LoadGame(_) | MenuAction::GenerateWorld | MenuAction::None => {}
             }
         };
 
