@@ -1,0 +1,506 @@
+{
+  "profiles": [
+    {
+      "id": "desert",
+      "name": "Desert",
+      "description": "Endless dunes of crystalline sand stretch toward the horizon",
+      "environmental_features": [
+        {
+          "feature_type": "glass_dune",
+          "weight": 30,
+          "description_template": "A dune of fused glass catches the light",
+          "mechanical_effects": {
+            "visibility_modifier": 0.8,
+            "movement_cost": 1.2
+          }
+        },
+        {
+          "feature_type": "salt_outcrop",
+          "weight": 25,
+          "description_template": "Salt crystals jut from the sand like broken teeth",
+          "mechanical_effects": {
+            "damage_per_turn": 1
+          }
+        },
+        {
+          "feature_type": "mirage_shimmer",
+          "weight": 20,
+          "description_template": "Heat mirages dance across the sand",
+          "mechanical_effects": {
+            "visibility_modifier": 0.6
+          }
+        },
+        {
+          "feature_type": "wind_carved_stone",
+          "weight": 15,
+          "description_template": "Ancient stone worn smooth by endless winds",
+          "mechanical_effects": null
+        },
+        {
+          "feature_type": "buried_relic",
+          "weight": 10,
+          "description_template": "Something metallic glints beneath the sand",
+          "mechanical_effects": null
+        }
+      ],
+      "atmospheric_elements": [
+        {
+          "element_type": "heat_shimmer",
+          "intensity": 0.7,
+          "description": "The air shimmers with oppressive heat.",
+          "triggers": ["day", "storm"]
+        },
+        {
+          "element_type": "wind_whistle",
+          "intensity": 0.5,
+          "description": "Wind whistles through hidden crevices.",
+          "triggers": ["night", "storm"]
+        },
+        {
+          "element_type": "glass_chime",
+          "intensity": 0.3,
+          "description": "Distant glass fragments chime in the breeze.",
+          "triggers": ["storm", "adapted"]
+        }
+      ],
+      "hazards": [
+        {
+          "hazard_type": "heat_exhaustion",
+          "severity": 4,
+          "frequency": 0.3,
+          "description": "The relentless sun saps your strength",
+          "damage_type": "heat"
+        },
+        {
+          "hazard_type": "sandstorm",
+          "severity": 6,
+          "frequency": 0.2,
+          "description": "Stinging sand reduces visibility to nothing",
+          "damage_type": "environmental"
+        }
+      ],
+      "resource_modifiers": {
+        "water_multiplier": 0.3,
+        "glass_multiplier": 1.2,
+        "salt_multiplier": 0.8,
+        "rare_materials_chance": 0.4
+      },
+      "story_themes": [
+        "ancient_ruins",
+        "lost_travelers",
+        "desert_mysteries"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "The desert stretches endlessly, glass and sand merged by ancient storms.", "weight": 3},
+          {"item": "Crystalline dunes shift and flow like frozen waves.", "weight": 3},
+          {"item": "The horizon wavers in the heat, reality bending like light through glass.", "weight": 2},
+          {"item": "Salt-crusted sand crunches beneath your feet.", "weight": 2},
+          {"item": "The silence is broken only by the whisper of wind through glass.", "weight": 1}
+        ]
+      }
+    },
+    {
+      "id": "saltflat",
+      "name": "Saltflat",
+      "description": "Vast expanses of crystallized salt stretch like a frozen sea",
+      "environmental_features": [
+        {
+          "feature_type": "salt_crystal_formation",
+          "weight": 35,
+          "description_template": "Towering salt crystals form natural spires",
+          "mechanical_effects": {
+            "visibility_modifier": 1.2
+          }
+        },
+        {
+          "feature_type": "brine_pool",
+          "weight": 25,
+          "description_template": "A pool of concentrated brine reflects the sky",
+          "mechanical_effects": {
+            "damage_per_turn": 2,
+            "status_effect": "salt_burn"
+          }
+        },
+        {
+          "feature_type": "salt_maze",
+          "weight": 20,
+          "description_template": "Walls of salt create a natural labyrinth",
+          "mechanical_effects": {
+            "movement_cost": 1.5
+          }
+        },
+        {
+          "feature_type": "preserved_remains",
+          "weight": 15,
+          "description_template": "Something ancient lies preserved in salt",
+          "mechanical_effects": null
+        },
+        {
+          "feature_type": "salt_garden",
+          "weight": 5,
+          "description_template": "Delicate salt formations bloom like flowers",
+          "mechanical_effects": null
+        }
+      ],
+      "atmospheric_elements": [
+        {
+          "element_type": "salt_wind",
+          "intensity": 0.8,
+          "description": "Salt-laden wind stings your eyes and throat.",
+          "triggers": ["day", "storm"]
+        },
+        {
+          "element_type": "crystal_resonance",
+          "intensity": 0.4,
+          "description": "The salt crystals hum with an otherworldly tone.",
+          "triggers": ["storm", "adapted"]
+        },
+        {
+          "element_type": "brine_mist",
+          "intensity": 0.6,
+          "description": "Caustic mist rises from hidden pools.",
+          "triggers": ["night"]
+        }
+      ],
+      "hazards": [
+        {
+          "hazard_type": "salt_burn",
+          "severity": 5,
+          "frequency": 0.4,
+          "description": "Caustic salt crystals burn exposed skin",
+          "damage_type": "chemical"
+        },
+        {
+          "hazard_type": "dehydration",
+          "severity": 7,
+          "frequency": 0.5,
+          "description": "The salt draws moisture from your body",
+          "damage_type": "environmental"
+        }
+      ],
+      "resource_modifiers": {
+        "water_multiplier": 0.1,
+        "glass_multiplier": 0.8,
+        "salt_multiplier": 2.5,
+        "rare_materials_chance": 0.6
+      },
+      "story_themes": [
+        "salt_preservation",
+        "ancient_seas",
+        "crystalline_visions"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "The salt flats stretch like a frozen ocean, white as bone.", "weight": 3},
+          {"item": "Crystalline formations catch and scatter light in rainbow patterns.", "weight": 3},
+          {"item": "The air tastes of brine and ancient seas.", "weight": 2},
+          {"item": "Salt crystals crunch and sing beneath your steps.", "weight": 2},
+          {"item": "Preserved in salt, the past refuses to decay.", "weight": 1}
+        ]
+      }
+    },
+    {
+      "id": "scrubland",
+      "name": "Scrubland",
+      "description": "Hardy vegetation clings to life among glass-sharp thorns",
+      "environmental_features": [
+        {
+          "feature_type": "thorn_thicket",
+          "weight": 30,
+          "description_template": "Dense thickets of glass-sharp thorns block the way",
+          "mechanical_effects": {
+            "movement_cost": 2.0,
+            "damage_per_turn": 1
+          }
+        },
+        {
+          "feature_type": "crystal_cactus",
+          "weight": 25,
+          "description_template": "Cacti with crystalline spines store precious water",
+          "mechanical_effects": null
+        },
+        {
+          "feature_type": "spider_web_grove",
+          "weight": 20,
+          "description_template": "Webs of glass fiber stretch between twisted trees",
+          "mechanical_effects": {
+            "visibility_modifier": 0.7
+          }
+        },
+        {
+          "feature_type": "root_network",
+          "weight": 15,
+          "description_template": "Exposed roots form a network of natural bridges",
+          "mechanical_effects": {
+            "movement_cost": 0.8
+          }
+        },
+        {
+          "feature_type": "bloom_cluster",
+          "weight": 10,
+          "description_template": "Rare flowers bloom in defiance of the harsh land",
+          "mechanical_effects": null
+        }
+      ],
+      "atmospheric_elements": [
+        {
+          "element_type": "thorn_rustle",
+          "intensity": 0.6,
+          "description": "Thorns rustle with hidden movement.",
+          "triggers": ["day", "night"]
+        },
+        {
+          "element_type": "web_glint",
+          "intensity": 0.4,
+          "description": "Spider webs catch the light like scattered diamonds.",
+          "triggers": ["day", "adapted"]
+        },
+        {
+          "element_type": "root_whisper",
+          "intensity": 0.3,
+          "description": "The root network seems to whisper secrets.",
+          "triggers": ["night", "storm"]
+        }
+      ],
+      "hazards": [
+        {
+          "hazard_type": "thorn_laceration",
+          "severity": 3,
+          "frequency": 0.6,
+          "description": "Glass-sharp thorns tear at your clothing and skin",
+          "damage_type": "piercing"
+        },
+        {
+          "hazard_type": "web_entanglement",
+          "severity": 4,
+          "frequency": 0.3,
+          "description": "Sticky webs slow your movement",
+          "damage_type": "restraint"
+        }
+      ],
+      "resource_modifiers": {
+        "water_multiplier": 0.7,
+        "glass_multiplier": 1.1,
+        "salt_multiplier": 0.6,
+        "rare_materials_chance": 0.5
+      },
+      "story_themes": [
+        "nature_adaptation",
+        "hidden_paths",
+        "survival_wisdom"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "Twisted vegetation clings to life in the harsh scrubland.", "weight": 3},
+          {"item": "Glass-sharp thorns glitter like deadly jewels.", "weight": 3},
+          {"item": "The scent of hardy blooms mingles with dust and danger.", "weight": 2},
+          {"item": "Spider webs span the gaps between gnarled branches.", "weight": 2},
+          {"item": "Life finds a way, even in this crystalline wasteland.", "weight": 1}
+        ]
+      }
+    },
+    {
+      "id": "oasis",
+      "name": "Oasis",
+      "description": "A rare sanctuary where water and life flourish",
+      "environmental_features": [
+        {
+          "feature_type": "spring_pool",
+          "weight": 35,
+          "description_template": "Clear water bubbles up from hidden depths",
+          "mechanical_effects": null
+        },
+        {
+          "feature_type": "palm_grove",
+          "weight": 25,
+          "description_template": "Date palms provide blessed shade",
+          "mechanical_effects": {
+            "visibility_modifier": 0.8
+          }
+        },
+        {
+          "feature_type": "flowering_garden",
+          "weight": 20,
+          "description_template": "Vibrant flowers bloom in impossible profusion",
+          "mechanical_effects": null
+        },
+        {
+          "feature_type": "crystal_spring",
+          "weight": 15,
+          "description_template": "Water flows over beds of pure crystal",
+          "mechanical_effects": null
+        },
+        {
+          "feature_type": "meditation_circle",
+          "weight": 5,
+          "description_template": "Stones arranged in perfect harmony invite contemplation",
+          "mechanical_effects": null
+        }
+      ],
+      "atmospheric_elements": [
+        {
+          "element_type": "water_music",
+          "intensity": 0.8,
+          "description": "The gentle sound of flowing water soothes the spirit.",
+          "triggers": ["day", "night"]
+        },
+        {
+          "element_type": "bird_song",
+          "intensity": 0.6,
+          "description": "Rare birds sing from hidden perches.",
+          "triggers": ["day"]
+        },
+        {
+          "element_type": "flower_perfume",
+          "intensity": 0.5,
+          "description": "Sweet floral scents drift on the breeze.",
+          "triggers": ["day", "night"]
+        }
+      ],
+      "hazards": [
+        {
+          "hazard_type": "territorial_guardian",
+          "severity": 6,
+          "frequency": 0.2,
+          "description": "Something guards this precious sanctuary",
+          "damage_type": "combat"
+        },
+        {
+          "hazard_type": "false_paradise",
+          "severity": 4,
+          "frequency": 0.1,
+          "description": "Not all oases are what they seem",
+          "damage_type": "psychic"
+        }
+      ],
+      "resource_modifiers": {
+        "water_multiplier": 3.0,
+        "glass_multiplier": 0.5,
+        "salt_multiplier": 0.3,
+        "rare_materials_chance": 0.8
+      },
+      "story_themes": [
+        "sanctuary_refuge",
+        "hidden_wisdom",
+        "natural_harmony"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "A blessed oasis blooms in defiance of the wasteland.", "weight": 3},
+          {"item": "Clear water reflects the sky like a mirror of hope.", "weight": 3},
+          {"item": "The air is sweet with the scent of impossible flowers.", "weight": 2},
+          {"item": "Palm fronds whisper secrets in the gentle breeze.", "weight": 2},
+          {"item": "Here, life remembers what it was before the storms.", "weight": 1}
+        ]
+      }
+    },
+    {
+      "id": "ruins",
+      "name": "Ruins",
+      "description": "Shattered remnants of the world that was, fused by glass storms",
+      "environmental_features": [
+        {
+          "feature_type": "glass_fused_building",
+          "weight": 30,
+          "description_template": "Ancient structures melted and reformed by storm glass",
+          "mechanical_effects": {
+            "visibility_modifier": 1.1
+          }
+        },
+        {
+          "feature_type": "archive_terminal",
+          "weight": 25,
+          "description_template": "A dormant data terminal waits in the shadows",
+          "mechanical_effects": null
+        },
+        {
+          "feature_type": "refraction_chamber",
+          "weight": 20,
+          "description_template": "A room where light bends in impossible ways",
+          "mechanical_effects": {
+            "visibility_modifier": 0.5,
+            "status_effect": "disorientation"
+          }
+        },
+        {
+          "feature_type": "scripture_wall",
+          "weight": 15,
+          "description_template": "Ancient text carved into glass-fused stone",
+          "mechanical_effects": null
+        },
+        {
+          "feature_type": "memory_echo",
+          "weight": 10,
+          "description_template": "Ghostly images flicker in the crystalline walls",
+          "mechanical_effects": {
+            "status_effect": "vision"
+          }
+        }
+      ],
+      "atmospheric_elements": [
+        {
+          "element_type": "data_whisper",
+          "intensity": 0.5,
+          "description": "Fragments of old data streams whisper in the walls.",
+          "triggers": ["adapted", "storm"]
+        },
+        {
+          "element_type": "glass_harmony",
+          "intensity": 0.4,
+          "description": "The fused structures resonate with harmonic frequencies.",
+          "triggers": ["storm", "night"]
+        },
+        {
+          "element_type": "memory_flicker",
+          "intensity": 0.3,
+          "description": "Ghostly images of the past flicker in reflective surfaces.",
+          "triggers": ["adapted"]
+        }
+      ],
+      "hazards": [
+        {
+          "hazard_type": "structural_collapse",
+          "severity": 8,
+          "frequency": 0.3,
+          "description": "Weakened structures threaten to collapse",
+          "damage_type": "crushing"
+        },
+        {
+          "hazard_type": "data_corruption",
+          "severity": 5,
+          "frequency": 0.2,
+          "description": "Corrupted data streams assault your mind",
+          "damage_type": "psychic"
+        },
+        {
+          "hazard_type": "refraction_trap",
+          "severity": 6,
+          "frequency": 0.25,
+          "description": "Light bends in ways that confuse and disorient",
+          "damage_type": "disorientation"
+        }
+      ],
+      "resource_modifiers": {
+        "water_multiplier": 0.4,
+        "glass_multiplier": 1.8,
+        "salt_multiplier": 0.7,
+        "rare_materials_chance": 1.2
+      },
+      "story_themes": [
+        "lost_civilization",
+        "technological_echoes",
+        "archive_mysteries"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "Glass-fused ruins stand as monuments to a lost age.", "weight": 3},
+          {"item": "Ancient technology sleeps beneath layers of crystalline growth.", "weight": 3},
+          {"item": "The walls remember voices that spoke here long ago.", "weight": 2},
+          {"item": "Refracted light creates impossible geometries in the ruins.", "weight": 2},
+          {"item": "Here, the past and present merge like light through a prism.", "weight": 1}
+        ]
+      }
+    }
+  ]
+}

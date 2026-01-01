@@ -389,4 +389,93 @@ mod generation_tests {
         assert!(result.is_err());
         assert!(result.unwrap_err().contains("recursion"));
     }
+
+    // Biome System Tests
+    #[test]
+    fn test_biome_system_deterministic() {
+        use crate::game::generation::biomes::{BiomeSystem, BiomeGenerationContext};
+        use crate::game::world_map::Biome;
+        
+        let mut rng1 = ChaCha8Rng::seed_from_u64(12345);
+        let mut rng2 = ChaCha8Rng::seed_from_u64(12345);
+        
+        let context = BiomeGenerationContext {
+            biome: Biome::Desert,
+            storm_intensity: 2,
+            time_of_day: "day".to_string(),
+            weather_conditions: "clear".to_string(),
+            player_adaptations: vec![],
+        };
+        
+        let desc1 = BiomeSystem::generate_environment_description(
+            Biome::Desert, &context, &mut rng1
+        );
+        let desc2 = BiomeSystem::generate_environment_description(
+            Biome::Desert, &context, &mut rng2
+        );
+        
+        assert_eq!(desc1, desc2, "Biome generation should be deterministic");
+    }
+
+    #[test]
+    fn test_biome_environmental_features() {
+        use crate::game::generation::biomes::BiomeSystem;
+        use crate::game::world_map::Biome;
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(54321);
+        
+        let features = BiomeSystem::generate_environmental_features(
+            Biome::Saltflat, 3, &mut rng
+        );
+        
+        assert_eq!(features.len(), 3);
+        for feature in features {
+            assert!(!feature.feature_type.is_empty());
+            assert!(!feature.description_template.is_empty());
+        }
+    }
+
+    #[test]
+    fn test_biome_hazard_checking() {
+        use crate::game::generation::biomes::{BiomeSystem, BiomeGenerationContext};
+        use crate::game::world_map::Biome;
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(98765);
+        
+        let context = BiomeGenerationContext {
+            biome: Biome::Ruins,
+            storm_intensity: 5, // High storm should increase hazards
+            time_of_day: "night".to_string(),
+            weather_conditions: "stormy".to_string(),
+            player_adaptations: vec![],
+        };
+        
+        let hazards = BiomeSystem::check_hazards(Biome::Ruins, &context, &mut rng);
+        
+        // Should be able to generate hazards (may be empty due to randomness)
+        for hazard in hazards {
+            assert!(!hazard.hazard_type.is_empty());
+            assert!(hazard.severity > 0);
+            assert!(hazard.frequency >= 0.0 && hazard.frequency <= 1.0);
+        }
+    }
+
+    #[test]
+    fn test_biome_context_creation() {
+        use crate::game::generation::biomes::BiomeGenerationContext;
+        use crate::game::world_map::Biome;
+        
+        let context = BiomeGenerationContext {
+            biome: Biome::Oasis,
+            storm_intensity: 1,
+            time_of_day: "dawn".to_string(),
+            weather_conditions: "misty".to_string(),
+            player_adaptations: vec!["prismhide".to_string()],
+        };
+        
+        assert_eq!(context.biome, Biome::Oasis);
+        assert_eq!(context.storm_intensity, 1);
+        assert_eq!(context.time_of_day, "dawn");
+        assert!(context.player_adaptations.contains(&"prismhide".to_string()));
+    }
 }

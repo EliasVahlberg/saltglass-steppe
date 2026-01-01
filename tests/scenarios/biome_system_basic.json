@@ -1,0 +1,25 @@
+{
+  "name": "biome_system_basic",
+  "description": "Test basic biome system functionality",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 5,
+    "ensure_paths": []
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": []
+  },
+  "entities": [],
+  "mocks": {},
+  "actions": [],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

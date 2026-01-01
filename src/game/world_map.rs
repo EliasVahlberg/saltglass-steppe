@@ -7,7 +7,7 @@ pub const WORLD_SIZE: usize = 64;  // Height (kept for backward compat)
 pub const WORLD_WIDTH: usize = 192; // 3x wider
 pub const WORLD_HEIGHT: usize = 64;
 
-#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug, Hash)]
 pub enum Biome { Desert, Saltflat, Scrubland, Oasis, Ruins }
 
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]

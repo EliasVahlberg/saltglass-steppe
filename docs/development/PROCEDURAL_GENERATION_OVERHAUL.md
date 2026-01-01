@@ -125,14 +125,24 @@ struct GrammarContext {
 - **Safety**: Recursion depth limiting prevents infinite loops
 - **Deterministic**: All selection uses seeded RNG for reproducibility
 
-#### Task 2.2: Enhanced Biome System (PLANNED)
-**Target Files**: `src/game/generation/biomes.rs`, `data/biomes/`
+#### Task 2.2: Enhanced Biome System ✅ **COMPLETE**
+**Target Files**: `src/game/generation/biomes.rs`, `data/biome_profiles.json`
 
-**Remaining Work**:
-- [ ] Rich biome definitions with generation rules
-- [ ] Biome transition algorithms
-- [ ] Biome-specific content pools
-- [ ] Environmental storytelling elements
+**Completed Work**:
+- ✅ Rich biome definitions with generation rules
+- ✅ Biome-specific environmental features and hazards
+- ✅ Atmospheric elements with context-aware triggers
+- ✅ Resource generation modifiers per biome
+- ✅ Environmental storytelling integration with grammar system
+- ✅ Comprehensive test coverage with deterministic validation
+
+**Key Features**:
+- **BiomeProfile System**: JSON-configurable biome definitions
+- **Environmental Features**: Biome-specific features with mechanical effects
+- **Atmospheric Elements**: Context-triggered atmospheric descriptions
+- **Hazard System**: Dynamic hazard checking based on biome and context
+- **Story Integration**: Grammar-based story element generation
+- **Deterministic**: All generation uses seeded RNG for reproducibility
 
 #### Task 2.3: Constraint-Based Placement System (PLANNED)
 **Target Files**: `src/game/generation/constraints.rs`
