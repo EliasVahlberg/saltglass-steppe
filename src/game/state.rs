@@ -31,7 +31,7 @@ use super::{
     systems::movement::MovementSystem,
     tutorial::TutorialProgress,
     world_map::WorldMap,
-    generation::{events::{EventSystem, EventContext}, narrative::{NarrativeIntegration}},
+    generation::{events::{EventSystem, EventContext}, narrative::{NarrativeIntegration}, BiomeSystem, Grammar, GrammarContext, TemplateLibrary, TemplateContext, ConstraintSystem, GenerationPipeline, GenerationConfig},
 };
 
 mod rng_serde {
@@ -287,6 +287,21 @@ pub struct GameState {
     /// Narrative integration system for story fragments
     #[serde(skip)]
     pub narrative_integration: Option<NarrativeIntegration>,
+    /// Biome system for enhanced terrain generation
+    #[serde(skip)]
+    pub biome_system: Option<BiomeSystem>,
+    /// Grammar system for dynamic text generation
+    #[serde(skip)]
+    pub grammar_system: Option<Grammar>,
+    /// Content template system for procedural content creation
+    #[serde(skip)]
+    pub template_library: Option<TemplateLibrary>,
+    /// Constraint system for map validation and generation rules
+    #[serde(skip)]
+    pub constraint_system: Option<ConstraintSystem>,
+    /// Generation pipeline to coordinate all procedural systems
+    #[serde(skip)]
+    pub generation_pipeline: Option<GenerationPipeline>,
 }
 
 /// Floating damage number for visual feedback
@@ -596,6 +611,11 @@ impl GameState {
             microstructures,
             event_system: None,
             narrative_integration: None,
+            biome_system: None,
+            grammar_system: None,
+            template_library: None,
+            constraint_system: None,
+            generation_pipeline: None,
         };
         
         // Initialize dynamic event system
@@ -627,6 +647,41 @@ impl GameState {
         };
         narrative_integration.initialize(&narrative_context, &mut state.rng);
         state.narrative_integration = Some(narrative_integration);
+        
+        // Initialize biome system
+        let biome_system = BiomeSystem;
+        state.biome_system = Some(biome_system);
+        
+        // Initialize grammar system
+        let grammar_system = match Grammar::load_from_file("data/grammars/descriptions.json") {
+            Ok(grammar) => Some(grammar),
+            Err(_e) => {
+                // Silently fail and use fallback descriptions
+                None
+            }
+        };
+        state.grammar_system = grammar_system;
+        
+        // Initialize template library
+        let template_library = match TemplateLibrary::load_from_file("data/templates/content_templates.json") {
+            Ok(library) => Some(library),
+            Err(_e) => {
+                // Silently fail and use fallback content generation
+                None
+            }
+        };
+        state.template_library = template_library;
+        
+        // Initialize constraint system
+        let constraint_system = ConstraintSystem;
+        state.constraint_system = Some(constraint_system);
+        
+        // Initialize generation pipeline
+        let pipeline_config = GenerationConfig {
+            passes: vec![], // Minimal config for now
+        };
+        let generation_pipeline = GenerationPipeline::new(pipeline_config);
+        state.generation_pipeline = Some(generation_pipeline);
         
         // Initialize narrative generator and generate world history
         if let Ok(generator) = NarrativeGenerator::new() {
@@ -802,6 +857,18 @@ impl GameState {
         
         // Generate narrative fragments for new tile
         self.generate_narrative_fragments(biome.as_str());
+        
+        // Generate biome-specific environmental content
+        self.generate_biome_content(&biome, level as u8);
+        
+        // Generate template-based procedural content
+        let mut template_context = std::collections::HashMap::new();
+        template_context.insert("biome".to_string(), serde_json::Value::String(biome.as_str().to_string()));
+        template_context.insert("level".to_string(), serde_json::Value::Number(serde_json::Number::from(level)));
+        template_context.insert("storm_intensity".to_string(), serde_json::Value::String(
+            if self.storm.intensity <= 2 { "low" } else { "high" }.to_string()
+        ));
+        self.generate_template_content("encounter", template_context);
         
         self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
     }
@@ -1298,6 +1365,105 @@ impl GameState {
             let _ = narrative;
             if fragment_count > 0 {
                 self.log(format!("You sense {} story fragments in this area.", fragment_count));
+            }
+        }
+    }
+
+    /// Generate biome-specific environmental content
+    fn generate_biome_content(&mut self, biome: &super::world_map::Biome, _level: u8) {
+        if let Some(ref _biome_system) = self.biome_system {
+            let context = super::generation::BiomeGenerationContext {
+                biome: *biome,
+                storm_intensity: self.storm.intensity,
+                time_of_day: "day".to_string(), // Could be enhanced with day/night cycle
+                weather_conditions: "clear".to_string(), // Could be enhanced with weather system
+                player_adaptations: self.adaptations.iter().map(|a| a.name().to_string()).collect(),
+            };
+            
+            // Generate environmental description using Grammar system
+            let description = if let Some(ref grammar) = self.grammar_system {
+                let grammar_context = GrammarContext {
+                    variables: std::collections::HashMap::new(),
+                };
+                
+                match grammar.generate("description", &grammar_context, &mut self.rng) {
+                    Ok(generated_desc) => generated_desc,
+                    Err(_) => {
+                        // Fallback to BiomeSystem description
+                        super::generation::BiomeSystem::generate_environment_description(
+                            *biome, &context, &mut self.rng
+                        )
+                    }
+                }
+            } else {
+                // Fallback to BiomeSystem description
+                super::generation::BiomeSystem::generate_environment_description(
+                    *biome, &context, &mut self.rng
+                )
+            };
+            
+            // Generate environmental features (1-3 features per tile)
+            let feature_count = self.rng.gen_range(1..=3);
+            let features = super::generation::BiomeSystem::generate_environmental_features(
+                *biome, feature_count, &mut self.rng
+            );
+            
+            // Check for hazards
+            let hazards = super::generation::BiomeSystem::check_hazards(
+                *biome, &context, &mut self.rng
+            );
+            
+            // Log environmental content
+            if !description.is_empty() {
+                self.log(description);
+            }
+            
+            for feature in &features {
+                if self.rng.gen_range(0.0..1.0) < 0.3 { // 30% chance to notice each feature
+                    self.log(format!("You notice: {}", feature.description_template));
+                }
+            }
+            
+            for hazard in &hazards {
+                if hazard.severity >= 5 { // Only log significant hazards
+                    self.log(format!("Warning: {}", hazard.description));
+                }
+            }
+        }
+    }
+
+    /// Generate procedural content using templates
+    fn generate_template_content(&mut self, category: &str, context_vars: std::collections::HashMap<String, serde_json::Value>) {
+        if let Some(ref template_library) = self.template_library {
+            let template_context = TemplateContext {
+                variables: context_vars,
+            };
+            
+            // Find templates in the specified category by trying known template IDs
+            let template_candidates = match category {
+                "encounter" => vec!["encounter_basic", "storm_encounter"],
+                "room" => vec!["basic_room", "glass_room"],
+                _ => vec![],
+            };
+            
+            for template_id in template_candidates {
+                if let Some(_template) = template_library.get_template(template_id) {
+                    match template_library.instantiate(template_id, &template_context, &mut self.rng) {
+                        Ok(result) => {
+                            // Log the generated content
+                            if let Some(description) = result.get("description") {
+                                if let Some(desc_str) = description.as_str() {
+                                    self.log(format!("Template content: {}", desc_str));
+                                }
+                            }
+                            break; // Only generate one template per category
+                        }
+                        Err(_) => {
+                            // Try next template
+                            continue;
+                        }
+                    }
+                }
             }
         }
     }

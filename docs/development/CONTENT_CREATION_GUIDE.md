@@ -1,12 +1,30 @@
 # Content Creation Guide
 
-This guide explains how to add new items, enemies, and NPCs to Saltglass Steppe. All content is data-driven via JSON files in the `data/` directory—no code changes required for basic additions.
+This guide explains how to add new content to Saltglass Steppe using the integrated procedural generation systems. All content is data-driven via JSON files in the `data/` directory—no code changes required for basic additions.
 
 ---
 
-## Items (`data/items.json`)
+## Overview of Content Systems
 
-### Schema
+Saltglass Steppe uses multiple integrated systems for content creation:
+
+- **Static Content**: Items, enemies, NPCs defined in JSON files
+- **Dynamic Events**: Procedural events triggered by game state
+- **Narrative Integration**: Story fragments placed based on biome rules
+- **Biome System**: Environmental features and atmospheric content
+- **Grammar System**: Dynamic text generation using rule expansion
+- **Content Templates**: Parameterized content with inheritance and variants
+- **Weighted Tables**: Consistent probability distribution for spawns and loot
+- **Constraint System**: Map validation and generation rules
+- **Generation Pipeline**: Coordination of all procedural systems
+
+---
+
+## Static Content
+
+### Items (`data/items.json`)
+
+#### Schema
 
 ```json
 {
@@ -22,7 +40,7 @@ This guide explains how to add new items, enemies, and NPCs to Saltglass Steppe.
 }
 ```
 
-### Fields
+#### Fields
 
 | Field | Required | Description |
 |-------|----------|-------------|
@@ -36,7 +54,7 @@ This guide explains how to add new items, enemies, and NPCs to Saltglass Steppe.
 | `heal` | No | HP restored when used |
 | `reveals_map` | No | Reveals entire map when used |
 
-### Example: Adding a New Healing Item
+#### Example: Adding a New Healing Item
 
 ```json
 {
@@ -808,6 +826,108 @@ Entities can have their own triggered effects that fire on specific events. Thes
 - [ ] Use conditions to make dialogue reactive
 - [ ] Include faction-appropriate voice and concerns
 - [ ] Link trade actions to corresponding traders
+
+---
+
+## Procedural Generation Systems
+
+### Dynamic Events (`data/dynamic_events.json`)
+
+Create events that trigger based on game state:
+
+```json
+{
+  "id": "glass_resonance",
+  "name": "Glass Resonance",
+  "description": "High refraction causes glass to resonate",
+  "triggers": [
+    {
+      "trigger_type": "refraction_level",
+      "conditions": {"min_level": 75},
+      "probability": 0.4
+    }
+  ],
+  "consequences": [
+    {
+      "consequence_type": "environmental_story",
+      "parameters": {
+        "message": "Your crystalline skin hums with resonant energy."
+      }
+    }
+  ],
+  "weight": 1.0,
+  "cooldown_turns": 15
+}
+```
+
+**Trigger Types**: `player_hp_below`, `biome_match`, `storm_intensity`, `turn_multiple`, `refraction_level`
+**Consequences**: `damage_player`, `heal_player`, `add_refraction`, `environmental_story`
+
+### Story Fragments (`data/narrative_integration.json`)
+
+Add placeable story elements:
+
+```json
+{
+  "fragment_id": "crystal_garden",
+  "narrative_seed": "adaptation_journey",
+  "fragment_type": "discovery",
+  "content": "Crystalline formations grow in impossible spirals.",
+  "placement_rules": {
+    "biomes": ["saltflat", "ruins"],
+    "min_distance_from_player": 8,
+    "max_distance_from_player": 20
+  },
+  "faction_influence": {
+    "glassborn": 0.4
+  }
+}
+```
+
+### Grammar Rules (`data/grammars/descriptions.json`)
+
+Create dynamic text generation:
+
+```json
+{
+  "rules": {
+    "mystical_chamber": {
+      "expansions": [
+        "A <material> chamber <condition>",
+        "The <atmosphere> hall <detail>"
+      ],
+      "weights": [60.0, 40.0]
+    },
+    "material": {
+      "expansions": ["crystalline", "glass", "storm-forged"]
+    }
+  }
+}
+```
+
+### Content Templates (`data/templates/content_templates.json`)
+
+Create parameterized content with variants:
+
+```json
+{
+  "id": "mystical_encounter",
+  "category": "encounter",
+  "parameters": {
+    "enemy_type": "crystal_guardian",
+    "description": "A ${enemy_type} emerges from the ${biome}"
+  },
+  "variants": [
+    {
+      "id": "weak_guardian",
+      "weight": 70.0,
+      "conditions": ["level=low"],
+      "overrides": {"enemy_count": 1}
+    }
+  ],
+  "inheritance": "encounter_basic"
+}
+```
 
 ### Testing
 - [ ] Test with `cargo run` and use look mode (`x`) to verify descriptions

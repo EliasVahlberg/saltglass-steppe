@@ -158,6 +158,10 @@ pub trait System {
 | `StormSystem`        | `systems/storm.rs`            | Storm progression, map transformations      |
 | `EventSystem`        | `generation/events.rs`        | Dynamic events based on player/world state |
 | `NarrativeIntegration` | `generation/narrative.rs`   | Story fragment placement and faction influence |
+| `BiomeSystem`        | `generation/biomes.rs`        | Biome-specific environmental content generation |
+| `WeightedTable`      | `generation/weighted_table.rs`| Enhanced weighted selection for spawns/loot |
+| `Grammar`            | `generation/grammar.rs`       | Dynamic text generation with rule expansion |
+| `TemplateLibrary`    | `generation/templates.rs`     | Template-based procedural content creation |
 
 ### Adding a New System
 
@@ -258,6 +262,8 @@ pub fn all_item_ids() -> Vec<&'static str> {
 | `status_effects.json`    | `status.rs`     | Status effect definitions       |
 | `dynamic_events.json`    | `events.rs`     | Dynamic events and triggers     |
 | `narrative_integration.json` | `narrative.rs` | Story seeds, fragments, factions |
+| `grammars/descriptions.json` | `grammar.rs` | Grammar rules for dynamic text generation |
+| `templates/content_templates.json` | `templates.rs` | Content templates with inheritance and variants |
 
 ---
 
@@ -311,6 +317,87 @@ travel_to_tile() → generate_narrative_fragments()
 - **Story Fragments**: 8 placeable story elements with biome rules
 - **Faction Influence**: 5 faction systems affecting narrative content
 - **Emergent Tracking**: Momentum system driving story thread activation
+
+### Biome System
+
+**Location**: `src/game/generation/biomes.rs`
+
+**Integration**: Called during `travel_to_tile()` via `generate_biome_content()`
+
+**Flow**:
+```
+travel_to_tile() → generate_biome_content()
+  → BiomeSystem::generate_environment_description() (create atmospheric descriptions)
+  → BiomeSystem::generate_environmental_features() (1-3 features per tile)
+  → BiomeSystem::check_hazards() (biome-specific dangers)
+  → Log environmental content to player
+```
+
+**Components**:
+- **Environmental Features**: Biome-specific terrain elements with mechanical effects
+- **Atmospheric Elements**: Mood and ambiance descriptors with intensity levels
+- **Hazards**: Biome-specific dangers with severity ratings
+- **Resource Modifiers**: Biome effects on material availability
+
+### Grammar System
+
+**Location**: `src/game/generation/grammar.rs`
+
+**Integration**: Used by `generate_biome_content()` for dynamic text generation
+
+**Flow**:
+```
+generate_biome_content() → Grammar::generate()
+  → Rule expansion with weighted selection
+  → Variable substitution from context
+  → Fallback to BiomeSystem descriptions if generation fails
+```
+
+**Components**:
+- **Grammar Rules**: Hierarchical text generation rules with expansions
+- **Weighted Selection**: Probability-based rule choice for variety
+- **Variable Substitution**: Context-aware text replacement
+- **Recursion Control**: Depth limiting to prevent infinite expansion
+
+### Content Template System
+
+**Location**: `src/game/generation/templates.rs`
+
+**Integration**: Called during `travel_to_tile()` via `generate_template_content()`
+
+**Flow**:
+```
+travel_to_tile() → generate_template_content()
+  → TemplateLibrary::instantiate() (select template by category)
+  → Apply context variables (biome, level, storm_intensity)
+  → Select variant based on conditions
+  → Apply inheritance and overrides
+  → Log generated content to player
+```
+
+**Components**:
+- **Content Templates**: Parameterized content definitions with categories
+- **Template Variants**: Conditional variations with weight-based selection
+- **Inheritance System**: Parent-child template relationships for reuse
+- **Context Variables**: Dynamic parameter substitution from game state
+
+### WeightedTable System
+
+**Location**: `src/game/generation/weighted_table.rs`
+
+**Integration**: Enhanced spawn and loot generation throughout the game
+
+**Usage**:
+- `weighted_pick_enhanced()` - Improved spawn selection
+- `generate_loot_enhanced()` - Enhanced loot generation
+- Used by BiomeSystem for feature selection
+- Provides consistent weighted selection across all systems
+
+**Components**:
+- **Weighted Entries**: Items with associated probability weights
+- **Selection Algorithm**: Deterministic weighted random selection
+- **Generic Implementation**: Works with any cloneable type
+- **Empty Table Handling**: Graceful failure for invalid configurations
 
 ### Combat System
 
@@ -528,7 +615,12 @@ cargo test --test des_scenarios -- --nocapture
 │     ├─ Storm progresses                     │
 │     ├─ Dynamic events → EventSystem         │
 │     └─ Events processed                     │
-│  4. Render → Renderer reads GameState       │
+│  4. travel_to_tile()                        │
+│     ├─ Biome content → BiomeSystem          │
+│     ├─ Grammar generation → Grammar         │
+│     ├─ Template content → TemplateLibrary   │
+│     └─ Narrative fragments → NarrativeIntegration │
+│  5. Render → Renderer reads GameState       │
 └─────────────────────────────────────────────┘
 ```
 
@@ -647,6 +739,52 @@ pub fn can_craft(recipe: &Recipe, inventory: &[String]) -> bool {
 ```
 
 2. Fragment will be placed during tile travel based on rules.
+
+### New Grammar Rule
+
+1. Add to `data/grammars/descriptions.json`:
+```json
+{
+  "rules": {
+    "new_rule": {
+      "expansions": [
+        "A <material> structure <condition>",
+        "The <atmosphere> chamber <detail>"
+      ],
+      "weights": [60.0, 40.0]
+    }
+  }
+}
+```
+
+2. Rule can be used in Grammar::generate("new_rule", context, rng).
+
+### New Content Template
+
+1. Add to `data/templates/content_templates.json`:
+```json
+{
+  "id": "mystical_encounter",
+  "category": "encounter",
+  "parameters": {
+    "enemy_type": "crystal_guardian",
+    "description": "A ${enemy_type} emerges from the ${biome} terrain"
+  },
+  "variants": [
+    {
+      "id": "weak_guardian",
+      "weight": 70.0,
+      "conditions": ["level=low"],
+      "overrides": {
+        "enemy_count": 1
+      }
+    }
+  ],
+  "inheritance": "encounter_basic"
+}
+```
+
+2. Template will be instantiated during procedural content generation.
 
 ### New Mechanic
 

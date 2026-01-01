@@ -6,6 +6,7 @@ use rand_chacha::ChaCha8Rng;
 
 use super::item::Item;
 use super::spawn::weighted_pick;
+use super::generation::{WeightedTable, WeightedEntry};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LootEntry {
@@ -74,6 +75,44 @@ pub fn generate_loot(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8Rng) -> Ve
             let count = rng.gen_range(entry.min_count..=entry.max_count);
             for _ in 0..count {
                 loot.push(Item::new(x, y, item_id));
+            }
+        }
+    }
+    
+    loot
+}
+
+/// Enhanced loot generation using WeightedTable system
+pub fn generate_loot_enhanced(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8Rng) -> Vec<Item> {
+    let table = match get_loot_table(table_id) {
+        Some(t) => t,
+        None => return Vec::new(),
+    };
+    
+    let mut loot = Vec::new();
+    let item_count = rng.gen_range(table.min_items..=table.max_items);
+    
+    for _ in 0..item_count {
+        // Filter entries by chance and create weighted table
+        let available_entries: Vec<_> = table.entries.iter()
+            .filter(|entry| rng.gen_range(0.0..1.0) < entry.chance)
+            .collect();
+            
+        if available_entries.is_empty() {
+            continue;
+        }
+        
+        // Create weighted table directly
+        let weighted_entries: Vec<WeightedEntry<&LootEntry>> = available_entries.iter()
+            .map(|entry| WeightedEntry { item: *entry, weight: entry.weight as f32 })
+            .collect();
+            
+        let weighted_table = WeightedTable::new(weighted_entries);
+        
+        if let Some(entry) = weighted_table.select(rng) {
+            let count = rng.gen_range(entry.min_count..=entry.max_count);
+            for _ in 0..count {
+                loot.push(Item::new(x, y, &entry.item_id));
             }
         }
     }
