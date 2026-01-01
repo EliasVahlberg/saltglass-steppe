@@ -14,9 +14,8 @@ use crate::game::{all_classes, MetaProgress};
 /// Main menu action result
 pub enum MenuAction {
     NewGame(String), // class_id
+    NewGameWithSeed(u64), // seed for new game
     LoadGame(String), // save file path
-    GenerateWorld,
-    GenerateWorldWithSeed(u64),
     Controls,
     Quit,
     None,
@@ -30,6 +29,7 @@ pub struct MainMenuState {
     pub class_index: usize,
     pub seed_input: bool,
     pub seed_text: String,
+    pub pending_seed: Option<u64>,
     pub meta: MetaProgress,
 }
 
@@ -70,7 +70,10 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                     };
                     state.seed_input = false;
                     state.seed_text.clear();
-                    MenuAction::GenerateWorldWithSeed(seed)
+                    state.pending_seed = Some(seed);
+                    state.class_select = true;
+                    state.class_index = 0;
+                    MenuAction::None
                 }
                 KeyCode::Backspace => {
                     state.seed_text.pop();
@@ -107,7 +110,11 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                 }
                 KeyCode::Enter => {
                     if let Some(class) = classes.get(state.class_index) {
-                        MenuAction::NewGame(class.id.clone())
+                        if let Some(seed) = state.pending_seed.take() {
+                            MenuAction::NewGameWithSeed(seed)
+                        } else {
+                            MenuAction::NewGame(class.id.clone())
+                        }
                     } else {
                         MenuAction::None
                     }
