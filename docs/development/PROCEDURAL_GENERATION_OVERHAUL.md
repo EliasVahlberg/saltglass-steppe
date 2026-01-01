@@ -144,14 +144,26 @@ struct GrammarContext {
 - **Story Integration**: Grammar-based story element generation
 - **Deterministic**: All generation uses seeded RNG for reproducibility
 
-#### Task 2.3: Constraint-Based Placement System (PLANNED)
-**Target Files**: `src/game/generation/constraints.rs`
+#### Task 2.3: Enhanced Constraints System ✅ **COMPLETE**
+**Target Files**: `src/game/generation/constraints.rs`, `data/constraint_rules.json`
 
-**Remaining Work**:
-- [ ] Graph-based connectivity validation
-- [ ] Distance and accessibility constraints
-- [ ] Balance verification algorithms
-- [ ] Constraint rule system
+**Completed Work**:
+- ✅ Graph-based connectivity validation using BFS pathfinding
+- ✅ Distance and accessibility constraint checking
+- ✅ Balance verification algorithms for resource distribution
+- ✅ Constraint rule system with JSON configuration
+- ✅ Multiple constraint types (connectivity, distance, accessibility, balance, placement, resource)
+- ✅ Severity levels (critical, warning, suggestion) with satisfaction scoring
+- ✅ Comprehensive test coverage with deterministic validation
+
+**Key Features**:
+- **Constraint Validation Engine**: Validates generation results against configurable rules
+- **Connectivity Checking**: BFS-based pathfinding to ensure accessibility
+- **Distance Constraints**: Validates entity spacing and placement distances
+- **Balance Verification**: Ensures resource distribution meets requirements
+- **Placement Rules**: Biome-specific entity placement restrictions
+- **Satisfaction Scoring**: Calculates overall constraint satisfaction (0.0-1.0)
+- **Deterministic**: All validation uses seeded RNG for reproducibility
 
 ### 📋 Phase 3: Narrative Integration (PLANNED)
 

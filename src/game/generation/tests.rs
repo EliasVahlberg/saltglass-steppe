@@ -478,4 +478,128 @@ mod generation_tests {
         assert_eq!(context.time_of_day, "dawn");
         assert!(context.player_adaptations.contains(&"prismhide".to_string()));
     }
+
+    // Constraint System Tests
+    #[test]
+    fn test_constraint_system_deterministic() {
+        use crate::game::generation::constraints::{ConstraintSystem, ConstraintContext};
+        use crate::game::world_map::Biome;
+        use crate::game::map::Map;
+        
+        let mut rng1 = ChaCha8Rng::seed_from_u64(12345);
+        let mut rng2 = ChaCha8Rng::seed_from_u64(12345);
+        
+        // Create a simple test map
+        let (map, _) = Map::generate(&mut ChaCha8Rng::seed_from_u64(12345));
+        
+        let context = ConstraintContext {
+            map,
+            biome: Biome::Desert,
+            entities: vec![],
+            resources: vec![],
+            objectives: vec![],
+        };
+        
+        let results1 = ConstraintSystem::validate_constraints(&context, &mut rng1);
+        let results2 = ConstraintSystem::validate_constraints(&context, &mut rng2);
+        
+        assert_eq!(results1.len(), results2.len());
+        for (r1, r2) in results1.iter().zip(results2.iter()) {
+            assert_eq!(r1.rule_id, r2.rule_id);
+            assert_eq!(r1.passed, r2.passed);
+        }
+    }
+
+    #[test]
+    fn test_constraint_validation_types() {
+        use crate::game::generation::constraints::{ConstraintSystem, ConstraintContext, ConstraintRule, ConstraintType, ConstraintSeverity};
+        use crate::game::world_map::Biome;
+        use crate::game::map::Map;
+        
+        let (map, _) = Map::generate(&mut ChaCha8Rng::seed_from_u64(12345));
+        
+        let context = ConstraintContext {
+            map,
+            biome: Biome::Desert,
+            entities: vec![],
+            resources: vec![],
+            objectives: vec![],
+        };
+        
+        let rule = ConstraintRule {
+            id: "test_connectivity".to_string(),
+            name: "Test Connectivity".to_string(),
+            constraint_type: ConstraintType::Connectivity,
+            parameters: HashMap::new(),
+            severity: ConstraintSeverity::Critical,
+            enabled: true,
+        };
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        let result = ConstraintSystem::validate_constraint(&rule, &context, &mut rng);
+        
+        assert_eq!(result.rule_id, "test_connectivity");
+        assert!(result.score >= 0.0 && result.score <= 1.0);
+    }
+
+    #[test]
+    fn test_critical_constraints_satisfaction() {
+        use crate::game::generation::constraints::{ConstraintSystem, ConstraintResult, ConstraintSeverity};
+        
+        let results = vec![
+            ConstraintResult {
+                rule_id: "critical1".to_string(),
+                passed: true,
+                severity: ConstraintSeverity::Critical,
+                message: "Test".to_string(),
+                score: 1.0,
+            },
+            ConstraintResult {
+                rule_id: "warning1".to_string(),
+                passed: false,
+                severity: ConstraintSeverity::Warning,
+                message: "Test".to_string(),
+                score: 0.5,
+            },
+        ];
+        
+        assert!(ConstraintSystem::are_critical_constraints_satisfied(&results));
+        
+        let results_with_failed_critical = vec![
+            ConstraintResult {
+                rule_id: "critical1".to_string(),
+                passed: false,
+                severity: ConstraintSeverity::Critical,
+                message: "Test".to_string(),
+                score: 0.0,
+            },
+        ];
+        
+        assert!(!ConstraintSystem::are_critical_constraints_satisfied(&results_with_failed_critical));
+    }
+
+    #[test]
+    fn test_constraint_satisfaction_score() {
+        use crate::game::generation::constraints::{ConstraintSystem, ConstraintResult, ConstraintSeverity};
+        
+        let results = vec![
+            ConstraintResult {
+                rule_id: "test1".to_string(),
+                passed: true,
+                severity: ConstraintSeverity::Critical,
+                message: "Test".to_string(),
+                score: 1.0,
+            },
+            ConstraintResult {
+                rule_id: "test2".to_string(),
+                passed: false,
+                severity: ConstraintSeverity::Warning,
+                message: "Test".to_string(),
+                score: 0.5,
+            },
+        ];
+        
+        let score = ConstraintSystem::calculate_satisfaction_score(&results);
+        assert_eq!(score, 0.75); // (1.0 + 0.5) / 2
+    }
 }

@@ -1,0 +1,122 @@
+{
+  "rules": [
+    {
+      "id": "basic_connectivity",
+      "name": "Basic Connectivity",
+      "constraint_type": "connectivity",
+      "parameters": {
+        "start_points": [
+          {"x": 1, "y": 1}
+        ],
+        "end_points": [
+          {"x": 18, "y": 18}
+        ]
+      },
+      "severity": "critical",
+      "enabled": true
+    },
+    {
+      "id": "enemy_spacing",
+      "name": "Enemy Spacing",
+      "constraint_type": "distance",
+      "parameters": {
+        "entity_type": "enemy",
+        "min_distance": 3.0,
+        "max_distance": 15.0
+      },
+      "severity": "warning",
+      "enabled": true
+    },
+    {
+      "id": "objective_accessibility",
+      "name": "Objective Accessibility",
+      "constraint_type": "accessibility",
+      "parameters": {},
+      "severity": "critical",
+      "enabled": true
+    },
+    {
+      "id": "resource_balance",
+      "name": "Resource Balance",
+      "constraint_type": "balance",
+      "parameters": {
+        "resource_type": "glass",
+        "min_amount": 10,
+        "max_amount": 200
+      },
+      "severity": "warning",
+      "enabled": true
+    },
+    {
+      "id": "saltflat_enemy_restriction",
+      "name": "Saltflat Enemy Restriction",
+      "constraint_type": "placement",
+      "parameters": {
+        "entity_type": "fire_elemental",
+        "forbidden_biomes": ["saltflat", "oasis"]
+      },
+      "severity": "critical",
+      "enabled": true
+    },
+    {
+      "id": "resource_density_limit",
+      "name": "Resource Density Limit",
+      "constraint_type": "resource",
+      "parameters": {
+        "max_density": 0.05
+      },
+      "severity": "warning",
+      "enabled": true
+    },
+    {
+      "id": "npc_spacing",
+      "name": "NPC Spacing",
+      "constraint_type": "distance",
+      "parameters": {
+        "entity_type": "npc",
+        "min_distance": 5.0,
+        "max_distance": 25.0
+      },
+      "severity": "suggestion",
+      "enabled": true
+    },
+    {
+      "id": "ruins_archive_placement",
+      "name": "Ruins Archive Placement",
+      "constraint_type": "placement",
+      "parameters": {
+        "entity_type": "archive_terminal",
+        "forbidden_biomes": ["desert", "scrubland"]
+      },
+      "severity": "warning",
+      "enabled": true
+    },
+    {
+      "id": "storm_glass_balance",
+      "name": "Storm Glass Balance",
+      "constraint_type": "balance",
+      "parameters": {
+        "resource_type": "storm_glass",
+        "min_amount": 5,
+        "max_amount": 50
+      },
+      "severity": "warning",
+      "enabled": true
+    },
+    {
+      "id": "exit_connectivity",
+      "name": "Exit Connectivity",
+      "constraint_type": "connectivity",
+      "parameters": {
+        "start_points": [
+          {"x": 10, "y": 10}
+        ],
+        "end_points": [
+          {"x": 19, "y": 19}
+        ]
+      },
+      "severity": "critical",
+      "enabled": true
+    }
+  ]
+}

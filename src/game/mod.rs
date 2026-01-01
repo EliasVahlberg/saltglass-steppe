@@ -57,6 +57,8 @@ pub use generation::{
     Grammar, GrammarContext, load_grammars_from_directory,
     BiomeSystem, BiomeProfile, BiomeGenerationContext, EnvironmentalFeature,
     AtmosphericElement, BiomeHazard, ResourceModifiers, MechanicalEffects,
+    ConstraintSystem, ConstraintRule, ConstraintType, ConstraintSeverity,
+    ConstraintResult, ConstraintContext, EntityPlacement, ResourcePlacement, ObjectivePlacement,
 };
 pub use status::{is_stunned, slow_penalty, StatusEffect, StatusType};
 pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectContext, VisualEffect};

@@ -1,0 +1,40 @@
+{
+  "name": "constraint_system_basic",
+  "description": "Test basic constraint system functionality",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 5,
+    "ensure_paths": [
+      {"from_x": 1, "from_y": 1, "to_x": 18, "to_y": 18}
+    ]
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": []
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "mirage_hound",
+      "x": 5,
+      "y": 5
+    },
+    {
+      "entity_type": "enemy", 
+      "id": "glass_beetle",
+      "x": 15,
+      "y": 15
+    }
+  ],
+  "mocks": {},
+  "actions": [],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

@@ -3,6 +3,7 @@ pub mod weighted_table;
 pub mod templates;
 pub mod grammar;
 pub mod biomes;
+pub mod constraints;
 
 #[cfg(test)]
 mod tests;
@@ -12,3 +13,4 @@ pub use weighted_table::*;
 pub use templates::*;
 pub use grammar::*;
 pub use biomes::*;
+pub use constraints::*;
