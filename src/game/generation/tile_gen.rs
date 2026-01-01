@@ -261,6 +261,22 @@ impl TileGenerator {
             }
         }
         
+        // Ensure spawn area meets clearing requirements (5x5 area with 15+ floor tiles)
+        for dy in -2..=2 {
+            for dx in -2..=2 {
+                let x = center.0 as i32 + dx;
+                let y = center.1 as i32 + dy;
+                if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
+                    // Clear most of the 5x5 area to ensure it's a valid spawn clearing
+                    if (dx.abs() <= 1 && dy.abs() <= 1) || (dx + dy).abs() <= 2 {
+                        if let Some(idx) = map.pos_to_idx(x, y) {
+                            map.tiles[idx] = Tile::Floor;
+                        }
+                    }
+                }
+            }
+        }
+        
         // Find the nearest open area and create a diagonal corridor to it
         if let Some(target) = self.find_nearest_open_area(map, center) {
             self.create_diagonal_corridor(map, center, target);
