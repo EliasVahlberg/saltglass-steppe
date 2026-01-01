@@ -2082,6 +2082,21 @@ impl GameState {
                     }
                 }
             }
+            Some("give_item") => {
+                if let Some(id) = parts.get(1) {
+                    if super::item::get_item_def(id).is_some() {
+                        let count = parts.get(2).and_then(|s| s.parse().ok()).unwrap_or(1);
+                        for _ in 0..count {
+                            self.inventory.push(id.to_string());
+                        }
+                        self.log(format!("Added {} x{} to inventory", id, count));
+                    } else {
+                        self.log(format!("Unknown item: {}", id));
+                    }
+                } else {
+                    self.log("Usage: give_item <id> [count]");
+                }
+            }
             Some("show_level") => {
                 let level = self.get_current_tile_level();
                 let threat_desc = match level {
@@ -2137,6 +2152,7 @@ impl GameState {
                 self.log("  spawn_npc <id> [x] [y] - Spawn NPC at position");
                 self.log("  list_npcs - List available NPCs");
                 self.log("  show_npcs - Show currently spawned NPCs");
+                self.log("  give_item <id> [count] - Add item to inventory");
                 self.log("  show_level - Show current tile threat level");
                 self.log("  show_item_tiers - Show items organized by tier");
             }

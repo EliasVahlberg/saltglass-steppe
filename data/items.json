@@ -1243,6 +1243,7 @@
       "value": 18,
       "tier": 1,
       "usable": true,
+      "consumable": true,
       "heal": 8,
       "effects": []
     },
@@ -1294,6 +1295,7 @@
       "value": 22,
       "tier": 1,
       "usable": true,
+      "consumable": true,
       "heal": 12,
       "effects": []
     },
@@ -1365,6 +1367,7 @@
       "value": 25,
       "tier": 1,
       "usable": true,
+      "consumable": true,
       "heal": 15,
       "effects": []
     }
