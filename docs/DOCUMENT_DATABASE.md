@@ -4,24 +4,34 @@ This file contains a comprehensive list of all project documentation with descri
 
 ## Root Level Documents
 
-| Document                        | Description                                                      |
-| ------------------------------- | ---------------------------------------------------------------- |
-| [README.md](../README.md)       | Main project overview, setup instructions, and quick start guide |
-| [CHANGELOG.md](../CHANGELOG.md) | Version history and release notes                                |
-| [notes.md](../notes.md)         | Miscellaneous development notes                                  |
+| Document                                                                               | Description                                                      |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [README.md](../README.md)                                                              | Main project overview, setup instructions, and quick start guide |
+| [CHANGELOG.md](../CHANGELOG.md)                                                        | Version history and release notes                                |
+| [notes.md](../notes.md)                                                                | Miscellaneous development notes                                  |
+| [DOCUMENT_DATABASE.md](DOCUMENT_DATABASE.md)                                           | This file - index of all documentation                           |
+| [README.md](README.md)                                                                 | Documentation directory overview                                 |
+| [CONTENT_EXPANSION_SUMMARY.md](CONTENT_EXPANSION_SUMMARY.md)                           | Summary of content expansion efforts                             |
+| [TECHNICAL_FEATURES_NEEDED.md](TECHNICAL_FEATURES_NEEDED.md)                           | Technical features and requirements                              |
+| [IMPLEMENTATION_STATUS_SUMMARY.md](IMPLEMENTATION_STATUS_SUMMARY.md)                   | Current implementation status overview                           |
+| [PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md](PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md) | Procedural generation improvements summary                 |
 
 ## Architecture Documentation
 
-| Document                                                    | Description                                       |
-| ----------------------------------------------------------- | ------------------------------------------------- |
-| [ARCHITECTURE_AUDIT.md](architecture/ARCHITECTURE_AUDIT.md) | Technical architecture review and recommendations |
-| [SCALABILITY_AUDIT.md](architecture/SCALABILITY_AUDIT.md)   | Performance and scalability analysis              |
-| [TECH_STACK.md](architecture/TECH_STACK.md)                 | Technology choices and technical stack overview   |
+| Document                                                              | Description                                                 |
+| --------------------------------------------------------------------- | ----------------------------------------------------------- |
+| [README.md](architecture/README.md)                                   | Architecture documentation overview                         |
+| [ARCHITECTURE_AUDIT.md](architecture/ARCHITECTURE_AUDIT.md)           | Technical architecture review and recommendations           |
+| [SCALABILITY_AUDIT.md](architecture/SCALABILITY_AUDIT.md)             | Performance and scalability analysis                        |
+| [TECH_STACK.md](architecture/TECH_STACK.md)                           | Technology choices and technical stack overview             |
+| [game_systems_overview.md](architecture/game_systems_overview.md)     | Comprehensive guide to game systems, patterns, and content  |
+| [systems_analysis.md](architecture/systems_analysis.md)               | Detailed refactoring history, anti-patterns, and work log   |
 
 ## Design Documentation
 
 | Document                                                              | Description                                        |
 | --------------------------------------------------------------------- | -------------------------------------------------- |
+| [README.md](design/README.md)                                         | Design documentation overview                      |
 | [CORE_MECHANICS.md](design/CORE_MECHANICS.md)                         | Core gameplay mechanics and systems                |
 | [CREATIVE_DIRECTION_SUMMARY.md](design/CREATIVE_DIRECTION_SUMMARY.md) | Creative vision and artistic direction             |
 | [GAME_CONCEPT.md](design/GAME_CONCEPT.md)                             | Original game concept and vision document          |
@@ -71,16 +81,31 @@ This file contains a comprehensive list of all project documentation with descri
 
 ## Development Documentation
 
-| Document                                                               | Description                                      |
-| ---------------------------------------------------------------------- | ------------------------------------------------ |
-| [DEBUG_EXECUTION_SYSTEM.md](development/DEBUG_EXECUTION_SYSTEM.md)     | Debug Execution System (DES) overview            |
-| [DES_TODO.md](development/DES_TODO.md)                                 | DES development tasks and improvements           |
-| [DES_USAGE.md](development/DES_USAGE.md)                               | How to use the Debug Execution System            |
-| [DES_README.md](development/DES_README.md)                             | DES technical documentation                      |
-| [PSYCHIC_MENU_SYSTEM.md](development/PSYCHIC_MENU_SYSTEM.md)           | Psychic abilities menu implementation guide     |
-| [CONTENT_CREATION_GUIDE.md](development/CONTENT_CREATION_GUIDE.md)     | Guide for creating game content                  |
-| [copilot-instructions.md](development/copilot-instructions.md)         | GitHub Copilot configuration and guidelines      |
-| [DOCUMENTATION_GUIDELINES.md](development/DOCUMENTATION_GUIDELINES.md) | Documentation writing and maintenance guidelines |
+| Document                                                                       | Description                                        |
+| ------------------------------------------------------------------------------ | -------------------------------------------------- |
+| [README.md](development/README.md)                                             | Development documentation overview                 |
+| [DEBUG_EXECUTION_SYSTEM.md](development/DEBUG_EXECUTION_SYSTEM.md)             | Debug Execution System (DES) overview              |
+| [DES_TODO.md](development/DES_TODO.md)                                         | DES development tasks and improvements             |
+| [DES_USAGE.md](development/DES_USAGE.md)                                       | How to use the Debug Execution System              |
+| [DES_README.md](development/DES_README.md)                                     | DES technical documentation                        |
+| [PSYCHIC_MENU_SYSTEM.md](development/PSYCHIC_MENU_SYSTEM.md)                   | Psychic abilities menu implementation guide        |
+| [CONTENT_CREATION_GUIDE.md](development/CONTENT_CREATION_GUIDE.md)             | Guide for creating game content                    |
+| [copilot-instructions.md](development/copilot-instructions.md)                 | GitHub Copilot configuration and guidelines        |
+| [DOCUMENTATION_GUIDELINES.md](development/DOCUMENTATION_GUIDELINES.md)         | Documentation writing and maintenance guidelines   |
+| [BIOME_SPECIFIC_CONTENT.md](development/BIOME_SPECIFIC_CONTENT.md)             | Biome-specific content implementation              |
+| [BUG_FIXES_20251229.md](development/BUG_FIXES_20251229.md)                     | Bug fixes log from Dec 29, 2025                    |
+| [CHEST_UI_SYSTEM.md](development/CHEST_UI_SYSTEM.md)                           | Chest and container UI system                      |
+| [ENHANCED_ENEMY_SYSTEMS.md](development/ENHANCED_ENEMY_SYSTEMS.md)             | Enhanced enemy AI and behavior systems             |
+| [ENHANCED_STORM_SYSTEM.md](development/ENHANCED_STORM_SYSTEM.md)               | Enhanced glass storm system                        |
+| [FOV_SYSTEM.md](development/FOV_SYSTEM.md)                                     | Field of view system documentation                 |
+| [INTEGRATED_NARRATIVE_ARCHITECTURE.md](development/INTEGRATED_NARRATIVE_ARCHITECTURE.md) | Narrative system architecture              |
+| [MICROSTRUCTURES_SYSTEM.md](development/MICROSTRUCTURES_SYSTEM.md)             | Microstructure placement system                    |
+| [MULTI_TERMINAL_SYSTEM.md](development/MULTI_TERMINAL_SYSTEM.md)               | Multi-terminal satellite window system             |
+| [NARRATIVE_SYSTEM.md](development/NARRATIVE_SYSTEM.md)                         | Narrative generation system                        |
+| [SAMPLE_GENERATED_STORIES.md](development/SAMPLE_GENERATED_STORIES.md)         | Example generated narrative content                |
+| [SPAWN_AND_MICROSTRUCTURES_TODO.md](development/SPAWN_AND_MICROSTRUCTURES_TODO.md) | Spawn system TODO list                         |
+| [SPAWN_DISTRIBUTION_SYSTEM.md](development/SPAWN_DISTRIBUTION_SYSTEM.md)       | Entity spawn distribution system                   |
+| [STORY_MODEL.md](development/STORY_MODEL.md)                                   | Story model and tracking system                    |
 
 ### Change Logs Subsection
 
@@ -93,35 +118,32 @@ This file contains a comprehensive list of all project documentation with descri
 
 ## Features Documentation
 
-| Document                                                                      | Description                                     |
-| ----------------------------------------------------------------------------- | ----------------------------------------------- |
-| [FUNCTIONALITY_REQUESTS.md](features/FUNCTIONALITY_REQUESTS.md)               | Requested features and functionality            |
-| [IMPLEMENTATION_TASKS.md](features/IMPLEMENTATION_TASKS.md)                   | Implementation tasks and technical requirements |
-| [READY_FOR_FEATURE_DEVELOPER.md](features/READY_FOR_FEATURE_DEVELOPER.md)     | Features ready for development                  |
-| [GAMEPLAY_SIMULATION_ANALYSIS.md](features/GAMEPLAY_SIMULATION_ANALYSIS.md)   | Gameplay simulation and analysis                |
-| [EFFECTS_CONFIG.md](features/EFFECTS_CONFIG.md)                               | Visual effects configuration system             |
-| [THEME_SYSTEM.md](features/THEME_SYSTEM.md)                                   | Theme and styling system                        |
-| [VISUAL_ANIMATIONS.md](features/VISUAL_ANIMATIONS.md)                         | Visual animation system                         |
-| [PARTICLE_EFFECTS.md](features/PARTICLE_EFFECTS.md)                           | Particle effects system                         |
-| [PROCEDURAL_EFFECTS.md](features/PROCEDURAL_EFFECTS.md)                       | Procedural effects generation                   |
-| [RENDERER_ENHANCEMENT_OVERVIEW.md](features/RENDERER_ENHANCEMENT_OVERVIEW.md) | Renderer improvements and enhancements          |
-| [PERFORMANCE_OPTIMIZATIONS.md](features/PERFORMANCE_OPTIMIZATIONS.md)         | Performance optimization strategies             |
-| [CAMERA_FIX.md](features/CAMERA_FIX.md)                                       | Camera system fixes and improvements            |
-| [LIGHTING_RENDERER_ISSUE.md](features/LIGHTING_RENDERER_ISSUE.md)             | Lighting renderer issue documentation           |
+| Document                                                                      | Description                            |
+| ----------------------------------------------------------------------------- | -------------------------------------- |
+| [README.md](features/README.md)                                               | Features documentation overview        |
+| [FUNCTIONALITY_REQUESTS.md](features/FUNCTIONALITY_REQUESTS.md)               | Requested features and functionality   |
+| [IMPLEMENTATION_TASKS.md](features/IMPLEMENTATION_TASKS.md)                   | Implementation tasks and requirements  |
+| [READY_FOR_FEATURE_DEVELOPER.md](features/READY_FOR_FEATURE_DEVELOPER.md)     | Features ready for development         |
+| [GAMEPLAY_SIMULATION_ANALYSIS.md](features/GAMEPLAY_SIMULATION_ANALYSIS.md)   | Gameplay simulation and analysis       |
+| [EFFECTS_CONFIG.md](features/EFFECTS_CONFIG.md)                               | Visual effects configuration system    |
+| [THEME_SYSTEM.md](features/THEME_SYSTEM.md)                                   | Theme and styling system               |
+| [VISUAL_ANIMATIONS.md](features/VISUAL_ANIMATIONS.md)                         | Visual animation system                |
+| [PARTICLE_EFFECTS.md](features/PARTICLE_EFFECTS.md)                           | Particle effects system                |
+| [PROCEDURAL_EFFECTS.md](features/PROCEDURAL_EFFECTS.md)                       | Procedural effects generation          |
+| [RENDERER_ENHANCEMENT_OVERVIEW.md](features/RENDERER_ENHANCEMENT_OVERVIEW.md) | Renderer improvements and enhancements |
+| [PERFORMANCE_OPTIMIZATIONS.md](features/PERFORMANCE_OPTIMIZATIONS.md)         | Performance optimization strategies    |
+| [CAMERA_FIX.md](features/CAMERA_FIX.md)                                       | Camera system fixes and improvements   |
+| [LIGHTING_RENDERER_ISSUE.md](features/LIGHTING_RENDERER_ISSUE.md)             | Lighting renderer issue documentation  |
 
 ## Narrative Documentation
 
-| Document                                       | Description                           |
-| ---------------------------------------------- | ------------------------------------- |
-| [ENTITIES_LORE.md](narrative/ENTITIES_LORE.md) | Lore and background for game entities |
+| Document                                                | Description                           |
+| ------------------------------------------------------- | ------------------------------------- |
+| [README.md](narrative/README.md)                        | Narrative documentation overview      |
+| [ENTITIES_LORE.md](narrative/ENTITIES_LORE.md)          | Lore and background for game entities |
+| [lore_index.md](narrative/narrative_lore/lore_index.md) | Index of all lore documents           |
 
-### Narrative Lore Subsection
-
-| Document                                                | Description                 |
-| ------------------------------------------------------- | --------------------------- |
-| [lore_index.md](narrative/narrative_lore/lore_index.md) | Index of all lore documents |
-
-#### History
+### History
 
 | Document                                                                                                          | Description                                    |
 | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------- |
@@ -133,7 +155,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [The_Calendar_of_Light.md](narrative/narrative_lore/history/The_Calendar_of_Light.md)                             | Temporal and lighting system lore              |
 | [The_Day_of_Broken_Mirrors.md](narrative/narrative_lore/history/The_Day_of_Broken_Mirrors.md)                     | The event that split the Mirror Monk order     |
 
-#### World
+### World
 
 | Document                                                                                    | Description                                     |
 | ------------------------------------------------------------------------------------------- | ----------------------------------------------- |
@@ -145,7 +167,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [The_Whispering_Seams.md](narrative/narrative_lore/world/The_Whispering_Seams.md)           | Anomalous fissures in reality                   |
 | [The_Photonic_Ecology.md](narrative/narrative_lore/world/The_Photonic_Ecology.md)           | Flora and fauna of the data-light ecosystem     |
 
-#### Manuals
+### Manuals
 
 | Document                                                                                                  | Description                                  |
 | --------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
@@ -168,7 +190,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [The_Lexicon_of_Refraction.md](narrative/narrative_lore/manuals/The_Lexicon_of_Refraction.md)             | Dialects and slang of the factions           |
 | [The_Dramatis_Personae.md](narrative/narrative_lore/manuals/The_Dramatis_Personae.md)                     | Profiles of key NPCs and their motivations   |
 
-#### Stories
+### Stories
 
 | Document                                                                                                                              | Description                                   |
 | ------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
@@ -182,15 +204,11 @@ This file contains a comprehensive list of all project documentation with descri
 
 ## Testing Documentation
 
-| Document                               | Description                          |
-| -------------------------------------- | ------------------------------------ |
-| [QA_Testing.md](testing/QA_Testing.md) | QA testing procedures and guidelines |
-
-### Feedback Requests Subsection
-
-| Document                                                                                                 | Description                       |
-| -------------------------------------------------------------------------------------------------------- | --------------------------------- |
-| [20251214_CREATIVE_DIRECTION_REVIEW.md](testing/feedback_requests/20251214_CREATIVE_DIRECTION_REVIEW.md) | Creative direction review request |
+| Document                                                                                                 | Description                          |
+| -------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| [README.md](testing/README.md)                                                                           | Testing documentation overview       |
+| [QA_Testing.md](testing/QA_Testing.md)                                                                   | QA testing procedures and guidelines |
+| [20251214_CREATIVE_DIRECTION_REVIEW.md](testing/feedback_requests/20251214_CREATIVE_DIRECTION_REVIEW.md) | Creative direction review request    |
 
 ## Agent Documentation
 
@@ -208,14 +226,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [AGENTS_CREATIVE_DIRECTOR.md](../.kiro/steering/AGENTS_CREATIVE_DIRECTOR.md)                 | Creative Director agent guidelines |
 | [AGENTS_LEAD_DEVELOPER.md](../.kiro/steering/AGENTS_LEAD_DEVELOPER.md)                       | Lead Developer agent guidelines    |
 
-## Existing Organized Documentation
-
-| Document                                                     | Description                          |
-| ------------------------------------------------------------ | ------------------------------------ |
-| [CONTENT_EXPANSION_SUMMARY.md](CONTENT_EXPANSION_SUMMARY.md) | Summary of content expansion efforts |
-| [TECHNICAL_FEATURES_NEEDED.md](TECHNICAL_FEATURES_NEEDED.md) | Technical features and requirements  |
-
 ---
 
-_Last updated: 2025-12-24_
-_Total documents: 86_
+_Last updated: 2025-12-31_
+_Total documents: 135_
