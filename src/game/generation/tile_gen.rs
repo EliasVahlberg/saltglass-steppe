@@ -11,6 +11,7 @@ use crate::game::world_map::{Biome, Terrain, POI};
 use super::biomes::BiomeSystem;
 use super::grammar::{Grammar, GrammarContext};
 use super::templates::{TemplateLibrary, TemplateContext};
+use super::constraints::{ConstraintSystem, ConstraintContext, ObjectivePlacement, ConstraintSeverity};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TileGenConfig {
@@ -73,21 +74,144 @@ impl TileGenerator {
         elevation: u8,
         poi: POI,
     ) -> (Map, Vec<(i32, i32)>) {
-        let seed = rng.next_u32();
+        const MAX_ATTEMPTS: usize = 5;
         
-        // Generate base terrain
-        let (mut map, mut clearings) = self.generate_base_terrain(seed, biome, terrain, poi);
+        for attempt in 0..MAX_ATTEMPTS {
+            let seed = rng.next_u32();
+            
+            // Generate base terrain
+            let (mut map, mut clearings) = self.generate_base_terrain(seed, biome, terrain, poi);
+            
+            // Validate constraints before proceeding
+            let critical_satisfied = {
+                let context = ConstraintContext {
+                    map: &map,
+                    biome,
+                    entities: vec![], // No entities at terrain generation stage
+                    resources: vec![], // No resources at terrain generation stage
+                    objectives: vec![
+                        // Add basic connectivity objectives
+                        ObjectivePlacement {
+                            objective_type: "spawn".to_string(),
+                            x: MAP_WIDTH as i32 / 2,
+                            y: MAP_HEIGHT as i32 / 2,
+                            required: true,
+                        },
+                    ],
+                };
+                
+                let constraint_results = ConstraintSystem::validate_constraints(&context, rng);
+                let critical_satisfied = ConstraintSystem::are_critical_constraints_satisfied(&constraint_results);
+                
+                if !critical_satisfied && attempt == MAX_ATTEMPTS - 1 {
+                    // Apply emergency fixes for critical failures on last attempt
+                    self.apply_emergency_fixes(&mut map, &constraint_results);
+                }
+                
+                critical_satisfied
+            };
+            
+            // If constraints are satisfied or this is our last attempt, proceed
+            if critical_satisfied || attempt == MAX_ATTEMPTS - 1 {
+                
+                // Add biome-specific features
+                self.add_biome_features(&mut map, rng, biome, terrain);
+                
+                // Add procedural content using all systems
+                self.add_procedural_content(&mut map, rng, biome, terrain, elevation, poi);
+                
+                // Enhance clearings with better distribution
+                clearings.extend(self.find_enhanced_clearings(&map.tiles, biome, terrain));
+                
+                return (map, clearings);
+            }
+        }
         
-        // Add biome-specific features
-        self.add_biome_features(&mut map, rng, biome, terrain);
+        // This should never be reached due to the last attempt logic above
+        unreachable!("Constraint validation loop should always return")
+    }
+    
+    /// Apply emergency fixes for critical constraint failures
+    fn apply_emergency_fixes(&self, map: &mut Map, constraint_results: &[super::constraints::ConstraintResult]) {
+        for result in constraint_results {
+            if result.severity == ConstraintSeverity::Critical && !result.passed {
+                match result.rule_id.as_str() {
+                    "minimum_open_space" => {
+                        self.ensure_minimum_open_space(map);
+                    },
+                    "connectivity_spawn_to_edges" | "basic_connectivity" => {
+                        self.ensure_basic_connectivity(map);
+                    },
+                    _ => {}
+                }
+            }
+        }
+    }
+    
+    /// Ensure minimum open space by converting some walls to floors
+    fn ensure_minimum_open_space(&self, map: &mut Map) {
+        let current_open = map.tiles.iter()
+            .filter(|tile| matches!(tile, Tile::Floor | Tile::Glass))
+            .count();
         
-        // Add procedural content using all systems
-        self.add_procedural_content(&mut map, rng, biome, terrain, elevation, poi);
+        if current_open < 2000 {
+            let needed = 2000 - current_open;
+            let mut converted = 0;
+            
+            // Convert walls to floors in a pattern to create connected open space
+            for y in (10..MAP_HEIGHT-10).step_by(3) {
+                for x in (10..MAP_WIDTH-10).step_by(3) {
+                    if converted >= needed { break; }
+                    
+                    let idx = y * MAP_WIDTH + x;
+                    if matches!(map.tiles[idx], Tile::Wall { .. }) {
+                        map.tiles[idx] = Tile::Floor;
+                        converted += 1;
+                    }
+                }
+                if converted >= needed { break; }
+            }
+            // Emergency fix: converted walls to floors for minimum open space
+        }
+    }
+    
+    /// Ensure basic connectivity by creating corridors
+    fn ensure_basic_connectivity(&self, map: &mut Map) {
+        let center = (MAP_WIDTH / 2, MAP_HEIGHT / 2);
+        let edges = vec![
+            (10, 10),
+            (MAP_WIDTH - 10, 10),
+            (10, MAP_HEIGHT - 10),
+            (MAP_WIDTH - 10, MAP_HEIGHT - 10),
+        ];
         
-        // Enhance clearings with better distribution
-        clearings.extend(self.find_enhanced_clearings(&map.tiles, biome, terrain));
+        // Create corridors from center to each edge
+        for edge in edges {
+            self.create_corridor(map, center, edge);
+        }
         
-        (map, clearings)
+    }
+    
+    /// Create a corridor between two points
+    fn create_corridor(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
+        let mut x = start.0 as i32;
+        let mut y = start.1 as i32;
+        let target_x = end.0 as i32;
+        let target_y = end.1 as i32;
+        
+        while x != target_x || y != target_y {
+            if let Some(idx) = map.pos_to_idx(x, y) {
+                if matches!(map.tiles[idx], Tile::Wall { .. }) {
+                    map.tiles[idx] = Tile::Floor;
+                }
+            }
+            
+            // Move towards target
+            if x < target_x { x += 1; }
+            else if x > target_x { x -= 1; }
+            else if y < target_y { y += 1; }
+            else if y > target_y { y -= 1; }
+        }
     }
 
     fn generate_base_terrain(&self, seed: u32, biome: Biome, terrain: Terrain, poi: POI) -> (Map, Vec<(i32, i32)>) {

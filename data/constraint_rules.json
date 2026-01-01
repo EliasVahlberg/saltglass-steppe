@@ -117,6 +117,36 @@
       },
       "severity": "critical",
       "enabled": true
+    },
+    {
+      "id": "minimum_open_space",
+      "name": "Minimum Open Space",
+      "constraint_type": "balance",
+      "parameters": {
+        "resource_type": "open_space",
+        "min_amount": 2000,
+        "max_amount": 20000
+      },
+      "severity": "critical",
+      "enabled": true
+    },
+    {
+      "id": "connectivity_spawn_to_edges",
+      "name": "Spawn to Edges Connectivity",
+      "constraint_type": "connectivity",
+      "parameters": {
+        "start_points": [
+          {"x": 125, "y": 55}
+        ],
+        "end_points": [
+          {"x": 10, "y": 10},
+          {"x": 240, "y": 10},
+          {"x": 10, "y": 100},
+          {"x": 240, "y": 100}
+        ]
+      },
+      "severity": "critical",
+      "enabled": true
     }
   ]
 }

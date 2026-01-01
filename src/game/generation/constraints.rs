@@ -3,7 +3,7 @@ use serde::{Deserialize};
 use std::collections::{HashMap, HashSet, VecDeque};
 use once_cell::sync::Lazy;
 
-use crate::game::map::Map;
+use crate::game::map::{Map, Tile};
 use crate::game::world_map::Biome;
 
 /// Constraint validation system for procedural generation
@@ -49,8 +49,8 @@ pub struct ConstraintResult {
 }
 
 /// Context for constraint validation
-pub struct ConstraintContext {
-    pub map: Map,
+pub struct ConstraintContext<'a> {
+    pub map: &'a Map,
     pub biome: Biome,
     pub entities: Vec<EntityPlacement>,
     pub resources: Vec<ResourcePlacement>,
@@ -245,7 +245,7 @@ impl ConstraintSystem {
         let mut accessible_count = 0;
         
         for objective in &required_objectives {
-            if Self::is_path_exists(&context.map, spawn_point, (objective.x, objective.y)) {
+            if Self::is_path_exists(context.map, spawn_point, (objective.x, objective.y)) {
                 accessible_count += 1;
             }
         }
@@ -268,13 +268,26 @@ impl ConstraintSystem {
         let min_amount = Self::extract_u32(&rule.parameters, "min_amount").unwrap_or(1);
         let max_amount = Self::extract_u32(&rule.parameters, "max_amount").unwrap_or(100);
         
-        let total_resources: u32 = context.resources.iter()
-            .filter(|r| resource_type.as_ref().map_or(true, |rt| &r.resource_type == rt))
-            .map(|r| r.amount)
-            .sum();
+        let total_resources: u32 = if resource_type.as_ref().map_or(false, |rt| rt == "open_space") {
+            // Count walkable tiles (Floor and Glass)
+            context.map.tiles.iter()
+                .filter(|tile| matches!(tile, Tile::Floor | Tile::Glass))
+                .count() as u32
+        } else {
+            context.resources.iter()
+                .filter(|r| resource_type.as_ref().map_or(true, |rt| &r.resource_type == rt))
+                .map(|r| r.amount)
+                .sum()
+        };
         
         let passed = total_resources >= min_amount && total_resources <= max_amount;
-        let score = if passed { 1.0 } else { 0.5 };
+        let score = if passed { 
+            1.0 
+        } else if total_resources < min_amount {
+            total_resources as f32 / min_amount as f32
+        } else {
+            max_amount as f32 / total_resources as f32
+        };
         
         ConstraintResult {
             rule_id: rule.id.clone(),
@@ -374,9 +387,11 @@ impl ConstraintSystem {
             return false;
         }
         
-        // For now, assume all tiles are walkable except walls
-        // This is a simplified implementation - in a real game you'd check tile types
-        true
+        if let Some(idx) = map.pos_to_idx(x, y) {
+            matches!(map.tiles[idx], Tile::Floor | Tile::Glass)
+        } else {
+            false
+        }
     }
     
     /// Get constraint rules from static data
@@ -466,7 +481,14 @@ mod tests {
     
     #[test]
     fn test_connectivity_validation() {
-        let (map, _) = Map::generate(&mut ChaCha8Rng::seed_from_u64(12345));
+        use std::sync::OnceLock;
+        static TEST_MAP: OnceLock<Map> = OnceLock::new();
+        
+        let map = TEST_MAP.get_or_init(|| {
+            let (map, _) = Map::generate(&mut ChaCha8Rng::seed_from_u64(12345));
+            map
+        });
+        
         let context = ConstraintContext {
             map,
             biome: Biome::Desert,
@@ -586,8 +608,15 @@ mod tests {
         assert_eq!(score, 0.75); // (1.0 + 0.5) / 2
     }
     
-    fn create_test_context() -> ConstraintContext {
-        let (map, _) = Map::generate(&mut ChaCha8Rng::seed_from_u64(12345));
+    fn create_test_context() -> ConstraintContext<'static> {
+        use std::sync::OnceLock;
+        static TEST_MAP: OnceLock<Map> = OnceLock::new();
+        
+        let map = TEST_MAP.get_or_init(|| {
+            let (map, _) = Map::generate(&mut ChaCha8Rng::seed_from_u64(12345));
+            map
+        });
+        
         ConstraintContext {
             map,
             biome: Biome::Desert,

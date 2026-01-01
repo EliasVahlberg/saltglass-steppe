@@ -495,7 +495,7 @@ mod generation_tests {
         let (map, _) = Map::generate(&mut ChaCha8Rng::seed_from_u64(12345));
         
         let context = ConstraintContext {
-            map,
+            map: &map,
             biome: Biome::Desert,
             entities: vec![],
             resources: vec![],
@@ -521,7 +521,7 @@ mod generation_tests {
         let (map, _) = Map::generate(&mut ChaCha8Rng::seed_from_u64(12345));
         
         let context = ConstraintContext {
-            map,
+            map: &map,
             biome: Biome::Desert,
             entities: vec![],
             resources: vec![],
