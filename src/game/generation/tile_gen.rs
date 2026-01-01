@@ -145,6 +145,9 @@ impl TileGenerator {
                     "connectivity_spawn_to_edges" | "basic_connectivity" => {
                         self.ensure_basic_connectivity(map);
                     },
+                    "exit_connectivity" => {
+                        self.ensure_basic_connectivity(map);
+                    },
                     _ => {}
                 }
             }
