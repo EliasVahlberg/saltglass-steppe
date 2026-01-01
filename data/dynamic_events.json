@@ -1,0 +1,247 @@
+{
+  "events": [
+    {
+      "id": "glass_storm_exposure",
+      "name": "Glass Storm Exposure",
+      "description": "Prolonged exposure to glass storms causes crystalline mutations",
+      "triggers": [
+        {
+          "trigger_type": "storm_intensity",
+          "conditions": {
+            "min_intensity": 4
+          },
+          "probability": 0.3
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "add_refraction",
+          "parameters": {
+            "amount": 5
+          }
+        },
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "Glass dust swirls around you, seeping into your skin."
+          }
+        }
+      ],
+      "chains_to": "refraction_cascade",
+      "weight": 1.0,
+      "cooldown_turns": 20
+    },
+    {
+      "id": "desert_mirage",
+      "name": "Desert Mirage",
+      "description": "Mirages in the desert can be deceptive or revealing",
+      "triggers": [
+        {
+          "trigger_type": "biome_match",
+          "conditions": {
+            "biome": "desert"
+          },
+          "probability": 0.15
+        },
+        {
+          "trigger_type": "turn_multiple",
+          "conditions": {
+            "multiple": 25
+          },
+          "probability": 0.8
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "A shimmering mirage reveals glimpses of ancient structures."
+          }
+        }
+      ],
+      "chains_to": null,
+      "weight": 1.0,
+      "cooldown_turns": 15
+    },
+    {
+      "id": "saltflat_crystallization",
+      "name": "Salt Crystal Formation",
+      "description": "Salt crystals form spontaneously in the flats",
+      "triggers": [
+        {
+          "trigger_type": "biome_match",
+          "conditions": {
+            "biome": "saltflat"
+          },
+          "probability": 0.2
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "Salt crystals bloom from the ground like frozen flowers."
+          }
+        }
+      ],
+      "chains_to": null,
+      "weight": 1.0,
+      "cooldown_turns": 30
+    },
+    {
+      "id": "low_health_desperation",
+      "name": "Desperate Measures",
+      "description": "When health is critically low, desperation sets in",
+      "triggers": [
+        {
+          "trigger_type": "player_hp_below",
+          "conditions": {
+            "threshold": 0.25
+          },
+          "probability": 0.4
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "Your vision blurs. Every shadow could hide salvation or doom."
+          }
+        }
+      ],
+      "chains_to": null,
+      "weight": 1.0,
+      "cooldown_turns": 10
+    },
+    {
+      "id": "refraction_resonance",
+      "name": "Refraction Resonance",
+      "description": "High refraction levels cause reality distortions",
+      "triggers": [
+        {
+          "trigger_type": "refraction_level",
+          "conditions": {
+            "min_level": 50
+          },
+          "probability": 0.25
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "Your crystalline skin resonates with the glass around you."
+          }
+        },
+        {
+          "consequence_type": "add_refraction",
+          "parameters": {
+            "amount": 2
+          }
+        }
+      ],
+      "chains_to": "refraction_cascade",
+      "weight": 1.0,
+      "cooldown_turns": 25
+    },
+    {
+      "id": "oasis_blessing",
+      "name": "Oasis Blessing",
+      "description": "The rare oases provide respite and healing",
+      "triggers": [
+        {
+          "trigger_type": "biome_match",
+          "conditions": {
+            "biome": "oasis"
+          },
+          "probability": 0.6
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "heal_player",
+          "parameters": {
+            "amount": 10
+          }
+        },
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "Cool water and shade restore your strength."
+          }
+        }
+      ],
+      "chains_to": null,
+      "weight": 1.0,
+      "cooldown_turns": 5
+    },
+    {
+      "id": "ruins_whisper",
+      "name": "Ancient Whispers",
+      "description": "The ruins hold memories of the past",
+      "triggers": [
+        {
+          "trigger_type": "biome_match",
+          "conditions": {
+            "biome": "ruins"
+          },
+          "probability": 0.3
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "Echoes of ancient voices drift through the broken glass."
+          }
+        }
+      ],
+      "chains_to": "memory_chain",
+      "weight": 1.0,
+      "cooldown_turns": 20
+    },
+    {
+      "id": "scrubland_adaptation",
+      "name": "Scrubland Survival",
+      "description": "The harsh scrublands test survival instincts",
+      "triggers": [
+        {
+          "trigger_type": "biome_match",
+          "conditions": {
+            "biome": "scrubland"
+          },
+          "probability": 0.2
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "Thorny glass-plants catch at your clothing, drawing thin lines of blood."
+          }
+        },
+        {
+          "consequence_type": "damage_player",
+          "parameters": {
+            "amount": 2
+          }
+        }
+      ],
+      "chains_to": null,
+      "weight": 1.0,
+      "cooldown_turns": 15
+    }
+  ],
+  "chains": [
+    {
+      "chain_id": "refraction_cascade",
+      "events": ["refraction_intensification", "crystalline_awakening"],
+      "delay_turns": [5, 10]
+    },
+    {
+      "chain_id": "memory_chain",
+      "events": ["ancient_memory", "forgotten_knowledge"],
+      "delay_turns": [3, 8]
+    }
+  ]
+}

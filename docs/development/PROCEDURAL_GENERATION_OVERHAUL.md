@@ -165,13 +165,26 @@ struct GrammarContext {
 - **Satisfaction Scoring**: Calculates overall constraint satisfaction (0.0-1.0)
 - **Deterministic**: All validation uses seeded RNG for reproducibility
 
-### 📋 Phase 3: Narrative Integration (PLANNED)
+### ✅ Phase 3: Narrative Integration (IN PROGRESS)
 
-#### Task 3.1: Dynamic Event System
-- [ ] Event trigger system based on player state
-- [ ] Event chains and consequences
-- [ ] Environmental storytelling
-- [ ] Event scripting in JSON
+#### Task 3.1: Dynamic Event System ✅ **COMPLETE**
+**Files**: `src/game/generation/events.rs`, `data/dynamic_events.json`
+
+**Completed Work**:
+- ✅ Event trigger system based on player state (HP, biome, storm intensity, refraction level)
+- ✅ Event chains and consequences with JSON scripting
+- ✅ Environmental storytelling integration with contextual messages
+- ✅ Comprehensive event scripting system with multiple trigger types
+- ✅ Event cooldown system to prevent spam
+- ✅ Deterministic event evaluation using seeded RNG
+
+**Key Features**:
+- **Event Trigger System**: 5 trigger types (player_hp_below, biome_match, storm_intensity, turn_multiple, refraction_level)
+- **Event Consequences**: 4 consequence types (damage_player, heal_player, add_refraction, environmental_story)
+- **Event Chains**: Linked events with configurable delays for narrative sequences
+- **Cooldown Management**: Per-event cooldowns to control frequency
+- **JSON Configuration**: 8 predefined events for Saltglass Steppe scenarios
+- **Deterministic**: All event evaluation uses seeded RNG for reproducibility
 
 #### Task 3.2: Narrative Integration Layer
 - [ ] Narrative seed system

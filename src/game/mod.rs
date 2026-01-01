@@ -59,6 +59,7 @@ pub use generation::{
     AtmosphericElement, BiomeHazard, ResourceModifiers, MechanicalEffects,
     ConstraintSystem, ConstraintRule, ConstraintType, ConstraintSeverity,
     ConstraintResult, ConstraintContext, EntityPlacement, ResourcePlacement, ObjectivePlacement,
+    events::{EventSystem, EventContext, DynamicEvent},
 };
 pub use status::{is_stunned, slow_penalty, StatusEffect, StatusType};
 pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectContext, VisualEffect};

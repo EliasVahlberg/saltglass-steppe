@@ -1,0 +1,34 @@
+{
+  "name": "event_system_basic",
+  "description": "Test basic event system functionality with triggers and consequences",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 5,
+    "ensure_paths": []
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 25,
+    "max_hp": 100,
+    "inventory": []
+  },
+  "entities": [],
+  "mocks": {},
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

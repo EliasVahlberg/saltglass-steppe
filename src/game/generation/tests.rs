@@ -4,6 +4,7 @@ mod generation_tests {
     use crate::game::generation::pipeline::{GenerationConfig, GenerationPass, GenerationPipeline, PassType};
     use crate::game::generation::templates::{TemplateLibrary, TemplateContext, ContentTemplate, TemplateVariant};
     use crate::game::generation::grammar::{Grammar, GrammarContext, GrammarRule};
+    use crate::game::generation::events::{EventSystem, EventContext, DynamicEvent, EventTrigger, EventConsequence};
     use rand_chacha::ChaCha8Rng;
     use rand::SeedableRng;
     use serde_json::Value;
@@ -601,5 +602,100 @@ mod generation_tests {
         
         let score = ConstraintSystem::calculate_satisfaction_score(&results);
         assert_eq!(score, 0.75); // (1.0 + 0.5) / 2
+    }
+
+    // Event System Tests
+    #[test]
+    fn test_event_system_creation() {
+        let system = EventSystem::new();
+        // Should load events from JSON
+        assert!(system.event_count() > 0);
+    }
+
+    #[test]
+    fn test_event_trigger_evaluation() {
+        let mut system = EventSystem::new();
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        
+        // Use context that matches oasis blessing event
+        let context = EventContext {
+            player_hp: 50,
+            player_max_hp: 100,
+            player_x: 10,
+            player_y: 10,
+            turn: 100,
+            biome: "oasis".to_string(),
+            storm_intensity: 2,
+            refraction_level: 20,
+            variables: HashMap::new(),
+        };
+
+        let triggered = system.check_triggers(&context, &mut rng);
+        // Should find oasis blessing event
+        assert!(!triggered.is_empty());
+    }
+
+    #[test]
+    fn test_event_consequences() {
+        let system = EventSystem::new();
+        let mut context = EventContext {
+            player_hp: 50,
+            player_max_hp: 100,
+            player_x: 10,
+            player_y: 10,
+            turn: 100,
+            biome: "oasis".to_string(),
+            storm_intensity: 2,
+            refraction_level: 20,
+            variables: HashMap::new(),
+        };
+
+        // Apply consequences for oasis blessing (should heal)
+        let messages = system.apply_consequences("oasis_blessing", &mut context);
+        assert!(!messages.is_empty());
+        assert!(context.variables.contains_key("healing_received"));
+    }
+
+    #[test]
+    fn test_event_chains() {
+        let system = EventSystem::new();
+        
+        // Check if refraction cascade chain exists
+        let chain = system.get_event_chains("glass_storm_exposure");
+        assert!(chain.is_some());
+        
+        let chain = chain.unwrap();
+        assert_eq!(chain.chain_id, "refraction_cascade");
+        assert!(!chain.events.is_empty());
+    }
+
+    #[test]
+    fn test_event_cooldown_system() {
+        let mut system = EventSystem::new();
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        
+        let context = EventContext {
+            player_hp: 50,
+            player_max_hp: 100,
+            player_x: 10,
+            player_y: 10,
+            turn: 100,
+            biome: "oasis".to_string(),
+            storm_intensity: 2,
+            refraction_level: 20,
+            variables: HashMap::new(),
+        };
+
+        // First trigger should work
+        let triggered1 = system.check_triggers(&context, &mut rng);
+        
+        // Reset RNG to same state for fair comparison
+        let mut rng2 = ChaCha8Rng::seed_from_u64(12345);
+        
+        // Immediately check again - should respect cooldowns
+        let triggered2 = system.check_triggers(&context, &mut rng2);
+        
+        // Second check should have fewer events due to cooldowns
+        assert!(triggered2.len() < triggered1.len() || triggered1.is_empty());
     }
 }
