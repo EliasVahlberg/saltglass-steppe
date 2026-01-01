@@ -51,7 +51,7 @@ pub use combat::{calc_damage, calc_hit_chance, default_weapon, get_weapon_def, r
 pub use constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
 pub use equipment::{Equipment, EquipSlot};
 pub use fov::FieldOfView;
-pub use generation::{GenerationPipeline, GenerationConfig, GenerationContext, load_generation_config, TemplateLibrary, TemplateContext, ContentTemplate};
+pub use generation::{GenerationPipeline, GenerationConfig, GenerationContext, load_generation_config, TemplateLibrary, TemplateContext, ContentTemplate, Grammar, GrammarContext, load_grammars_from_directory};
 pub use status::{is_stunned, slow_penalty, StatusEffect, StatusType};
 pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectContext, VisualEffect};
 pub use enemy::{all_enemy_ids, get_enemy_def, Enemy, EnemyDef};

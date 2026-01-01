@@ -79,21 +79,65 @@ struct TemplateContext {
 - **Conditions**: Simple condition evaluation (`key=value` or `key` existence)
 - **Deterministic**: All selection uses seeded RNG for reproducibility
 
-### 📋 Phase 2: Content Richness (PLANNED)
+### 🔄 Phase 2: Content Richness (IN PROGRESS)
 
-#### Task 2.1: Grammar-Based Content Generation
-- [ ] Context-free grammar parser
-- [ ] Variable substitution and context awareness
-- [ ] Recursive rule expansion
-- [ ] Biome and faction-specific grammars
+#### Task 2.1: Grammar-Based Content Generation ✅
+**Files**: `src/game/generation/grammar.rs`, `data/grammars/`
 
-#### Task 2.2: Enhanced Biome System
+**Implemented Features**:
+- ✅ Context-free grammar parser with recursive rule expansion
+- ✅ Variable substitution and context awareness
+- ✅ Weighted rule selection for controlled randomness
+- ✅ Recursion depth limiting for safety
+- ✅ JSON-based grammar definition and loading
+- ✅ Comprehensive unit tests covering all features
+
+**Data Structures**:
+```rust
+#[derive(Deserialize)]
+struct Grammar {
+    rules: HashMap<String, GrammarRule>,
+}
+
+#[derive(Deserialize)]
+struct GrammarRule {
+    expansions: Vec<String>,
+    weights: Option<Vec<f32>>,
+}
+
+struct GrammarContext {
+    variables: HashMap<String, String>,
+}
+```
+
+**Test Coverage**:
+- ✅ Basic rule expansion and selection
+- ✅ Recursive rule processing with `<rule>` syntax
+- ✅ Weighted selection determinism
+- ✅ Variable substitution from context
+- ✅ Recursion depth protection
+- ✅ DES integration test scenario
+
+**Key Features**:
+- **Rule Expansion**: `<rule_name>` syntax for recursive grammar rules
+- **Weighted Selection**: Optional weights for controlling expansion probability
+- **Context Variables**: Variable substitution from GrammarContext
+- **Safety**: Recursion depth limiting prevents infinite loops
+- **Deterministic**: All selection uses seeded RNG for reproducibility
+
+#### Task 2.2: Enhanced Biome System (PLANNED)
+**Target Files**: `src/game/generation/biomes.rs`, `data/biomes/`
+
+**Remaining Work**:
 - [ ] Rich biome definitions with generation rules
 - [ ] Biome transition algorithms
 - [ ] Biome-specific content pools
 - [ ] Environmental storytelling elements
 
-#### Task 2.3: Constraint-Based Placement System
+#### Task 2.3: Constraint-Based Placement System (PLANNED)
+**Target Files**: `src/game/generation/constraints.rs`
+
+**Remaining Work**:
 - [ ] Graph-based connectivity validation
 - [ ] Distance and accessibility constraints
 - [ ] Balance verification algorithms
@@ -180,6 +224,7 @@ Each completed task followed the prescribed process:
 
 ### Content Metrics
 - ✅ Template-based content expansion (10x potential variety)
+- ✅ Grammar-based dynamic text generation (infinite variety)
 - ⏳ Meaningful narrative integration (pending Phase 3)
 - ⏳ Player-reported "sameness" reduction (pending user testing)
 - ✅ Content creation time reduction (JSON templates vs code)

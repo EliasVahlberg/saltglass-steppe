@@ -1,0 +1,46 @@
+{
+  "rules": {
+    "name": {
+      "expansions": [
+        "<prefix><root><suffix>",
+        "<root><suffix>",
+        "<prefix><root>"
+      ],
+      "weights": [40.0, 50.0, 10.0]
+    },
+    "prefix": {
+      "expansions": [
+        "Shard",
+        "Glass",
+        "Crystal",
+        "Prism",
+        "Salt",
+        "Storm"
+      ]
+    },
+    "root": {
+      "expansions": [
+        "wind",
+        "light",
+        "break",
+        "shard",
+        "gleam",
+        "drift",
+        "fall",
+        "song",
+        "whisper",
+        "echo"
+      ]
+    },
+    "suffix": {
+      "expansions": [
+        "er",
+        "ing",
+        "ed",
+        "ling",
+        "ward",
+        "born"
+      ]
+    }
+  }
+}

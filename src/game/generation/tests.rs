@@ -3,6 +3,7 @@ mod generation_tests {
     use crate::game::generation::weighted_table::{WeightedEntry, WeightedTable};
     use crate::game::generation::pipeline::{GenerationConfig, GenerationPass, GenerationPipeline, PassType};
     use crate::game::generation::templates::{TemplateLibrary, TemplateContext, ContentTemplate, TemplateVariant};
+    use crate::game::generation::grammar::{Grammar, GrammarContext, GrammarRule};
     use rand_chacha::ChaCha8Rng;
     use rand::SeedableRng;
     use serde_json::Value;
@@ -263,5 +264,129 @@ mod generation_tests {
         
         // Should use small variant override
         assert_eq!(result.get("width").unwrap().as_u64().unwrap(), 4);
+    }
+
+    #[test]
+    fn test_grammar_basic_generation() {
+        let mut grammar = Grammar::new();
+        
+        // Add simple rule
+        grammar.rules.insert("greeting".to_string(), GrammarRule {
+            expansions: vec!["Hello".to_string(), "Hi".to_string(), "Greetings".to_string()],
+            weights: None,
+        });
+        
+        let context = GrammarContext {
+            variables: HashMap::new(),
+        };
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        let result = grammar.generate("greeting", &context, &mut rng).unwrap();
+        
+        assert!(["Hello", "Hi", "Greetings"].contains(&result.as_str()));
+        
+        // Test determinism
+        let mut rng2 = ChaCha8Rng::seed_from_u64(12345);
+        let result2 = grammar.generate("greeting", &context, &mut rng2).unwrap();
+        assert_eq!(result, result2);
+    }
+
+    #[test]
+    fn test_grammar_recursive_expansion() {
+        let mut grammar = Grammar::new();
+        
+        grammar.rules.insert("sentence".to_string(), GrammarRule {
+            expansions: vec!["<subject> <verb> <object>".to_string()],
+            weights: None,
+        });
+        
+        grammar.rules.insert("subject".to_string(), GrammarRule {
+            expansions: vec!["The storm".to_string(), "Glass".to_string()],
+            weights: None,
+        });
+        
+        grammar.rules.insert("verb".to_string(), GrammarRule {
+            expansions: vec!["breaks".to_string(), "shatters".to_string()],
+            weights: None,
+        });
+        
+        grammar.rules.insert("object".to_string(), GrammarRule {
+            expansions: vec!["reality".to_string(), "silence".to_string()],
+            weights: None,
+        });
+        
+        let context = GrammarContext {
+            variables: HashMap::new(),
+        };
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        let result = grammar.generate("sentence", &context, &mut rng).unwrap();
+        
+        // Should be a complete sentence
+        assert!(result.contains(" "));
+        assert!(result.len() > 5);
+    }
+
+    #[test]
+    fn test_grammar_weighted_selection() {
+        let mut grammar = Grammar::new();
+        
+        grammar.rules.insert("weighted_rule".to_string(), GrammarRule {
+            expansions: vec!["rare".to_string(), "common".to_string()],
+            weights: Some(vec![10.0, 90.0]),
+        });
+        
+        let context = GrammarContext {
+            variables: HashMap::new(),
+        };
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        let result = grammar.generate("weighted_rule", &context, &mut rng).unwrap();
+        
+        assert!(["rare", "common"].contains(&result.as_str()));
+    }
+
+    #[test]
+    fn test_grammar_variable_substitution() {
+        let mut grammar = Grammar::new();
+        
+        grammar.rules.insert("greeting".to_string(), GrammarRule {
+            expansions: vec!["Hello <name>".to_string()],
+            weights: None,
+        });
+        
+        let context = GrammarContext {
+            variables: {
+                let mut vars = HashMap::new();
+                vars.insert("name".to_string(), "Traveler".to_string());
+                vars
+            },
+        };
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        let result = grammar.generate("greeting", &context, &mut rng).unwrap();
+        
+        assert_eq!(result, "Hello Traveler");
+    }
+
+    #[test]
+    fn test_grammar_recursion_limit() {
+        let mut grammar = Grammar::new();
+        
+        // Create infinite recursion
+        grammar.rules.insert("infinite".to_string(), GrammarRule {
+            expansions: vec!["<infinite>".to_string()],
+            weights: None,
+        });
+        
+        let context = GrammarContext {
+            variables: HashMap::new(),
+        };
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        let result = grammar.generate("infinite", &context, &mut rng);
+        
+        assert!(result.is_err());
+        assert!(result.unwrap_err().contains("recursion"));
     }
 }

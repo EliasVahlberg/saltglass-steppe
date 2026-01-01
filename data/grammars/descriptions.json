@@ -1,0 +1,98 @@
+{
+  "rules": {
+    "description": {
+      "expansions": [
+        "<simple_desc>",
+        "<complex_desc>"
+      ],
+      "weights": [70.0, 30.0]
+    },
+    "simple_desc": {
+      "expansions": [
+        "A <material> <structure> <condition>.",
+        "The <atmosphere> <structure> <detail>.",
+        "<structure_adj> <structure> made of <material>."
+      ]
+    },
+    "complex_desc": {
+      "expansions": [
+        "A <material> <structure> <condition>. <atmosphere_detail>.",
+        "The <atmosphere> <structure> <detail>. <light_effect>."
+      ]
+    },
+    "material": {
+      "expansions": [
+        "crystalline",
+        "glass",
+        "salt-crusted",
+        "storm-forged",
+        "prismatic",
+        "vitrified",
+        "translucent"
+      ]
+    },
+    "structure": {
+      "expansions": [
+        "chamber",
+        "corridor",
+        "hall",
+        "passage",
+        "room",
+        "alcove",
+        "vault"
+      ]
+    },
+    "condition": {
+      "expansions": [
+        "gleams with inner light",
+        "refracts the ambient glow",
+        "shows signs of ancient storms",
+        "bears crystalline formations",
+        "echoes with distant whispers"
+      ]
+    },
+    "atmosphere": {
+      "expansions": [
+        "dim",
+        "shimmering",
+        "ethereal",
+        "haunting",
+        "serene",
+        "ominous"
+      ]
+    },
+    "structure_adj": {
+      "expansions": [
+        "Ancient",
+        "Weathered",
+        "Pristine",
+        "Cracked",
+        "Luminous"
+      ]
+    },
+    "detail": {
+      "expansions": [
+        "catches fragments of light",
+        "holds memories of past storms",
+        "resonates with glass harmonics",
+        "bears the marks of pilgrims"
+      ]
+    },
+    "atmosphere_detail": {
+      "expansions": [
+        "Salt crystals drift in the air",
+        "Light bends strangely here",
+        "The walls pulse with faint energy",
+        "Whispers echo from the glass"
+      ]
+    },
+    "light_effect": {
+      "expansions": [
+        "Prismatic patterns dance across the surfaces",
+        "Refracted light creates shifting shadows",
+        "The chamber glows with stored storm energy",
+        "Spectral colors play through the crystal"
+      ]
+    }
+  }
+}

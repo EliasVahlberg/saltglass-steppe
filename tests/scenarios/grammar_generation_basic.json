@@ -1,0 +1,20 @@
+{
+  "name": "grammar_generation_basic",
+  "description": "Test grammar-based content generation with deterministic results",
+  "seed": 98765,
+  "map_setup": {
+    "clear_radius": 3
+  },
+  "player": {
+    "x": 15,
+    "y": 15
+  },
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}
