@@ -6,6 +6,8 @@ pub mod biomes;
 pub mod constraints;
 pub mod events;
 pub mod narrative;
+pub mod world_gen;
+pub mod tile_gen;
 
 #[cfg(test)]
 mod tests;
@@ -16,3 +18,5 @@ pub use templates::*;
 pub use grammar::*;
 pub use biomes::*;
 pub use constraints::*;
+pub use world_gen::*;
+pub use tile_gen::*;

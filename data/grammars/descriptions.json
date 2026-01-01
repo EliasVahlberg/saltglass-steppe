@@ -20,6 +20,24 @@
         "The <atmosphere> <structure> <detail>. <light_effect>."
       ]
     },
+    "area_description": {
+      "expansions": [
+        "The ${biome} ${terrain} stretches before you, <atmosphere>",
+        "<weather> winds sweep across the ${biome} ${terrain}",
+        "This ${poi} sits amid the ${biome} landscape, <mood>",
+        "The ${terrain} here bears the marks of <history>"
+      ],
+      "weights": [30.0, 25.0, 25.0, 20.0]
+    },
+    "inscription": {
+      "expansions": [
+        "<inscription_phrase> - <signature>",
+        "<warning> <danger_type>",
+        "<prayer> <deity>",
+        "<memory> <time_reference>"
+      ],
+      "weights": [30.0, 25.0, 25.0, 20.0]
+    },
     "material": {
       "expansions": [
         "crystalline",
@@ -53,12 +71,11 @@
     },
     "atmosphere": {
       "expansions": [
-        "dim",
-        "shimmering",
-        "ethereal",
-        "haunting",
-        "serene",
-        "ominous"
+        "shimmering with glass fragments",
+        "carved by ancient storms",
+        "holding secrets in its shadows",
+        "touched by otherworldly light",
+        "scarred by time and weather"
       ]
     },
     "structure_adj": {
@@ -92,6 +109,105 @@
         "Refracted light creates shifting shadows",
         "The chamber glows with stored storm energy",
         "Spectral colors play through the crystal"
+      ]
+    },
+    "weather": {
+      "expansions": [
+        "Salt-laden",
+        "Crystalline",
+        "Scorching",
+        "Whispering",
+        "Restless"
+      ]
+    },
+    "mood": {
+      "expansions": [
+        "emanating an aura of ancient purpose",
+        "weathered but still standing",
+        "touched by something beyond understanding",
+        "holding memories of better times",
+        "defiant against the endless storms"
+      ]
+    },
+    "history": {
+      "expansions": [
+        "countless glass storms",
+        "the passage of pilgrims",
+        "forgotten civilizations",
+        "the weight of ages",
+        "battles long past"
+      ]
+    },
+    "inscription_phrase": {
+      "expansions": [
+        "The light remembers all",
+        "Through glass, truth",
+        "Storm-touched, storm-blessed",
+        "What was broken shall be whole",
+        "The angle speaks to those who listen"
+      ]
+    },
+    "signature": {
+      "expansions": [
+        "A Pilgrim of the Steppe",
+        "Mirror-Monk Keth",
+        "The Glass-Born",
+        "One Who Saw",
+        "Seeker of the Prime Lens"
+      ]
+    },
+    "warning": {
+      "expansions": [
+        "Beware the",
+        "Here lies",
+        "Turn back -",
+        "Death walks with",
+        "The storm brings"
+      ]
+    },
+    "danger_type": {
+      "expansions": [
+        "shifting glass",
+        "memory wraiths",
+        "false light",
+        "the hungry dark",
+        "broken reflections"
+      ]
+    },
+    "prayer": {
+      "expansions": [
+        "May the light guide",
+        "In the name of",
+        "Blessed be",
+        "Grant us sight,",
+        "Through the prism of"
+      ]
+    },
+    "deity": {
+      "expansions": [
+        "the Shattered Saint",
+        "the Prime Lens",
+        "the First Mirror",
+        "the Storm's Heart",
+        "the Glass Mother"
+      ]
+    },
+    "memory": {
+      "expansions": [
+        "I remember when",
+        "Before the storms,",
+        "In the old days,",
+        "Once, this place",
+        "Long ago,"
+      ]
+    },
+    "time_reference": {
+      "expansions": [
+        "the glass was whole",
+        "children played here",
+        "the lights never dimmed",
+        "we knew no fear",
+        "the world made sense"
       ]
     }
   }

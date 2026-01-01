@@ -58,6 +58,7 @@ pub struct EventContext {
 pub struct EventSystem {
     events: HashMap<String, DynamicEvent>,
     chains: HashMap<String, EventChain>,
+    #[allow(dead_code)]
     active_events: Vec<String>,
     event_cooldowns: HashMap<String, u32>,
 }

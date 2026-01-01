@@ -170,16 +170,21 @@ impl Map {
         rng: &mut ChaCha8Rng,
         biome: Biome,
         terrain: Terrain,
-        _elevation: u8,
+        elevation: u8,
         poi: POI,
     ) -> (Self, Vec<(i32, i32)>) {
-        let seed = rng.next_u32();
-        let (mut map, clearings) = Self::generate_noise_terrain(seed, biome, terrain, poi);
+        use crate::game::generation::TileGenerator;
         
-        // Generate narrative content for the map
-        map.generate_narrative_content(rng, biome, terrain, poi);
-        
-        (map, clearings)
+        // Try to use enhanced generator, fall back to legacy if it fails
+        if let Ok(generator) = TileGenerator::new() {
+            generator.generate_enhanced_tile(rng, biome, terrain, elevation, poi)
+        } else {
+            // Fallback to legacy generation
+            let seed = rng.next_u32();
+            let (mut map, clearings) = Self::generate_noise_terrain(seed, biome, terrain, poi);
+            map.generate_narrative_content(rng, biome, terrain, poi);
+            (map, clearings)
+        }
     }
 
     fn generate_noise_terrain(
