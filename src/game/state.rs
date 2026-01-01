@@ -2049,7 +2049,8 @@ impl GameState {
                         if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
                             let npc = super::npc::Npc::new(x, y, id);
                             self.npcs.push(npc);
-                            self.log(format!("Spawned NPC {} at ({}, {})", id, x, y));
+                            self.spatial_dirty = true; // Mark spatial index as dirty
+                            self.log(format!("Spawned NPC {} at ({}, {}) - Total NPCs: {}", id, x, y, self.npcs.len()));
                         } else {
                             self.log("Cannot spawn at that location (not walkable)");
                         }
@@ -2065,6 +2066,19 @@ impl GameState {
                 for id in super::npc::all_npc_ids() {
                     if let Some(def) = super::npc::get_npc_def(id) {
                         self.log(format!("  {} - {} ({})", id, def.name, def.glyph));
+                    }
+                }
+            }
+            Some("show_npcs") => {
+                if self.npcs.is_empty() {
+                    self.log("No NPCs currently spawned");
+                } else {
+                    let npc_info: Vec<String> = self.npcs.iter().enumerate()
+                        .map(|(i, npc)| format!("  {}: {} at ({}, {})", i, npc.id, npc.x, npc.y))
+                        .collect();
+                    self.log(format!("Current NPCs ({}): ", self.npcs.len()));
+                    for info in npc_info {
+                        self.log(info);
                     }
                 }
             }
@@ -2122,6 +2136,7 @@ impl GameState {
                 self.log("  spawn_swarm <id> <count> - Spawn enemy swarm");
                 self.log("  spawn_npc <id> [x] [y] - Spawn NPC at position");
                 self.log("  list_npcs - List available NPCs");
+                self.log("  show_npcs - Show currently spawned NPCs");
                 self.log("  show_level - Show current tile threat level");
                 self.log("  show_item_tiers - Show items organized by tier");
             }
