@@ -10,6 +10,18 @@ pub const WORLD_HEIGHT: usize = 64;
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug, Hash)]
 pub enum Biome { Desert, Saltflat, Scrubland, Oasis, Ruins }
 
+impl Biome {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Biome::Desert => "desert",
+            Biome::Saltflat => "saltflat",
+            Biome::Scrubland => "scrubland",
+            Biome::Oasis => "oasis",
+            Biome::Ruins => "ruins",
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
 pub enum Terrain { Flat, Hills, Dunes, Canyon, Mesa }
 

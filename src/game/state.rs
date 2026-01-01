@@ -31,6 +31,7 @@ use super::{
     systems::movement::MovementSystem,
     tutorial::TutorialProgress,
     world_map::WorldMap,
+    generation::{events::{EventSystem, EventContext}, narrative::{NarrativeIntegration}},
 };
 
 mod rng_serde {
@@ -280,6 +281,12 @@ pub struct GameState {
     /// Placed micro-structures on the current tile
     #[serde(default)]
     pub microstructures: Vec<PlacedMicroStructure>,
+    /// Dynamic event system for procedural events
+    #[serde(skip)]
+    pub event_system: Option<EventSystem>,
+    /// Narrative integration system for story fragments
+    #[serde(skip)]
+    pub narrative_integration: Option<NarrativeIntegration>,
 }
 
 /// Floating damage number for visual feedback
@@ -587,7 +594,39 @@ impl GameState {
             pending_book_open: None,
             skills: super::skills::SkillsState::default(),
             microstructures,
+            event_system: None,
+            narrative_integration: None,
         };
+        
+        // Initialize dynamic event system
+        let event_system = EventSystem::new();
+        let _event_context = EventContext {
+            player_hp: state.player_hp,
+            player_max_hp: state.player_max_hp,
+            player_x: state.player_x,
+            player_y: state.player_y,
+            turn: state.turn,
+            biome: biome.as_str().to_string(),
+            storm_intensity: state.storm.intensity,
+            refraction_level: state.refraction,
+            variables: std::collections::HashMap::new(),
+        };
+        // Don't trigger events on initialization, just set up the system
+        state.event_system = Some(event_system);
+        
+        // Initialize narrative integration system
+        let mut narrative_integration = NarrativeIntegration::new();
+        let narrative_context = super::generation::narrative::NarrativeContext {
+            player_x: state.player_x,
+            player_y: state.player_y,
+            current_biome: biome.as_str().to_string(),
+            turn: state.turn,
+            faction_standings: std::collections::HashMap::new(),
+            discovered_fragments: Vec::new(),
+            player_adaptations: Vec::new(),
+        };
+        narrative_integration.initialize(&narrative_context, &mut state.rng);
+        state.narrative_integration = Some(narrative_integration);
         
         // Initialize narrative generator and generate world history
         if let Ok(generator) = NarrativeGenerator::new() {
@@ -760,6 +799,9 @@ impl GameState {
         self.update_fov();
         self.rebuild_spatial_index();
         self.update_lighting();
+        
+        // Generate narrative fragments for new tile
+        self.generate_narrative_fragments(biome.as_str());
         
         self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
     }
@@ -1224,10 +1266,116 @@ impl GameState {
         self.update_lighting();
         self.update_fov();
         
+        // Check for dynamic events
+        self.check_dynamic_events();
+        
         // Process queued events
         self.process_events();
     }
     
+    /// Generate narrative fragments for the current tile
+    fn generate_narrative_fragments(&mut self, biome: &str) {
+        if let Some(ref mut narrative) = self.narrative_integration {
+            let context = super::generation::narrative::NarrativeContext {
+                player_x: self.player_x,
+                player_y: self.player_y,
+                current_biome: biome.to_string(),
+                turn: self.turn,
+                faction_standings: std::collections::HashMap::new(),
+                discovered_fragments: Vec::new(),
+                player_adaptations: self.adaptations.iter().map(|a| a.name().to_string()).collect(),
+            };
+            
+            let fragments = narrative.generate_fragments(&context, &mut self.rng);
+            let fragment_count = fragments.len();
+            
+            if fragment_count > 0 {
+                // Track narrative momentum
+                narrative.track_narrative_event("fragments_generated", &context);
+            }
+            
+            // Log after releasing the borrow
+            let _ = narrative;
+            if fragment_count > 0 {
+                self.log(format!("You sense {} story fragments in this area.", fragment_count));
+            }
+        }
+    }
+
+    /// Check for dynamic events based on current game state
+    fn check_dynamic_events(&mut self) {
+        if let Some(ref mut event_system) = self.event_system {
+            let current_biome = if let Some(ref world_map) = self.world_map {
+                world_map.get(self.world_x, self.world_y).0.as_str().to_string()
+            } else {
+                "desert".to_string()
+            };
+            
+            let context = EventContext {
+                player_hp: self.player_hp,
+                player_max_hp: self.player_max_hp,
+                player_x: self.player_x,
+                player_y: self.player_y,
+                turn: self.turn,
+                biome: current_biome.clone(),
+                storm_intensity: self.storm.intensity,
+                refraction_level: self.refraction,
+                variables: std::collections::HashMap::new(),
+            };
+            
+            let triggered_events = event_system.check_triggers(&context, &mut self.rng);
+            let has_events = !triggered_events.is_empty();
+            let mut messages_to_log = Vec::new();
+            
+            for event_id in triggered_events {
+                let mut event_context = context.clone();
+                let messages = event_system.apply_consequences(&event_id, &mut event_context);
+                
+                // Apply consequences to game state
+                if let Some(damage) = event_context.variables.get("damage_taken") {
+                    if let Some(damage) = damage.as_i64() {
+                        self.player_hp = (self.player_hp - damage as i32).max(0);
+                    }
+                }
+                
+                if let Some(healing) = event_context.variables.get("healing_received") {
+                    if let Some(healing) = healing.as_i64() {
+                        self.player_hp = (self.player_hp + healing as i32).min(self.player_max_hp);
+                    }
+                }
+                
+                if let Some(refraction) = event_context.variables.get("refraction_gained") {
+                    if let Some(refraction) = refraction.as_u64() {
+                        self.refraction += refraction as u32;
+                    }
+                }
+                
+                // Collect messages to log later
+                messages_to_log.extend(messages);
+            }
+            
+            // Track narrative events
+            if has_events {
+                if let Some(ref mut narrative) = self.narrative_integration {
+                    narrative.track_narrative_event("dynamic_event", &super::generation::narrative::NarrativeContext {
+                        player_x: self.player_x,
+                        player_y: self.player_y,
+                        current_biome: current_biome,
+                        turn: self.turn,
+                        faction_standings: std::collections::HashMap::new(),
+                        discovered_fragments: Vec::new(),
+                        player_adaptations: self.adaptations.iter().map(|a| a.name().to_string()).collect(),
+                    });
+                }
+            }
+            
+            // Log messages after releasing borrows
+            for message in messages_to_log {
+                self.log(message);
+            }
+        }
+    }
+
     /// Process all queued game events
     /// This enables decoupled communication between systems
     fn process_events(&mut self) {
