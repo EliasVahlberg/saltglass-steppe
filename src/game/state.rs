@@ -2040,6 +2040,34 @@ impl GameState {
                     self.log("Usage: spawn_swarm <id> <count>");
                 }
             }
+            Some("spawn_npc") => {
+                if let Some(id) = parts.get(1) {
+                    if super::npc::get_npc_def(id).is_some() {
+                        let x = parts.get(2).and_then(|s| s.parse().ok()).unwrap_or(self.player_x + 1);
+                        let y = parts.get(3).and_then(|s| s.parse().ok()).unwrap_or(self.player_y);
+                        
+                        if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
+                            let npc = super::npc::Npc::new(x, y, id);
+                            self.npcs.push(npc);
+                            self.log(format!("Spawned NPC {} at ({}, {})", id, x, y));
+                        } else {
+                            self.log("Cannot spawn at that location (not walkable)");
+                        }
+                    } else {
+                        self.log(format!("Unknown NPC: {}", id));
+                    }
+                } else {
+                    self.log("Usage: spawn_npc <id> [x] [y]");
+                }
+            }
+            Some("list_npcs") => {
+                self.log("Available NPCs:");
+                for id in super::npc::all_npc_ids() {
+                    if let Some(def) = super::npc::get_npc_def(id) {
+                        self.log(format!("  {} - {} ({})", id, def.name, def.glyph));
+                    }
+                }
+            }
             Some("show_level") => {
                 let level = self.get_current_tile_level();
                 let threat_desc = match level {
@@ -2092,6 +2120,8 @@ impl GameState {
                 self.log("  list_abilities - List available abilities");
                 self.log("  spawn_enemy <id> [x] [y] - Spawn enemy at position");
                 self.log("  spawn_swarm <id> <count> - Spawn enemy swarm");
+                self.log("  spawn_npc <id> [x] [y] - Spawn NPC at position");
+                self.log("  list_npcs - List available NPCs");
                 self.log("  show_level - Show current tile threat level");
                 self.log("  show_item_tiers - Show items organized by tier");
             }
