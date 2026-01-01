@@ -178,6 +178,10 @@ impl TileGenerator {
     /// Ensure basic connectivity by creating corridors
     fn ensure_basic_connectivity(&self, map: &mut Map) {
         let center = (MAP_WIDTH / 2, MAP_HEIGHT / 2);
+        
+        // Find the actual spawn point (should be a floor tile near center)
+        let spawn_point = self.find_spawn_point(map).unwrap_or(center);
+        
         let edges = vec![
             (10, 10),
             (MAP_WIDTH - 10, 10),
@@ -185,11 +189,44 @@ impl TileGenerator {
             (MAP_WIDTH - 10, MAP_HEIGHT - 10),
         ];
         
-        // Create corridors from center to each edge
+        // Create corridors from spawn point to each edge
         for edge in edges {
-            self.create_corridor(map, center, edge);
+            self.create_corridor(map, spawn_point, edge);
         }
         
+        // Also ensure spawn point itself is floor
+        if let Some(idx) = map.pos_to_idx(spawn_point.0 as i32, spawn_point.1 as i32) {
+            map.tiles[idx] = Tile::Floor;
+        }
+    }
+    
+    /// Find the actual spawn point in the map
+    fn find_spawn_point(&self, map: &Map) -> Option<(usize, usize)> {
+        let center = (MAP_WIDTH / 2, MAP_HEIGHT / 2);
+        
+        // Look for floor tiles near center in expanding radius
+        for radius in 0..20 {
+            for dy in -(radius as i32)..=(radius as i32) {
+                for dx in -(radius as i32)..=(radius as i32) {
+                    if dx.abs() != radius && dy.abs() != radius && radius > 0 {
+                        continue; // Only check perimeter of current radius
+                    }
+                    
+                    let x = center.0 as i32 + dx;
+                    let y = center.1 as i32 + dy;
+                    
+                    if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
+                        if let Some(idx) = map.pos_to_idx(x, y) {
+                            if matches!(map.tiles[idx], Tile::Floor) {
+                                return Some((x as usize, y as usize));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        None
     }
     
     /// Create a corridor between two points
@@ -211,6 +248,13 @@ impl TileGenerator {
             else if x > target_x { x -= 1; }
             else if y < target_y { y += 1; }
             else if y > target_y { y -= 1; }
+        }
+        
+        // Ensure the final target tile is also set to floor
+        if let Some(idx) = map.pos_to_idx(target_x, target_y) {
+            if matches!(map.tiles[idx], Tile::Wall { .. }) {
+                map.tiles[idx] = Tile::Floor;
+            }
         }
     }
 
