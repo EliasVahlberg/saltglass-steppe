@@ -2361,7 +2361,7 @@ impl GameState {
         
         let start = self.map.idx(self.player_x, self.player_y);
         
-        // BFS to find nearest unexplored walkable tile
+        // BFS to find nearest item or unexplored walkable tile
         let mut visited = HashSet::new();
         let mut queue = std::collections::VecDeque::new();
         queue.push_back((start, vec![start]));
@@ -2370,11 +2370,30 @@ impl GameState {
         let target = loop {
             let (idx, path) = match queue.pop_front() {
                 Some(p) => p,
-                None => return false, // No unexplored tiles reachable
+                None => return false, // No items or unexplored tiles reachable
             };
             
+            let mut found_target = false;
+            
+            // Check if this tile has items we want to pick up
+            if config.pickup_items {
+                let x = (idx % self.map.width) as i32;
+                let y = (idx / self.map.width) as i32;
+                
+                for item in &self.items {
+                    if item.x == x && item.y == y && config.should_pickup_item(&item.id) {
+                        found_target = true;
+                        break;
+                    }
+                }
+            }
+            
             // Check if this tile is unexplored
-            if !self.revealed.contains(&idx) {
+            if !found_target && !self.revealed.contains(&idx) {
+                found_target = true;
+            }
+            
+            if found_target {
                 // Return the first step toward this tile
                 if path.len() > 1 {
                     break Some(path[1]);
@@ -2451,8 +2470,11 @@ impl GameState {
             return true;
         }
         
-        // Add other danger checks here as needed
-        // For now, just check glass tiles
+        // Check for glare tiles
+        if config.is_danger_type("glare") && matches!(tile, crate::game::map::Tile::Glare) {
+            return true;
+        }
+        
         false
     }
     

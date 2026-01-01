@@ -1,0 +1,44 @@
+{
+  "name": "Auto-Explore Fixes Test",
+  "description": "Test that auto-explore moves to items and avoids glare tiles",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "map_setup": {
+    "clear_radius": 10,
+    "custom_tiles": [
+      {"x": 7, "y": 5, "tile": "Glare"},
+      {"x": 8, "y": 5, "tile": "Glare"}
+    ]
+  },
+  "entities": [
+    {"entity_type": "item", "id": "storm_glass", "x": 6, "y": 4}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "auto_explore"}}
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "inventory_contains", "item": "storm_glass"},
+      "message": "Should have picked up storm_glass by moving to it"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "player_position", "op": "ne", "x": 7, "y": 5},
+      "message": "Should not be on glare tile"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "player_position", "op": "ne", "x": 8, "y": 5},
+      "message": "Should not be on glare tile"
+    }
+  ]
+}
