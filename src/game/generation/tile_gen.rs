@@ -182,14 +182,16 @@ impl TileGenerator {
     fn ensure_basic_connectivity(&self, map: &mut Map) {
         let center = (MAP_WIDTH / 2, MAP_HEIGHT / 2);
         
-        // Find the actual spawn point (should be a floor tile near center)
-        let spawn_point = self.find_spawn_point(map).unwrap_or(center);
+        // Ensure the center spawn point is always floor
+        if let Some(idx) = map.pos_to_idx(center.0 as i32, center.1 as i32) {
+            map.tiles[idx] = Tile::Floor;
+        }
         
-        // Ensure spawn point and immediate area are clear
+        // Ensure spawn point and immediate area are clear (5x5 area)
         for dy in -2..=2 {
             for dx in -2..=2 {
-                let x = spawn_point.0 as i32 + dx;
-                let y = spawn_point.1 as i32 + dy;
+                let x = center.0 as i32 + dx;
+                let y = center.1 as i32 + dy;
                 if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
                     if let Some(idx) = map.pos_to_idx(x, y) {
                         map.tiles[idx] = Tile::Floor;
@@ -198,8 +200,8 @@ impl TileGenerator {
             }
         }
         
-        // Create simple straight corridors to map edges
-        self.create_simple_corridors(map, spawn_point);
+        // Create simple straight corridors from the center to map edges
+        self.create_simple_corridors(map, center);
     }
     
     /// Create simple straight corridors to ensure connectivity
@@ -222,34 +224,7 @@ impl TileGenerator {
         }
     }
     
-    /// Find the actual spawn point in the map
-    fn find_spawn_point(&self, map: &Map) -> Option<(usize, usize)> {
-        let center = (MAP_WIDTH / 2, MAP_HEIGHT / 2);
-        
-        // Look for floor tiles near center in expanding radius
-        for radius in 0..20 {
-            for dy in -(radius as i32)..=(radius as i32) {
-                for dx in -(radius as i32)..=(radius as i32) {
-                    if dx.abs() != radius && dy.abs() != radius && radius > 0 {
-                        continue; // Only check perimeter of current radius
-                    }
-                    
-                    let x = center.0 as i32 + dx;
-                    let y = center.1 as i32 + dy;
-                    
-                    if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
-                        if let Some(idx) = map.pos_to_idx(x, y) {
-                            if matches!(map.tiles[idx], Tile::Floor) {
-                                return Some((x as usize, y as usize));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        None
-    }
+
     
 
 
