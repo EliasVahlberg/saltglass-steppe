@@ -161,7 +161,7 @@ pub fn render_inventory_menu(
     }
 
     // Help bar at bottom
-    let help = " [h/l] Switch panel | [j/k] Navigate | [x] Inspect | [Enter] Equip/Unequip | [Esc/i] Close ";
+    let help = " [h/l] Switch panel | [j/k] Navigate | [x] Inspect | [u] Use | [Enter] Equip/Unequip | [Esc/i] Close ";
     let help_area = Rect::new(area.x, area.y + area.height.saturating_sub(1), area.width, 1);
     frame.render_widget(Paragraph::new(help).style(Style::default().fg(Color::DarkGray)), help_area);
 }
