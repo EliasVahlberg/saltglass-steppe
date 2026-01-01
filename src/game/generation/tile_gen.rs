@@ -106,6 +106,33 @@ impl TileGenerator {
                 if !critical_satisfied && attempt == MAX_ATTEMPTS - 1 {
                     // Apply emergency fixes for critical failures on last attempt
                     self.apply_emergency_fixes(&mut map, &constraint_results);
+                    
+                    // Re-validate constraints after emergency fixes
+                    let post_fix_context = ConstraintContext {
+                        map: &map,
+                        biome,
+                        entities: vec![],
+                        resources: vec![],
+                        objectives: vec![
+                            ObjectivePlacement {
+                                objective_type: "spawn".to_string(),
+                                x: MAP_WIDTH as i32 / 2,
+                                y: MAP_HEIGHT as i32 / 2,
+                                required: true,
+                            },
+                        ],
+                    };
+                    let post_fix_results = ConstraintSystem::validate_constraints(&post_fix_context, rng);
+                    let post_fix_satisfied = ConstraintSystem::are_critical_constraints_satisfied(&post_fix_results);
+                    
+                    if !post_fix_satisfied {
+                        println!("WARNING: Critical constraints still failing after emergency fixes");
+                        for result in &post_fix_results {
+                            if !result.passed && result.severity == ConstraintSeverity::Critical {
+                                println!("  Still failing: {} - {}", result.rule_id, result.message);
+                            }
+                        }
+                    }
                 }
                 
                 critical_satisfied
@@ -142,10 +169,27 @@ impl TileGenerator {
                     "minimum_open_space" => {
                         self.ensure_minimum_open_space(map);
                     },
-                    "connectivity_spawn_to_edges" | "basic_connectivity" => {
+                    "basic_connectivity" => {
+                        // Ensure connectivity from spawn (125,55) to corners as per constraint rule
+                        let spawn = (125, 55);
+                        self.ensure_specific_connectivity(map, spawn, (50, 25));
+                        self.ensure_specific_connectivity(map, spawn, (200, 85));
                         self.ensure_basic_connectivity(map);
                     },
                     "exit_connectivity" => {
+                        // Ensure connectivity from spawn (125,55) to left/right edges as per constraint rule
+                        let spawn = (125, 55);
+                        self.ensure_specific_connectivity(map, spawn, (240, 55));
+                        self.ensure_specific_connectivity(map, spawn, (10, 55));
+                        self.ensure_basic_connectivity(map);
+                    },
+                    "connectivity_spawn_to_edges" => {
+                        // Ensure connectivity from spawn (125,55) to all map edges
+                        let spawn = (125, 55);
+                        let edges = [(10, 10), (240, 10), (10, 100), (240, 100)];
+                        for edge in edges {
+                            self.ensure_specific_connectivity(map, spawn, edge);
+                        }
                         self.ensure_basic_connectivity(map);
                     },
                     _ => {}
@@ -179,6 +223,20 @@ impl TileGenerator {
             }
             // Emergency fix: converted walls to floors for minimum open space
         }
+    }
+    
+    /// Ensure connectivity between two specific points
+    fn ensure_specific_connectivity(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
+        // Ensure both points are floor tiles
+        if let Some(idx) = map.pos_to_idx(start.0 as i32, start.1 as i32) {
+            map.tiles[idx] = Tile::Floor;
+        }
+        if let Some(idx) = map.pos_to_idx(end.0 as i32, end.1 as i32) {
+            map.tiles[idx] = Tile::Floor;
+        }
+        
+        // Create a direct diagonal corridor between the points
+        self.create_diagonal_corridor(map, start, end);
     }
     
     /// Ensure basic connectivity by creating corridors

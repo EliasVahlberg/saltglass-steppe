@@ -6,10 +6,11 @@
       "constraint_type": "connectivity",
       "parameters": {
         "start_points": [
-          {"x": 1, "y": 1}
+          {"x": 125, "y": 55}
         ],
         "end_points": [
-          {"x": 18, "y": 18}
+          {"x": 50, "y": 25},
+          {"x": 200, "y": 85}
         ]
       },
       "severity": "critical",
@@ -109,10 +110,11 @@
       "constraint_type": "connectivity",
       "parameters": {
         "start_points": [
-          {"x": 10, "y": 10}
+          {"x": 125, "y": 55}
         ],
         "end_points": [
-          {"x": 19, "y": 19}
+          {"x": 240, "y": 55},
+          {"x": 10, "y": 55}
         ]
       },
       "severity": "critical",
