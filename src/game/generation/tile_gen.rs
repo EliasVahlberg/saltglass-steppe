@@ -187,9 +187,9 @@ impl TileGenerator {
             map.tiles[idx] = Tile::Floor;
         }
         
-        // Ensure spawn point and immediate area are clear (5x5 area)
-        for dy in -2..=2 {
-            for dx in -2..=2 {
+        // Clear a small 3x3 area around spawn
+        for dy in -1..=1 {
+            for dx in -1..=1 {
                 let x = center.0 as i32 + dx;
                 let y = center.1 as i32 + dy;
                 if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
@@ -200,29 +200,78 @@ impl TileGenerator {
             }
         }
         
-        // Create simple straight corridors from the center to map edges
-        self.create_simple_corridors(map, center);
+        // Find the nearest open area and create a diagonal corridor to it
+        if let Some(target) = self.find_nearest_open_area(map, center) {
+            self.create_diagonal_corridor(map, center, target);
+        }
     }
     
-    /// Create simple straight corridors to ensure connectivity
-    fn create_simple_corridors(&self, map: &mut Map, spawn: (usize, usize)) {
-        let spawn_x = spawn.0 as i32;
-        let spawn_y = spawn.1 as i32;
+    /// Find the nearest significant open area (cluster of floor tiles)
+    fn find_nearest_open_area(&self, map: &Map, start: (usize, usize)) -> Option<(usize, usize)> {
+        let start_x = start.0 as i32;
+        let start_y = start.1 as i32;
         
-        // Create horizontal corridor to both edges
-        for x in 0..MAP_WIDTH as i32 {
-            if let Some(idx) = map.pos_to_idx(x, spawn_y) {
-                map.tiles[idx] = Tile::Floor;
+        // Search in expanding radius for a cluster of floor tiles
+        for radius in 5..50 {
+            for angle in 0..16 {
+                let angle_rad = (angle as f32) * std::f32::consts::PI / 8.0;
+                let x = start_x + (radius as f32 * angle_rad.cos()) as i32;
+                let y = start_y + (radius as f32 * angle_rad.sin()) as i32;
+                
+                if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
+                    // Check if this point has a cluster of floor tiles around it
+                    if self.has_open_cluster(map, (x as usize, y as usize)) {
+                        return Some((x as usize, y as usize));
+                    }
+                }
             }
         }
+        None
+    }
+    
+    /// Check if a point has a cluster of floor tiles around it
+    fn has_open_cluster(&self, map: &Map, pos: (usize, usize)) -> bool {
+        let mut floor_count = 0;
+        for dy in -2..=2 {
+            for dx in -2..=2 {
+                let x = pos.0 as i32 + dx;
+                let y = pos.1 as i32 + dy;
+                if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
+                    if let Some(idx) = map.pos_to_idx(x, y) {
+                        if matches!(map.tiles[idx], Tile::Floor) {
+                            floor_count += 1;
+                        }
+                    }
+                }
+            }
+        }
+        floor_count >= 8 // Need at least 8 floor tiles in 5x5 area
+    }
+    
+    /// Create a diagonal corridor between two points
+    fn create_diagonal_corridor(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
+        let mut x = start.0 as i32;
+        let mut y = start.1 as i32;
+        let target_x = end.0 as i32;
+        let target_y = end.1 as i32;
         
-        // Create vertical corridor to both edges  
-        for y in 0..MAP_HEIGHT as i32 {
-            if let Some(idx) = map.pos_to_idx(spawn_x, y) {
-                map.tiles[idx] = Tile::Floor;
+        while x != target_x || y != target_y {
+            // Move diagonally when possible, otherwise move in the direction with larger distance
+            let dx = if x < target_x { 1 } else if x > target_x { -1 } else { 0 };
+            let dy = if y < target_y { 1 } else if y > target_y { -1 } else { 0 };
+            
+            x += dx;
+            y += dy;
+            
+            if let Some(idx) = map.pos_to_idx(x, y) {
+                if matches!(map.tiles[idx], Tile::Wall { .. }) {
+                    map.tiles[idx] = Tile::Floor;
+                }
             }
         }
     }
+    
+
     
 
     
