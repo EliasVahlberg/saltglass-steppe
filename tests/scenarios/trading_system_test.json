@@ -1,0 +1,24 @@
+{
+  "name": "trading_system_test",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 5,
+    "ensure_paths": [{"from_x": 10, "from_y": 10, "to_x": 11, "to_y": 10}]
+  },
+  "player": { 
+    "x": 10, 
+    "y": 10, 
+    "salt_scrip": 100,
+    "inventory": ["glass_shard", "cloth_scrap"]
+  },
+  "entities": [
+    {"entity_type": "npc", "id": "merchant_keth", "x": 11, "y": 10}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "move", "direction": "east"}},
+    {"turn": 1, "action": {"type": "interact_npc", "npc_id": "merchant_keth", "action_id": "trade"}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "message_contains", "text": "merchant opens their wares"}}
+  ]
+}
