@@ -2388,6 +2388,19 @@ impl GameState {
                 }
             }
             
+            // Check if this tile has an NPC we haven't talked to yet
+            if !found_target {
+                let x = (idx % self.map.width) as i32;
+                let y = (idx / self.map.width) as i32;
+                
+                for npc in &self.npcs {
+                    if npc.x == x && npc.y == y && !npc.talked {
+                        found_target = true;
+                        break;
+                    }
+                }
+            }
+            
             // Check if this tile is unexplored
             if !found_target && !self.revealed.contains(&idx) {
                 found_target = true;
