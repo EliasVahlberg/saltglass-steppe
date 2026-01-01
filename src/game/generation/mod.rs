@@ -8,6 +8,7 @@ pub mod events;
 pub mod narrative;
 pub mod world_gen;
 pub mod tile_gen;
+pub mod microstructures;
 
 #[cfg(test)]
 mod tests;
@@ -20,3 +21,4 @@ pub use biomes::*;
 pub use constraints::*;
 pub use world_gen::*;
 pub use tile_gen::*;
+pub use microstructures::*;

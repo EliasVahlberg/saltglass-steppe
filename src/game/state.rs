@@ -20,7 +20,7 @@ use super::{
     loot::generate_loot,
     map::{Map, Tile},
     map_features::MapFeatures,
-    microstructures::{place_microstructures, PlacedMicroStructure},
+    generation::{place_microstructures, PlacedMicroStructure},
     narrative::{NarrativeGenerator, NarrativeContext},
     npc::Npc,
     quest::QuestLog,

@@ -23,7 +23,6 @@ pub mod loot;
 pub mod map;
 pub mod map_features;
 pub mod meta;
-pub mod microstructures;
 pub mod narrative;
 pub mod npc;
 pub mod progression;
@@ -59,6 +58,7 @@ pub use generation::{
     AtmosphericElement, BiomeHazard, ResourceModifiers, MechanicalEffects,
     ConstraintSystem, ConstraintRule, ConstraintType, ConstraintSeverity,
     ConstraintResult, ConstraintContext, EntityPlacement, ResourcePlacement, ObjectivePlacement,
+    get_microstructure_def, place_microstructures, PlacedMicroStructure, MicroStructureDef,
     events::{EventSystem, EventContext, DynamicEvent},
     narrative::{NarrativeIntegration, NarrativeContext, NarrativeState, StoryFragment},
 };
@@ -70,7 +70,7 @@ pub use item::{all_item_ids, get_item_def, Item, ItemDef};
 pub use loot::{get_loot_table, generate_loot, LootTable, LootEntry};
 pub use map::{compute_fov, Map, Tile};
 pub use map_features::MapFeatures;
-pub use microstructures::{get_microstructure_def, place_microstructures, PlacedMicroStructure, MicroStructureDef};
+
 pub use narrative::{NarrativeGenerator, NarrativeTemplate, HistoricalEvent};
 pub use npc::{get_npc_def, Npc, NpcDef};
 pub use state::{DamageNumber, GameMessage, GameState, MsgType, ProjectileTrail, TriggeredEffect};

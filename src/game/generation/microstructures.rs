@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use rand::Rng;
 use rand_chacha::ChaCha8Rng;
 
-use super::{
+use crate::game::{
     chest::Chest,
     item::Item,
     npc::Npc,
@@ -55,7 +55,7 @@ pub struct PlacedMicroStructure {
 }
 
 static MICROSTRUCTURE_DEFS: Lazy<HashMap<String, MicroStructureDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/microstructures.json");
+    let data = include_str!("../../../data/microstructures.json");
     let defs: Vec<MicroStructureDef> = serde_json::from_str(data).expect("Failed to parse microstructures.json");
     defs.into_iter().map(|def| (def.id.clone(), def)).collect()
 });
@@ -265,7 +265,7 @@ fn spawn_structure_entities(
             }
             "chest" => {
                 let mut chest = Chest::new(spawn_x, spawn_y, &spawn.id);
-                if let Some(def) = super::chest::get_chest_def(&spawn.id) {
+                if let Some(def) = crate::game::chest::get_chest_def(&spawn.id) {
                     if let Some(loot_table) = &def.loot_table {
                         let loot = generate_loot(loot_table, spawn_x, spawn_y, rng);
                         for item in loot {
