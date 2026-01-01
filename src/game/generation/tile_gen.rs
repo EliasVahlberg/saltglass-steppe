@@ -1,3 +1,4 @@
+use bracket_pathfinding::prelude::*;
 use noise::{NoiseFn, Perlin};
 use once_cell::sync::Lazy;
 use rand::{Rng, RngCore};
@@ -229,28 +230,58 @@ impl TileGenerator {
         None
     }
     
-    /// Create a corridor between two points
+    /// Create a corridor between two points using pathfinding
     fn create_corridor(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
+        let start_idx = map.idx(start.0 as i32, start.1 as i32);
+        let end_idx = map.idx(end.0 as i32, end.1 as i32);
+        
+        // Create a pathfinding map that allows movement through walls
+        let pathfinding_map = PathfindingMap { map };
+        
+        // Find path using A*
+        let path = a_star_search(start_idx, end_idx, &pathfinding_map);
+        if path.success && !path.steps.is_empty() {
+            // Convert path indices to coordinates and carve corridor
+            for &step in &path.steps {
+                if step < map.tiles.len() {
+                    if matches!(map.tiles[step], Tile::Wall { .. }) {
+                        map.tiles[step] = Tile::Floor;
+                    }
+                }
+            }
+        } else {
+            // Fallback: create straight line corridor if pathfinding fails
+            self.create_straight_corridor(map, start, end);
+        }
+    }
+    
+    /// Fallback straight-line corridor creation
+    fn create_straight_corridor(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
         let mut x = start.0 as i32;
         let mut y = start.1 as i32;
         let target_x = end.0 as i32;
         let target_y = end.1 as i32;
         
-        while x != target_x || y != target_y {
+        // Create L-shaped path: horizontal first, then vertical
+        while x != target_x {
             if let Some(idx) = map.pos_to_idx(x, y) {
                 if matches!(map.tiles[idx], Tile::Wall { .. }) {
                     map.tiles[idx] = Tile::Floor;
                 }
             }
-            
-            // Move towards target
-            if x < target_x { x += 1; }
-            else if x > target_x { x -= 1; }
-            else if y < target_y { y += 1; }
-            else if y > target_y { y -= 1; }
+            if x < target_x { x += 1; } else { x -= 1; }
         }
         
-        // Ensure the final target tile is also set to floor
+        while y != target_y {
+            if let Some(idx) = map.pos_to_idx(x, y) {
+                if matches!(map.tiles[idx], Tile::Wall { .. }) {
+                    map.tiles[idx] = Tile::Floor;
+                }
+            }
+            if y < target_y { y += 1; } else { y -= 1; }
+        }
+        
+        // Ensure final target is floor
         if let Some(idx) = map.pos_to_idx(target_x, target_y) {
             if matches!(map.tiles[idx], Tile::Wall { .. }) {
                 map.tiles[idx] = Tile::Floor;
@@ -728,5 +759,43 @@ mod tests {
         
         // Should have some lights/features
         assert!(!map.lights.is_empty());
+    }
+}
+
+/// Pathfinding map wrapper for corridor creation
+struct PathfindingMap<'a> {
+    map: &'a Map,
+}
+
+impl<'a> BaseMap for PathfindingMap<'a> {
+    fn is_opaque(&self, _idx: usize) -> bool {
+        // For corridor carving, we don't consider anything opaque
+        false
+    }
+    
+    fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
+        let mut exits = SmallVec::new();
+        let x = (idx % self.map.width) as i32;
+        let y = (idx / self.map.width) as i32;
+        
+        // Allow movement in 4 directions, regardless of tile type
+        for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+            let new_x = x + dx;
+            let new_y = y + dy;
+            
+            if new_x >= 0 && new_x < self.map.width as i32 && 
+               new_y >= 0 && new_y < self.map.height as i32 {
+                let new_idx = self.map.idx(new_x, new_y);
+                exits.push((new_idx, 1.0));
+            }
+        }
+        
+        exits
+    }
+}
+
+impl<'a> Algorithm2D for PathfindingMap<'a> {
+    fn dimensions(&self) -> Point { 
+        Point::new(self.map.width as i32, self.map.height as i32) 
     }
 }
