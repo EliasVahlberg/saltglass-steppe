@@ -16,6 +16,9 @@ A deterministic, data-driven, turn-based TUI RPG set in the harsh, crystalline w
 - **[Testing](docs/testing/)** - QA procedures and guidelines
 - **[Document Database](docs/DOCUMENT_DATABASE.md)** - Complete document listing
 
+### Research Papers
+- **[Glass Seam Bridging Algorithm](docs/papers/glass_seam_bridging_paper.pdf)** - Novel algorithm for procedural map connectivity
+
 ## Tech Stack
 
 - **Language**: Rust
