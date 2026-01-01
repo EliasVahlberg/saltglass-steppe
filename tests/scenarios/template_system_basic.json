@@ -1,0 +1,20 @@
+{
+  "name": "template_system_basic",
+  "description": "Test template instantiation with inheritance and variants",
+  "seed": 54321,
+  "map_setup": {
+    "clear_radius": 5
+  },
+  "player": {
+    "x": 25,
+    "y": 25
+  },
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+[
+  {
+    "id": "basic_room",
+    "category": "room",
+    "parameters": {
+      "width": 8,
+      "height": 6,
+      "wall_type": "stone",
+      "floor_type": "dirt",
+      "description": "A simple ${wall_type} chamber"
+    },
+    "variants": [],
+    "inheritance": null
+  },
+  {
+    "id": "glass_room",
+    "category": "room",
+    "parameters": {
+      "wall_type": "glass",
+      "description": "A crystalline ${wall_type} chamber that refracts light"
+    },
+    "variants": [
+      {
+        "id": "small_glass",
+        "weight": 60.0,
+        "conditions": ["size=small"],
+        "overrides": {
+          "width": 5,
+          "height": 4
+        }
+      },
+      {
+        "id": "large_glass",
+        "weight": 40.0,
+        "conditions": ["size=large"],
+        "overrides": {
+          "width": 12,
+          "height": 10
+        }
+      }
+    ],
+    "inheritance": "basic_room"
+  },
+  {
+    "id": "encounter_basic",
+    "category": "encounter",
+    "parameters": {
+      "enemy_count": 1,
+      "enemy_type": "glass_crawler",
+      "loot_table": "common",
+      "description": "A ${enemy_type} lurks here"
+    },
+    "variants": [],
+    "inheritance": null
+  },
+  {
+    "id": "storm_encounter",
+    "category": "encounter",
+    "parameters": {
+      "enemy_type": "storm_wraith",
+      "description": "Storm energy coalesces into a ${enemy_type}"
+    },
+    "variants": [
+      {
+        "id": "weak_storm",
+        "weight": 70.0,
+        "conditions": ["storm_intensity=low"],
+        "overrides": {
+          "enemy_count": 1
+        }
+      },
+      {
+        "id": "strong_storm",
+        "weight": 30.0,
+        "conditions": ["storm_intensity=high"],
+        "overrides": {
+          "enemy_count": 3,
+          "loot_table": "rare"
+        }
+      }
+    ],
+    "inheritance": "encounter_basic"
+  }
+]
