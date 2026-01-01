@@ -471,25 +471,30 @@ fn run_main_game() -> Result<()> {
                 ui.book_reader.open(&book_id);
             }
             
-            // Check for pending trade
+            // Check for pending trade (only if no dialog is active)
             if let Some(trader_id) = state.pending_trade.take() {
-                use saltglass_steppe::trading::{get_trade_interface, calculate_area_tier};
-                let area_tier = calculate_area_tier(&state.enemies);
-                if let Some(interface) = get_trade_interface(
-                    &trader_id, 
-                    area_tier, 
-                    &state.faction_reputation, 
-                    None // Player faction not yet implemented
-                ) {
-                    // Close other menus to ensure trade menu has focus
-                    ui.inventory_menu.close();
-                    ui.quest_log.close();
-                    ui.crafting_menu.close();
-                    ui.wiki_menu.close();
-                    ui.pause_menu.close();
-                    ui.trade_menu.open(trader_id, interface);
+                if ui.dialog_box.active {
+                    // Put the trade back if dialog is still active
+                    state.pending_trade = Some(trader_id);
                 } else {
-                    state.log("This merchant has nothing to trade.");
+                    use saltglass_steppe::trading::{get_trade_interface, calculate_area_tier};
+                    let area_tier = calculate_area_tier(&state.enemies);
+                    if let Some(interface) = get_trade_interface(
+                        &trader_id, 
+                        area_tier, 
+                        &state.faction_reputation, 
+                        None // Player faction not yet implemented
+                    ) {
+                        // Close other menus to ensure trade menu has focus
+                        ui.inventory_menu.close();
+                        ui.quest_log.close();
+                        ui.crafting_menu.close();
+                        ui.wiki_menu.close();
+                        ui.pause_menu.close();
+                        ui.trade_menu.open(trader_id, interface);
+                    } else {
+                        state.log("This merchant has nothing to trade.");
+                    }
                 }
             }
             
