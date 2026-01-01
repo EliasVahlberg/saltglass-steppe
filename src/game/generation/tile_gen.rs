@@ -1,4 +1,3 @@
-use bracket_pathfinding::prelude::*;
 use noise::{NoiseFn, Perlin};
 use once_cell::sync::Lazy;
 use rand::{Rng, RngCore};
@@ -186,21 +185,40 @@ impl TileGenerator {
         // Find the actual spawn point (should be a floor tile near center)
         let spawn_point = self.find_spawn_point(map).unwrap_or(center);
         
-        let edges = vec![
-            (10, 10),
-            (MAP_WIDTH - 10, 10),
-            (10, MAP_HEIGHT - 10),
-            (MAP_WIDTH - 10, MAP_HEIGHT - 10),
-        ];
-        
-        // Create corridors from spawn point to each edge
-        for edge in edges {
-            self.create_corridor(map, spawn_point, edge);
+        // Ensure spawn point and immediate area are clear
+        for dy in -2..=2 {
+            for dx in -2..=2 {
+                let x = spawn_point.0 as i32 + dx;
+                let y = spawn_point.1 as i32 + dy;
+                if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
+                    if let Some(idx) = map.pos_to_idx(x, y) {
+                        map.tiles[idx] = Tile::Floor;
+                    }
+                }
+            }
         }
         
-        // Also ensure spawn point itself is floor
-        if let Some(idx) = map.pos_to_idx(spawn_point.0 as i32, spawn_point.1 as i32) {
-            map.tiles[idx] = Tile::Floor;
+        // Create simple straight corridors to map edges
+        self.create_simple_corridors(map, spawn_point);
+    }
+    
+    /// Create simple straight corridors to ensure connectivity
+    fn create_simple_corridors(&self, map: &mut Map, spawn: (usize, usize)) {
+        let spawn_x = spawn.0 as i32;
+        let spawn_y = spawn.1 as i32;
+        
+        // Create horizontal corridor to both edges
+        for x in 0..MAP_WIDTH as i32 {
+            if let Some(idx) = map.pos_to_idx(x, spawn_y) {
+                map.tiles[idx] = Tile::Floor;
+            }
+        }
+        
+        // Create vertical corridor to both edges  
+        for y in 0..MAP_HEIGHT as i32 {
+            if let Some(idx) = map.pos_to_idx(spawn_x, y) {
+                map.tiles[idx] = Tile::Floor;
+            }
         }
     }
     
@@ -233,64 +251,7 @@ impl TileGenerator {
         None
     }
     
-    /// Create a corridor between two points using pathfinding
-    fn create_corridor(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
-        let start_idx = map.idx(start.0 as i32, start.1 as i32);
-        let end_idx = map.idx(end.0 as i32, end.1 as i32);
-        
-        // Create a pathfinding map that allows movement through walls
-        let pathfinding_map = PathfindingMap { map };
-        
-        // Find path using A*
-        let path = a_star_search(start_idx, end_idx, &pathfinding_map);
-        if path.success && !path.steps.is_empty() {
-            // Convert path indices to coordinates and carve corridor
-            for &step in &path.steps {
-                if step < map.tiles.len() {
-                    if matches!(map.tiles[step], Tile::Wall { .. }) {
-                        map.tiles[step] = Tile::Floor;
-                    }
-                }
-            }
-        } else {
-            // Fallback: create straight line corridor if pathfinding fails
-            self.create_straight_corridor(map, start, end);
-        }
-    }
-    
-    /// Fallback straight-line corridor creation
-    fn create_straight_corridor(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
-        let mut x = start.0 as i32;
-        let mut y = start.1 as i32;
-        let target_x = end.0 as i32;
-        let target_y = end.1 as i32;
-        
-        // Create L-shaped path: horizontal first, then vertical
-        while x != target_x {
-            if let Some(idx) = map.pos_to_idx(x, y) {
-                if matches!(map.tiles[idx], Tile::Wall { .. }) {
-                    map.tiles[idx] = Tile::Floor;
-                }
-            }
-            if x < target_x { x += 1; } else { x -= 1; }
-        }
-        
-        while y != target_y {
-            if let Some(idx) = map.pos_to_idx(x, y) {
-                if matches!(map.tiles[idx], Tile::Wall { .. }) {
-                    map.tiles[idx] = Tile::Floor;
-                }
-            }
-            if y < target_y { y += 1; } else { y -= 1; }
-        }
-        
-        // Ensure final target is floor
-        if let Some(idx) = map.pos_to_idx(target_x, target_y) {
-            if matches!(map.tiles[idx], Tile::Wall { .. }) {
-                map.tiles[idx] = Tile::Floor;
-            }
-        }
-    }
+
 
     fn generate_base_terrain(&self, seed: u32, biome: Biome, terrain: Terrain, poi: POI) -> (Map, Vec<(i32, i32)>) {
         let terrain_key = match terrain {
@@ -765,40 +726,4 @@ mod tests {
     }
 }
 
-/// Pathfinding map wrapper for corridor creation
-struct PathfindingMap<'a> {
-    map: &'a Map,
-}
 
-impl<'a> BaseMap for PathfindingMap<'a> {
-    fn is_opaque(&self, _idx: usize) -> bool {
-        // For corridor carving, we don't consider anything opaque
-        false
-    }
-    
-    fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
-        let mut exits = SmallVec::new();
-        let x = (idx % self.map.width) as i32;
-        let y = (idx / self.map.width) as i32;
-        
-        // Allow movement in 4 directions, regardless of tile type
-        for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
-            let new_x = x + dx;
-            let new_y = y + dy;
-            
-            if new_x >= 0 && new_x < self.map.width as i32 && 
-               new_y >= 0 && new_y < self.map.height as i32 {
-                let new_idx = self.map.idx(new_x, new_y);
-                exits.push((new_idx, 1.0));
-            }
-        }
-        
-        exits
-    }
-}
-
-impl<'a> Algorithm2D for PathfindingMap<'a> {
-    fn dimensions(&self) -> Point { 
-        Point::new(self.map.width as i32, self.map.height as i32) 
-    }
-}
