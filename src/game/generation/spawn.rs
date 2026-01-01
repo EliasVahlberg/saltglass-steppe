@@ -2,7 +2,8 @@ use once_cell::sync::Lazy;
 use rand::Rng;
 use rand_chacha::ChaCha8Rng;
 use serde::Deserialize;
-use super::generation::{WeightedTable, WeightedEntry};
+use super::{WeightedTable, WeightedEntry};
+use crate::game::world_map::Biome;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct WeightedSpawn {
@@ -45,7 +46,7 @@ pub struct SpawnTables {
 }
 
 static SPAWN_TABLES: Lazy<SpawnTables> = Lazy::new(|| {
-    let data = include_str!("../../data/biome_spawn_tables.json");
+    let data = include_str!("../../../data/biome_spawn_tables.json");
     serde_json::from_str(data).expect("Failed to parse biome_spawn_tables.json")
 });
 
@@ -53,13 +54,13 @@ pub fn load_spawn_tables() -> &'static SpawnTables {
     &SPAWN_TABLES
 }
 
-pub fn get_biome_spawn_table(biome: &super::world_map::Biome) -> &'static SpawnTable {
+pub fn get_biome_spawn_table(biome: &Biome) -> &'static SpawnTable {
     let tables = &SPAWN_TABLES;
     match biome {
-        super::world_map::Biome::Saltflat => tables.saltflat.as_ref().unwrap_or(&tables.default),
-        super::world_map::Biome::Oasis => tables.oasis.as_ref().unwrap_or(&tables.default),
-        super::world_map::Biome::Ruins => tables.ruins.as_ref().unwrap_or(&tables.default),
-        super::world_map::Biome::Scrubland => tables.scrubland.as_ref().unwrap_or(&tables.default),
+        Biome::Saltflat => tables.saltflat.as_ref().unwrap_or(&tables.default),
+        Biome::Oasis => tables.oasis.as_ref().unwrap_or(&tables.default),
+        Biome::Ruins => tables.ruins.as_ref().unwrap_or(&tables.default),
+        Biome::Scrubland => tables.scrubland.as_ref().unwrap_or(&tables.default),
         _ => &tables.default,
     }
 }

@@ -8,9 +8,9 @@ use crate::game::{
     chest::Chest,
     item::Item,
     npc::Npc,
-    loot::generate_loot,
     map::{Map, Tile},
 };
+use super::generate_loot;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MicroStructureTile {

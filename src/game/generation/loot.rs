@@ -4,9 +4,8 @@ use std::collections::HashMap;
 use rand::Rng;
 use rand_chacha::ChaCha8Rng;
 
-use super::item::Item;
-use super::spawn::weighted_pick;
-use super::generation::{WeightedTable, WeightedEntry};
+use crate::game::item::Item;
+use super::{weighted_pick, WeightedTable, WeightedEntry, WeightedSpawn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LootEntry {
@@ -28,7 +27,7 @@ pub struct LootTable {
 }
 
 static LOOT_TABLES: Lazy<HashMap<String, LootTable>> = Lazy::new(|| {
-    let data = include_str!("../../data/loot_tables.json");
+    let data = include_str!("../../../data/loot_tables.json");
     let tables: Vec<LootTable> = serde_json::from_str(data).expect("Failed to parse loot_tables.json");
     tables.into_iter().map(|table| (table.id.clone(), table)).collect()
 });
@@ -58,7 +57,7 @@ pub fn generate_loot(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8Rng) -> Ve
         
         // Create weighted spawn entries for selection
         let weighted_entries: Vec<_> = available_entries.iter()
-            .map(|entry| super::spawn::WeightedSpawn {
+            .map(|entry| WeightedSpawn {
                 id: entry.item_id.clone(),
                 weight: entry.weight,
                 room: None,

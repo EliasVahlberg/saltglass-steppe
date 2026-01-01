@@ -19,7 +19,6 @@ pub mod inspect;
 pub mod item;
 pub mod light_defs;
 pub mod lighting;
-pub mod loot;
 pub mod map;
 pub mod map_features;
 pub mod meta;
@@ -32,8 +31,6 @@ pub mod quest;
 pub mod ritual;
 pub mod sanity;
 pub mod skills;
-pub mod spatial;
-pub mod spawn;
 pub mod state;
 pub mod status;
 pub mod story;
@@ -59,6 +56,8 @@ pub use generation::{
     ConstraintSystem, ConstraintRule, ConstraintType, ConstraintSeverity,
     ConstraintResult, ConstraintContext, EntityPlacement, ResourcePlacement, ObjectivePlacement,
     get_microstructure_def, place_microstructures, PlacedMicroStructure, MicroStructureDef,
+    PoissonSampler, distribute_points_grid,
+    get_loot_table, generate_loot, LootTable, LootEntry,
     events::{EventSystem, EventContext, DynamicEvent},
     narrative::{NarrativeIntegration, NarrativeContext, NarrativeState, StoryFragment},
 };
@@ -67,7 +66,7 @@ pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectCont
 pub use enemy::{all_enemy_ids, get_enemy_def, Enemy, EnemyDef};
 pub use entity::{Entity, EntityType};
 pub use item::{all_item_ids, get_item_def, Item, ItemDef};
-pub use loot::{get_loot_table, generate_loot, LootTable, LootEntry};
+
 pub use map::{compute_fov, Map, Tile};
 pub use map_features::MapFeatures;
 
@@ -84,7 +83,7 @@ pub use quest::{get_quest_def, ActiveQuest, QuestLog, QuestReward};
 pub use crafting::{get_recipe, all_recipe_ids, can_craft, available_recipes, can_craft_advanced, crafting_success_chance, Recipe};
 pub use sanity::{SanitySystem, MentalEffect, MentalEffectType};
 pub use skills::{get_skill_def, get_ability_def, all_skill_ids, all_ability_ids, SkillsState, SkillCategory, calculate_skill_cost, get_skills_by_category, get_abilities_by_category};
-pub use spatial::{PoissonSampler, distribute_points_grid};
+
 pub use trading::{get_trader, get_trade_interface, execute_trade, execute_sell, TradeInterface, AvailableTradeItem, calculate_area_tier};
 pub use dialogue::{get_dialogue_tree, start_dialogue, continue_dialogue, DialogueState};
 pub use meta::{all_classes, get_class, ClassDef, MetaProgress};

@@ -9,6 +9,9 @@ pub mod narrative;
 pub mod world_gen;
 pub mod tile_gen;
 pub mod microstructures;
+pub mod spawn;
+pub mod spatial;
+pub mod loot;
 
 #[cfg(test)]
 mod tests;
@@ -22,3 +25,6 @@ pub use constraints::*;
 pub use world_gen::*;
 pub use tile_gen::*;
 pub use microstructures::*;
+pub use spawn::*;
+pub use spatial::*;
+pub use loot::*;

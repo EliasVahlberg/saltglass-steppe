@@ -17,7 +17,7 @@ use super::{
     fov::FieldOfView,
     item::{get_item_def, Item},
     lighting::{compute_lighting, LightMap, LightSource},
-    loot::generate_loot,
+
     map::{Map, Tile},
     map_features::MapFeatures,
     generation::{place_microstructures, PlacedMicroStructure},
@@ -25,7 +25,7 @@ use super::{
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
-    spawn::{weighted_pick_by_level_and_tier},
+    generation::{weighted_pick_by_level_and_tier, get_biome_spawn_table, distribute_points_grid, generate_loot},
     storm::Storm,
     story::StoryModel,
     systems::movement::MovementSystem,
@@ -376,7 +376,7 @@ impl GameState {
             }
             vis
         };
-        let table = super::spawn::get_biome_spawn_table(&biome);
+        let table = get_biome_spawn_table(&biome);
 
         // Spawn enemies (fewer on starting tile for hospitable start)
         let mut enemies = Vec::new();
@@ -394,7 +394,7 @@ impl GameState {
             .collect();
             
         // Use spatial distribution to spread out enemy spawns
-        let distributed_positions = super::spatial::distribute_points_grid(
+        let distributed_positions = distribute_points_grid(
             &safe_rooms, 
             max_enemies, 
             20, // Minimum distance between enemies
@@ -786,7 +786,7 @@ impl GameState {
         let (px, py) = rooms[0];
         
         // Spawn enemies based on POI
-        let table = super::spawn::get_biome_spawn_table(&biome);
+        let table = get_biome_spawn_table(&biome);
         let mut enemies = Vec::new();
         let enemy_count = match poi {
             super::world_map::POI::Town => 0,
@@ -805,7 +805,7 @@ impl GameState {
             .collect();
             
         // Use spatial distribution to spread out enemy spawns
-        let distributed_positions = super::spatial::distribute_points_grid(
+        let distributed_positions = distribute_points_grid(
             &safe_rooms, 
             enemy_count, 
             20, // Minimum distance between enemies
