@@ -186,11 +186,24 @@ struct GrammarContext {
 - **JSON Configuration**: 8 predefined events for Saltglass Steppe scenarios
 - **Deterministic**: All event evaluation uses seeded RNG for reproducibility
 
-#### Task 3.2: Narrative Integration Layer
-- [ ] Narrative seed system
-- [ ] Story fragment placement
-- [ ] Faction influence on content
-- [ ] Emergent narrative tracking
+#### Task 3.2: Narrative Integration Layer ✅ **COMPLETE**
+**Files**: `src/game/generation/narrative.rs`, `data/narrative_integration.json`
+
+**Completed Work**:
+- ✅ Narrative seed system for consistent story generation
+- ✅ Story fragment placement with biome-specific rules
+- ✅ Faction influence on narrative content and player perception
+- ✅ Emergent narrative tracking with momentum and story threads
+- ✅ JSON-configurable narrative seeds, fragments, and faction influences
+- ✅ Comprehensive narrative integration system with deterministic generation
+
+**Key Features**:
+- **Narrative Seed System**: 5 thematic seeds (ancient mysteries, faction conflict, storm prophecy, adaptation journey, archive awakening)
+- **Story Fragment Placement**: 8 story fragments with placement rules and faction influences
+- **Faction Influence**: 5 faction systems affecting narrative content and player standing
+- **Emergent Tracking**: Narrative momentum system and story thread activation
+- **JSON Configuration**: Data-driven narrative content for easy expansion
+- **Deterministic**: All narrative generation uses seeded RNG for reproducibility
 
 ## Technical Achievements
 
@@ -267,4 +280,6 @@ Each completed task followed the prescribed process:
 ---
 
 **Phase 1 Status**: ✅ **COMPLETE** - All foundation tasks implemented and tested  
-**Next Action**: Begin Phase 2 (Content Richness) with Task 2.1 (Grammar-Based Content Generation)
+**Phase 2 Status**: ✅ **COMPLETE** - All content richness tasks implemented and tested  
+**Phase 3 Status**: ✅ **COMPLETE** - All narrative integration tasks implemented and tested  
+**Next Action**: Procedural Generation Overhaul Complete - Ready for integration with main game systems

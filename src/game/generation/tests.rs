@@ -5,6 +5,7 @@ mod generation_tests {
     use crate::game::generation::templates::{TemplateLibrary, TemplateContext, ContentTemplate, TemplateVariant};
     use crate::game::generation::grammar::{Grammar, GrammarContext, GrammarRule};
     use crate::game::generation::events::{EventSystem, EventContext, DynamicEvent, EventTrigger, EventConsequence};
+    use crate::game::generation::narrative::{NarrativeIntegration, NarrativeContext};
     use rand_chacha::ChaCha8Rng;
     use rand::SeedableRng;
     use serde_json::Value;
@@ -697,5 +698,97 @@ mod generation_tests {
         
         // Second check should have fewer events due to cooldowns
         assert!(triggered2.len() < triggered1.len() || triggered1.is_empty());
+    }
+
+    // Narrative Integration Tests
+    #[test]
+    fn test_narrative_integration_creation() {
+        let system = NarrativeIntegration::new();
+        assert!(system.seed_count() > 0);
+        assert!(system.fragment_count() > 0);
+        assert!(system.faction_count() > 0);
+    }
+
+    #[test]
+    fn test_narrative_initialization() {
+        let mut system = NarrativeIntegration::new();
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        let context = NarrativeContext {
+            player_x: 10,
+            player_y: 10,
+            current_biome: "desert".to_string(),
+            turn: 100,
+            faction_standings: HashMap::new(),
+            discovered_fragments: Vec::new(),
+            player_adaptations: vec!["prismhide".to_string()],
+        };
+
+        system.initialize(&context, &mut rng);
+        
+        assert!(!system.get_narrative_state().active_seeds.is_empty());
+        assert!(system.get_narrative_state().narrative_momentum > 0.0);
+    }
+
+    #[test]
+    fn test_story_fragment_generation() {
+        let mut system = NarrativeIntegration::new();
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        let context = NarrativeContext {
+            player_x: 10,
+            player_y: 10,
+            current_biome: "desert".to_string(),
+            turn: 100,
+            faction_standings: HashMap::new(),
+            discovered_fragments: Vec::new(),
+            player_adaptations: vec!["prismhide".to_string()],
+        };
+
+        system.initialize(&context, &mut rng);
+        let fragments = system.generate_fragments(&context, &mut rng);
+        
+        // Should generate some fragments
+        assert!(!fragments.is_empty());
+    }
+
+    #[test]
+    fn test_faction_influence_tracking() {
+        let mut system = NarrativeIntegration::new();
+        
+        system.update_faction_influence("mirror_monks", 0.3);
+        
+        let state = system.get_narrative_state();
+        assert_eq!(state.faction_standings.get("mirror_monks"), Some(&0.3));
+        assert!(state.narrative_momentum > 0.0);
+    }
+
+    #[test]
+    fn test_emergent_narrative_tracking() {
+        let mut system = NarrativeIntegration::new();
+        let context = NarrativeContext {
+            player_x: 10,
+            player_y: 10,
+            current_biome: "desert".to_string(),
+            turn: 100,
+            faction_standings: HashMap::new(),
+            discovered_fragments: Vec::new(),
+            player_adaptations: vec!["prismhide".to_string()],
+        };
+        
+        let initial_momentum = system.get_narrative_state().narrative_momentum;
+        system.track_narrative_event("fragment_discovered", &context);
+        
+        assert!(system.get_narrative_state().narrative_momentum > initial_momentum);
+    }
+
+    #[test]
+    fn test_faction_influenced_content() {
+        let mut system = NarrativeIntegration::new();
+        system.update_faction_influence("mirror_monks", 0.8);
+
+        let base_content = "You find ancient ruins.";
+        let factions = vec!["mirror_monks".to_string()];
+        let influenced = system.get_faction_influenced_content(base_content, &factions);
+        
+        assert!(influenced.contains("favorably"));
     }
 }

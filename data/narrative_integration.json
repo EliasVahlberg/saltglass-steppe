@@ -1,0 +1,246 @@
+{
+  "narrative_seeds": [
+    {
+      "seed_id": "ancient_mysteries",
+      "theme": "lost_knowledge",
+      "mood": "mysterious",
+      "factions": ["mirror_monks", "archive_drones"],
+      "key_elements": ["ancient_ruins", "forgotten_scripture", "crystalline_artifacts"],
+      "weight": 0.8
+    },
+    {
+      "seed_id": "faction_conflict",
+      "theme": "political_tension",
+      "mood": "tense",
+      "factions": ["sand_engineers", "glassborn"],
+      "key_elements": ["territorial_disputes", "resource_competition", "ideological_differences"],
+      "weight": 0.7
+    },
+    {
+      "seed_id": "storm_prophecy",
+      "theme": "apocalyptic_visions",
+      "mood": "ominous",
+      "factions": ["mirror_monks", "hermits"],
+      "key_elements": ["storm_patterns", "prophetic_visions", "glass_formations"],
+      "weight": 0.6
+    },
+    {
+      "seed_id": "adaptation_journey",
+      "theme": "transformation",
+      "mood": "introspective",
+      "factions": ["glassborn", "hermits"],
+      "key_elements": ["mutation_acceptance", "identity_crisis", "power_awakening"],
+      "weight": 0.9
+    },
+    {
+      "seed_id": "archive_awakening",
+      "theme": "technological_resurgence",
+      "mood": "urgent",
+      "factions": ["archive_drones", "sand_engineers"],
+      "key_elements": ["drone_activity", "system_reactivation", "data_recovery"],
+      "weight": 0.5
+    }
+  ],
+  "story_fragments": [
+    {
+      "fragment_id": "ruined_observatory",
+      "narrative_seed": "ancient_mysteries",
+      "fragment_type": "location_discovery",
+      "content": "Crystalline lenses lie shattered among the ruins. Star charts etched in glass show constellations that no longer exist.",
+      "placement_rules": {
+        "biomes": ["ruins", "desert"],
+        "min_distance_from_player": 5,
+        "max_distance_from_player": 15,
+        "requires_poi": "ruins",
+        "exclusion_zones": ["oasis"]
+      },
+      "faction_influence": {
+        "mirror_monks": 0.3,
+        "archive_drones": 0.1
+      },
+      "prerequisites": []
+    },
+    {
+      "fragment_id": "monk_scripture_cache",
+      "narrative_seed": "ancient_mysteries",
+      "fragment_type": "lore_discovery",
+      "content": "Hidden scripture speaks of the 'Prime Lens' - a legendary artifact that could restore the broken sky.",
+      "placement_rules": {
+        "biomes": ["ruins", "scrubland"],
+        "min_distance_from_player": 3,
+        "max_distance_from_player": 12,
+        "requires_poi": null,
+        "exclusion_zones": ["saltflat"]
+      },
+      "faction_influence": {
+        "mirror_monks": 0.5
+      },
+      "prerequisites": ["ruined_observatory"]
+    },
+    {
+      "fragment_id": "engineer_outpost",
+      "narrative_seed": "faction_conflict",
+      "fragment_type": "faction_encounter",
+      "content": "Sand-Engineer fortifications block the old trade routes. Their glass-cutting tools gleam with hostile intent.",
+      "placement_rules": {
+        "biomes": ["desert", "scrubland"],
+        "min_distance_from_player": 8,
+        "max_distance_from_player": 20,
+        "requires_poi": null,
+        "exclusion_zones": ["oasis", "ruins"]
+      },
+      "faction_influence": {
+        "sand_engineers": 0.4,
+        "glassborn": -0.2
+      },
+      "prerequisites": []
+    },
+    {
+      "fragment_id": "glassborn_sanctuary",
+      "narrative_seed": "adaptation_journey",
+      "fragment_type": "faction_encounter",
+      "content": "Crystalline beings move through glass formations like fish through water. They regard your partial transformation with knowing eyes.",
+      "placement_rules": {
+        "biomes": ["saltflat", "ruins"],
+        "min_distance_from_player": 6,
+        "max_distance_from_player": 18,
+        "requires_poi": null,
+        "exclusion_zones": ["desert"]
+      },
+      "faction_influence": {
+        "glassborn": 0.6,
+        "hermits": 0.1
+      },
+      "prerequisites": []
+    },
+    {
+      "fragment_id": "storm_warning_stones",
+      "narrative_seed": "storm_prophecy",
+      "fragment_type": "environmental_clue",
+      "content": "Ancient stones pulse with inner light, their patterns matching the approaching storm's rhythm. A warning, or a countdown?",
+      "placement_rules": {
+        "biomes": ["desert", "scrubland", "saltflat"],
+        "min_distance_from_player": 4,
+        "max_distance_from_player": 14,
+        "requires_poi": null,
+        "exclusion_zones": ["oasis"]
+      },
+      "faction_influence": {
+        "mirror_monks": 0.2,
+        "hermits": 0.3
+      },
+      "prerequisites": []
+    },
+    {
+      "fragment_id": "reactivated_archive_node",
+      "narrative_seed": "archive_awakening",
+      "fragment_type": "technological_discovery",
+      "content": "A dormant Archive node flickers to life, its sensors scanning you with cold precision. Data streams flow like liquid light.",
+      "placement_rules": {
+        "biomes": ["ruins"],
+        "min_distance_from_player": 7,
+        "max_distance_from_player": 16,
+        "requires_poi": "archive",
+        "exclusion_zones": ["oasis", "saltflat"]
+      },
+      "faction_influence": {
+        "archive_drones": 0.4,
+        "sand_engineers": 0.2
+      },
+      "prerequisites": []
+    },
+    {
+      "fragment_id": "hermit_meditation_circle",
+      "narrative_seed": "adaptation_journey",
+      "fragment_type": "wisdom_encounter",
+      "content": "Salt-cured hermits sit in silent meditation, their crystalline growths catching the light. They offer wordless understanding of transformation.",
+      "placement_rules": {
+        "biomes": ["saltflat", "scrubland"],
+        "min_distance_from_player": 5,
+        "max_distance_from_player": 13,
+        "requires_poi": null,
+        "exclusion_zones": ["ruins"]
+      },
+      "faction_influence": {
+        "hermits": 0.5,
+        "glassborn": 0.2
+      },
+      "prerequisites": []
+    },
+    {
+      "fragment_id": "territorial_boundary_marker",
+      "narrative_seed": "faction_conflict",
+      "fragment_type": "political_discovery",
+      "content": "Glass spears mark territorial boundaries. The message is clear: cross at your own risk. Fresh scorch marks suggest recent conflicts.",
+      "placement_rules": {
+        "biomes": ["desert", "scrubland"],
+        "min_distance_from_player": 6,
+        "max_distance_from_player": 17,
+        "requires_poi": null,
+        "exclusion_zones": ["oasis"]
+      },
+      "faction_influence": {
+        "sand_engineers": 0.3,
+        "glassborn": 0.3
+      },
+      "prerequisites": ["engineer_outpost"]
+    }
+  ],
+  "faction_influences": [
+    {
+      "faction_id": "mirror_monks",
+      "influence_level": 0.7,
+      "narrative_modifiers": {
+        "mysticism": 0.8,
+        "ancient_knowledge": 0.9,
+        "prophecy": 0.7
+      },
+      "preferred_themes": ["ancient_mysteries", "storm_prophecy"],
+      "story_fragments": ["ruined_observatory", "monk_scripture_cache", "storm_warning_stones"]
+    },
+    {
+      "faction_id": "sand_engineers",
+      "influence_level": 0.6,
+      "narrative_modifiers": {
+        "technology": 0.8,
+        "pragmatism": 0.9,
+        "conflict": 0.6
+      },
+      "preferred_themes": ["faction_conflict", "archive_awakening"],
+      "story_fragments": ["engineer_outpost", "territorial_boundary_marker", "reactivated_archive_node"]
+    },
+    {
+      "faction_id": "glassborn",
+      "influence_level": 0.8,
+      "narrative_modifiers": {
+        "transformation": 0.9,
+        "adaptation": 0.8,
+        "otherness": 0.7
+      },
+      "preferred_themes": ["adaptation_journey", "faction_conflict"],
+      "story_fragments": ["glassborn_sanctuary", "hermit_meditation_circle"]
+    },
+    {
+      "faction_id": "hermits",
+      "influence_level": 0.5,
+      "narrative_modifiers": {
+        "wisdom": 0.8,
+        "solitude": 0.9,
+        "acceptance": 0.7
+      },
+      "preferred_themes": ["adaptation_journey", "storm_prophecy"],
+      "story_fragments": ["hermit_meditation_circle", "storm_warning_stones"]
+    },
+    {
+      "faction_id": "archive_drones",
+      "influence_level": 0.4,
+      "narrative_modifiers": {
+        "data_preservation": 0.9,
+        "systematic_analysis": 0.8,
+        "cold_logic": 0.7
+      },
+      "preferred_themes": ["archive_awakening", "ancient_mysteries"],
+      "story_fragments": ["reactivated_archive_node", "ruined_observatory"]
+    }
+  ]
+}

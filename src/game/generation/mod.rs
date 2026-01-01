@@ -5,6 +5,7 @@ pub mod grammar;
 pub mod biomes;
 pub mod constraints;
 pub mod events;
+pub mod narrative;
 
 #[cfg(test)]
 mod tests;

@@ -60,6 +60,7 @@ pub use generation::{
     ConstraintSystem, ConstraintRule, ConstraintType, ConstraintSeverity,
     ConstraintResult, ConstraintContext, EntityPlacement, ResourcePlacement, ObjectivePlacement,
     events::{EventSystem, EventContext, DynamicEvent},
+    narrative::{NarrativeIntegration, NarrativeContext, NarrativeState, StoryFragment},
 };
 pub use status::{is_stunned, slow_penalty, StatusEffect, StatusType};
 pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectContext, VisualEffect};
@@ -70,7 +71,7 @@ pub use loot::{get_loot_table, generate_loot, LootTable, LootEntry};
 pub use map::{compute_fov, Map, Tile};
 pub use map_features::MapFeatures;
 pub use microstructures::{get_microstructure_def, place_microstructures, PlacedMicroStructure, MicroStructureDef};
-pub use narrative::{NarrativeGenerator, NarrativeTemplate, NarrativeContext, HistoricalEvent};
+pub use narrative::{NarrativeGenerator, NarrativeTemplate, HistoricalEvent};
 pub use npc::{get_npc_def, Npc, NpcDef};
 pub use state::{DamageNumber, GameMessage, GameState, MsgType, ProjectileTrail, TriggeredEffect};
 pub use story::{StoryModel, StoryEvent, StoryCharacter, EventType, Relationship, RelationshipType};
