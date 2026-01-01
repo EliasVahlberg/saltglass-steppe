@@ -110,7 +110,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [SAMPLE_GENERATED_STORIES.md](development/SAMPLE_GENERATED_STORIES.md)         | Example generated narrative content                |
 | [SPAWN_AND_MICROSTRUCTURES_TODO.md](development/SPAWN_AND_MICROSTRUCTURES_TODO.md) | Spawn system TODO list                         |
 | [SPAWN_DISTRIBUTION_SYSTEM.md](development/SPAWN_DISTRIBUTION_SYSTEM.md)       | Entity spawn distribution system                   |
-| [STORY_MODEL.md](development/STORY_MODEL.md)                                   | Story model and tracking system                    |
+| [CONSTRAINT_SYSTEM_GUIDE.md](development/CONSTRAINT_SYSTEM_GUIDE.md)       | Comprehensive guide to the constraint validation system for procedural generation |
 
 ### Change Logs Subsection
 
