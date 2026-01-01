@@ -1,0 +1,21 @@
+{
+  "auto_explore": {
+    "pickup_items": true,
+    "avoid_dangers": true,
+    "stop_on_enemies": true,
+    "enemy_detection_range": 8,
+    "ignore_weak_enemies": false,
+    "weak_enemy_threshold": 10,
+    "item_filters": {
+      "enabled": false,
+      "blacklist": [],
+      "whitelist": []
+    },
+    "danger_types": [
+      "glass",
+      "storm_tile",
+      "glare",
+      "hot_light"
+    ]
+  }
+}

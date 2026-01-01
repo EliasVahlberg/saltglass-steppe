@@ -1,0 +1,32 @@
+{
+  "name": "Auto-Explore Danger Avoidance Test",
+  "description": "Test that auto-explore avoids dangerous glass tiles when configured",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 10,
+    "custom_tiles": [
+      {"x": 6, "y": 5, "tile": "Glass"},
+      {"x": 7, "y": 5, "tile": "Glass"},
+      {"x": 8, "y": 5, "tile": "Glass"}
+    ]
+  },
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "actions": [
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "auto_explore"}}
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "player_position", "x": 5, "y": 4},
+      "message": "Player should move around glass tiles, not through them"
+    }
+  ]
+}

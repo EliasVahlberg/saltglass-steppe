@@ -1,0 +1,27 @@
+{
+  "name": "Auto-Explore Configuration Test",
+  "description": "Test that auto-explore respects configuration settings for weak enemies",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "glass_crawler", "x": 10, "y": 5, "hp": 5}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "auto_explore"}}
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "player_position", "op": "ne", "x": 5, "y": 5},
+      "message": "Player should move when ignoring weak enemies"
+    }
+  ]
+}

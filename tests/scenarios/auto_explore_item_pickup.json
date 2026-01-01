@@ -1,0 +1,39 @@
+{
+  "name": "Auto-Explore Item Pickup Test",
+  "description": "Test that auto-explore automatically picks up items when configured",
+  "seed": 12345,
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "ap": 10,
+    "max_ap": 10,
+    "inventory": []
+  },
+  "entities": [
+    {"entity_type": "item", "id": "storm_glass", "x": 5, "y": 5},
+    {"entity_type": "item", "id": "brine_vial", "x": 6, "y": 5}
+  ],
+  "actions": [
+    {"turn": 0, "action": {"type": "auto_explore"}},
+    {"turn": 0, "action": {"type": "move", "dx": 1, "dy": 0}},
+    {"turn": 0, "action": {"type": "auto_explore"}}
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {"type": "inventory_contains", "item": "storm_glass"},
+      "message": "Should have picked up storm_glass during auto-explore"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "inventory_contains", "item": "brine_vial"},
+      "message": "Should have picked up brine_vial during auto-explore"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "message_contains", "text": "Picked up"},
+      "message": "Should show pickup messages"
+    }
+  ]
+}

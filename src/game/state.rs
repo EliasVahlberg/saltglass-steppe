@@ -2338,7 +2338,27 @@ impl GameState {
     }
 
     /// Auto-explore: find nearest unexplored walkable tile and move toward it
+    /// Enhanced with item pickup, danger avoidance, and enemy detection
     pub fn auto_explore(&mut self) -> bool {
+        use crate::game::auto_explore::get_auto_explore_config;
+        
+        let config = get_auto_explore_config();
+        
+        // Check for nearby enemies first
+        if config.stop_on_enemies && self.has_nearby_enemies(config.enemy_detection_range) {
+            self.messages.push(crate::game::GameMessage::new(
+                "Auto-explore stopped: enemy detected nearby".to_string(),
+                crate::game::MsgType::System,
+                self.turn
+            ));
+            return false;
+        }
+        
+        // Pick up items at current position if configured
+        if config.pickup_items {
+            self.pickup_filtered_items();
+        }
+        
         let start = self.map.idx(self.player_x, self.player_y);
         
         // BFS to find nearest unexplored walkable tile
@@ -2362,9 +2382,14 @@ impl GameState {
                 return false;
             }
             
-            // Add neighbors
+            // Add neighbors, but avoid dangerous tiles if configured
             for (next_idx, _) in self.map.get_available_exits(idx) {
                 if !visited.contains(&next_idx) {
+                    // Check if we should avoid this tile due to dangers
+                    if config.avoid_dangers && self.is_dangerous_tile(next_idx) {
+                        continue;
+                    }
+                    
                     visited.insert(next_idx);
                     let mut new_path = path.clone();
                     new_path.push(next_idx);
@@ -2378,9 +2403,83 @@ impl GameState {
             let ny = (next_idx / self.map.width) as i32;
             let dx = nx - self.player_x;
             let dy = ny - self.player_y;
+            
+            // Final check: don't move to dangerous tile
+            let target_x = self.player_x + dx;
+            let target_y = self.player_y + dy;
+            let target_idx = self.map.idx(target_x, target_y);
+            
+            if config.avoid_dangers && self.is_dangerous_tile(target_idx) {
+                return false;
+            }
+            
             self.try_move(dx, dy)
         } else {
             false
+        }
+    }
+    
+    /// Check if there are enemies nearby within the given range
+    fn has_nearby_enemies(&self, range: i32) -> bool {
+        use crate::game::auto_explore::get_auto_explore_config;
+        let config = get_auto_explore_config();
+        
+        for enemy in &self.enemies {
+            let distance = (enemy.x - self.player_x).abs() + (enemy.y - self.player_y).abs();
+            if distance <= range {
+                // If ignoring weak enemies, check enemy HP
+                if config.ignore_weak_enemies {
+                    if enemy.hp <= config.weak_enemy_threshold {
+                        continue;
+                    }
+                }
+                return true;
+            }
+        }
+        false
+    }
+    
+    /// Check if a tile is dangerous based on configuration
+    fn is_dangerous_tile(&self, idx: usize) -> bool {
+        use crate::game::auto_explore::get_auto_explore_config;
+        let config = get_auto_explore_config();
+        
+        let tile = &self.map.tiles[idx];
+        
+        // Check for glass tiles
+        if config.is_danger_type("glass") && matches!(tile, crate::game::map::Tile::Glass) {
+            return true;
+        }
+        
+        // Add other danger checks here as needed
+        // For now, just check glass tiles
+        false
+    }
+    
+    /// Pick up items at current position, filtered by configuration
+    fn pickup_filtered_items(&mut self) {
+        use crate::game::auto_explore::get_auto_explore_config;
+        let config = get_auto_explore_config();
+        
+        let player_idx = self.map.idx(self.player_x, self.player_y);
+        let mut items_to_remove = Vec::new();
+        
+        for (i, item) in self.items.iter().enumerate() {
+            let item_idx = self.map.idx(item.x, item.y);
+            if item_idx == player_idx && config.should_pickup_item(&item.id) {
+                items_to_remove.push(i);
+            }
+        }
+        
+        // Remove items in reverse order to maintain indices
+        for &i in items_to_remove.iter().rev() {
+            let item = self.items.remove(i);
+            self.inventory.push(item.id.clone());
+            self.messages.push(crate::game::GameMessage::new(
+                format!("Picked up {}", item.name()),
+                crate::game::MsgType::System,
+                self.turn
+            ));
         }
     }
 

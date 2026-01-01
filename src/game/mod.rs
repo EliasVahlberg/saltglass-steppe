@@ -1,5 +1,6 @@
 pub mod action;
 pub mod adaptation;
+pub mod auto_explore;
 pub mod book;
 pub mod chest;
 pub mod combat;
@@ -40,6 +41,7 @@ pub mod world_map;
 
 pub use action::{action_cost, default_enemy_ap, default_player_ap};
 pub use adaptation::Adaptation;
+pub use auto_explore::{get_auto_explore_config, AutoExploreConfig};
 pub use chest::{get_chest_def, Chest, ChestDef};
 pub use combat::{calc_damage, calc_hit_chance, default_weapon, get_weapon_def, roll_attack, CombatResult, WeaponDef};
 pub use constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};

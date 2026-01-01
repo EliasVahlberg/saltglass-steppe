@@ -292,7 +292,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
         .direction(Direction::Horizontal)
         .constraints([
             Constraint::Min(state.map.width as u16 + 2),
-            Constraint::Length(22),
+            Constraint::Min(22),
         ])
         .split(frame.area());
 

@@ -84,6 +84,7 @@ This file contains a comprehensive list of all project documentation with descri
 | Document                                                                       | Description                                        |
 | ------------------------------------------------------------------------------ | -------------------------------------------------- |
 | [README.md](development/README.md)                                             | Development documentation overview                 |
+| [AUTO_EXPLORE_SYSTEM.md](development/AUTO_EXPLORE_SYSTEM.md)                   | Enhanced auto-explore system with item pickup, danger avoidance, and configuration |
 | [DEBUG_EXECUTION_SYSTEM.md](development/DEBUG_EXECUTION_SYSTEM.md)             | Debug Execution System (DES) overview              |
 | [DES_TODO.md](development/DES_TODO.md)                                         | DES development tasks and improvements             |
 | [DES_USAGE.md](development/DES_USAGE.md)                                       | How to use the Debug Execution System              |
