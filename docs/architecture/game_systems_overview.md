@@ -156,12 +156,27 @@ pub trait System {
 | `QuestSystem`        | `systems/quest.rs`            | Listens to events, updates quest progress   |
 | `StatusEffectSystem` | `systems/status.rs`           | Ticks status effects each turn              |
 | `StormSystem`        | `systems/storm.rs`            | Storm progression, map transformations      |
-| `EventSystem`        | `generation/events.rs`        | Dynamic events based on player/world state |
-| `NarrativeIntegration` | `generation/narrative.rs`   | Story fragment placement and faction influence |
+
+### Generation Systems (Unified Module)
+
+| System               | File                          | Responsibility                              |
+| -------------------- | ----------------------------- | ------------------------------------------- |
+| `GenerationPipeline` | `generation/pipeline.rs`      | Coordinates all generation systems          |
+| `WorldGenerator`     | `generation/world_gen.rs`     | Enhanced world map generation with POI preferences |
+| `TileGenerator`      | `generation/tile_gen.rs`      | Multi-layer tile generation with biome integration |
+| `SpawnSystem`        | `generation/spawn.rs`         | Weighted entity spawning by biome/level    |
+| `LootGeneration`     | `generation/loot.rs`          | Procedural loot generation with weighted tables |
+| `SpatialSystem`      | `generation/spatial.rs`       | Poisson disk sampling and spatial distribution |
+| `MicroStructures`    | `generation/microstructures.rs` | Mini-structure placement system          |
 | `BiomeSystem`        | `generation/biomes.rs`        | Biome-specific environmental content generation |
-| `WeightedTable`      | `generation/weighted_table.rs`| Enhanced weighted selection for spawns/loot |
 | `Grammar`            | `generation/grammar.rs`       | Dynamic text generation with rule expansion |
 | `TemplateLibrary`    | `generation/templates.rs`     | Template-based procedural content creation |
+| `WeightedTable`      | `generation/weighted_table.rs`| Enhanced weighted selection for spawns/loot |
+| `EventSystem`        | `generation/events.rs`        | Dynamic events based on player/world state |
+| `NarrativeIntegration` | `generation/narrative.rs`   | Story fragment placement and faction influence |
+| `NarrativeTemplates` | `generation/narrative_templates.rs` | Template-based narrative generation |
+| `StorySystem`        | `generation/story.rs`         | Procedural story and character generation |
+| `ConstraintSystem`   | `generation/constraints.rs`   | Constraint-based generation validation |
 
 ### Adding a New System
 
@@ -257,13 +272,13 @@ pub fn all_item_ids() -> Vec<&'static str> {
 | `dialogues.json`         | `dialogue.rs`   | Conversation trees              |
 | `recipes.json`           | `crafting.rs`   | Crafting recipes                |
 | `storm_config.json`      | `storm.rs`      | Storm timing and effects        |
-| `loot_tables.json`       | `loot.rs`       | Weighted loot distributions     |
-| `biome_spawn_tables.json`| `spawn.rs`      | Per-biome enemy spawns          |
+| `loot_tables.json`       | `generation/loot.rs`       | Weighted loot distributions     |
+| `biome_spawn_tables.json`| `generation/spawn.rs`      | Per-biome entity spawns         |
 | `status_effects.json`    | `status.rs`     | Status effect definitions       |
-| `dynamic_events.json`    | `events.rs`     | Dynamic events and triggers     |
-| `narrative_integration.json` | `narrative.rs` | Story seeds, fragments, factions |
-| `grammars/descriptions.json` | `grammar.rs` | Grammar rules for dynamic text generation |
-| `templates/content_templates.json` | `templates.rs` | Content templates with inheritance and variants |
+| `dynamic_events.json`    | `generation/events.rs`     | Dynamic events and triggers     |
+| `narrative_integration.json` | `generation/narrative.rs` | Story seeds, fragments, factions |
+| `grammars/descriptions.json` | `generation/grammar.rs` | Grammar rules for dynamic text generation |
+| `templates/content_templates.json` | `generation/templates.rs` | Content templates with inheritance and variants |
 
 ---
 
@@ -841,6 +856,7 @@ if let Some(&enemy_idx) = state.enemy_positions.get(&(x, y)) {
 - [systems_analysis.md](./systems_analysis.md) — Detailed refactoring history and anti-patterns
 - [SCALABILITY_AUDIT.md](./SCALABILITY_AUDIT.md) — Performance considerations
 - [TECH_STACK.md](./TECH_STACK.md) — Technology choices
+- [PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md](../development/PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md) — Complete procedural generation guide
 
 ---
 

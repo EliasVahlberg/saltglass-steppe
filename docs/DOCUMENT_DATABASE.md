@@ -104,6 +104,9 @@ This file contains a comprehensive list of all project documentation with descri
 | [NARRATIVE_SYSTEM.md](development/NARRATIVE_SYSTEM.md)                         | Narrative generation system                        |
 | [PROCEDURAL_GENERATION_OVERHAUL.md](development/PROCEDURAL_GENERATION_OVERHAUL.md) | Procedural generation system overhaul          |
 | [PROCEDURAL_GENERATION_INTEGRATION.md](development/PROCEDURAL_GENERATION_INTEGRATION.md) | Integration of procedural systems into main game |
+| [PROCEDURAL_GENERATION_RESTRUCTURE_ANALYSIS.md](development/PROCEDURAL_GENERATION_RESTRUCTURE_ANALYSIS.md) | Procedural generation systems restructure analysis |
+| [PROCEDURAL_GENERATION_MODULE_RESTRUCTURE.md](development/PROCEDURAL_GENERATION_MODULE_RESTRUCTURE.md) | Complete procedural generation module restructure documentation |
+| [PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md](development/PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md) | Comprehensive guide to procedural generation systems and configuration |
 | [SAMPLE_GENERATED_STORIES.md](development/SAMPLE_GENERATED_STORIES.md)         | Example generated narrative content                |
 | [SPAWN_AND_MICROSTRUCTURES_TODO.md](development/SPAWN_AND_MICROSTRUCTURES_TODO.md) | Spawn system TODO list                         |
 | [SPAWN_DISTRIBUTION_SYSTEM.md](development/SPAWN_DISTRIBUTION_SYSTEM.md)       | Entity spawn distribution system                   |
@@ -231,4 +234,4 @@ This file contains a comprehensive list of all project documentation with descri
 ---
 
 _Last updated: 2026-01-01_
-_Total documents: 137_
+_Total documents: 140_
