@@ -203,6 +203,10 @@ impl TileGenerator {
         // Find the nearest open area and create a diagonal corridor to it
         if let Some(target) = self.find_nearest_open_area(map, center) {
             self.create_diagonal_corridor(map, center, target);
+        } else {
+            // Fallback: create a simple path to map edge if no open area found
+            let edge_target = (MAP_WIDTH - 10, center.1); // Path to right edge
+            self.create_diagonal_corridor(map, center, edge_target);
         }
     }
     
@@ -212,9 +216,9 @@ impl TileGenerator {
         let start_y = start.1 as i32;
         
         // Search in expanding radius for a cluster of floor tiles
-        for radius in 5..50 {
-            for angle in 0..16 {
-                let angle_rad = (angle as f32) * std::f32::consts::PI / 8.0;
+        for radius in 5..40 {
+            for angle in 0..32 { // More angles for better coverage
+                let angle_rad = (angle as f32) * std::f32::consts::PI / 16.0;
                 let x = start_x + (radius as f32 * angle_rad.cos()) as i32;
                 let y = start_y + (radius as f32 * angle_rad.sin()) as i32;
                 
@@ -232,8 +236,8 @@ impl TileGenerator {
     /// Check if a point has a cluster of floor tiles around it
     fn has_open_cluster(&self, map: &Map, pos: (usize, usize)) -> bool {
         let mut floor_count = 0;
-        for dy in -2..=2 {
-            for dx in -2..=2 {
+        for dy in -1..=1 {
+            for dx in -1..=1 {
                 let x = pos.0 as i32 + dx;
                 let y = pos.1 as i32 + dy;
                 if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
@@ -245,7 +249,7 @@ impl TileGenerator {
                 }
             }
         }
-        floor_count >= 8 // Need at least 8 floor tiles in 5x5 area
+        floor_count >= 3 // Need at least 3 floor tiles in 3x3 area (more lenient)
     }
     
     /// Create a diagonal corridor between two points
