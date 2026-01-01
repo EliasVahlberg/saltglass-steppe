@@ -21,13 +21,13 @@ use super::{
     map::{Map, Tile},
     map_features::MapFeatures,
     generation::{place_microstructures, PlacedMicroStructure},
-    narrative::{NarrativeGenerator, NarrativeContext},
+
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
-    generation::{weighted_pick_by_level_and_tier, get_biome_spawn_table, distribute_points_grid, generate_loot},
+    generation::{weighted_pick_by_level_and_tier, get_biome_spawn_table, distribute_points_grid, generate_loot, StoryModel, EventType, NarrativeGenerator, NarrativeContext},
     storm::Storm,
-    story::StoryModel,
+
     systems::movement::MovementSystem,
     tutorial::TutorialProgress,
     world_map::WorldMap,
@@ -1098,7 +1098,7 @@ impl GameState {
     }
     
     /// Generate NPC backstory using story model
-    pub fn generate_npc_backstory(&mut self, npc_id: &str, story_model: &super::story::StoryModel) -> Option<String> {
+    pub fn generate_npc_backstory(&mut self, npc_id: &str, story_model: &StoryModel) -> Option<String> {
         if let Some(ref generator) = self.narrative_generator {
             // Get NPC definition to understand their faction
             if let Some(npc_def) = super::npc::get_npc_def(npc_id) {
@@ -1201,7 +1201,7 @@ impl GameState {
     }
 
     /// Add player event to story model
-    pub fn add_story_event(&mut self, event_type: super::story::EventType, description: String) {
+    pub fn add_story_event(&mut self, event_type: EventType, description: String) {
         if let Some(ref mut story_model) = self.story_model {
             story_model.add_player_event(event_type, description);
         }

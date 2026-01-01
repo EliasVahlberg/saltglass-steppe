@@ -22,7 +22,6 @@ pub mod lighting;
 pub mod map;
 pub mod map_features;
 pub mod meta;
-pub mod narrative;
 pub mod npc;
 pub mod progression;
 pub mod psychic;
@@ -33,7 +32,6 @@ pub mod sanity;
 pub mod skills;
 pub mod state;
 pub mod status;
-pub mod story;
 pub mod storm;
 pub mod systems;
 pub mod trading;
@@ -58,6 +56,8 @@ pub use generation::{
     get_microstructure_def, place_microstructures, PlacedMicroStructure, MicroStructureDef,
     PoissonSampler, distribute_points_grid,
     get_loot_table, generate_loot, LootTable, LootEntry,
+    StoryModel, StoryEvent, StoryCharacter, EventType, Relationship, RelationshipType,
+    NarrativeGenerator, NarrativeTemplate, HistoricalEvent,
     events::{EventSystem, EventContext, DynamicEvent},
     narrative::{NarrativeIntegration, NarrativeContext, NarrativeState, StoryFragment},
 };
@@ -70,10 +70,10 @@ pub use item::{all_item_ids, get_item_def, Item, ItemDef};
 pub use map::{compute_fov, Map, Tile};
 pub use map_features::MapFeatures;
 
-pub use narrative::{NarrativeGenerator, NarrativeTemplate, HistoricalEvent};
+
 pub use npc::{get_npc_def, Npc, NpcDef};
 pub use state::{DamageNumber, GameMessage, GameState, MsgType, ProjectileTrail, TriggeredEffect};
-pub use story::{StoryModel, StoryEvent, StoryCharacter, EventType, Relationship, RelationshipType};
+
 pub use storm::Storm;
 pub use world_map::{Biome, POI, Terrain, WorldMap, WORLD_SIZE};
 pub use lighting::{compute_lighting, is_lit, LightMap, LightSource};

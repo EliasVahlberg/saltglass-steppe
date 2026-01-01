@@ -6,12 +6,14 @@ pub mod biomes;
 pub mod constraints;
 pub mod events;
 pub mod narrative;
+pub mod narrative_templates;
 pub mod world_gen;
 pub mod tile_gen;
 pub mod microstructures;
 pub mod spawn;
 pub mod spatial;
 pub mod loot;
+pub mod story;
 
 #[cfg(test)]
 mod tests;
@@ -28,3 +30,5 @@ pub use microstructures::*;
 pub use spawn::*;
 pub use spatial::*;
 pub use loot::*;
+pub use story::*;
+pub use narrative_templates::*;

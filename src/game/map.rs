@@ -507,7 +507,7 @@ impl Map {
     
     /// Generate contextual area description
     fn generate_area_description(&self, rng: &mut ChaCha8Rng, biome: Biome, terrain: Terrain, poi: POI) -> Option<String> {
-        use super::narrative::{NarrativeGenerator, NarrativeContext};
+        use super::generation::{NarrativeGenerator, NarrativeContext};
         
         if let Ok(generator) = NarrativeGenerator::new() {
             let biome_str = match biome {
@@ -551,7 +551,7 @@ impl Map {
     
     /// Place inscriptions and graffiti on walls and glass
     fn place_inscriptions(&mut self, rng: &mut ChaCha8Rng, _biome: Biome, poi: POI) {
-        use super::narrative::NarrativeGenerator;
+        use super::generation::NarrativeGenerator;
         
         if let Ok(generator) = NarrativeGenerator::new() {
             let inscription_count = match poi {
