@@ -121,6 +121,9 @@ impl TileGenerator {
                 // Add procedural content using all systems
                 self.add_procedural_content(&mut map, rng, biome, terrain, elevation, poi);
                 
+                // Ensure basic connectivity (always apply this)
+                self.ensure_basic_connectivity(&mut map);
+                
                 // Enhance clearings with better distribution
                 clearings.extend(self.find_enhanced_clearings(&map.tiles, biome, terrain));
                 
