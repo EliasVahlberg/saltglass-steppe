@@ -134,7 +134,7 @@ impl WorldGenerator {
             WeightedEntry { item: Biome::Ruins, weight: 15.0 },
             WeightedEntry { item: Biome::Oasis, weight: 15.0 },
         ];
-        let biome_table = WeightedTable::new(biome_entries);
+        let _biome_table = WeightedTable::new(biome_entries);
 
         let terrain_entries = vec![
             WeightedEntry { item: Terrain::Canyon, weight: 15.0 },
@@ -143,7 +143,7 @@ impl WorldGenerator {
             WeightedEntry { item: Terrain::Hills, weight: 20.0 },
             WeightedEntry { item: Terrain::Mesa, weight: 15.0 },
         ];
-        let terrain_table = WeightedTable::new(terrain_entries);
+        let _terrain_table = WeightedTable::new(terrain_entries);
 
         for y in 0..WORLD_HEIGHT {
             for x in 0..WORLD_WIDTH {

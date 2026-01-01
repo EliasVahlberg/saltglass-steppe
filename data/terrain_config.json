@@ -3,7 +3,7 @@
   "variation_intensity": 0.3,
   "terrain_types": {
     "canyon": {
-      "floor_threshold": 0.1,
+      "floor_threshold": -0.3,
       "glass_density": 0.15,
       "noise_scale": 8.0,
       "wall_type": "sandstone",
@@ -14,7 +14,7 @@
       }
     },
     "mesa": {
-      "floor_threshold": 0.0,
+      "floor_threshold": -0.4,
       "glass_density": 0.1,
       "noise_scale": 6.0,
       "wall_type": "shale",
@@ -25,7 +25,7 @@
       }
     },
     "hills": {
-      "floor_threshold": 0.2,
+      "floor_threshold": -0.2,
       "glass_density": 0.08,
       "noise_scale": 10.0,
       "wall_type": "sandstone",
@@ -36,7 +36,7 @@
       }
     },
     "dunes": {
-      "floor_threshold": 0.15,
+      "floor_threshold": -0.25,
       "glass_density": 0.12,
       "noise_scale": 12.0,
       "wall_type": "sandstone",
@@ -47,7 +47,7 @@
       }
     },
     "flat": {
-      "floor_threshold": 0.25,
+      "floor_threshold": -0.1,
       "glass_density": 0.05,
       "noise_scale": 15.0,
       "wall_type": "salt_crystal",

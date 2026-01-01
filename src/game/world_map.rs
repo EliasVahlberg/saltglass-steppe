@@ -65,6 +65,7 @@ impl WorldMap {
         Self { seed, biomes, terrain, elevation, pois, resources, connected, levels }
     }
 
+    #[allow(dead_code)]
     fn generate_levels(pois: &[POI], terrain: &[Terrain]) -> Vec<u32> {
         let mut levels = vec![1u32; WORLD_WIDTH * WORLD_HEIGHT];
         let start_x = WORLD_WIDTH / 2;

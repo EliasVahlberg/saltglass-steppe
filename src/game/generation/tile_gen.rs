@@ -52,7 +52,6 @@ static TILE_CONFIG: Lazy<TileGenConfig> = Lazy::new(|| {
 
 /// Enhanced tile generator using all procedural generation systems
 pub struct TileGenerator {
-    biome_system: BiomeSystem,
     grammar: Grammar,
     template_library: TemplateLibrary,
 }
@@ -60,7 +59,6 @@ pub struct TileGenerator {
 impl TileGenerator {
     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
         Ok(Self {
-            biome_system: BiomeSystem,
             grammar: Grammar::new(),
             template_library: TemplateLibrary::new(),
         })
@@ -219,7 +217,7 @@ impl TileGenerator {
     }
 
     fn add_biome_features(&self, map: &mut Map, rng: &mut ChaCha8Rng, biome: Biome, _terrain: Terrain) {
-        // Generate biome-specific environmental features
+        // Generate biome-specific environmental features using static method
         let features = BiomeSystem::generate_environmental_features(biome, 3, rng);
         
         // Convert features to map elements (lights, special tiles, etc.)
@@ -287,6 +285,7 @@ impl TileGenerator {
         let context = TemplateContext {
             variables: [
                 ("biome".to_string(), serde_json::Value::String(biome.as_str().to_string())),
+                ("terrain".to_string(), serde_json::Value::String(format!("{:?}", terrain).to_lowercase())),
                 ("elevation".to_string(), serde_json::Value::String(elevation.to_string())),
                 ("poi_type".to_string(), serde_json::Value::String(match poi {
                     POI::Town => "settlement",
@@ -298,9 +297,30 @@ impl TileGenerator {
             ].into_iter().collect(),
         };
 
-        // Generate environmental templates
-        if let Ok(template) = self.template_library.instantiate("environmental", &context, rng) {
+        // Generate terrain-specific environmental templates
+        let template_category = match terrain {
+            Terrain::Canyon => "canyon_environmental",
+            Terrain::Mesa => "mesa_environmental",
+            Terrain::Hills => "hills_environmental", 
+            Terrain::Dunes => "dunes_environmental",
+            Terrain::Flat => "flat_environmental",
+        };
+
+        if let Ok(template) = self.template_library.instantiate(template_category, &context, rng) {
             // Apply template effects to map (could add special tiles, lights, etc.)
+            if let Some(light_type) = template.get("light_source").and_then(|v| v.as_str()) {
+                if let Some(pos) = self.find_feature_placement(map, rng) {
+                    map.lights.push(MapLight {
+                        x: pos.0,
+                        y: pos.1,
+                        id: light_type.to_string(),
+                    });
+                }
+            }
+        }
+        
+        // Fallback to generic environmental template
+        if let Ok(template) = self.template_library.instantiate("environmental", &context, rng) {
             if let Some(light_type) = template.get("light_source").and_then(|v| v.as_str()) {
                 if let Some(pos) = self.find_feature_placement(map, rng) {
                     map.lights.push(MapLight {
