@@ -584,12 +584,17 @@ fn run_main_game() -> Result<()> {
                         }
                         
                         // Send debug info update
+                        let tile_seed = state.world_map.as_ref()
+                            .map(|wm| wm.tile_seed(state.world_x, state.world_y))
+                            .unwrap_or(0);
                         let _ = ipc_server.send_message(IpcMessage::DebugInfo {
                             player_pos: (state.player_x, state.player_y),
                             enemies_count: state.enemies.len(),
                             items_count: state.inventory.len(),
                             storm_intensity: state.storm.intensity as i32,
                             seed: state.seed,
+                            tile_seed,
+                            world_pos: (state.world_x, state.world_y),
                             god_view: state.debug_god_view,
                             phase_mode: state.debug_phase,
                         });

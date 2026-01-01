@@ -407,9 +407,9 @@ impl SatelliteApp {
                     IpcMessage::InventoryUpdate { items, equipped } => {
                         self.inventory_data = Some(InventoryData { items, equipped });
                     }
-                    IpcMessage::DebugInfo { player_pos, enemies_count, items_count, storm_intensity, seed, god_view, phase_mode } => {
-                        self.messages.push(format!("Debug: Pos({},{}) Enemies:{} Items:{} Storm:{} Seed:{} God:{} Phase:{}", 
-                            player_pos.0, player_pos.1, enemies_count, items_count, storm_intensity, seed, god_view, phase_mode));
+                    IpcMessage::DebugInfo { player_pos, enemies_count, items_count, storm_intensity, seed, tile_seed, world_pos, god_view, phase_mode } => {
+                        self.messages.push(format!("Debug: Pos({},{}) World({},{}) Enemies:{} Items:{} Storm:{} Seed:{} TileSeed:{} God:{} Phase:{}", 
+                            player_pos.0, player_pos.1, world_pos.0, world_pos.1, enemies_count, items_count, storm_intensity, seed, tile_seed, god_view, phase_mode));
                     }
                     _ => {}
                 }

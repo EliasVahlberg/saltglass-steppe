@@ -120,11 +120,13 @@ fn render_debug_info(f: &mut Frame, area: Rect, state: &GameState) {
 
     // Basic info
     let basic_info = format!(
-        "Turn: {}\nPlayer Position: ({}, {})\nPlayer HP: {}/{}\nWorld Seed: {}\nEnemies: {}\nItems: {}",
+        "Turn: {}\nPlayer Position: ({}, {})\nPlayer HP: {}/{}\nWorld Seed: {}\nTile Seed: {}\nWorld Position: ({}, {})\nEnemies: {}\nItems: {}",
         info.turn,
         info.player_pos.0, info.player_pos.1,
         info.player_hp.0, info.player_hp.1,
         info.seed,
+        info.tile_seed,
+        info.world_pos.0, info.world_pos.1,
         info.enemies_count,
         info.items_count
     );

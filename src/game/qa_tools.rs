@@ -55,6 +55,8 @@ pub struct DebugInfo {
     pub player_hp: (i32, i32),
     pub turn: u32,
     pub seed: u64,
+    pub tile_seed: u64,
+    pub world_pos: (usize, usize),
     pub enemies_count: usize,
     pub items_count: usize,
     pub storm_intensity: u8,
@@ -112,11 +114,17 @@ impl GameState {
         metrics.insert("fov_calculation_time".to_string(), 0.0); // Placeholder
         metrics.insert("ai_processing_time".to_string(), 0.0);   // Placeholder
         
+        let tile_seed = self.world_map.as_ref()
+            .map(|wm| wm.tile_seed(self.world_x, self.world_y))
+            .unwrap_or(0);
+        
         DebugInfo {
             player_pos: (self.player_x, self.player_y),
             player_hp: (self.player_hp, self.player_max_hp),
             turn: self.turn,
             seed: self.seed,
+            tile_seed,
+            world_pos: (self.world_x, self.world_y),
             enemies_count: self.enemies.len(),
             items_count: self.items.len(),
             storm_intensity: self.storm.intensity,
