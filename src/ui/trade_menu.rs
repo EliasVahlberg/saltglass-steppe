@@ -130,7 +130,21 @@ pub fn render_trade_menu(
     let items: Vec<ListItem> = match menu.mode {
         TradeMode::Buy => {
             trade_interface.available_items.iter().enumerate().map(|(i, item)| {
-                let def = get_item_def(&item.item_id).unwrap();
+                let def = match get_item_def(&item.item_id) {
+                    Some(d) => d,
+                    None => {
+                        // Fallback for missing item definitions
+                        return ListItem::new(Line::from(vec![
+                            Span::styled("? ", Style::default().fg(Color::Red)),
+                            Span::styled(format!("MISSING: {} | {} scrip", item.item_id, item.price), 
+                                if i == menu.selected_index {
+                                    Style::default().fg(Color::Black).bg(Color::White)
+                                } else {
+                                    Style::default().fg(Color::Red)
+                                }),
+                        ]));
+                    }
+                };
                 let style = if i == menu.selected_index {
                     Style::default().fg(Color::Black).bg(Color::White)
                 } else {
@@ -149,7 +163,21 @@ pub fn render_trade_menu(
         },
         TradeMode::Sell => {
             state.inventory.iter().enumerate().map(|(i, item_id)| {
-                let def = get_item_def(item_id).unwrap();
+                let def = match get_item_def(item_id) {
+                    Some(d) => d,
+                    None => {
+                        // Fallback for missing item definitions
+                        return ListItem::new(Line::from(vec![
+                            Span::styled("? ", Style::default().fg(Color::Red)),
+                            Span::styled(format!("MISSING: {}", item_id), 
+                                if i == menu.selected_index {
+                                    Style::default().fg(Color::Black).bg(Color::White)
+                                } else {
+                                    Style::default().fg(Color::Red)
+                                }),
+                        ]));
+                    }
+                };
                 let style = if i == menu.selected_index {
                     Style::default().fg(Color::Black).bg(Color::White)
                 } else {

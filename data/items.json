@@ -1224,6 +1224,149 @@
       "consumable": false,
       "book_id": "book_storm_compass",
       "effects": []
+    },
+    {
+      "id": "cloth_scrap",
+      "name": "Cloth Scrap",
+      "glyph": "~",
+      "description": "Weathered fabric, useful for repairs",
+      "value": 4,
+      "tier": 1,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "dried_meat",
+      "name": "Dried Meat",
+      "glyph": "%",
+      "description": "Preserved meat rations",
+      "value": 18,
+      "tier": 1,
+      "usable": true,
+      "heal": 8,
+      "effects": []
+    },
+    {
+      "id": "enhanced_goggles",
+      "name": "Enhanced Goggles",
+      "glyph": "o",
+      "description": "Protective eyewear with glass filters",
+      "value": 150,
+      "tier": 3,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "map_fragment",
+      "name": "Map Fragment",
+      "glyph": "?",
+      "description": "Partial map of the Steppe",
+      "value": 35,
+      "tier": 2,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "metal_wire",
+      "name": "Metal Wire",
+      "glyph": "/",
+      "description": "Salvaged metal wire for repairs",
+      "value": 18,
+      "tier": 1,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "precision_tools",
+      "name": "Precision Tools",
+      "glyph": "t",
+      "description": "Fine tools for delicate work",
+      "value": 80,
+      "tier": 2,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "preserved_rations",
+      "name": "Preserved Rations",
+      "glyph": "%",
+      "description": "Long-lasting food supplies",
+      "value": 22,
+      "tier": 1,
+      "usable": true,
+      "heal": 12,
+      "effects": []
+    },
+    {
+      "id": "prophecy_scroll",
+      "name": "Prophecy Scroll",
+      "glyph": "?",
+      "description": "Ancient prophecy written on glass",
+      "value": 50,
+      "tier": 2,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "pure_glass",
+      "name": "Pure Glass",
+      "glyph": "*",
+      "description": "Perfectly clear glass without impurities",
+      "value": 45,
+      "tier": 2,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "ritual_components",
+      "name": "Ritual Components",
+      "glyph": "&",
+      "description": "Materials for storm prophet rituals",
+      "value": 75,
+      "tier": 2,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "rope",
+      "name": "Rope",
+      "glyph": ")",
+      "description": "Sturdy rope for climbing and binding",
+      "value": 12,
+      "tier": 1,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "storm_ward_charm",
+      "name": "Storm Ward Charm",
+      "glyph": "=",
+      "description": "Protective charm against glass storms",
+      "value": 120,
+      "tier": 4,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "survival_kit",
+      "name": "Survival Kit",
+      "glyph": "[",
+      "description": "Complete kit for wasteland survival",
+      "value": 90,
+      "tier": 3,
+      "usable": false,
+      "effects": []
+    },
+    {
+      "id": "water_flask",
+      "name": "Water Flask",
+      "glyph": "!",
+      "description": "Clean water in a sealed container",
+      "value": 25,
+      "tier": 1,
+      "usable": true,
+      "heal": 15,
+      "effects": []
     }
   ]
 }
