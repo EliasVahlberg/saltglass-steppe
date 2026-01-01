@@ -481,6 +481,12 @@ fn run_main_game() -> Result<()> {
                     &state.faction_reputation, 
                     None // Player faction not yet implemented
                 ) {
+                    // Close other menus to ensure trade menu has focus
+                    ui.inventory_menu.close();
+                    ui.quest_log.close();
+                    ui.crafting_menu.close();
+                    ui.wiki_menu.close();
+                    ui.pause_menu.close();
                     ui.trade_menu.open(trader_id, interface);
                 } else {
                     state.log("This merchant has nothing to trade.");
