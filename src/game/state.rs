@@ -2409,6 +2409,11 @@ impl GameState {
                         continue;
                     }
                     
+                    // Check if there's an NPC we've already talked to on this tile
+                    if self.has_talked_npc_at_idx(next_idx) {
+                        continue;
+                    }
+                    
                     visited.insert(next_idx);
                     let mut new_path = path.clone();
                     new_path.push(next_idx);
@@ -2476,6 +2481,14 @@ impl GameState {
         }
         
         false
+    }
+    
+    /// Check if there's an NPC we've already talked to at the given tile index
+    fn has_talked_npc_at_idx(&self, idx: usize) -> bool {
+        let x = (idx % self.map.width) as i32;
+        let y = (idx / self.map.width) as i32;
+        
+        self.npcs.iter().any(|npc| npc.x == x && npc.y == y && npc.talked)
     }
     
     /// Pick up items at current position, filtered by configuration
