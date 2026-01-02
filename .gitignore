@@ -239,3 +239,4 @@ debug_status_log.txt
 releases/
 untracked_scripts
 untracked_scripts/
+.agentic-tools-mcp/
