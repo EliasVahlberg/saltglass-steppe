@@ -4,6 +4,42 @@ use std::fs;
 use saltglass_steppe::des::{run_scenario, run_parallel, Scenario};
 
 #[test]
+fn crystal_resonance_basic() {
+    let result = run_scenario("tests/scenarios/crystal_resonance_basic.json")
+        .expect("Failed to run crystal_resonance_basic scenario");
+    
+    assert!(
+        result.success,
+        "Crystal resonance test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn void_energy_basic() {
+    let result = run_scenario("tests/scenarios/void_energy_basic.json")
+        .expect("Failed to run void_energy_basic scenario");
+    
+    assert!(
+        result.success,
+        "Void energy test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn light_manipulation_basic() {
+    let result = run_scenario("tests/scenarios/light_manipulation_basic.json")
+        .expect("Failed to run light_manipulation_basic scenario");
+    
+    assert!(
+        result.success,
+        "Light manipulation test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}
+
+#[test]
 fn run_all_scenarios() {
     let scenario_dir = "tests/scenarios";
     let entries = fs::read_dir(scenario_dir).expect("Failed to read scenarios directory");

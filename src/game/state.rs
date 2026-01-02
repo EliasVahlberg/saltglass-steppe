@@ -302,6 +302,15 @@ pub struct GameState {
     /// Generation pipeline to coordinate all procedural systems
     #[serde(skip)]
     pub generation_pipeline: Option<GenerationPipeline>,
+    /// Light manipulation system for beam mechanics and refraction
+    #[serde(default)]
+    pub light_system: super::light::LightSystem,
+    /// Void energy system for reality distortion and void abilities
+    #[serde(default)]
+    pub void_system: super::void_energy::VoidSystem,
+    /// Crystal resonance system for frequency tracking and harmonic effects
+    #[serde(default)]
+    pub crystal_system: super::crystal_resonance::CrystalSystem,
 }
 
 /// Floating damage number for visual feedback
@@ -616,6 +625,9 @@ impl GameState {
             template_library: None,
             constraint_system: None,
             generation_pipeline: None,
+            light_system: super::light::LightSystem::default(),
+            void_system: super::void_energy::VoidSystem::new(),
+            crystal_system: super::crystal_resonance::CrystalSystem::new(),
         };
         
         // Initialize dynamic event system
@@ -1326,6 +1338,9 @@ impl GameState {
         StatusEffectSystem.update(self);
         self.psychic.tick();
         self.skills.tick();
+        self.light_system.update(&mut self.rng);
+        self.void_system.update(&mut self.rng);
+        self.crystal_system.update(&mut self.rng);
         self.tick_turn();
         self.update_enemies();
         if self.storm.tick() { StormSystem::apply_storm(self); }
@@ -1983,6 +1998,171 @@ impl GameState {
                     }
                 }
             }
+            Some("focus_beam") => {
+                if parts.len() >= 2 {
+                    let direction = match parts[1] {
+                        "n" | "north" => super::light::Direction::North,
+                        "s" | "south" => super::light::Direction::South,
+                        "e" | "east" => super::light::Direction::East,
+                        "w" | "west" => super::light::Direction::West,
+                        "ne" => super::light::Direction::NorthEast,
+                        "nw" => super::light::Direction::NorthWest,
+                        "se" => super::light::Direction::SouthEast,
+                        "sw" => super::light::Direction::SouthWest,
+                        _ => {
+                            self.log("Invalid direction. Use: n, s, e, w, ne, nw, se, sw");
+                            return;
+                        }
+                    };
+                    
+                    if self.light_system.focus_beam(self.player_x, self.player_y, direction, 10) {
+                        self.log("You focus a beam of light!");
+                    } else {
+                        self.log("Not enough light energy!");
+                    }
+                } else {
+                    self.log("Usage: focus_beam <direction>");
+                }
+            }
+            Some("create_prism") => {
+                if parts.len() >= 3 {
+                    if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
+                        if self.light_system.create_prism(x, y, 20) {
+                            self.log(format!("Created light prism at ({}, {})", x, y));
+                        } else {
+                            self.log("Not enough light energy!");
+                        }
+                    } else {
+                        self.log("Invalid coordinates");
+                    }
+                } else {
+                    self.log("Usage: create_prism <x> <y>");
+                }
+            }
+            Some("add_light_energy") => {
+                let amount = if parts.len() >= 2 {
+                    parts[1].parse::<u32>().unwrap_or(50)
+                } else {
+                    50
+                };
+                self.light_system.light_energy += amount;
+                self.log(format!("Added {} light energy (total: {})", amount, self.light_system.light_energy));
+            }
+            Some("absorb_light") => {
+                let absorbed = self.light_system.absorb_light(self.player_x, self.player_y, &self.map);
+                if absorbed > 0 {
+                    self.log(format!("Absorbed {} light energy", absorbed));
+                } else {
+                    self.log("No light to absorb here");
+                }
+            }
+            Some("add_void_exposure") => {
+                let amount = if parts.len() >= 2 {
+                    parts[1].parse::<u32>().unwrap_or(10)
+                } else {
+                    10
+                };
+                let level_changed = self.void_system.add_exposure(amount);
+                self.log(format!("Added {} void exposure (total: {})", amount, self.void_system.void_exposure));
+                if level_changed {
+                    self.log(format!("Void exposure level: {:?}", self.void_system.exposure_level()));
+                }
+            }
+            Some("add_void_energy") => {
+                let amount = if parts.len() >= 2 {
+                    parts[1].parse::<u32>().unwrap_or(25)
+                } else {
+                    25
+                };
+                self.void_system.gain_energy(amount);
+                self.log(format!("Added {} void energy (total: {}/{})", 
+                    amount, self.void_system.void_energy, self.void_system.max_void_energy));
+            }
+            Some("void_step") => {
+                if parts.len() >= 3 {
+                    if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
+                        if self.void_system.void_step(self.player_x, self.player_y, x, y) {
+                            self.player_x = x;
+                            self.player_y = y;
+                            self.log("You step through the void!");
+                        } else {
+                            self.log("Cannot void step (insufficient energy or too far)");
+                        }
+                    } else {
+                        self.log("Invalid coordinates");
+                    }
+                } else {
+                    self.log("Usage: void_step <x> <y>");
+                }
+            }
+            Some("reality_rend") => {
+                if parts.len() >= 3 {
+                    if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
+                        if let Some(damage) = self.void_system.reality_rend(x, y) {
+                            self.log(format!("Reality rend deals {} void damage!", damage));
+                        } else {
+                            self.log("Cannot use reality rend (insufficient energy or not unlocked)");
+                        }
+                    } else {
+                        self.log("Invalid coordinates");
+                    }
+                } else {
+                    self.log("Usage: reality_rend <x> <y>");
+                }
+            }
+            Some("create_crystal") => {
+                if parts.len() >= 4 {
+                    if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
+                        let frequency = match parts[3] {
+                            "alpha" => super::crystal_resonance::CrystalFrequency::Alpha,
+                            "beta" => super::crystal_resonance::CrystalFrequency::Beta,
+                            "gamma" => super::crystal_resonance::CrystalFrequency::Gamma,
+                            "delta" => super::crystal_resonance::CrystalFrequency::Delta,
+                            "epsilon" => super::crystal_resonance::CrystalFrequency::Epsilon,
+                            _ => {
+                                self.log("Invalid frequency. Use: alpha, beta, gamma, delta, epsilon");
+                                return;
+                            }
+                        };
+                        
+                        if self.crystal_system.create_crystal_seed(x, y, frequency, 20) {
+                            self.log(format!("Created {} crystal at ({}, {})", frequency.name(), x, y));
+                        } else {
+                            self.log("Not enough resonance energy!");
+                        }
+                    } else {
+                        self.log("Invalid coordinates");
+                    }
+                } else {
+                    self.log("Usage: create_crystal <x> <y> <frequency>");
+                }
+            }
+            Some("resonate") => {
+                let energy = self.crystal_system.resonate(self.player_x, self.player_y);
+                if energy > 0 {
+                    self.log(format!("Resonated with crystals, gained {} energy", energy));
+                } else {
+                    self.log("No crystals to resonate with here");
+                }
+            }
+            Some("add_resonance_energy") => {
+                let amount = if parts.len() >= 2 {
+                    parts[1].parse::<u32>().unwrap_or(30)
+                } else {
+                    30
+                };
+                self.crystal_system.resonance_energy = (self.crystal_system.resonance_energy + amount)
+                    .min(self.crystal_system.max_resonance_energy);
+                self.log(format!("Added {} resonance energy (total: {}/{})", 
+                    amount, self.crystal_system.resonance_energy, self.crystal_system.max_resonance_energy));
+            }
+            Some("harmonize") => {
+                if self.crystal_system.harmonize(self.player_x, self.player_y, 3, 40) {
+                    self.log("Created harmonic resonance!");
+                } else {
+                    self.log("Cannot harmonize (insufficient energy or crystals)");
+                }
+            }
             Some("spawn_enemy") => {
                 if let Some(id) = parts.get(1) {
                     if super::enemy::get_enemy_def(id).is_some() {
@@ -2147,6 +2327,18 @@ impl GameState {
                 self.log("  unlock_skill <id> - Unlock a skill");
                 self.log("  list_skills - List available skills");
                 self.log("  list_abilities - List available abilities");
+                self.log("  focus_beam <direction> - Create light beam (costs 10 energy)");
+                self.log("  create_prism <x> <y> - Create refraction surface (costs 20 energy)");
+                self.log("  add_light_energy [amount] - Add light energy");
+                self.log("  absorb_light - Absorb light from nearby sources");
+                self.log("  add_void_exposure [amount] - Add void exposure");
+                self.log("  add_void_energy [amount] - Add void energy");
+                self.log("  void_step <x> <y> - Teleport through void (costs 15 energy)");
+                self.log("  reality_rend <x> <y> - Void damage attack (costs 25 energy)");
+                self.log("  create_crystal <x> <y> <frequency> - Create crystal (costs 20 energy)");
+                self.log("  resonate - Resonate with nearby crystals");
+                self.log("  add_resonance_energy [amount] - Add resonance energy");
+                self.log("  harmonize - Create harmonic effect (costs 40 energy)");
                 self.log("  spawn_enemy <id> [x] [y] - Spawn enemy at position");
                 self.log("  spawn_swarm <id> <count> - Spawn enemy swarm");
                 self.log("  spawn_npc <id> [x] [y] - Spawn NPC at position");

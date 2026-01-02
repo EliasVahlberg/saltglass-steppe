@@ -82,7 +82,7 @@ mod tests {
             state.player_x = ex - 1;
             state.player_y = ey;
             let idx = state.map.idx(ex - 1, ey);
-            state.map.tiles[idx] = Tile::Floor;
+            state.map.tiles[idx] = Tile::default_floor();
             // Try attack multiple times to ensure at least one hit
             for _ in 0..5 {
                 state.player_ap = 4; // Reset AP

@@ -1,0 +1,33 @@
+{
+  "name": "light_manipulation_basic",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 5,
+    "ensure_paths": [
+      {"from_x": 10, "from_y": 10, "to_x": 15, "to_y": 10}
+    ]
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": []
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

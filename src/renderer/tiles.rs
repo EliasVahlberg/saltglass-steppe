@@ -303,7 +303,7 @@ mod tests {
         let renderer = TileRenderer::new(&config);
         
         // Test floor tile
-        let (glyph, _color) = renderer.get_tile_appearance(&Tile::Floor, 0, 0, 0, 0);
+        let (glyph, _color) = renderer.get_tile_appearance(&Tile::default_floor(), 0, 0, 0, 0);
         assert_eq!(glyph, '.');
         
         // Test glass tile
