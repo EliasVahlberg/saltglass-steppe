@@ -1,0 +1,176 @@
+{
+  "structure_spawn_weights": {
+    "nexus_plateau": {
+      "weight": 1,
+      "min_level": 5,
+      "max_level": 10,
+      "biome_affinity": ["desert", "saltflat"],
+      "spawn_chance": 0.05,
+      "unique": true,
+      "requires_clear_area": true
+    },
+    "monastery_ascending_light": {
+      "weight": 2,
+      "min_level": 3,
+      "max_level": 10,
+      "biome_affinity": ["ruins", "glass_gardens"],
+      "spawn_chance": 0.08,
+      "unique": true,
+      "faction_structure": "MirrorMonks"
+    },
+    "new_heliograph_station": {
+      "weight": 2,
+      "min_level": 4,
+      "max_level": 10,
+      "biome_affinity": ["ruins", "shattered_citadel"],
+      "spawn_chance": 0.08,
+      "unique": true,
+      "faction_structure": "SandEngineers"
+    },
+    "prism_cathedral_natural": {
+      "weight": 3,
+      "min_level": 4,
+      "max_level": 10,
+      "biome_affinity": ["glass_gardens"],
+      "spawn_chance": 0.12,
+      "unique": true,
+      "faction_structure": "GlassProphets"
+    },
+    "prism_city": {
+      "weight": 1,
+      "min_level": 6,
+      "max_level": 10,
+      "biome_affinity": ["glass_gardens", "refraction_fields"],
+      "spawn_chance": 0.04,
+      "unique": true,
+      "faction_structure": "GlassbornCollective"
+    },
+    "salt_harbor": {
+      "weight": 2,
+      "min_level": 5,
+      "max_level": 10,
+      "biome_affinity": ["saltflat", "salt_mines"],
+      "spawn_chance": 0.06,
+      "unique": true,
+      "faction_structure": "IndependentMerchants"
+    },
+    "glass_foundry": {
+      "weight": 2,
+      "min_level": 5,
+      "max_level": 10,
+      "biome_affinity": ["ruins", "shattered_citadel"],
+      "spawn_chance": 0.06,
+      "unique": true,
+      "faction_structure": "SandEngineers"
+    },
+    "mirror_shrine": {
+      "weight": 4,
+      "min_level": 2,
+      "max_level": 8,
+      "biome_affinity": ["glass_gardens", "ruins"],
+      "spawn_chance": 0.15,
+      "unique": false,
+      "faction_structure": "MirrorMonks"
+    },
+    "archive_node": {
+      "weight": 3,
+      "min_level": 3,
+      "max_level": 9,
+      "biome_affinity": ["ruins", "shattered_citadel"],
+      "spawn_chance": 0.12,
+      "unique": false,
+      "faction_structure": "ArchiveConsciousness"
+    },
+    "refraction_monument": {
+      "weight": 3,
+      "min_level": 3,
+      "max_level": 8,
+      "biome_affinity": ["refraction_fields", "glass_gardens"],
+      "spawn_chance": 0.12,
+      "unique": false,
+      "faction_structure": "GlassProphets"
+    },
+    "storm_scar_memorial": {
+      "weight": 3,
+      "min_level": 4,
+      "max_level": 9,
+      "biome_affinity": ["storm_scars"],
+      "spawn_chance": 0.12,
+      "unique": false,
+      "faction_structure": "CosmicWatch"
+    },
+    "void_breach_site": {
+      "weight": 2,
+      "min_level": 5,
+      "max_level": 10,
+      "biome_affinity": ["shattered_citadel", "refraction_fields"],
+      "spawn_chance": 0.08,
+      "unique": false,
+      "faction_structure": "QuantumCollective"
+    }
+  },
+  "biome_structure_preferences": {
+    "glass_gardens": {
+      "preferred_structures": ["prism_cathedral_natural", "mirror_shrine", "refraction_monument"],
+      "structure_density": 0.3
+    },
+    "shattered_citadel": {
+      "preferred_structures": ["new_heliograph_station", "archive_node", "void_breach_site"],
+      "structure_density": 0.25
+    },
+    "salt_mines": {
+      "preferred_structures": ["salt_harbor", "wandering_chapel"],
+      "structure_density": 0.2
+    },
+    "storm_scars": {
+      "preferred_structures": ["storm_scar_memorial", "heliograph_beacon"],
+      "structure_density": 0.15
+    },
+    "refraction_fields": {
+      "preferred_structures": ["void_breach_site", "refraction_monument", "prism_city"],
+      "structure_density": 0.2
+    },
+    "ruins": {
+      "preferred_structures": ["monastery_ascending_light", "archive_node", "mirror_shrine"],
+      "structure_density": 0.25
+    },
+    "saltflat": {
+      "preferred_structures": ["nexus_plateau", "salt_harbor"],
+      "structure_density": 0.1
+    },
+    "desert": {
+      "preferred_structures": ["nexus_plateau", "wandering_chapel"],
+      "structure_density": 0.1
+    }
+  },
+  "faction_structure_requirements": {
+    "MirrorMonks": {
+      "required_structures": ["monastery_ascending_light"],
+      "preferred_structures": ["mirror_shrine", "prism_cathedral_natural"],
+      "min_structures_per_region": 1
+    },
+    "SandEngineers": {
+      "required_structures": ["new_heliograph_station"],
+      "preferred_structures": ["glass_foundry", "archive_node"],
+      "min_structures_per_region": 1
+    },
+    "GlassProphets": {
+      "required_structures": ["prism_cathedral_natural"],
+      "preferred_structures": ["refraction_monument"],
+      "min_structures_per_region": 1
+    },
+    "GlassbornCollective": {
+      "required_structures": ["prism_city"],
+      "preferred_structures": ["glass_foundry"],
+      "min_structures_per_region": 1
+    },
+    "CosmicWatch": {
+      "preferred_structures": ["storm_scar_memorial", "nexus_plateau"],
+      "min_structures_per_region": 0
+    },
+    "QuantumCollective": {
+      "preferred_structures": ["void_breach_site"],
+      "min_structures_per_region": 0
+    }
+  }
+}

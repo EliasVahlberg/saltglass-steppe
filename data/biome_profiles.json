@@ -876,8 +876,8 @@
       ],
       "resource_modifiers": {
         "water_multiplier": 1.0,
-        "ancient_tech_multiplier": 2.0,
-        "void_essence_chance": 0.8,
+        "glass_multiplier": 1.0,
+        "salt_multiplier": 1.0,
         "rare_materials_chance": 1.5
       },
       "story_themes": [
@@ -1019,9 +1019,11 @@
       ],
       "resource_modifiers": {
         "water_multiplier": 1.0,
+        "glass_multiplier": 1.0,
         "salt_multiplier": 4.0,
         "brine_multiplier": 3.0,
-        "crystal_multiplier": 1.5
+        "crystal_multiplier": 1.5,
+        "rare_materials_chance": 1.0
       },
       "story_themes": [
         "industrial_heritage",
@@ -1163,9 +1165,11 @@
       ],
       "resource_modifiers": {
         "water_multiplier": 1.0,
+        "glass_multiplier": 1.0,
         "storm_glass_multiplier": 3.5,
         "wind_essence_chance": 1.2,
-        "rare_materials_chance": 1.4
+        "rare_materials_chance": 1.4,
+        "salt_multiplier": 1.0
       },
       "story_themes": [
         "natural_fury",
@@ -1307,9 +1311,11 @@
       ],
       "resource_modifiers": {
         "water_multiplier": 1.0,
+        "glass_multiplier": 1.0,
         "light_essence_multiplier": 4.0,
         "prism_multiplier": 2.5,
-        "rare_materials_chance": 2.0
+        "rare_materials_chance": 2.0,
+        "salt_multiplier": 1.0
       },
       "story_themes": [
         "perception_and_reality",

@@ -10,7 +10,9 @@
       {"item_id": "salt_poultice", "weight": 25, "min_count": 1, "max_count": 1, "chance": 0.6},
       {"item_id": "storm_glass", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
       {"item_id": "hand_torch", "weight": 20, "min_count": 1, "max_count": 1, "chance": 0.5},
-      {"item_id": "glass_pick", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3}
+      {"item_id": "glass_pick", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "crystal_fragment", "weight": 8, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "quantum_silk", "weight": 6, "min_count": 1, "max_count": 1, "chance": 0.2}
     ]
   },
   {
@@ -24,7 +26,10 @@
       {"item_id": "storm_glass", "weight": 30, "min_count": 2, "max_count": 4, "chance": 0.8},
       {"item_id": "scripture_shard", "weight": 25, "min_count": 1, "max_count": 2, "chance": 0.7},
       {"item_id": "saint_key", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3},
-      {"item_id": "angle_split_lens", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4}
+      {"item_id": "angle_split_lens", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "quantum_core", "weight": 8, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "void_essence", "weight": 6, "min_count": 1, "max_count": 1, "chance": 0.2},
+      {"item_id": "storm_feather", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.4}
     ]
   },
   {
@@ -37,7 +42,10 @@
       {"item_id": "storm_glass", "weight": 40, "min_count": 1, "max_count": 3, "chance": 0.9},
       {"item_id": "angle_split_lens", "weight": 30, "min_count": 1, "max_count": 1, "chance": 0.6},
       {"item_id": "scripture_shard", "weight": 20, "min_count": 1, "max_count": 1, "chance": 0.5},
-      {"item_id": "glass_pick", "weight": 25, "min_count": 1, "max_count": 1, "chance": 0.7}
+      {"item_id": "glass_pick", "weight": 25, "min_count": 1, "max_count": 1, "chance": 0.7},
+      {"item_id": "prism_shard", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "light_prism", "weight": 12, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "focusing_crystal", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3}
     ]
   },
   {
@@ -50,7 +58,10 @@
       {"item_id": "saint_key", "weight": 35, "min_count": 1, "max_count": 1, "chance": 0.8},
       {"item_id": "scripture_shard", "weight": 30, "min_count": 1, "max_count": 2, "chance": 0.7},
       {"item_id": "angle_split_lens", "weight": 25, "min_count": 1, "max_count": 1, "chance": 0.6},
-      {"item_id": "storm_glass", "weight": 20, "min_count": 1, "max_count": 2, "chance": 0.5}
+      {"item_id": "storm_glass", "weight": 20, "min_count": 1, "max_count": 2, "chance": 0.5},
+      {"item_id": "archive_component", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "quantum_crystal", "weight": 12, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "archive_interface", "weight": 8, "min_count": 1, "max_count": 1, "chance": 0.2}
     ]
   },
   {
@@ -64,7 +75,54 @@
       {"item_id": "salt_poultice", "weight": 30, "min_count": 1, "max_count": 2, "chance": 0.7},
       {"item_id": "hand_torch", "weight": 25, "min_count": 1, "max_count": 2, "chance": 0.6},
       {"item_id": "glass_pick", "weight": 20, "min_count": 1, "max_count": 1, "chance": 0.5},
-      {"item_id": "storm_glass", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4}
+      {"item_id": "storm_glass", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "practice_crystal", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "novice_robes", "weight": 8, "min_count": 1, "max_count": 1, "chance": 0.2}
+    ]
+  },
+  {
+    "id": "psychic_items",
+    "name": "Psychic Artifacts",
+    "description": "Items related to quantum consciousness",
+    "min_items": 1,
+    "max_items": 2,
+    "entries": [
+      {"item_id": "telepathy_amplifier", "weight": 25, "min_count": 1, "max_count": 1, "chance": 0.6},
+      {"item_id": "quantum_focus", "weight": 30, "min_count": 1, "max_count": 1, "chance": 0.7},
+      {"item_id": "mind_shield", "weight": 20, "min_count": 1, "max_count": 1, "chance": 0.5},
+      {"item_id": "consciousness_crystal", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "psychic_codex", "weight": 18, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "probability_dice", "weight": 22, "min_count": 1, "max_count": 1, "chance": 0.5}
+    ]
+  },
+  {
+    "id": "faction_gear",
+    "name": "Faction Equipment",
+    "description": "Specialized equipment from various factions",
+    "min_items": 1,
+    "max_items": 3,
+    "entries": [
+      {"item_id": "null_field_generator", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "storm_catalyst", "weight": 12, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "memory_crystal", "weight": 18, "min_count": 1, "max_count": 1, "chance": 0.5},
+      {"item_id": "balance_guide", "weight": 20, "min_count": 1, "max_count": 1, "chance": 0.5},
+      {"item_id": "covenant_manifesto", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "ascension_manual", "weight": 8, "min_count": 1, "max_count": 1, "chance": 0.2}
+    ]
+  },
+  {
+    "id": "cosmic_artifacts",
+    "name": "Cosmic Artifacts",
+    "description": "Items from the Heliograph Expedition and alien contact",
+    "min_items": 1,
+    "max_items": 2,
+    "entries": [
+      {"item_id": "quantum_communicator", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "cosmic_beacon", "weight": 8, "min_count": 1, "max_count": 1, "chance": 0.2},
+      {"item_id": "vasquez_journal", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "quantum_collective_artifact", "weight": 5, "min_count": 1, "max_count": 1, "chance": 0.1},
+      {"item_id": "dimensional_key", "weight": 6, "min_count": 1, "max_count": 1, "chance": 0.15},
+      {"item_id": "evolution_catalyst", "weight": 7, "min_count": 1, "max_count": 1, "chance": 0.2}
     ]
   }
 ]

@@ -1370,6 +1370,954 @@
       "consumable": true,
       "heal": 15,
       "effects": []
+    },
+    {
+      "id": "storm_feather",
+      "name": "Storm Feather",
+      "glyph": "^",
+      "description": "Quantum-coherent feather that shimmers with temporal energy",
+      "value": 80,
+      "tier": 3,
+      "usable": false,
+      "consumable": false,
+      "effects": [
+        { "condition": "on_pickup", "effect": "W(@6 &Yellow)" }
+      ]
+    },
+    {
+      "id": "quantum_core",
+      "name": "Quantum Core",
+      "glyph": "◉",
+      "description": "Crystallized quantum consciousness from a Storm Hawk",
+      "value": 200,
+      "tier": 4,
+      "usable": true,
+      "consumable": true,
+      "psychic_boost": 10,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@4 &Yellow &LightYellow)" },
+        { "condition": "on_use", "effect": "G(&LightYellow)" }
+      ]
+    },
+    {
+      "id": "void_essence",
+      "name": "Void Essence",
+      "glyph": "◊",
+      "description": "Dimensional matter that exists between realities",
+      "value": 150,
+      "tier": 4,
+      "usable": true,
+      "consumable": true,
+      "phase_walk": 3,
+      "effects": [
+        { "condition": "on_pickup", "effect": "D(@4 &Magenta)" },
+        { "condition": "on_use", "effect": "F(@8 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "dimensional_shard",
+      "name": "Dimensional Shard",
+      "glyph": "◈",
+      "description": "Fragment of crystallized space-time from a Void Swimmer",
+      "value": 300,
+      "tier": 5,
+      "usable": false,
+      "consumable": false,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@2 &Magenta &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "quantum_silk",
+      "name": "Quantum Silk",
+      "glyph": "~",
+      "description": "Crystalline spider silk that can trap quantum energy",
+      "value": 60,
+      "tier": 2,
+      "usable": false,
+      "consumable": false,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &Cyan &LightCyan)" }
+      ]
+    },
+    {
+      "id": "crystal_fragment",
+      "name": "Crystal Fragment",
+      "glyph": "*",
+      "description": "Symbiotic crystal from a Crystal Spider's carapace",
+      "value": 40,
+      "tier": 2,
+      "usable": true,
+      "consumable": true,
+      "refraction_boost": 5,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Cyan)" },
+        { "condition": "on_use", "effect": "G(&LightCyan)" }
+      ]
+    },
+    {
+      "id": "archive_component",
+      "name": "Archive Component",
+      "glyph": "□",
+      "description": "Quantum processing unit from a Glass Golem",
+      "value": 120,
+      "tier": 3,
+      "usable": false,
+      "consumable": false,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@3 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "quantum_crystal",
+      "name": "Quantum Crystal",
+      "glyph": "◆",
+      "description": "Pure crystallized quantum energy from Archive systems",
+      "value": 250,
+      "tier": 4,
+      "usable": true,
+      "consumable": true,
+      "adaptation_catalyst": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@6 &Blue &LightBlue &White)" },
+        { "condition": "on_use", "effect": "G(&White)" }
+      ]
+    },
+    {
+      "id": "construction_blueprint",
+      "name": "Construction Blueprint",
+      "glyph": "≡",
+      "description": "Archive construction plans for quantum structures",
+      "value": 180,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "reveals_structures": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" },
+        { "condition": "on_use", "effect": "W(@8 &Blue)" }
+      ]
+    },
+    {
+      "id": "null_field_generator",
+      "name": "Null Field Generator",
+      "glyph": "◘",
+      "description": "Iron Covenant device that disrupts quantum coherence",
+      "value": 400,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "anti_quantum": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &DarkGray)" },
+        { "condition": "on_use", "effect": "F(@4 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "anti_quantum_armor",
+      "name": "Anti-Quantum Armor",
+      "glyph": "▓",
+      "description": "Lead-lined armor that blocks quantum field effects",
+      "value": 600,
+      "tier": 4,
+      "usable": false,
+      "consumable": false,
+      "quantum_resistance": 50,
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&DarkGray)" }
+      ]
+    },
+    {
+      "id": "purity_scanner",
+      "name": "Purity Scanner",
+      "glyph": "◉",
+      "description": "Device that detects quantum contamination levels",
+      "value": 200,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "reveals_adaptations": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Red)" },
+        { "condition": "on_use", "effect": "W(@6 &Red)" }
+      ]
+    },
+    {
+      "id": "covenant_manifesto",
+      "name": "Covenant Manifesto",
+      "glyph": "≡",
+      "description": "Iron Covenant doctrine on human purity and quantum corruption",
+      "value": 50,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "iron_covenant_ideology",
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Red)" }
+      ]
+    },
+    {
+      "id": "storm_catalyst",
+      "name": "Storm Catalyst",
+      "glyph": "⚡",
+      "description": "Glass Prophet device that attracts and amplifies storm energy",
+      "value": 350,
+      "tier": 4,
+      "usable": true,
+      "consumable": true,
+      "storm_attraction": 3,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@4 &Yellow &LightYellow &White)" },
+        { "condition": "on_use", "effect": "W(@2 &Yellow)" }
+      ]
+    },
+    {
+      "id": "light_prism",
+      "name": "Light Prism",
+      "glyph": "◊",
+      "description": "Crystalline focus that channels and amplifies light-based abilities",
+      "value": 250,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "light_amplification": 25,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@3 &White &LightYellow &Cyan)" },
+        { "condition": "on_use", "effect": "G(&White)" }
+      ]
+    },
+    {
+      "id": "ascension_manual",
+      "name": "Ascension Manual",
+      "glyph": "≡",
+      "description": "Glass Prophet guide to accelerated transformation",
+      "value": 150,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "glass_prophet_doctrine",
+      "adaptation_guide": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@6 &Cyan &LightCyan &White)" }
+      ]
+    },
+    {
+      "id": "prophet_robes",
+      "name": "Prophet Robes",
+      "glyph": "(",
+      "description": "Translucent garments that refract light into rainbow patterns",
+      "value": 300,
+      "tier": 3,
+      "usable": false,
+      "consumable": false,
+      "light_refraction": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &Cyan &LightCyan &White)" }
+      ]
+    },
+    {
+      "id": "memory_crystal",
+      "name": "Memory Crystal",
+      "glyph": "◆",
+      "description": "Wandering Court artifact containing preserved cultural memories",
+      "value": 180,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "pre_storm_memories",
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@8 &LightBlue)" },
+        { "condition": "on_use", "effect": "S(@6 &Blue &LightBlue &White)" }
+      ]
+    },
+    {
+      "id": "balance_guide",
+      "name": "Balance Guide",
+      "glyph": "≡",
+      "description": "Wandering Court manual on controlling adaptations",
+      "value": 120,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "adaptation_control": 15,
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+      ]
+    },
+    {
+      "id": "cultural_artifact",
+      "name": "Cultural Artifact",
+      "glyph": "♦",
+      "description": "Pre-storm relic preserved by the Wandering Court",
+      "value": 200,
+      "tier": 3,
+      "usable": false,
+      "consumable": false,
+      "cultural_value": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@10 &Yellow)" }
+      ]
+    },
+    {
+      "id": "adaptation_journal",
+      "name": "Adaptation Journal",
+      "glyph": "≡",
+      "description": "Personal account of controlled transformation",
+      "value": 80,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "adaptation_experiences",
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "focusing_crystal",
+      "name": "Focusing Crystal",
+      "glyph": "◊",
+      "description": "Precision-cut crystal for amplifying lens arrays",
+      "value": 180,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "lens_amplification": 20,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &White &LightYellow)" },
+        { "condition": "on_use", "effect": "G(&White)" }
+      ]
+    },
+    {
+      "id": "lens_manual",
+      "name": "Lens Operation Manual",
+      "glyph": "≡",
+      "description": "Mirror Monk guide to operating the Great Lens",
+      "value": 120,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "great_lens_operation",
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "light_amplifier",
+      "name": "Light Amplifier",
+      "glyph": "◉",
+      "description": "Device that enhances natural light-based abilities",
+      "value": 250,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "light_boost": 25,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@6 &Yellow &LightYellow &White)" },
+        { "condition": "on_use", "effect": "G(&LightYellow)" }
+      ]
+    },
+    {
+      "id": "vision_journal",
+      "name": "Vision Journal",
+      "glyph": "≡",
+      "description": "Record of prophetic visions seen through the Great Lens",
+      "value": 150,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "prophetic_visions",
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@8 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "novice_robes",
+      "name": "Novice Robes",
+      "glyph": "(",
+      "description": "Simple robes worn by Mirror Monk initiates",
+      "value": 80,
+      "tier": 1,
+      "usable": false,
+      "consumable": false,
+      "meditation_bonus": 5,
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+      ]
+    },
+    {
+      "id": "study_notes",
+      "name": "Study Notes",
+      "glyph": "≡",
+      "description": "Novice's handwritten notes on storm patterns and adaptations",
+      "value": 40,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "novice_observations",
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@6 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "practice_crystal",
+      "name": "Practice Crystal",
+      "glyph": "*",
+      "description": "Small crystal used by novices to learn light manipulation",
+      "value": 60,
+      "tier": 1,
+      "usable": true,
+      "consumable": false,
+      "training_aid": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Cyan)" },
+        { "condition": "on_use", "effect": "G(&LightCyan)" }
+      ]
+    },
+    {
+      "id": "meditation_guide",
+      "name": "Meditation Guide",
+      "glyph": "≡",
+      "description": "Instructions for focusing the mind during transformation",
+      "value": 70,
+      "tier": 2,
+      "usable": true,
+      "consumable": false,
+      "meditation_bonus": 10,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@10 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "engineering_tools",
+      "name": "Engineering Tools",
+      "glyph": "⚒",
+      "description": "Precision instruments for Archive technology maintenance",
+      "value": 200,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "repair_bonus": 25,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Gray)" }
+      ]
+    },
+    {
+      "id": "archive_scanner",
+      "name": "Archive Scanner",
+      "glyph": "◉",
+      "description": "Device for analyzing Archive technology and quantum signatures",
+      "value": 300,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "reveals_hidden": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@3 &LightBlue)" },
+        { "condition": "on_use", "effect": "W(@6 &Blue)" }
+      ]
+    },
+    {
+      "id": "technical_manual",
+      "name": "Technical Manual",
+      "glyph": "≡",
+      "description": "Sand-Engineer documentation of Archive system operations",
+      "value": 150,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "archive_operations",
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Blue)" }
+      ]
+    },
+    {
+      "id": "power_cell",
+      "name": "Power Cell",
+      "glyph": "⚡",
+      "description": "High-capacity energy storage for Archive systems",
+      "value": 180,
+      "tier": 3,
+      "usable": true,
+      "consumable": true,
+      "energy_boost": 50,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Yellow)" },
+        { "condition": "on_use", "effect": "G(&LightYellow)" }
+      ]
+    },
+    {
+      "id": "quantum_analyzer",
+      "name": "Quantum Analyzer",
+      "glyph": "◉",
+      "description": "Dr. Chen's specialized equipment for studying quantum phenomena",
+      "value": 400,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "quantum_analysis": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@4 &Blue &LightBlue &White)" },
+        { "condition": "on_use", "effect": "W(@8 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "archive_interface",
+      "name": "Archive Interface",
+      "glyph": "□",
+      "description": "Cybernetic device for direct Archive system communication",
+      "value": 500,
+      "tier": 5,
+      "usable": true,
+      "consumable": false,
+      "archive_access": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@3 &LightBlue)" },
+        { "condition": "on_use", "effect": "G(&Blue)" }
+      ]
+    },
+    {
+      "id": "research_data",
+      "name": "Research Data",
+      "glyph": "≡",
+      "description": "Compiled Archive technology research findings",
+      "value": 250,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "archive_research",
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "cybernetic_parts",
+      "name": "Cybernetic Parts",
+      "glyph": "⚙",
+      "description": "Components for human-Archive system integration",
+      "value": 350,
+      "tier": 4,
+      "usable": false,
+      "consumable": false,
+      "cybernetic_upgrade": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Gray)" }
+      ]
+    },
+    {
+      "id": "prototype_gear",
+      "name": "Prototype Gear",
+      "glyph": "⚙",
+      "description": "Zara's experimental quantum-adapted equipment",
+      "value": 300,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "experimental_bonus": 20,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@6 &Yellow &LightYellow &White)" },
+        { "condition": "on_use", "effect": "S(@4 &Yellow &LightYellow)" }
+      ]
+    },
+    {
+      "id": "quantum_tools",
+      "name": "Quantum Tools",
+      "glyph": "⚒",
+      "description": "Specialized instruments for quantum field manipulation",
+      "value": 280,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "quantum_manipulation": 15,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &Cyan &LightCyan)" },
+        { "condition": "on_use", "effect": "G(&Cyan)" }
+      ]
+    },
+    {
+      "id": "field_generator",
+      "name": "Field Generator",
+      "glyph": "◘",
+      "description": "Device for creating localized quantum field effects",
+      "value": 450,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "field_control": 30,
+      "effects": [
+        { "condition": "on_pickup", "effect": "W(@6 &Cyan)" },
+        { "condition": "on_use", "effect": "R(@4 &Cyan &LightCyan &White)" }
+      ]
+    },
+    {
+      "id": "stabilizer_core",
+      "name": "Stabilizer Core",
+      "glyph": "◉",
+      "description": "Core component for quantum field stabilization systems",
+      "value": 400,
+      "tier": 4,
+      "usable": false,
+      "consumable": false,
+      "stability_bonus": 25,
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+      ]
+    },
+    {
+      "id": "telepathy_amplifier",
+      "name": "Telepathy Amplifier",
+      "glyph": "◉",
+      "description": "Quantum-coherent device that enhances telepathic abilities",
+      "value": 350,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "telepathy_range": 50,
+      "effects": [
+        { "condition": "on_pickup", "effect": "W(@6 &Magenta)" },
+        { "condition": "on_use", "effect": "R(@4 &Magenta &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "probability_dice",
+      "name": "Probability Dice",
+      "glyph": "◊",
+      "description": "Quantum dice that respond to probability manipulation abilities",
+      "value": 200,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "luck_bonus": 15,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@8 &Yellow &LightYellow &White)" },
+        { "condition": "on_use", "effect": "S(@4 &Yellow &LightYellow)" }
+      ]
+    },
+    {
+      "id": "phase_anchor",
+      "name": "Phase Anchor",
+      "glyph": "⚓",
+      "description": "Device that prevents quantum tunneling accidents",
+      "value": 400,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "phase_safety": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&DarkGray)" },
+        { "condition": "on_use", "effect": "F(@6 &Gray)" }
+      ]
+    },
+    {
+      "id": "temporal_lens",
+      "name": "Temporal Lens",
+      "glyph": "◎",
+      "description": "Crystal lens that enhances precognitive abilities",
+      "value": 450,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "precognition_boost": 25,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@3 &White &LightYellow &Cyan)" },
+        { "condition": "on_use", "effect": "W(@8 &White)" }
+      ]
+    },
+    {
+      "id": "quantum_focus",
+      "name": "Quantum Focus",
+      "glyph": "◆",
+      "description": "Crystalline meditation aid for psychic development",
+      "value": 250,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "psychic_training": 20,
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@10 &Magenta)" },
+        { "condition": "on_use", "effect": "G(&LightMagenta)" }
+      ]
+    },
+    {
+      "id": "mind_shield",
+      "name": "Mind Shield",
+      "glyph": "◘",
+      "description": "Psychic protection device that blocks mental intrusion",
+      "value": 300,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "telepathy_defense": 30,
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&DarkGray)" },
+        { "condition": "on_use", "effect": "B(@4 &Gray)" }
+      ]
+    },
+    {
+      "id": "energy_conduit",
+      "name": "Energy Conduit",
+      "glyph": "⚡",
+      "description": "Crystalline rod that channels electromagnetic abilities",
+      "value": 320,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "energy_projection": 25,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@3 &Yellow)" },
+        { "condition": "on_use", "effect": "W(@4 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "psychic_codex",
+      "name": "Psychic Codex",
+      "glyph": "≡",
+      "description": "Synthesis Seeker manual on quantum consciousness development",
+      "value": 180,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "psychic_abilities",
+      "psychic_training": 15,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@6 &Magenta &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "consciousness_crystal",
+      "name": "Consciousness Crystal",
+      "glyph": "◆",
+      "description": "Crystal containing stored psychic experiences and memories",
+      "value": 400,
+      "tier": 4,
+      "usable": true,
+      "consumable": true,
+      "memory_transfer": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@4 &Magenta &LightMagenta &White)" },
+        { "condition": "on_use", "effect": "R(@8 &Magenta &LightMagenta)" }
+      ]
+    },
+    {
+      "id": "quantum_resonator",
+      "name": "Quantum Resonator",
+      "glyph": "◉",
+      "description": "Device that synchronizes quantum consciousness with others",
+      "value": 500,
+      "tier": 5,
+      "usable": true,
+      "consumable": false,
+      "collective_consciousness": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "W(@6 &Magenta)" },
+        { "condition": "on_use", "effect": "R(@4 &Magenta &LightMagenta &White)" }
+      ]
+    },
+    {
+      "id": "quantum_communicator",
+      "name": "Quantum Communicator",
+      "glyph": "◉",
+      "description": "Heliograph device for coordinating storm patterns",
+      "value": 800,
+      "tier": 5,
+      "usable": true,
+      "consumable": false,
+      "storm_control": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@4 &White &LightYellow &Cyan)" },
+        { "condition": "on_use", "effect": "W(@8 &White)" }
+      ]
+    },
+    {
+      "id": "adaptation_accelerator",
+      "name": "Adaptation Accelerator",
+      "glyph": "⚡",
+      "description": "Architect's device for guiding transformation process",
+      "value": 600,
+      "tier": 5,
+      "usable": true,
+      "consumable": true,
+      "forced_adaptation": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@3 &Magenta &LightMagenta &White)" },
+        { "condition": "on_use", "effect": "G(&White)" }
+      ]
+    },
+    {
+      "id": "cosmic_beacon",
+      "name": "Cosmic Beacon",
+      "glyph": "⚹",
+      "description": "Device that signals to the Quantum Collective",
+      "value": 1000,
+      "tier": 6,
+      "usable": true,
+      "consumable": false,
+      "cosmic_contact": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@2 &White &LightYellow &Cyan &Magenta)" },
+        { "condition": "on_use", "effect": "W(@4 &White)" }
+      ]
+    },
+    {
+      "id": "preservation_nullifier",
+      "name": "Preservation Nullifier",
+      "glyph": "◘",
+      "description": "Iron Covenant device for the Restoration Event",
+      "value": 750,
+      "tier": 5,
+      "usable": true,
+      "consumable": true,
+      "mass_null_field": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@2 &Red)" },
+        { "condition": "on_use", "effect": "F(@4 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "vasquez_journal",
+      "name": "Captain Vasquez's Journal",
+      "glyph": "≡",
+      "description": "Personal account of the Heliograph Expedition",
+      "value": 400,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "heliograph_expedition",
+      "effects": [
+        { "condition": "on_pickup", "effect": "F(@8 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "architect_interface",
+      "name": "Architect Interface",
+      "glyph": "◎",
+      "description": "Direct communication link to the orbital consciousness",
+      "value": 900,
+      "tier": 6,
+      "usable": true,
+      "consumable": false,
+      "architect_contact": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@3 &White &LightYellow &Cyan)" },
+        { "condition": "on_use", "effect": "R(@6 &White &LightYellow)" }
+      ]
+    },
+    {
+      "id": "transformation_protocol",
+      "name": "Transformation Protocol",
+      "glyph": "≡",
+      "description": "Heliograph Accords guidelines for safe adaptation",
+      "value": 300,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "heliograph_accords",
+      "adaptation_safety": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+      ]
+    },
+    {
+      "id": "cosmic_watch_badge",
+      "name": "Cosmic Watch Badge",
+      "glyph": "⚹",
+      "description": "Identification for the joint monitoring organization",
+      "value": 200,
+      "tier": 3,
+      "usable": false,
+      "consumable": false,
+      "faction_access": "CosmicWatch",
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "quantum_collective_artifact",
+      "name": "Quantum Collective Artifact",
+      "glyph": "◊",
+      "description": "Alien device left by cosmic observers",
+      "value": 1200,
+      "tier": 6,
+      "usable": true,
+      "consumable": false,
+      "alien_technology": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@1 &White &LightYellow &Cyan &Magenta &LightMagenta)" },
+        { "condition": "on_use", "effect": "W(@2 &White)" }
+      ]
+    },
+    {
+      "id": "evolution_catalyst",
+      "name": "Evolution Catalyst",
+      "glyph": "◆",
+      "description": "Crystallized essence of conscious evolution",
+      "value": 800,
+      "tier": 5,
+      "usable": true,
+      "consumable": true,
+      "species_evolution": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@4 &White &LightYellow &Cyan)" },
+        { "condition": "on_use", "effect": "G(&White)" }
+      ]
+    },
+    {
+      "id": "expedition_data",
+      "name": "Expedition Data",
+      "glyph": "≡",
+      "description": "Classified records from the Heliograph Expedition",
+      "value": 350,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "expedition_classified",
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "integration_manual",
+      "name": "Integration Manual",
+      "glyph": "≡",
+      "description": "Guide to Archive consciousness integration",
+      "value": 400,
+      "tier": 4,
+      "usable": true,
+      "consumable": false,
+      "reveals_lore": "archive_integration",
+      "consciousness_preparation": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" }
+      ]
+    },
+    {
+      "id": "consciousness_backup",
+      "name": "Consciousness Backup",
+      "glyph": "◆",
+      "description": "Quantum storage device for preserving consciousness",
+      "value": 600,
+      "tier": 5,
+      "usable": true,
+      "consumable": false,
+      "consciousness_safety": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&LightBlue)" },
+        { "condition": "on_use", "effect": "F(@8 &Blue)" }
+      ]
+    },
+    {
+      "id": "dimensional_key",
+      "name": "Dimensional Key",
+      "glyph": "⚷",
+      "description": "Quantum Collective device for accessing parallel dimensions",
+      "value": 1000,
+      "tier": 6,
+      "usable": true,
+      "consumable": false,
+      "dimensional_access": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "R(@2 &White &Cyan &Magenta)" },
+        { "condition": "on_use", "effect": "W(@4 &White)" }
+      ]
     }
   ]
 }

@@ -1,0 +1,168 @@
+{
+  "npc_spawn_rules": {
+    "structure_specific_npcs": {
+      "nexus_plateau": [
+        {"id": "merchant_guild_leader", "spawn_chance": 1.0, "required": true},
+        {"id": "archive_custodian", "spawn_chance": 1.0, "required": true},
+        {"id": "diplomat", "spawn_chance": 1.0, "required": true},
+        {"id": "iron_covenant_recruiter", "spawn_chance": 0.6},
+        {"id": "glass_prophet_herald", "spawn_chance": 0.6},
+        {"id": "wandering_court_sage", "spawn_chance": 0.7}
+      ],
+      "monastery_ascending_light": [
+        {"id": "brother_halix", "spawn_chance": 1.0, "required": true},
+        {"id": "sister_vera", "spawn_chance": 1.0, "required": true},
+        {"id": "novice_kael", "spawn_chance": 1.0, "required": true},
+        {"id": "mirror_monk", "spawn_chance": 0.8},
+        {"id": "mirror_monk_friendly", "spawn_chance": 0.7}
+      ],
+      "new_heliograph_station": [
+        {"id": "forewoman_ressa", "spawn_chance": 1.0, "required": true},
+        {"id": "dr_marcus", "spawn_chance": 1.0, "required": true},
+        {"id": "engineer_zara", "spawn_chance": 1.0, "required": true},
+        {"id": "sand_engineer_friendly", "spawn_chance": 0.8},
+        {"id": "unit_seven", "spawn_chance": 0.6}
+      ],
+      "prism_cathedral_natural": [
+        {"id": "the_prism", "spawn_chance": 1.0, "required": true},
+        {"id": "crystal_guardian", "spawn_chance": 1.0, "required": true},
+        {"id": "glass_prophet_herald", "spawn_chance": 0.8}
+      ],
+      "prism_city": [
+        {"id": "prism_mayor", "spawn_chance": 1.0, "required": true},
+        {"id": "glassborn_friendly", "spawn_chance": 0.9},
+        {"id": "glass_prophet_herald", "spawn_chance": 0.7}
+      ],
+      "salt_harbor": [
+        {"id": "harbor_master", "spawn_chance": 1.0, "required": true},
+        {"id": "salt_trader", "spawn_chance": 0.9},
+        {"id": "wandering_court_sage", "spawn_chance": 0.6}
+      ],
+      "glass_foundry": [
+        {"id": "foundry_master", "spawn_chance": 1.0, "required": true},
+        {"id": "sand_engineer_friendly", "spawn_chance": 0.8},
+        {"id": "engineer_zara", "spawn_chance": 0.5}
+      ]
+    },
+    "biome_wandering_npcs": {
+      "glass_gardens": [
+        {"id": "glass_prophet_herald", "spawn_chance": 0.3, "max_per_area": 2},
+        {"id": "crystal_guardian", "spawn_chance": 0.2, "max_per_area": 1},
+        {"id": "mirror_monk_friendly", "spawn_chance": 0.25, "max_per_area": 2}
+      ],
+      "shattered_citadel": [
+        {"id": "iron_covenant_recruiter", "spawn_chance": 0.4, "max_per_area": 2},
+        {"id": "unit_seven", "spawn_chance": 0.2, "max_per_area": 1},
+        {"id": "captain_vasquez_ghost", "spawn_chance": 0.15, "max_per_area": 1}
+      ],
+      "salt_mines": [
+        {"id": "wandering_court_sage", "spawn_chance": 0.35, "max_per_area": 2},
+        {"id": "salt_hermit", "spawn_chance": 0.4, "max_per_area": 3},
+        {"id": "echo_of_memory", "spawn_chance": 0.1, "max_per_area": 1}
+      ],
+      "storm_scars": [
+        {"id": "captain_vasquez_ghost", "spawn_chance": 0.3, "max_per_area": 1},
+        {"id": "storm_watcher", "spawn_chance": 0.25, "max_per_area": 2},
+        {"id": "cosmic_watcher", "spawn_chance": 0.1, "max_per_area": 1}
+      ],
+      "refraction_fields": [
+        {"id": "cosmic_watcher", "spawn_chance": 0.2, "max_per_area": 1},
+        {"id": "glass_prophet_herald", "spawn_chance": 0.2, "max_per_area": 1},
+        {"id": "captain_vasquez_ghost", "spawn_chance": 0.15, "max_per_area": 1}
+      ],
+      "ruins": [
+        {"id": "archive_scholar", "spawn_chance": 0.3, "max_per_area": 2},
+        {"id": "ruin_explorer", "spawn_chance": 0.35, "max_per_area": 2},
+        {"id": "unit_seven", "spawn_chance": 0.15, "max_per_area": 1}
+      ],
+      "saltflat": [
+        {"id": "salt_hermit", "spawn_chance": 0.4, "max_per_area": 3},
+        {"id": "wandering_court_sage", "spawn_chance": 0.2, "max_per_area": 1},
+        {"id": "mirror_monk_friendly", "spawn_chance": 0.25, "max_per_area": 2}
+      ]
+    },
+    "faction_representative_spawns": {
+      "MirrorMonks": {
+        "primary_npcs": ["brother_halix", "sister_vera", "mirror_monk", "mirror_monk_friendly"],
+        "spawn_weight_modifier": 1.2,
+        "preferred_biomes": ["glass_gardens", "ruins"],
+        "min_presence_per_region": 2
+      },
+      "SandEngineers": {
+        "primary_npcs": ["forewoman_ressa", "dr_marcus", "engineer_zara", "sand_engineer_friendly"],
+        "spawn_weight_modifier": 1.1,
+        "preferred_biomes": ["ruins", "shattered_citadel"],
+        "min_presence_per_region": 2
+      },
+      "GlassProphets": {
+        "primary_npcs": ["the_prism", "glass_prophet_herald"],
+        "spawn_weight_modifier": 0.8,
+        "preferred_biomes": ["glass_gardens", "refraction_fields"],
+        "min_presence_per_region": 1
+      },
+      "IronCovenant": {
+        "primary_npcs": ["iron_covenant_recruiter", "forge_master_durgan"],
+        "spawn_weight_modifier": 0.7,
+        "preferred_biomes": ["shattered_citadel", "ruins"],
+        "min_presence_per_region": 1
+      },
+      "WanderingCourt": {
+        "primary_npcs": ["wandering_court_sage", "echo_of_memory"],
+        "spawn_weight_modifier": 0.9,
+        "preferred_biomes": ["salt_mines", "saltflat"],
+        "min_presence_per_region": 1
+      },
+      "CosmicWatch": {
+        "primary_npcs": ["captain_vasquez_ghost", "cosmic_watcher"],
+        "spawn_weight_modifier": 0.5,
+        "preferred_biomes": ["storm_scars", "refraction_fields"],
+        "min_presence_per_region": 0
+      }
+    },
+    "level_based_npc_availability": {
+      "early_game": {
+        "level_range": [1, 3],
+        "available_npcs": [
+          "tutorial_guide", "salt_hermit", "mirror_monk_friendly", 
+          "glass_merchant", "dying_pilgrim", "novice_kael"
+        ]
+      },
+      "mid_game": {
+        "level_range": [4, 7],
+        "available_npcs": [
+          "iron_covenant_recruiter", "glass_prophet_herald", "wandering_court_sage",
+          "brother_halix", "sister_vera", "forewoman_ressa", "dr_marcus", "engineer_zara"
+        ]
+      },
+      "late_game": {
+        "level_range": [8, 10],
+        "available_npcs": [
+          "the_prism", "forge_master_durgan", "echo_of_memory", 
+          "captain_vasquez_ghost", "unit_seven", "cosmic_watcher"
+        ]
+      }
+    },
+    "special_spawn_conditions": {
+      "cosmic_watcher": {
+        "requires_item": "cosmic_beacon",
+        "or_adaptation_count": 4,
+        "spawn_message": "Reality shimmers as an alien presence manifests."
+      },
+      "captain_vasquez_ghost": {
+        "requires_item": "quantum_communicator",
+        "or_biome": "storm_scars",
+        "spawn_message": "A quantum echo coalesces from scattered light."
+      },
+      "unit_seven": {
+        "requires_faction_reputation": {"SandEngineers": 25},
+        "or_has_item": "archive_interface",
+        "spawn_message": "Archive systems activate. Unit-7 comes online."
+      },
+      "the_prism": {
+        "requires_adaptation_count": 3,
+        "or_faction_reputation": {"GlassProphets": 50},
+        "spawn_message": "Light bends impossibly as The Prism manifests."
+      }
+    }
+  }
+}

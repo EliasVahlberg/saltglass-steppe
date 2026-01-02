@@ -90,6 +90,41 @@
       "floor_threshold_bonus": 0.3,
       "floor_type_override": "soft_sand",
       "unique_features": ["mirage_oasis", "bone_garden", "sun_dial"]
+    },
+    "glass_gardens": {
+      "glass_density_multiplier": 3.0,
+      "wall_type_override": "prismatic_crystal",
+      "floor_type_override": "crystal_moss",
+      "floor_threshold_bonus": 0.15,
+      "unique_features": ["crystal_bloom", "prism_grove", "light_fountain"]
+    },
+    "shattered_citadel": {
+      "glass_density_multiplier": 1.8,
+      "wall_type_override": "void_glass",
+      "floor_type_override": "void_stone",
+      "floor_threshold_bonus": -0.2,
+      "unique_features": ["twisted_spire", "void_breach", "echo_chamber"]
+    },
+    "salt_mines": {
+      "glass_density_multiplier": 0.8,
+      "wall_type_override": "brine_crystal",
+      "floor_type_override": "salt_gravel",
+      "floor_threshold_bonus": -0.3,
+      "unique_features": ["salt_vein", "mining_shaft", "brine_pool"]
+    },
+    "storm_scars": {
+      "glass_density_multiplier": 2.2,
+      "wall_type_override": "storm_carved_stone",
+      "floor_type_override": "storm_glass_shards",
+      "floor_threshold_bonus": 0.1,
+      "unique_features": ["glass_canyon", "storm_spiral", "wind_tunnel"]
+    },
+    "refraction_fields": {
+      "glass_density_multiplier": 2.8,
+      "wall_type_override": "refraction_barrier",
+      "floor_type_override": "light_pool",
+      "floor_threshold_bonus": 0.25,
+      "unique_features": ["light_maze", "mirage_oasis", "prism_field"]
     }
   },
   "poi_layouts": {

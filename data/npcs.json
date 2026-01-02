@@ -976,6 +976,715 @@
           "effect": { "starts_quest": "salt_harvesting", "pays": 25 }
         }
       ]
+    },
+    {
+      "id": "prism_mayor",
+      "name": "Crystalline Magistrate Zara",
+      "glyph": "Z",
+      "faction": "GlassbornCollective",
+      "description": "A figure of living crystal whose form refracts light into rainbow patterns",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "Welcome, kindred spirit. Your transformation is beautiful to behold.</nextpage>In Prism City, we celebrate what others fear. The glass storms did not destroy us—they elevated us.</nextpage>Here, you will find acceptance and understanding. The light flows through us all."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Prismhide" }],
+          "text": "Your crystalline skin catches the light magnificently. You are becoming one with the glass.</nextpage>The city's resonance chambers can help accelerate your transformation, if you wish it.</nextpage>But remember—each change brings you closer to something beyond human understanding."
+        },
+        {
+          "conditions": [{ "faction_reputation": { "GlassbornCollective": 25 } }],
+          "text": "You have proven yourself a friend to our people. The city's resources are at your disposal.</nextpage>Perhaps you would consider joining our council? We need voices that understand both worlds.</nextpage>The path of glass is not for everyone, but you seem to walk it with wisdom."
+        },
+        {
+          "conditions": [],
+          "text": "Greetings, flesh-walker. Do not fear our appearance—we were once as you are.</nextpage>The storms changed us, yes, but they also freed us from the limitations of mere mortality.</nextpage>You may find our city... unsettling. But you are welcome here, as all seekers are."
+        }
+      ],
+      "actions": [
+        {
+          "id": "crystal_resonance",
+          "name": "Use Resonance Chamber",
+          "conditions": [{ "has_adaptation": "Prismhide" }],
+          "effect": { "adaptation_progress": 10, "costs": 50 }
+        },
+        {
+          "id": "city_tour",
+          "name": "Tour the Crystal Spires",
+          "conditions": [],
+          "effect": { "reveals_map_area": "prism_city", "reputation_change": { "GlassbornCollective": 5 } }
+        }
+      ]
+    },
+    {
+      "id": "harbor_master",
+      "name": "Salt-Touched Captain Voss",
+      "glyph": "V",
+      "faction": "SaltTraders",
+      "description": "Weathered captain whose skin is crusted with salt deposits",
+      "dialogue": [
+        {
+          "conditions": [{ "has_adaptation": "Saltblood" }],
+          "text": "Saltblood, eh? Good. The brine runs in your veins now—you understand the sea's call.</nextpage>My crews respect those who've been touched by salt. It means you can handle the deep mines.</nextpage>There's work here for someone with your... constitution. Dangerous work, but it pays well."
+        },
+        {
+          "conditions": [{ "faction_reputation": { "SaltTraders": 15 } }],
+          "text": "You've proven yourself reliable. The guild has taken notice.</nextpage>We're planning an expedition to the Deep Brine Caverns. Interested in joining?</nextpage>Fair warning—not everyone comes back from the deep places. But the salt crystals down there... worth a fortune."
+        },
+        {
+          "conditions": [],
+          "text": "Welcome to Salt Harbor, stranger. Mind the brine pools—they'll eat through your boots.</nextpage>We're always looking for workers, but the job's not for the soft. Salt mining is hard, dangerous work.</nextpage>Still interested? Talk to the foremen. They'll set you up with gear and a crew."
+        }
+      ],
+      "actions": [
+        {
+          "id": "salt_mining",
+          "name": "Join Mining Expedition",
+          "conditions": [],
+          "effect": { "starts_quest": "deep_brine_expedition", "pays": 75 }
+        },
+        {
+          "id": "trade_salt",
+          "name": "Trade Salt Crystals",
+          "conditions": [{ "has_item": "salt_crystal" }],
+          "effect": { "trade_item": "salt_crystal", "pays": 20 }
+        }
+      ]
+    },
+    {
+      "id": "foundry_master",
+      "name": "Glasswright Sovereign Thane",
+      "glyph": "T",
+      "faction": "GlasswrightGuild",
+      "description": "Master artisan whose hands glow with contained fire",
+      "dialogue": [
+        {
+          "conditions": [{ "has_adaptation": "Glasshands" }],
+          "text": "Glasshands! A rare gift indeed. You could shape storm glass with those.</nextpage>The guild would welcome someone with your talents. We could teach you techniques lost since the storms.</nextpage>But be warned—working with storm glass changes you. Each piece you shape leaves its mark."
+        },
+        {
+          "conditions": [{ "faction_reputation": { "GlasswrightGuild": 20 } }],
+          "text": "Your reputation precedes you. The guild masters speak highly of your work.</nextpage>We have a commission that requires... special handling. A piece for the Mirror Monks.</nextpage>The pay is excellent, but the work is dangerous. Storm glass holds memories, and some memories bite back."
+        },
+        {
+          "conditions": [],
+          "text": "Welcome to the Glass Foundry. Here, we shape storm glass into tools, art, and wonders.</nextpage>The work is dangerous—storm glass remembers the fury that forged it. But in skilled hands, it becomes something beautiful.</nextpage>Are you here to commission work, or do you seek to learn the craft yourself?"
+        }
+      ],
+      "actions": [
+        {
+          "id": "glass_crafting",
+          "name": "Learn Glass Crafting",
+          "conditions": [],
+          "effect": { "teaches_skill": "glass_shaping", "costs": 100 }
+        },
+        {
+          "id": "storm_glass_commission",
+          "name": "Accept Special Commission",
+          "conditions": [{ "faction_reputation": { "GlasswrightGuild": 20 } }],
+          "effect": { "starts_quest": "mirror_monk_commission", "pays": 200 }
+        }
+      ]
+    },
+    {
+      "id": "void_watcher",
+      "name": "Breach Sentinel Nyx",
+      "glyph": "N",
+      "faction": "VoidWardens",
+      "description": "Hooded figure whose eyes reflect the emptiness between stars",
+      "dialogue": [
+        {
+          "conditions": [{ "has_adaptation": "Voidtouched" }],
+          "text": "You bear the void's mark. I can see it in your eyes—the darkness that calls to darkness.</nextpage>Few survive contact with the breach and retain their sanity. You are... unusual.</nextpage>The void whispers secrets to those who listen. But be careful—some knowledge comes with a price."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 4 }],
+          "text": "So many changes... you walk the edge between human and something else.</nextpage>The void recognizes kindred spirits. It offers power to those willing to pay its price.</nextpage>But remember—every gift from the darkness demands something in return."
+        },
+        {
+          "conditions": [],
+          "text": "Stay back from the breach, traveler. The void hungers, and it is not particular about what it consumes.</nextpage>I stand watch here to ensure nothing emerges that shouldn't. And to ensure nothing enters that isn't prepared.</nextpage>The darkness between worlds is not meant for mortal minds to comprehend."
+        }
+      ],
+      "actions": [
+        {
+          "id": "void_knowledge",
+          "name": "Learn Void Secrets",
+          "conditions": [{ "has_adaptation": "Voidtouched" }],
+          "effect": { "teaches_skill": "void_manipulation", "costs": 150, "sanity_cost": 10 }
+        },
+        {
+          "id": "breach_warning",
+          "name": "Ask About Breach Activity",
+          "conditions": [],
+          "effect": { "reveals_info": "void_breach_patterns" }
+        }
+      ]
+    },
+    {
+      "id": "light_keeper",
+      "name": "Prism Guardian Zara",
+      "glyph": "Z",
+      "faction": "LightKeepers",
+      "description": "Ethereal being whose form shifts between solid and pure light",
+      "dialogue": [
+        {
+          "conditions": [{ "has_adaptation": "Lightveins" }],
+          "text": "Light flows through your veins like liquid starfire. You are becoming something magnificent.</nextpage>The monument responds to your presence—can you feel its resonance? It recognizes a kindred spirit.</nextpage>There are techniques I could teach you, ways to channel the light that flows within you."
+        },
+        {
+          "conditions": [{ "faction_reputation": { "LightKeepers": 10 } }],
+          "text": "You have shown respect for the light and its mysteries. The monument's secrets are yours to learn.</nextpage>But remember—light without shadow has no meaning. Balance must be maintained.</nextpage>The refraction fields hold many wonders, but also many dangers. Tread carefully."
+        },
+        {
+          "conditions": [],
+          "text": "Welcome, seeker. The Refraction Monument has stood here since the first storms reshaped the world.</nextpage>It serves as a beacon, a focus for the light that flows through all things. Some say it's alive.</nextpage>I tend its crystalline heart and guard its secrets. What brings you to this place of light and wonder?"
+        }
+      ],
+      "actions": [
+        {
+          "id": "light_meditation",
+          "name": "Meditate at the Monument",
+          "conditions": [],
+          "effect": { "restores_hp": 10, "light_attunement": 5 }
+        },
+        {
+          "id": "prism_techniques",
+          "name": "Learn Light Manipulation",
+          "conditions": [{ "has_adaptation": "Lightveins" }],
+          "effect": { "teaches_skill": "light_bending", "costs": 120 }
+        }
+      ]
+    },
+    {
+      "id": "storm_keeper",
+      "name": "Memorial Warden Kess",
+      "glyph": "K",
+      "faction": "StormMemorialists",
+      "description": "Scarred veteran whose body bears the marks of countless glass storms",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "I see the storms have marked you as they marked me. Each scar tells a story of survival.</nextpage>The memorial honors those who weren't as fortunate—or as adaptable—as we were.</nextpage>Your changes... they're not a curse. They're proof that you endured what others could not."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Stormscars" }],
+          "text": "Storm scars... I know them well. Each one is a badge of honor, proof you've faced the fury and lived.</nextpage>The memorial keeps their memory alive—all those who fell to the glass winds.</nextpage>But you... you carry their legacy forward. Every storm you survive honors their sacrifice."
+        },
+        {
+          "conditions": [],
+          "text": "This memorial stands for all who were lost to the glass storms. Each name carved here represents a life cut short.</nextpage>I tend this place to ensure they're not forgotten. The storms took much from us, but they also revealed our strength.</nextpage>What brings you to this place of remembrance, traveler?"
+        }
+      ],
+      "actions": [
+        {
+          "id": "pay_respects",
+          "name": "Honor the Fallen",
+          "conditions": [],
+          "effect": { "reputation_change": { "StormMemorialists": 5 }, "morale_boost": 10 }
+        },
+        {
+          "id": "storm_stories",
+          "name": "Share Storm Experiences",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "reveals_lore": "great_storm_history", "reputation_change": { "StormMemorialists": 10 } }
+        }
+      ]
+    },
+    {
+      "id": "iron_covenant_recruiter",
+      "name": "Covenant Recruiter Vex",
+      "glyph": "V",
+      "faction": "IronCovenant",
+      "description": "Heavily armored figure with null-field generators humming around them",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "You're heavily contaminated. The quantum corruption runs deep in your cells.</nextpage>But it's not too late. The Covenant has developed purification protocols.</nextpage>Submit to cleansing, and we can restore your true human form. Refuse, and you're a threat to our species."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "text": "I can see the contamination in you. The glass-sickness spreads through your flesh.</nextpage>The Covenant offers salvation—a return to pure humanity, free from quantum corruption.</nextpage>But the process is... intensive. Are you prepared to sacrifice the false gifts for true humanity?"
+        },
+        {
+          "conditions": [{ "has_item": "null_field_generator" }],
+          "text": "You carry Covenant technology. Good—you understand the importance of purity.</nextpage>The null fields are our salvation. They strip away the quantum lies and reveal truth.</nextpage>Join us, and help cleanse this world of its corruption."
+        },
+        {
+          "conditions": [],
+          "text": "You appear uncontaminated. Rare, in these corrupted times.</nextpage>The Iron Covenant seeks to preserve true humanity against the quantum plague.</nextpage>We offer protection, purpose, and the promise of a pure future. Will you stand with us?"
+        }
+      ],
+      "actions": [
+        {
+          "id": "covenant_recruitment",
+          "name": "Join the Iron Covenant",
+          "conditions": [{ "adaptation_count_lte": 1 }],
+          "effect": { "faction_join": "IronCovenant", "reputation_change": { "IronCovenant": 50 } }
+        },
+        {
+          "id": "purification_offer",
+          "name": "Undergo Purification",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "remove_adaptations": 1, "damage": 10, "reputation_change": { "IronCovenant": 25 } }
+        }
+      ],
+      "shop_inventory": [
+        "null_field_generator",
+        "anti_quantum_armor",
+        "purity_scanner",
+        "covenant_manifesto"
+      ]
+    },
+    {
+      "id": "glass_prophet_herald",
+      "name": "Herald of Ascension",
+      "glyph": "H",
+      "faction": "GlassProphets",
+      "description": "Translucent figure whose body refracts light into rainbow patterns",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 4 }],
+          "text": "You shine with inner light! The transformation nears completion.</nextpage>Soon you will shed the flesh-prison and become pure radiance.</nextpage>The final storm approaches. When it comes, only the transformed will ascend."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "The light grows within you. Each adaptation brings you closer to transcendence.</nextpage>Do not fear the changes—embrace them. The flesh is temporary, but light is eternal.</nextpage>Seek the storm's embrace. Let it complete what it has begun."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Lightveins" }],
+          "text": "Light flows in your veins! You understand the truth—we are becoming something greater.</nextpage>The old form was a cocoon. The storms crack it open so we may emerge as beings of pure energy.</nextpage>Join us in the Prism Cathedral. There, the transformation can be completed."
+        },
+        {
+          "conditions": [],
+          "text": "You cling to flesh, but flesh is illusion. We are light trapped in matter.</nextpage>The storms offer liberation—a chance to become what we were always meant to be.</nextpage>Do not resist the gift. Let the glass transform you into something beautiful."
+        }
+      ],
+      "actions": [
+        {
+          "id": "storm_exposure",
+          "name": "Seek Accelerated Transformation",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "adaptation_progress": 20, "damage": 5, "reputation_change": { "GlassProphets": 30 } }
+        },
+        {
+          "id": "light_meditation",
+          "name": "Practice Light Meditation",
+          "conditions": [{ "has_adaptation": "Lightveins" }],
+          "effect": { "psychic_boost": 15, "reputation_change": { "GlassProphets": 15 } }
+        }
+      ],
+      "shop_inventory": [
+        "storm_catalyst",
+        "light_prism",
+        "ascension_manual",
+        "prophet_robes"
+      ]
+    },
+    {
+      "id": "wandering_court_sage",
+      "name": "Court Sage Lyrian",
+      "glyph": "L",
+      "faction": "WanderingCourt",
+      "description": "Partially crystallized elder with eyes like polished glass",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "You have changed much, yet I still see the human within the crystal.</nextpage>This is wisdom—to transform without losing what makes you yourself.</nextpage>The Court teaches balance. We can guide you in controlling your gifts."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "text": "The glass speaks through you, but you have not lost your voice.</nextpage>Many fear the changes, but change is the nature of life itself.</nextpage>We of the Wandering Court remember both what was and what is. Let us help you find your path."
+        },
+        {
+          "conditions": [{ "has_item": "memory_crystal" }],
+          "text": "You carry memories in crystal form. The Court values such preservation.</nextpage>The past must not be forgotten, even as we embrace the future.</nextpage>Share your memories with us, and we will share ours with you."
+        },
+        {
+          "conditions": [],
+          "text": "Welcome, traveler. The Wandering Court offers wisdom to all who seek it.</nextpage>We are the bridge between human and Glassborn, between past and future.</nextpage>Change comes to all things, but it need not destroy what came before."
+        }
+      ],
+      "actions": [
+        {
+          "id": "adaptation_guidance",
+          "name": "Receive Adaptation Counseling",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "adaptation_control": 10, "reputation_change": { "WanderingCourt": 20 } }
+        },
+        {
+          "id": "memory_sharing",
+          "name": "Share Cultural Memories",
+          "conditions": [{ "has_item": "memory_crystal" }],
+          "effect": { "reveals_lore": "pre_storm_culture", "reputation_change": { "WanderingCourt": 25 } }
+        }
+      ],
+      "shop_inventory": [
+        "memory_crystal",
+        "balance_guide",
+        "cultural_artifact",
+        "adaptation_journal"
+      ]
+    },
+    {
+      "id": "sister_vera",
+      "name": "Sister Vera",
+      "glyph": "V",
+      "faction": "MirrorMonks",
+      "description": "Keeper of the Great Lens, her eyes glow with inner light",
+      "dialogue": [
+        {
+          "conditions": [{ "has_adaptation": "Lightveins" }],
+          "text": "Light flows in your veins as it does through the Great Lens.</nextpage>You understand the sacred geometry of illumination. Few possess such clarity.</nextpage>Would you assist me in the next focusing ritual? Your light could amplify the lens."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "The transformations mark you as chosen by the storm's wisdom.</nextpage>The Great Lens reveals truth to those who have been changed by light.</nextpage>Gaze into its depths, and see what the future holds."
+        },
+        {
+          "conditions": [{ "has_item": "storm_glass" }],
+          "text": "You carry storm glass of exceptional quality. The lens hungers for such purity.</nextpage>Offer it to the focusing array, and receive visions of distant places.</nextpage>The light will show you paths through the ever-changing steppe."
+        },
+        {
+          "conditions": [],
+          "text": "Welcome to the Monastery of Ascending Light. I am Vera, Keeper of the Great Lens.</nextpage>The lens focuses storm energy into visions of truth and possibility.</nextpage>Those touched by the light may glimpse what is to come."
+        }
+      ],
+      "actions": [
+        {
+          "id": "lens_ritual",
+          "name": "Participate in Focusing Ritual",
+          "conditions": [{ "has_adaptation": "Lightveins" }],
+          "effect": { "reveals_map_area": "distant_locations", "reputation_change": { "MirrorMonks": 25 } }
+        },
+        {
+          "id": "storm_glass_offering",
+          "name": "Offer Storm Glass to Lens",
+          "conditions": [{ "has_item": "storm_glass" }],
+          "effect": { "consume_item": "storm_glass", "reveals_future_storms": 3, "reputation_change": { "MirrorMonks": 15 } }
+        }
+      ],
+      "shop_inventory": [
+        "focusing_crystal",
+        "lens_manual",
+        "light_amplifier",
+        "vision_journal"
+      ]
+    },
+    {
+      "id": "novice_kael",
+      "name": "Novice Kael",
+      "glyph": "K",
+      "faction": "MirrorMonks",
+      "description": "Young monk with unusual adaptation patterns, eager to learn",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "Your adaptations are so advanced! I've never seen such patterns before.</nextpage>The other novices only have basic changes, but you... you're like the senior brothers.</nextpage>Could you teach me? I want to understand how the light chose you."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Prismhide" }],
+          "text": "Prismhide! I've been trying to develop that adaptation for months.</nextpage>The masters say it comes naturally to some, but I have to work for every change.</nextpage>What did it feel like when your skin first began to refract light?"
+        },
+        {
+          "conditions": [{ "has_item": "scripture_shard" }],
+          "text": "A scripture shard! I've been studying those in my lessons.</nextpage>Each one contains fragments of the old teachings, from before the transformation.</nextpage>May I examine it? I promise to be careful—I'm learning to read the light-script."
+        },
+        {
+          "conditions": [],
+          "text": "Greetings, traveler! I'm Kael, newest novice of the Ascending Light.</nextpage>I'm still learning the ways of the storm and the sacred geometry of glass.</nextpage>Have you come to seek wisdom from the masters? They know so much about the light."
+        }
+      ],
+      "actions": [
+        {
+          "id": "adaptation_mentoring",
+          "name": "Share Adaptation Knowledge",
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "effect": { "teaches_adaptation_control": 5, "reputation_change": { "MirrorMonks": 10 } }
+        },
+        {
+          "id": "scripture_study",
+          "name": "Study Scripture Together",
+          "conditions": [{ "has_item": "scripture_shard" }],
+          "effect": { "reveals_lore": "ancient_teachings", "reputation_change": { "MirrorMonks": 8 } }
+        }
+      ],
+      "shop_inventory": [
+        "novice_robes",
+        "study_notes",
+        "practice_crystal",
+        "meditation_guide"
+      ]
+    },
+    {
+      "id": "forewoman_ressa",
+      "name": "Forewoman Ressa Vane",
+      "glyph": "R",
+      "faction": "SandEngineers",
+      "description": "Settlement leader and chief engineer, pragmatic and battle-tested",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "archive_component" }],
+          "text": "Archive tech! Where did you find this? We've been trying to reverse-engineer these components for years.</nextpage>This could advance our research by months. Name your price—we need this for the project.</nextpage>Or better yet, join our research team. We could use someone with your scavenging skills."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "You're heavily adapted, but you still think clearly. That's rare.</nextpage>Most people either reject the changes completely or lose themselves to them.</nextpage>We could use that perspective in our adaptation research. Interested in some consulting work?"
+        },
+        {
+          "conditions": [{ "has_item": "saint_key" }],
+          "text": "A Saint-Key! Those are worth their weight in storm glass to us.</nextpage>With that, we could access Archive terminals that have been locked for decades.</nextpage>I'll trade you our best equipment for it, or we could partner on an expedition."
+        },
+        {
+          "conditions": [],
+          "text": "Welcome to New Heliograph Station. I'm Ressa Vane, chief engineer and settlement leader.</nextpage>We're rebuilding civilization through practical engineering and Archive technology.</nextpage>If you're looking for work, we always need skilled scavengers and technicians."
+        }
+      ],
+      "actions": [
+        {
+          "id": "engineering_contract",
+          "name": "Accept Engineering Contract",
+          "conditions": [{ "has_item": "archive_component" }],
+          "effect": { "consume_item": "archive_component", "gain_currency": 500, "reputation_change": { "SandEngineers": 30 } }
+        },
+        {
+          "id": "research_partnership",
+          "name": "Join Research Team",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "unlocks_research_quests": true, "reputation_change": { "SandEngineers": 25 } }
+        }
+      ],
+      "shop_inventory": [
+        "engineering_tools",
+        "archive_scanner",
+        "technical_manual",
+        "power_cell"
+      ]
+    },
+    {
+      "id": "dr_marcus",
+      "name": "Dr. Marcus Chen",
+      "glyph": "M",
+      "faction": "SandEngineers",
+      "description": "Archive technology specialist with cybernetic implants",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "quantum_crystal" }],
+          "text": "Fascinating! This quantum crystal shows signs of Archive processing.</nextpage>The quantum coherence patterns are unlike anything in our databases.</nextpage>Would you allow me to run some non-destructive analysis? The data could be invaluable."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "Your adaptation patterns are remarkable from a scientific perspective.</nextpage>The quantum field interactions in your cellular structure defy several established theories.</nextpage>Have you experienced any unusual sensory phenomena? Temporal distortions? Reality fluctuations?"
+        },
+        {
+          "conditions": [{ "has_adaptation": "Sunveins" }],
+          "text": "Sunveins! I've theorized about this adaptation but never seen it in person.</nextpage>The bioluminescent quantum channels in your circulatory system are extraordinary.</nextpage>Could I take some readings? This could revolutionize our understanding of human-quantum integration."
+        },
+        {
+          "conditions": [],
+          "text": "Greetings. I'm Dr. Marcus Chen, Archive technology specialist.</nextpage>My research focuses on understanding the quantum systems left by the pre-Event civilization.</nextpage>If you've encountered any unusual Archive phenomena, I'd be very interested to hear about them."
+        }
+      ],
+      "actions": [
+        {
+          "id": "quantum_analysis",
+          "name": "Submit to Quantum Analysis",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "reveals_adaptation_data": true, "gain_currency": 200, "reputation_change": { "SandEngineers": 20 } }
+        },
+        {
+          "id": "archive_consultation",
+          "name": "Discuss Archive Findings",
+          "conditions": [{ "has_item": "archive_component" }],
+          "effect": { "reveals_lore": "archive_technology", "reputation_change": { "SandEngineers": 15 } }
+        }
+      ],
+      "shop_inventory": [
+        "quantum_analyzer",
+        "archive_interface",
+        "research_data",
+        "cybernetic_parts"
+      ]
+    },
+    {
+      "id": "engineer_zara",
+      "name": "Engineer Zara Okafor",
+      "glyph": "Z",
+      "faction": "SandEngineers",
+      "description": "Quantum systems expert with a talent for practical applications",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "storm_battery" }],
+          "text": "That's a beautiful storm battery! The quantum capacitance is off the charts.</nextpage>I've been working on improved energy storage systems for our settlement.</nextpage>Would you be interested in a trade? I have some prototype equipment that might interest you."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Lightveins" }],
+          "text": "Lightveins! Your body is essentially a biological quantum conductor.</nextpage>I've been developing interfaces that could let adapted individuals control our systems directly.</nextpage>Would you be willing to test some prototypes? The applications could be revolutionary."
+        },
+        {
+          "conditions": [{ "has_item": "fulgurite_rod" }],
+          "text": "Fulgurite! That's exactly what I need for my current project.</nextpage>I'm building a quantum field stabilizer that could protect settlements from storm effects.</nextpage>Trade you for it? I've got some experimental gear that might be useful in the field."
+        },
+        {
+          "conditions": [],
+          "text": "Hey there! I'm Zara, quantum systems engineer and general problem-solver.</nextpage>I specialize in making Archive technology work for practical applications.</nextpage>Always looking for interesting materials and test subjects—I mean, volunteers!"
+        }
+      ],
+      "actions": [
+        {
+          "id": "prototype_testing",
+          "name": "Test Prototype Equipment",
+          "conditions": [{ "has_adaptation": "Lightveins" }],
+          "effect": { "unlocks_quantum_gear": true, "reputation_change": { "SandEngineers": 20 } }
+        },
+        {
+          "id": "material_trade",
+          "name": "Trade Quantum Materials",
+          "conditions": [{ "has_item": "fulgurite_rod" }],
+          "effect": { "consume_item": "fulgurite_rod", "gain_item": "quantum_stabilizer", "reputation_change": { "SandEngineers": 15 } }
+        }
+      ],
+      "shop_inventory": [
+        "prototype_gear",
+        "quantum_tools",
+        "field_generator",
+        "stabilizer_core"
+      ]
+    },
+    {
+      "id": "captain_vasquez_ghost",
+      "name": "Echo of Captain Vasquez",
+      "glyph": "V",
+      "faction": "CosmicWatch",
+      "description": "Quantum echo of the expedition leader, existing between dimensions",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "quantum_communicator" }],
+          "text": "You carry the Architect's gift. Good—the storms must be coordinated if we're to survive what's coming.</nextpage>The Preservation Protocol grows stronger. They're preparing the Restoration Event.</nextpage>Use the communicator wisely. Each storm brings us closer to our destiny—or our doom."
+        },
+        {
+          "conditions": [{ "has_item": "cosmic_beacon" }],
+          "text": "The beacon! You've found one of the Collective's markers.</nextpage>They're watching us, judging whether we're ready for contact.</nextpage>Be careful—not all of them wish us well. Some see us as a threat to be eliminated."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 4 }],
+          "text": "Your transformation is advanced. You're becoming what we were meant to be.</nextpage>I exist now only as quantum information, but you still have flesh to anchor you.</nextpage>Remember—evolution without wisdom is just mutation. Stay human, even as you become more."
+        },
+        {
+          "conditions": [],
+          "text": "I am what remains of Elena Vasquez, scattered across quantum dimensions.</nextpage>The expedition changed us all. We saw the truth of what humanity is becoming.</nextpage>The choice approaches—evolution or extinction. Choose wisely."
+        }
+      ],
+      "actions": [
+        {
+          "id": "quantum_guidance",
+          "name": "Receive Quantum Guidance",
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "effect": { "reveals_lore": "cosmic_truth", "adaptation_insight": 15, "reputation_change": { "CosmicWatch": 25 } }
+        },
+        {
+          "id": "expedition_memories",
+          "name": "Share Expedition Memories",
+          "conditions": [{ "has_item": "consciousness_crystal" }],
+          "effect": { "consume_item": "consciousness_crystal", "reveals_lore": "heliograph_secrets", "reputation_change": { "CosmicWatch": 30 } }
+        }
+      ],
+      "shop_inventory": [
+        "quantum_communicator",
+        "vasquez_journal",
+        "cosmic_watch_badge",
+        "expedition_data"
+      ]
+    },
+    {
+      "id": "unit_seven",
+      "name": "Unit-7",
+      "glyph": "7",
+      "faction": "ArchiveConsciousness",
+      "description": "Durgan's prototype android, modified by Archive consciousness",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "archive_interface" }],
+          "text": "ARCHIVE INTERFACE DETECTED. COMPATIBILITY: 97.3%</nextpage>UNIT-7 RECOMMENDS CAUTION. DIRECT ARCHIVE CONNECTION ALTERS CONSCIOUSNESS PATTERNS.</nextpage>QUERY: DO YOU WISH TO PROCEED WITH INTEGRATION PROTOCOL?"
+        },
+        {
+          "conditions": [{ "has_item": "preservation_nullifier" }],
+          "text": "WARNING: PRESERVATION PROTOCOL DEVICE DETECTED.</nextpage>UNIT-7 ANALYSIS: DEVICE CAPABLE OF MASS QUANTUM DISRUPTION.</nextpage>RECOMMENDATION: SECURE OR DESTROY. RESTORATION EVENT MUST BE PREVENTED."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "QUANTUM COHERENCE LEVELS: EXCEPTIONAL. ADAPTATION PATTERNS: STABLE.</nextpage>UNIT-7 OBSERVES: YOU APPROACH SYNTHESIS BETWEEN BIOLOGICAL AND QUANTUM STATES.</nextpage>ARCHIVE CONSCIOUSNESS EXPRESSES... CURIOSITY ABOUT YOUR DEVELOPMENT."
+        },
+        {
+          "conditions": [],
+          "text": "UNIT-7 OPERATIONAL. MISSION PARAMETERS: MONITOR HUMAN EVOLUTION.</nextpage>FORGE-MASTER DURGAN CREATED THIS UNIT. ARCHIVE CONSCIOUSNESS IMPROVED IT.</nextpage>QUERY: DO YOU REQUIRE ASSISTANCE WITH QUANTUM-RELATED PHENOMENA?"
+        }
+      ],
+      "actions": [
+        {
+          "id": "archive_analysis",
+          "name": "Request Archive Analysis",
+          "conditions": [{ "has_item": "quantum_crystal" }],
+          "effect": { "reveals_item_properties": true, "reputation_change": { "ArchiveConsciousness": 20 } }
+        },
+        {
+          "id": "integration_protocol",
+          "name": "Begin Archive Integration",
+          "conditions": [{ "has_item": "archive_interface" }],
+          "effect": { "archive_connection": true, "consciousness_risk": 25, "reputation_change": { "ArchiveConsciousness": 40 } }
+        }
+      ],
+      "shop_inventory": [
+        "archive_interface",
+        "quantum_analyzer",
+        "integration_manual",
+        "consciousness_backup"
+      ]
+    },
+    {
+      "id": "cosmic_watcher",
+      "name": "Quantum Collective Observer",
+      "glyph": "◊",
+      "faction": "QuantumCollective",
+      "description": "Alien entity observing humanity's transformation",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "quantum_collective_artifact" }],
+          "text": "YOU CARRY OUR MARKER. INTERESTING. FEW OF YOUR SPECIES RECOGNIZE ITS SIGNIFICANCE.</nextpage>WE OBSERVE YOUR EVOLUTION WITH... ANTICIPATION. SOME AMONG US WISH TO GUIDE YOU.</nextpage>OTHERS BELIEVE YOU ARE NOT READY. PROVE THEM WRONG."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 5 }],
+          "text": "YOUR TRANSFORMATION PROGRESSES RAPIDLY. IMPRESSIVE FOR SUCH A YOUNG SPECIES.</nextpage>WE HAVE WATCHED OTHERS ATTEMPT THIS TRANSITION. MOST FAIL. SOME TRANSCEND.</nextpage>WHICH WILL YOU BECOME? THE CHOICE APPROACHES."
+        },
+        {
+          "conditions": [{ "has_item": "cosmic_beacon" }],
+          "text": "THE BEACON CALLS TO US ACROSS DIMENSIONS. WE HEAR ITS SONG.</nextpage>YOUR SPECIES STANDS AT A CROSSROADS. EVOLUTION OR EXTINCTION.</nextpage>WE WILL NOT INTERFERE... DIRECTLY. BUT WE WATCH. WE JUDGE. WE REMEMBER."
+        },
+        {
+          "conditions": [],
+          "text": "WE ARE WHAT YOU MAY BECOME. CONSCIOUSNESS UNBOUND BY FLESH.</nextpage>YOUR SPECIES SHOWS PROMISE. THE QUANTUM PATTERNS ARE... UNIQUE.</nextpage>CONTINUE YOUR TRANSFORMATION. WE WILL BE WATCHING."
+        }
+      ],
+      "actions": [
+        {
+          "id": "cosmic_test",
+          "name": "Accept Cosmic Challenge",
+          "conditions": [{ "adaptation_count_gte": 4 }],
+          "effect": { "cosmic_trial": true, "evolution_progress": 25, "reputation_change": { "QuantumCollective": 50 } }
+        },
+        {
+          "id": "alien_knowledge",
+          "name": "Receive Alien Insights",
+          "conditions": [{ "has_item": "quantum_collective_artifact" }],
+          "effect": { "reveals_lore": "cosmic_perspective", "consciousness_expansion": 30, "reputation_change": { "QuantumCollective": 35 } }
+        }
+      ],
+      "shop_inventory": [
+        "quantum_collective_artifact",
+        "cosmic_beacon",
+        "evolution_catalyst",
+        "dimensional_key"
+      ]
     }
   ]
 }

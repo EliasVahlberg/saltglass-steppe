@@ -1,0 +1,194 @@
+{
+  "world_generation_integration": {
+    "biome_content_mapping": {
+      "glass_gardens": {
+        "primary_creatures": ["crystal_spider", "prism_guardian", "crystal_bloom"],
+        "rare_creatures": ["glass_weaver", "refraction_wisp"],
+        "signature_items": ["prism_shard", "light_thread", "crystal_fragment"],
+        "faction_presence": ["GlassProphets", "MirrorMonks"],
+        "structure_types": ["prism_cathedral_natural", "mirror_shrine", "refraction_monument"],
+        "environmental_hazards": ["light_overload", "crystal_resonance"],
+        "loot_table_preference": "glass_items"
+      },
+      "shattered_citadel": {
+        "primary_creatures": ["void_swimmer", "void_stalker", "archive_drone"],
+        "rare_creatures": ["glass_golem"],
+        "signature_items": ["void_essence", "dimensional_shard", "archive_component"],
+        "faction_presence": ["IronCovenant", "ArchiveConsciousness"],
+        "structure_types": ["new_heliograph_station", "archive_node", "void_breach_site"],
+        "environmental_hazards": ["reality_distortion", "null_fields"],
+        "loot_table_preference": "archive_tech"
+      },
+      "salt_mines": {
+        "primary_creatures": ["salt_harvester", "salt_mummy", "brine_symbiont"],
+        "rare_creatures": ["dust_wraith"],
+        "signature_items": ["salt_crystal", "brine_vial", "memory_crystal"],
+        "faction_presence": ["WanderingCourt", "SaltHermits"],
+        "structure_types": ["salt_harbor", "wandering_chapel"],
+        "environmental_hazards": ["salt_exposure", "dehydration"],
+        "loot_table_preference": "supplies"
+      },
+      "storm_scars": {
+        "primary_creatures": ["storm_hawk", "storm_echo", "refraction_wraith"],
+        "rare_creatures": ["storm_phantom"],
+        "signature_items": ["storm_feather", "quantum_core", "storm_catalyst"],
+        "faction_presence": ["CosmicWatch", "MirrorMonks"],
+        "structure_types": ["storm_scar_memorial", "heliograph_beacon"],
+        "environmental_hazards": ["temporal_distortion", "storm_echoes"],
+        "loot_table_preference": "cosmic_artifacts"
+      },
+      "refraction_fields": {
+        "primary_creatures": ["void_swimmer", "refraction_wisp", "glass_weaver"],
+        "rare_creatures": ["crystal_spider"],
+        "signature_items": ["dimensional_shard", "quantum_collective_artifact", "phase_anchor"],
+        "faction_presence": ["QuantumCollective", "GlassProphets"],
+        "structure_types": ["void_breach_site", "refraction_monument", "prism_city"],
+        "environmental_hazards": ["dimensional_instability", "reality_flux"],
+        "loot_table_preference": "psychic_items"
+      }
+    },
+    "creature_spawn_modifiers": {
+      "storm_hawk": {
+        "spawn_during_storms": true,
+        "storm_spawn_multiplier": 3.0,
+        "pre_storm_spawn_chance": 0.4
+      },
+      "void_swimmer": {
+        "requires_high_quantum_activity": true,
+        "spawn_near_structures": ["void_breach_site", "archive_node"],
+        "dimensional_spawn_chance": 0.3
+      },
+      "crystal_spider": {
+        "spawn_in_groups": true,
+        "group_size": [2, 4],
+        "web_territory_radius": 5
+      },
+      "glass_golem": {
+        "guardian_spawn": true,
+        "protects_structures": ["archive_node", "new_heliograph_station"],
+        "construction_behavior": true
+      }
+    },
+    "item_distribution_rules": {
+      "tier_1_items": {
+        "spawn_levels": [1, 3],
+        "biome_modifiers": {
+          "glass_gardens": ["practice_crystal", "crystal_fragment"],
+          "salt_mines": ["salt_crystal", "brine_vial", "adaptation_journal"],
+          "storm_scars": ["storm_glass", "storm_feather"],
+          "shattered_citadel": ["archive_component", "restoration_detector"],
+          "refraction_fields": ["quantum_silk", "phase_anchor"]
+        }
+      },
+      "tier_2_items": {
+        "spawn_levels": [2, 5],
+        "biome_modifiers": {
+          "glass_gardens": ["focusing_crystal", "light_prism", "quantum_focus"],
+          "salt_mines": ["memory_crystal", "balance_guide"],
+          "storm_scars": ["temporal_lens", "storm_catalyst"],
+          "shattered_citadel": ["null_field_generator", "quantum_analyzer"],
+          "refraction_fields": ["telepathy_amplifier", "probability_dice"]
+        }
+      },
+      "tier_3_items": {
+        "spawn_levels": [4, 8],
+        "biome_modifiers": {
+          "glass_gardens": ["light_amplifier", "ascension_manual"],
+          "salt_mines": ["cultural_artifact", "consciousness_crystal"],
+          "storm_scars": ["quantum_communicator", "heliograph_shard"],
+          "shattered_citadel": ["archive_interface", "integration_manual"],
+          "refraction_fields": ["quantum_resonator", "dimensional_key"]
+        }
+      },
+      "tier_4_plus_items": {
+        "spawn_levels": [6, 10],
+        "rare_spawn_only": true,
+        "requires_special_conditions": true,
+        "cosmic_items": ["quantum_collective_artifact", "evolution_catalyst", "architect_interface"]
+      }
+    },
+    "faction_territory_control": {
+      "MirrorMonks": {
+        "controlled_biomes": ["glass_gardens"],
+        "influence_biomes": ["ruins", "saltflat"],
+        "hostile_biomes": ["shattered_citadel"],
+        "spawn_weight_modifier": 1.3
+      },
+      "SandEngineers": {
+        "controlled_biomes": ["ruins"],
+        "influence_biomes": ["shattered_citadel", "desert"],
+        "hostile_biomes": ["glass_gardens"],
+        "spawn_weight_modifier": 1.2
+      },
+      "GlassProphets": {
+        "controlled_biomes": ["refraction_fields"],
+        "influence_biomes": ["glass_gardens"],
+        "hostile_biomes": ["salt_mines"],
+        "spawn_weight_modifier": 0.8
+      },
+      "IronCovenant": {
+        "controlled_biomes": ["shattered_citadel"],
+        "influence_biomes": ["ruins"],
+        "hostile_biomes": ["glass_gardens", "refraction_fields"],
+        "spawn_weight_modifier": 0.7
+      },
+      "WanderingCourt": {
+        "controlled_biomes": ["salt_mines"],
+        "influence_biomes": ["saltflat", "scrubland"],
+        "neutral_everywhere": true,
+        "spawn_weight_modifier": 0.9
+      }
+    },
+    "dynamic_content_triggers": {
+      "storm_events": {
+        "pre_storm_spawns": ["storm_hawk", "refraction_wraith"],
+        "during_storm_spawns": ["storm_phantom", "void_swimmer"],
+        "post_storm_items": ["storm_glass", "quantum_core", "temporal_lens"]
+      },
+      "faction_conflicts": {
+        "iron_vs_glass": {
+          "trigger_biomes": ["shattered_citadel", "glass_gardens"],
+          "spawn_opposing_npcs": true,
+          "conflict_items": ["null_field_generator", "storm_catalyst"]
+        },
+        "monks_vs_engineers": {
+          "trigger_biomes": ["ruins"],
+          "spawn_opposing_npcs": true,
+          "conflict_items": ["scripture_shard", "archive_component"]
+        }
+      },
+      "cosmic_contact_events": {
+        "high_adaptation_triggers": {
+          "adaptation_threshold": 4,
+          "spawn_cosmic_npcs": ["cosmic_watcher"],
+          "spawn_cosmic_items": ["quantum_collective_artifact", "dimensional_key"]
+        },
+        "beacon_activation": {
+          "requires_item": "cosmic_beacon",
+          "spawn_chance": 0.3,
+          "spawn_cosmic_encounter": true
+        }
+      }
+    },
+    "progression_gating": {
+      "early_game_content": {
+        "levels": [1, 3],
+        "available_biomes": ["desert", "saltflat", "scrubland"],
+        "blocked_creatures": ["void_swimmer", "glass_golem", "cosmic_watcher"],
+        "blocked_items": ["quantum_collective_artifact", "dimensional_key", "evolution_catalyst"]
+      },
+      "mid_game_content": {
+        "levels": [4, 7],
+        "unlocked_biomes": ["glass_gardens", "salt_mines", "ruins"],
+        "unlocked_creatures": ["crystal_spider", "storm_hawk"],
+        "unlocked_items": ["telepathy_amplifier", "quantum_communicator"]
+      },
+      "late_game_content": {
+        "levels": [8, 10],
+        "unlocked_biomes": ["shattered_citadel", "storm_scars", "refraction_fields"],
+        "unlocked_creatures": ["void_swimmer", "glass_golem", "cosmic_watcher"],
+        "unlocked_items": ["quantum_collective_artifact", "dimensional_key", "evolution_catalyst"]
+      }
+    }
+  }
+}

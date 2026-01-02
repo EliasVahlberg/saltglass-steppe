@@ -108,6 +108,504 @@
         "discovery_message": "The skeletal remains of a data archive rise from the salt, its walls scarred by storms.",
         "atmosphere": "Faint electronic hums echo from within, suggesting some systems still function."
       }
+    },
+    {
+      "id": "prism_city",
+      "name": "Prism City",
+      "description": "A magnificent city of crystalline spires and refracted light",
+      "symbol_dict": {
+        "◊": {"type": "wall", "id": "prismatic_crystal"},
+        "≡": {"type": "wall", "id": "refraction_barrier"},
+        "◇": {"type": "floor", "id": "prismatic_tiles"},
+        "○": {"type": "floor", "id": "light_pool"},
+        ".": {"type": "floor", "id": "crystal_moss"},
+        "M": {"type": "npc", "id": "prism_mayor", "name": "Crystalline Magistrate Zara"},
+        "G": {"type": "npc", "id": "light_guard", "name": "Refraction Sentinel"},
+        "T": {"type": "npc", "id": "crystal_trader", "name": "Merchant of Lights"},
+        "P": {"type": "npc", "id": "prism_priest", "name": "Light-Touched Oracle"},
+        "S": {"type": "npc", "id": "crystal_smith", "name": "Prism Shaper Keth"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 15,
+        "center_x": 20,
+        "center_y": 15
+      },
+      "template_rows": [
+        "........................................",
+        "......◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊......",
+        "....◊◊◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◊◊....",
+        "...◊◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◊...",
+        "..◊◇◇◇≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡◇◇◇◊..",
+        "..◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊..",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇M◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇T◇◇◇◇◇◇◇◇◇◇◇◇◇◇S◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇P◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        ".◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊.",
+        "..◊◇◇≡◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇≡◇◇◊..",
+        "..◊◇◇◇≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡≡◇◇◇◊..",
+        "...◊◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◊...",
+        "....◊◊◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◇◊◊....",
+        "......◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊◊......",
+        "........................................"
+      ],
+      "lore": {
+        "discovery_message": "The crystalline spires of Prism City rise before you, refracting sunlight into countless rainbows.",
+        "atmosphere": "Light dances through crystal walls, and the air hums with harmonic resonance. This is a place where beauty and power intertwine."
+      }
+    },
+    {
+      "id": "salt_harbor",
+      "name": "Salt Harbor",
+      "description": "A trading port built around ancient salt mines and brine pools",
+      "symbol_dict": {
+        "♦": {"type": "wall", "id": "brine_crystal"},
+        "◆": {"type": "wall", "id": "salt_crystal"},
+        "░": {"type": "floor", "id": "salt_crust"},
+        "∙": {"type": "floor", "id": "salt_gravel"},
+        "≈": {"type": "floor", "id": "brine_mud"},
+        ".": {"type": "floor", "id": "dry_soil"},
+        "H": {"type": "npc", "id": "harbor_master", "name": "Salt-Touched Captain Voss"},
+        "M": {"type": "npc", "id": "salt_merchant", "name": "Brine Trader Kira"},
+        "W": {"type": "npc", "id": "salt_worker", "name": "Mine Foreman Dex"},
+        "G": {"type": "npc", "id": "harbor_guard", "name": "Salt Warden"},
+        "D": {"type": "npc", "id": "dock_worker", "name": "Cargo Handler Zeph"}
+      },
+      "clear_area": {
+        "shape": "rectangle",
+        "width": 25,
+        "height": 18,
+        "center_x": 18,
+        "center_y": 12
+      },
+      "template_rows": [
+        "......................................",
+        "..♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦..",
+        ".♦░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░♦.",
+        ".♦░∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙░♦.",
+        ".♦░∙◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆∙░♦.",
+        ".♦░∙◆░░░░░░░░░░░░░░░░░░░░░░░░◆∙░♦.",
+        ".♦░∙◆░░░░░░░░░░░░░░░░░░░░░░░░◆∙░♦.",
+        ".♦░∙◆░░░M░░░░░░░░░░░░░░W░░░░◆∙░♦.",
+        ".♦░∙◆░░░░░░░░░░░░░░░░░░░░░░░░◆∙░♦.",
+        ".♦░∙◆░░░░░░░░░H░░░░░░░░░░░░░░◆∙░♦.",
+        ".♦░∙◆░░░░░░░░░░░░░░░░░░░░░░░░◆∙░♦.",
+        ".♦░∙◆░░░G░░░░░░░░░░░░░░D░░░░◆∙░♦.",
+        ".♦░∙◆░░░░░░░░░░░░░░░░░░░░░░░░◆∙░♦.",
+        ".♦░∙◆░░░░░░░░░░░░░░░░░░░░░░░░◆∙░♦.",
+        ".♦░∙◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆∙░♦.",
+        ".♦░∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙∙░♦.",
+        ".♦░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░♦.",
+        "..♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦♦..",
+        "......................................"
+      ],
+      "lore": {
+        "discovery_message": "Salt Harbor spreads before you, its crystalline walls gleaming with accumulated brine.",
+        "atmosphere": "The air tastes of salt and commerce. Workers move with practiced efficiency through the crystal-lined corridors."
+      }
+    },
+    {
+      "id": "glass_foundry",
+      "name": "Glass Foundry",
+      "description": "An industrial complex where storm glass is shaped into tools and art",
+      "symbol_dict": {
+        "▓": {"type": "wall", "id": "storm_carved_stone"},
+        "▒": {"type": "wall", "id": "void_glass"},
+        "█": {"type": "wall", "id": "old_reinforced_concrete"},
+        "^": {"type": "floor", "id": "storm_glass_shards"},
+        "░": {"type": "floor", "id": "glass_sand"},
+        "▪": {"type": "floor", "id": "ancient_tile"},
+        ".": {"type": "floor", "id": "dry_soil"},
+        "F": {"type": "npc", "id": "foundry_master", "name": "Glasswright Sovereign Thane"},
+        "A": {"type": "npc", "id": "glass_artisan", "name": "Storm Shaper Lyra"},
+        "W": {"type": "npc", "id": "foundry_worker", "name": "Glass Forger"},
+        "G": {"type": "npc", "id": "foundry_guard", "name": "Furnace Warden"},
+        "T": {"type": "npc", "id": "glass_trader", "name": "Crystal Merchant Vex"}
+      },
+      "clear_area": {
+        "shape": "rectangle",
+        "width": 22,
+        "height": 16,
+        "center_x": 16,
+        "center_y": 11
+      },
+      "template_rows": [
+        "................................",
+        ".█████████████████████████████..",
+        ".█▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪█..",
+        ".█▪░░░░░░░░░░░░░░░░░░░░░░░░▪█..",
+        ".█▪░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░▪█..",
+        ".█▪░▓^^^^^^^^^^^^^^^^^^^^^▓░▪█..",
+        ".█▪░▓^░░░░░░░░░░░░░░░░░░^▓░▪█..",
+        ".█▪░▓^░A░░░░░░░░░░░░W░░^▓░▪█..",
+        ".█▪░▓^░░░░░░░F░░░░░░░░░^▓░▪█..",
+        ".█▪░▓^░░░░░░░░░░░░░░░░░^▓░▪█..",
+        ".█▪░▓^░T░░░░░░░░░░░░G░░^▓░▪█..",
+        ".█▪░▓^░░░░░░░░░░░░░░░░░^▓░▪█..",
+        ".█▪░▓^^^^^^^^^^^^^^^^^^^^^▓░▪█..",
+        ".█▪░▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░▪█..",
+        ".█▪░░░░░░░░░░░░░░░░░░░░░░░░▪█..",
+        ".█▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪█..",
+        ".█████████████████████████████..",
+        "................................"
+      ],
+      "lore": {
+        "discovery_message": "The Glass Foundry rises from the storm-scarred earth, its furnaces glowing with contained fire.",
+        "atmosphere": "Heat radiates from the forges, and the sound of hammering glass echoes through the halls. This is where raw storm glass becomes art."
+      }
+    },
+    {
+      "id": "mirror_shrine",
+      "name": "Mirror Shrine",
+      "description": "A sacred site where Mirror Monks commune with reflected light",
+      "symbol_dict": {
+        "║": {"type": "wall", "id": "mirror_wall"},
+        "◇": {"type": "floor", "id": "prismatic_tiles"},
+        ".": {"type": "floor", "id": "dry_soil"},
+        "M": {"type": "npc", "id": "mirror_monk", "name": "Reflection-Touched Seer"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 4,
+        "center_x": 6,
+        "center_y": 5
+      },
+      "template_rows": [
+        "............",
+        "...║║║║║....",
+        "..║◇◇◇◇║...",
+        ".║◇◇M◇◇║...",
+        ".║◇◇◇◇◇║...",
+        "..║◇◇◇◇║...",
+        "...║║║║║....",
+        "............"
+      ],
+      "lore": {
+        "discovery_message": "A small shrine of polished mirrors catches and reflects light in mesmerizing patterns.",
+        "atmosphere": "The mirrors seem to show more than just reflections - glimpses of other times, other possibilities."
+      }
+    },
+    {
+      "id": "archive_node",
+      "name": "Archive Node",
+      "description": "A data storage facility from the pre-storm era, still partially functional",
+      "symbol_dict": {
+        "█": {"type": "wall", "id": "old_reinforced_concrete"},
+        "▒": {"type": "wall", "id": "void_glass"},
+        "▪": {"type": "floor", "id": "ancient_tile"},
+        ".": {"type": "floor", "id": "dry_soil"},
+        "A": {"type": "npc", "id": "archive_guardian", "name": "Data Custodian Unit"}
+      },
+      "clear_area": {
+        "shape": "rectangle",
+        "width": 8,
+        "height": 6,
+        "center_x": 7,
+        "center_y": 5
+      },
+      "template_rows": [
+        "...............",
+        ".█████████████.",
+        ".█▪▪▪▪▪▪▪▪▪▪█.",
+        ".█▪▒▒▒▒▒▒▒▒▪█.",
+        ".█▪▒▪▪▪▪▪▪▒▪█.",
+        ".█▪▒▪A▪▪▪▒▪█.",
+        ".█▪▒▪▪▪▪▪▪▒▪█.",
+        ".█▪▒▒▒▒▒▒▒▒▪█.",
+        ".█▪▪▪▪▪▪▪▪▪▪█.",
+        ".█████████████.",
+        "..............."
+      ],
+      "lore": {
+        "discovery_message": "A compact data facility hums with residual power, its systems still attempting to preserve ancient knowledge.",
+        "atmosphere": "Faint electronic sounds echo from within, and screens flicker with fragments of lost information."
+      }
+    },
+    {
+      "id": "refraction_monument",
+      "name": "Refraction Monument",
+      "description": "A towering crystal spire that bends light into impossible patterns",
+      "symbol_dict": {
+        "◊": {"type": "wall", "id": "prismatic_crystal"},
+        "≡": {"type": "wall", "id": "refraction_barrier"},
+        "○": {"type": "floor", "id": "light_pool"},
+        "◇": {"type": "floor", "id": "prismatic_tiles"},
+        ".": {"type": "floor", "id": "crystal_moss"},
+        "L": {"type": "npc", "id": "light_keeper", "name": "Prism Guardian Zara"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 6,
+        "center_x": 8,
+        "center_y": 7
+      },
+      "template_rows": [
+        "................",
+        "......◊◊◊.......",
+        ".....◊◇○◇◊......",
+        "....◊◇◇○◇◇◊.....",
+        "...◊◇◇◇○◇◇◇◊....",
+        "..◊◇◇◇◇○◇◇◇◇◊...",
+        ".◊◇◇◇◇◇L◇◇◇◇◇◊.",
+        ".◊◇◇◇◇◇○◇◇◇◇◇◊.",
+        "..◊◇◇◇◇○◇◇◇◇◊...",
+        "...◊◇◇◇○◇◇◇◊....",
+        "....◊◇◇○◇◇◊.....",
+        ".....◊◇○◇◊......",
+        "......◊◊◊.......",
+        "................"
+      ],
+      "lore": {
+        "discovery_message": "A magnificent crystal spire rises from the earth, splitting sunlight into cascading rainbows.",
+        "atmosphere": "Light dances and flows around the monument in patterns that seem almost alive, almost conscious."
+      }
+    },
+    {
+      "id": "storm_scar_memorial",
+      "name": "Storm Scar Memorial",
+      "description": "A monument to those lost in the great glass storms",
+      "symbol_dict": {
+        "▓": {"type": "wall", "id": "storm_carved_stone"},
+        "▓": {"type": "wall", "id": "fused_debris"},
+        "^": {"type": "floor", "id": "storm_glass_shards"},
+        "░": {"type": "floor", "id": "glass_sand"},
+        ".": {"type": "floor", "id": "dry_soil"},
+        "S": {"type": "npc", "id": "storm_keeper", "name": "Memorial Warden Kess"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 5,
+        "center_x": 7,
+        "center_y": 6
+      },
+      "template_rows": [
+        "..............",
+        "....▓▓▓▓▓.....",
+        "...▓░░░░░▓....",
+        "..▓░^^^^^░▓...",
+        ".▓░^▓▓▓▓▓^░▓..",
+        ".▓░^▓░S░▓^░▓..",
+        ".▓░^▓░░░▓^░▓..",
+        ".▓░^▓▓▓▓▓^░▓..",
+        "..▓░^^^^^░▓...",
+        "...▓░░░░░▓....",
+        "....▓▓▓▓▓.....",
+        ".............."
+      ],
+      "lore": {
+        "discovery_message": "A solemn memorial stands amid the storm-scarred landscape, its stones carved with names of the lost.",
+        "atmosphere": "The wind whispers through the carved stones, carrying echoes of grief and remembrance."
+      }
+    },
+    {
+      "id": "void_breach_site",
+      "name": "Void Breach Site",
+      "description": "A dangerous tear in reality where the void seeps through",
+      "symbol_dict": {
+        "▒": {"type": "wall", "id": "void_glass"},
+        "▫": {"type": "floor", "id": "void_stone"},
+        ".": {"type": "floor", "id": "dry_soil"},
+        "V": {"type": "npc", "id": "void_watcher", "name": "Breach Sentinel Nyx"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 4,
+        "center_x": 6,
+        "center_y": 5
+      },
+      "template_rows": [
+        "............",
+        "...▒▒▒▒▒....",
+        "..▒▫▫▫▫▒...",
+        ".▒▫▫V▫▫▒...",
+        ".▒▫▫▫▫▫▒...",
+        "..▒▫▫▫▫▒...",
+        "...▒▒▒▒▒....",
+        "............"
+      ],
+      "lore": {
+        "discovery_message": "A dark breach in reality yawns before you, its edges crackling with void energy.",
+        "atmosphere": "The air grows cold near the breach, and shadows seem to move independently of their sources."
+      }
+    },
+    {
+      "id": "nexus_plateau",
+      "name": "The Nexus Plateau",
+      "description": "Massive pre-Event foundation serving as neutral ground for all factions",
+      "symbol_dict": {
+        "#": {"type": "wall", "id": "reinforced_concrete"},
+        "¤": {"type": "wall", "id": "quantum_barrier"},
+        ".": {"type": "floor", "id": "polished_stone"},
+        "~": {"type": "floor", "id": "neutral_ground"},
+        "M": {"type": "npc", "id": "merchant_guild_leader", "name": "Guildmaster Thorne"},
+        "A": {"type": "npc", "id": "archive_custodian", "name": "Custodian ARIA-7"},
+        "D": {"type": "npc", "id": "diplomat", "name": "Ambassador Kess"},
+        "T": {"type": "structure", "id": "signal_tower"},
+        "C": {"type": "structure", "id": "arbitration_chamber"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 12,
+        "center_x": 20,
+        "center_y": 15
+      },
+      "template_rows": [
+        ":::::::::::::::::::::::::::::::::::::::::",
+        ":::¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤:::",
+        "::¤#...............................#¤::",
+        ":¤#.................................#¤:",
+        "¤#...................................#¤",
+        "#.....................................#",
+        "#.........~~~~~T~~~~~................#",
+        "#.........~...~~~...~................#",
+        "#.........~.M.~~~.A.~................#",
+        "#.........~...~~~...~................#",
+        "#.........~~~~~C~~~~~................#",
+        "#.....................................#",
+        "#.....D...............................#",
+        "¤#...................................#¤",
+        ":¤#.................................#¤:",
+        "::¤#...............................#¤::",
+        ":::¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤:::"
+      ],
+      "lore": {
+        "discovery_message": "You ascend to the Nexus Plateau, where all factions maintain uneasy peace.",
+        "atmosphere": "The air hums with quantum stability fields. Diplomatic banners flutter in the wind."
+      }
+    },
+    {
+      "id": "monastery_ascending_light",
+      "name": "Monastery of Ascending Light",
+      "description": "Primary Mirror Monk settlement carved into a mountain observatory",
+      "symbol_dict": {
+        "#": {"type": "wall", "id": "carved_stone"},
+        "¤": {"type": "wall", "id": "crystal_wall"},
+        ".": {"type": "floor", "id": "polished_stone"},
+        "~": {"type": "floor", "id": "sacred_ground"},
+        "H": {"type": "npc", "id": "brother_halix", "name": "Brother Halix"},
+        "V": {"type": "npc", "id": "sister_vera", "name": "Sister Vera"},
+        "K": {"type": "npc", "id": "novice_kael", "name": "Novice Kael"},
+        "L": {"type": "structure", "id": "great_lens"},
+        "S": {"type": "structure", "id": "scripture_vault"},
+        "C": {"type": "structure", "id": "healing_chamber"}
+      },
+      "clear_area": {
+        "shape": "rectangle",
+        "width": 8,
+        "height": 6,
+        "center_x": 15,
+        "center_y": 10
+      },
+      "template_rows": [
+        "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤",
+        "¤#........................#¤",
+        "¤#..........L.............#¤",
+        "¤#........................#¤",
+        "¤#..S.................C...#¤",
+        "¤#........................#¤",
+        "¤#......~~~~~~~~~.........#¤",
+        "¤#......~.......~.........#¤",
+        "¤#......~.H.V.K.~.........#¤",
+        "¤#......~.......~.........#¤",
+        "¤#......~~~~~~~~~.........#¤",
+        "¤#........................#¤",
+        "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤"
+      ],
+      "lore": {
+        "discovery_message": "The ancient observatory rises before you, its crystal windows catching the light.",
+        "atmosphere": "Chanting echoes from within. The air shimmers with concentrated quantum energy."
+      }
+    },
+    {
+      "id": "new_heliograph_station",
+      "name": "New Heliograph Station",
+      "description": "Largest Sand-Engineer settlement built around Archive facility",
+      "symbol_dict": {
+        "#": {"type": "wall", "id": "reinforced_steel"},
+        "¤": {"type": "wall", "id": "archive_plating"},
+        ".": {"type": "floor", "id": "metal_grating"},
+        "~": {"type": "floor", "id": "workshop_floor"},
+        "R": {"type": "npc", "id": "forewoman_ressa", "name": "Forewoman Ressa Vane"},
+        "M": {"type": "npc", "id": "dr_marcus", "name": "Dr. Marcus Chen"},
+        "Z": {"type": "npc", "id": "engineer_zara", "name": "Engineer Zara Okafor"},
+        "L": {"type": "structure", "id": "research_lab"},
+        "F": {"type": "structure", "id": "fabrication_yard"},
+        "P": {"type": "structure", "id": "power_grid"},
+        "A": {"type": "structure", "id": "comm_array"}
+      },
+      "clear_area": {
+        "shape": "rectangle",
+        "width": 10,
+        "height": 8,
+        "center_x": 18,
+        "center_y": 12
+      },
+      "template_rows": [
+        "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤",
+        "¤#..............................A...#¤",
+        "¤#..L.............................#¤",
+        "¤#................................#¤",
+        "¤#..........~~~~~~~~~~............#¤",
+        "¤#..........~........~............#¤",
+        "¤#..........~.R..M..Z~............#¤",
+        "¤#..........~........~............#¤",
+        "¤#..........~~~~~~~~~~............#¤",
+        "¤#................................#¤",
+        "¤#..F.............................#¤",
+        "¤#..............................P.#¤",
+        "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤"
+      ],
+      "lore": {
+        "discovery_message": "The industrial complex sprawls before you, humming with technological activity.",
+        "atmosphere": "Sparks fly from fabrication units. The smell of ozone and hot metal fills the air."
+      }
+    },
+    {
+      "id": "prism_cathedral_natural",
+      "name": "The Prism Cathedral",
+      "description": "Natural crystal formation in the Glass Gardens, holiest Mirror Monk site",
+      "symbol_dict": {
+        "#": {"type": "wall", "id": "prismatic_crystal"},
+        "¤": {"type": "wall", "id": "living_crystal"},
+        ".": {"type": "floor", "id": "crystal_moss"},
+        "~": {"type": "floor", "id": "reflection_pool"},
+        "P": {"type": "npc", "id": "the_prism", "name": "The High Prism"},
+        "G": {"type": "npc", "id": "crystal_guardian", "name": "Crystal Guardian"},
+        "A": {"type": "structure", "id": "altar_of_angles"},
+        "R": {"type": "structure", "id": "reflection_chamber"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 6,
+        "center_x": 12,
+        "center_y": 8
+      },
+      "template_rows": [
+        "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤",
+        "¤#..................#¤",
+        "¤#..................#¤",
+        "¤#......~~~~~~......#¤",
+        "¤#......~....~......#¤",
+        "¤#......~.PA.~......#¤",
+        "¤#......~....~......#¤",
+        "¤#......~~~~~~......#¤",
+        "¤#..................#¤",
+        "¤#..R...........G...#¤",
+        "¤#..................#¤",
+        "¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤"
+      ],
+      "lore": {
+        "discovery_message": "Crystalline spires reach toward the sky, refracting light into impossible patterns.",
+        "atmosphere": "The air itself seems to sing with harmonic frequencies. Reality bends around the crystal formations."
+      }
     }
   ]
 }

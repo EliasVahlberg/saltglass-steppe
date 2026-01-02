@@ -41,6 +41,62 @@
       "glyph": "▪",
       "color": "DarkGray",
       "description": "Pre-storm flooring, cracked but intact"
+    },
+    {
+      "id": "crystal_moss",
+      "name": "Crystal Moss",
+      "glyph": "∴",
+      "color": "LightGreen",
+      "description": "Delicate crystalline growths that crunch underfoot"
+    },
+    {
+      "id": "glass_sand",
+      "name": "Glass Sand",
+      "glyph": "░",
+      "color": "LightCyan",
+      "description": "Fine particles of pulverized glass that shift and flow"
+    },
+    {
+      "id": "void_stone",
+      "name": "Void Stone",
+      "glyph": "▫",
+      "color": "DarkGray",
+      "description": "Dark stone that seems to absorb footsteps and sound"
+    },
+    {
+      "id": "brine_mud",
+      "name": "Brine Mud",
+      "glyph": "≈",
+      "color": "DarkYellow",
+      "description": "Thick, salty mud that clings to boots and corrodes metal"
+    },
+    {
+      "id": "storm_glass_shards",
+      "name": "Storm Glass Shards",
+      "glyph": "^",
+      "color": "Cyan",
+      "description": "Razor-sharp fragments of storm-forged glass"
+    },
+    {
+      "id": "light_pool",
+      "name": "Light Pool",
+      "glyph": "○",
+      "color": "Yellow",
+      "description": "Liquid light that ripples with each step"
+    },
+    {
+      "id": "salt_gravel",
+      "name": "Salt Gravel",
+      "glyph": "∙",
+      "color": "White",
+      "description": "Coarse salt crystals mixed with stone fragments"
+    },
+    {
+      "id": "prismatic_tiles",
+      "name": "Prismatic Tiles",
+      "glyph": "◇",
+      "color": "LightMagenta",
+      "description": "Crystalline floor tiles that refract light in all directions"
     }
   ]
 }

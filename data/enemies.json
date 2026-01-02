@@ -648,6 +648,402 @@
         { "condition": "on_hit", "effect": "D(@10 &DarkGray)" },
         { "condition": "on_death", "effect": "D(@20 &Gray)" }
       ]
+    },
+    {
+      "id": "prism_guardian",
+      "name": "Prism Guardian",
+      "glyph": "p",
+      "max_hp": 18,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 10,
+      "xp_value": 45,
+      "level": 3,
+      "description": "Crystalline sentinel that refracts light into deadly beams",
+      "biome_affinity": ["glass_gardens", "refraction_fields"],
+      "faction_relations": {
+        "mirror_monks": "neutral",
+        "glassborn": "friendly"
+      },
+      "behaviors": [
+        { "type": "light_beam", "value": 8, "range": 6 },
+        { "type": "prism_shield", "effect": "reflect_damage" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "S(@3 &Cyan &LightCyan &White)" },
+        { "condition": "on_death", "effect": "B(@1 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "void_stalker",
+      "name": "Void Stalker",
+      "glyph": "v",
+      "max_hp": 22,
+      "damage_min": 4,
+      "damage_max": 8,
+      "sight_range": 12,
+      "xp_value": 60,
+      "level": 4,
+      "description": "Shadow creature that emerges from reality tears",
+      "biome_affinity": ["shattered_citadel", "void_breach_site"],
+      "faction_relations": {
+        "all": "hostile"
+      },
+      "behaviors": [
+        { "type": "void_step", "effect": "teleport_to_player" },
+        { "type": "reality_drain", "value": 3 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "F(@8 &DarkGray)" },
+        { "condition": "on_death", "effect": "B(@2 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "salt_harvester",
+      "name": "Salt Harvester",
+      "glyph": "h",
+      "max_hp": 16,
+      "damage_min": 2,
+      "damage_max": 5,
+      "sight_range": 6,
+      "xp_value": 35,
+      "level": 2,
+      "description": "Automated mining construct still following ancient protocols",
+      "biome_affinity": ["salt_mines", "saltflat"],
+      "faction_relations": {
+        "sand_engineers": "friendly",
+        "archive_drones": "neutral"
+      },
+      "behaviors": [
+        { "type": "salt_spray", "value": 4, "effect": "corrosion" },
+        { "type": "mining_drill", "value": 6 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@4 &White)" },
+        { "condition": "on_death", "effect": "B(@2 &LightCyan)" }
+      ]
+    },
+    {
+      "id": "storm_echo",
+      "name": "Storm Echo",
+      "glyph": "e",
+      "max_hp": 14,
+      "damage_min": 3,
+      "damage_max": 7,
+      "sight_range": 8,
+      "xp_value": 40,
+      "level": 3,
+      "description": "Ghostly remnant of a glass storm, still carrying its fury",
+      "biome_affinity": ["storm_scars", "refraction_fields"],
+      "faction_relations": {
+        "storm_touched": "neutral"
+      },
+      "behaviors": [
+        { "type": "wind_blast", "value": 5, "effect": "knockback" },
+        { "type": "glass_shard_storm", "value": 4 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "W(@4 &Yellow)" },
+        { "condition": "on_death", "effect": "D(@6 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "crystal_bloom",
+      "name": "Crystal Bloom",
+      "glyph": "c",
+      "max_hp": 12,
+      "damage_min": 1,
+      "damage_max": 4,
+      "sight_range": 5,
+      "xp_value": 25,
+      "level": 2,
+      "description": "Living crystal formation that feeds on light and grows",
+      "biome_affinity": ["glass_gardens", "crystal_caves"],
+      "faction_relations": {
+        "glassborn": "neutral",
+        "mirror_monks": "friendly"
+      },
+      "behaviors": [
+        { "type": "light_absorption", "effect": "heal_self" },
+        { "type": "crystal_growth", "value": 2 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "S(@5 &LightGreen &Green &LightCyan)" },
+        { "condition": "on_death", "effect": "B(@3 &LightGreen)" }
+      ]
+    },
+    {
+      "id": "refraction_wisp",
+      "name": "Refraction Wisp",
+      "glyph": "w",
+      "max_hp": 8,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 12,
+      "xp_value": 30,
+      "level": 2,
+      "description": "Ethereal being made of bent light and possibility",
+      "biome_affinity": ["refraction_fields", "glass_gardens"],
+      "faction_relations": {
+        "mirror_monks": "friendly",
+        "adapted_players": "curious"
+      },
+      "behaviors": [
+        { "type": "light_bend", "effect": "confusion" },
+        { "type": "phase_shift", "effect": "dodge_bonus" }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "R(@6 &Yellow &LightYellow &White)" },
+        { "condition": "on_death", "effect": "F(@12 &LightYellow)" }
+      ]
+    },
+    {
+      "id": "archive_drone",
+      "name": "Archive Drone",
+      "glyph": "a",
+      "max_hp": 20,
+      "damage_min": 3,
+      "damage_max": 5,
+      "sight_range": 10,
+      "xp_value": 50,
+      "level": 3,
+      "description": "Pre-storm security unit still protecting ancient data",
+      "biome_affinity": ["ruins", "archive_nodes"],
+      "faction_relations": {
+        "sand_engineers": "neutral",
+        "unauthorized": "hostile"
+      },
+      "behaviors": [
+        { "type": "data_scan", "effect": "identify_player" },
+        { "type": "security_protocol", "value": 6 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@1 &LightBlue)" },
+        { "condition": "on_death", "effect": "B(@1 &Blue)" }
+      ]
+    },
+    {
+      "id": "glass_weaver",
+      "name": "Glass Weaver",
+      "glyph": "g",
+      "max_hp": 15,
+      "damage_min": 2,
+      "damage_max": 6,
+      "sight_range": 7,
+      "xp_value": 38,
+      "level": 3,
+      "description": "Artisan creature that spins glass into deadly webs",
+      "biome_affinity": ["glass_gardens", "ruins"],
+      "faction_relations": {
+        "glassborn": "friendly",
+        "glass_artisans": "neutral"
+      },
+      "behaviors": [
+        { "type": "glass_web", "effect": "entangle" },
+        { "type": "shard_throw", "value": 5 }
+      ],
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@3 &Cyan)" },
+        { "condition": "on_death", "effect": "S(@2 &LightCyan &Cyan)" }
+      ]
+    },
+    {
+      "id": "storm_hawk",
+      "name": "Storm Hawk",
+      "glyph": "H",
+      "max_hp": 12,
+      "damage_min": 2,
+      "damage_max": 5,
+      "sight_range": 12,
+      "xp_value": 40,
+      "level": 3,
+      "description": "Quantum-adapted bird that rides storm currents and exists partially outside time",
+      "biome_affinity": ["storm_scars", "saltflat"],
+      "faction_relations": {
+        "MirrorMonks": "friendly",
+        "GlassProphets": "neutral",
+        "SandEngineers": "neutral",
+        "QuantumCollective": "allied"
+      },
+      "behaviors": ["quantum_flight", "precognitive_dodge", "storm_calling"],
+      "effects": [
+        { "condition": "on_hit", "effect": "W(@6 &Yellow &LightYellow)" },
+        { "condition": "on_death", "effect": "R(@4 &Yellow &LightYellow &White)" }
+      ],
+      "loot_table": [
+        { "item": "storm_feather", "weight": 3 },
+        { "item": "quantum_core", "weight": 1 }
+      ]
+    },
+    {
+      "id": "void_swimmer",
+      "name": "Void Swimmer",
+      "glyph": "V",
+      "max_hp": 18,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 8,
+      "xp_value": 60,
+      "level": 4,
+      "description": "Dimensional entity that swims through solid matter as if it were water",
+      "biome_affinity": ["shattered_citadel", "refraction_fields"],
+      "faction_relations": {
+        "MirrorMonks": "hostile",
+        "GlassProphets": "neutral",
+        "SandEngineers": "hostile",
+        "QuantumCollective": "allied"
+      },
+      "behaviors": ["dimensional_phase", "reality_distortion", "cosmic_observation"],
+      "effects": [
+        { "condition": "on_hit", "effect": "D(@2 &Magenta &LightMagenta)" },
+        { "condition": "on_death", "effect": "F(@8 &DarkGray)" }
+      ],
+      "loot_table": [
+        { "item": "void_essence", "weight": 2 },
+        { "item": "dimensional_shard", "weight": 1 }
+      ]
+    },
+    {
+      "id": "crystal_spider",
+      "name": "Crystal Spider",
+      "glyph": "s",
+      "max_hp": 6,
+      "damage_min": 1,
+      "damage_max": 3,
+      "sight_range": 10,
+      "xp_value": 25,
+      "level": 2,
+      "description": "Intelligent arachnid with quantum-coherent crystal symbiosis",
+      "biome_affinity": ["glass_gardens", "ruins"],
+      "faction_relations": {
+        "MirrorMonks": "friendly",
+        "GlassProphets": "friendly",
+        "SandEngineers": "neutral",
+        "Glassborn": "allied"
+      },
+      "behaviors": ["quantum_web", "precognitive_sense", "crystal_symbiosis"],
+      "effects": [
+        { "condition": "on_hit", "effect": "S(@4 &Cyan &LightCyan)" },
+        { "condition": "on_death", "effect": "B(@3 &Cyan)" }
+      ],
+      "loot_table": [
+        { "item": "quantum_silk", "weight": 3 },
+        { "item": "crystal_fragment", "weight": 2 }
+      ]
+    },
+    {
+      "id": "glass_golem",
+      "name": "Glass Golem",
+      "glyph": "G",
+      "max_hp": 25,
+      "damage_min": 4,
+      "damage_max": 7,
+      "sight_range": 6,
+      "xp_value": 80,
+      "level": 5,
+      "description": "Archive construction unit fused with storm glass over decades",
+      "biome_affinity": ["ruins", "shattered_citadel"],
+      "faction_relations": {
+        "MirrorMonks": "neutral",
+        "GlassProphets": "neutral",
+        "SandEngineers": "hostile",
+        "ArchiveConsciousness": "allied"
+      },
+      "behaviors": ["construction_protocol", "quantum_repair", "guardian_mode"],
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&LightBlue)" },
+        { "condition": "on_death", "effect": "B(@4 &Blue &LightBlue)" }
+      ],
+      "loot_table": [
+        { "item": "archive_component", "weight": 2 },
+        { "item": "quantum_crystal", "weight": 1 },
+        { "item": "construction_blueprint", "weight": 1 }
+      ]
+    },
+    {
+      "id": "void_swimmer",
+      "name": "Void Swimmer",
+      "glyph": "V",
+      "max_hp": 18,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 8,
+      "xp_value": 60,
+      "level": 4,
+      "description": "Dimensional entity that swims through solid matter as if it were water",
+      "biome_affinity": ["shattered_citadel", "refraction_fields"],
+      "faction_relations": {
+        "MirrorMonks": "hostile",
+        "GlassProphets": "neutral",
+        "SandEngineers": "hostile",
+        "QuantumCollective": "allied"
+      },
+      "behaviors": ["dimensional_phase", "reality_distortion", "cosmic_observation"],
+      "effects": [
+        { "condition": "on_hit", "effect": "D(@2 &Magenta &LightMagenta)" },
+        { "condition": "on_death", "effect": "F(@8 &DarkGray)" }
+      ],
+      "loot_table": [
+        { "item": "void_essence", "weight": 2 },
+        { "item": "dimensional_shard", "weight": 1 }
+      ]
+    },
+    {
+      "id": "crystal_spider",
+      "name": "Crystal Spider",
+      "glyph": "s",
+      "max_hp": 6,
+      "damage_min": 1,
+      "damage_max": 3,
+      "sight_range": 10,
+      "xp_value": 25,
+      "level": 2,
+      "description": "Intelligent arachnid with quantum-coherent crystal symbiosis",
+      "biome_affinity": ["glass_gardens", "ruins"],
+      "faction_relations": {
+        "MirrorMonks": "friendly",
+        "GlassProphets": "friendly",
+        "SandEngineers": "neutral",
+        "Glassborn": "allied"
+      },
+      "behaviors": ["quantum_web", "precognitive_sense", "crystal_symbiosis"],
+      "effects": [
+        { "condition": "on_hit", "effect": "S(@4 &Cyan &LightCyan)" },
+        { "condition": "on_death", "effect": "B(@3 &Cyan)" }
+      ],
+      "loot_table": [
+        { "item": "quantum_silk", "weight": 3 },
+        { "item": "crystal_fragment", "weight": 2 }
+      ]
+    },
+    {
+      "id": "glass_golem",
+      "name": "Glass Golem",
+      "glyph": "G",
+      "max_hp": 25,
+      "damage_min": 4,
+      "damage_max": 7,
+      "sight_range": 6,
+      "xp_value": 80,
+      "level": 5,
+      "description": "Archive construction unit fused with storm glass over decades",
+      "biome_affinity": ["ruins", "shattered_citadel"],
+      "faction_relations": {
+        "MirrorMonks": "neutral",
+        "GlassProphets": "neutral",
+        "SandEngineers": "hostile",
+        "ArchiveConsciousness": "allied"
+      },
+      "behaviors": ["construction_protocol", "quantum_repair", "guardian_mode"],
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&LightBlue)" },
+        { "condition": "on_death", "effect": "B(@4 &Blue &LightBlue)" }
+      ],
+      "loot_table": [
+        { "item": "archive_component", "weight": 2 },
+        { "item": "quantum_crystal", "weight": 1 },
+        { "item": "construction_blueprint", "weight": 1 }
+      ]
     }
   ]
 }

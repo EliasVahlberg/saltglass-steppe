@@ -47,6 +47,62 @@
       "color": "Red",
       "hp": 20,
       "description": "Corroded metal framework from the old world"
+    },
+    {
+      "id": "prismatic_crystal",
+      "name": "Prismatic Crystal",
+      "glyph": "◊",
+      "color": "LightMagenta",
+      "hp": 6,
+      "description": "Translucent crystal that splits light into rainbows"
+    },
+    {
+      "id": "void_glass",
+      "name": "Void Glass",
+      "glyph": "▒",
+      "color": "DarkGray",
+      "hp": 18,
+      "description": "Dark glass that seems to absorb light and sound"
+    },
+    {
+      "id": "storm_carved_stone",
+      "name": "Storm-Carved Stone",
+      "glyph": "▓",
+      "color": "LightGray",
+      "hp": 22,
+      "description": "Stone sculpted by countless glass storms into flowing forms"
+    },
+    {
+      "id": "brine_crystal",
+      "name": "Brine Crystal",
+      "glyph": "♦",
+      "color": "LightCyan",
+      "hp": 10,
+      "description": "Crystallized salt water, sharp and corrosive"
+    },
+    {
+      "id": "refraction_barrier",
+      "name": "Refraction Barrier",
+      "glyph": "≡",
+      "color": "Yellow",
+      "hp": 14,
+      "description": "A wall of bent light that shifts and wavers"
+    },
+    {
+      "id": "fused_debris",
+      "name": "Fused Debris",
+      "glyph": "▓",
+      "color": "DarkYellow",
+      "hp": 16,
+      "description": "Melted stone, metal, and glass fused into solid barriers"
+    },
+    {
+      "id": "mirror_wall",
+      "name": "Mirror Wall",
+      "glyph": "║",
+      "color": "White",
+      "hp": 12,
+      "description": "Polished surface that reflects both light and sound"
     }
   ]
 }
