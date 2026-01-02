@@ -12,6 +12,7 @@ use super::biomes::BiomeSystem;
 use super::grammar::{Grammar, GrammarContext};
 use super::templates::{TemplateLibrary, TemplateContext};
 use super::constraints::{ConstraintSystem, ConstraintContext, ObjectivePlacement, ConstraintSeverity};
+use super::connectivity::{ensure_connectivity, GSBParams};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TileGenConfig {
@@ -147,8 +148,8 @@ impl TileGenerator {
                 // Add procedural content using all systems
                 self.add_procedural_content(&mut map, rng, biome, terrain, elevation, poi);
                 
-                // Ensure basic connectivity (always apply this)
-                self.ensure_basic_connectivity(&mut map);
+                // Ensure connectivity using Glass Seam Bridging algorithm
+                self.ensure_basic_connectivity(&mut map, rng);
                 
                 // Enhance clearings with better distribution
                 clearings.extend(self.find_enhanced_clearings(&map.tiles, biome, terrain));
@@ -170,27 +171,24 @@ impl TileGenerator {
                         self.ensure_minimum_open_space(map);
                     },
                     "basic_connectivity" => {
-                        // Ensure connectivity from spawn (125,55) to corners as per constraint rule
                         let spawn = (125, 55);
                         self.ensure_specific_connectivity(map, spawn, (50, 25));
                         self.ensure_specific_connectivity(map, spawn, (200, 85));
-                        self.ensure_basic_connectivity(map);
+                        self.ensure_basic_connectivity_legacy(map);
                     },
                     "exit_connectivity" => {
-                        // Ensure connectivity from spawn (125,55) to left/right edges as per constraint rule
                         let spawn = (125, 55);
                         self.ensure_specific_connectivity(map, spawn, (240, 55));
                         self.ensure_specific_connectivity(map, spawn, (10, 55));
-                        self.ensure_basic_connectivity(map);
+                        self.ensure_basic_connectivity_legacy(map);
                     },
                     "connectivity_spawn_to_edges" => {
-                        // Ensure connectivity from spawn (125,55) to all map edges
                         let spawn = (125, 55);
                         let edges = [(10, 10), (240, 10), (10, 100), (240, 100)];
                         for edge in edges {
                             self.ensure_specific_connectivity(map, spawn, edge);
                         }
-                        self.ensure_basic_connectivity(map);
+                        self.ensure_basic_connectivity_legacy(map);
                     },
                     _ => {}
                 }
@@ -239,21 +237,21 @@ impl TileGenerator {
         self.create_diagonal_corridor(map, start, end);
     }
     
-    /// Ensure basic connectivity by creating corridors
-    fn ensure_basic_connectivity(&self, map: &mut Map) {
-        let center = (MAP_WIDTH / 2, MAP_HEIGHT / 2);
+    /// Ensure basic connectivity using Glass Seam Bridging algorithm
+    fn ensure_basic_connectivity(&self, map: &mut Map, rng: &mut ChaCha8Rng) {
+        let spawn = (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2);
         
         // Ensure the center spawn point is always floor
-        if let Some(idx) = map.pos_to_idx(center.0 as i32, center.1 as i32) {
+        if let Some(idx) = map.pos_to_idx(spawn.0, spawn.1) {
             map.tiles[idx] = Tile::Floor;
         }
         
-        // Clear a small 3x3 area around spawn
-        for dy in -1..=1 {
-            for dx in -1..=1 {
-                let x = center.0 as i32 + dx;
-                let y = center.1 as i32 + dy;
-                if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
+        // Clear spawn area (5x5)
+        for dy in -2..=2 {
+            for dx in -2..=2 {
+                let x = spawn.0 + dx;
+                let y = spawn.1 + dy;
+                if (dx.abs() <= 1 && dy.abs() <= 1) || (dx + dy).abs() <= 2 {
                     if let Some(idx) = map.pos_to_idx(x, y) {
                         map.tiles[idx] = Tile::Floor;
                     }
@@ -261,28 +259,26 @@ impl TileGenerator {
             }
         }
         
-        // Ensure spawn area meets clearing requirements (5x5 area with 15+ floor tiles)
-        for dy in -2..=2 {
-            for dx in -2..=2 {
-                let x = center.0 as i32 + dx;
-                let y = center.1 as i32 + dy;
-                if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
-                    // Clear most of the 5x5 area to ensure it's a valid spawn clearing
-                    if (dx.abs() <= 1 && dy.abs() <= 1) || (dx + dy).abs() <= 2 {
-                        if let Some(idx) = map.pos_to_idx(x, y) {
-                            map.tiles[idx] = Tile::Floor;
-                        }
-                    }
-                }
-            }
+        // Apply Glass Seam Bridging algorithm
+        let params = GSBParams::fast(); // Use fast profile for real-time generation
+        let tunnels = ensure_connectivity(map, spawn, &params, rng);
+        
+        if !tunnels.is_empty() {
+            // Log tunnel creation for debugging
+            #[cfg(debug_assertions)]
+            println!("GSB: Created {} tunnels to ensure connectivity", tunnels.len());
         }
+    }
+    
+    /// Legacy connectivity method (fallback)
+    fn ensure_basic_connectivity_legacy(&self, map: &mut Map) {
+        let center = (MAP_WIDTH / 2, MAP_HEIGHT / 2);
         
         // Find the nearest open area and create a diagonal corridor to it
         if let Some(target) = self.find_nearest_open_area(map, center) {
             self.create_diagonal_corridor(map, center, target);
         } else {
-            // Fallback: create a simple path to map edge if no open area found
-            let edge_target = (MAP_WIDTH - 10, center.1); // Path to right edge
+            let edge_target = (MAP_WIDTH - 10, center.1);
             self.create_diagonal_corridor(map, center, edge_target);
         }
     }
@@ -292,15 +288,13 @@ impl TileGenerator {
         let start_x = start.0 as i32;
         let start_y = start.1 as i32;
         
-        // Search in expanding radius for a cluster of floor tiles
         for radius in 5..40 {
-            for angle in 0..32 { // More angles for better coverage
+            for angle in 0..32 {
                 let angle_rad = (angle as f32) * std::f32::consts::PI / 16.0;
                 let x = start_x + (radius as f32 * angle_rad.cos()) as i32;
                 let y = start_y + (radius as f32 * angle_rad.sin()) as i32;
                 
                 if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
-                    // Check if this point has a cluster of floor tiles around it
                     if self.has_open_cluster(map, (x as usize, y as usize)) {
                         return Some((x as usize, y as usize));
                     }
@@ -317,16 +311,14 @@ impl TileGenerator {
             for dx in -1..=1 {
                 let x = pos.0 as i32 + dx;
                 let y = pos.1 as i32 + dy;
-                if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
-                    if let Some(idx) = map.pos_to_idx(x, y) {
-                        if matches!(map.tiles[idx], Tile::Floor) {
-                            floor_count += 1;
-                        }
+                if let Some(idx) = map.pos_to_idx(x, y) {
+                    if matches!(map.tiles[idx], Tile::Floor) {
+                        floor_count += 1;
                     }
                 }
             }
         }
-        floor_count >= 3 // Need at least 3 floor tiles in 3x3 area (more lenient)
+        floor_count >= 3
     }
     
     /// Create a diagonal corridor between two points
@@ -337,7 +329,6 @@ impl TileGenerator {
         let target_y = end.1 as i32;
         
         while x != target_x || y != target_y {
-            // Move diagonally when possible, otherwise move in the direction with larger distance
             let dx = if x < target_x { 1 } else if x > target_x { -1 } else { 0 };
             let dy = if y < target_y { 1 } else if y > target_y { -1 } else { 0 };
             
@@ -351,10 +342,6 @@ impl TileGenerator {
             }
         }
     }
-    
-
-    
-
     
 
 
