@@ -68,12 +68,14 @@
           "hazard_type": "heat_exhaustion",
           "severity": 4,
           "frequency": 0.3,
+          "frequency": 0.3,
           "description": "The relentless sun saps your strength",
           "damage_type": "heat"
         },
         {
           "hazard_type": "sandstorm",
           "severity": 6,
+          "frequency": 0.3,
           "frequency": 0.2,
           "description": "Stinging sand reduces visibility to nothing",
           "damage_type": "environmental"
@@ -167,6 +169,7 @@
         {
           "hazard_type": "salt_burn",
           "severity": 5,
+          "frequency": 0.3,
           "frequency": 0.4,
           "description": "Caustic salt crystals burn exposed skin",
           "damage_type": "chemical"
@@ -174,6 +177,7 @@
         {
           "hazard_type": "dehydration",
           "severity": 7,
+          "frequency": 0.3,
           "frequency": 0.5,
           "description": "The salt draws moisture from your body",
           "damage_type": "environmental"
@@ -267,6 +271,7 @@
         {
           "hazard_type": "thorn_laceration",
           "severity": 3,
+          "frequency": 0.3,
           "frequency": 0.6,
           "description": "Glass-sharp thorns tear at your clothing and skin",
           "damage_type": "piercing"
@@ -274,6 +279,7 @@
         {
           "hazard_type": "web_entanglement",
           "severity": 4,
+          "frequency": 0.3,
           "frequency": 0.3,
           "description": "Sticky webs slow your movement",
           "damage_type": "restraint"
@@ -362,6 +368,7 @@
         {
           "hazard_type": "territorial_guardian",
           "severity": 6,
+          "frequency": 0.3,
           "frequency": 0.2,
           "description": "Something guards this precious sanctuary",
           "damage_type": "combat"
@@ -369,6 +376,7 @@
         {
           "hazard_type": "false_paradise",
           "severity": 4,
+          "frequency": 0.3,
           "frequency": 0.1,
           "description": "Not all oases are what they seem",
           "damage_type": "psychic"
@@ -463,12 +471,14 @@
           "hazard_type": "structural_collapse",
           "severity": 8,
           "frequency": 0.3,
+          "frequency": 0.3,
           "description": "Weakened structures threaten to collapse",
           "damage_type": "crushing"
         },
         {
           "hazard_type": "data_corruption",
           "severity": 5,
+          "frequency": 0.3,
           "frequency": 0.2,
           "description": "Corrupted data streams assault your mind",
           "damage_type": "psychic"
@@ -476,6 +486,7 @@
         {
           "hazard_type": "refraction_trap",
           "severity": 6,
+          "frequency": 0.3,
           "frequency": 0.25,
           "description": "Light bends in ways that confuse and disorient",
           "damage_type": "disorientation"
@@ -561,6 +572,7 @@
         {
           "hazard_type": "refraction_burn",
           "severity": 5,
+          "frequency": 0.3,
           "description": "Concentrated light beams can cause severe burns",
           "trigger_conditions": ["high_light", "clear_weather"],
           "damage_range": [3, 8]
@@ -568,6 +580,7 @@
         {
           "hazard_type": "glass_shard_storm",
           "severity": 7,
+          "frequency": 0.3,
           "description": "Crystalline fragments whirl through the air",
           "trigger_conditions": ["storm_weather", "high_wind"],
           "damage_range": [5, 12]
@@ -653,6 +666,7 @@
         {
           "hazard_type": "reality_storm",
           "severity": 9,
+          "frequency": 0.3,
           "description": "Tears in space-time create unpredictable dangers",
           "trigger_conditions": ["storm_weather", "high_refraction"],
           "damage_range": [8, 15]
@@ -660,6 +674,7 @@
         {
           "hazard_type": "spectral_guardian",
           "severity": 7,
+          "frequency": 0.3,
           "description": "Ghostly defenders still patrol these halls",
           "trigger_conditions": ["night_time", "trespassing"],
           "damage_range": [6, 10]
@@ -745,6 +760,7 @@
         {
           "hazard_type": "salt_lung",
           "severity": 5,
+          "frequency": 0.3,
           "description": "Prolonged exposure causes respiratory damage",
           "trigger_conditions": ["extended_stay", "heavy_breathing"],
           "damage_range": [2, 5]
@@ -752,6 +768,7 @@
         {
           "hazard_type": "tunnel_collapse",
           "severity": 7,
+          "frequency": 0.3,
           "description": "Unstable tunnels may cave in without warning",
           "trigger_conditions": ["loud_noise", "structural_damage"],
           "damage_range": [8, 20]
@@ -837,6 +854,7 @@
         {
           "hazard_type": "glass_tornado",
           "severity": 9,
+          "frequency": 0.3,
           "description": "Whirlwinds of razor-sharp glass fragments",
           "trigger_conditions": ["high_wind", "storm_weather"],
           "damage_range": [10, 25]
@@ -844,6 +862,7 @@
         {
           "hazard_type": "wind_shear",
           "severity": 5,
+          "frequency": 0.3,
           "description": "Sudden changes in wind direction can knock travelers down",
           "trigger_conditions": ["exposed_position", "high_wind"],
           "damage_range": [3, 8]
@@ -929,6 +948,7 @@
         {
           "hazard_type": "light_burn",
           "severity": 7,
+          "frequency": 0.3,
           "description": "Concentrated light beams can cause severe damage",
           "trigger_conditions": ["direct_exposure", "high_refraction"],
           "damage_range": [6, 12]
@@ -936,6 +956,7 @@
         {
           "hazard_type": "optical_madness",
           "severity": 5,
+          "frequency": 0.3,
           "description": "Prolonged exposure to impossible sights affects the mind",
           "trigger_conditions": ["extended_stay", "high_adaptation"],
           "damage_range": [2, 6]
