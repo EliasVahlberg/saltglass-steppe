@@ -4,6 +4,18 @@ use std::fs;
 use saltglass_steppe::des::{run_scenario, run_parallel, Scenario};
 
 #[test]
+fn system_integration_test() {
+    let result = run_scenario("tests/scenarios/system_integration_test.json")
+        .expect("Failed to run system_integration_test scenario");
+    
+    assert!(
+        result.success,
+        "System integration test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}
+
+#[test]
 fn crystal_resonance_basic() {
     let result = run_scenario("tests/scenarios/crystal_resonance_basic.json")
         .expect("Failed to run crystal_resonance_basic scenario");

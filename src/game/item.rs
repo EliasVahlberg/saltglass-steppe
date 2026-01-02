@@ -139,6 +139,21 @@ pub struct ItemDef {
     pub monk_artifact: bool,
     #[serde(default)]
     pub identifies_items: bool,
+    // New system integration properties
+    #[serde(default)]
+    pub light_energy: u32,
+    #[serde(default)]
+    pub teaches_light_manipulation: bool,
+    #[serde(default)]
+    pub void_exposure: u32,
+    #[serde(default)]
+    pub void_energy: u32,
+    #[serde(default)]
+    pub teaches_crystal_resonance: bool,
+    #[serde(default)]
+    pub resonance_energy: u32,
+    #[serde(default)]
+    pub crystal_frequency: Option<String>,
 }
 
 fn default_pickup() -> bool { true }

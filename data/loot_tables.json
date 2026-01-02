@@ -45,7 +45,9 @@
       {"item_id": "glass_pick", "weight": 25, "min_count": 1, "max_count": 1, "chance": 0.7},
       {"item_id": "prism_shard", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4},
       {"item_id": "light_prism", "weight": 12, "min_count": 1, "max_count": 1, "chance": 0.3},
-      {"item_id": "focusing_crystal", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3}
+      {"item_id": "focusing_crystal", "weight": 10, "min_count": 1, "max_count": 1, "chance": 0.3},
+      {"item_id": "light_crystal", "weight": 18, "min_count": 1, "max_count": 1, "chance": 0.4},
+      {"item_id": "prism_lens", "weight": 8, "min_count": 1, "max_count": 1, "chance": 0.2}
     ]
   },
   {
@@ -123,6 +125,31 @@
       {"item_id": "quantum_collective_artifact", "weight": 5, "min_count": 1, "max_count": 1, "chance": 0.1},
       {"item_id": "dimensional_key", "weight": 6, "min_count": 1, "max_count": 1, "chance": 0.15},
       {"item_id": "evolution_catalyst", "weight": 7, "min_count": 1, "max_count": 1, "chance": 0.2}
+    ]
+  },
+  {
+    "id": "void_artifacts",
+    "name": "Void Artifacts",
+    "description": "Dangerous items corrupted by void energy",
+    "min_items": 1,
+    "max_items": 2,
+    "entries": [
+      {"item_id": "void_shard", "weight": 35, "min_count": 1, "max_count": 2, "chance": 0.7},
+      {"item_id": "void_essence", "weight": 20, "min_count": 1, "max_count": 1, "chance": 0.5},
+      {"item_id": "dimensional_shard", "weight": 15, "min_count": 1, "max_count": 1, "chance": 0.4}
+    ]
+  },
+  {
+    "id": "crystal_resonance",
+    "name": "Crystal Resonance Items",
+    "description": "Items that interact with crystal frequencies",
+    "min_items": 1,
+    "max_items": 3,
+    "entries": [
+      {"item_id": "resonance_tuner", "weight": 20, "min_count": 1, "max_count": 1, "chance": 0.5},
+      {"item_id": "alpha_crystal_seed", "weight": 25, "min_count": 1, "max_count": 1, "chance": 0.6},
+      {"item_id": "gamma_crystal_seed", "weight": 25, "min_count": 1, "max_count": 1, "chance": 0.6},
+      {"item_id": "crystal_fragment", "weight": 30, "min_count": 1, "max_count": 2, "chance": 0.7}
     ]
   }
 ]

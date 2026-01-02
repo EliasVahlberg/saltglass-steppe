@@ -1,0 +1,47 @@
+{
+  "name": "system_integration_test",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 5,
+    "ensure_paths": [
+      {"from_x": 10, "from_y": 10, "to_x": 15, "to_y": 10}
+    ]
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": ["light_crystal", "void_shard", "resonance_tuner"]
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "use_item",
+        "item_index": 0
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "use_item",
+        "item_index": 0
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "use_item",
+        "item_index": 0
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      }
+    }
+  ]
+}

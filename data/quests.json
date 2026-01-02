@@ -204,6 +204,126 @@
         "xp": 20,
         "items": []
       }
+    },
+    {
+      "id": "light_awakening",
+      "name": "Light Awakening",
+      "description": "Discover the power to manipulate light itself.",
+      "objectives": [
+        {
+          "id": "find_light_crystal",
+          "description": "Find and use a Light Crystal",
+          "type": "collect",
+          "item_id": "light_crystal",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 30,
+        "items": ["prism_lens"],
+        "salt_scrip": 75,
+        "unlocks_quests": ["master_of_light"]
+      }
+    },
+    {
+      "id": "master_of_light",
+      "name": "Master of Light",
+      "description": "Learn to focus and bend light to your will.",
+      "requires_quests_completed": ["light_awakening"],
+      "objectives": [
+        {
+          "id": "use_prism_lens",
+          "description": "Use the Prism Lens to learn light manipulation",
+          "type": "collect",
+          "item_id": "prism_lens",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 50,
+        "items": ["light_crystal", "light_crystal"],
+        "salt_scrip": 100
+      }
+    },
+    {
+      "id": "void_touched",
+      "name": "Void Touched",
+      "description": "Experience the corruption of the void and its dark gifts.",
+      "objectives": [
+        {
+          "id": "find_void_shard",
+          "description": "Find and use a Void Shard",
+          "type": "collect",
+          "item_id": "void_shard",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 40,
+        "items": ["void_shard"],
+        "salt_scrip": 80,
+        "unlocks_quests": ["embrace_the_void"]
+      }
+    },
+    {
+      "id": "embrace_the_void",
+      "name": "Embrace the Void",
+      "description": "Accept the void's corruption and unlock its abilities.",
+      "requires_quests_completed": ["void_touched"],
+      "objectives": [
+        {
+          "id": "gain_void_exposure",
+          "description": "Accumulate 25 void exposure",
+          "type": "reach",
+          "x": 0,
+          "y": 0
+        }
+      ],
+      "reward": {
+        "xp": 60,
+        "items": ["void_shard", "void_shard"],
+        "salt_scrip": 120
+      }
+    },
+    {
+      "id": "crystal_harmony",
+      "name": "Crystal Harmony",
+      "description": "Learn to resonate with the crystalline formations of the Steppe.",
+      "objectives": [
+        {
+          "id": "find_resonance_tuner",
+          "description": "Find and use a Resonance Tuner",
+          "type": "collect",
+          "item_id": "resonance_tuner",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 35,
+        "items": ["alpha_crystal_seed", "gamma_crystal_seed"],
+        "salt_scrip": 90,
+        "unlocks_quests": ["crystal_garden"]
+      }
+    },
+    {
+      "id": "crystal_garden",
+      "name": "Crystal Garden",
+      "description": "Plant crystal seeds and create your own resonance network.",
+      "requires_quests_completed": ["crystal_harmony"],
+      "objectives": [
+        {
+          "id": "plant_crystals",
+          "description": "Use both crystal seeds to plant crystals",
+          "type": "collect",
+          "item_id": "alpha_crystal_seed",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 55,
+        "items": ["resonance_tuner"],
+        "salt_scrip": 110
+      }
     }
   ]
 }

@@ -873,6 +873,9 @@ impl GameState {
         // Generate biome-specific environmental content
         self.generate_biome_content(&biome, level as u8);
         
+        // Generate crystal formations for appropriate biomes
+        self.generate_crystal_formations(&biome, &rooms, &mut rng);
+        
         // Generate template-based procedural content
         let mut template_context = std::collections::HashMap::new();
         template_context.insert("biome".to_string(), serde_json::Value::String(biome.as_str().to_string()));
@@ -1210,6 +1213,48 @@ impl GameState {
     /// Get faction lore from story model
     pub fn get_faction_lore(&self, faction_name: &str) -> Option<String> {
         self.story_model.as_ref()?.get_faction_lore(faction_name)
+    }
+
+    /// Generate crystal formations for appropriate biomes
+    fn generate_crystal_formations(&mut self, biome: &super::world_map::Biome, rooms: &[(i32, i32)], rng: &mut ChaCha8Rng) {
+        use super::crystal_resonance::CrystalFrequency;
+        
+        let formation_chance = match biome {
+            super::world_map::Biome::Ruins => 0.6,
+            super::world_map::Biome::Oasis => 0.4,
+            super::world_map::Biome::Saltflat => 0.3,
+            super::world_map::Biome::Scrubland => 0.2,
+            super::world_map::Biome::Desert => 0.1,
+        };
+        
+        if !rng.gen_bool(formation_chance as f64) {
+            return;
+        }
+        
+        let formation_count = match biome {
+            super::world_map::Biome::Ruins => rng.gen_range(2..=4),
+            super::world_map::Biome::Oasis => rng.gen_range(1..=3),
+            _ => rng.gen_range(1..=2),
+        };
+        
+        let frequencies = CrystalFrequency::all();
+        
+        for _ in 0..formation_count {
+            if let Some(&(rx, ry)) = rooms.get(rng.gen_range(0..rooms.len())) {
+                let x = rx + rng.gen_range(-2..=2);
+                let y = ry + rng.gen_range(-2..=2);
+                
+                // Don't place on player spawn or too close to enemies
+                if (x - self.player_x).abs() < 5 && (y - self.player_y).abs() < 5 {
+                    continue;
+                }
+                
+                let frequency = frequencies[rng.gen_range(0..frequencies.len())];
+                self.crystal_system.add_crystal(x, y, frequency);
+                
+                self.log_typed(format!("A {} crystal formation glimmers nearby.", frequency.name().to_lowercase()), MsgType::Loot);
+            }
+        }
     }
 
     /// Add player event to story model
@@ -2932,6 +2977,46 @@ impl GameState {
             self.quest_log.on_aria_interfaced(&def.id);
             // Trigger ARIA dialogue if we have a pending dialogue system
             // For now, we just log it.
+        }
+        
+        // New system integrations
+        if def.light_energy > 0 {
+            self.light_system.light_energy += def.light_energy;
+            self.log_typed(format!("Light energy surges through you! (+{} Light Energy)", def.light_energy), MsgType::Status);
+        }
+        if def.teaches_light_manipulation {
+            self.log_typed("You learn to manipulate light! Use debug commands: focus_beam, create_prism", MsgType::System);
+        }
+        if def.void_exposure > 0 {
+            let level_changed = self.void_system.add_exposure(def.void_exposure);
+            self.log_typed(format!("Void corruption seeps into you! (+{} Void Exposure)", def.void_exposure), MsgType::Status);
+            if level_changed {
+                self.log_typed(format!("Void exposure level: {:?}", self.void_system.exposure_level()), MsgType::Status);
+            }
+        }
+        if def.void_energy > 0 {
+            self.void_system.gain_energy(def.void_energy);
+            self.log_typed(format!("Void energy flows through you! (+{} Void Energy)", def.void_energy), MsgType::Status);
+        }
+        if def.teaches_crystal_resonance {
+            self.log_typed("You learn crystal resonance! Use debug commands: create_crystal, resonate, harmonize", MsgType::System);
+        }
+        if def.resonance_energy > 0 {
+            self.crystal_system.resonance_energy = (self.crystal_system.resonance_energy + def.resonance_energy)
+                .min(self.crystal_system.max_resonance_energy);
+            self.log_typed(format!("Crystal resonance fills you! (+{} Resonance Energy)", def.resonance_energy), MsgType::Status);
+        }
+        if let Some(frequency) = &def.crystal_frequency {
+            let freq = match frequency.as_str() {
+                "alpha" => super::crystal_resonance::CrystalFrequency::Alpha,
+                "beta" => super::crystal_resonance::CrystalFrequency::Beta,
+                "gamma" => super::crystal_resonance::CrystalFrequency::Gamma,
+                "delta" => super::crystal_resonance::CrystalFrequency::Delta,
+                "epsilon" => super::crystal_resonance::CrystalFrequency::Epsilon,
+                _ => super::crystal_resonance::CrystalFrequency::Alpha,
+            };
+            self.crystal_system.add_crystal(self.player_x, self.player_y, freq);
+            self.log_typed(format!("A {} crystal grows at your feet!", frequency), MsgType::Loot);
         }
         
         if def.consumable {

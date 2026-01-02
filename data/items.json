@@ -2318,6 +2318,98 @@
         { "condition": "on_pickup", "effect": "R(@2 &White &Cyan &Magenta)" },
         { "condition": "on_use", "effect": "W(@4 &White)" }
       ]
+    },
+    {
+      "id": "light_crystal",
+      "name": "Light Crystal",
+      "glyph": "◊",
+      "description": "A crystalline shard that stores and amplifies light energy",
+      "value": 80,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": true,
+      "light_energy": 25,
+      "effects": [
+        { "condition": "on_use", "effect": "G(&Yellow)" }
+      ]
+    },
+    {
+      "id": "prism_lens",
+      "name": "Prism Lens",
+      "glyph": "◎",
+      "description": "A carefully crafted lens that can bend and focus light beams",
+      "value": 150,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "teaches_light_manipulation": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@2 &Cyan &White)" }
+      ]
+    },
+    {
+      "id": "void_shard",
+      "name": "Void Shard",
+      "glyph": "▲",
+      "description": "A fragment of crystallized void energy that whispers of unreality",
+      "value": 120,
+      "weight": 1,
+      "tier": 3,
+      "usable": true,
+      "consumable": true,
+      "void_exposure": 15,
+      "void_energy": 20,
+      "effects": [
+        { "condition": "on_use", "effect": "P(@3 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "resonance_tuner",
+      "name": "Resonance Tuner",
+      "glyph": "♪",
+      "description": "A device that can detect and harmonize with crystal frequencies",
+      "value": 200,
+      "weight": 2,
+      "tier": 3,
+      "usable": true,
+      "consumable": false,
+      "teaches_crystal_resonance": true,
+      "resonance_energy": 30,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@2 &Magenta)" }
+      ]
+    },
+    {
+      "id": "alpha_crystal_seed",
+      "name": "Alpha Crystal Seed",
+      "glyph": "α",
+      "description": "A dormant crystal seed attuned to Alpha frequency (1-3 Hz)",
+      "value": 100,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": true,
+      "crystal_frequency": "alpha",
+      "effects": [
+        { "condition": "on_use", "effect": "G(&Blue)" }
+      ]
+    },
+    {
+      "id": "gamma_crystal_seed",
+      "name": "Gamma Crystal Seed",
+      "glyph": "γ",
+      "description": "A dormant crystal seed attuned to Gamma frequency (8-12 Hz)",
+      "value": 100,
+      "weight": 1,
+      "tier": 2,
+      "usable": true,
+      "consumable": true,
+      "crystal_frequency": "gamma",
+      "effects": [
+        { "condition": "on_use", "effect": "G(&Green)" }
+      ]
     }
   ]
 }
