@@ -914,12 +914,96 @@ if let Some(&enemy_idx) = state.enemy_positions.get(&(x, y)) {
 
 ---
 
+## Advanced Gameplay Systems (NEW)
+
+### Light Manipulation System
+
+**Location**: `src/game/light.rs`
+
+**Integration**: Called from debug commands and item usage
+
+**Flow**:
+```
+Player Action → Light System
+  → Create light beams with direction and intensity
+  → Trace beam paths with refraction calculations
+  → Apply light effects (damage, illumination)
+  → Update light sources and refraction surfaces
+```
+
+**Features**:
+- **Beam Tracing**: 8-directional light beams with range and intensity
+- **Refraction**: Light bends when hitting refraction surfaces
+- **Light Sources**: Fixed position emitters with configurable properties
+- **Player Abilities**: Focus Beam, Create Prism, Absorb Light
+- **Energy System**: Light energy resource for abilities
+
+### Void Energy System
+
+**Location**: `src/game/void_energy.rs`
+
+**Integration**: Called from item usage and game loop updates
+
+**Flow**:
+```
+Void Exposure → Progressive Corruption
+  → Unlock void abilities based on exposure level
+  → Reality distortions spawn randomly
+  → Void energy regeneration at high exposure
+  → Cross-system interactions with light/crystal
+```
+
+**Features**:
+- **Exposure Tracking**: 5 levels from None to Extreme
+- **Progressive Abilities**: 5 void abilities unlock with exposure
+- **Reality Distortions**: Temporal, Spatial, Material, Psychic effects
+- **Void Energy**: Resource system for ability usage
+- **Risk/Reward**: Power increases with corruption
+
+### Crystal Resonance System
+
+**Location**: `src/game/crystal_resonance.rs`
+
+**Integration**: Called from biome generation and item usage
+
+**Flow**:
+```
+Crystal Formation Generation → Player Interaction
+  → Resonate with crystals to gain energy
+  → Attune to different frequencies
+  → Create harmonic effects between crystals
+  → Plant crystal seeds to expand network
+```
+
+**Features**:
+- **Five Frequencies**: Alpha, Beta, Gamma, Delta, Epsilon with unique properties
+- **Crystal Growth**: Formations grow over time and can be cultivated
+- **Harmonic Effects**: Multiple crystals create combined effects
+- **Frequency Attunement**: Player specialization in crystal types
+- **Biome Integration**: Natural crystal spawning in appropriate areas
+
+### System Integration Points
+
+#### Cross-System Interactions
+- **Light + Crystal**: Light beams can charge crystals, crystals refract light
+- **Void + Crystal**: Void corruption affects crystal stability
+- **Light + Void**: Light can counteract void effects partially
+
+#### Discovery Mechanics
+- **Items**: Light Crystal, Void Shard, Resonance Tuner teach systems
+- **Quests**: Tutorial quests guide players through each system
+- **World Generation**: Crystal formations spawn naturally in biomes
+- **Progressive Unlocking**: Systems unlock through exposure and usage
+
+---
+
 ## Related Documentation
 
 - [ARCHITECTURE_AUDIT.md](./ARCHITECTURE_AUDIT.md) — Technical audit and recommendations
 - [systems_analysis.md](./systems_analysis.md) — Detailed refactoring history and anti-patterns
 - [SCALABILITY_AUDIT.md](./SCALABILITY_AUDIT.md) — Performance considerations
 - [TECH_STACK.md](./TECH_STACK.md) — Technology choices
+- [NEW_SYSTEMS_DOCUMENTATION.md](../development/NEW_SYSTEMS_DOCUMENTATION.md) — Complete documentation for Light, Void, and Crystal systems
 - [PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md](../development/PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md) — Complete procedural generation guide
 - [GLASS_SEAM_BRIDGING_ALGORITHM.md](../development/GLASS_SEAM_BRIDGING_ALGORITHM.md) — Glass Seam Bridging Algorithm documentation
 - [CONSTRAINT_SYSTEM_GUIDE.md](../development/CONSTRAINT_SYSTEM_GUIDE.md) — Constraint validation system guide
@@ -939,3 +1023,8 @@ if let Some(&enemy_idx) = state.enemy_positions.get(&(x, y)) {
 | Entity     | Trait unifying Enemy/NPC with common interface                          |
 | Behavior   | AI behavior strategy for enemies                                        |
 | DSL        | Domain-Specific Language (used for visual effects)                      |
+| Light Energy | Resource used for light manipulation abilities                         |
+| Void Exposure | Corruption level that unlocks void abilities                          |
+| Crystal Frequency | One of five resonance types (Alpha, Beta, Gamma, Delta, Epsilon)    |
+| Refraction Surface | Light-bending surface created by player abilities                    |
+| Reality Distortion | Void-induced environmental effect                                    |

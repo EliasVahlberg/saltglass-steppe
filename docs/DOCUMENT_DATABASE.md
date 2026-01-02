@@ -11,9 +11,6 @@ This file contains a comprehensive list of all project documentation with descri
 | [notes.md](../notes.md)                                                                | Miscellaneous development notes                                  |
 | [DOCUMENT_DATABASE.md](DOCUMENT_DATABASE.md)                                           | This file - index of all documentation                           |
 | [README.md](README.md)                                                                 | Documentation directory overview                                 |
-| [CONTENT_EXPANSION_SUMMARY.md](CONTENT_EXPANSION_SUMMARY.md)                           | Summary of content expansion efforts                             |
-| [TECHNICAL_FEATURES_NEEDED.md](TECHNICAL_FEATURES_NEEDED.md)                           | Technical features and requirements                              |
-| [IMPLEMENTATION_STATUS_SUMMARY.md](IMPLEMENTATION_STATUS_SUMMARY.md)                   | Current implementation status overview                           |
 | [PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md](PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md) | Procedural generation improvements summary                 |
 
 ## Papers and Research
@@ -91,6 +88,10 @@ This file contains a comprehensive list of all project documentation with descri
 | Document                                                                       | Description                                        |
 | ------------------------------------------------------------------------------ | -------------------------------------------------- |
 | [README.md](development/README.md)                                             | Development documentation overview                 |
+| [CONTENT_EXPANSION_SUMMARY.md](development/CONTENT_EXPANSION_SUMMARY.md)       | Summary of content expansion and system implementation |
+| [FUNCTIONALITY_REQUESTS.md](development/FUNCTIONALITY_REQUESTS.md)             | Feature requests and implementation status         |
+| [IMPLEMENTATION_STATUS_SUMMARY.md](development/IMPLEMENTATION_STATUS_SUMMARY.md) | Current implementation status overview           |
+| [NEW_SYSTEMS_DOCUMENTATION.md](development/NEW_SYSTEMS_DOCUMENTATION.md)       | Documentation for Light, Void, and Crystal systems |
 | [AUTO_EXPLORE_SYSTEM.md](development/AUTO_EXPLORE_SYSTEM.md)                   | Enhanced auto-explore system with item pickup, danger avoidance, and configuration |
 | [DEBUG_EXECUTION_SYSTEM.md](development/DEBUG_EXECUTION_SYSTEM.md)             | Debug Execution System (DES) overview              |
 | [DES_TODO.md](development/DES_TODO.md)                                         | DES development tasks and improvements             |
@@ -137,7 +138,6 @@ This file contains a comprehensive list of all project documentation with descri
 | Document                                                                      | Description                            |
 | ----------------------------------------------------------------------------- | -------------------------------------- |
 | [README.md](features/README.md)                                               | Features documentation overview        |
-| [FUNCTIONALITY_REQUESTS.md](features/FUNCTIONALITY_REQUESTS.md)               | Requested features and functionality   |
 | [IMPLEMENTATION_TASKS.md](features/IMPLEMENTATION_TASKS.md)                   | Implementation tasks and requirements  |
 | [READY_FOR_FEATURE_DEVELOPER.md](features/READY_FOR_FEATURE_DEVELOPER.md)     | Features ready for development         |
 | [GAMEPLAY_SIMULATION_ANALYSIS.md](features/GAMEPLAY_SIMULATION_ANALYSIS.md)   | Gameplay simulation and analysis       |
