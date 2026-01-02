@@ -212,9 +212,18 @@ impl TileGenerator {
     }
     /// Ensure basic connectivity using Glass Seam Bridging algorithm
     fn ensure_basic_connectivity(&self, map: &mut Map, rng: &mut ChaCha8Rng) {
-        let spawn = (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2);
+        // Use center as fallback spawn point
+        let center_spawn = (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2);
         
-        // Ensure the center spawn point is always floor
+        // Find actual clearings/spawn points
+        let clearings = Map::find_clearings(&map.tiles);
+        let spawn = if !clearings.is_empty() {
+            clearings[0] // Use first clearing as spawn
+        } else {
+            center_spawn // Fallback to center
+        };
+        
+        // Ensure the spawn point is always floor
         if let Some(idx) = map.pos_to_idx(spawn.0, spawn.1) {
             map.tiles[idx] = Tile::default_floor();
         }
@@ -233,7 +242,9 @@ impl TileGenerator {
         }
         
         // Apply Glass Seam Bridging algorithm
-        let params = GSBParams::fast(); // Use fast profile for real-time generation
+        let mut params = GSBParams::fast(); // Use fast profile for real-time generation
+        params.min_area_ratio = 0.01; // Connect even very small regions (1% instead of 5%)
+        params.connectivity_threshold = 0.95; // Require 95% connectivity
         let tunnels = ensure_connectivity(map, spawn, &params, rng);
         
         if !tunnels.is_empty() {

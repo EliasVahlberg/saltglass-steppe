@@ -316,7 +316,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
 
     // Render game map using new modular renderer
     let look_cursor = if ui.look_mode.active { Some((ui.look_mode.x, ui.look_mode.y)) } else { None };
-    renderer.render_game(frame, game_chunks[1], state, ui.frame_count, look_cursor);
+    renderer.render_game(frame, game_chunks[1], state, ui.frame_count, look_cursor, ui.debug_console.active);
     render_damage_numbers(frame, game_chunks[1], state);
 
     // Bottom panel with log
@@ -462,14 +462,17 @@ fn run_main_game() -> Result<()> {
         ui.camera_y = state.player_y as f32;
 
         loop {
-            ui.tick_frame();
-            state.tick_hit_flash();
-            state.tick_damage_numbers();
-            state.tick_projectile_trails();
-            state.tick_light_beams();
-            state.tick_animation();
-            ui.update_camera(state.player_x, state.player_y);
-            ui.dialog_box.tick(16); // ~60fps
+            // Only tick animations and updates if debug console is not active
+            if !ui.debug_console.active {
+                ui.tick_frame();
+                state.tick_hit_flash();
+                state.tick_damage_numbers();
+                state.tick_projectile_trails();
+                state.tick_light_beams();
+                state.tick_animation();
+                ui.update_camera(state.player_x, state.player_y);
+                ui.dialog_box.tick(16); // ~60fps
+            }
             
             // Check for pending dialogue from NPC interaction
             if let Some((speaker, text)) = state.pending_dialogue.take() {

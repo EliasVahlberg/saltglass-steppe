@@ -88,6 +88,7 @@ impl Renderer {
         state: &GameState,
         frame_count: u64,
         look_cursor: Option<(i32, i32)>,
+        pause_particles: bool,
     ) {
         let title = Line::from(format!(" Turn {} ", state.turn));
         let block = Block::default().title(title).borders(Borders::ALL);
@@ -98,14 +99,18 @@ impl Renderer {
         self.camera.update(state.player_x, state.player_y, inner.width as i32, inner.height as i32);
         let (cam_x, cam_y) = self.camera.position();
 
-        // Update particle system
-        self.particle_system.update(1.0 / 60.0); // Assume 60 FPS for now
+        // Update particle system only if not paused
+        if !pause_particles {
+            self.particle_system.update(1.0 / 60.0); // Assume 60 FPS for now
+        }
 
         // Update animation system
         self.animation_system.update();
 
-        // Update procedural effects
-        self.procedural_effects.update(1.0 / 60.0, inner.width as i32, inner.height as i32);
+        // Update procedural effects only if not paused
+        if !pause_particles {
+            self.procedural_effects.update(1.0 / 60.0, inner.width as i32, inner.height as i32);
+        }
 
         // Get screen shake offset
         let (shake_x, shake_y) = self.animation_system.get_screen_offset();
@@ -158,11 +163,15 @@ impl Renderer {
             inner.height as i32,
         );
 
-        // Render particles on top of everything else
-        self.render_particles(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
+        // Render particles on top of everything else (only if not paused)
+        if !pause_particles {
+            self.render_particles(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
+        }
 
-        // Render procedural effects
-        self.render_procedural_effects(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
+        // Render procedural effects (only if not paused)
+        if !pause_particles {
+            self.render_procedural_effects(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
+        }
 
         // Apply animation effects to all spans
         for row in &mut final_spans {

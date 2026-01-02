@@ -388,7 +388,7 @@ impl Map {
         }
     }
 
-    fn find_clearings(tiles: &[Tile]) -> Vec<(i32, i32)> {
+    pub fn find_clearings(tiles: &[Tile]) -> Vec<(i32, i32)> {
         let mut clearings = Vec::new();
         
         // Find floor areas that could serve as spawn points

@@ -26,18 +26,134 @@ pub struct DebugConsole {
     pub active: bool,
     pub input: String,
     pub history: Vec<String>,
+    pub history_index: Option<usize>,
+    pub suggestions: Vec<String>,
+    pub suggestion_index: usize,
 }
 
 impl DebugConsole {
-    pub fn toggle(&mut self) { self.active = !self.active; self.input.clear(); }
-    pub fn push(&mut self, c: char) { self.input.push(c); }
-    pub fn pop(&mut self) { self.input.pop(); }
+    pub fn toggle(&mut self) { 
+        self.active = !self.active; 
+        if self.active {
+            self.input.clear();
+            self.history_index = None;
+            self.update_suggestions();
+        }
+    }
+    
+    pub fn push(&mut self, c: char) { 
+        self.input.push(c); 
+        self.update_suggestions();
+    }
+    
+    pub fn pop(&mut self) { 
+        self.input.pop(); 
+        self.update_suggestions();
+    }
+    
     pub fn submit(&mut self) -> Option<String> {
         if self.input.is_empty() { return None; }
         let cmd = self.input.clone();
         self.history.push(cmd.clone());
+        if self.history.len() > 50 { // Keep last 50 commands
+            self.history.remove(0);
+        }
         self.input.clear();
+        self.history_index = None;
+        self.suggestions.clear();
         Some(cmd)
+    }
+    
+    pub fn history_up(&mut self) {
+        if self.history.is_empty() { return; }
+        match self.history_index {
+            None => {
+                self.history_index = Some(self.history.len() - 1);
+                self.input = self.history[self.history.len() - 1].clone();
+            }
+            Some(idx) if idx > 0 => {
+                self.history_index = Some(idx - 1);
+                self.input = self.history[idx - 1].clone();
+            }
+            _ => {}
+        }
+        self.update_suggestions();
+    }
+    
+    pub fn history_down(&mut self) {
+        match self.history_index {
+            Some(idx) if idx < self.history.len() - 1 => {
+                self.history_index = Some(idx + 1);
+                self.input = self.history[idx + 1].clone();
+            }
+            Some(_) => {
+                self.history_index = None;
+                self.input.clear();
+            }
+            None => {}
+        }
+        self.update_suggestions();
+    }
+    
+    pub fn accept_suggestion(&mut self) {
+        if !self.suggestions.is_empty() && self.suggestion_index < self.suggestions.len() {
+            self.input = self.suggestions[self.suggestion_index].clone();
+            self.suggestions.clear();
+        }
+    }
+    
+    pub fn next_suggestion(&mut self) {
+        if !self.suggestions.is_empty() {
+            self.suggestion_index = (self.suggestion_index + 1) % self.suggestions.len();
+        }
+    }
+    
+    pub fn prev_suggestion(&mut self) {
+        if !self.suggestions.is_empty() {
+            self.suggestion_index = if self.suggestion_index == 0 {
+                self.suggestions.len() - 1
+            } else {
+                self.suggestion_index - 1
+            };
+        }
+    }
+    
+    fn update_suggestions(&mut self) {
+        self.suggestions.clear();
+        self.suggestion_index = 0;
+        
+        if self.input.is_empty() {
+            return;
+        }
+        
+        let input_lower = self.input.to_lowercase();
+        let mut candidates = Vec::new();
+        
+        // Command suggestions
+        let commands = [
+            "show tile", "hide tile", "sturdy", "phase", "save_debug", "load_debug", 
+            "list_debug", "debug_info", "run_des", "list_des", "help", "spawn",
+            "terminals", "report_issue"
+        ];
+        
+        for cmd in &commands {
+            if cmd.starts_with(&input_lower) {
+                candidates.push(cmd.to_string());
+            }
+        }
+        
+        // Entity suggestions (for targeting commands)
+        let entities = ["enemy", "npc", "item", "player"];
+        for entity in &entities {
+            let suggestion = format!("{} {}", self.input, entity);
+            if entity.starts_with(&input_lower) || self.input.contains(' ') {
+                candidates.push(suggestion);
+            }
+        }
+        
+        candidates.sort();
+        candidates.dedup();
+        self.suggestions = candidates;
     }
 }
 
@@ -519,6 +635,27 @@ fn handle_debug_console_input(ui: &mut UiState, code: KeyCode) -> Action {
             }
         }
         KeyCode::Backspace => { ui.debug_console.pop(); }
+        KeyCode::Up => { 
+            if !ui.debug_console.suggestions.is_empty() {
+                ui.debug_console.prev_suggestion();
+            } else {
+                ui.debug_console.history_up();
+            }
+        }
+        KeyCode::Down => { 
+            if !ui.debug_console.suggestions.is_empty() {
+                ui.debug_console.next_suggestion();
+            } else {
+                ui.debug_console.history_down();
+            }
+        }
+        KeyCode::Tab => { ui.debug_console.accept_suggestion(); }
+        KeyCode::Right if !ui.debug_console.suggestions.is_empty() => { 
+            ui.debug_console.next_suggestion(); 
+        }
+        KeyCode::Left if !ui.debug_console.suggestions.is_empty() => { 
+            ui.debug_console.prev_suggestion(); 
+        }
         KeyCode::Char(c) => ui.debug_console.push(c),
         _ => {}
     }

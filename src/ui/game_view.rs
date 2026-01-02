@@ -456,18 +456,101 @@ pub fn render_death_screen(frame: &mut Frame, state: &GameState) {
 /// Render the debug console overlay
 pub fn render_debug_console(frame: &mut Frame, console: &super::input::DebugConsole) {
     let area = frame.area();
-    let width = 40.min(area.width.saturating_sub(4));
-    let height = 3;
+    
+    // Make console take up about 1/3 of screen height and 2/3 of width
+    let width = ((area.width as f32 * 0.66) as u16).min(area.width.saturating_sub(4));
+    let height = ((area.height as f32 * 0.33) as u16).max(8).min(area.height.saturating_sub(4));
+    
     let x = (area.width - width) / 2;
-    let y = area.height / 2;
+    let y = (area.height - height) / 2;
     let rect = Rect::new(x, y, width, height);
     
-    let block = Block::default().title(" Debug Console ").borders(Borders::ALL).style(Style::default().bg(Color::Black));
+    // Clear just the console area with black background
+    let clear_text = " ".repeat(width as usize);
+    let clear_lines: Vec<Line> = (0..height).map(|_| Line::from(clear_text.clone())).collect();
+    let clear_paragraph = Paragraph::new(clear_lines).style(Style::default().bg(Color::Black));
+    frame.render_widget(clear_paragraph, rect);
+    
+    // Terminal-style block with title
+    let block = Block::default()
+        .title(" Debug Terminal ")
+        .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black).fg(Color::Green));
     let inner = block.inner(rect);
     frame.render_widget(block, rect);
     
+    // Split into history area and input area
+    let chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Min(1),      // History area
+            Constraint::Length(3),   // Input + suggestions area
+        ])
+        .split(inner);
+    
+    // Render command history
+    if !console.history.is_empty() {
+        let history_height = chunks[0].height as usize;
+        let start_idx = if console.history.len() > history_height {
+            console.history.len() - history_height
+        } else {
+            0
+        };
+        
+        let mut history_lines = Vec::new();
+        for (i, cmd) in console.history[start_idx..].iter().enumerate() {
+            let line_style = if Some(start_idx + i) == console.history_index {
+                Style::default().fg(Color::Yellow).bg(Color::DarkGray)
+            } else {
+                Style::default().fg(Color::Gray)
+            };
+            history_lines.push(Line::from(vec![
+                Span::styled("> ", Style::default().fg(Color::Green)),
+                Span::styled(cmd.clone(), line_style),
+            ]));
+        }
+        
+        let history_paragraph = Paragraph::new(history_lines)
+            .style(Style::default().fg(Color::Gray));
+        frame.render_widget(history_paragraph, chunks[0]);
+    }
+    
+    // Split input area for prompt and suggestions
+    let input_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints([
+            Constraint::Length(1),   // Input line
+            Constraint::Min(1),      // Suggestions
+        ])
+        .split(chunks[1]);
+    
+    // Render current input with cursor
     let prompt = format!("> {}_", console.input);
-    frame.render_widget(Paragraph::new(prompt).style(Style::default().fg(Color::Yellow)), inner);
+    let input_paragraph = Paragraph::new(prompt)
+        .style(Style::default().fg(Color::Green));
+    frame.render_widget(input_paragraph, input_chunks[0]);
+    
+    // Render suggestions if any
+    if !console.suggestions.is_empty() && input_chunks[1].height > 0 {
+        let mut suggestion_lines = Vec::new();
+        let max_suggestions = input_chunks[1].height as usize;
+        
+        for (i, suggestion) in console.suggestions.iter().take(max_suggestions).enumerate() {
+            let style = if i == console.suggestion_index {
+                Style::default().fg(Color::Black).bg(Color::Yellow)
+            } else {
+                Style::default().fg(Color::DarkGray)
+            };
+            
+            suggestion_lines.push(Line::from(vec![
+                Span::styled("  ", Style::default()),
+                Span::styled(suggestion.clone(), style),
+            ]));
+        }
+        
+        let suggestions_paragraph = Paragraph::new(suggestion_lines);
+        frame.render_widget(suggestions_paragraph, input_chunks[1]);
+    }
 }
 
 

@@ -177,7 +177,7 @@ pub fn ensure_connectivity(
 
 /// Analyze map connectivity and identify regions
 pub fn analyze_connectivity(map: &Map, spawn: (i32, i32), params: &GSBParams) -> ConnectivityAnalysis {
-    let regions = identify_regions(map, params.min_area_ratio);
+    let regions = identify_regions(map, spawn, params.min_area_ratio);
     let total_floor: usize = regions.iter().map(|r| r.size).sum();
     
     // Find spawn region
@@ -200,7 +200,7 @@ pub fn analyze_connectivity(map: &Map, spawn: (i32, i32), params: &GSBParams) ->
 }
 
 /// Flood-fill to identify connected regions
-fn identify_regions(map: &Map, min_area_ratio: f32) -> Vec<Region> {
+fn identify_regions(map: &Map, spawn: (i32, i32), min_area_ratio: f32) -> Vec<Region> {
     let mut visited = vec![vec![false; MAP_HEIGHT]; MAP_WIDTH];
     let mut regions = Vec::new();
     let mut total_floor = 0usize;
@@ -223,8 +223,9 @@ fn identify_regions(map: &Map, min_area_ratio: f32) -> Vec<Region> {
                     let size = tiles.len();
                     let weight = size as f32 / total_floor as f32;
                     
-                    // Filter by minimum area
-                    if weight >= min_area_ratio {
+                    // Always include spawn region, or regions above minimum area
+                    let contains_spawn = tiles.contains(&spawn);
+                    if contains_spawn || weight >= min_area_ratio {
                         let perimeter = extract_perimeter(&tiles, map);
                         let centroid = compute_centroid(&tiles);
                         

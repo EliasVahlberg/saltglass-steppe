@@ -2155,6 +2155,13 @@ impl GameState {
                 self.log("  give_item <id> [count] - Add item to inventory");
                 self.log("  show_level - Show current tile threat level");
                 self.log("  show_item_tiers - Show items organized by tier");
+                self.log("");
+                self.log("Console Controls:");
+                self.log("  ` - Toggle debug console");
+                self.log("  Up/Down - Navigate command history");
+                self.log("  Tab - Accept current suggestion");
+                self.log("  Left/Right - Navigate suggestions");
+                self.log("  Esc - Close console");
             }
             _ => self.log(format!("Unknown command: {}. Type 'help' for commands.", cmd)),
         }
