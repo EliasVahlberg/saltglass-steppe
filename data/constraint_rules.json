@@ -9,11 +9,11 @@
           {"x": 125, "y": 55}
         ],
         "end_points": [
-          {"x": 50, "y": 25},
-          {"x": 200, "y": 85}
+          {"x": 75, "y": 35},
+          {"x": 175, "y": 75}
         ]
       },
-      "severity": "critical",
+      "severity": "warning",
       "enabled": true
     },
     {
@@ -33,7 +33,7 @@
       "name": "Objective Accessibility",
       "constraint_type": "accessibility",
       "parameters": {},
-      "severity": "critical",
+      "severity": "warning",
       "enabled": true
     },
     {
@@ -42,8 +42,8 @@
       "constraint_type": "balance",
       "parameters": {
         "resource_type": "glass",
-        "min_amount": 10,
-        "max_amount": 200
+        "min_amount": 5,
+        "max_amount": 300
       },
       "severity": "warning",
       "enabled": true
@@ -56,7 +56,7 @@
         "entity_type": "fire_elemental",
         "forbidden_biomes": ["saltflat", "oasis"]
       },
-      "severity": "critical",
+      "severity": "warning",
       "enabled": true
     },
     {
@@ -64,7 +64,7 @@
       "name": "Resource Density Limit",
       "constraint_type": "resource",
       "parameters": {
-        "max_density": 0.05
+        "max_density": 0.1
       },
       "severity": "warning",
       "enabled": true
@@ -98,8 +98,8 @@
       "constraint_type": "balance",
       "parameters": {
         "resource_type": "storm_glass",
-        "min_amount": 5,
-        "max_amount": 50
+        "min_amount": 3,
+        "max_amount": 75
       },
       "severity": "warning",
       "enabled": true
@@ -113,11 +113,11 @@
           {"x": 125, "y": 55}
         ],
         "end_points": [
-          {"x": 240, "y": 55},
-          {"x": 10, "y": 55}
+          {"x": 200, "y": 55},
+          {"x": 50, "y": 55}
         ]
       },
-      "severity": "critical",
+      "severity": "warning",
       "enabled": true
     },
     {
@@ -126,10 +126,10 @@
       "constraint_type": "balance",
       "parameters": {
         "resource_type": "open_space",
-        "min_amount": 2000,
-        "max_amount": 20000
+        "min_amount": 1000,
+        "max_amount": 25000
       },
-      "severity": "critical",
+      "severity": "warning",
       "enabled": true
     },
     {
@@ -141,13 +141,13 @@
           {"x": 125, "y": 55}
         ],
         "end_points": [
-          {"x": 10, "y": 10},
-          {"x": 240, "y": 10},
-          {"x": 10, "y": 100},
-          {"x": 240, "y": 100}
+          {"x": 50, "y": 30},
+          {"x": 200, "y": 30},
+          {"x": 50, "y": 80},
+          {"x": 200, "y": 80}
         ]
       },
-      "severity": "critical",
+      "severity": "warning",
       "enabled": true
     }
   ]

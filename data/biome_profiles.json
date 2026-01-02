@@ -501,6 +501,465 @@
           {"item": "Here, the past and present merge like light through a prism.", "weight": 1}
         ]
       }
+    },
+    {
+      "id": "glass_gardens",
+      "name": "Glass Gardens",
+      "description": "Crystalline formations bloom like impossible flowers in the storm-touched earth",
+      "environmental_features": [
+        {
+          "feature_type": "crystal_bloom",
+          "weight": 35,
+          "description_template": "Delicate glass formations spiral upward like frozen flowers",
+          "mechanical_effects": {
+            "visibility_modifier": 1.2,
+            "refraction_gain": 2
+          }
+        },
+        {
+          "feature_type": "prism_grove",
+          "weight": 25,
+          "description_template": "A grove of prismatic spires refracts light into rainbows",
+          "mechanical_effects": {
+            "light_amplification": 1.5,
+            "adaptation_trigger_chance": 0.15
+          }
+        },
+        {
+          "feature_type": "glass_vine",
+          "weight": 20,
+          "description_template": "Translucent vines of fused glass wind through the air",
+          "mechanical_effects": {
+            "movement_cost": 1.3,
+            "damage_per_turn": 2
+          }
+        },
+        {
+          "feature_type": "mirror_pool",
+          "weight": 15,
+          "description_template": "A pool of liquid glass reflects distorted images",
+          "mechanical_effects": {
+            "vision_range_bonus": 2,
+            "psychic_resonance": 0.3
+          }
+        },
+        {
+          "feature_type": "resonance_node",
+          "weight": 5,
+          "description_template": "A crystalline node hums with harmonic frequencies",
+          "mechanical_effects": {
+            "adaptation_acceleration": 1.5
+          }
+        }
+      ],
+      "atmospheric_elements": [
+        {"element_type": "prismatic_light","intensity": 0.8,"description": "Light fractures into countless colors through the crystal formations.","triggers": ["high_light","clear_weather"]},
+        {"element_type": "harmonic_resonance","intensity": 0.6,"description": "The air vibrates with crystalline harmonics.","triggers": ["high_light","clear_weather"]},
+        {"element_type": "glass_pollen","intensity": 0.4,"description": "Microscopic glass particles drift on the breeze.","triggers": ["storm","high_refraction"]}
+      ],
+      "hazards": [
+        {
+          "hazard_type": "refraction_burn",
+          "severity": "moderate",
+          "description": "Concentrated light beams can cause severe burns",
+          "trigger_conditions": ["high_light", "clear_weather"],
+          "damage_range": [3, 8]
+        },
+        {
+          "hazard_type": "glass_shard_storm",
+          "severity": "high",
+          "description": "Crystalline fragments whirl through the air",
+          "trigger_conditions": ["storm_weather", "high_wind"],
+          "damage_range": [5, 12]
+        }
+      ],
+      "resource_modifiers": {
+        "glass_multiplier": 2.5,
+        "crystal_multiplier": 3.0,
+        "rare_materials_chance": 1.8
+      },
+      "story_themes": [
+        "beauty_and_danger",
+        "transformation_through_light",
+        "crystalline_consciousness"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "Crystal formations bloom like impossible gardens of glass and light.", "weight": 3},
+          {"item": "Prismatic spires cast rainbow shadows across the ground.", "weight": 3},
+          {"item": "The air shimmers with refracted light and crystalline harmonics.", "weight": 2},
+          {"item": "Glass vines twist through the air, beautiful and deadly.", "weight": 2},
+          {"item": "Here, light itself seems to have taken root and grown.", "weight": 1}
+        ]
+      }
+    },
+    {
+      "id": "shattered_citadel",
+      "name": "Shattered Citadel",
+      "description": "The broken remains of a great fortress, its walls fused into impossible geometries",
+      "environmental_features": [
+        {
+          "feature_type": "twisted_spire",
+          "weight": 30,
+          "description_template": "A tower spirals impossibly upward, defying geometry",
+          "mechanical_effects": {
+            "visibility_modifier": 0.7,
+            "navigation_difficulty": 1.4
+          }
+        },
+        {
+          "feature_type": "glass_rampart",
+          "weight": 25,
+          "description_template": "Crystalline battlements stretch across the broken landscape",
+          "mechanical_effects": {
+            "cover_bonus": 2,
+            "defensive_position": true
+          }
+        },
+        {
+          "feature_type": "void_breach",
+          "weight": 20,
+          "description_template": "A tear in reality where the citadel once stood",
+          "mechanical_effects": {
+            "void_exposure": true,
+            "psychic_damage": 3
+          }
+        },
+        {
+          "feature_type": "echo_chamber",
+          "weight": 15,
+          "description_template": "Sounds from the past still reverberate in these halls",
+          "mechanical_effects": {
+            "audio_distortion": 0.8,
+            "memory_fragments": true
+          }
+        },
+        {
+          "feature_type": "throne_fragment",
+          "weight": 10,
+          "description_template": "Pieces of a great throne lie scattered and fused",
+          "mechanical_effects": {
+            "authority_resonance": 0.5,
+            "faction_memory": true
+          }
+        }
+      ],
+      "atmospheric_elements": [
+        {"element_type": "spectral_echoes","intensity": 0.9,"description": "Ghostly sounds of battle and ceremony echo through the ruins.","triggers": ["night","storm"]},
+        {"element_type": "reality_distortion","intensity": 0.7,"description": "Space itself seems twisted and unreliable here.","triggers": ["storm","high_refraction"]},
+        {"element_type": "temporal_fragments","intensity": 0.5,"description": "Glimpses of the past flicker at the edge of vision.","triggers": ["always"]}
+      ],
+      "hazards": [
+        {
+          "hazard_type": "reality_storm",
+          "severity": "extreme",
+          "description": "Tears in space-time create unpredictable dangers",
+          "trigger_conditions": ["storm_weather", "high_refraction"],
+          "damage_range": [8, 15]
+        },
+        {
+          "hazard_type": "spectral_guardian",
+          "severity": "high",
+          "description": "Ghostly defenders still patrol these halls",
+          "trigger_conditions": ["night_time", "trespassing"],
+          "damage_range": [6, 10]
+        }
+      ],
+      "resource_modifiers": {
+        "ancient_tech_multiplier": 2.0,
+        "void_essence_chance": 0.8,
+        "rare_materials_chance": 1.5
+      },
+      "story_themes": [
+        "fallen_glory",
+        "temporal_echoes",
+        "void_corruption"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "The citadel's broken spires reach toward a sky they'll never touch again.", "weight": 3},
+          {"item": "Glass-fused stone tells the story of the fortress's final moments.", "weight": 3},
+          {"item": "Reality bends and warps around the ruins of ancient power.", "weight": 2},
+          {"item": "Echoes of long-dead voices whisper through the twisted halls.", "weight": 2},
+          {"item": "Here, the past refuses to stay buried.", "weight": 1}
+        ]
+      }
+    },
+    {
+      "id": "salt_mines",
+      "name": "Salt Mines",
+      "description": "Deep excavations where crystalline salt was harvested before the storms came",
+      "environmental_features": [
+        {
+          "feature_type": "salt_vein",
+          "weight": 35,
+          "description_template": "Thick veins of pure salt crystal run through the walls",
+          "mechanical_effects": {
+            "salt_harvest_bonus": 2.0,
+            "dehydration_risk": 1.3
+          }
+        },
+        {
+          "feature_type": "mining_shaft",
+          "weight": 25,
+          "description_template": "A deep shaft descends into crystalline darkness",
+          "mechanical_effects": {
+            "vertical_movement": true,
+            "fall_risk": 0.4
+          }
+        },
+        {
+          "feature_type": "brine_pool",
+          "weight": 20,
+          "description_template": "A pool of concentrated brine glows with inner light",
+          "mechanical_effects": {
+            "healing_source": 3,
+            "corrosion_damage": 2
+          }
+        },
+        {
+          "feature_type": "crystal_chamber",
+          "weight": 15,
+          "description_template": "A natural chamber lined with salt crystals",
+          "mechanical_effects": {
+            "acoustic_amplification": 1.5,
+            "crystal_resonance": 0.6
+          }
+        },
+        {
+          "feature_type": "collapsed_tunnel",
+          "weight": 5,
+          "description_template": "A tunnel blocked by fallen salt and stone",
+          "mechanical_effects": {
+            "excavation_required": true,
+            "hidden_passage": 0.3
+          }
+        }
+      ],
+      "atmospheric_elements": [
+        {"element_type": "salt_dust","intensity": 0.8,"description": "Fine salt particles fill the air, making breathing difficult.","triggers": ["always"]},
+        {"element_type": "crystalline_echoes","intensity": 0.6,"description": "Every sound reverberates through the crystal-lined tunnels.","triggers": ["always"]},
+        {"element_type": "brine_vapors","intensity": 0.4,"description": "Corrosive vapors rise from pools of concentrated salt water.","triggers": ["always"]}
+      ],
+      "hazards": [
+        {
+          "hazard_type": "salt_lung",
+          "severity": "moderate",
+          "description": "Prolonged exposure causes respiratory damage",
+          "trigger_conditions": ["extended_stay", "heavy_breathing"],
+          "damage_range": [2, 5]
+        },
+        {
+          "hazard_type": "tunnel_collapse",
+          "severity": "high",
+          "description": "Unstable tunnels may cave in without warning",
+          "trigger_conditions": ["loud_noise", "structural_damage"],
+          "damage_range": [8, 20]
+        }
+      ],
+      "resource_modifiers": {
+        "salt_multiplier": 4.0,
+        "brine_multiplier": 3.0,
+        "crystal_multiplier": 1.5
+      },
+      "story_themes": [
+        "industrial_heritage",
+        "underground_mysteries",
+        "crystalline_preservation"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "Salt crystals line the tunnel walls like frozen tears.", "weight": 3},
+          {"item": "The air tastes of brine and ancient labor.", "weight": 3},
+          {"item": "Mining equipment lies abandoned, preserved in salt.", "weight": 2},
+          {"item": "Deep shafts descend into crystalline darkness.", "weight": 2},
+          {"item": "Here, the earth's bones are made of salt.", "weight": 1}
+        ]
+      }
+    },
+    {
+      "id": "storm_scars",
+      "name": "Storm Scars",
+      "description": "Twisted landscapes where glass storms have repeatedly carved and recarved the earth",
+      "environmental_features": [
+        {
+          "feature_type": "glass_canyon",
+          "weight": 30,
+          "description_template": "A deep canyon carved by concentrated storm winds",
+          "mechanical_effects": {
+            "wind_amplification": 2.0,
+            "navigation_difficulty": 1.6
+          }
+        },
+        {
+          "feature_type": "storm_spiral",
+          "weight": 25,
+          "description_template": "The ground spirals in patterns matching ancient storm paths",
+          "mechanical_effects": {
+            "disorientation": 0.7,
+            "storm_prediction_bonus": 1.3
+          }
+        },
+        {
+          "feature_type": "glass_mesa",
+          "weight": 20,
+          "description_template": "A flat-topped hill of fused glass and stone",
+          "mechanical_effects": {
+            "elevation_bonus": 3,
+            "lightning_attraction": 1.5
+          }
+        },
+        {
+          "feature_type": "wind_tunnel",
+          "weight": 15,
+          "description_template": "A natural tunnel carved by perpetual winds",
+          "mechanical_effects": {
+            "movement_acceleration": 1.4,
+            "sound_distortion": 0.8
+          }
+        },
+        {
+          "feature_type": "storm_eye_remnant",
+          "weight": 10,
+          "description_template": "A perfectly circular area of unnatural calm",
+          "mechanical_effects": {
+            "storm_immunity": true,
+            "temporal_distortion": 0.3
+          }
+        }
+      ],
+      "atmospheric_elements": [
+        {"element_type": "perpetual_wind","intensity": 0.9,"description": "Constant winds howl through the scarred landscape.","triggers": ["always","storm"]},
+        {"element_type": "glass_dust_devils","intensity": 0.7,"description": "Miniature whirlwinds of glass particles dance across the ground.","triggers": ["always"]},
+        {"element_type": "storm_memory","intensity": 0.5,"description": "The very air seems to remember the fury of past storms.","triggers": ["always"]}
+      ],
+      "hazards": [
+        {
+          "hazard_type": "glass_tornado",
+          "severity": "extreme",
+          "description": "Whirlwinds of razor-sharp glass fragments",
+          "trigger_conditions": ["high_wind", "storm_weather"],
+          "damage_range": [10, 25]
+        },
+        {
+          "hazard_type": "wind_shear",
+          "severity": "moderate",
+          "description": "Sudden changes in wind direction can knock travelers down",
+          "trigger_conditions": ["exposed_position", "high_wind"],
+          "damage_range": [3, 8]
+        }
+      ],
+      "resource_modifiers": {
+        "storm_glass_multiplier": 3.5,
+        "wind_essence_chance": 1.2,
+        "rare_materials_chance": 1.4
+      },
+      "story_themes": [
+        "natural_fury",
+        "storm_worship",
+        "elemental_scars"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "The landscape bears the scars of countless glass storms.", "weight": 3},
+          {"item": "Wind-carved canyons spiral in impossible patterns.", "weight": 3},
+          {"item": "The very ground remembers the fury of ancient tempests.", "weight": 2},
+          {"item": "Glass mesas rise like monuments to elemental power.", "weight": 2},
+          {"item": "Here, the storms have written their history in stone and glass.", "weight": 1}
+        ]
+      }
+    },
+    {
+      "id": "refraction_fields",
+      "name": "Refraction Fields",
+      "description": "Vast expanses where light bends and reality becomes uncertain",
+      "environmental_features": [
+        {
+          "feature_type": "light_maze",
+          "weight": 30,
+          "description_template": "Beams of light create a labyrinth of illumination",
+          "mechanical_effects": {
+            "navigation_difficulty": 2.0,
+            "light_based_puzzles": true
+          }
+        },
+        {
+          "feature_type": "mirage_oasis",
+          "weight": 25,
+          "description_template": "An illusory oasis shimmers in the distance",
+          "mechanical_effects": {
+            "false_destination": true,
+            "hope_and_despair": 0.8
+          }
+        },
+        {
+          "feature_type": "prism_field",
+          "weight": 20,
+          "description_template": "Countless small prisms scatter light in all directions",
+          "mechanical_effects": {
+            "visibility_chaos": 1.5,
+            "rainbow_effects": true
+          }
+        },
+        {
+          "feature_type": "reflection_pool",
+          "weight": 15,
+          "description_template": "A pool that reflects things that aren't there",
+          "mechanical_effects": {
+            "false_visions": 0.6,
+            "prophetic_glimpses": 0.2
+          }
+        },
+        {
+          "feature_type": "light_fountain",
+          "weight": 10,
+          "description_template": "Pure light erupts from the ground like water",
+          "mechanical_effects": {
+            "light_source": 5,
+            "adaptation_catalyst": 1.8
+          }
+        }
+      ],
+      "atmospheric_elements": [
+        {"element_type": "reality_distortion","intensity": 0.9,"description": "Light bends in impossible ways, making navigation treacherous.","triggers": ["storm","high_refraction"]},
+        {"element_type": "optical_illusions","intensity": 0.8,"description": "Nothing is quite what it seems in this place.","triggers": ["always"]},
+        {"element_type": "chromatic_aberration","intensity": 0.6,"description": "Colors separate and recombine in strange patterns.","triggers": ["always"]}
+      ],
+      "hazards": [
+        {
+          "hazard_type": "light_burn",
+          "severity": "high",
+          "description": "Concentrated light beams can cause severe damage",
+          "trigger_conditions": ["direct_exposure", "high_refraction"],
+          "damage_range": [6, 12]
+        },
+        {
+          "hazard_type": "optical_madness",
+          "severity": "moderate",
+          "description": "Prolonged exposure to impossible sights affects the mind",
+          "trigger_conditions": ["extended_stay", "high_adaptation"],
+          "damage_range": [2, 6]
+        }
+      ],
+      "resource_modifiers": {
+        "light_essence_multiplier": 4.0,
+        "prism_multiplier": 2.5,
+        "rare_materials_chance": 2.0
+      },
+      "story_themes": [
+        "perception_and_reality",
+        "light_as_substance",
+        "optical_mysteries"
+      ],
+      "ambient_descriptions": {
+        "entries": [
+          {"item": "Light bends and flows like liquid through the air.", "weight": 3},
+          {"item": "Reality becomes negotiable in the presence of so much refracted light.", "weight": 3},
+          {"item": "Mirages and true visions blend until distinction becomes meaningless.", "weight": 2},
+          {"item": "The very air shimmers with prismatic possibilities.", "weight": 2},
+          {"item": "Here, light has learned to lie.", "weight": 1}
+        ]
+      }
     }
   ]
 }
