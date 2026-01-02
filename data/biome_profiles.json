@@ -560,14 +560,14 @@
       "hazards": [
         {
           "hazard_type": "refraction_burn",
-          "severity": "moderate",
+          "severity": 5,
           "description": "Concentrated light beams can cause severe burns",
           "trigger_conditions": ["high_light", "clear_weather"],
           "damage_range": [3, 8]
         },
         {
           "hazard_type": "glass_shard_storm",
-          "severity": "high",
+          "severity": 7,
           "description": "Crystalline fragments whirl through the air",
           "trigger_conditions": ["storm_weather", "high_wind"],
           "damage_range": [5, 12]
@@ -652,14 +652,14 @@
       "hazards": [
         {
           "hazard_type": "reality_storm",
-          "severity": "extreme",
+          "severity": 9,
           "description": "Tears in space-time create unpredictable dangers",
           "trigger_conditions": ["storm_weather", "high_refraction"],
           "damage_range": [8, 15]
         },
         {
           "hazard_type": "spectral_guardian",
-          "severity": "high",
+          "severity": 7,
           "description": "Ghostly defenders still patrol these halls",
           "trigger_conditions": ["night_time", "trespassing"],
           "damage_range": [6, 10]
@@ -744,14 +744,14 @@
       "hazards": [
         {
           "hazard_type": "salt_lung",
-          "severity": "moderate",
+          "severity": 5,
           "description": "Prolonged exposure causes respiratory damage",
           "trigger_conditions": ["extended_stay", "heavy_breathing"],
           "damage_range": [2, 5]
         },
         {
           "hazard_type": "tunnel_collapse",
-          "severity": "high",
+          "severity": 7,
           "description": "Unstable tunnels may cave in without warning",
           "trigger_conditions": ["loud_noise", "structural_damage"],
           "damage_range": [8, 20]
@@ -836,14 +836,14 @@
       "hazards": [
         {
           "hazard_type": "glass_tornado",
-          "severity": "extreme",
+          "severity": 9,
           "description": "Whirlwinds of razor-sharp glass fragments",
           "trigger_conditions": ["high_wind", "storm_weather"],
           "damage_range": [10, 25]
         },
         {
           "hazard_type": "wind_shear",
-          "severity": "moderate",
+          "severity": 5,
           "description": "Sudden changes in wind direction can knock travelers down",
           "trigger_conditions": ["exposed_position", "high_wind"],
           "damage_range": [3, 8]
@@ -928,14 +928,14 @@
       "hazards": [
         {
           "hazard_type": "light_burn",
-          "severity": "high",
+          "severity": 7,
           "description": "Concentrated light beams can cause severe damage",
           "trigger_conditions": ["direct_exposure", "high_refraction"],
           "damage_range": [6, 12]
         },
         {
           "hazard_type": "optical_madness",
-          "severity": "moderate",
+          "severity": 5,
           "description": "Prolonged exposure to impossible sights affects the mind",
           "trigger_conditions": ["extended_stay", "high_adaptation"],
           "damage_range": [2, 6]
