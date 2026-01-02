@@ -106,7 +106,7 @@ impl TileGenerator {
                 
                 if !critical_satisfied && attempt == MAX_ATTEMPTS - 1 {
                     // Apply emergency fixes for critical failures on last attempt
-                    self.apply_emergency_fixes(&mut map, &constraint_results);
+                    self.apply_emergency_fixes(&mut map, &constraint_results, rng);
                     
                     // Re-validate constraints after emergency fixes
                     let post_fix_context = ConstraintContext {
@@ -163,32 +163,18 @@ impl TileGenerator {
     }
     
     /// Apply emergency fixes for critical constraint failures
-    fn apply_emergency_fixes(&self, map: &mut Map, constraint_results: &[super::constraints::ConstraintResult]) {
+    fn apply_emergency_fixes(&self, map: &mut Map, constraint_results: &[super::constraints::ConstraintResult], rng: &mut ChaCha8Rng) {
         for result in constraint_results {
             if result.severity == ConstraintSeverity::Critical && !result.passed {
                 match result.rule_id.as_str() {
                     "minimum_open_space" => {
                         self.ensure_minimum_open_space(map);
                     },
-                    "basic_connectivity" => {
-                        let spawn = (125, 55);
-                        self.ensure_specific_connectivity(map, spawn, (50, 25));
-                        self.ensure_specific_connectivity(map, spawn, (200, 85));
-                        self.ensure_basic_connectivity_legacy(map);
-                    },
-                    "exit_connectivity" => {
-                        let spawn = (125, 55);
-                        self.ensure_specific_connectivity(map, spawn, (240, 55));
-                        self.ensure_specific_connectivity(map, spawn, (10, 55));
-                        self.ensure_basic_connectivity_legacy(map);
-                    },
-                    "connectivity_spawn_to_edges" => {
-                        let spawn = (125, 55);
-                        let edges = [(10, 10), (240, 10), (10, 100), (240, 100)];
-                        for edge in edges {
-                            self.ensure_specific_connectivity(map, spawn, edge);
-                        }
-                        self.ensure_basic_connectivity_legacy(map);
+                    "basic_connectivity" | "exit_connectivity" | "connectivity_spawn_to_edges" => {
+                        // Use GSB algorithm for all connectivity issues
+                        let params = GSBParams::default();
+                        let spawn = (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2);
+                        ensure_connectivity(map, spawn, &params, rng);
                     },
                     _ => {}
                 }
@@ -222,21 +208,6 @@ impl TileGenerator {
             // Emergency fix: converted walls to floors for minimum open space
         }
     }
-    
-    /// Ensure connectivity between two specific points
-    fn ensure_specific_connectivity(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
-        // Ensure both points are floor tiles
-        if let Some(idx) = map.pos_to_idx(start.0 as i32, start.1 as i32) {
-            map.tiles[idx] = Tile::Floor;
-        }
-        if let Some(idx) = map.pos_to_idx(end.0 as i32, end.1 as i32) {
-            map.tiles[idx] = Tile::Floor;
-        }
-        
-        // Create a direct diagonal corridor between the points
-        self.create_diagonal_corridor(map, start, end);
-    }
-    
     /// Ensure basic connectivity using Glass Seam Bridging algorithm
     fn ensure_basic_connectivity(&self, map: &mut Map, rng: &mut ChaCha8Rng) {
         let spawn = (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2);
@@ -264,86 +235,10 @@ impl TileGenerator {
         let tunnels = ensure_connectivity(map, spawn, &params, rng);
         
         if !tunnels.is_empty() {
-            // Log tunnel creation for debugging
             #[cfg(debug_assertions)]
             println!("GSB: Created {} tunnels to ensure connectivity", tunnels.len());
         }
     }
-    
-    /// Legacy connectivity method (fallback)
-    fn ensure_basic_connectivity_legacy(&self, map: &mut Map) {
-        let center = (MAP_WIDTH / 2, MAP_HEIGHT / 2);
-        
-        // Find the nearest open area and create a diagonal corridor to it
-        if let Some(target) = self.find_nearest_open_area(map, center) {
-            self.create_diagonal_corridor(map, center, target);
-        } else {
-            let edge_target = (MAP_WIDTH - 10, center.1);
-            self.create_diagonal_corridor(map, center, edge_target);
-        }
-    }
-    
-    /// Find the nearest significant open area (cluster of floor tiles)
-    fn find_nearest_open_area(&self, map: &Map, start: (usize, usize)) -> Option<(usize, usize)> {
-        let start_x = start.0 as i32;
-        let start_y = start.1 as i32;
-        
-        for radius in 5..40 {
-            for angle in 0..32 {
-                let angle_rad = (angle as f32) * std::f32::consts::PI / 16.0;
-                let x = start_x + (radius as f32 * angle_rad.cos()) as i32;
-                let y = start_y + (radius as f32 * angle_rad.sin()) as i32;
-                
-                if x >= 0 && y >= 0 && x < MAP_WIDTH as i32 && y < MAP_HEIGHT as i32 {
-                    if self.has_open_cluster(map, (x as usize, y as usize)) {
-                        return Some((x as usize, y as usize));
-                    }
-                }
-            }
-        }
-        None
-    }
-    
-    /// Check if a point has a cluster of floor tiles around it
-    fn has_open_cluster(&self, map: &Map, pos: (usize, usize)) -> bool {
-        let mut floor_count = 0;
-        for dy in -1..=1 {
-            for dx in -1..=1 {
-                let x = pos.0 as i32 + dx;
-                let y = pos.1 as i32 + dy;
-                if let Some(idx) = map.pos_to_idx(x, y) {
-                    if matches!(map.tiles[idx], Tile::Floor) {
-                        floor_count += 1;
-                    }
-                }
-            }
-        }
-        floor_count >= 3
-    }
-    
-    /// Create a diagonal corridor between two points
-    fn create_diagonal_corridor(&self, map: &mut Map, start: (usize, usize), end: (usize, usize)) {
-        let mut x = start.0 as i32;
-        let mut y = start.1 as i32;
-        let target_x = end.0 as i32;
-        let target_y = end.1 as i32;
-        
-        while x != target_x || y != target_y {
-            let dx = if x < target_x { 1 } else if x > target_x { -1 } else { 0 };
-            let dy = if y < target_y { 1 } else if y > target_y { -1 } else { 0 };
-            
-            x += dx;
-            y += dy;
-            
-            if let Some(idx) = map.pos_to_idx(x, y) {
-                if matches!(map.tiles[idx], Tile::Wall { .. }) {
-                    map.tiles[idx] = Tile::Floor;
-                }
-            }
-        }
-    }
-    
-
 
     fn generate_base_terrain(&self, seed: u32, biome: Biome, terrain: Terrain, poi: POI) -> (Map, Vec<(i32, i32)>) {
         let terrain_key = match terrain {
