@@ -1,0 +1,46 @@
+{
+  "floors": [
+    {
+      "id": "dry_soil",
+      "name": "Dry Soil",
+      "glyph": ".",
+      "color": "DarkYellow",
+      "description": "Parched earth, cracked and dusty"
+    },
+    {
+      "id": "crushed_saltglass",
+      "name": "Crushed Saltglass",
+      "glyph": "·",
+      "color": "LightCyan",
+      "description": "Glittering fragments of broken glass and salt"
+    },
+    {
+      "id": "smooth_granite_glass",
+      "name": "Smooth Granite Glass",
+      "glyph": "▫",
+      "color": "LightGray",
+      "description": "Polished stone fused with glass, slippery underfoot"
+    },
+    {
+      "id": "soft_sand",
+      "name": "Soft Sand",
+      "glyph": ":",
+      "color": "Yellow",
+      "description": "Fine desert sand, shifts with each step"
+    },
+    {
+      "id": "salt_crust",
+      "name": "Salt Crust",
+      "glyph": "░",
+      "color": "White",
+      "description": "Thick crystalline salt deposits"
+    },
+    {
+      "id": "ancient_tile",
+      "name": "Ancient Tile",
+      "glyph": "▪",
+      "color": "DarkGray",
+      "description": "Pre-storm flooring, cracked but intact"
+    }
+  ]
+}

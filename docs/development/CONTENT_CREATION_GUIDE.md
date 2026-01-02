@@ -9,6 +9,8 @@ This guide explains how to add new content to Saltglass Steppe using the integra
 Saltglass Steppe uses multiple integrated systems for content creation:
 
 - **Static Content**: Items, enemies, NPCs defined in JSON files
+- **Terrain System**: Wall and floor types with visual variety
+- **Structure Templates**: Prebuilt structures for cities, towns, shrines
 - **Dynamic Events**: Procedural events triggered by game state
 - **Narrative Integration**: Story fragments placed based on biome rules
 - **Biome System**: Environmental features and atmospheric content
@@ -17,6 +19,114 @@ Saltglass Steppe uses multiple integrated systems for content creation:
 - **Weighted Tables**: Consistent probability distribution for spawns and loot
 - **Constraint System**: Map validation and generation rules
 - **Generation Pipeline**: Coordination of all procedural systems
+
+---
+
+## Terrain System
+
+### Wall Types (`data/walls.json`)
+
+Define different wall materials with unique visuals and properties:
+
+```json
+{
+  "id": "sandstone",
+  "name": "Sandstone Wall",
+  "glyph": "#",
+  "color": "DarkYellow",
+  "hp": 10,
+  "description": "Crumbling sandstone, worn by wind and salt"
+}
+```
+
+**Available Colors**: `Red`, `Green`, `Yellow`, `Blue`, `Magenta`, `Cyan`, `Gray`, `DarkGray`, `LightRed`, `LightGreen`, `LightYellow`, `LightBlue`, `LightMagenta`, `LightCyan`, `White`, `DarkYellow`
+
+### Floor Types (`data/floors.json`)
+
+Define different floor materials for environmental variety:
+
+```json
+{
+  "id": "crushed_saltglass",
+  "name": "Crushed Saltglass",
+  "glyph": "·",
+  "color": "LightCyan",
+  "description": "Glittering fragments of broken glass and salt"
+}
+```
+
+### Terrain Configuration (`data/terrain_config.json`)
+
+Controls how biomes generate different terrain types:
+
+```json
+{
+  "terrain_types": {
+    "desert": {
+      "floor_threshold": -0.1,
+      "glass_density": 0.05,
+      "noise_scale": 15.0,
+      "wall_type": "sandstone",
+      "floor_type": "soft_sand"
+    }
+  },
+  "biome_modifiers": {
+    "saltflat": {
+      "glass_density_multiplier": 2.5,
+      "wall_type_override": "salt_crystal",
+      "floor_type_override": "salt_crust",
+      "floor_threshold_bonus": 0.2
+    }
+  }
+}
+```
+
+## Structure Templates (`data/structure_templates.json`)
+
+**Note**: This is a stopgap measure before full procedural structure generation.
+
+Create prebuilt structures that can be placed in the world:
+
+```json
+{
+  "id": "mesa_village",
+  "name": "Mesa Village",
+  "description": "A small settlement carved into the mesa walls",
+  "symbol_dict": {
+    "#": {"type": "wall", "id": "old_reinforced_concrete"},
+    "¤": {"type": "wall", "id": "rusted_steel"},
+    ".": {"type": "floor", "id": "ancient_tile"},
+    "M": {"type": "npc", "id": "mesa_merchant", "name": "Keth the Trader"}
+  },
+  "clear_area": {
+    "shape": "circle",
+    "radius": 8,
+    "center_x": 12,
+    "center_y": 8
+  },
+  "template_rows": [
+    ":::::::::::::::::::::::::",
+    ":::▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓::::",
+    "::▓#.......M.......#▓:::",
+    ":▓#.................#▓::"
+  ],
+  "lore": {
+    "discovery_message": "You discover a weathered settlement built into the mesa walls.",
+    "atmosphere": "The village shows signs of recent habitation, with tool marks fresh in the stone."
+  }
+}
+```
+
+### Symbol Dictionary Types
+
+- `"wall"`: Places a wall tile with specified wall type
+- `"floor"`: Places a floor tile with specified floor type  
+- `"npc"`: Spawns an NPC at this location (places floor underneath)
+
+### Clear Area Shapes
+
+- `"circle"`: Circular clearing with `radius`
+- `"rectangle"`: Rectangular clearing with `width` and `height`
 
 ---
 

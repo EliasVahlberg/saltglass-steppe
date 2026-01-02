@@ -271,7 +271,7 @@ impl ConstraintSystem {
         let total_resources: u32 = if resource_type.as_ref().map_or(false, |rt| rt == "open_space") {
             // Count walkable tiles (Floor and Glass)
             context.map.tiles.iter()
-                .filter(|tile| matches!(tile, Tile::Floor | Tile::Glass))
+                .filter(|tile| matches!(tile, Tile::Floor { .. } | Tile::Glass))
                 .count() as u32
         } else {
             context.resources.iter()
@@ -388,7 +388,7 @@ impl ConstraintSystem {
         }
         
         if let Some(idx) = map.pos_to_idx(x, y) {
-            matches!(map.tiles[idx], Tile::Floor | Tile::Glass)
+            matches!(map.tiles[idx], Tile::Floor { .. } | Tile::Glass)
         } else {
             false
         }

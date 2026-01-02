@@ -1,0 +1,21 @@
+{
+  "name": "terrain_variety_test",
+  "seed": 12345,
+  "map_setup": {
+    "biome": "saltflat",
+    "terrain": "flat",
+    "poi": "none"
+  },
+  "player": { "x": 10, "y": 10 },
+  "entities": [],
+  "actions": [],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "custom",
+        "description": "Map should have varied terrain types"
+      }
+    }
+  ]
+}

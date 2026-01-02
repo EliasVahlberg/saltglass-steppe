@@ -118,13 +118,25 @@ impl TileRenderer {
                 };
                 ('░', color)
             }
-            Tile::Floor => {
-                let color = parse_color(&self.config.colors.tiles.floor);
-                ('.', color)
+            Tile::Floor { id } => {
+                if let Some(def) = crate::game::map::get_floor_def(id) {
+                    let glyph = def.glyph.chars().next().unwrap_or('.');
+                    let color = parse_color(&def.color);
+                    (glyph, color)
+                } else {
+                    let color = parse_color(&self.config.colors.tiles.floor);
+                    ('.', color)
+                }
             }
-            Tile::Wall { .. } => {
-                let color = parse_color(&self.config.colors.tiles.wall);
-                ('#', color)
+            Tile::Wall { id, .. } => {
+                if let Some(def) = crate::game::map::get_wall_def(id) {
+                    let glyph = def.glyph.chars().next().unwrap_or('#');
+                    let color = parse_color(&def.color);
+                    (glyph, color)
+                } else {
+                    let color = parse_color(&self.config.colors.tiles.wall);
+                    ('#', color)
+                }
             }
             Tile::StairsDown => {
                 let color = parse_color(&self.config.colors.tiles.stairs_down);

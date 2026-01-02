@@ -1,0 +1,113 @@
+{
+  "structures": [
+    {
+      "id": "mesa_village",
+      "name": "Mesa Village",
+      "description": "A small settlement carved into the mesa walls",
+      "symbol_dict": {
+        "#": {"type": "wall", "id": "old_reinforced_concrete"},
+        "¤": {"type": "wall", "id": "rusted_steel"},
+        "▓": {"type": "wall", "id": "shale"},
+        ".": {"type": "floor", "id": "ancient_tile"},
+        ":": {"type": "floor", "id": "soft_sand"},
+        "░": {"type": "floor", "id": "salt_crust"},
+        "M": {"type": "npc", "id": "mesa_merchant", "name": "Keth the Trader"},
+        "G": {"type": "npc", "id": "village_guard", "name": "Sentinel Vex"},
+        "P": {"type": "npc", "id": "village_priest", "name": "Mirror-Touched Yara"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 8,
+        "center_x": 12,
+        "center_y": 8
+      },
+      "template_rows": [
+        ":::::::::::::::::::::::::",
+        ":::▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓::::",
+        "::▓#.......M.......#▓:::",
+        ":▓#.................#▓::",
+        ":▓#.................#▓::",
+        ":▓#.................#▓::",
+        ":▓#........P........#▓::",
+        ":▓#.................#▓::",
+        ":▓#.................#▓::",
+        ":▓#.......G.........#▓::",
+        "::▓#...............#▓:::",
+        ":::▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓::::",
+        ":::::::::::::::::::::::::"
+      ],
+      "lore": {
+        "discovery_message": "You discover a weathered settlement built into the mesa walls.",
+        "atmosphere": "The village shows signs of recent habitation, with tool marks fresh in the stone."
+      }
+    },
+    {
+      "id": "salt_shrine",
+      "name": "Salt Shrine",
+      "description": "A crystalline shrine dedicated to the Mirror Saints",
+      "symbol_dict": {
+        "◆": {"type": "wall", "id": "salt_crystal"},
+        "░": {"type": "floor", "id": "salt_crust"},
+        ".": {"type": "floor", "id": "dry_soil"},
+        "S": {"type": "npc", "id": "shrine_keeper", "name": "Saint-Touched Mira"}
+      },
+      "clear_area": {
+        "shape": "circle",
+        "radius": 6,
+        "center_x": 8,
+        "center_y": 6
+      },
+      "template_rows": [
+        "................",
+        "....◆◆◆◆◆.......",
+        "...◆░░░░░◆......",
+        "..◆░░░S░░░◆.....",
+        "..◆░░░░░░░◆.....",
+        "..◆░░░░░░░◆.....",
+        "...◆░░░░░◆......",
+        "....◆◆◆◆◆.......",
+        "................"
+      ],
+      "lore": {
+        "discovery_message": "A crystalline shrine gleams in the harsh light, its salt walls refracting rainbows.",
+        "atmosphere": "The air hums with quiet reverence and the whisper of wind through crystal."
+      }
+    },
+    {
+      "id": "ruined_archive",
+      "name": "Ruined Archive",
+      "description": "Remnants of a pre-storm data facility",
+      "symbol_dict": {
+        "█": {"type": "wall", "id": "old_reinforced_concrete"},
+        "¤": {"type": "wall", "id": "rusted_steel"},
+        "▪": {"type": "floor", "id": "ancient_tile"},
+        ".": {"type": "floor", "id": "dry_soil"},
+        "A": {"type": "npc", "id": "archive_drone", "name": "Maintenance Unit 7"},
+        "D": {"type": "npc", "id": "data_ghost", "name": "Echo of Dr. Voss"}
+      },
+      "clear_area": {
+        "shape": "rectangle",
+        "width": 12,
+        "height": 8,
+        "center_x": 10,
+        "center_y": 6
+      },
+      "template_rows": [
+        "....................",
+        "..█████████████████..",
+        ".█¤▪▪▪▪▪▪▪▪▪▪▪▪▪▪¤█.",
+        ".█¤▪▪▪▪▪A▪▪▪▪▪▪▪▪¤█.",
+        ".█¤▪▪▪▪▪▪▪▪▪▪▪▪▪▪¤█.",
+        ".█¤▪▪▪▪▪▪▪▪▪▪▪▪▪▪¤█.",
+        ".█¤▪▪▪▪▪D▪▪▪▪▪▪▪▪¤█.",
+        ".█¤▪▪▪▪▪▪▪▪▪▪▪▪▪▪¤█.",
+        "..█████████████████..",
+        "...................."
+      ],
+      "lore": {
+        "discovery_message": "The skeletal remains of a data archive rise from the salt, its walls scarred by storms.",
+        "atmosphere": "Faint electronic hums echo from within, suggesting some systems still function."
+      }
+    }
+  ]
+}

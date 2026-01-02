@@ -360,7 +360,7 @@ fn render_tile(
                 };
                 ('░', color)
             }
-            Tile::Floor => ('.', Color::DarkGray),
+            Tile::Floor { id: _ } => ('.', Color::DarkGray),
             Tile::Wall { .. } => ('#', Color::Gray),
             Tile::StairsDown => ('>', Color::Yellow),
             Tile::StairsUp => ('<', Color::Yellow),

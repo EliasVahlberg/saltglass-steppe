@@ -533,7 +533,7 @@ impl DesExecutor {
                     if nx >= 0 && ny >= 0 {
                         let nidx = ny as usize * state.map.width + nx as usize;
                         if nidx < state.map.tiles.len() && !state.map.tiles[nidx].walkable() {
-                            state.map.tiles[nidx] = crate::game::map::Tile::Floor;
+                            state.map.tiles[nidx] = crate::game::map::Tile::default_floor();
                         }
                     }
                 }
@@ -653,7 +653,7 @@ impl DesExecutor {
                     if nx >= 1 && ny >= 1 && nx < (state.map.width - 1) as i32 && ny < (state.map.height - 1) as i32 {
                         let idx = ny as usize * state.map.width + nx as usize;
                         if !state.map.tiles[idx].walkable() {
-                            state.map.tiles[idx] = Tile::Floor;
+                            state.map.tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -667,7 +667,7 @@ impl DesExecutor {
                     if x >= 1 && y >= 1 && x < (state.map.width - 1) as i32 && y < (state.map.height - 1) as i32 {
                         let idx = y as usize * state.map.width + x as usize;
                         if !state.map.tiles[idx].walkable() {
-                            state.map.tiles[idx] = Tile::Floor;
+                            state.map.tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -708,7 +708,7 @@ impl DesExecutor {
                     if nx >= 1 && ny >= 1 && nx < (state.map.width - 1) as i32 && ny < (state.map.height - 1) as i32 {
                         let idx = ny as usize * state.map.width + nx as usize;
                         if !state.map.tiles[idx].walkable() {
-                            state.map.tiles[idx] = Tile::Floor;
+                            state.map.tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -991,7 +991,7 @@ impl DesExecutor {
                     .filter(|tile| {
                         match (tile_type.as_str(), tile) {
                             ("glass", crate::game::map::Tile::Glass) => true,
-                            ("floor", crate::game::map::Tile::Floor) => true,
+                            ("floor", crate::game::map::Tile::Floor { .. }) => true,
                             ("wall", crate::game::map::Tile::Wall { .. }) => true,
                             _ => false,
                         }
@@ -1184,7 +1184,7 @@ impl DesExecutor {
                         if nx >= 0 && ny >= 0 {
                             let nidx = ny as usize * self.state.map.width + nx as usize;
                             if nidx < self.state.map.tiles.len() && !self.state.map.tiles[nidx].walkable() {
-                                self.state.map.tiles[nidx] = crate::game::map::Tile::Floor;
+                                self.state.map.tiles[nidx] = crate::game::map::Tile::default_floor();
                             }
                         }
                     }
@@ -1365,9 +1365,9 @@ impl DesExecutor {
                             id: "sandstone".to_string(), 
                             hp: hp.unwrap_or(50) 
                         },
-                        "floor" => crate::game::map::Tile::Floor,
+                        "floor" => crate::game::map::Tile::default_floor(),
                         "glass" => crate::game::map::Tile::Glass,
-                        _ => crate::game::map::Tile::Floor,
+                        _ => crate::game::map::Tile::default_floor(),
                     };
                     self.state.map.tiles[idx] = tile;
                     self.log(format!("Set tile at ({}, {}) to {}", x, y, tile_type));

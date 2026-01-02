@@ -231,7 +231,7 @@ fn place_structure_on_map(map: &mut Map, structure: &MicroStructureDef, x: i32, 
             
             let new_tile = match tile_def.tile_type.as_str() {
                 "wall" => Tile::Wall { id: "stone".to_string(), hp: 100 },
-                "floor" => Tile::Floor,
+                "floor" => Tile::default_floor(),
                 "glass" => Tile::Glass,
                 _ => continue, // Skip unknown tile types
             };

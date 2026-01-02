@@ -883,7 +883,7 @@ impl GameState {
         // Check if current position is safe
         let is_safe = |map: &Map, enemies: &[Enemy], x: i32, y: i32| -> bool {
             if let Some(tile) = map.get(x, y) {
-                if *tile != Tile::Floor { return false; }
+                if matches!(*tile, Tile::Floor { .. }) { return false; }
             } else { return false; }
             !enemies.iter().any(|e| e.x == x && e.y == y && e.hp > 0)
         };
@@ -2783,7 +2783,7 @@ impl GameState {
             self.log_typed("You strike the wall. Cracks spread through the glass.", MsgType::Combat);
 
             if broken {
-                self.map.tiles[tile_idx] = super::map::Tile::Floor;
+                self.map.tiles[tile_idx] = super::map::Tile::default_floor();
                 self.log_typed("The wall shatters!", MsgType::Combat);
                 self.update_lighting(); // Wall break changes lighting
             }
@@ -3133,7 +3133,7 @@ impl GameState {
                         let new_y = self.enemies[enemy_index].y + dy;
                         
                         if let Some(tile) = self.map.get(new_x, new_y) {
-                            if *tile == super::map::Tile::Floor {
+                            if matches!(*tile, super::map::Tile::Floor { .. }) {
                                 self.enemies[enemy_index].x = new_x;
                                 self.enemies[enemy_index].y = new_y;
                                 self.log_typed("The enemy teleports!".to_string(), MsgType::Combat);

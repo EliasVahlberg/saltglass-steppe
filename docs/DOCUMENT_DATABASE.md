@@ -16,6 +16,13 @@ This file contains a comprehensive list of all project documentation with descri
 | [IMPLEMENTATION_STATUS_SUMMARY.md](IMPLEMENTATION_STATUS_SUMMARY.md)                   | Current implementation status overview                           |
 | [PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md](PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md) | Procedural generation improvements summary                 |
 
+## Papers and Research
+
+| Document                                                                               | Description                                                      |
+| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [glass_seam_bridging_paper.pdf](papers/glass_seam_bridging_paper.pdf)                 | Research paper on Glass Seam Bridging Algorithm                 |
+| [glass_seam_bridging_paper.md](papers/glass_seam_bridging_paper.md)                   | Markdown version of the research paper                          |
+
 ## Architecture Documentation
 
 | Document                                                              | Description                                                 |
@@ -112,6 +119,9 @@ This file contains a comprehensive list of all project documentation with descri
 | [SPAWN_AND_MICROSTRUCTURES_TODO.md](development/SPAWN_AND_MICROSTRUCTURES_TODO.md) | Spawn system TODO list                         |
 | [SPAWN_DISTRIBUTION_SYSTEM.md](development/SPAWN_DISTRIBUTION_SYSTEM.md)       | Entity spawn distribution system                   |
 | [CONSTRAINT_SYSTEM_GUIDE.md](development/CONSTRAINT_SYSTEM_GUIDE.md)       | Comprehensive guide to the constraint validation system for procedural generation |
+| [GLASS_SEAM_BRIDGING_ALGORITHM.md](development/GLASS_SEAM_BRIDGING_ALGORITHM.md) | Glass Seam Bridging Algorithm for map connectivity |
+| [ENHANCED_PROCEDURAL_GENERATION_SUMMARY.md](development/ENHANCED_PROCEDURAL_GENERATION_SUMMARY.md) | Enhanced procedural generation systems summary |
+| [STORY_MODEL.md](development/STORY_MODEL.md)                                   | Story and narrative model documentation             |
 
 ### Change Logs Subsection
 
@@ -234,5 +244,5 @@ This file contains a comprehensive list of all project documentation with descri
 
 ---
 
-_Last updated: 2026-01-01_
-_Total documents: 140_
+_Last updated: 2026-01-02_
+_Total documents: 145_

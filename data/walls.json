@@ -4,22 +4,49 @@
       "id": "sandstone",
       "name": "Sandstone Wall",
       "glyph": "#",
+      "color": "DarkYellow",
       "hp": 10,
       "description": "Crumbling sandstone, worn by wind and salt"
     },
     {
       "id": "shale",
-      "name": "Shale Wall",
-      "glyph": "#",
+      "name": "Shale Wall", 
+      "glyph": "▓",
+      "color": "DarkGray",
       "hp": 15,
       "description": "Layered dark stone, harder than sandstone"
     },
     {
       "id": "salt_crystal",
       "name": "Salt Crystal Wall",
-      "glyph": "#",
+      "glyph": "◆",
+      "color": "White",
       "hp": 8,
       "description": "Brittle crystalline formation, glints in the light"
+    },
+    {
+      "id": "saltglass",
+      "name": "Saltglass Wall",
+      "glyph": "░",
+      "color": "Cyan",
+      "hp": 12,
+      "description": "Fused glass and salt, refracts light dangerously"
+    },
+    {
+      "id": "old_reinforced_concrete",
+      "name": "Reinforced Concrete",
+      "glyph": "█",
+      "color": "Gray",
+      "hp": 25,
+      "description": "Pre-storm concrete, weathered but sturdy"
+    },
+    {
+      "id": "rusted_steel",
+      "name": "Rusted Steel",
+      "glyph": "¤",
+      "color": "Red",
+      "hp": 20,
+      "description": "Corroded metal framework from the old world"
     }
   ]
 }

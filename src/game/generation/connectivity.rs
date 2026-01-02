@@ -850,7 +850,7 @@ fn carve_tunnel(map: &mut Map, edge: &TunnelEdge, width: usize, _rng: &mut ChaCh
                 
                 if let Some(idx) = map.pos_to_idx(nx, ny) {
                     if matches!(map.tiles[idx], Tile::Wall { .. }) {
-                        map.tiles[idx] = Tile::Floor;
+                        map.tiles[idx] = Tile::default_floor();
                     }
                 }
             }

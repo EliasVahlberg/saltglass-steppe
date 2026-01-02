@@ -7,6 +7,7 @@
       "glass_density": 0.15,
       "noise_scale": 8.0,
       "wall_type": "sandstone",
+      "floor_type": "dry_soil",
       "feature_weights": {
         "glass_seam": 2.0,
         "crystal_formation": 1.0,
@@ -18,6 +19,7 @@
       "glass_density": 0.1,
       "noise_scale": 6.0,
       "wall_type": "shale",
+      "floor_type": "ancient_tile",
       "feature_weights": {
         "crystal_spire": 1.8,
         "ancient_structure": 1.2,
@@ -29,6 +31,7 @@
       "glass_density": 0.08,
       "noise_scale": 10.0,
       "wall_type": "sandstone",
+      "floor_type": "dry_soil",
       "feature_weights": {
         "rolling_glass": 1.5,
         "hidden_grove": 1.0,
@@ -40,6 +43,7 @@
       "glass_density": 0.12,
       "noise_scale": 12.0,
       "wall_type": "sandstone",
+      "floor_type": "soft_sand",
       "feature_weights": {
         "shifting_glass": 2.0,
         "buried_relic": 1.0,
@@ -51,6 +55,7 @@
       "glass_density": 0.05,
       "noise_scale": 15.0,
       "wall_type": "salt_crystal",
+      "floor_type": "salt_crust",
       "feature_weights": {
         "salt_formation": 2.5,
         "mirage_pool": 1.0,
@@ -62,21 +67,28 @@
     "saltflat": {
       "glass_density_multiplier": 2.5,
       "wall_type_override": "salt_crystal",
+      "floor_type_override": "salt_crust",
+      "floor_threshold_bonus": 0.2,
       "unique_features": ["crystalline_maze", "salt_spire", "brine_pool"]
     },
     "oasis": {
       "glass_density_multiplier": 0.3,
       "floor_threshold_bonus": 0.1,
+      "floor_type_override": "dry_soil",
       "unique_features": ["verdant_spring", "shade_grove", "life_crystal"]
     },
     "ruins": {
-      "wall_type_override": "shale",
+      "wall_type_override": "old_reinforced_concrete",
+      "floor_type_override": "ancient_tile",
       "unique_features": ["broken_archive", "memory_shard", "ghost_light"]
     },
     "scrubland": {
+      "floor_type_override": "dry_soil",
       "unique_features": ["thorn_maze", "survivor_cache", "wind_chime"]
     },
     "desert": {
+      "floor_threshold_bonus": 0.3,
+      "floor_type_override": "soft_sand",
       "unique_features": ["mirage_oasis", "bone_garden", "sun_dial"]
     }
   },

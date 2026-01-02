@@ -46,7 +46,7 @@ impl GameState {
             self.player_ap -= cost;
             let new_hp = hp - 5;
             if new_hp <= 0 {
-                self.map.tiles[idx] = Tile::Floor;
+                self.map.tiles[idx] = Tile::default_floor();
                 self.log("The wall crumbles!");
             } else {
                 self.map.tiles[idx] = Tile::Wall { id: id.clone(), hp: new_hp };

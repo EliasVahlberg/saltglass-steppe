@@ -28,6 +28,7 @@ pub mod progression;
 pub mod psychic;
 pub mod qa_tools;
 pub mod quest;
+pub mod structure_templates;
 pub mod ritual;
 pub mod sanity;
 pub mod skills;

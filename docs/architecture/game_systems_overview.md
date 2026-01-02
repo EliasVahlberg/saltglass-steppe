@@ -177,6 +177,7 @@ pub trait System {
 | `NarrativeTemplates` | `generation/narrative_templates.rs` | Template-based narrative generation |
 | `StorySystem`        | `generation/story.rs`         | Procedural story and character generation |
 | `ConstraintSystem`   | `generation/constraints.rs`   | Constraint-based generation validation |
+| `ConnectivitySystem` | `generation/connectivity.rs`  | Glass Seam Bridging Algorithm for map connectivity |
 
 ### Adding a New System
 
@@ -279,10 +280,48 @@ pub fn all_item_ids() -> Vec<&'static str> {
 | `narrative_integration.json` | `generation/narrative.rs` | Story seeds, fragments, factions |
 | `grammars/descriptions.json` | `generation/grammar.rs` | Grammar rules for dynamic text generation |
 | `templates/content_templates.json` | `generation/templates.rs` | Content templates with inheritance and variants |
+| `biome_profiles.json`    | `generation/biomes.rs` | Biome-specific content and features |
+| `terrain_config.json`    | `generation/tile_gen.rs` | Terrain generation parameters |
+| `microstructures.json`   | `generation/microstructures.rs` | Mini-structure definitions |
+| `constraint_rules.json`  | `generation/constraints.rs` | Constraint validation rules |
+| `auto_explore_config.json` | `ui/auto_explore.rs` | Auto-exploration system settings |
+| `traders.json`           | `npc.rs`        | Trader NPCs and their inventories |
+| `chests.json`            | `item.rs`       | Chest and container definitions |
+| `books.json`             | `item.rs`       | Readable books and lore texts |
+| `abilities.json`         | `abilities.rs`  | Player abilities and skills |
+| `psychic_abilities.json` | `psychic.rs`    | Psychic powers and mental abilities |
+| `main_questline.json`    | `quest.rs`      | Main story quest definitions |
+| `narrative_templates.json` | `generation/narrative_templates.rs` | Narrative generation templates |
+| `effects_config.json`    | `effects.rs`    | Visual effects configuration |
+| `themes.json`            | `ui/themes.rs`  | UI theme and color definitions |
+| `render_config.json`     | `renderer/config.rs` | Rendering system configuration |
+| `generation_config.json` | `generation/pipeline.rs` | Procedural generation settings |
 
 ---
 
 ## Key Systems Detail
+
+### Auto-Explore System
+
+**Location**: `src/game/auto_explore.rs`
+
+**Integration**: Called from main game loop when auto-explore is active
+
+**Flow**:
+```
+Main Loop → AutoExplore::update()
+  → Find nearest unexplored tile using pathfinding
+  → Check for dangers and items along path
+  → Move player toward target or stop for interaction
+  → Handle item pickup and danger avoidance
+```
+
+**Features**:
+- **Smart Pathfinding**: Uses A* to find optimal routes to unexplored areas
+- **Item Detection**: Automatically picks up items when configured
+- **Danger Avoidance**: Stops exploration when enemies or hazards detected
+- **Configurable**: Behavior controlled via `auto_explore_config.json`
+- **Visual Feedback**: Shows exploration target and path in UI
 
 ### Event System
 
@@ -332,6 +371,31 @@ travel_to_tile() → generate_narrative_fragments()
 - **Story Fragments**: 8 placeable story elements with biome rules
 - **Faction Influence**: 5 faction systems affecting narrative content
 - **Emergent Tracking**: Momentum system driving story thread activation
+
+### ConnectivitySystem (Glass Seam Bridging Algorithm)
+
+**Location**: `src/game/generation/connectivity.rs`
+
+**Integration**: Called during tile generation to ensure map connectivity
+
+**Flow**:
+```
+TileGenerator::generate() → ConnectivitySystem::ensure_connectivity()
+  → Identify disconnected floor regions
+  → Build connectivity graph with tunnel costs
+  → Find optimal tunnel set using modified Dijkstra's algorithm
+  → Create tunnels to connect regions
+  → Validate coverage threshold is met
+```
+
+**Algorithm Features**:
+- **Region Detection**: Flood-fill algorithm to identify disconnected areas
+- **Cost Calculation**: Manhattan distance with wall-breaking penalties
+- **Optimal Tunneling**: Finds minimum-cost tunnel set meeting coverage requirements
+- **Validation**: Ensures specified percentage of floor tiles are reachable
+- **Deterministic**: Uses seeded RNG for consistent results
+
+**Configuration**: Coverage threshold and tunnel costs configurable via `constraint_rules.json`
 
 ### Biome System
 
@@ -857,6 +921,9 @@ if let Some(&enemy_idx) = state.enemy_positions.get(&(x, y)) {
 - [SCALABILITY_AUDIT.md](./SCALABILITY_AUDIT.md) — Performance considerations
 - [TECH_STACK.md](./TECH_STACK.md) — Technology choices
 - [PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md](../development/PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md) — Complete procedural generation guide
+- [GLASS_SEAM_BRIDGING_ALGORITHM.md](../development/GLASS_SEAM_BRIDGING_ALGORITHM.md) — Glass Seam Bridging Algorithm documentation
+- [CONSTRAINT_SYSTEM_GUIDE.md](../development/CONSTRAINT_SYSTEM_GUIDE.md) — Constraint validation system guide
+- [AUTO_EXPLORE_SYSTEM.md](../development/AUTO_EXPLORE_SYSTEM.md) — Auto-exploration system documentation
 
 ---
 

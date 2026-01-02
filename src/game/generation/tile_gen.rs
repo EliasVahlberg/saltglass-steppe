@@ -29,6 +29,7 @@ pub struct TerrainConfig {
     pub glass_density: f64,
     pub noise_scale: f64,
     pub wall_type: String,
+    pub floor_type: String,
     pub feature_weights: Option<HashMap<String, f64>>,
 }
 
@@ -36,6 +37,7 @@ pub struct TerrainConfig {
 pub struct BiomeModifier {
     pub glass_density_multiplier: Option<f64>,
     pub wall_type_override: Option<String>,
+    pub floor_type_override: Option<String>,
     pub floor_threshold_bonus: Option<f64>,
     pub unique_features: Option<Vec<String>>,
 }
@@ -185,7 +187,7 @@ impl TileGenerator {
     /// Ensure minimum open space by converting some walls to floors
     fn ensure_minimum_open_space(&self, map: &mut Map) {
         let current_open = map.tiles.iter()
-            .filter(|tile| matches!(tile, Tile::Floor | Tile::Glass))
+            .filter(|tile| matches!(tile, Tile::Floor { id: _ } | Tile::Glass))
             .count();
         
         if current_open < 2000 {
@@ -199,7 +201,7 @@ impl TileGenerator {
                     
                     let idx = y * MAP_WIDTH + x;
                     if matches!(map.tiles[idx], Tile::Wall { .. }) {
-                        map.tiles[idx] = Tile::Floor;
+                        map.tiles[idx] = Tile::default_floor();
                         converted += 1;
                     }
                 }
@@ -214,7 +216,7 @@ impl TileGenerator {
         
         // Ensure the center spawn point is always floor
         if let Some(idx) = map.pos_to_idx(spawn.0, spawn.1) {
-            map.tiles[idx] = Tile::Floor;
+            map.tiles[idx] = Tile::default_floor();
         }
         
         // Clear spawn area (5x5)
@@ -224,7 +226,7 @@ impl TileGenerator {
                 let y = spawn.1 + dy;
                 if (dx.abs() <= 1 && dy.abs() <= 1) || (dx + dy).abs() <= 2 {
                     if let Some(idx) = map.pos_to_idx(x, y) {
-                        map.tiles[idx] = Tile::Floor;
+                        map.tiles[idx] = Tile::default_floor();
                     }
                 }
             }
@@ -263,6 +265,7 @@ impl TileGenerator {
         let mut floor_threshold = config.floor_threshold;
         let mut glass_density = config.glass_density;
         let mut wall_type = config.wall_type.clone();
+        let mut floor_type = config.floor_type.clone();
 
         if let Some(modifier) = biome_mod {
             if let Some(bonus) = modifier.floor_threshold_bonus {
@@ -273,6 +276,9 @@ impl TileGenerator {
             }
             if let Some(override_type) = &modifier.wall_type_override {
                 wall_type = override_type.clone();
+            }
+            if let Some(override_type) = &modifier.floor_type_override {
+                floor_type = override_type.clone();
             }
         }
 
@@ -302,7 +308,7 @@ impl TileGenerator {
                 let adjusted_threshold = floor_threshold + (feature_noise.get([nx * 0.5, ny * 0.5]) * 0.2);
                 
                 if terrain_value > adjusted_threshold {
-                    tiles[idx] = Tile::Floor;
+                    tiles[idx] = Tile::floor(&floor_type);
                     
                     // Enhanced glass placement with patterns
                     let glass_value = glass_noise.get([nx * 2.0, ny * 2.0]);
@@ -383,7 +389,7 @@ impl TileGenerator {
                     },
                     "glass_spire" => {
                         if let Some(idx) = map.pos_to_idx(pos.0, pos.1) {
-                            if matches!(map.tiles[idx], Tile::Floor) {
+                            if matches!(map.tiles[idx], Tile::Floor { id: _ }) {
                                 map.tiles[idx] = Tile::Glass;
                             }
                         }
@@ -541,14 +547,14 @@ impl TileGenerator {
         
         for y in (search_radius + 2)..(MAP_HEIGHT - search_radius - 2) {
             for x in (search_radius + 2)..(MAP_WIDTH - search_radius - 2) {
-                if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor) {
+                if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor { id: _ }) {
                     let mut open_count = 0;
                     for dy in -(search_radius as i32)..=(search_radius as i32) {
                         for dx in -(search_radius as i32)..=(search_radius as i32) {
                             let ny = (y as i32 + dy) as usize;
                             let nx = (x as i32 + dx) as usize;
                             if ny < MAP_HEIGHT && nx < MAP_WIDTH {
-                                if matches!(tiles[ny * MAP_WIDTH + nx], Tile::Floor) {
+                                if matches!(tiles[ny * MAP_WIDTH + nx], Tile::Floor { id: _ }) {
                                     open_count += 1;
                                 }
                             }
@@ -599,7 +605,7 @@ impl TileGenerator {
                     let distance = ((dx * dx + dy * dy) as f64).sqrt();
                     
                     if distance <= (size as f64 / 2.0) {
-                        tiles[y * MAP_WIDTH + x] = Tile::Floor;
+                        tiles[y * MAP_WIDTH + x] = Tile::default_floor();
                     }
                 }
             }
@@ -611,14 +617,14 @@ impl TileGenerator {
         
         for y in 5..MAP_HEIGHT-5 {
             for x in 5..MAP_WIDTH-5 {
-                if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor) {
+                if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor { id: _ }) {
                     let mut open_count = 0;
                     for dy in -2..=2 {
                         for dx in -2..=2 {
                             let ny = (y as i32 + dy) as usize;
                             let nx = (x as i32 + dx) as usize;
                             if ny < MAP_HEIGHT && nx < MAP_WIDTH {
-                                if matches!(tiles[ny * MAP_WIDTH + nx], Tile::Floor) {
+                                if matches!(tiles[ny * MAP_WIDTH + nx], Tile::Floor { id: _ }) {
                                     open_count += 1;
                                 }
                             }
@@ -641,7 +647,7 @@ impl TileGenerator {
             let y = rng.gen_range(5..MAP_HEIGHT-5) as i32;
             
             if let Some(tile) = map.get(x, y) {
-                if matches!(tile, Tile::Floor) {
+                if matches!(tile, Tile::Floor { id: _ }) {
                     return Some((x, y));
                 }
             }
@@ -659,7 +665,7 @@ impl TileGenerator {
                     // Check if there's a floor tile adjacent
                     for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
                         if let Some(adj_tile) = map.get(x as i32 + dx, y as i32 + dy) {
-                            if matches!(adj_tile, Tile::Floor) {
+                            if matches!(adj_tile, Tile::Floor { id: _ }) {
                                 candidates.push((x as i32, y as i32));
                                 break;
                             }

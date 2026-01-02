@@ -15,7 +15,17 @@ pub struct WallDef {
     pub id: String,
     pub name: String,
     pub glyph: String,
+    pub color: String,
     pub hp: i32,
+    pub description: String,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct FloorDef {
+    pub id: String,
+    pub name: String,
+    pub glyph: String,
+    pub color: String,
     pub description: String,
 }
 
@@ -24,18 +34,25 @@ struct WallsFile {
     walls: Vec<WallDef>,
 }
 
+#[derive(Deserialize)]
+struct FloorsFile {
+    floors: Vec<FloorDef>,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 struct TerrainConfig {
     floor_threshold: f64,
     glass_density: f64,
     noise_scale: f64,
     wall_type: String,
+    floor_type: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 struct BiomeModifier {
     glass_density_multiplier: Option<f64>,
     wall_type_override: Option<String>,
+    floor_type_override: Option<String>,
     floor_threshold_bonus: Option<f64>,
 }
 
@@ -57,6 +74,12 @@ static WALL_DEFS: Lazy<HashMap<String, WallDef>> = Lazy::new(|| {
     file.walls.into_iter().map(|d| (d.id.clone(), d)).collect()
 });
 
+static FLOOR_DEFS: Lazy<HashMap<String, FloorDef>> = Lazy::new(|| {
+    let data = include_str!("../../data/floors.json");
+    let file: FloorsFile = serde_json::from_str(data).expect("Failed to parse floors.json");
+    file.floors.into_iter().map(|d| (d.id.clone(), d)).collect()
+});
+
 static TERRAIN_CONFIG: Lazy<TerrainConfigFile> = Lazy::new(|| {
     let data = include_str!("../../data/terrain_config.json");
     serde_json::from_str(data).expect("Failed to parse terrain_config.json")
@@ -66,6 +89,10 @@ pub fn get_wall_def(id: &str) -> Option<&'static WallDef> {
     WALL_DEFS.get(id)
 }
 
+pub fn get_floor_def(id: &str) -> Option<&'static FloorDef> {
+    FLOOR_DEFS.get(id)
+}
+
 fn random_wall_type(rng: &mut ChaCha8Rng) -> String {
     let types = ["sandstone", "shale", "salt_crystal"];
     types[rng.gen_range(0..types.len())].to_string()
@@ -73,7 +100,7 @@ fn random_wall_type(rng: &mut ChaCha8Rng) -> String {
 
 #[derive(Clone, PartialEq, Debug, Serialize, Deserialize)]
 pub enum Tile {
-    Floor,
+    Floor { id: String },
     Wall { id: String, hp: i32 },
     Glass,
     Glare,      // Hot light tile that affects visibility and movement
@@ -83,10 +110,32 @@ pub enum Tile {
 }
 
 impl Tile {
+    /// Create a default floor tile
+    pub fn default_floor() -> Self {
+        Tile::Floor { id: "dry_soil".to_string() }
+    }
+
+    /// Create a floor tile with specific type
+    pub fn floor(id: &str) -> Self {
+        Tile::Floor { id: id.to_string() }
+    }
+
     pub fn glyph(&self) -> char {
         match self {
-            Tile::Floor => '.',
-            Tile::Wall { .. } => '#',
+            Tile::Floor { id } => {
+                if let Some(def) = get_floor_def(id) {
+                    def.glyph.chars().next().unwrap_or('.')
+                } else {
+                    '.'
+                }
+            }
+            Tile::Wall { id, .. } => {
+                if let Some(def) = get_wall_def(id) {
+                    def.glyph.chars().next().unwrap_or('#')
+                } else {
+                    '#'
+                }
+            }
             Tile::Glass => '*',
             Tile::Glare => '░',
             Tile::StairsDown => '>',
@@ -94,25 +143,49 @@ impl Tile {
             Tile::WorldExit => 'O',
         }
     }
-    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::Glare | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
-    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor | Tile::Glass | Tile::Glare | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
+    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor { .. } | Tile::Glass | Tile::Glare | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
+    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor { .. } | Tile::Glass | Tile::Glare | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
 
     pub fn name(&self) -> &str {
         match self {
-            Tile::Floor => "Floor",
-            Tile::Wall { id, .. } => get_wall_def(id).map(|d| d.name.as_str()).unwrap_or("Wall"),
+            Tile::Floor { id } => {
+                if let Some(def) = get_floor_def(id) {
+                    &def.name
+                } else {
+                    "Floor"
+                }
+            }
+            Tile::Wall { id, .. } => {
+                if let Some(def) = get_wall_def(id) {
+                    &def.name
+                } else {
+                    "Wall"
+                }
+            }
             Tile::Glass => "Glass",
             Tile::Glare => "Glare",
             Tile::StairsDown => "Stairs Down",
             Tile::StairsUp => "Stairs Up",
-            Tile::WorldExit => "World Map Exit",
+            Tile::WorldExit => "World Exit",
         }
     }
 
     pub fn description(&self) -> &str {
         match self {
-            Tile::Floor => "Dusty ground",
-            Tile::Wall { id, .. } => get_wall_def(id).map(|d| d.description.as_str()).unwrap_or("Solid wall"),
+            Tile::Floor { id } => {
+                if let Some(def) = get_floor_def(id) {
+                    &def.description
+                } else {
+                    "Dusty ground"
+                }
+            }
+            Tile::Wall { id, .. } => {
+                if let Some(def) = get_wall_def(id) {
+                    &def.description
+                } else {
+                    "Solid wall"
+                }
+            }
             Tile::Glass => "Sharp refractive shards, dangerous to walk on",
             Tile::Glare => "Intense light that impairs vision and movement",
             Tile::StairsDown => "Stairs leading down into darkness",
@@ -216,6 +289,7 @@ impl Map {
         let mut floor_threshold = config.floor_threshold;
         let mut glass_density = config.glass_density;
         let mut wall_type = config.wall_type.clone();
+        let mut floor_type = config.floor_type.clone();
 
         if let Some(modifier) = biome_mod {
             if let Some(bonus) = modifier.floor_threshold_bonus {
@@ -226,6 +300,9 @@ impl Map {
             }
             if let Some(override_type) = &modifier.wall_type_override {
                 wall_type = override_type.clone();
+            }
+            if let Some(override_type) = &modifier.floor_type_override {
+                floor_type = override_type.clone();
             }
         }
 
@@ -249,7 +326,7 @@ impl Map {
                 
                 // Lower threshold for more open areas (50% more sparse)
                 if terrain_value > (floor_threshold - 0.5) {
-                    tiles[idx] = Tile::Floor;
+                    tiles[idx] = Tile::Floor { id: floor_type.clone() };
                     
                     // Sharp diagonal glass formations
                     let diag_value = diagonal_noise.get([nx * 4.0, ny * 4.0]);
@@ -305,7 +382,7 @@ impl Map {
             // Create central clearing
             for y in center_y.saturating_sub(size/2)..=(center_y + size/2).min(MAP_HEIGHT-1) {
                 for x in center_x.saturating_sub(size/2)..=(center_x + size/2).min(MAP_WIDTH-1) {
-                    tiles[y * MAP_WIDTH + x] = Tile::Floor;
+                    tiles[y * MAP_WIDTH + x] = Tile::Floor { id: "dry_soil".to_string() };
                 }
             }
         }
@@ -317,7 +394,7 @@ impl Map {
         // Find floor areas that could serve as spawn points
         for y in 5..MAP_HEIGHT-5 {
             for x in 5..MAP_WIDTH-5 {
-                if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor) {
+                if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor { .. }) {
                     // Check if there's enough open space around this point
                     let mut open_count = 0;
                     for dy in -2..=2 {
@@ -325,7 +402,7 @@ impl Map {
                             let ny = (y as i32 + dy) as usize;
                             let nx = (x as i32 + dx) as usize;
                             if ny < MAP_HEIGHT && nx < MAP_WIDTH {
-                                if matches!(tiles[ny * MAP_WIDTH + nx], Tile::Floor) {
+                                if matches!(tiles[ny * MAP_WIDTH + nx], Tile::Floor { .. }) {
                                     open_count += 1;
                                 }
                             }
@@ -346,6 +423,7 @@ impl Map {
     pub fn generate(rng: &mut ChaCha8Rng) -> (Self, Vec<(i32, i32)>) {
         let wall_type = random_wall_type(rng);
         let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
+        let floor_type = "dry_soil".to_string(); // Default floor type
         let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
         let mut room_centers = Vec::new();
         let num_rooms = rng.gen_range(5..9);
@@ -357,7 +435,7 @@ impl Map {
             let y = rng.gen_range(1..MAP_HEIGHT - h - 1);
             for ry in y..y + h {
                 for rx in x..x + w {
-                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor;
+                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor { id: floor_type.clone() };
                 }
             }
             room_centers.push(((x + w / 2) as i32, (y + h / 2) as i32));
@@ -367,17 +445,17 @@ impl Map {
             let (cx1, cy1) = room_centers[i - 1];
             let (cx2, cy2) = room_centers[i];
             for x in (cx1.min(cx2) as usize)..=(cx1.max(cx2) as usize) {
-                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor;
+                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor { id: floor_type.clone() };
             }
             for y in (cy1.min(cy2) as usize)..=(cy1.max(cy2) as usize) {
-                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor;
+                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor { id: floor_type.clone() };
             }
         }
 
         for _ in 0..rng.gen_range(10..20) {
             let x = rng.gen_range(1..MAP_WIDTH - 1);
             let y = rng.gen_range(1..MAP_HEIGHT - 1);
-            if tiles[y * MAP_WIDTH + x] == Tile::Floor {
+            if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor { .. }) {
                 tiles[y * MAP_WIDTH + x] = Tile::Glass;
             }
         }
@@ -410,6 +488,7 @@ impl Map {
     pub fn generate_subterranean(rng: &mut ChaCha8Rng, layer: i32) -> (Self, Vec<(i32, i32)>) {
         let wall_type = "shale".to_string();
         let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
+        let floor_type = "ancient_tile".to_string(); // Archive floors
         let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
         let mut room_centers = Vec::new();
         
@@ -423,7 +502,7 @@ impl Map {
             let y = rng.gen_range(1..MAP_HEIGHT - h - 1);
             for ry in y..y + h {
                 for rx in x..x + w {
-                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor;
+                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor { id: floor_type.clone() };
                 }
             }
             room_centers.push(((x + w / 2) as i32, (y + h / 2) as i32));
@@ -434,10 +513,10 @@ impl Map {
             let (cx1, cy1) = room_centers[i - 1];
             let (cx2, cy2) = room_centers[i];
             for x in (cx1.min(cx2) as usize)..=(cx1.max(cx2) as usize) {
-                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor;
+                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor { id: floor_type.clone() };
             }
             for y in (cy1.min(cy2) as usize)..=(cy1.max(cy2) as usize) {
-                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor;
+                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor { id: floor_type.clone() };
             }
         }
 
@@ -596,7 +675,7 @@ impl Map {
                     // Check if there's a floor tile adjacent (visible to players)
                     for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
                         if let Some(adj_tile) = self.get(x as i32 + dx, y as i32 + dy) {
-                            if matches!(adj_tile, Tile::Floor) {
+                            if matches!(adj_tile, Tile::Floor { .. }) {
                                 candidates.push((x as i32, y as i32));
                                 break;
                             }

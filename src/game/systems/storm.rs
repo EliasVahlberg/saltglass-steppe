@@ -113,7 +113,7 @@ impl StormSystem {
             let center_y = state.rng.gen_range(2..state.map.height - 2);
             
             // Extract 3x3 area
-            let mut area = vec![vec![Tile::Floor; 3]; 3];
+            let mut area = vec![vec![Tile::default_floor(); 3]; 3];
             for dy in 0..3 {
                 for dx in 0..3 {
                     let x = center_x + dx - 1;
@@ -123,7 +123,7 @@ impl StormSystem {
             }
             
             // Rotate 90 degrees clockwise
-            let mut rotated = vec![vec![Tile::Floor; 3]; 3];
+            let mut rotated = vec![vec![Tile::default_floor(); 3]; 3];
             for dy in 0..3 {
                 for dx in 0..3 {
                     rotated[dx][2 - dy] = area[dy][dx].clone();
@@ -154,14 +154,14 @@ impl StormSystem {
             let idx = y * state.map.width + x;
             
             let new_tile = match &state.map.tiles[idx] {
-                Tile::Floor => {
+                Tile::Floor { .. } => {
                     let roll = state.rng.gen_range(0..100);
                     if roll < 20 { Tile::Glass }
                     else if roll < 25 { Tile::Glare }
-                    else { Tile::Floor }
+                    else { Tile::default_floor() }
                 },
-                Tile::Glass => if state.rng.gen_bool(0.5) { Tile::Floor } else { Tile::Glass },
-                Tile::Wall { .. } => if state.rng.gen_bool(0.2) { Tile::Floor } else { state.map.tiles[idx].clone() },
+                Tile::Glass => if state.rng.gen_bool(0.5) { Tile::default_floor() } else { Tile::Glass },
+                Tile::Wall { .. } => if state.rng.gen_bool(0.2) { Tile::default_floor() } else { state.map.tiles[idx].clone() },
                 other => other.clone(),
             };
             
@@ -261,7 +261,7 @@ impl StormSystem {
                         
                         if x < state.map.width && y < state.map.height {
                             let idx = y * state.map.width + x;
-                            if matches!(state.map.tiles[idx], Tile::Floor) {
+                            if matches!(state.map.tiles[idx], Tile::Floor { .. }) {
                                 state.map.tiles[idx] = Tile::Glare;
                                 state.storm_changed_tiles.insert(idx);
                             }

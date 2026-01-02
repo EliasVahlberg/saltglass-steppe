@@ -105,7 +105,7 @@ fn display_tile_map(seed: u64) {
         for x in 0..map.width {
             if let Some(tile) = map.get(x as i32, y as i32) {
                 let char = match tile {
-                    Tile::Floor => '.',
+                    Tile::Floor { .. } => '.',
                     Tile::Wall { .. } => '#',
                     Tile::Glass => 'g',
                     Tile::Glare => 'G',
