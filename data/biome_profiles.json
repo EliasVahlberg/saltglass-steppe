@@ -89,8 +89,10 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "water_multiplier": 0.3,
         "glass_multiplier": 1.2,
+        "salt_multiplier": 1.0,
         "salt_multiplier": 0.8,
         "rare_materials_chance": 0.4
       },
@@ -212,8 +214,10 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "water_multiplier": 0.1,
         "glass_multiplier": 0.8,
+        "salt_multiplier": 1.0,
         "salt_multiplier": 2.5,
         "rare_materials_chance": 0.6
       },
@@ -336,8 +340,10 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "water_multiplier": 0.7,
         "glass_multiplier": 1.1,
+        "salt_multiplier": 1.0,
         "salt_multiplier": 0.6,
         "rare_materials_chance": 0.5
       },
@@ -454,8 +460,10 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "water_multiplier": 3.0,
         "glass_multiplier": 0.5,
+        "salt_multiplier": 1.0,
         "salt_multiplier": 0.3,
         "rare_materials_chance": 0.8
       },
@@ -584,8 +592,10 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "water_multiplier": 0.4,
         "glass_multiplier": 1.8,
+        "salt_multiplier": 1.0,
         "salt_multiplier": 0.7,
         "rare_materials_chance": 1.2
       },
@@ -729,7 +739,9 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "glass_multiplier": 2.5,
+        "salt_multiplier": 1.0,
         "crystal_multiplier": 3.0,
         "rare_materials_chance": 1.8
       },
@@ -873,6 +885,7 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "ancient_tech_multiplier": 2.0,
         "void_essence_chance": 0.8,
         "rare_materials_chance": 1.5
@@ -1015,6 +1028,7 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "salt_multiplier": 4.0,
         "brine_multiplier": 3.0,
         "crystal_multiplier": 1.5
@@ -1158,6 +1172,7 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "storm_glass_multiplier": 3.5,
         "wind_essence_chance": 1.2,
         "rare_materials_chance": 1.4
@@ -1301,6 +1316,7 @@
         }
       ],
       "resource_modifiers": {
+        "water_multiplier": 1.0,
         "light_essence_multiplier": 4.0,
         "prism_multiplier": 2.5,
         "rare_materials_chance": 2.0
