@@ -237,3 +237,5 @@ issue_reports/*.ron
 # Debug logs
 debug_status_log.txt
 releases/
+untracked_scripts
+untracked_scripts/
