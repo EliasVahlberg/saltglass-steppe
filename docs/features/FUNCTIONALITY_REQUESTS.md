@@ -1,12 +1,40 @@
 # Functionality Requests — New Content Mechanics
 
-**Date:** 2025-12-14  
+**Date:** January 2, 2026 (Updated)  
 **Author:** CreativeDirector  
 **Purpose:** Document mechanics needed to support newly added content entities.
 
 ---
 
-## Priority: High
+## ✅ **COMPLETED - High Priority Systems**
+
+### 1. Light Manipulation System - ✅ **IMPLEMENTED**
+**Status:** Fully implemented with beam tracing, refraction, and player abilities
+- Light beam mechanics with 8-directional movement
+- Refraction surfaces that bend light beams
+- Player abilities: Focus Beam, Create Prism, Absorb Light
+- Integration: Light Crystal and Prism Lens items
+- Tutorial quest: "Light Awakening"
+
+### 2. Void Energy System - ✅ **IMPLEMENTED**  
+**Status:** Fully implemented with exposure tracking and progressive abilities
+- Void exposure levels (None → Minimal → Moderate → High → Extreme)
+- Five void abilities: Void Step, Reality Rend, Void Shield, Phase Walk, Void Drain
+- Reality distortions with different types (Temporal, Spatial, Material, Psychic)
+- Integration: Void Shard items
+- Tutorial quest: "Void Touched"
+
+### 3. Crystal Resonance System - ✅ **IMPLEMENTED**
+**Status:** Fully implemented with frequency tracking and harmonic effects
+- Five crystal frequencies (Alpha, Beta, Gamma, Delta, Epsilon)
+- Crystal formations spawn in biomes (60% Ruins, 40% Oasis)
+- Harmonic effects from frequency combinations
+- Integration: Resonance Tuner and Crystal Seed items
+- Tutorial quest: "Crystal Harmony"
+
+---
+
+## Priority: High (Remaining)
 
 ### 1. Adaptation Suppression System
 **Required for:** `veil_tincture`
