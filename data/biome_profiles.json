@@ -68,7 +68,6 @@
           "hazard_type": "heat_exhaustion",
           "severity": 4,
           "frequency": 0.3,
-          "frequency": 0.3,
           "description": "The relentless sun saps your strength",
           "damage_type": "heat"
         },
@@ -87,18 +86,29 @@
         "salt_multiplier": 0.8,
         "rare_materials_chance": 0.4
       },
-      "story_themes": [
-        "ancient_ruins",
-        "lost_travelers",
-        "desert_mysteries"
-      ],
+      "story_themes": ["ancient_ruins", "lost_travelers", "desert_mysteries"],
       "ambient_descriptions": {
         "entries": [
-          {"item": "The desert stretches endlessly, glass and sand merged by ancient storms.", "weight": 3},
-          {"item": "Crystalline dunes shift and flow like frozen waves.", "weight": 3},
-          {"item": "The horizon wavers in the heat, reality bending like light through glass.", "weight": 2},
-          {"item": "Salt-crusted sand crunches beneath your feet.", "weight": 2},
-          {"item": "The silence is broken only by the whisper of wind through glass.", "weight": 1}
+          {
+            "item": "The desert stretches endlessly, glass and sand merged by ancient storms.",
+            "weight": 3
+          },
+          {
+            "item": "Crystalline dunes shift and flow like frozen waves.",
+            "weight": 3
+          },
+          {
+            "item": "The horizon wavers in the heat, reality bending like light through glass.",
+            "weight": 2
+          },
+          {
+            "item": "Salt-crusted sand crunches beneath your feet.",
+            "weight": 2
+          },
+          {
+            "item": "The silence is broken only by the whisper of wind through glass.",
+            "weight": 1
+          }
         ]
       }
     },
@@ -196,11 +206,23 @@
       ],
       "ambient_descriptions": {
         "entries": [
-          {"item": "The salt flats stretch like a frozen ocean, white as bone.", "weight": 3},
-          {"item": "Crystalline formations catch and scatter light in rainbow patterns.", "weight": 3},
-          {"item": "The air tastes of brine and ancient seas.", "weight": 2},
-          {"item": "Salt crystals crunch and sing beneath your steps.", "weight": 2},
-          {"item": "Preserved in salt, the past refuses to decay.", "weight": 1}
+          {
+            "item": "The salt flats stretch like a frozen ocean, white as bone.",
+            "weight": 3
+          },
+          {
+            "item": "Crystalline formations catch and scatter light in rainbow patterns.",
+            "weight": 3
+          },
+          { "item": "The air tastes of brine and ancient seas.", "weight": 2 },
+          {
+            "item": "Salt crystals crunch and sing beneath your steps.",
+            "weight": 2
+          },
+          {
+            "item": "Preserved in salt, the past refuses to decay.",
+            "weight": 1
+          }
         ]
       }
     },
@@ -280,7 +302,6 @@
           "hazard_type": "web_entanglement",
           "severity": 4,
           "frequency": 0.3,
-          "frequency": 0.3,
           "description": "Sticky webs slow your movement",
           "damage_type": "restraint"
         }
@@ -291,18 +312,29 @@
         "salt_multiplier": 0.6,
         "rare_materials_chance": 0.5
       },
-      "story_themes": [
-        "nature_adaptation",
-        "hidden_paths",
-        "survival_wisdom"
-      ],
+      "story_themes": ["nature_adaptation", "hidden_paths", "survival_wisdom"],
       "ambient_descriptions": {
         "entries": [
-          {"item": "Twisted vegetation clings to life in the harsh scrubland.", "weight": 3},
-          {"item": "Glass-sharp thorns glitter like deadly jewels.", "weight": 3},
-          {"item": "The scent of hardy blooms mingles with dust and danger.", "weight": 2},
-          {"item": "Spider webs span the gaps between gnarled branches.", "weight": 2},
-          {"item": "Life finds a way, even in this crystalline wasteland.", "weight": 1}
+          {
+            "item": "Twisted vegetation clings to life in the harsh scrubland.",
+            "weight": 3
+          },
+          {
+            "item": "Glass-sharp thorns glitter like deadly jewels.",
+            "weight": 3
+          },
+          {
+            "item": "The scent of hardy blooms mingles with dust and danger.",
+            "weight": 2
+          },
+          {
+            "item": "Spider webs span the gaps between gnarled branches.",
+            "weight": 2
+          },
+          {
+            "item": "Life finds a way, even in this crystalline wasteland.",
+            "weight": 1
+          }
         ]
       }
     },
@@ -388,18 +420,29 @@
         "salt_multiplier": 0.3,
         "rare_materials_chance": 0.8
       },
-      "story_themes": [
-        "sanctuary_refuge",
-        "hidden_wisdom",
-        "natural_harmony"
-      ],
+      "story_themes": ["sanctuary_refuge", "hidden_wisdom", "natural_harmony"],
       "ambient_descriptions": {
         "entries": [
-          {"item": "A blessed oasis blooms in defiance of the wasteland.", "weight": 3},
-          {"item": "Clear water reflects the sky like a mirror of hope.", "weight": 3},
-          {"item": "The air is sweet with the scent of impossible flowers.", "weight": 2},
-          {"item": "Palm fronds whisper secrets in the gentle breeze.", "weight": 2},
-          {"item": "Here, life remembers what it was before the storms.", "weight": 1}
+          {
+            "item": "A blessed oasis blooms in defiance of the wasteland.",
+            "weight": 3
+          },
+          {
+            "item": "Clear water reflects the sky like a mirror of hope.",
+            "weight": 3
+          },
+          {
+            "item": "The air is sweet with the scent of impossible flowers.",
+            "weight": 2
+          },
+          {
+            "item": "Palm fronds whisper secrets in the gentle breeze.",
+            "weight": 2
+          },
+          {
+            "item": "Here, life remembers what it was before the storms.",
+            "weight": 1
+          }
         ]
       }
     },
@@ -471,7 +514,6 @@
           "hazard_type": "structural_collapse",
           "severity": 8,
           "frequency": 0.3,
-          "frequency": 0.3,
           "description": "Weakened structures threaten to collapse",
           "damage_type": "crushing"
         },
@@ -505,11 +547,26 @@
       ],
       "ambient_descriptions": {
         "entries": [
-          {"item": "Glass-fused ruins stand as monuments to a lost age.", "weight": 3},
-          {"item": "Ancient technology sleeps beneath layers of crystalline growth.", "weight": 3},
-          {"item": "The walls remember voices that spoke here long ago.", "weight": 2},
-          {"item": "Refracted light creates impossible geometries in the ruins.", "weight": 2},
-          {"item": "Here, the past and present merge like light through a prism.", "weight": 1}
+          {
+            "item": "Glass-fused ruins stand as monuments to a lost age.",
+            "weight": 3
+          },
+          {
+            "item": "Ancient technology sleeps beneath layers of crystalline growth.",
+            "weight": 3
+          },
+          {
+            "item": "The walls remember voices that spoke here long ago.",
+            "weight": 2
+          },
+          {
+            "item": "Refracted light creates impossible geometries in the ruins.",
+            "weight": 2
+          },
+          {
+            "item": "Here, the past and present merge like light through a prism.",
+            "weight": 1
+          }
         ]
       }
     },
@@ -564,9 +621,24 @@
         }
       ],
       "atmospheric_elements": [
-        {"element_type": "prismatic_light","intensity": 0.8,"description": "Light fractures into countless colors through the crystal formations.","triggers": ["high_light","clear_weather"]},
-        {"element_type": "harmonic_resonance","intensity": 0.6,"description": "The air vibrates with crystalline harmonics.","triggers": ["high_light","clear_weather"]},
-        {"element_type": "glass_pollen","intensity": 0.4,"description": "Microscopic glass particles drift on the breeze.","triggers": ["storm","high_refraction"]}
+        {
+          "element_type": "prismatic_light",
+          "intensity": 0.8,
+          "description": "Light fractures into countless colors through the crystal formations.",
+          "triggers": ["high_light", "clear_weather"]
+        },
+        {
+          "element_type": "harmonic_resonance",
+          "intensity": 0.6,
+          "description": "The air vibrates with crystalline harmonics.",
+          "triggers": ["high_light", "clear_weather"]
+        },
+        {
+          "element_type": "glass_pollen",
+          "intensity": 0.4,
+          "description": "Microscopic glass particles drift on the breeze.",
+          "triggers": ["storm", "high_refraction"]
+        }
       ],
       "hazards": [
         {
@@ -598,11 +670,26 @@
       ],
       "ambient_descriptions": {
         "entries": [
-          {"item": "Crystal formations bloom like impossible gardens of glass and light.", "weight": 3},
-          {"item": "Prismatic spires cast rainbow shadows across the ground.", "weight": 3},
-          {"item": "The air shimmers with refracted light and crystalline harmonics.", "weight": 2},
-          {"item": "Glass vines twist through the air, beautiful and deadly.", "weight": 2},
-          {"item": "Here, light itself seems to have taken root and grown.", "weight": 1}
+          {
+            "item": "Crystal formations bloom like impossible gardens of glass and light.",
+            "weight": 3
+          },
+          {
+            "item": "Prismatic spires cast rainbow shadows across the ground.",
+            "weight": 3
+          },
+          {
+            "item": "The air shimmers with refracted light and crystalline harmonics.",
+            "weight": 2
+          },
+          {
+            "item": "Glass vines twist through the air, beautiful and deadly.",
+            "weight": 2
+          },
+          {
+            "item": "Here, light itself seems to have taken root and grown.",
+            "weight": 1
+          }
         ]
       }
     },
@@ -658,9 +745,24 @@
         }
       ],
       "atmospheric_elements": [
-        {"element_type": "spectral_echoes","intensity": 0.9,"description": "Ghostly sounds of battle and ceremony echo through the ruins.","triggers": ["night","storm"]},
-        {"element_type": "reality_distortion","intensity": 0.7,"description": "Space itself seems twisted and unreliable here.","triggers": ["storm","high_refraction"]},
-        {"element_type": "temporal_fragments","intensity": 0.5,"description": "Glimpses of the past flicker at the edge of vision.","triggers": ["always"]}
+        {
+          "element_type": "spectral_echoes",
+          "intensity": 0.9,
+          "description": "Ghostly sounds of battle and ceremony echo through the ruins.",
+          "triggers": ["night", "storm"]
+        },
+        {
+          "element_type": "reality_distortion",
+          "intensity": 0.7,
+          "description": "Space itself seems twisted and unreliable here.",
+          "triggers": ["storm", "high_refraction"]
+        },
+        {
+          "element_type": "temporal_fragments",
+          "intensity": 0.5,
+          "description": "Glimpses of the past flicker at the edge of vision.",
+          "triggers": ["always"]
+        }
       ],
       "hazards": [
         {
@@ -685,18 +787,26 @@
         "void_essence_chance": 0.8,
         "rare_materials_chance": 1.5
       },
-      "story_themes": [
-        "fallen_glory",
-        "temporal_echoes",
-        "void_corruption"
-      ],
+      "story_themes": ["fallen_glory", "temporal_echoes", "void_corruption"],
       "ambient_descriptions": {
         "entries": [
-          {"item": "The citadel's broken spires reach toward a sky they'll never touch again.", "weight": 3},
-          {"item": "Glass-fused stone tells the story of the fortress's final moments.", "weight": 3},
-          {"item": "Reality bends and warps around the ruins of ancient power.", "weight": 2},
-          {"item": "Echoes of long-dead voices whisper through the twisted halls.", "weight": 2},
-          {"item": "Here, the past refuses to stay buried.", "weight": 1}
+          {
+            "item": "The citadel's broken spires reach toward a sky they'll never touch again.",
+            "weight": 3
+          },
+          {
+            "item": "Glass-fused stone tells the story of the fortress's final moments.",
+            "weight": 3
+          },
+          {
+            "item": "Reality bends and warps around the ruins of ancient power.",
+            "weight": 2
+          },
+          {
+            "item": "Echoes of long-dead voices whisper through the twisted halls.",
+            "weight": 2
+          },
+          { "item": "Here, the past refuses to stay buried.", "weight": 1 }
         ]
       }
     },
@@ -752,9 +862,24 @@
         }
       ],
       "atmospheric_elements": [
-        {"element_type": "salt_dust","intensity": 0.8,"description": "Fine salt particles fill the air, making breathing difficult.","triggers": ["always"]},
-        {"element_type": "crystalline_echoes","intensity": 0.6,"description": "Every sound reverberates through the crystal-lined tunnels.","triggers": ["always"]},
-        {"element_type": "brine_vapors","intensity": 0.4,"description": "Corrosive vapors rise from pools of concentrated salt water.","triggers": ["always"]}
+        {
+          "element_type": "salt_dust",
+          "intensity": 0.8,
+          "description": "Fine salt particles fill the air, making breathing difficult.",
+          "triggers": ["always"]
+        },
+        {
+          "element_type": "crystalline_echoes",
+          "intensity": 0.6,
+          "description": "Every sound reverberates through the crystal-lined tunnels.",
+          "triggers": ["always"]
+        },
+        {
+          "element_type": "brine_vapors",
+          "intensity": 0.4,
+          "description": "Corrosive vapors rise from pools of concentrated salt water.",
+          "triggers": ["always"]
+        }
       ],
       "hazards": [
         {
@@ -786,11 +911,20 @@
       ],
       "ambient_descriptions": {
         "entries": [
-          {"item": "Salt crystals line the tunnel walls like frozen tears.", "weight": 3},
-          {"item": "The air tastes of brine and ancient labor.", "weight": 3},
-          {"item": "Mining equipment lies abandoned, preserved in salt.", "weight": 2},
-          {"item": "Deep shafts descend into crystalline darkness.", "weight": 2},
-          {"item": "Here, the earth's bones are made of salt.", "weight": 1}
+          {
+            "item": "Salt crystals line the tunnel walls like frozen tears.",
+            "weight": 3
+          },
+          { "item": "The air tastes of brine and ancient labor.", "weight": 3 },
+          {
+            "item": "Mining equipment lies abandoned, preserved in salt.",
+            "weight": 2
+          },
+          {
+            "item": "Deep shafts descend into crystalline darkness.",
+            "weight": 2
+          },
+          { "item": "Here, the earth's bones are made of salt.", "weight": 1 }
         ]
       }
     },
@@ -846,9 +980,24 @@
         }
       ],
       "atmospheric_elements": [
-        {"element_type": "perpetual_wind","intensity": 0.9,"description": "Constant winds howl through the scarred landscape.","triggers": ["always","storm"]},
-        {"element_type": "glass_dust_devils","intensity": 0.7,"description": "Miniature whirlwinds of glass particles dance across the ground.","triggers": ["always"]},
-        {"element_type": "storm_memory","intensity": 0.5,"description": "The very air seems to remember the fury of past storms.","triggers": ["always"]}
+        {
+          "element_type": "perpetual_wind",
+          "intensity": 0.9,
+          "description": "Constant winds howl through the scarred landscape.",
+          "triggers": ["always", "storm"]
+        },
+        {
+          "element_type": "glass_dust_devils",
+          "intensity": 0.7,
+          "description": "Miniature whirlwinds of glass particles dance across the ground.",
+          "triggers": ["always"]
+        },
+        {
+          "element_type": "storm_memory",
+          "intensity": 0.5,
+          "description": "The very air seems to remember the fury of past storms.",
+          "triggers": ["always"]
+        }
       ],
       "hazards": [
         {
@@ -873,18 +1022,29 @@
         "wind_essence_chance": 1.2,
         "rare_materials_chance": 1.4
       },
-      "story_themes": [
-        "natural_fury",
-        "storm_worship",
-        "elemental_scars"
-      ],
+      "story_themes": ["natural_fury", "storm_worship", "elemental_scars"],
       "ambient_descriptions": {
         "entries": [
-          {"item": "The landscape bears the scars of countless glass storms.", "weight": 3},
-          {"item": "Wind-carved canyons spiral in impossible patterns.", "weight": 3},
-          {"item": "The very ground remembers the fury of ancient tempests.", "weight": 2},
-          {"item": "Glass mesas rise like monuments to elemental power.", "weight": 2},
-          {"item": "Here, the storms have written their history in stone and glass.", "weight": 1}
+          {
+            "item": "The landscape bears the scars of countless glass storms.",
+            "weight": 3
+          },
+          {
+            "item": "Wind-carved canyons spiral in impossible patterns.",
+            "weight": 3
+          },
+          {
+            "item": "The very ground remembers the fury of ancient tempests.",
+            "weight": 2
+          },
+          {
+            "item": "Glass mesas rise like monuments to elemental power.",
+            "weight": 2
+          },
+          {
+            "item": "Here, the storms have written their history in stone and glass.",
+            "weight": 1
+          }
         ]
       }
     },
@@ -940,9 +1100,24 @@
         }
       ],
       "atmospheric_elements": [
-        {"element_type": "reality_distortion","intensity": 0.9,"description": "Light bends in impossible ways, making navigation treacherous.","triggers": ["storm","high_refraction"]},
-        {"element_type": "optical_illusions","intensity": 0.8,"description": "Nothing is quite what it seems in this place.","triggers": ["always"]},
-        {"element_type": "chromatic_aberration","intensity": 0.6,"description": "Colors separate and recombine in strange patterns.","triggers": ["always"]}
+        {
+          "element_type": "reality_distortion",
+          "intensity": 0.9,
+          "description": "Light bends in impossible ways, making navigation treacherous.",
+          "triggers": ["storm", "high_refraction"]
+        },
+        {
+          "element_type": "optical_illusions",
+          "intensity": 0.8,
+          "description": "Nothing is quite what it seems in this place.",
+          "triggers": ["always"]
+        },
+        {
+          "element_type": "chromatic_aberration",
+          "intensity": 0.6,
+          "description": "Colors separate and recombine in strange patterns.",
+          "triggers": ["always"]
+        }
       ],
       "hazards": [
         {
@@ -974,11 +1149,23 @@
       ],
       "ambient_descriptions": {
         "entries": [
-          {"item": "Light bends and flows like liquid through the air.", "weight": 3},
-          {"item": "Reality becomes negotiable in the presence of so much refracted light.", "weight": 3},
-          {"item": "Mirages and true visions blend until distinction becomes meaningless.", "weight": 2},
-          {"item": "The very air shimmers with prismatic possibilities.", "weight": 2},
-          {"item": "Here, light has learned to lie.", "weight": 1}
+          {
+            "item": "Light bends and flows like liquid through the air.",
+            "weight": 3
+          },
+          {
+            "item": "Reality becomes negotiable in the presence of so much refracted light.",
+            "weight": 3
+          },
+          {
+            "item": "Mirages and true visions blend until distinction becomes meaningless.",
+            "weight": 2
+          },
+          {
+            "item": "The very air shimmers with prismatic possibilities.",
+            "weight": 2
+          },
+          { "item": "Here, light has learned to lie.", "weight": 1 }
         ]
       }
     }
