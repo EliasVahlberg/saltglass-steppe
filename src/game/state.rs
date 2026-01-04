@@ -27,7 +27,7 @@ use super::{
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
-    generation::{weighted_pick_by_level_and_tier, get_biome_spawn_table, distribute_points_grid, generate_loot, StoryModel, EventType, NarrativeGenerator, NarrativeContext},
+    generation::{weighted_pick_by_level_and_tier, get_biome_spawn_table, distribute_points_grid, generate_loot, StoryModel, EventType, NarrativeGenerator, NarrativeContext, TileGenerator},
     storm::Storm,
 
     systems::movement::MovementSystem,
@@ -871,16 +871,43 @@ impl GameState {
         // Get quest IDs for this location
         let quest_ids = self.get_quest_ids_for_location(new_wx, new_wy);
         
-        // Generate new tile map with quest constraints
-        let (map, rooms) = if quest_ids.is_empty() {
-            Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi)
+        // Generate new tile map with enhanced procedural structure system
+        let map = if !quest_ids.is_empty() || poi != super::world_map::POI::Town {
+            // Use new procedural structure generation system
+            match TileGenerator::new() {
+                Ok(mut tile_gen) => {
+                    let biome_str = format!("{:?}", biome).to_lowercase();
+                    tile_gen.generate_enhanced_tile_with_structures(Some(poi), &biome_str, quest_ids)
+                },
+                Err(_) => {
+                    // Fallback to old system if TileGenerator fails
+                    let (map, _) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
+                    map
+                }
+            }
         } else {
-            Map::generate_from_world_with_poi_and_quests(&mut rng, biome, terrain, elevation, poi, &quest_ids)
+            // Use old system for simple town generation
+            let (map, _) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
+            map
         };
-        let (px, py) = rooms[0];
         
-        // Spawn enemies based on POI
-        let table = get_biome_spawn_table(&biome);
+        // Find safe spawn position
+        let (px, py) = self.find_safe_spawn_position_in_map(&map);
+        
+        // Collect walkable positions for later use
+        let walkable_positions: Vec<(i32, i32)> = map.tiles.iter().enumerate()
+            .filter_map(|(idx, tile)| {
+                if tile.walkable() {
+                    let x = (idx % map.width) as i32;
+                    let y = (idx / map.width) as i32;
+                    Some((x, y))
+                } else {
+                    None
+                }
+            })
+            .collect();
+        
+        // Spawn enemies based on POI and quest structure data
         let mut enemies = Vec::new();
         
         // Check for quest structure spawns first
@@ -896,25 +923,27 @@ impl GameState {
         
         // Add regular enemies if not a quest structure location
         if enemies.is_empty() {
+            let table = get_biome_spawn_table(&biome);
             let enemy_count = match poi {
                 super::world_map::POI::Town => 0,
                 super::world_map::POI::Shrine => 1,
-                _ => 6.min(rooms.len().saturating_sub(2)), // Cap at 6 enemies
+                _ => 4, // Fixed number for now
             };
             
-            let safe_distance = 15; // Minimum distance from player spawn
-            let safe_rooms: Vec<_> = rooms.iter()
-                .filter(|&&(rx, ry)| {
-                    let dx = (rx - px).abs();
-                    let dy = (ry - py).abs();
-                    dx >= safe_distance || dy >= safe_distance
+            // Find walkable positions for enemy spawning (use pre-collected positions)
+            let safe_positions: Vec<(i32, i32)> = walkable_positions.iter()
+                .filter(|&&(x, y)| {
+                    let dx = (x - px).abs();
+                    let dy = (y - py).abs();
+                    // Keep enemies away from player spawn
+                    dx >= 15 || dy >= 15
                 })
                 .cloned()
                 .collect();
-                
+            
             // Use spatial distribution to spread out enemy spawns
             let distributed_positions = distribute_points_grid(
-                &safe_rooms, 
+                &safe_positions, 
                 enemy_count, 
                 20, // Minimum distance between enemies
                 &mut rng
@@ -945,23 +974,31 @@ impl GameState {
         
         // Add regular items if not many quest items
         if items.len() < 3 {
+            let table = get_biome_spawn_table(&biome);
             for spawn in &table.items {
                 for _ in 0..spawn.weight {
-                    if let Some(&(rx, ry)) = rooms.get(rng.gen_range(1..rooms.len())) {
-                        let ix = rx + rng.gen_range(-1..=1);
-                        let iy = ry + rng.gen_range(-1..=1);
-                        if !used_positions.contains(&(ix, iy)) {
-                            used_positions.insert((ix, iy));
-                            // Check tier eligibility for travel items
-                            if let Some(item_def) = super::item::get_item_def(&spawn.id) {
-                                let tier_threshold = match level {
-                                    1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
-                                };
-                                if item_def.tier <= tier_threshold {
-                                    items.push(Item::new(ix, iy, &spawn.id));
+                    // Find a random walkable position
+                    let mut attempts = 0;
+                    while attempts < 10 {
+                        let idx = rng.gen_range(0..map.tiles.len());
+                        if map.tiles[idx].walkable() {
+                            let ix = (idx % map.width) as i32;
+                            let iy = (idx / map.width) as i32;
+                            if !used_positions.contains(&(ix, iy)) {
+                                used_positions.insert((ix, iy));
+                                // Check tier eligibility for travel items
+                                if let Some(item_def) = super::item::get_item_def(&spawn.id) {
+                                    let tier_threshold = match level {
+                                        1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
+                                    };
+                                    if item_def.tier <= tier_threshold {
+                                        items.push(Item::new(ix, iy, &spawn.id));
+                                        break;
+                                    }
                                 }
                             }
                         }
+                        attempts += 1;
                     }
                 }
             }
@@ -991,7 +1028,7 @@ impl GameState {
         self.generate_biome_content(&biome, level as u8);
         
         // Generate crystal formations for appropriate biomes
-        self.generate_crystal_formations(&biome, &rooms, &mut rng);
+        self.generate_crystal_formations(&biome, &walkable_positions, &mut rng);
         
         // Generate template-based procedural content
         let mut template_context = std::collections::HashMap::new();
@@ -1065,6 +1102,33 @@ impl GameState {
         }
         
         None
+    }
+    
+    /// Find a safe spawn position in a given map (for initial player placement)
+    fn find_safe_spawn_position_in_map(&self, map: &Map) -> (i32, i32) {
+        use crate::game::constants::{MAP_WIDTH, MAP_HEIGHT};
+        
+        // Try center area first
+        for y in (MAP_HEIGHT / 2 - 10)..(MAP_HEIGHT / 2 + 10) {
+            for x in (MAP_WIDTH / 2 - 10)..(MAP_WIDTH / 2 + 10) {
+                let idx = y * MAP_WIDTH + x;
+                if idx < map.tiles.len() && map.tiles[idx].walkable() {
+                    return (x as i32, y as i32);
+                }
+            }
+        }
+        
+        // Fallback: find any walkable tile
+        for (idx, tile) in map.tiles.iter().enumerate() {
+            if tile.walkable() {
+                let x = idx % MAP_WIDTH;
+                let y = idx / MAP_WIDTH;
+                return (x as i32, y as i32);
+            }
+        }
+        
+        // Ultimate fallback
+        (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2)
     }
 
     /// Travel to a world tile with safe spawn (not on wall/enemy/glass)
