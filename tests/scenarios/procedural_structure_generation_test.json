@@ -1,0 +1,14 @@
+{
+  "name": "procedural_structure_generation_test",
+  "seed": 12345,
+  "player": {"x": 50, "y": 50},
+  "quests": ["the_broken_key"],
+  "actions": [
+    {"turn": 0, "action": {"type": "travel_to_tile", "x": 50, "y": 50}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "structure_generated", "expected": true}},
+    {"at_end": true, "check": {"type": "quest_item_present", "item": "broken_saint_key"}},
+    {"at_end": true, "check": {"type": "structure_accessible", "from_entrance": true}}
+  ]
+}

@@ -1,3 +1,4 @@
+pub mod structures;
 pub mod pipeline;
 pub mod weighted_table;
 pub mod templates;
@@ -34,4 +35,5 @@ pub use spawn::*;
 pub use spatial::*;
 pub use loot::*;
 pub use story::*;
+pub use structures::*;
 pub use narrative_templates::*;

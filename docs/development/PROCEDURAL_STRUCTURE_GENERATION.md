@@ -58,178 +58,464 @@ Based on industry research, the following algorithms are proven effective for di
 
 ---
 
-## System Architecture
+## Composite Procedural Generation Architecture
 
-### Core Components
+### Integration with Existing Systems
 
-```
-ProceduralStructureSystem
-├── StructureGenerator (trait)
-│   ├── DungeonGenerator
-│   ├── TownGenerator  
-│   ├── ShrineGenerator
-│   └── RuinsGenerator
-├── AlgorithmLibrary
-│   ├── BSPAlgorithm
-│   ├── CellularAutomata
-│   ├── WaveFunctionCollapse
-│   ├── RandomWalk
-│   ├── VoronoiDiagram
-│   └── LSystemGrowth
-├── StructureTemplates (data-driven)
-├── ValidationSystem
-└── PostProcessing
-```
-
-### Data Flow
+The new structure generation system integrates with existing procedural generation as a **layered composite system**:
 
 ```
-1. Structure Request (type, size, theme, constraints)
-   ↓
-2. Load Template & Configuration
-   ↓
-3. Select Appropriate Generator
-   ↓
-4. Apply Primary Algorithm
-   ↓
-5. Apply Secondary Algorithms (refinement)
-   ↓
-6. Validate Constraints (connectivity, accessibility)
-   ↓
-7. Post-Process (theming, decay, population)
-   ↓
-8. Return Generated Structure
+Composite Procedural Generation Pipeline
+├── Layer 1: World Generation (existing)
+│   ├── WorldGenerator - POI placement and biome assignment
+│   └── BiomeSystem - Environmental content generation
+├── Layer 2: Tile Foundation (existing)
+│   ├── TileGenerator - Base terrain using Perlin noise
+│   ├── ConnectivitySystem - Glass Seam Bridging Algorithm
+│   └── ConstraintSystem - Validation and accessibility
+├── Layer 3: Structure Generation (NEW)
+│   ├── StructureGenerator (trait)
+│   │   ├── DungeonGenerator (BSP + Cellular Automata)
+│   │   ├── TownGenerator (Voronoi + WFC)
+│   │   ├── ShrineGenerator (Templates + L-Systems)
+│   │   └── RuinsGenerator (Decay simulation)
+│   └── AlgorithmLibrary
+│       ├── BSPAlgorithm
+│       ├── CellularAutomata
+│       ├── WaveFunctionCollapse
+│       ├── VoronoiDiagram
+│       └── LSystemGrowth
+├── Layer 4: Content Population (existing + enhanced)
+│   ├── SpawnSystem - Entity placement within structures
+│   ├── LootGeneration - Item placement with structure context
+│   ├── MicroStructures - Small decorative elements
+│   └── QuestConstraintSystem - Quest-specific requirements
+├── Layer 5: Narrative Integration (existing)
+│   ├── NarrativeIntegration - Story fragment placement
+│   ├── EventSystem - Dynamic events within structures
+│   └── Grammar - Procedural descriptions
+└── Layer 6: Post-Processing (existing + enhanced)
+    ├── StormSystem - Glass storm modifications
+    ├── ValidationSystem - Final connectivity and accessibility
+    └── MetadataSystem - Structure information storage
 ```
+
+### Layered Generation Flow
+
+```
+1. World Layer: Determine POI type and biome context
+   ↓
+2. Tile Foundation: Generate base terrain + ensure connectivity
+   ↓
+3. Structure Generation: Create major structures based on POI type
+   ↓ (Glass Seam Bridging ensures structure connectivity)
+4. Content Population: Place entities, items, and microstructures
+   ↓
+5. Narrative Integration: Add story elements and dynamic events
+   ↓
+6. Post-Processing: Apply environmental effects and final validation
+```
+
+### Enhanced Integration Points
+
+**Glass Seam Bridging Algorithm Integration:**
+- **Structure Connectivity**: Ensures all rooms within generated structures are reachable
+- **Multi-Structure Connectivity**: Connects separate structures within the same tile
+- **Terrain Integration**: Bridges structures to natural terrain features
+- **Quest Accessibility**: Guarantees quest objectives are reachable from structure entrances
+
+**Existing System Enhancements:**
+
+1. **TileGenerator Integration**
+   ```rust
+   impl TileGenerator {
+       pub fn generate_with_structures(&mut self, poi_type: POIType, biome: &str) -> Map {
+           // 1. Generate base terrain (existing)
+           let mut map = self.generate_base_terrain(biome);
+           
+           // 2. Generate major structures (NEW)
+           if let Some(structure) = self.generate_poi_structure(poi_type, biome) {
+               self.integrate_structure(&mut map, structure);
+           }
+           
+           // 3. Apply Glass Seam Bridging (existing, enhanced)
+           self.connectivity_system.ensure_structure_connectivity(&mut map);
+           
+           // 4. Place microstructures (existing)
+           self.place_microstructures(&mut map);
+           
+           map
+       }
+   }
+   ```
+
+2. **Quest Constraint System Enhancement**
+   ```rust
+   impl QuestConstraintSystem {
+       pub fn generate_quest_structure(&self, quest_id: &str) -> Option<Structure> {
+           let constraints = self.get_structure_constraints(quest_id)?;
+           
+           // Select appropriate generator based on quest requirements
+           let generator = match constraints.structure_type {
+               StructureType::Dungeon => &self.dungeon_generator,
+               StructureType::Town => &self.town_generator,
+               StructureType::Shrine => &self.shrine_generator,
+               StructureType::Ruins => &self.ruins_generator,
+           };
+           
+           // Generate with quest-specific parameters
+           let structure = generator.generate(&constraints.to_params(), &mut self.rng)?;
+           
+           // Validate quest requirements are met
+           self.validate_quest_requirements(&structure, &constraints)?;
+           
+           Some(structure)
+       }
+   }
+   ```
+
+3. **Spawn System Integration**
+   ```rust
+   impl SpawnSystem {
+       pub fn populate_structure(&mut self, structure: &Structure, biome: &str) {
+           // Use structure context for enhanced spawning
+           for room in &structure.rooms {
+               let spawn_context = SpawnContext {
+                   room_type: room.room_type.clone(),
+                   structure_type: structure.structure_type,
+                   biome: biome.to_string(),
+                   depth_level: room.depth_from_entrance,
+               };
+               
+               self.spawn_entities_in_room(room, &spawn_context);
+           }
+       }
+   }
+   ```
+
+### Composite Generation Phases
+
+**Phase 1: Foundation (Existing Systems)**
+- World generation determines POI placement and biome context
+- Base tile generation creates natural terrain using Perlin noise
+- Glass Seam Bridging ensures basic terrain connectivity
+
+**Phase 2: Structure Generation (NEW)**
+- POI-specific structure generators create major architectural features
+- Algorithms selected based on structure type and biome context
+- Glass Seam Bridging extended to ensure structure internal connectivity
+
+**Phase 3: Integration (Enhanced Existing)**
+- Structures integrated with natural terrain seamlessly
+- Microstructures placed to complement major structures
+- Spawn system uses structure context for appropriate entity placement
+
+**Phase 4: Content & Narrative (Existing + Enhanced)**
+- Quest constraints ensure required items/NPCs are placed correctly
+- Narrative fragments placed with structure context awareness
+- Dynamic events configured based on structure type and contents
+
+**Phase 5: Environmental Effects (Existing)**
+- Storm system can modify structures over time
+- Biome effects applied to structure materials and decorations
+- Final validation ensures all systems work together correctly
 
 ---
 
-## Implementation Plan
+## Refined Implementation Plan
 
-### Phase 1: Foundation (Week 1-2)
+### Phase 1: Foundation Integration (Week 1)
 
-**1.1 Core Trait System**
+**1.1 Structure Generation Trait System**
 ```rust
 // src/game/generation/structures/mod.rs
 pub trait StructureGenerator {
     fn generate(&self, params: &StructureParams, rng: &mut ChaCha8Rng) -> Structure;
-    fn validate(&self, structure: &Structure) -> ValidationResult;
-    fn get_supported_types(&self) -> Vec<StructureType>;
+    fn get_supported_poi_types(&self) -> Vec<POIType>;
+    fn estimate_generation_time(&self, params: &StructureParams) -> Duration;
 }
 
-pub struct StructureParams {
+pub struct Structure {
     pub structure_type: StructureType,
-    pub size: (u32, u32),
-    pub theme: String,
-    pub constraints: Vec<Constraint>,
-    pub biome: String,
-    pub difficulty_level: u32,
+    pub bounds: Rectangle,
+    pub rooms: Vec<Room>,
+    pub corridors: Vec<Corridor>,
+    pub features: Vec<StructureFeature>,
+    pub spawn_points: Vec<SpawnPoint>,
+    pub metadata: HashMap<String, String>,
 }
 ```
 
-**1.2 Algorithm Library Foundation**
+**1.2 Integration with TileGenerator**
 ```rust
-// src/game/generation/structures/algorithms/mod.rs
-pub trait Algorithm {
-    fn apply(&self, grid: &mut Grid, params: &AlgorithmParams, rng: &mut ChaCha8Rng);
+// Enhance existing src/game/generation/tile_gen.rs
+impl TileGenerator {
+    pub fn generate_enhanced_tile_with_structures(
+        &mut self, 
+        poi_type: Option<POIType>, 
+        biome: &str,
+        quest_ids: Vec<String>
+    ) -> Map {
+        // 1. Generate base terrain (existing Perlin noise system)
+        let mut map = self.generate_base_terrain(biome);
+        
+        // 2. Generate major structure if POI present (NEW)
+        if let Some(poi) = poi_type {
+            if let Some(structure) = self.generate_poi_structure(poi, biome, &quest_ids) {
+                self.integrate_structure_with_terrain(&mut map, structure);
+            }
+        }
+        
+        // 3. Apply enhanced Glass Seam Bridging (existing + structure connectivity)
+        self.connectivity_system.ensure_full_connectivity(&mut map);
+        
+        // 4. Place microstructures (existing, but avoid structure areas)
+        self.place_microstructures_around_structures(&mut map);
+        
+        map
+    }
 }
-
-pub struct BSPAlgorithm;
-pub struct CellularAutomata;
-pub struct RandomWalk;
-// ... other algorithms
 ```
 
-**1.3 Data Configuration System**
+**1.3 Enhanced Glass Seam Bridging**
+```rust
+// Enhance existing src/game/generation/connectivity.rs
+impl ConnectivitySystem {
+    pub fn ensure_full_connectivity(&mut self, map: &mut Map) {
+        // 1. Existing terrain connectivity
+        self.ensure_terrain_connectivity(map);
+        
+        // 2. NEW: Structure internal connectivity
+        self.ensure_structure_connectivity(map);
+        
+        // 3. NEW: Structure-to-terrain connectivity
+        self.ensure_structure_terrain_connectivity(map);
+    }
+    
+    fn ensure_structure_connectivity(&mut self, map: &mut Map) {
+        for structure in &map.structures {
+            // Apply Glass Seam Bridging within each structure
+            self.bridge_structure_rooms(map, structure);
+        }
+    }
+}
+```
+
+### Phase 2: Dungeon Generator Implementation (Week 2)
+
+**2.1 BSP Algorithm Implementation**
+```rust
+// src/game/generation/structures/algorithms/bsp.rs
+pub struct BSPAlgorithm {
+    pub min_room_size: (u32, u32),
+    pub max_room_size: (u32, u32),
+    pub corridor_width: u32,
+}
+
+impl Algorithm for BSPAlgorithm {
+    fn apply(&self, grid: &mut Grid, params: &AlgorithmParams, rng: &mut ChaCha8Rng) {
+        let root = BSPNode::new(grid.bounds());
+        self.partition_recursive(&root, params, rng);
+        self.place_rooms(&root, grid, rng);
+        self.connect_rooms(&root, grid);
+    }
+}
+```
+
+**2.2 Dungeon Generator**
+```rust
+// src/game/generation/structures/dungeon_generator.rs
+pub struct DungeonGenerator {
+    bsp_algorithm: BSPAlgorithm,
+    cellular_automata: CellularAutomata,
+}
+
+impl StructureGenerator for DungeonGenerator {
+    fn generate(&self, params: &StructureParams, rng: &mut ChaCha8Rng) -> Structure {
+        let mut grid = Grid::new(params.size);
+        
+        // 1. Apply BSP for room layout
+        self.bsp_algorithm.apply(&mut grid, &params.to_algorithm_params(), rng);
+        
+        // 2. Apply Cellular Automata for organic walls
+        if params.organic_walls {
+            self.cellular_automata.apply(&mut grid, &params.to_ca_params(), rng);
+        }
+        
+        // 3. Convert grid to Structure
+        self.grid_to_structure(grid, params)
+    }
+}
+```
+
+**2.3 Replace Existing Vitrified Library Ruins**
+```rust
+// Update src/game/generation/tile_gen.rs
+impl TileGenerator {
+    pub fn place_vitrified_library_ruins(&mut self, map: &mut Map, quest_ids: &[String]) {
+        // Replace hardcoded structure with procedural generation
+        let params = StructureParams {
+            structure_type: StructureType::Ruins,
+            size: (25, 20),
+            theme: "vitrified_library".to_string(),
+            quest_requirements: quest_ids.to_vec(),
+            biome_context: "ruins".to_string(),
+        };
+        
+        let generator = RuinsGenerator::new();
+        if let Some(structure) = generator.generate(&params, &mut self.rng) {
+            self.integrate_structure_with_terrain(map, structure);
+        }
+    }
+}
+```
+
+### Phase 3: DES Testing Framework (Week 2)
+
+**3.1 Structure Generation Tests**
 ```json
-// data/structure_templates.json
+// tests/scenarios/structure_generation_basic.json
 {
-  "dungeon_templates": {
-    "glass_cavern": {
-      "size_range": {"min": [40, 30], "max": [80, 60]},
-      "room_count_range": [5, 12],
+  "name": "dungeon_generation_basic",
+  "seed": 12345,
+  "map_setup": {
+    "poi_type": "dungeon",
+    "biome": "ruins",
+    "size": [40, 30]
+  },
+  "actions": [
+    {"turn": 0, "action": {"type": "generate_structure", "structure_type": "dungeon"}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "structure_connectivity", "expected": true}},
+    {"at_end": true, "check": {"type": "room_count", "min": 3, "max": 8}},
+    {"at_end": true, "check": {"type": "entrance_exists", "expected": true}},
+    {"at_end": true, "check": {"type": "quest_item_reachable", "item": "broken_saint_key"}}
+  ]
+}
+```
+
+**3.2 Integration Tests**
+```json
+// tests/scenarios/quest_structure_integration.json
+{
+  "name": "broken_key_quest_structure",
+  "seed": 42,
+  "player": {"x": 50, "y": 50},
+  "quests": ["the_broken_key"],
+  "actions": [
+    {"turn": 0, "action": {"type": "travel_to_tile", "x": 50, "y": 50}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "structure_generated", "structure_type": "ruins"}},
+    {"at_end": true, "check": {"type": "quest_item_present", "item": "broken_saint_key"}},
+    {"at_end": true, "check": {"type": "structure_accessible", "from_entrance": true}}
+  ]
+}
+```
+
+### Phase 4: Data-Driven Configuration (Week 3)
+
+**4.1 Structure Templates**
+```json
+// data/structure_generation.json
+{
+  "generators": {
+    "dungeon": {
+      "class": "DungeonGenerator",
       "algorithms": [
-        {"type": "BSP", "weight": 0.7, "params": {"min_room_size": [6, 6]}},
-        {"type": "CellularAutomata", "weight": 0.3, "params": {"iterations": 5}}
-      ],
-      "themes": ["glass", "crystal", "ancient"],
-      "required_features": ["entrance", "exit", "treasure_room"]
+        {
+          "name": "BSP",
+          "weight": 0.7,
+          "params": {
+            "min_room_size": [4, 4],
+            "max_room_size": [12, 8],
+            "corridor_width": 1,
+            "max_depth": 5
+          }
+        },
+        {
+          "name": "CellularAutomata",
+          "weight": 0.3,
+          "params": {
+            "iterations": 3,
+            "birth_limit": 4,
+            "death_limit": 3
+          }
+        }
+      ]
+    }
+  },
+  
+  "poi_mappings": {
+    "dungeon": "dungeon",
+    "town": "town",
+    "shrine": "shrine", 
+    "landmark": "ruins"
+  },
+  
+  "biome_modifiers": {
+    "ruins": {
+      "material_substitutions": {
+        "stone_wall": "cracked_stone_wall",
+        "wooden_door": "broken_door"
+      },
+      "decay_factor": 0.3
     }
   }
 }
 ```
 
-### Phase 2: Dungeon Generator (Week 3-4)
+### Phase 5: Performance & Integration (Week 4)
 
-**2.1 BSP Implementation**
-- Recursive space partitioning
-- Room placement within partitions
-- Corridor generation between rooms
-- Connectivity validation
+**5.1 Lazy Structure Generation**
+```rust
+// src/game/generation/structures/lazy_generator.rs
+pub struct LazyStructureGenerator {
+    generators: HashMap<StructureType, Box<dyn StructureGenerator>>,
+    cache: LRUCache<StructureKey, Structure>,
+}
 
-**2.2 Cellular Automata Integration**
-- Wall smoothing and organic shapes
-- Cave-like chamber generation
-- Natural corridor widening
+impl LazyStructureGenerator {
+    pub fn generate_or_cache(&mut self, params: &StructureParams) -> Option<Structure> {
+        let key = StructureKey::from_params(params);
+        
+        if let Some(cached) = self.cache.get(&key) {
+            return Some(cached.clone());
+        }
+        
+        let generator = self.generators.get(&params.structure_type)?;
+        let structure = generator.generate(params, &mut self.rng)?;
+        
+        self.cache.put(key, structure.clone());
+        Some(structure)
+    }
+}
+```
 
-**2.3 Dungeon-Specific Features**
-- Entrance/exit placement
-- Treasure room generation
-- Trap and secret area placement
-- Enemy spawn point distribution
-
-### Phase 3: Town Generator (Week 5-6)
-
-**3.1 District Generation**
-- Voronoi diagram for district boundaries
-- Road network using pathfinding algorithms
-- Central plaza/market placement
-
-**3.2 Building Placement**
-- Wave Function Collapse for building types
-- Zoning rules (residential, commercial, industrial)
-- Building size and style variation
-
-**3.3 Town-Specific Features**
-- Wall and gate placement
-- Well and resource building placement
-- NPC house assignment
-- Trade route connections
-
-### Phase 4: Shrine/Monument Generator (Week 7)
-
-**4.1 Template-Based Generation**
-- Symmetrical layouts for formal structures
-- Sacred geometry patterns
-- Decorative element placement
-
-**4.2 L-System Integration**
-- Organic decorative growth
-- Pillar and arch generation
-- Natural integration with landscape
-
-### Phase 5: Ruins Generator (Week 8)
-
-**5.1 Decay Simulation**
-- Generate complete structure first
-- Apply cellular automata for erosion
-- Structural collapse simulation
-
-**5.2 Archaeological Features**
-- Buried sections and excavation sites
-- Artifact scatter patterns
-- Overgrowth and reclamation
-
-### Phase 6: Integration & Polish (Week 9-10)
-
-**6.1 Quest Integration**
-- Structure generation based on quest requirements
-- Guaranteed item and NPC placement
-- Accessibility validation
-
-**6.2 Performance Optimization**
-- Caching of generated structures
-- Lazy loading for large structures
-- Memory management
+**5.2 Integration with Existing Systems**
+```rust
+// Update src/game/state.rs travel_to_tile method
+impl GameState {
+    pub fn travel_to_tile(&mut self, x: i32, y: i32) {
+        // ... existing code ...
+        
+        // Enhanced structure generation
+        let quest_ids = self.get_quest_ids_for_location(x, y);
+        let poi_type = self.world_map.get_poi_at(x, y);
+        let biome = self.world_map.get_biome_at(x, y);
+        
+        // Generate map with integrated structure system
+        self.map = self.tile_generator.generate_enhanced_tile_with_structures(
+            poi_type, 
+            &biome, 
+            quest_ids
+        );
+        
+        // ... rest of existing code ...
+    }
+}
+```
 
 ---
 

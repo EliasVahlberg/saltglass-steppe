@@ -767,76 +767,148 @@ impl TileGenerator {
         }
     }
     
-    /// Place the large vitrified library ruins structure
-    fn place_vitrified_library_ruins(&self, map: &mut Map, _rng: &mut ChaCha8Rng) {
+    /// Place the large vitrified library ruins structure using procedural generation
+    fn place_vitrified_library_ruins(&self, map: &mut Map, rng: &mut ChaCha8Rng) {
+        use crate::game::generation::structures::{RuinsGenerator, StructureGenerator, StructureParams, StructureType};
+        
+        let params = StructureParams {
+            structure_type: StructureType::Ruins,
+            size: (25, 20),
+            theme: "vitrified_library".to_string(),
+            quest_requirements: vec!["the_broken_key".to_string()],
+            biome_context: "ruins".to_string(),
+            organic_walls: false,
+        };
+        
+        let generator = RuinsGenerator::new();
+        if let Some(structure) = generator.generate(&params, rng) {
+            self.integrate_structure_with_terrain(map, &structure);
+        }
+    }
+    
+    /// Integrate a generated structure with the existing terrain
+    fn integrate_structure_with_terrain(&self, map: &mut Map, structure: &crate::game::generation::structures::Structure) {
         use crate::game::constants::{MAP_WIDTH, MAP_HEIGHT};
         use crate::game::map::Tile;
         
-        // Clear a large area in the center for the ruins (50% coverage)
-        let center_x = MAP_WIDTH as i32 / 2;
-        let center_y = MAP_HEIGHT as i32 / 2;
-        let structure_width = 25;
-        let structure_height = 20;
+        // Calculate structure placement (centered in map)
+        let start_x = (MAP_WIDTH as u32 - structure.bounds.width) / 2;
+        let start_y = (MAP_HEIGHT as u32 - structure.bounds.height) / 2;
         
-        let start_x = center_x - structure_width / 2;
-        let start_y = center_y - structure_height / 2;
-        
-        // Define the vitrified library ruins structure
-        let structure_tiles = vec![
-            // Outer walls
-            (2, 2, "wall"), (3, 2, "wall"), (4, 2, "wall"), (5, 2, "wall"), (6, 2, "wall"), (7, 2, "wall"), (8, 2, "wall"), (9, 2, "wall"), (10, 2, "wall"), (11, 2, "wall"), (12, 2, "wall"), (13, 2, "wall"), (14, 2, "wall"), (15, 2, "wall"), (16, 2, "wall"), (17, 2, "wall"), (18, 2, "wall"), (19, 2, "wall"), (20, 2, "wall"), (21, 2, "wall"), (22, 2, "wall"),
-            // First room
-            (2, 3, "wall"), (3, 3, "floor"), (4, 3, "floor"), (5, 3, "floor"), (6, 3, "floor"), (7, 3, "floor"), (8, 3, "wall"), (9, 3, "floor"), (10, 3, "floor"), (11, 3, "floor"), (12, 3, "floor"), (13, 3, "floor"), (14, 3, "wall"), (15, 3, "floor"), (16, 3, "floor"), (17, 3, "floor"), (18, 3, "floor"), (19, 3, "floor"), (20, 3, "floor"), (21, 3, "floor"), (22, 3, "wall"),
-            (2, 4, "wall"), (3, 4, "floor"), (4, 4, "floor"), (5, 4, "floor"), (6, 4, "floor"), (7, 4, "floor"), (8, 4, "wall"), (9, 4, "floor"), (10, 4, "floor"), (11, 4, "floor"), (12, 4, "floor"), (13, 4, "floor"), (14, 4, "wall"), (15, 4, "floor"), (16, 4, "floor"), (17, 4, "floor"), (18, 4, "floor"), (19, 4, "floor"), (20, 4, "floor"), (21, 4, "floor"), (22, 4, "wall"),
-            (2, 5, "wall"), (3, 5, "floor"), (4, 5, "floor"), (5, 5, "floor"), (6, 5, "floor"), (7, 5, "floor"), (8, 5, "wall"), (9, 5, "floor"), (10, 5, "floor"), (11, 5, "floor"), (12, 5, "floor"), (13, 5, "floor"), (14, 5, "wall"), (15, 5, "floor"), (16, 5, "floor"), (17, 5, "floor"), (18, 5, "floor"), (19, 5, "floor"), (20, 5, "floor"), (21, 5, "floor"), (22, 5, "wall"),
-            // Central corridor
-            (2, 6, "wall"), (3, 6, "floor"), (4, 6, "floor"), (5, 6, "floor"), (6, 6, "floor"), (7, 6, "floor"), (8, 6, "wall"), (9, 6, "wall"), (10, 6, "wall"), (11, 6, "wall"), (12, 6, "wall"), (13, 6, "wall"), (14, 6, "wall"), (15, 6, "floor"), (16, 6, "floor"), (17, 6, "floor"), (18, 6, "floor"), (19, 6, "floor"), (20, 6, "floor"), (21, 6, "floor"), (22, 6, "wall"),
-            (2, 7, "wall"), (3, 7, "floor"), (4, 7, "floor"), (5, 7, "floor"), (6, 7, "floor"), (7, 7, "floor"), (8, 7, "wall"), (15, 7, "floor"), (16, 7, "floor"), (17, 7, "floor"), (18, 7, "floor"), (19, 7, "floor"), (20, 7, "floor"), (21, 7, "floor"), (22, 7, "wall"),
-            (2, 8, "wall"), (3, 8, "floor"), (4, 8, "floor"), (5, 8, "floor"), (6, 8, "floor"), (7, 8, "floor"), (8, 8, "wall"), (15, 8, "floor"), (16, 8, "floor"), (17, 8, "floor"), (18, 8, "floor"), (19, 8, "floor"), (20, 8, "floor"), (21, 8, "floor"), (22, 8, "wall"),
-            (2, 9, "wall"), (3, 9, "wall"), (4, 9, "wall"), (5, 9, "wall"), (6, 9, "wall"), (7, 9, "wall"), (8, 9, "wall"), (15, 9, "floor"), (16, 9, "floor"), (17, 9, "floor"), (18, 9, "floor"), (19, 9, "floor"), (20, 9, "floor"), (21, 9, "floor"), (22, 9, "wall"),
-            // Lower section
-            (10, 10, "wall"), (11, 10, "wall"), (12, 10, "wall"), (13, 10, "wall"), (14, 10, "wall"), (15, 10, "wall"), (16, 10, "wall"), (17, 10, "wall"), (18, 10, "wall"), (19, 10, "wall"), (20, 10, "wall"), (21, 10, "wall"), (22, 10, "wall"),
-            (10, 11, "wall"), (11, 11, "floor"), (12, 11, "floor"), (13, 11, "floor"), (14, 11, "floor"), (15, 11, "floor"), (16, 11, "floor"), (17, 11, "floor"), (18, 11, "floor"), (19, 11, "floor"), (20, 11, "floor"), (21, 11, "floor"), (22, 11, "wall"),
-            (10, 12, "wall"), (11, 12, "floor"), (12, 12, "floor"), (13, 12, "floor"), (14, 12, "floor"), (15, 12, "floor"), (16, 12, "floor"), (17, 12, "floor"), (18, 12, "floor"), (19, 12, "floor"), (20, 12, "floor"), (21, 12, "floor"), (22, 12, "wall"),
-            (10, 13, "wall"), (11, 13, "floor"), (12, 13, "floor"), (13, 13, "floor"), (14, 13, "floor"), (15, 13, "floor"), (16, 13, "floor"), (17, 13, "floor"), (18, 13, "floor"), (19, 13, "floor"), (20, 13, "floor"), (21, 13, "floor"), (22, 13, "wall"),
-            (10, 14, "wall"), (11, 14, "floor"), (12, 14, "floor"), (13, 14, "floor"), (14, 14, "floor"), (15, 14, "floor"), (16, 14, "floor"), (17, 14, "floor"), (18, 14, "floor"), (19, 14, "floor"), (20, 14, "floor"), (21, 14, "floor"), (22, 14, "wall"),
-            (10, 15, "wall"), (11, 15, "wall"), (12, 15, "wall"), (13, 15, "wall"), (14, 15, "wall"), (15, 15, "wall"), (16, 15, "wall"), (17, 15, "wall"), (18, 15, "wall"), (19, 15, "wall"), (20, 15, "wall"), (21, 15, "wall"), (22, 15, "wall"),
-        ];
-        
-        // Place the structure tiles
-        for (rel_x, rel_y, tile_type) in structure_tiles {
-            let abs_x = start_x + rel_x;
-            let abs_y = start_y + rel_y;
+        // Place structure rooms
+        for room in &structure.rooms {
+            let room_start_x = start_x + room.bounds.x;
+            let room_start_y = start_y + room.bounds.y;
             
-            if abs_x >= 0 && abs_x < MAP_WIDTH as i32 && abs_y >= 0 && abs_y < MAP_HEIGHT as i32 {
-                let idx = (abs_y * MAP_WIDTH as i32 + abs_x) as usize;
-                if idx < map.tiles.len() {
-                    map.tiles[idx] = match tile_type {
-                        "wall" => Tile::Wall { 
-                            id: "stone_wall".to_string(),
-                            hp: 100,
-                        },
-                        "floor" => Tile::Floor { 
-                            id: "stone_floor".to_string(),
-                        },
-                        _ => Tile::default_floor(),
-                    };
+            // Create room floor
+            for dy in 0..room.bounds.height {
+                for dx in 0..room.bounds.width {
+                    let x = room_start_x + dx;
+                    let y = room_start_y + dy;
+                    
+                    if x < MAP_WIDTH as u32 && y < MAP_HEIGHT as u32 {
+                        let idx = (y * MAP_WIDTH as u32 + x) as usize;
+                        if idx < map.tiles.len() {
+                            map.tiles[idx] = Tile::Floor {
+                                id: "stone_floor".to_string(),
+                            };
+                        }
+                    }
+                }
+            }
+            
+            // Create room walls (perimeter)
+            for dy in 0..=room.bounds.height + 1 {
+                for dx in 0..=room.bounds.width + 1 {
+                    let x = room_start_x + dx;
+                    let y = room_start_y + dy;
+                    
+                    if x < MAP_WIDTH as u32 && y < MAP_HEIGHT as u32 {
+                        let idx = (y * MAP_WIDTH as u32 + x) as usize;
+                        if idx < map.tiles.len() {
+                            // Only place walls on the perimeter
+                            if dx == 0 || dx == room.bounds.width + 1 || dy == 0 || dy == room.bounds.height + 1 {
+                                // Don't overwrite existing floors
+                                if !matches!(map.tiles[idx], Tile::Floor { .. }) {
+                                    map.tiles[idx] = Tile::Wall {
+                                        id: "stone_wall".to_string(),
+                                        hp: 100,
+                                    };
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
         
-        // Store spawn information for later processing
-        let spawns = vec![
-            (start_x + 16, start_y + 8, "item", "broken_saint_key"),
-            (start_x + 5, start_y + 4, "enemy", "glass_wraith"),
-            (start_x + 12, start_y + 5, "enemy", "crystal_guardian"),
-            (start_x + 18, start_y + 7, "enemy", "glass_wraith"),
-            (start_x + 16, start_y + 12, "enemy", "shard_stalker"),
-            (start_x + 20, start_y + 13, "enemy", "glass_wraith"),
-        ];
+        // Create connections between rooms (simple doorways)
+        self.create_room_connections(map, structure, start_x, start_y);
         
+        // Store structure metadata and spawn points
+        for (key, value) in &structure.metadata {
+            map.metadata.insert(key.clone(), value.clone());
+        }
+        
+        // Store spawn points for later processing
+        let spawn_data: Vec<_> = structure.spawn_points.iter().map(|sp| {
+            (start_x + sp.position.0, start_y + sp.position.1, sp.spawn_type.as_str(), sp.entity_id.as_str())
+        }).collect();
         map.metadata.insert("vitrified_library_spawns".to_string(), 
-                           serde_json::to_string(&spawns).unwrap_or_default());
+                           serde_json::to_string(&spawn_data).unwrap_or_default());
+    }
+    
+    /// Create connections between rooms in a structure
+    fn create_room_connections(&self, map: &mut Map, structure: &crate::game::generation::structures::Structure, start_x: u32, start_y: u32) {
+        use crate::game::map::Tile;
+        use crate::game::constants::{MAP_WIDTH, MAP_HEIGHT};
+        
+        // For the vitrified library, create doorways from chambers to main hall
+        if structure.rooms.len() > 1 {
+            let main_hall = &structure.rooms[0]; // First room is main hall
+            
+            for chamber in structure.rooms.iter().skip(1) {
+                // Find closest points between main hall and chamber
+                let hall_center_x = main_hall.bounds.x + main_hall.bounds.width / 2;
+                let hall_center_y = main_hall.bounds.y + main_hall.bounds.height / 2;
+                let chamber_center_x = chamber.bounds.x + chamber.bounds.width / 2;
+                let chamber_center_y = chamber.bounds.y + chamber.bounds.height / 2;
+                
+                // Create a simple L-shaped corridor
+                let corridor_start_x = start_x + chamber_center_x;
+                let corridor_start_y = start_y + chamber_center_y;
+                let corridor_end_x = start_x + hall_center_x;
+                let corridor_end_y = start_y + hall_center_y;
+                
+                // Horizontal segment
+                let min_x = corridor_start_x.min(corridor_end_x);
+                let max_x = corridor_start_x.max(corridor_end_x);
+                for x in min_x..=max_x {
+                    if x < MAP_WIDTH as u32 && corridor_start_y < MAP_HEIGHT as u32 {
+                        let idx = (corridor_start_y * MAP_WIDTH as u32 + x) as usize;
+                        if idx < map.tiles.len() {
+                            map.tiles[idx] = Tile::Floor {
+                                id: "stone_floor".to_string(),
+                            };
+                        }
+                    }
+                }
+                
+                // Vertical segment
+                let min_y = corridor_start_y.min(corridor_end_y);
+                let max_y = corridor_start_y.max(corridor_end_y);
+                for y in min_y..=max_y {
+                    if corridor_end_x < MAP_WIDTH as u32 && y < MAP_HEIGHT as u32 {
+                        let idx = (y * MAP_WIDTH as u32 + corridor_end_x) as usize;
+                        if idx < map.tiles.len() {
+                            map.tiles[idx] = Tile::Floor {
+                                id: "stone_floor".to_string(),
+                            };
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
