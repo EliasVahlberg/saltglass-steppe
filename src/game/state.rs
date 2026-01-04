@@ -831,6 +831,32 @@ impl GameState {
         self.rebuild_spatial_index_internal();
     }
 
+    /// Get quest IDs that have objectives at the given world coordinates
+    fn get_quest_ids_for_location(&self, world_x: usize, world_y: usize) -> Vec<String> {
+        let mut quest_ids = Vec::new();
+        
+        for quest in &self.quest_log.active {
+            if let Some(def) = quest.def() {
+                for (i, quest_obj) in def.objectives.iter().enumerate() {
+                    // Only include if objective is not completed
+                    if !quest.objectives[i].completed {
+                        match &quest_obj.objective_type {
+                            crate::game::quest::ObjectiveType::Reach { x, y } => {
+                                if *x as usize == world_x && *y as usize == world_y {
+                                    quest_ids.push(quest.quest_id.clone());
+                                    break; // Don't add the same quest multiple times
+                                }
+                            }
+                            _ => {} // Other objective types don't have specific locations
+                        }
+                    }
+                }
+            }
+        }
+        
+        quest_ids
+    }
+
     /// Travel to a new world tile (lazy generation)
     pub fn travel_to_tile(&mut self, new_wx: usize, new_wy: usize) {
         let world_map = match &self.world_map {
@@ -842,60 +868,98 @@ impl GameState {
         let tile_seed = world_map.tile_seed(new_wx, new_wy);
         let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
         
-        // Generate new tile map
-        let (map, rooms) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
+        // Get quest IDs for this location
+        let quest_ids = self.get_quest_ids_for_location(new_wx, new_wy);
+        
+        // Generate new tile map with quest constraints
+        let (map, rooms) = if quest_ids.is_empty() {
+            Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi)
+        } else {
+            Map::generate_from_world_with_poi_and_quests(&mut rng, biome, terrain, elevation, poi, &quest_ids)
+        };
         let (px, py) = rooms[0];
         
         // Spawn enemies based on POI
         let table = get_biome_spawn_table(&biome);
         let mut enemies = Vec::new();
-        let enemy_count = match poi {
-            super::world_map::POI::Town => 0,
-            super::world_map::POI::Shrine => 1,
-            _ => 6.min(rooms.len().saturating_sub(2)), // Cap at 6 enemies
-        };
         
-        let safe_distance = 15; // Minimum distance from player spawn
-        let safe_rooms: Vec<_> = rooms.iter()
-            .filter(|&&(rx, ry)| {
-                let dx = (rx - px).abs();
-                let dy = (ry - py).abs();
-                dx >= safe_distance || dy >= safe_distance
-            })
-            .cloned()
-            .collect();
+        // Check for quest structure spawns first
+        if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
+            if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data) {
+                for (x, y, spawn_type, id) in spawns {
+                    if spawn_type == "enemy" {
+                        enemies.push(Enemy::new(x, y, &id));
+                    }
+                }
+            }
+        }
+        
+        // Add regular enemies if not a quest structure location
+        if enemies.is_empty() {
+            let enemy_count = match poi {
+                super::world_map::POI::Town => 0,
+                super::world_map::POI::Shrine => 1,
+                _ => 6.min(rooms.len().saturating_sub(2)), // Cap at 6 enemies
+            };
             
-        // Use spatial distribution to spread out enemy spawns
-        let distributed_positions = distribute_points_grid(
-            &safe_rooms, 
-            enemy_count, 
-            20, // Minimum distance between enemies
-            &mut rng
-        );
-            
-        for (rx, ry) in distributed_positions {
-            if let Some(id) = weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false) {
-                enemies.push(Enemy::new(rx, ry, id));
+            let safe_distance = 15; // Minimum distance from player spawn
+            let safe_rooms: Vec<_> = rooms.iter()
+                .filter(|&&(rx, ry)| {
+                    let dx = (rx - px).abs();
+                    let dy = (ry - py).abs();
+                    dx >= safe_distance || dy >= safe_distance
+                })
+                .cloned()
+                .collect();
+                
+            // Use spatial distribution to spread out enemy spawns
+            let distributed_positions = distribute_points_grid(
+                &safe_rooms, 
+                enemy_count, 
+                20, // Minimum distance between enemies
+                &mut rng
+            );
+                
+            for (rx, ry) in distributed_positions {
+                if let Some(id) = weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false) {
+                    enemies.push(Enemy::new(rx, ry, id));
+                }
             }
         }
         
         // Spawn items
         let mut items = Vec::new();
         let mut used_positions = HashSet::new();
-        for spawn in &table.items {
-            for _ in 0..spawn.weight {
-                if let Some(&(rx, ry)) = rooms.get(rng.gen_range(1..rooms.len())) {
-                    let ix = rx + rng.gen_range(-1..=1);
-                    let iy = ry + rng.gen_range(-1..=1);
-                    if !used_positions.contains(&(ix, iy)) {
-                        used_positions.insert((ix, iy));
-                        // Check tier eligibility for travel items
-                        if let Some(item_def) = super::item::get_item_def(&spawn.id) {
-                            let tier_threshold = match level {
-                                1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
-                            };
-                            if item_def.tier <= tier_threshold {
-                                items.push(Item::new(ix, iy, &spawn.id));
+        
+        // Check for quest structure item spawns first
+        if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
+            if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data) {
+                for (x, y, spawn_type, id) in spawns {
+                    if spawn_type == "item" {
+                        items.push(Item::new(x, y, &id));
+                        used_positions.insert((x, y));
+                    }
+                }
+            }
+        }
+        
+        // Add regular items if not many quest items
+        if items.len() < 3 {
+            for spawn in &table.items {
+                for _ in 0..spawn.weight {
+                    if let Some(&(rx, ry)) = rooms.get(rng.gen_range(1..rooms.len())) {
+                        let ix = rx + rng.gen_range(-1..=1);
+                        let iy = ry + rng.gen_range(-1..=1);
+                        if !used_positions.contains(&(ix, iy)) {
+                            used_positions.insert((ix, iy));
+                            // Check tier eligibility for travel items
+                            if let Some(item_def) = super::item::get_item_def(&spawn.id) {
+                                let tier_threshold = match level {
+                                    1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
+                                };
+                                if item_def.tier <= tier_threshold {
+                                    items.push(Item::new(ix, iy, &spawn.id));
+                                }
                             }
                         }
                     }

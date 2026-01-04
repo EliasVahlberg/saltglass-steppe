@@ -223,6 +223,8 @@ pub struct Map {
     pub inscriptions: Vec<MapInscription>,
     #[serde(default)]
     pub area_description: Option<String>,
+    #[serde(default)]
+    pub metadata: std::collections::HashMap<String, String>,
 }
 
 static VOID_WALL: Lazy<Tile> = Lazy::new(|| Tile::Wall { id: "void".to_string(), hp: 1000 });
@@ -238,7 +240,7 @@ impl Map {
         Self::generate_from_world_with_poi(rng, biome, terrain, _elevation, super::world_map::POI::None)
     }
 
-    /// Generate a tile map from world context with POI
+    /// Generate a tile map from world context with POI and quest constraints
     pub fn generate_from_world_with_poi(
         rng: &mut ChaCha8Rng,
         biome: Biome,
@@ -246,11 +248,23 @@ impl Map {
         elevation: u8,
         poi: POI,
     ) -> (Self, Vec<(i32, i32)>) {
+        Self::generate_from_world_with_poi_and_quests(rng, biome, terrain, elevation, poi, &[])
+    }
+    
+    /// Generate a tile map with quest constraint validation
+    pub fn generate_from_world_with_poi_and_quests(
+        rng: &mut ChaCha8Rng,
+        biome: Biome,
+        terrain: Terrain,
+        elevation: u8,
+        poi: POI,
+        quest_ids: &[String],
+    ) -> (Self, Vec<(i32, i32)>) {
         use crate::game::generation::TileGenerator;
         
-        // Try to use enhanced generator, fall back to legacy if it fails
+        // Try to use enhanced generator with quest constraints, fall back to legacy if it fails
         if let Ok(generator) = TileGenerator::new() {
-            generator.generate_enhanced_tile(rng, biome, terrain, elevation, poi)
+            generator.generate_enhanced_tile_with_quests(rng, biome, terrain, elevation, poi, quest_ids)
         } else {
             // Fallback to legacy generation
             let seed = rng.next_u32();
@@ -360,6 +374,7 @@ impl Map {
             lights: Vec::new(),
             inscriptions: Vec::new(),
             area_description: None,
+            metadata: std::collections::HashMap::new(),
         };
 
         (map, clearings)
@@ -481,6 +496,7 @@ impl Map {
             lights,
             inscriptions: Vec::new(),
             area_description: None,
+            metadata: std::collections::HashMap::new(),
         }, room_centers)
     }
 
@@ -545,6 +561,7 @@ impl Map {
             lights,
             inscriptions: Vec::new(),
             area_description: None,
+            metadata: std::collections::HashMap::new(),
         }, room_centers)
     }
 

@@ -47,7 +47,7 @@
       "objectives": [
         {
           "id": "investigate_ruins",
-          "description": "Investigate the vitrified library ruins",
+          "description": "Investigate the vitrified library ruins (50, 50)",
           "type": "reach",
           "x": 50,
           "y": 50

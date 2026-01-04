@@ -4,6 +4,7 @@ pub mod templates;
 pub mod grammar;
 pub mod biomes;
 pub mod constraints;
+pub mod quest_constraints;
 pub mod connectivity;
 pub mod events;
 pub mod narrative;

@@ -142,12 +142,34 @@ impl DebugConsole {
             }
         }
         
-        // Entity suggestions (for targeting commands)
-        let entities = ["enemy", "npc", "item", "player"];
-        for entity in &entities {
-            let suggestion = format!("{} {}", self.input, entity);
-            if entity.starts_with(&input_lower) || self.input.contains(' ') {
-                candidates.push(suggestion);
+        // Command-specific suggestions
+        if self.input.contains(' ') {
+            let parts: Vec<&str> = self.input.split_whitespace().collect();
+            if let Some(command) = parts.first() {
+                match *command {
+                    "complete_quest" => {
+                        use crate::game::quest::all_quest_ids;
+                        for quest_id in all_quest_ids() {
+                            let suggestion = format!("complete_quest {}", quest_id);
+                            if parts.len() == 1 || quest_id.contains(&parts[1..].join(" ")) {
+                                candidates.push(suggestion);
+                            }
+                        }
+                    }
+                    "interact" | "examine" => {
+                        // These commands can target any entity type
+                        let entities = ["enemy", "npc", "item", "chest"];
+                        for entity in &entities {
+                            let suggestion = format!("{} {}", command, entity);
+                            if parts.len() == 1 || entity.contains(&parts[1..].join(" ")) {
+                                candidates.push(suggestion);
+                            }
+                        }
+                    }
+                    _ => {
+                        // No specific suggestions for other commands
+                    }
+                }
             }
         }
         
