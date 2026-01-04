@@ -152,7 +152,7 @@ mod tests {
         let item_y = state.player_y;
         // Ensure tile is walkable
         let idx = state.map.idx(item_x, item_y);
-        state.map.tiles[idx] = Tile::Floor;
+        state.map.tiles[idx] = Tile::Floor { id: "test_floor".to_string() };
         // Clear existing items and add test item
         state.items.clear();
         state.items.push(Item::new(item_x, item_y, "brine_vial"));

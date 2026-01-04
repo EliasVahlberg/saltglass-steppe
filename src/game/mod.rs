@@ -18,6 +18,7 @@ pub mod event;
 pub mod fov;
 pub mod generation;
 pub mod inspect;
+pub mod interactable;
 pub mod item;
 pub mod light;
 pub mod light_defs;
@@ -42,6 +43,9 @@ pub mod trading;
 pub mod tutorial;
 pub mod void_energy;
 pub mod world_map;
+
+#[cfg(test)]
+pub mod tests;
 
 pub use action::{action_cost, default_enemy_ap, default_player_ap};
 pub use adaptation::Adaptation;
@@ -71,6 +75,7 @@ pub use status::{is_stunned, slow_penalty, StatusEffect, StatusType};
 pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectContext, VisualEffect};
 pub use enemy::{all_enemy_ids, get_enemy_def, Enemy, EnemyDef};
 pub use entity::{Entity, EntityType};
+pub use interactable::{get_interactable_def, Interactable, InteractableDef};
 pub use item::{all_item_ids, get_item_def, Item, ItemDef};
 
 pub use map::{compute_fov, Map, Tile};

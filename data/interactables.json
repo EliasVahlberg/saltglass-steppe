@@ -1,0 +1,40 @@
+{
+  "interactables": [
+    {
+      "id": "lever",
+      "name": "Lever",
+      "glyph": "L",
+      "description": "A mechanical lever that can be pulled.",
+      "interaction_type": "toggle",
+      "states": ["off", "on"],
+      "messages": {
+        "interact": "You pull the lever.",
+        "examine": "A sturdy metal lever. It appears to be {state}."
+      }
+    },
+    {
+      "id": "button",
+      "name": "Button",
+      "glyph": "B",
+      "description": "A button that can be pressed.",
+      "interaction_type": "press",
+      "states": ["unpressed", "pressed"],
+      "messages": {
+        "interact": "You press the button.",
+        "examine": "A circular button. It is currently {state}."
+      }
+    },
+    {
+      "id": "switch",
+      "name": "Switch",
+      "glyph": "S",
+      "description": "An electrical switch.",
+      "interaction_type": "toggle",
+      "states": ["off", "on"],
+      "messages": {
+        "interact": "You flip the switch.",
+        "examine": "An electrical switch. It is currently {state}."
+      }
+    }
+  ]
+}
