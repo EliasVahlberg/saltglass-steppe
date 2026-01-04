@@ -6,6 +6,23 @@ use ratatui::{
 };
 
 use crate::game::world_map::{Biome, POI, Terrain, WorldMap, WORLD_WIDTH, WORLD_HEIGHT};
+use crate::game::GameState;
+
+/// Check if there's an active quest objective at the given world coordinates
+fn has_quest_objective_at(state: &GameState, world_x: usize, world_y: usize) -> bool {
+    state.quest_log.active.iter().any(|quest| {
+        quest.objectives.iter().any(|obj| {
+            !obj.completed && 
+            quest.def().map_or(false, |def| {
+                def.objectives.iter().any(|quest_obj| {
+                    quest_obj.id == obj.objective_id &&
+                    matches!(quest_obj.objective_type, crate::game::quest::ObjectiveType::Reach { x, y } 
+                        if x as usize == world_x && y as usize == world_y)
+                })
+            })
+        })
+    })
+}
 
 /// World map view state
 #[derive(Default)]
@@ -83,6 +100,7 @@ pub fn render_world_map(
     player_wx: usize,
     player_wy: usize,
     view: &WorldMapView,
+    state: &GameState,
 ) {
     let block = Block::default()
         .title(" World Map [M close, arrows move, Enter travel, C center] ")
@@ -113,6 +131,18 @@ pub fn render_world_map(
                 ('@', Color::White)
             } else if world_x == view.cursor_x && world_y == view.cursor_y {
                 ('X', Color::LightYellow)
+            } else if has_quest_objective_at(state, world_x, world_y) {
+                // Highlight tiles with quest objectives
+                let (base_ch, _) = if let Some((poi_ch, _)) = poi_glyph(poi) {
+                    (poi_ch, Color::White)
+                } else if connected.road {
+                    ('=', Color::Gray)
+                } else if resources.water {
+                    ('~', Color::Blue)
+                } else {
+                    (terrain_glyph(terrain), biome_color(biome))
+                };
+                (base_ch, Color::LightGreen)
             } else if let Some((poi_ch, poi_color)) = poi_glyph(poi) {
                 (poi_ch, poi_color)
             } else if connected.road {
