@@ -12,9 +12,11 @@ use super::{
     adaptation::Adaptation,
     chest::Chest,
     enemy::Enemy,
+    entity::Entity,
     equipment::{EquipSlot, Equipment},
     event::GameEvent,
     fov::FieldOfView,
+    interactable::Interactable,
     item::{get_item_def, Item},
     lighting::{compute_lighting, LightMap, LightSource},
 
@@ -163,6 +165,7 @@ pub struct GameState {
     pub npcs: Vec<Npc>,
     pub items: Vec<Item>,
     pub chests: Vec<Chest>,
+    pub interactables: Vec<Interactable>,
     pub inventory: Vec<String>,
     pub visible: HashSet<usize>, pub revealed: HashSet<usize>,
     #[serde(skip)]
@@ -193,6 +196,8 @@ pub struct GameState {
     pub item_positions: HashMap<(i32, i32), Vec<usize>>,
     #[serde(skip)]
     pub chest_positions: HashMap<(i32, i32), usize>,
+    #[serde(skip)]
+    pub interactable_positions: HashMap<(i32, i32), usize>,
     #[serde(skip)]
     spatial_dirty: bool,
     #[serde(skip)]
@@ -418,8 +423,36 @@ impl GameState {
 
         // Spawn NPCs
         let mut npcs = Vec::new();
+        
+        // ALWAYS spawn the dying pilgrim on the first tile for main questline
+        // Find a safe position near the player spawn
+        let pilgrim_pos = {
+            let offsets = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)];
+            let mut spawn_pos = (px + 1, py); // Default fallback
+            for &(dx, dy) in &offsets {
+                let test_x = px + dx;
+                let test_y = py + dy;
+                if test_x >= 0 && test_y >= 0 && 
+                   test_x < map.width as i32 && test_y < map.height as i32 {
+                    let test_idx = map.idx(test_x, test_y);
+                    if map.tiles[test_idx].walkable() {
+                        spawn_pos = (test_x, test_y);
+                        break;
+                    }
+                }
+            }
+            spawn_pos
+        };
+        npcs.push(Npc::new(pilgrim_pos.0, pilgrim_pos.1, "dying_pilgrim"));
+        
+        // Spawn other NPCs from spawn table
         let late_room = rooms.len().saturating_sub(2);
         for spawn in &table.npcs {
+            // Skip dying pilgrim since we already spawned it
+            if spawn.id == "dying_pilgrim" {
+                continue;
+            }
+            
             let room_idx = match spawn.room.as_deref() {
                 Some("late") => Some(late_room),
                 Some("last") => Some(rooms.len() - 1),
@@ -445,7 +478,8 @@ impl GameState {
                                test_x < map.width as i32 && test_y < map.height as i32 {
                                 let test_idx = map.idx(test_x, test_y);
                                 if map.tiles[test_idx].walkable() && 
-                                   (test_x != px || test_y != py) { // Don't spawn on player
+                                   (test_x != px || test_y != py) && // Don't spawn on player
+                                   (test_x != pilgrim_pos.0 || test_y != pilgrim_pos.1) { // Don't spawn on pilgrim
                                     spawn_pos = (test_x, test_y);
                                     break;
                                 }
@@ -570,20 +604,31 @@ impl GameState {
             completed_rituals: Vec::new(),
             equipment: Equipment::default(),
             status_effects: Vec::new(),
-            map, enemies, npcs, items, chests, inventory: Vec::new(),
+            map, enemies, npcs, items, chests, interactables: Vec::new(), inventory: Vec::new(),
             visible: visible.clone(), revealed: visible,
             player_fov: FieldOfView::new(super::constants::FOV_RANGE),
             light_map, ambient_light: ambient,
-            messages: vec![GameMessage::new("Welcome to the Saltglass Steppe.", MsgType::System, 0)],
+            messages: vec![
+                GameMessage::new("Welcome to the Saltglass Steppe.", MsgType::System, 0),
+                GameMessage::new("Quest added: The Pilgrim's Last Angle", MsgType::System, 0)
+            ],
             turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
             refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
-            quest_log: QuestLog::default(),
+            quest_log: {
+                let mut quest_log = QuestLog::default();
+                // Always start with the first main quest
+                if let Some(first_quest) = super::quest::ActiveQuest::new("pilgrims_last_angle") {
+                    quest_log.active.push(first_quest);
+                }
+                quest_log
+            },
             triggered_effects: Vec::new(),
             decoys: Vec::new(),
             enemy_positions: HashMap::new(),
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
             chest_positions: HashMap::new(),
+            interactable_positions: HashMap::new(),
             spatial_dirty: true,
             event_queue: Vec::new(),
             hit_flash_positions: Vec::new(),
@@ -774,6 +819,10 @@ impl GameState {
         for (i, chest) in self.chests.iter().enumerate() {
             self.chest_positions.insert((chest.x, chest.y), i);
         }
+        self.interactable_positions.clear();
+        for (i, interactable) in self.interactables.iter().enumerate() {
+            self.interactable_positions.insert((interactable.x, interactable.y), i);
+        }
         self.spatial_dirty = false;
     }
 
@@ -861,6 +910,10 @@ impl GameState {
         self.enemies = enemies;
         self.items = items;
         self.npcs = Vec::new(); // NPCs are tile-specific
+        
+        // Spawn quest-required NPCs if needed
+        self.spawn_quest_required_npcs();
+        
         self.player_x = px;
         self.player_y = py;
         self.update_fov();
@@ -886,6 +939,68 @@ impl GameState {
         self.generate_template_content("encounter", template_context);
         
         self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
+    }
+    
+    /// Spawn NPCs required for active quests
+    fn spawn_quest_required_npcs(&mut self) {
+        // Check all active quests for NPCs that need to be spawned
+        let mut required_npcs = Vec::new();
+        
+        for quest in &self.quest_log.active {
+            if let Some(def) = super::quest::get_quest_def(&quest.quest_id) {
+                for objective in &def.objectives {
+                    match &objective.objective_type {
+                        super::quest::ObjectiveType::TalkTo { npc_id } => {
+                            // Check if this NPC is already spawned
+                            if !self.npcs.iter().any(|npc| npc.id == *npc_id) {
+                                required_npcs.push(npc_id.clone());
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+        
+        // Spawn required NPCs at safe positions
+        for npc_id in required_npcs {
+            let spawn_pos = self.find_safe_spawn_position();
+            if let Some((x, y)) = spawn_pos {
+                self.npcs.push(super::npc::Npc::new(x, y, &npc_id));
+                self.log(format!("A {} appears nearby.", npc_id.replace('_', " ")));
+            }
+        }
+    }
+    
+    /// Find a safe position to spawn an NPC (not on player, walls, or other entities)
+    fn find_safe_spawn_position(&self) -> Option<(i32, i32)> {
+        let offsets = [
+            (1, 0), (-1, 0), (0, 1), (0, -1), 
+            (1, 1), (-1, -1), (1, -1), (-1, 1),
+            (2, 0), (-2, 0), (0, 2), (0, -2)
+        ];
+        
+        for &(dx, dy) in &offsets {
+            let test_x = self.player_x + dx;
+            let test_y = self.player_y + dy;
+            
+            if test_x >= 0 && test_y >= 0 && 
+               test_x < self.map.width as i32 && test_y < self.map.height as i32 {
+                let test_idx = self.map.idx(test_x, test_y);
+                if self.map.tiles[test_idx].walkable() {
+                    // Check if position is free of other entities
+                    let position_free = !self.enemies.iter().any(|e| e.x == test_x && e.y == test_y) &&
+                                       !self.npcs.iter().any(|n| n.x == test_x && n.y == test_y) &&
+                                       !self.items.iter().any(|i| i.x == test_x && i.y == test_y);
+                    
+                    if position_free {
+                        return Some((test_x, test_y));
+                    }
+                }
+            }
+        }
+        
+        None
     }
 
     /// Travel to a world tile with safe spawn (not on wall/enemy/glass)
@@ -1396,6 +1511,9 @@ impl GameState {
         // Check for dynamic events
         self.check_dynamic_events();
         
+        // Notify quests of turn passing (for wait objectives)
+        self.quest_log.on_turn_passed();
+        
         // Process queued events
         self.process_events();
     }
@@ -1757,6 +1875,118 @@ impl GameState {
     pub fn log_typed(&mut self, msg: impl Into<String>, msg_type: MsgType) {
         self.messages.push(GameMessage::new(msg, msg_type, self.turn));
         if self.messages.len() > 5 { self.messages.remove(0); }
+    }
+
+    /// Interact with an object at the given position
+    pub fn interact_at(&mut self, x: i32, y: i32) {
+        self.ensure_spatial_index();
+        
+        // Check for interactables at this position
+        if let Some(&interactable_idx) = self.interactable_positions.get(&(x, y)) {
+            if let Some(interactable) = self.interactables.get_mut(interactable_idx) {
+                let interactable_id = interactable.id.clone();
+                if let Some(message) = interactable.interact() {
+                    self.log(&message);
+                    
+                    // Check quest objectives for interaction
+                    self.quest_log.on_interact(&interactable_id);
+                    
+                    // Mark spatial index as dirty since interactable state changed
+                    self.spatial_dirty = true;
+                    return;
+                }
+            }
+        }
+        
+        // Check for NPCs at this position
+        if let Some(&npc_idx) = self.npc_positions.get(&(x, y)) {
+            if let Some(npc) = self.npcs.get(npc_idx) {
+                let npc_name = npc.name().to_string();
+                let npc_id = npc.id.clone();
+                self.log(&format!("You talk to {}.", npc_name));
+                self.quest_log.on_npc_talked(&npc_id);
+                return;
+            }
+        }
+        
+        // Check for chests at this position
+        if let Some(&chest_idx) = self.chest_positions.get(&(x, y)) {
+            if let Some(chest) = self.chests.get(chest_idx) {
+                let chest_name = chest.name().to_string();
+                self.log(&format!("You open the {}.", chest_name));
+                return;
+            }
+        }
+        
+        self.log("There's nothing to interact with here.");
+    }
+
+    /// Examine an object at the given position
+    pub fn examine_at(&mut self, x: i32, y: i32) {
+        self.ensure_spatial_index();
+        
+        // Check for interactables at this position
+        if let Some(&interactable_idx) = self.interactable_positions.get(&(x, y)) {
+            if let Some(interactable) = self.interactables.get(interactable_idx) {
+                let interactable_id = interactable.id.clone();
+                if let Some(message) = interactable.examine() {
+                    self.log(&message);
+                    
+                    // Check quest objectives for examination
+                    self.quest_log.on_examine(&interactable_id);
+                    return;
+                }
+            }
+        }
+        
+        // Check for enemies at this position
+        if let Some(&enemy_idx) = self.enemy_positions.get(&(x, y)) {
+            if let Some(enemy) = self.enemies.get(enemy_idx) {
+                if enemy.hp > 0 {
+                    let max_hp = enemy.max_hp().unwrap_or(0);
+                    self.log(&format!("You see a {}. HP: {}/{}", enemy.name(), enemy.hp, max_hp));
+                    return;
+                }
+            }
+        }
+        
+        // Check for NPCs at this position
+        if let Some(&npc_idx) = self.npc_positions.get(&(x, y)) {
+            if let Some(npc) = self.npcs.get(npc_idx) {
+                let npc_name = npc.name().to_string();
+                let npc_desc = npc.description().to_string();
+                self.log(&format!("You see {}. {}", npc_name, npc_desc));
+                return;
+            }
+        }
+        
+        // Check for items at this position
+        if let Some(item_indices) = self.item_positions.get(&(x, y)) {
+            if !item_indices.is_empty() {
+                let item = &self.items[item_indices[0]];
+                self.log(&format!("You see {}.", item.name()));
+                return;
+            }
+        }
+        
+        // Check for chests at this position
+        if let Some(&chest_idx) = self.chest_positions.get(&(x, y)) {
+            if let Some(chest) = self.chests.get(chest_idx) {
+                let chest_name = chest.name().to_string();
+                let chest_desc = chest.description().to_string();
+                self.log(&format!("You see a {}. {}", chest_name, chest_desc));
+                return;
+            }
+        }
+        
+        // Examine the tile itself
+        let tile = self.map.get_tile(x, y);
+        match tile {
+            Tile::Wall { .. } => self.log("A solid wall."),
+            Tile::Floor { .. } => self.log("The ground here is clear."),
+            Tile::Glass => self.log("Dangerous glass terrain that refracts light."),
+            _ => self.log("You examine the area."),
+        }
     }
 
     /// Execute a debug command
@@ -2347,6 +2577,63 @@ impl GameState {
                     }
                 }
             }
+            Some("complete_quest") => {
+                if let Some(quest_id) = parts.get(1) {
+                    self.debug_complete_quest_objectives(quest_id);
+                } else {
+                    self.log("Usage: complete_quest <quest_id>");
+                }
+            }
+            Some("list_quests") => {
+                let mut messages = Vec::new();
+                
+                if self.quest_log.active.is_empty() {
+                    messages.push("No active quests".to_string());
+                } else {
+                    messages.push("Active quests:".to_string());
+                    for quest in &self.quest_log.active {
+                        if let Some(def) = quest.def() {
+                            let completed_objectives = quest.objectives.iter().filter(|o| o.completed).count();
+                            let total_objectives = quest.objectives.len();
+                            messages.push(format!("  {} - {} ({}/{})", quest.quest_id, def.name, completed_objectives, total_objectives));
+                        }
+                    }
+                }
+                
+                if !self.quest_log.completed.is_empty() {
+                    messages.push("Completed quests:".to_string());
+                    for quest_id in &self.quest_log.completed {
+                        if let Some(def) = super::quest::get_quest_def(quest_id) {
+                            messages.push(format!("  {} - {}", quest_id, def.name));
+                        }
+                    }
+                }
+                
+                // Log all messages
+                for message in messages {
+                    self.log(message);
+                }
+            }
+            Some("interact") => {
+                if let Some(target) = parts.get(1) {
+                    self.quest_log.on_interact(target);
+                    self.log(format!("Debug: Triggered interact with {}", target));
+                } else {
+                    self.log("Usage: interact <target>");
+                }
+            }
+            Some("examine") => {
+                if let Some(target) = parts.get(1) {
+                    self.quest_log.on_examine(target);
+                    self.log(format!("Debug: Triggered examine {}", target));
+                } else {
+                    self.log("Usage: examine <target>");
+                }
+            }
+            Some("collect_data") => {
+                self.quest_log.on_data_collected();
+                self.log("Debug: Triggered data collection");
+            }
             Some("help") => {
                 self.log("Debug Commands:");
                 self.log("  show tile, hide tile - Toggle god view");
@@ -2392,6 +2679,11 @@ impl GameState {
                 self.log("  give_item <id> [count] - Add item to inventory");
                 self.log("  show_level - Show current tile threat level");
                 self.log("  show_item_tiers - Show items organized by tier");
+                self.log("  complete_quest <quest_id> - Complete all objectives for a quest");
+                self.log("  list_quests - List active and completed quests");
+                self.log("  interact <target> - Trigger interact objective");
+                self.log("  examine <target> - Trigger examine objective");
+                self.log("  collect_data - Trigger data collection objective");
                 self.log("");
                 self.log("Console Controls:");
                 self.log("  ` - Toggle debug console");
@@ -2401,6 +2693,29 @@ impl GameState {
                 self.log("  Esc - Close console");
             }
             _ => self.log(format!("Unknown command: {}. Type 'help' for commands.", cmd)),
+        }
+    }
+
+    /// Debug helper to complete quest objectives
+    fn debug_complete_quest_objectives(&mut self, quest_id: &str) {
+        // Find and complete quest objectives
+        let mut quest_found = false;
+        for quest in &mut self.quest_log.active {
+            if quest.quest_id == quest_id {
+                quest_found = true;
+                for objective in &mut quest.objectives {
+                    objective.current = objective.target;
+                    objective.completed = true;
+                }
+                break;
+            }
+        }
+        
+        // Log result after the borrow is released
+        if quest_found {
+            self.log(format!("Debug: Completed quest objectives for {}", quest_id));
+        } else {
+            self.log(format!("Quest not found: {}", quest_id));
         }
     }
 
@@ -2699,7 +3014,8 @@ impl GameState {
                 let y = (idx / self.map.width) as i32;
                 
                 for npc in &self.npcs {
-                    if npc.x == x && npc.y == y && !npc.talked {
+                    // Only target NPCs that haven't been talked to AND don't have ongoing quest interactions
+                    if npc.x == x && npc.y == y && !npc.talked && !self.has_interacted_with_npc(&npc.id) {
                         found_target = true;
                         break;
                     }
@@ -2767,6 +3083,11 @@ impl GameState {
         let config = get_auto_explore_config();
         
         for enemy in &self.enemies {
+            // Skip dead enemies
+            if enemy.hp <= 0 {
+                continue;
+            }
+            
             let distance = (enemy.x - self.player_x).abs() + (enemy.y - self.player_y).abs();
             if distance <= range {
                 // If ignoring weak enemies, check enemy HP
@@ -2807,6 +3128,20 @@ impl GameState {
         let y = (idx / self.map.width) as i32;
         
         self.npcs.iter().any(|npc| npc.x == x && npc.y == y && npc.talked)
+    }
+    
+    /// Check if we've interacted with an NPC (either talked or has quest progress)
+    fn has_interacted_with_npc(&self, npc_id: &str) -> bool {
+        // Special case for dying pilgrim - check if first quest has any progress
+        if npc_id == "dying_pilgrim" {
+            return self.quest_log.active.iter().any(|quest| 
+                quest.quest_id == "pilgrims_last_angle" && 
+                quest.objectives.iter().any(|obj| obj.current > 0)
+            );
+        }
+        
+        // For other NPCs, check if they've been talked to
+        false
     }
     
     /// Pick up items at current position, filtered by configuration

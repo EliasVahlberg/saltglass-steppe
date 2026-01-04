@@ -157,6 +157,10 @@ impl Npc {
         self.def().map(|d| d.name.as_str()).unwrap_or("Unknown")
     }
 
+    pub fn description(&self) -> &str {
+        self.def().map(|d| d.description.as_str()).unwrap_or("")
+    }
+
     pub fn backstory(&self) -> Option<&str> {
         self.backstory.as_deref()
     }

@@ -100,4 +100,12 @@ impl Chest {
     pub fn can_open(&self, player_has_key: bool) -> bool {
         !self.locked || player_has_key
     }
+    
+    pub fn name(&self) -> &str {
+        self.get_def().map(|d| d.name.as_str()).unwrap_or("Unknown Chest")
+    }
+    
+    pub fn description(&self) -> &str {
+        self.get_def().map(|d| d.description.as_str()).unwrap_or("")
+    }
 }
