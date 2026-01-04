@@ -1,0 +1,109 @@
+{
+  "name": "main_questline_architect_dialogue",
+  "description": "Test The Architect NPC dialogue system and quest progression",
+  "seed": 42,
+  "map_setup": {
+    "clear_radius": 10,
+    "ensure_paths": [
+      {"from_x": 10, "from_y": 10, "to_x": 15, "to_y": 10}
+    ]
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "inventory": ["saint_key"],
+    "adaptations": ["Prismhide"],
+    "faction_reputation": {
+      "Mirror Monks": 60,
+      "Heliograph Network": 0
+    }
+  },
+  "entities": [
+    {
+      "entity_type": "npc",
+      "id": "the_architect",
+      "x": 15,
+      "y": 10
+    }
+  ],
+  "quests": [
+    {
+      "quest_id": "white_noon_revelation",
+      "status": "active"
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "move",
+        "direction": "east"
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "move",
+        "direction": "east"
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "move",
+        "direction": "east"
+      }
+    },
+    {
+      "turn": 3,
+      "action": {
+        "type": "move",
+        "direction": "east"
+      }
+    },
+    {
+      "turn": 4,
+      "action": {
+        "type": "move",
+        "direction": "east"
+      }
+    },
+    {
+      "turn": 5,
+      "action": {
+        "type": "talk",
+        "target_x": 15,
+        "target_y": 10
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_turn": 5,
+      "check": {
+        "type": "npc_at",
+        "x": 15,
+        "y": 10,
+        "npc_id": "the_architect"
+      }
+    },
+    {
+      "at_turn": 6,
+      "check": {
+        "type": "message_contains",
+        "text": "Saint-Key authentication confirmed"
+      }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "faction_reputation",
+        "faction": "Heliograph Network",
+        "op": "gte",
+        "value": 5
+      }
+    }
+  ]
+}
