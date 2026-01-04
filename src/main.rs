@@ -201,6 +201,16 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::CloseChest => {
             ui.chest_ui = None;
         }
+        Action::Interact(_, _) => {
+            if state.player_hp > 0 {
+                state.interact_at(state.player_x, state.player_y);
+            }
+        }
+        Action::Examine(_, _) => {
+            if state.player_hp > 0 {
+                state.examine_at(state.player_x, state.player_y);
+            }
+        }
         Action::OpenWiki => {
             ui.wiki_menu.open();
         }
@@ -276,7 +286,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
     }
     if ui.world_map_view.open {
         if let Some(ref world_map) = state.world_map {
-            saltglass_steppe::ui::render_world_map(frame, frame.area(), world_map, state.world_x, state.world_y, &ui.world_map_view);
+            saltglass_steppe::ui::render_world_map(frame, frame.area(), world_map, state.world_x, state.world_y, &ui.world_map_view, state);
         }
         return;
     }

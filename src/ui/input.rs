@@ -133,7 +133,7 @@ impl DebugConsole {
         let commands = [
             "show tile", "hide tile", "sturdy", "phase", "save_debug", "load_debug", 
             "list_debug", "debug_info", "run_des", "list_des", "help", "spawn",
-            "terminals", "report_issue"
+            "terminals", "report_issue", "complete_quest", "list_quests", "interact", "examine", "collect_data"
         ];
         
         for cmd in &commands {
@@ -376,6 +376,8 @@ pub enum Action {
     OpenChest(usize),
     ChestTransfer,
     CloseChest,
+    Interact(i32, i32),
+    Examine(i32, i32),
     None,
 }
 
@@ -694,7 +696,9 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Char('S') => Action::Save,
         KeyCode::Char('L') => Action::Load,
         KeyCode::Char('x') => Action::EnterLook,
+        KeyCode::Char('X') => Action::Examine(0, 0), // Will be set to player position in main loop
         KeyCode::Char('e') => Action::Wait,
+        KeyCode::Char('E') => Action::Interact(0, 0), // Will be set to player position in main loop
         KeyCode::Char('o') => Action::AutoExplore,
         KeyCode::Char('i') => Action::OpenInventory,
         KeyCode::Char('q') => Action::OpenQuestLog,
