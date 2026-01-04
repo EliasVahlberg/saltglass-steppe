@@ -267,8 +267,10 @@ pub fn all_item_ids() -> Vec<&'static str> {
 | ------------------------ | --------------- | ------------------------------- |
 | `items.json`             | `item.rs`       | Items, equipment, consumables   |
 | `enemies.json`           | `enemy.rs`      | Enemy stats, behaviors, loot    |
-| `npcs.json`              | `npc.rs`        | NPCs, merchants, dialogue refs  |
+| `npcs.json`              | `npc.rs`        | NPCs, merchants, dialogue refs, faction leaders  |
 | `quests.json`            | `quest.rs`      | Quest definitions, objectives   |
+| `main_questline.json`    | `quest.rs`      | Main story quest definitions |
+| `factions.json`          | `faction.rs`    | Faction definitions, reputation systems |
 | `adaptations.json`       | `adaptation.rs` | Player mutations/upgrades       |
 | `dialogues.json`         | `dialogue.rs`   | Conversation trees              |
 | `recipes.json`           | `crafting.rs`   | Crafting recipes                |
@@ -546,13 +548,32 @@ static BEHAVIOR_REGISTRY: Lazy<HashMap<&str, Box<dyn AiBehavior>>> = ...;
 
 **Location**: `src/game/quest.rs`, `src/game/systems/quest.rs`
 
-**Objective Types**:
-- `Kill { enemy_id, count }`
-- `Collect { item_id, count }`
-- `Reach { x, y }`
-- `TalkTo { npc_id }`
+**Enhanced Main Questline**: Complete 4-act structure with 13 interconnected quests covering the full narrative arc from initial discovery to cosmic endgame choice.
 
-**Quest Chains**: Quests can unlock other quests via `reward.unlocks_quests`.
+**Objective Types**:
+- `Kill { enemy_id, count }` — Defeat specific enemies
+- `Collect { item_id, count }` — Gather quest items
+- `Reach { x, y }` — Travel to locations
+- `TalkTo { npc_id }` — Interact with NPCs
+- `InterfaceWithAria { item_required }` — Archive system interactions
+
+**Advanced Features**:
+- **Conditional Unlocking**: Quests unlock based on completed prerequisites, faction reputation, and player state
+- **Adaptive Objectives**: Quest content responds to player choices and faction alignment
+- **Faction Integration**: Reputation thresholds affect quest availability and dialogue options
+- **Multiple Endings**: Vector Choice quest provides 4 distinct ending paths based on player decisions
+
+**Quest Categories**:
+- `main` — Core narrative questline (Acts I-IV)
+- `side` — Optional content and exploration
+- `faction` — Faction-specific storylines
+
+**Key Quest Files**:
+- `data/main_questline.json` — 13-quest main story arc
+- `data/quests.json` — Side quests and optional content
+- `data/lore_based_quests.json` — Lore-driven exploration quests
+
+**Quest Chains**: Complex unlocking system supports branching narratives, faction choices, and prerequisite validation through `QuestCriteria` system.
 
 ### Storm System
 

@@ -83,6 +83,14 @@ This file contains a comprehensive list of all project documentation with descri
 | [Questline_Logic.yaml](design/Main_Questline/Questline_Logic.yaml)             | Quest logic and branching structure            |
 | [Side_Quests_Master_List.md](design/Main_Questline/Side_Quests_Master_List.md) | Master list of 25+ side quests                 |
 
+### Side Quest Chains Subsection
+
+| Document                                                                       | Description                                    |
+| ------------------------------------------------------------------------------ | ---------------------------------------------- |
+| [The_Awakening_Protocol_Chain.md](design/side_quests/The_Awakening_Protocol_Chain.md) | Archive Consciousness emergence quest chain |
+| [The_Heliograph_Conspiracy_Chain.md](design/side_quests/The_Heliograph_Conspiracy_Chain.md) | Storm control conspiracy quest chain |
+| [The_Shattered_Mirror_Chain.md](design/side_quests/The_Shattered_Mirror_Chain.md) | Mirror Monk religious schism quest chain |
+
 ## Development Documentation
 
 | Document                                                                       | Description                                        |
@@ -205,6 +213,9 @@ This file contains a comprehensive list of all project documentation with descri
 | [The_Prophecy_of_the_Prime_Lens.md](narrative/narrative_lore/manuals/The_Prophecy_of_the_Prime_Lens.md)   | The mythic goal and main quest prophecy      |
 | [The_Lexicon_of_Refraction.md](narrative/narrative_lore/manuals/The_Lexicon_of_Refraction.md)             | Dialects and slang of the factions           |
 | [The_Dramatis_Personae.md](narrative/narrative_lore/manuals/The_Dramatis_Personae.md)                     | Profiles of key NPCs and their motivations   |
+| [The_Awakening_Protocol.md](narrative/narrative_lore/manuals/The_Awakening_Protocol.md)                   | Archive Consciousness emergence and evolution |
+| [The_Heliograph_Conspiracy.md](narrative/narrative_lore/manuals/The_Heliograph_Conspiracy.md)             | Suppressed report on storm control conspiracy |
+| [The_Refraction_Heresy.md](narrative/narrative_lore/manuals/The_Refraction_Heresy.md)                     | Banned theological treatise on adaptation truth |
 
 ### Stories
 
@@ -245,4 +256,4 @@ This file contains a comprehensive list of all project documentation with descri
 ---
 
 _Last updated: 2026-01-02_
-_Total documents: 145_
+_Total documents: 148_

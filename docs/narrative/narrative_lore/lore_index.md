@@ -157,6 +157,13 @@ All mystical elements are explained through:
 - Detailed profiles of Forge-Master Durgan, The High Prism, Saint Matthias, and The Architect
 - Speech patterns, motivations, and role in the story
 
+### 18. [The_Convergence_Protocol.md](manuals/The_Convergence_Protocol.md) - Extended Questline
+
+- Galactic transformation network and humanity's evaluation by alien civilizations
+- Acts V-VII extending the main questline with cosmic scope and stakes
+- Detailed alien civilizations, trials, and multiple galactic outcomes
+- Integration of local Saltglass Steppe story with galaxy-wide transformation themes
+
 ## High-Priority Worldbuilding Documents:
 
 ### 10. [The_Atlas_of_Glass.md](The_Atlas_of_Glass.md) - Regional Gazetteer
