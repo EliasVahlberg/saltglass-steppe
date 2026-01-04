@@ -1,0 +1,57 @@
+{
+  "name": "interaction_system_test",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 5,
+    "ensure_paths": [
+      {"from_x": 10, "from_y": 10, "to_x": 11, "to_y": 10}
+    ]
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": []
+  },
+  "entities": [
+    {
+      "entity_type": "interactable",
+      "id": "lever",
+      "x": 11,
+      "y": 10
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "interact",
+        "target_x": 11,
+        "target_y": 10
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "examine",
+        "target_x": 11,
+        "target_y": 10
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_turn": 0,
+      "check": {
+        "type": "message_contains",
+        "text": "You pull the lever"
+      }
+    },
+    {
+      "at_turn": 1,
+      "check": {
+        "type": "message_contains",
+        "text": "lever. It appears to be on"
+      }
+    }
+  ]
+}

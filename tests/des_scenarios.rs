@@ -139,3 +139,15 @@ fn ranged_attack_test() {
         .expect("Failed to run scenario");
     assert!(result.success, "Scenario failed: {:?}", result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
 }
+
+#[test]
+fn interaction_system_test() {
+    let result = run_scenario("tests/scenarios/interaction_system_test.json")
+        .expect("Failed to run interaction_system_test scenario");
+    
+    assert!(
+        result.success,
+        "Interaction system test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}

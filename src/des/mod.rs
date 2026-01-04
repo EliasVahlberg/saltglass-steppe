@@ -2,7 +2,7 @@
 //!
 //! Runs game scenarios without rendering for automated testing and validation.
 
-use crate::game::{adaptation::Adaptation, chest::Chest, inspect::inspect_item, Enemy, GameState, Item, Npc};
+use crate::game::{adaptation::Adaptation, chest::Chest, inspect::inspect_item, Enemy, GameState, Interactable, Item, Npc};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
@@ -284,6 +284,7 @@ pub enum EntityType {
     Npc,
     Item,
     Chest,
+    Interactable,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -327,6 +328,9 @@ pub enum Action {
     Craft { recipe_id: String },
     // Economy actions
     BuyItem { item_id: String, npc_id: String },
+    // Interaction actions
+    Interact { target_x: i32, target_y: i32 },
+    Examine { target_x: i32, target_y: i32 },
     SellItem { item_id: String },
     // Storm actions
     TriggerStorm { intensity: Option<u8> },
@@ -614,6 +618,9 @@ impl DesExecutor {
                         .map(|id| Item::new(spawn.x, spawn.y, id))
                         .collect();
                     state.chests.push(chest);
+                }
+                EntityType::Interactable => {
+                    state.interactables.push(Interactable::new(spawn.id.clone(), spawn.x, spawn.y));
                 }
             }
         }
@@ -1492,6 +1499,15 @@ impl DesExecutor {
             }
             Action::DialogueAction { .. } => {
                 self.log("DialogueAction not implemented in DES".to_string());
+            }
+            // Interaction actions
+            Action::Interact { target_x, target_y } => {
+                self.state.interact_at(*target_x, *target_y);
+                self.log(format!("Player interacted at ({}, {})", target_x, target_y));
+            }
+            Action::Examine { target_x, target_y } => {
+                self.state.examine_at(*target_x, *target_y);
+                self.log(format!("Player examined at ({}, {})", target_x, target_y));
             }
         }
     }
