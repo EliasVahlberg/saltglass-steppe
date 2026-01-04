@@ -1,4 +1,4 @@
-mod game;
+pub mod game;
 pub mod des;
 pub mod ui;
 pub mod renderer;

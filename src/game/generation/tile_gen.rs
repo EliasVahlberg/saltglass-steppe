@@ -67,6 +67,37 @@ impl TileGenerator {
             template_library: TemplateLibrary::new(),
         })
     }
+    
+    /// Enhanced tile generation with integrated structure system
+    pub fn generate_enhanced_tile_with_structures(
+        &mut self, 
+        poi_type: Option<POI>, 
+        biome: &str,
+        quest_ids: Vec<String>
+    ) -> Map {
+        use rand::SeedableRng;
+        
+        // Convert string biome to enum
+        let biome_enum = match biome {
+            "saltflat" => Biome::Saltflat,
+            "desert" => Biome::Desert,
+            "ruins" => Biome::Ruins,
+            "scrubland" => Biome::Scrubland,
+            "oasis" => Biome::Oasis,
+            _ => Biome::Saltflat,
+        };
+        
+        let mut rng = ChaCha8Rng::seed_from_u64(12345);
+        
+        // Generate base terrain using existing system
+        let (mut map, _) = if let Some(poi) = poi_type {
+            self.generate_enhanced_tile_with_quests(&mut rng, biome_enum, Terrain::Flat, 50, poi, &quest_ids)
+        } else {
+            self.generate_enhanced_tile(&mut rng, biome_enum, Terrain::Flat, 50, POI::Town)
+        };
+        
+        map
+    }
 
     /// Generate enhanced tile map with all procedural systems and quest constraints
     pub fn generate_enhanced_tile(
