@@ -19,6 +19,12 @@
           "type": "collect",
           "item_id": "scripture_shard",
           "count": 1
+        },
+        {
+          "id": "return_to_pilgrim",
+          "description": "Return to the dying pilgrim with the scripture shard",
+          "type": "talk_to",
+          "npc_id": "dying_pilgrim"
         }
       ],
       "reward": {
@@ -232,6 +238,218 @@
         "requires_quests_completed": ["the_second_key"],
         "required_items": ["saint_key"],
         "custom_conditions": ["in_deep_archive"]
+      }
+    },
+    {
+      "id": "white_noon_revelation",
+      "name": "The White Noon Revelation",
+      "description": "Custodian IRI-7 reveals the truth of White Noon—not an accident, but sabotage by the Preservation Protocol. The Architect's Great Work was interrupted.",
+      "category": "main",
+      "act": 3,
+      "objectives": [
+        {
+          "id": "learn_white_noon_truth",
+          "description": "Learn the truth about White Noon from Custodian IRI-7",
+          "type": "talk_to",
+          "npc_id": "custodian_iri_7"
+        },
+        {
+          "id": "confront_architect",
+          "description": "Confront The Architect with the truth",
+          "type": "talk_to",
+          "npc_id": "the_architect"
+        }
+      ],
+      "reward": {
+        "xp": 750,
+        "salt_scrip": 1500,
+        "unlocks_quests": ["prime_lens_prophecy"]
+      },
+      "criteria": {
+        "requires_quests_completed": ["custodians_query"]
+      }
+    },
+    {
+      "id": "prime_lens_prophecy",
+      "name": "The Prime Lens Prophecy",
+      "description": "The Architect reveals the Prime Lens—a master key that can focus the entire Heliograph array. It was shattered into three Aspects during White Noon.",
+      "category": "main",
+      "act": 3,
+      "objectives": [
+        {
+          "id": "learn_prime_lens_location",
+          "description": "Learn about the three Prime Lens Aspects from The Architect",
+          "type": "talk_to",
+          "npc_id": "the_architect"
+        },
+        {
+          "id": "choose_first_aspect",
+          "description": "Choose which Prime Lens Aspect to seek first",
+          "type": "collect",
+          "item_id": "prime_lens_shard",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 1000,
+        "items": ["prime_lens_shard"],
+        "salt_scrip": 2000,
+        "unlocks_quests": ["shard_of_clarity", "shard_of_will", "shard_of_soul"]
+      },
+      "criteria": {
+        "requires_quests_completed": ["white_noon_revelation"]
+      }
+    },
+    {
+      "id": "shard_of_clarity",
+      "name": "The Shard of Clarity",
+      "description": "Seek the Shard of Clarity in the deepest databanks of the Archive Core. Face the Logic-Gatekeeper to claim the Mind aspect.",
+      "category": "main",
+      "act": 4,
+      "objectives": [
+        {
+          "id": "enter_archive_core",
+          "description": "Enter the Archive Core's deepest level",
+          "type": "reach",
+          "x": 150,
+          "y": 150
+        },
+        {
+          "id": "defeat_logic_gatekeeper",
+          "description": "Defeat or outwit the Logic-Gatekeeper",
+          "type": "kill",
+          "enemy_id": "logic_gatekeeper",
+          "count": 1
+        },
+        {
+          "id": "claim_clarity_shard",
+          "description": "Claim the Shard of Clarity",
+          "type": "collect",
+          "item_id": "shard_of_clarity",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 1500,
+        "items": ["shard_of_clarity"],
+        "salt_scrip": 3000
+      },
+      "criteria": {
+        "requires_quests_completed": ["prime_lens_prophecy"]
+      }
+    },
+    {
+      "id": "shard_of_will",
+      "name": "The Shard of Will",
+      "description": "Seek the Shard of Will in the Magma-Glass Caverns beneath the Iron Covenant's fortress. Face the Forge-Beast to claim the Body aspect.",
+      "category": "main",
+      "act": 4,
+      "objectives": [
+        {
+          "id": "enter_magma_caverns",
+          "description": "Enter the Magma-Glass Caverns",
+          "type": "reach",
+          "x": 200,
+          "y": 100
+        },
+        {
+          "id": "defeat_forge_beast",
+          "description": "Defeat the Forge-Beast",
+          "type": "kill",
+          "enemy_id": "forge_beast",
+          "count": 1
+        },
+        {
+          "id": "claim_will_shard",
+          "description": "Claim the Shard of Will",
+          "type": "collect",
+          "item_id": "shard_of_will",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 1500,
+        "items": ["shard_of_will"],
+        "salt_scrip": 3000
+      },
+      "criteria": {
+        "requires_quests_completed": ["prime_lens_prophecy"]
+      }
+    },
+    {
+      "id": "shard_of_soul",
+      "name": "The Shard of Soul",
+      "description": "Seek the Shard of Soul worn by the High Prism in the shifting Glass Gardens. Face the High Prism to claim the Spirit aspect.",
+      "category": "main",
+      "act": 4,
+      "objectives": [
+        {
+          "id": "enter_glass_gardens",
+          "description": "Enter the Glass Gardens",
+          "type": "reach",
+          "x": 100,
+          "y": 200
+        },
+        {
+          "id": "confront_high_prism",
+          "description": "Confront the High Prism",
+          "type": "talk_to",
+          "npc_id": "high_prism"
+        },
+        {
+          "id": "claim_soul_shard",
+          "description": "Claim the Shard of Soul",
+          "type": "collect",
+          "item_id": "shard_of_soul",
+          "count": 1
+        }
+      ],
+      "reward": {
+        "xp": 1500,
+        "items": ["shard_of_soul"],
+        "salt_scrip": 3000,
+        "unlocks_quests": ["vector_choice"]
+      },
+      "criteria": {
+        "requires_quests_completed": ["prime_lens_prophecy"]
+      }
+    },
+    {
+      "id": "vector_choice",
+      "name": "The Vector Choice",
+      "description": "With all three Prime Lens Aspects, approach the Vector Spire. Choose the fate of the Heliograph Network and humanity's future.",
+      "category": "main",
+      "act": 4,
+      "objectives": [
+        {
+          "id": "reach_vector_spire",
+          "description": "Reach the Vector Spire",
+          "type": "reach",
+          "x": 250,
+          "y": 250
+        },
+        {
+          "id": "reconstruct_prime_lens",
+          "description": "Reconstruct the Prime Lens from its three Aspects",
+          "type": "collect",
+          "item_id": "prime_lens_complete",
+          "count": 1
+        },
+        {
+          "id": "make_final_choice",
+          "description": "Choose the fate of the Heliograph Network",
+          "type": "talk_to",
+          "npc_id": "the_architect"
+        }
+      ],
+      "reward": {
+        "xp": 5000,
+        "items": ["prime_lens_complete"],
+        "salt_scrip": 10000
+      },
+      "criteria": {
+        "requires_quests_completed": ["shard_of_clarity", "shard_of_will", "shard_of_soul"],
+        "required_items": ["shard_of_clarity", "shard_of_will", "shard_of_soul"]
       }
     }
   ],

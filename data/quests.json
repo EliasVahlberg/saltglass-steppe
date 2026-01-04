@@ -324,6 +324,79 @@
         "items": ["resonance_tuner"],
         "salt_scrip": 110
       }
+    },
+    {
+      "id": "great_documentation_project",
+      "name": "The Great Documentation Project",
+      "description": "Scribe Cornelius needs help documenting 'everything important' before the next storm. His definition of 'important' is... comprehensive.",
+      "requires_quests_completed": [],
+      "objectives": [
+        {
+          "id": "count_grains_of_sand",
+          "description": "Help Cornelius count the grains of sand in the monastery courtyard",
+          "type": "interact",
+          "target": "sand_pile"
+        },
+        {
+          "id": "measure_shadow_angles",
+          "description": "Measure the exact angle of every shadow at noon",
+          "type": "collect_data",
+          "data_points": 15
+        },
+        {
+          "id": "interview_confused_lizard",
+          "description": "Document the testimony of a lizard that may have witnessed historical events",
+          "type": "talk_to",
+          "npc_id": "confused_lizard"
+        }
+      ],
+      "reward": {
+        "xp": 25,
+        "items": ["documentation_badge", "detailed_notes"],
+        "salt_scrip": 50
+      },
+      "comedic_moments": [
+        {
+          "trigger": "sand_counting_progress",
+          "text": "Cornelius: 'Excellent progress! Only 2.7 million grains left to count. I estimate we'll finish by next Tuesday... of next year.'"
+        },
+        {
+          "trigger": "lizard_interview",
+          "text": "The lizard stares at you blankly. Cornelius nods sagely: 'Ah yes, the silent treatment. Clearly traumatized by what it witnessed. Very telling.'"
+        }
+      ]
+    },
+    {
+      "id": "technical_difficulties",
+      "name": "Technical Difficulties",
+      "description": "Maintenance Drone MX-42 has been trying to fix the same light for 23 years. Maybe it's time for a second opinion.",
+      "requires_quests_completed": [],
+      "objectives": [
+        {
+          "id": "observe_repair_attempts",
+          "description": "Watch MX-42's repair methodology",
+          "type": "wait",
+          "duration": 5
+        },
+        {
+          "id": "suggest_alternative_approach",
+          "description": "Diplomatically suggest that hitting it harder might not be the solution",
+          "type": "talk_to",
+          "npc_id": "maintenance_drone_mx42"
+        },
+        {
+          "id": "find_actual_problem",
+          "description": "Discover that the light fixture isn't actually broken",
+          "type": "examine",
+          "target": "light_switch"
+        }
+      ],
+      "reward": {
+        "xp": 30,
+        "items": ["basic_repair_kit"],
+        "salt_scrip": 75
+      },
+      "comedic_resolution": "The light switch was simply turned off. MX-42 stares at the now-functioning light for exactly 47.3 seconds before declaring: 'MAINTENANCE SUCCESSFUL. PERCUSSIVE TECHNIQUE EFFECTIVENESS: DELAYED BUT CONFIRMED.'"
     }
   ]
 }

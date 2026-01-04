@@ -18,6 +18,14 @@ pub enum ObjectiveType {
     TalkTo { npc_id: String },
     /// Interface with ARIA
     InterfaceWithAria { item_required: String },
+    /// Interact with a specific object/target
+    Interact { target: String },
+    /// Collect data points (generic counter)
+    CollectData { data_points: u32 },
+    /// Wait for a duration (turns)
+    Wait { duration: u32 },
+    /// Examine a specific object/target
+    Examine { target: String },
 }
 
 /// A single quest objective
@@ -177,7 +185,10 @@ impl ActiveQuest {
             let target = match &obj.objective_type {
                 ObjectiveType::Kill { count, .. } => *count,
                 ObjectiveType::Collect { count, .. } => *count,
-                ObjectiveType::Reach { .. } | ObjectiveType::TalkTo { .. } | ObjectiveType::InterfaceWithAria { .. } => 1,
+                ObjectiveType::CollectData { data_points, .. } => *data_points,
+                ObjectiveType::Wait { duration, .. } => *duration,
+                ObjectiveType::Reach { .. } | ObjectiveType::TalkTo { .. } | ObjectiveType::InterfaceWithAria { .. } 
+                | ObjectiveType::Interact { .. } | ObjectiveType::Examine { .. } => 1,
             };
             ObjectiveProgress {
                 objective_id: obj.id.clone(),
@@ -246,11 +257,13 @@ impl ActiveQuest {
     /// Update progress for talk objectives
     pub fn on_npc_talked(&mut self, npc_id: &str) {
         if let Some(def) = self.def() {
+            // Find the next uncompleted talk objective for this NPC
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::TalkTo { npc_id: target } = &obj.objective_type {
                     if target == npc_id && !self.objectives[i].completed {
                         self.objectives[i].current = 1;
                         self.objectives[i].completed = true;
+                        break; // Only complete one objective per interaction
                     }
                 }
             }
@@ -265,6 +278,66 @@ impl ActiveQuest {
                     if item_required == item_used && !self.objectives[i].completed {
                         self.objectives[i].current = 1;
                         self.objectives[i].completed = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /// Update progress for interact objectives
+    pub fn on_interact(&mut self, target: &str) {
+        if let Some(def) = self.def() {
+            for (i, obj) in def.objectives.iter().enumerate() {
+                if let ObjectiveType::Interact { target: obj_target } = &obj.objective_type {
+                    if obj_target == target && !self.objectives[i].completed {
+                        self.objectives[i].current = 1;
+                        self.objectives[i].completed = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /// Update progress for examine objectives
+    pub fn on_examine(&mut self, target: &str) {
+        if let Some(def) = self.def() {
+            for (i, obj) in def.objectives.iter().enumerate() {
+                if let ObjectiveType::Examine { target: obj_target } = &obj.objective_type {
+                    if obj_target == target && !self.objectives[i].completed {
+                        self.objectives[i].current = 1;
+                        self.objectives[i].completed = true;
+                    }
+                }
+            }
+        }
+    }
+
+    /// Update progress for collect_data objectives
+    pub fn on_data_collected(&mut self) {
+        if let Some(def) = self.def() {
+            for (i, obj) in def.objectives.iter().enumerate() {
+                if let ObjectiveType::CollectData { .. } = &obj.objective_type {
+                    if !self.objectives[i].completed {
+                        self.objectives[i].current += 1;
+                        if self.objectives[i].current >= self.objectives[i].target {
+                            self.objectives[i].completed = true;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /// Update progress for wait objectives (call each turn)
+    pub fn on_turn_passed(&mut self) {
+        if let Some(def) = self.def() {
+            for (i, obj) in def.objectives.iter().enumerate() {
+                if let ObjectiveType::Wait { .. } = &obj.objective_type {
+                    if !self.objectives[i].completed {
+                        self.objectives[i].current += 1;
+                        if self.objectives[i].current >= self.objectives[i].target {
+                            self.objectives[i].completed = true;
+                        }
                     }
                 }
             }
@@ -522,6 +595,7 @@ impl QuestLog {
         for quest in &mut self.active {
             quest.on_item_collected(item_id);
         }
+        self.check_auto_complete();
     }
 
     /// Notify all active quests of ARIA interface
@@ -529,6 +603,7 @@ impl QuestLog {
         for quest in &mut self.active {
             quest.on_aria_interfaced(item_used);
         }
+        self.check_auto_complete();
     }
 
     /// Notify all active quests of position change
@@ -536,13 +611,47 @@ impl QuestLog {
         for quest in &mut self.active {
             quest.on_position_changed(x, y);
         }
+        self.check_auto_complete();
+    }
+
+    /// Notify all active quests of interaction
+    pub fn on_interact(&mut self, target: &str) {
+        for quest in &mut self.active {
+            quest.on_interact(target);
+        }
+        self.check_auto_complete();
+    }
+
+    /// Notify all active quests of examination
+    pub fn on_examine(&mut self, target: &str) {
+        for quest in &mut self.active {
+            quest.on_examine(target);
+        }
+        self.check_auto_complete();
+    }
+
+    /// Notify all active quests of data collection
+    pub fn on_data_collected(&mut self) {
+        for quest in &mut self.active {
+            quest.on_data_collected();
+        }
+        self.check_auto_complete();
+    }
+
+    /// Notify all active quests of turn passing (for wait objectives)
+    pub fn on_turn_passed(&mut self) {
+        for quest in &mut self.active {
+            quest.on_turn_passed();
+        }
+        self.check_auto_complete();
     }
 
     /// Notify all active quests of NPC talk
-    pub fn on_npc_talked(&mut self, npc_id: &str) {
+    pub fn on_npc_talked(&mut self, npc_id: &str) -> Vec<String> {
         for quest in &mut self.active {
             quest.on_npc_talked(npc_id);
         }
+        self.check_auto_complete()
     }
     
     /// Record a story choice
@@ -588,5 +697,54 @@ impl QuestLog {
     /// Get current act
     pub fn get_current_act(&self) -> u32 {
         self.current_act
+    }
+    
+    /// Auto-complete quests that have all objectives done and unlock new quests
+    pub fn check_auto_complete(&mut self) -> Vec<String> {
+        let mut completed_quests = Vec::new();
+        let mut unlocked_quests = Vec::new();
+        
+        // Find completed quests
+        let mut i = 0;
+        while i < self.active.len() {
+            if self.active[i].is_complete() {
+                let quest = self.active.remove(i);
+                let quest_id = quest.quest_id.clone();
+                self.completed.push(quest_id.clone());
+                completed_quests.push(quest_id.clone());
+                
+                // Check for unlocked quests
+                if let Some(def) = quest.def() {
+                    for unlock_id in &def.reward.unlocks_quests {
+                        if self.is_quest_available_simple(unlock_id) {
+                            unlocked_quests.push(unlock_id.clone());
+                        }
+                    }
+                }
+            } else {
+                i += 1;
+            }
+        }
+        
+        // Add unlocked quests
+        for quest_id in unlocked_quests {
+            if let Some(quest) = ActiveQuest::new(&quest_id) {
+                self.active.push(quest);
+            }
+        }
+        
+        completed_quests
+    }
+    
+    /// Simple quest availability check (no game state needed)
+    fn is_quest_available_simple(&self, quest_id: &str) -> bool {
+        // Already active or completed? Not available.
+        if self.active.iter().any(|q| q.quest_id == quest_id) {
+            return false;
+        }
+        if self.completed.contains(&quest_id.to_string()) {
+            return false;
+        }
+        true
     }
 }

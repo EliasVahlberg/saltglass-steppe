@@ -76,13 +76,46 @@ impl MovementSystem {
         // Execute first available action effect
         Self::execute_npc_action_effects(state, &actions, &npc_id);
 
-        // Mark NPC as talked to
-        state.npcs[ni].talked = true;
-        state.quest_log.on_npc_talked(&state.npcs[ni].id);
+        // Mark NPC as talked to (but allow re-talking for quest progression)
+        let should_mark_talked = !Self::has_pending_quest_objectives(state, &npc_id);
+        if should_mark_talked {
+            state.npcs[ni].talked = true;
+        }
+        let completed_quests = state.quest_log.on_npc_talked(&state.npcs[ni].id);
+        
+        // Provide feedback for completed quests
+        for quest_id in completed_quests {
+            if let Some(def) = crate::game::quest::get_quest_def(&quest_id) {
+                state.log_typed(format!("Quest completed: {}", def.name), MsgType::System);
+                
+                // Log unlocked quests
+                for unlock_id in &def.reward.unlocks_quests {
+                    if let Some(unlock_def) = crate::game::quest::get_quest_def(unlock_id) {
+                        state.log_typed(format!("New quest available: {}", unlock_def.name), MsgType::System);
+                    }
+                }
+            }
+        }
         state.meta.discover_npc(&state.npcs[ni].id);
         state.check_auto_end_turn();
 
         true
+    }
+    
+    /// Check if there are pending quest objectives for this NPC
+    fn has_pending_quest_objectives(state: &GameState, npc_id: &str) -> bool {
+        for quest in &state.quest_log.active {
+            if let Some(def) = quest.def() {
+                for (i, obj) in def.objectives.iter().enumerate() {
+                    if let crate::game::quest::ObjectiveType::TalkTo { npc_id: target } = &obj.objective_type {
+                        if target == npc_id && !quest.objectives[i].completed {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        false
     }
 
     /// Execute effects from NPC dialogue actions
