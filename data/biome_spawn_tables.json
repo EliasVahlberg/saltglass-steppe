@@ -68,7 +68,6 @@
       {"id": "sandstorm_elemental", "weight": 1, "min_level": 9, "max_level": 10}
     ],
     "npcs": [
-      {"id": "tutorial_guide", "weight": 3, "min_level": 1, "max_level": 2, "room": "first"},
       {"id": "mirror_monk", "weight": 1, "min_level": 1, "max_level": 10, "room": "late"},
       {"id": "salt_hermit", "weight": 1, "min_level": 1, "max_level": 6},
       {"id": "glass_merchant", "weight": 1, "min_level": 2, "max_level": 8},
