@@ -309,6 +309,71 @@
           ]
         }
       ]
+    },
+    {
+      "npc_id": "scribe_cornelius",
+      "name": "Scribe Cornelius",
+      "faction": "MirrorMonks",
+      "root_node": "greeting",
+      "nodes": [
+        {
+          "id": "greeting",
+          "speaker": "Scribe Cornelius",
+          "text": "Ah, another subject for documentation! Please state your name, occupation, and the exact time you first experienced existential dread.",
+          "options": [
+            {
+              "text": "I just wanted to say hello.",
+              "response": "Hello is insufficient data! I need your full biographical details, including childhood pets and favorite geometric shapes.",
+              "leads_to": "documentation_request"
+            },
+            {
+              "text": "What are you documenting?",
+              "response": "Everything! The angle of dust motes, the frequency of sighs, the precise color of despair. Science demands completeness!",
+              "leads_to": "documentation_explanation"
+            },
+            {
+              "text": "This seems excessive.",
+              "response": "Excessive? My dear fellow, I haven't even started on the advanced documentation protocols! Wait until you see my charts on 'Emotional Weather Patterns.'",
+              "leads_to": "greeting"
+            }
+          ]
+        },
+        {
+          "id": "documentation_request",
+          "speaker": "Scribe Cornelius",
+          "text": "Excellent! Now, have you experienced any transformations? Please describe them in detail, including sensory data and philosophical implications.",
+          "options": [
+            {
+              "text": "I'd rather not.",
+              "response": "Understandable! Privacy is important. I'll just note 'Subject exhibits documentation resistance syndrome.' Very common, actually.",
+              "leads_to": "greeting"
+            },
+            {
+              "text": "Sure, I can help with your research.",
+              "response": "Marvelous! Here's a 47-page questionnaire. Please fill it out in triplicate. The monastery's future depends on accurate record-keeping!",
+              "action": {
+                "type": "give_item",
+                "parameters": {
+                  "item_id": "documentation_badge"
+                }
+              },
+              "leads_to": "greeting"
+            }
+          ]
+        },
+        {
+          "id": "documentation_explanation",
+          "speaker": "Scribe Cornelius",
+          "text": "You see, future generations will need to understand exactly how we lived, thought, and occasionally panicked during the transformation period.",
+          "options": [
+            {
+              "text": "That's... actually quite thoughtful.",
+              "response": "Precisely! Though I admit the section on 'Catalog of Worried Facial Expressions' may be overly detailed. I'm up to 247 distinct variations.",
+              "leads_to": "greeting"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

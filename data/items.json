@@ -2410,6 +2410,136 @@
       "effects": [
         { "condition": "on_use", "effect": "G(&Green)" }
       ]
+    },
+    {
+      "id": "prime_lens_shard",
+      "name": "Prime Lens Shard",
+      "glyph": "◎",
+      "description": "A fragment of the legendary Prime Lens, humming with quantum energy",
+      "value": 1000,
+      "weight": 1,
+      "tier": 5,
+      "usable": false,
+      "quest_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@5 &White &LightCyan)" }
+      ]
+    },
+    {
+      "id": "shard_of_clarity",
+      "name": "Shard of Clarity",
+      "glyph": "◎",
+      "description": "The Mind aspect of the Prime Lens - pure information and understanding",
+      "value": 5000,
+      "weight": 1,
+      "tier": 6,
+      "usable": false,
+      "quest_item": true,
+      "lens_aspect": "mind",
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+      ]
+    },
+    {
+      "id": "shard_of_will",
+      "name": "Shard of Will",
+      "glyph": "◎",
+      "description": "The Body aspect of the Prime Lens - pure energy and endurance",
+      "value": 5000,
+      "weight": 1,
+      "tier": 6,
+      "usable": false,
+      "quest_item": true,
+      "lens_aspect": "body",
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&Red)" }
+      ]
+    },
+    {
+      "id": "shard_of_soul",
+      "name": "Shard of Soul",
+      "glyph": "◎",
+      "description": "The Spirit aspect of the Prime Lens - pure resonance and command",
+      "value": 5000,
+      "weight": 1,
+      "tier": 6,
+      "usable": false,
+      "quest_item": true,
+      "lens_aspect": "spirit",
+      "effects": [
+        { "condition": "on_pickup", "effect": "G(&Magenta)" }
+      ]
+    },
+    {
+      "id": "prime_lens_complete",
+      "name": "Prime Lens Complete",
+      "glyph": "◉",
+      "description": "The reconstructed Prime Lens - a master key to the Heliograph Network",
+      "value": 50000,
+      "weight": 2,
+      "tier": 7,
+      "usable": true,
+      "quest_item": true,
+      "heliograph_control": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@10 &White &LightCyan &Magenta)" }
+      ]
+    },
+    {
+      "id": "documentation_badge",
+      "name": "Official Documentation Badge",
+      "glyph": "◊",
+      "description": "A badge certifying your ability to count things and measure stuff. Cornelius is very proud of it.",
+      "value": 5,
+      "weight": 0,
+      "tier": 1,
+      "usable": false,
+      "quest_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &Yellow)" }
+      ]
+    },
+    {
+      "id": "detailed_notes",
+      "name": "Extremely Detailed Notes",
+      "glyph": "≡",
+      "description": "Notes so detailed they include the exact number of dust particles observed during documentation. Somehow useful.",
+      "value": 15,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "reveals_secrets": true,
+      "effects": [
+        { "condition": "on_use", "effect": "G(&LightYellow)" }
+      ]
+    },
+    {
+      "id": "basic_repair_kit",
+      "name": "Basic Repair Kit",
+      "glyph": "⚒",
+      "description": "Contains the revolutionary repair tool known as 'checking if it's plugged in.' Surprisingly effective.",
+      "value": 25,
+      "weight": 2,
+      "tier": 1,
+      "usable": true,
+      "repair_tool": true,
+      "effects": [
+        { "condition": "on_use", "effect": "B(@3 &Green)" }
+      ]
+    },
+    {
+      "id": "conspiracy_notes",
+      "name": "Pete's Conspiracy Notes",
+      "glyph": "?",
+      "description": "Detailed theories about cosmic windshield wipers and hide-and-seek saints. Surprisingly well-researched despite being completely insane.",
+      "value": 10,
+      "weight": 1,
+      "tier": 1,
+      "usable": true,
+      "lore_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@5 &LightMagenta)" }
+      ]
     }
   ]
 }

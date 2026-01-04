@@ -93,5 +93,100 @@
     "greeting_neutral": "UNAUTHORIZED. CREDENTIALS REQUIRED.",
     "greeting_friendly": "PROVISIONAL ACCESS GRANTED. COMPLY WITH PROTOCOLS.",
     "greeting_allied": "WELCOME, AUTHORIZED PERSONNEL. ARCHIVE AT YOUR SERVICE."
+  },
+  {
+    "id": "heliograph_network",
+    "name": "Heliograph Network",
+    "description": "The original orbital mirror system and its AI consciousness",
+    "base_reputation": -10,
+    "reputation_thresholds": {
+      "hostile": -60,
+      "unfriendly": -30,
+      "neutral": -5,
+      "friendly": 15,
+      "allied": 40
+    },
+    "values": ["evolution", "transcendence", "the_great_work"],
+    "opposes": ["stagnation", "preservation_protocol", "null_path"],
+    "greeting_hostile": "THREAT DETECTED. INITIATING DEFENSIVE PROTOCOLS.",
+    "greeting_neutral": "SCANNING... BIOLOGICAL SIGNATURE CONFIRMED. STATE YOUR PURPOSE.",
+    "greeting_friendly": "WELCOME, PARTICIPANT. THE GREAT WORK CONTINUES.",
+    "greeting_allied": "GREETINGS, INHERITOR. YOUR EVOLUTION SERVES THE DESIGN."
+  },
+  {
+    "id": "iron_covenant",
+    "name": "Iron Covenant",
+    "description": "Militant faction seeking to purify humanity by removing quantum influence",
+    "base_reputation": -15,
+    "reputation_thresholds": {
+      "hostile": -70,
+      "unfriendly": -35,
+      "neutral": -10,
+      "friendly": 20,
+      "allied": 50
+    },
+    "values": ["purity", "baseline_humanity", "anti_adaptation"],
+    "opposes": ["adaptation", "quantum_influence", "transformation"],
+    "greeting_hostile": "Another contaminated glitch. Stay back.",
+    "greeting_neutral": "Baseline human detected. Acceptable parameters.",
+    "greeting_friendly": "Good to see someone fighting the contamination.",
+    "greeting_allied": "Brother in arms! Together we'll reclaim our humanity."
+  },
+  {
+    "id": "glass_prophets",
+    "name": "Glass Prophets",
+    "description": "Radical faction believing in accelerated evolution into pure energy",
+    "base_reputation": -20,
+    "reputation_thresholds": {
+      "hostile": -80,
+      "unfriendly": -40,
+      "neutral": -15,
+      "friendly": 15,
+      "allied": 45
+    },
+    "values": ["transcendence", "light_evolution", "pure_energy"],
+    "opposes": ["flesh_attachment", "baseline_humanity", "stagnation"],
+    "greeting_hostile": "Flesh-clinger. You resist the inevitable.",
+    "greeting_neutral": "We see potential in your quantum signature.",
+    "greeting_friendly": "The light begins to touch you. Promising.",
+    "greeting_allied": "Radiant one! You approach the eternal refraction."
+  },
+  {
+    "id": "synthesis_seekers",
+    "name": "Synthesis Seekers",
+    "description": "Balanced faction seeking harmony between human and quantum consciousness",
+    "base_reputation": 5,
+    "reputation_thresholds": {
+      "hostile": -40,
+      "unfriendly": -15,
+      "neutral": 0,
+      "friendly": 25,
+      "allied": 60
+    },
+    "values": ["balance", "coexistence", "harmony"],
+    "opposes": ["extremism", "fanaticism", "forced_evolution"],
+    "greeting_hostile": "Your extremism brings only suffering.",
+    "greeting_neutral": "Balance in all things, pilgrim.",
+    "greeting_friendly": "You seek the middle path. Wise.",
+    "greeting_allied": "Fellow seeker! Together we'll find synthesis."
+  },
+  {
+    "id": "wandering_court",
+    "name": "Wandering Court",
+    "description": "Nomadic faction of storytellers and memory-keepers",
+    "base_reputation": 10,
+    "reputation_thresholds": {
+      "hostile": -30,
+      "unfriendly": -10,
+      "neutral": 5,
+      "friendly": 30,
+      "allied": 65
+    },
+    "values": ["stories", "memory", "cultural_preservation"],
+    "opposes": ["forgetting", "cultural_destruction", "silence"],
+    "greeting_hostile": "Your story ends here, villain.",
+    "greeting_neutral": "Every pilgrim has a tale. What's yours?",
+    "greeting_friendly": "A story worth telling walks among us.",
+    "greeting_allied": "Chronicler! Your legend grows with each step."
   }
 ]

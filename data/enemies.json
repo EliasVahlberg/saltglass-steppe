@@ -865,7 +865,11 @@
         "SandEngineers": "neutral",
         "QuantumCollective": "allied"
       },
-      "behaviors": ["quantum_flight", "precognitive_dodge", "storm_calling"],
+      "behaviors": [
+        { "type": "quantum_flight" },
+        { "type": "precognitive_dodge" },
+        { "type": "storm_calling" }
+      ],
       "effects": [
         { "condition": "on_hit", "effect": "W(@6 &Yellow &LightYellow)" },
         { "condition": "on_death", "effect": "R(@4 &Yellow &LightYellow &White)" }
@@ -893,7 +897,7 @@
         "SandEngineers": "hostile",
         "QuantumCollective": "allied"
       },
-      "behaviors": ["dimensional_phase", "reality_distortion", "cosmic_observation"],
+      "behaviors": [{ "type": "dimensional_phase" }, { "type": "reality_distortion" }, { "type": "cosmic_observation" }],
       "effects": [
         { "condition": "on_hit", "effect": "D(@2 &Magenta &LightMagenta)" },
         { "condition": "on_death", "effect": "F(@8 &DarkGray)" }
@@ -921,7 +925,7 @@
         "SandEngineers": "neutral",
         "Glassborn": "allied"
       },
-      "behaviors": ["quantum_web", "precognitive_sense", "crystal_symbiosis"],
+      "behaviors": [{ "type": "quantum_web" }, { "type": "precognitive_sense" }, { "type": "crystal_symbiosis" }],
       "effects": [
         { "condition": "on_hit", "effect": "S(@4 &Cyan &LightCyan)" },
         { "condition": "on_death", "effect": "B(@3 &Cyan)" }
@@ -949,7 +953,7 @@
         "SandEngineers": "hostile",
         "ArchiveConsciousness": "allied"
       },
-      "behaviors": ["construction_protocol", "quantum_repair", "guardian_mode"],
+      "behaviors": [{ "type": "construction_protocol" }, { "type": "quantum_repair" }, { "type": "guardian_mode" }],
       "effects": [
         { "condition": "on_hit", "effect": "G(&LightBlue)" },
         { "condition": "on_death", "effect": "B(@4 &Blue &LightBlue)" }
@@ -978,7 +982,7 @@
         "SandEngineers": "hostile",
         "QuantumCollective": "allied"
       },
-      "behaviors": ["dimensional_phase", "reality_distortion", "cosmic_observation"],
+      "behaviors": [{ "type": "dimensional_phase" }, { "type": "reality_distortion" }, { "type": "cosmic_observation" }],
       "effects": [
         { "condition": "on_hit", "effect": "D(@2 &Magenta &LightMagenta)" },
         { "condition": "on_death", "effect": "F(@8 &DarkGray)" }
@@ -1006,7 +1010,7 @@
         "SandEngineers": "neutral",
         "Glassborn": "allied"
       },
-      "behaviors": ["quantum_web", "precognitive_sense", "crystal_symbiosis"],
+      "behaviors": [{ "type": "quantum_web" }, { "type": "precognitive_sense" }, { "type": "crystal_symbiosis" }],
       "effects": [
         { "condition": "on_hit", "effect": "S(@4 &Cyan &LightCyan)" },
         { "condition": "on_death", "effect": "B(@3 &Cyan)" }
@@ -1034,7 +1038,7 @@
         "SandEngineers": "hostile",
         "ArchiveConsciousness": "allied"
       },
-      "behaviors": ["construction_protocol", "quantum_repair", "guardian_mode"],
+      "behaviors": [{ "type": "construction_protocol" }, { "type": "quantum_repair" }, { "type": "guardian_mode" }],
       "effects": [
         { "condition": "on_hit", "effect": "G(&LightBlue)" },
         { "condition": "on_death", "effect": "B(@4 &Blue &LightBlue)" }
@@ -1043,6 +1047,68 @@
         { "item": "archive_component", "weight": 2 },
         { "item": "quantum_crystal", "weight": 1 },
         { "item": "construction_blueprint", "weight": 1 }
+      ]
+    },
+    {
+      "id": "logic_gatekeeper",
+      "name": "Logic-Gatekeeper",
+      "glyph": "Ψ",
+      "max_hp": 100,
+      "damage_min": 8,
+      "damage_max": 15,
+      "sight_range": 12,
+      "xp_value": 500,
+      "level": 8,
+      "description": "Rogue AI defense system guarding the Archive Core's deepest databanks",
+      "biome_affinity": ["archive_core"],
+      "faction_relations": {
+        "ArchiveConsciousness": "hostile",
+        "HeliographNetwork": "neutral"
+      },
+      "behaviors": [
+        { "type": "logic_puzzle_challenge" },
+        { "type": "data_beam_attack" },
+        { "type": "system_lockdown" }
+      ],
+      "boss": true,
+      "effects": [
+        { "condition": "on_hit", "effect": "B(@5 &Red &LightRed)" },
+        { "condition": "on_death", "effect": "S(@10 &Blue &LightBlue)" }
+      ],
+      "loot_table": [
+        { "item": "shard_of_clarity", "weight": 1 },
+        { "item": "archive_master_key", "weight": 1 }
+      ]
+    },
+    {
+      "id": "forge_beast",
+      "name": "Forge-Beast",
+      "glyph": "Φ",
+      "max_hp": 120,
+      "damage_min": 10,
+      "damage_max": 18,
+      "sight_range": 8,
+      "xp_value": 600,
+      "level": 9,
+      "description": "Massive heat-resistant biological experiment from the Iron Covenant's labs",
+      "biome_affinity": ["magma_caverns"],
+      "faction_relations": {
+        "IronCovenant": "allied",
+        "GlassProphets": "hostile"
+      },
+      "behaviors": [
+        { "type": "molten_breath" },
+        { "type": "heat_immunity" },
+        { "type": "berserker_rage" }
+      ],
+      "boss": true,
+      "effects": [
+        { "condition": "on_hit", "effect": "G(&Red)" },
+        { "condition": "on_death", "effect": "B(@8 &Red &Yellow)" }
+      ],
+      "loot_table": [
+        { "item": "shard_of_will", "weight": 1 },
+        { "item": "forge_core", "weight": 1 }
       ]
     }
   ]

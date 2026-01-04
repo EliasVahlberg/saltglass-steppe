@@ -230,6 +230,52 @@
       "chains_to": null,
       "weight": 1.0,
       "cooldown_turns": 15
+    },
+    {
+      "id": "bureaucratic_confusion",
+      "name": "Bureaucratic Confusion",
+      "description": "Archive systems attempt to process an impossible request, leading to amusing malfunctions",
+      "triggers": [
+        {
+          "trigger_type": "player_action",
+          "conditions": {"interacted_with_archive": true},
+          "probability": 0.15
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "An Archive terminal displays: 'ERROR: Cannot compute the square root of purple. Please try a different color.'"
+          }
+        }
+      ],
+      "chains_to": null,
+      "weight": 0.8,
+      "cooldown_turns": 20
+    },
+    {
+      "id": "interpretive_disagreement",
+      "name": "Interpretive Disagreement", 
+      "description": "Faction representatives argue about the meaning of recent events",
+      "triggers": [
+        {
+          "trigger_type": "storm_aftermath",
+          "conditions": {"storm_intensity_gte": 3},
+          "probability": 0.25
+        }
+      ],
+      "consequences": [
+        {
+          "consequence_type": "environmental_story",
+          "parameters": {
+            "message": "You overhear an argument: 'The storm clearly indicates divine intervention!' 'No, atmospheric pressure!' 'Cosmic windshield wipers!' Everyone stares at the last speaker."
+          }
+        }
+      ],
+      "chains_to": null,
+      "weight": 0.6,
+      "cooldown_turns": 25
     }
   ],
   "chains": [
