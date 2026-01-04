@@ -187,6 +187,10 @@ impl WorldGenerator {
         // Enhanced POI placement using weighted preferences
         let pois = self.generate_pois(seed, &biomes, &terrain);
         
+        // Override biomes at quest-critical POI locations
+        let mut biomes = biomes;
+        self.override_quest_biomes(&mut biomes, &pois);
+        
         // Enhanced road generation
         let connected = self.generate_connections(seed, &pois);
         
@@ -222,6 +226,9 @@ impl WorldGenerator {
         let mut poi_positions: Vec<(usize, usize)> = Vec::new();
         let mut town_positions: Vec<(usize, usize)> = Vec::new();
         let mut rng = ChaCha8Rng::seed_from_u64(seed + 100);
+
+        // First, place quest-critical POIs at fixed locations
+        self.place_quest_pois(&mut pois, &mut poi_positions);
 
         for (poi_name, poi_config) in &self.config.poi_distribution {
             let poi_type = match poi_name.as_str() {
@@ -292,6 +299,28 @@ impl WorldGenerator {
         }
 
         pois
+    }
+
+    /// Place POIs at quest-critical locations
+    fn place_quest_pois(&self, pois: &mut Vec<POI>, poi_positions: &mut Vec<(usize, usize)>) {
+        // Vitrified library ruins at (50, 50) - use Landmark POI
+        let x = 50;
+        let y = 50;
+        if x < WORLD_WIDTH && y < WORLD_HEIGHT {
+            let idx = y * WORLD_WIDTH + x;
+            pois[idx] = POI::Landmark;
+            poi_positions.push((x, y));
+        }
+    }
+
+    /// Override biomes at quest-critical POI locations
+    fn override_quest_biomes(&self, biomes: &mut Vec<Biome>, pois: &[POI]) {
+        // Set biome to Ruins at Landmark POIs for proper microstructure generation
+        for (idx, &poi) in pois.iter().enumerate() {
+            if poi == POI::Landmark {
+                biomes[idx] = Biome::Ruins;
+            }
+        }
     }
 
     fn generate_connections(&self, seed: u64, pois: &[POI]) -> Vec<Connected> {
