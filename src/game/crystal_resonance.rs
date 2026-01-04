@@ -73,7 +73,7 @@ impl CrystalFormation {
     pub fn power_output(&self) -> u32 {
         let base = self.frequency.base_power();
         let size_multiplier = self.size as u32;
-        let growth_multiplier = (self.growth_stage as u32 + 1);
+        let growth_multiplier = self.growth_stage as u32 + 1;
         let stability_factor = self.stability as f32 / 100.0;
         
         ((base * size_multiplier * growth_multiplier) as f32 * stability_factor) as u32

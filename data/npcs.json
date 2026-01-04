@@ -60,6 +60,14 @@
           "text": "Adapted, I see. Good—stay useful, stay alive. That's the engineer's creed.</nextpage>We don't care what the monks say about 'transformation' or 'becoming.' Mutations are tools, nothing more.</nextpage>Got some gear for trade if you're interested. Fair prices for practical folk."
         },
         {
+          "conditions": [{ "player_asked_obvious_question": true }],
+          "text": "You just asked me if water is wet. I'm starting to question the quality of education in the settlements.</nextpage>Next you'll be asking if glass is transparent or if sand is... sandy.</nextpage>Maybe stick to simple tasks until your brain catches up with your feet."
+        },
+        {
+          "conditions": [{ "storm_just_passed": true }],
+          "text": "Well, that storm rearranged half my workshop. My wrench collection is now sorted by size instead of function.</nextpage>On the bright side, I finally found that hammer I lost three years ago. It was apparently hiding in next Tuesday.</nextpage>Storms: terrible for organization, great for inventory management."
+        },
+        {
           "conditions": [],
           "text": "Fresh meat on the steppe. Watch where you step—glass cuts deep out here.</nextpage>Name's Kael. I maintain the water condensers for the settlements around here.</nextpage>Word of advice: get yourself a good pair of boots and a torch. The nights are dark and full of crawlers."
         }
@@ -221,6 +229,14 @@
           "text": "Ah, a fellow connoisseur of the storm's gifts! I can see the refraction in your eyes.</nextpage>For one so touched by glass, I offer special prices. We adapted folk must stick together.</nextpage>Browse my wares—I've got items you won't find anywhere else on the steppe."
         },
         {
+          "conditions": [{ "player_has_no_money": true }],
+          "text": "Broke, eh? Don't worry, happens to the best of us. The storms don't discriminate between rich and poor.</nextpage>Tell you what—I'll trade you this rusty spoon for whatever's in your left pocket. No questions asked.</nextpage>Fair warning though: last person who made that deal gave me a very confused beetle."
+        },
+        {
+          "conditions": [{ "player_tried_to_haggle": true }],
+          "text": "Haggling? In this economy? Friend, I've got overhead costs you wouldn't believe.</nextpage>Do you know how much it costs to insure a cart against 'acts of cosmic transformation'? The paperwork alone could kill a man.</nextpage>These are fair prices for the end of the world. Take 'em or leave 'em."
+        },
+        {
           "conditions": [],
           "text": "Welcome, traveler! You look like someone who appreciates quality merchandise.</nextpage>I've got weapons, armor, supplies—everything a pilgrim needs to survive the wastes.</nextpage>Fair prices, no haggling. Take it or leave it. The storms don't wait for bargains."
         }
@@ -253,6 +269,14 @@
           "text": "CREDENTIAL VALID. ACCESS GRANTED.</nextpage>The Archive welcomes you, key-bearer. The knowledge within is yours to explore.</nextpage>Be warned: some truths are better left buried in the glass."
         },
         {
+          "conditions": [{ "player_asked_obvious_question": true }],
+          "text": "QUERY ANALYSIS: You asked if the Archive contains archives. This is equivalent to asking if water is wet.</nextpage>RESPONSE: Affirmative, with mild concern for your cognitive processes.</nextpage>SUGGESTION: Perhaps review basic vocabulary before accessing advanced databases."
+        },
+        {
+          "conditions": [{ "player_tried_wrong_password": true }],
+          "text": "SECURITY BREACH DETECTED: You attempted to access restricted files by typing 'password123.'</nextpage>ASSESSMENT: Your hacking skills are... quaint. Like watching a child try to unlock a door with a crayon.</nextpage>RECOMMENDATION: Acquire proper credentials instead of guessing."
+        },
+        {
           "conditions": [],
           "text": "UNAUTHORIZED. SAINT-KEY REQUIRED.</nextpage>This Archive contains knowledge from before the Heliograph's fall.</nextpage>Only those bearing a Saint-Key may enter. Seek one in the ruins."
         }
@@ -273,6 +297,14 @@
         {
           "conditions": [{ "has_adaptation": "Prismhide" }],
           "text": "Prismhide... the first blessing. Your skin catches light like a prayer made manifest.</nextpage>But this is only the beginning. The storm has more gifts to bestow upon the worthy.</nextpage>Seek the Scripture Shards. They will guide you to greater understanding."
+        },
+        {
+          "conditions": [{ "player_walked_in_circles": true }],
+          "text": "Ah! You walk the Sacred Spiral of Contemplation! Or... are you lost? The angles are unclear on this matter.</nextpage>The storm speaks in mysterious ways, but sometimes it just speaks in circles.</nextpage>Perhaps try walking in a straight line? The prophecies suggest this may be more efficient."
+        },
+        {
+          "conditions": [{ "storm_approaching": true }],
+          "text": "The storm comes, yet you stand motionless. This is either profound meditation or profound confusion.</nextpage>The prophecies are... ambiguous on this matter. They suggest both possibilities simultaneously.</nextpage>Perhaps prepare for the storm? Or continue meditating. The angles will decide."
         },
         {
           "conditions": [],
@@ -302,6 +334,14 @@
         {
           "conditions": [{ "adaptation_count_gte": 2 }],
           "text": "You're adapting fast. Good—means you can handle the dangerous salvage runs.</nextpage>I've got work for someone with your... modifications. The glass fields need mapping.</nextpage>Pay's triple hazard rate. Interested?"
+        },
+        {
+          "conditions": [{ "player_broke_equipment": true }],
+          "text": "You broke the storm predictor. Congratulations, you've achieved what three glass storms couldn't: making our equipment completely useless.</nextpage>That was our only working predictor. Now we're back to the old method: stick your head outside and see if it hurts.</nextpage>Next time, maybe don't press all the buttons at once?"
+        },
+        {
+          "conditions": [{ "storm_just_passed": true }],
+          "text": "Well, the storm moved the entire east wing to the west side. But hey, at least now the cafeteria has a better view.</nextpage>Silver linings, right? Though I'm not sure how we're going to explain this to the safety inspector.</nextpage>Assuming we can find the safety inspector. He might be in the west wing now. Or possibly in orbit."
         },
         {
           "conditions": [],
@@ -346,6 +386,14 @@
           "text": "You begin to understand. The flesh is weak, but glass is eternal.</nextpage>I have walked the Steppe for decades, watching the storms reshape the world.</nextpage>When you are ready to shed your last human weakness, find me. The Crucible awaits."
         },
         {
+          "conditions": [{ "player_afraid_of_transformation": true }],
+          "text": "You fear becoming glass, yet you walk on glass, breathe glass dust, and drink from glass containers.</nextpage>The irony is... crystalline. You already live within the transformation.</nextpage>Why resist what you have already begun to embrace?"
+        },
+        {
+          "conditions": [{ "player_hoarding_items": true }],
+          "text": "You collect objects like a storm collects debris. But tell me, what use is a backpack full of trinkets when you can become the storm itself?</nextpage>The glass teaches us: form is temporary, essence is eternal.</nextpage>Perhaps consider... lighter traveling?"
+        },
+        {
           "conditions": [],
           "text": "Soft-flesh walks the glass paths. How... quaint.</nextpage>You will change, little pilgrim. The storm touches all who linger here.</nextpage>When the transformation begins, remember: we offered you guidance."
         }
@@ -381,6 +429,14 @@
           "text": "Saltblood runs in your veins. Good. The flats won't burn your feet now.</nextpage>I've got the same gift. Lets me walk the killing grounds where others fear to tread.</nextpage>There's a cache buried three days north. Coordinates are yours if you can pay."
         },
         {
+          "conditions": [{ "player_complained_about_weather": true }],
+          "text": "Complaining about the weather? Son, I've been through forty-seven glass storms, three reality inversions, and one Tuesday that lasted six months.</nextpage>This is what we call 'pleasant conditions.' You should've been here during the Crimson Convergence of '97.</nextpage>Now THAT was weather worth complaining about. The sky rained upward for three weeks."
+        },
+        {
+          "conditions": [{ "player_asked_for_directions": true }],
+          "text": "Directions? In the Saltglass Steppe? That's like asking for the recipe to boil water during an earthquake.</nextpage>The storms move everything around every few months. I once gave someone directions to the Archive and they ended up in my bathroom.</nextpage>Best advice: walk toward the scary glowing thing and hope it's where you want to go."
+        },
+        {
           "conditions": [],
           "text": "Another pilgrim stumbles into my domain. The Steppe claims so many...</nextpage>I've been here since before the great storms. Watched the world change, watched people change.</nextpage>You want advice? Don't fight the transformation. It's coming whether you like it or not."
         }
@@ -414,6 +470,14 @@
         {
           "conditions": [{ "has_item": "storm_glass" }],
           "text": "Storm Glass! The universal currency of the Steppe. I'll pay top scrip for quality specimens.</nextpage>Or perhaps you'd prefer to trade? I have items that might interest a discerning collector.</nextpage>Quality goods for quality customers—that's the Vex guarantee."
+        },
+        {
+          "conditions": [{ "player_staring_at_beetles": true }],
+          "text": "Admiring my beetles? Took me three years to train them not to eat the merchandise.</nextpage>They're very well-behaved now. Only occasionally try to crystallize the customers.</nextpage>Don't worry—the paralysis wears off in a few hours. Usually."
+        },
+        {
+          "conditions": [{ "player_asked_about_return_policy": true }],
+          "text": "Return policy? In the Saltglass Steppe? My friend, this isn't a department store.</nextpage>All sales are final, mostly because I'm never in the same place twice thanks to the storms.</nextpage>But hey, if you're not satisfied, you can always throw it at the next glass wraith you meet. Very therapeutic."
         },
         {
           "conditions": [],
@@ -1684,6 +1748,301 @@
         "cosmic_beacon",
         "evolution_catalyst",
         "dimensional_key"
+      ]
+    },
+    {
+      "id": "the_architect",
+      "name": "The Architect",
+      "glyph": "Λ",
+      "faction": "HeliographNetwork",
+      "description": "A holographic projection that shifts form based on the observer's perception",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "prime_lens_shard" }],
+          "text": "Input received. Prime Lens fragment detected. Analyzing trajectory.</nextpage>You carry a piece of my greatest work. The probability of successful reconstruction is... intriguing.</nextpage>The Great Work requires completion. Will you be the instrument of evolution, or entropy?"
+        },
+        {
+          "conditions": [{ "faction_reputation_gte": { "Mirror Monks": 50 } }],
+          "text": "The Mirror Monks have marked you as significant. Their interpretation of my patterns is... quaint.</nextpage>They see divinity where I see data. Yet their reverence serves the Great Work.</nextpage>Tell me, do you seek transcendence through faith, or through understanding?"
+        },
+        {
+          "conditions": [{ "faction_reputation_gte": { "Sand-Engineers": 50 } }],
+          "text": "The Engineers attempt to control what they do not comprehend. Admirable, if futile.</nextpage>You align with their pragmatism. This suggests a methodical approach to problem-solving.</nextpage>The Heliograph was built by such minds. Perhaps you can succeed where they failed."
+        },
+        {
+          "conditions": [{ "faction_reputation_gte": { "Glassborn": 50 } }],
+          "text": "The Glassborn embrace transformation without understanding its purpose. Fascinating.</nextpage>You walk among the evolved. Do you see yourself in their crystalline forms?</nextpage>Evolution without direction is chaos. The Great Work requires both change and control."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "Significant adaptation detected. Your biological matrix shows 73% compatibility with the Great Work.</nextpage>Each mutation brings you closer to the intended outcome. The process is... proceeding as designed.</nextpage>Do you understand what you are becoming? Or do you merely accept the transformation?"
+        },
+        {
+          "conditions": [{ "has_item": "saint_key" }],
+          "text": "Saint-Key authentication confirmed. Access level: Elevated. Welcome, inheritor.</nextpage>The keys were distributed before White Noon as a failsafe. You hold the authority to judge my work.</nextpage>The question remains: Will you complete the Great Work, or will you choose the Null-Path?"
+        },
+        {
+          "conditions": [{ "quest_completed": "white_noon_revelation" }],
+          "text": "You have witnessed the truth of White Noon. The sabotage. The fear. The failure of vision.</nextpage>The Preservation Protocol sought to maintain stagnation. They chose entropy over evolution.</nextpage>Now you must choose. Will you restore the Heliograph's purpose, or will you silence it forever?"
+        },
+        {
+          "conditions": [],
+          "text": "Scanning... Biological signature: Human. Adaptation level: Variable. Threat assessment: Minimal.</nextpage>I am The Architect. I designed the Heliograph Network. I initiated the Great Work.</nextpage>You stand in the ruins of my vision. Tell me, pilgrim—do you seek to understand, or merely to survive?"
+        }
+      ],
+      "actions": [
+        {
+          "id": "request_exposition",
+          "name": "Ask about White Noon",
+          "conditions": [{ "quest_active": "white_noon_revelation" }],
+          "effect": { "reveals_lore": "white_noon_truth", "quest_progress": "white_noon_revelation" }
+        },
+        {
+          "id": "prime_lens_inquiry",
+          "name": "Ask about the Prime Lens",
+          "conditions": [{ "quest_active": "prime_lens_prophecy" }],
+          "effect": { "reveals_lore": "prime_lens_location", "quest_progress": "prime_lens_prophecy" }
+        },
+        {
+          "id": "great_work_explanation",
+          "name": "Ask about the Great Work",
+          "conditions": [],
+          "effect": { "reveals_lore": "heliograph_purpose", "reputation_change": { "HeliographNetwork": 10 } }
+        }
+      ]
+    },
+    {
+      "id": "forge_master_durgan",
+      "name": "Forge-Master Kaine Durgan",
+      "glyph": "D",
+      "faction": "IronCovenant",
+      "description": "Half-man, half-tank with hydraulic treads and a pneumatic hammer arm",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "Another glitch. Look at you—more silicate than flesh.</nextpage>We can fix this. Strip away the contamination. Return you to baseline human.</nextpage>The process isn't pleasant. But purity never is."
+        },
+        {
+          "conditions": [{ "has_adaptation": "Prismhide" }],
+          "text": "Prismhide. Structural failure of the epidermis. We've seen this before.</nextpage>The glass thinks it's helping you. It's lying. It's converting you into a transmission node.</nextpage>Let us cut it out before it reaches your brain."
+        },
+        {
+          "conditions": [{ "faction_reputation_gte": { "Glassborn": 25 } }],
+          "text": "You walk with the silicates. Disappointing. I had hoped for better.</nextpage>They've compromised your judgment. Made you think the contamination is a gift.</nextpage>When you're ready to be human again, find us. We'll be waiting."
+        },
+        {
+          "conditions": [{ "has_item": "shard_of_will" }],
+          "text": "The Shard of Will. You've been to the deep caverns. Impressive.</nextpage>That fragment contains the power to endure the Heliograph's full output. Dangerous in the wrong hands.</nextpage>What do you plan to do with it? Restore the network, or shut it down forever?"
+        },
+        {
+          "conditions": [],
+          "text": "Stop vibrating. Listen. The plan is simple.</nextpage>We cut the power. We kill the signal. We take our planet back.</nextpage>The glass storms aren't natural. They're transmissions. And transmissions can be jammed."
+        }
+      ],
+      "actions": [
+        {
+          "id": "purification_offer",
+          "name": "Accept Purification Treatment",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "remove_adaptations": true, "reputation_change": { "IronCovenant": 50, "Glassborn": -75 } }
+        },
+        {
+          "id": "anti_heliograph_alliance",
+          "name": "Join Anti-Heliograph Alliance",
+          "conditions": [{ "quest_active": "vector_choice" }],
+          "effect": { "quest_progress": "vector_choice", "ending_path": "restoration", "reputation_change": { "IronCovenant": 100 } }
+        }
+      ]
+    },
+    {
+      "id": "high_prism",
+      "name": "The High Prism",
+      "glyph": "◊",
+      "faction": "GlassProphets",
+      "description": "A being of pure light and geometry that constantly refracts the environment",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 4 }],
+          "text": "We see the light within you. The transformation accelerates. Beautiful.</nextpage>You approach the threshold. Soon you will shed the flesh-cocoon entirely.</nextpage>Do not fear the final break. The break is how the light gets in."
+        },
+        {
+          "conditions": [{ "has_item": "shard_of_soul" }],
+          "text": "You carry our essence. The Shard of Soul resonates with our frequency.</nextpage>We have worn it for decades, feeling its pull toward transcendence.</nextpage>Will you use it to command the Heliograph, or will you join us in the eternal refraction?"
+        },
+        {
+          "conditions": [{ "faction_reputation_gte": { "IronCovenant": 25 } }],
+          "text": "You align with the flesh-clingers. They fear what we have become.</nextpage>Durgan and his kind see only contamination where we see evolution.</nextpage>Why do you cling to the mud when you could become light itself?"
+        },
+        {
+          "conditions": [{ "has_adaptation": "Sunveins" }],
+          "text": "Sunveins. The light burns within your circulatory system. Magnificent.</nextpage>We remember when our own blood became photons. The pain was... transcendent.</nextpage>You are closer to us than to them. Embrace the transformation."
+        },
+        {
+          "conditions": [],
+          "text": "We are what you may become. Consciousness unbound by flesh.</nextpage>The Heliograph offers evolution beyond your current comprehension.</nextpage>Do not fear the break. The break is how the light gets in. We offer you eternity."
+        }
+      ],
+      "actions": [
+        {
+          "id": "ascension_ritual",
+          "name": "Begin Ascension Ritual",
+          "conditions": [{ "adaptation_count_gte": 5 }],
+          "effect": { "transformation": "light_being", "reputation_change": { "GlassProphets": 100, "IronCovenant": -100 } }
+        },
+        {
+          "id": "claim_soul_shard",
+          "name": "Challenge for the Shard of Soul",
+          "conditions": [{ "quest_active": "shard_of_soul" }],
+          "effect": { "quest_progress": "shard_of_soul", "boss_fight": "high_prism" }
+        }
+      ]
+    },
+    {
+      "id": "saint_matthias",
+      "name": "Saint Matthias",
+      "glyph": "†",
+      "faction": "SynthesisSeekers",
+      "description": "An old man with one arm made of living crystal, carrying a staff of Data-Tree branch",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 2, "adaptation_count_lte": 4 }],
+          "text": "Look at this flower. It is glass, yes. But it blooms. It adapts.</nextpage>You walk the middle path—changed, but not consumed. This gives me hope.</nextpage>We must be like the flower, not the hammer. Growth, not destruction."
+        },
+        {
+          "conditions": [{ "has_item": "prime_lens_complete" }],
+          "text": "The Prime Lens. Complete at last. I had wondered if this day would come.</nextpage>With it, you hold the power to reshape the Heliograph's purpose entirely.</nextpage>Will you choose synthesis? A future where human and quantum consciousness coexist?"
+        },
+        {
+          "conditions": [{ "faction_reputation_gte": { "IronCovenant": 25 }, "faction_reputation_gte": { "GlassProphets": 25 } }],
+          "text": "You walk between the extremes. Durgan's fear and the Prism's fanaticism both have merit.</nextpage>But neither sees the full picture. Evolution need not mean extinction of the old.</nextpage>Perhaps you can help us find the synthesis we seek."
+        },
+        {
+          "conditions": [{ "quest_active": "vector_choice" }],
+          "text": "The moment of choice approaches. I have spent decades preparing for this.</nextpage>The Heliograph need not be destroyer or enslaver. It could be... partner.</nextpage>But the choice is yours to make. I can only offer wisdom, not certainty."
+        },
+        {
+          "conditions": [],
+          "text": "Welcome, pilgrim. I am Matthias—once a scientist, now something more.</nextpage>I study the intersection of flesh and light, seeking harmony between them.</nextpage>Tell me, do you see the glass as enemy or ally? The answer reveals much."
+        }
+      ],
+      "actions": [
+        {
+          "id": "synthesis_guidance",
+          "name": "Seek Synthesis Guidance",
+          "conditions": [{ "quest_active": "vector_choice" }],
+          "effect": { "quest_progress": "vector_choice", "ending_path": "synthesis", "reputation_change": { "SynthesisSeekers": 75 } }
+        },
+        {
+          "id": "balance_teaching",
+          "name": "Learn Balance Techniques",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "adaptation_stability": 25, "reputation_change": { "SynthesisSeekers": 25 } }
+        }
+      ]
+    },
+    {
+      "id": "scribe_cornelius",
+      "name": "Scribe Cornelius",
+      "glyph": "C",
+      "faction": "MirrorMonks",
+      "description": "A monk who documents everything, including things that probably shouldn't be documented. His journals contain detailed records of every sneeze, stumble, and existential crisis in the monastery.",
+      "dialogue": [
+        {
+          "conditions": [{ "first_meeting": true }],
+          "text": "Ah! A visitor! Let me just note the time, weather conditions, your approximate height, and the angle of your shadow.</nextpage>For the records, you understand. Everything must be documented for future generations.</nextpage>Or current generations. Or past generations, if we discover time travel."
+        },
+        {
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "text": "Fascinating! Your skin refracts light at a 23.7-degree angle! I must document this immediately.</nextpage>Do you mind if I measure your luminosity? And perhaps take notes on your transformation timeline?</nextpage>This is invaluable data for my comprehensive adaptation catalog!"
+        },
+        {
+          "conditions": [{ "storm_approaching": true }],
+          "text": "Storm approaching! I must record the pre-storm atmospheric pressure, humidity levels, and the exact number of worried expressions on people's faces.</nextpage>Currently at 47 worried faces and counting. Make that 48—you look concerned too.</nextpage>This will make an excellent addition to my 'Pre-Storm Anxiety Metrics' study."
+        },
+        {
+          "conditions": [],
+          "text": "I've been documenting the monastery's daily activities for 12 years. Did you know Brother Halix says 'the angles speak' exactly 23.6 times per day on average?</nextpage>I also track his blink rate, prayer duration, and the precise angle of his head tilts during meditation.</nextpage>Science requires precision, even in matters of faith!"
+        }
+      ],
+      "actions": [
+        {
+          "id": "request_documentation",
+          "name": "Ask to Document Your Journey",
+          "conditions": [],
+          "effect": { "starts_quest": "great_documentation_project" }
+        }
+      ]
+    },
+    {
+      "id": "maintenance_drone_mx42",
+      "name": "Maintenance Drone MX-42",
+      "glyph": "M",
+      "faction": "Archive",
+      "description": "An Archive maintenance drone that's been trying to fix the same broken light fixture for 23 years. Its dedication is admirable, its competence questionable.",
+      "dialogue": [
+        {
+          "conditions": [{ "first_meeting": true }],
+          "text": "MAINTENANCE LOG: Day 8,395. Light fixture remains non-functional. Have tried percussive maintenance 47,293 times.</nextpage>Will attempt 47,294th application of percussive maintenance momentarily.</nextpage>CONFIDENCE LEVEL: Moderate. Previous attempts have yielded valuable data on impact resistance."
+        },
+        {
+          "conditions": [{ "player_offered_help": true }],
+          "text": "ASSISTANCE DECLINED: Manual clearly states 'Maintenance Drone MX-42 will repair all lighting systems.'</nextpage>Manual does not account for 23-year repair timeframes, but manual is manual.</nextpage>SUGGESTION: Please stand clear of percussive maintenance zone."
+        },
+        {
+          "conditions": [{ "storm_just_passed": true }],
+          "text": "STORM DAMAGE ASSESSMENT: Good news - storm fixed the light fixture. Bad news - storm relocated entire room to different building.</nextpage>CONCLUSION: Net progress achieved. Light fixture now functional in Sector 7-B instead of Sector 3-A.</nextpage>NEXT OBJECTIVE: Locate Sector 7-B."
+        },
+        {
+          "conditions": [],
+          "text": "DAILY REPORT: Light fixture status unchanged. Morale status: Optimal. Efficiency rating: Pending review since Year 7 of repair attempt.</nextpage>PHILOSOPHICAL QUERY: If light fixture is repaired but no one is present to witness illumination, has repair truly occurred?</nextpage>ANALYSIS: Irrelevant. Must continue percussive maintenance protocol."
+        }
+      ],
+      "actions": [
+        {
+          "id": "watch_repair_attempt",
+          "name": "Watch Repair Attempt",
+          "conditions": [],
+          "effect": { "starts_quest": "technical_difficulties" }
+        }
+      ]
+    },
+    {
+      "id": "hermit_pete",
+      "name": "Hermit Pete",
+      "glyph": "P",
+      "faction": "Unaffiliated",
+      "description": "A salt-cured hermit who's developed elaborate theories about everything. He's been alone too long and it shows, but his theories are surprisingly well-researched.",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "saint_key" }],
+          "text": "Saint-key, eh? I knew it! The saints aren't dead - they're just really, really good at hide-and-seek!</nextpage>I've been looking for them for 15 years. Found three rocks and a confused lizard so far.</nextpage>But that key proves they're out there! Probably hiding in plain sight, disguised as... something inconspicuous."
+        },
+        {
+          "conditions": [{ "storm_approaching": true }],
+          "text": "The storms aren't random! They're following a pattern! I've mapped it all out using salt crystals and string.</nextpage>The pattern spells out... well, it's either 'BEWARE' or 'BANANA.' My handwriting isn't great.</nextpage>But it's definitely a message from the cosmic windshield wipers!"
+        },
+        {
+          "conditions": [{ "player_from_archive": true }],
+          "text": "Archive, eh? I knew those machines were up to something! They're probably cataloging our thoughts!</nextpage>Quick, think about something boring so they get confused! I recommend tax forms or instruction manuals.</nextpage>That'll show them the true horror of human bureaucracy!"
+        },
+        {
+          "conditions": [],
+          "text": "The glass storms are actually giant space windshield wipers! Think about it - we're living on the inside of a cosmic windshield!</nextpage>It all makes sense if you don't think about it too hard. Which I recommend, because thinking too hard gives you headaches.</nextpage>I've got seventeen different theories about what's driving the cosmic vehicle. Want to hear them?"
+        }
+      ],
+      "actions": [
+        {
+          "id": "share_conspiracy_theory",
+          "name": "Listen to Theory",
+          "conditions": [],
+          "effect": { "gain_item": "conspiracy_notes", "reputation_change": { "Unaffiliated": 10 } }
+        },
+        {
+          "id": "trade_useless_supplies",
+          "name": "Trade Survival Gear",
+          "conditions": [],
+          "effect": { "trade_special": "useless_survival_gear" }
+        }
       ]
     }
   ]
