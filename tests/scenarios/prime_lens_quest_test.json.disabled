@@ -1,0 +1,189 @@
+{
+  "name": "prime_lens_quest_progression",
+  "description": "Test complete Prime Lens quest progression from White Noon revelation to Vector Choice",
+  "seed": 777,
+  "map_setup": {
+    "clear_radius": 20,
+    "ensure_paths": [
+      {"from_x": 10, "from_y": 10, "to_x": 15, "to_y": 10},
+      {"from_x": 10, "from_y": 10, "to_x": 150, "to_y": 150},
+      {"from_x": 10, "from_y": 10, "to_x": 200, "to_y": 100},
+      {"from_x": 10, "from_y": 10, "to_x": 100, "to_y": 200}
+    ]
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 100,
+    "max_hp": 100,
+    "level": 10,
+    "inventory": ["saint_key"],
+    "adaptations": ["Prismhide", "Sunveins"],
+    "faction_reputation": {
+      "Heliograph Network": 25,
+      "Mirror Monks": 40
+    }
+  },
+  "entities": [
+    {
+      "entity_type": "npc",
+      "id": "the_architect",
+      "x": 15,
+      "y": 10
+    },
+    {
+      "entity_type": "npc",
+      "id": "custodian_iri_7",
+      "x": 100,
+      "y": 100
+    },
+    {
+      "entity_type": "enemy",
+      "id": "logic_gatekeeper",
+      "x": 150,
+      "y": 150
+    },
+    {
+      "entity_type": "enemy",
+      "id": "forge_beast",
+      "x": 200,
+      "y": 100
+    },
+    {
+      "entity_type": "npc",
+      "id": "high_prism",
+      "x": 100,
+      "y": 200
+    }
+  ],
+  "quests": [
+    {
+      "quest_id": "custodians_query",
+      "status": "completed"
+    },
+    {
+      "quest_id": "white_noon_revelation",
+      "status": "active"
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "start_dialogue",
+        "target_x": 15,
+        "target_y": 10
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "dialogue_action",
+        "action_id": "request_exposition"
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "complete_quest",
+        "quest_id": "white_noon_revelation"
+      }
+    },
+    {
+      "turn": 3,
+      "action": {
+        "type": "accept_quest",
+        "quest_id": "prime_lens_prophecy"
+      }
+    },
+    {
+      "turn": 4,
+      "action": {
+        "type": "dialogue_action",
+        "action_id": "prime_lens_inquiry"
+      }
+    },
+    {
+      "turn": 5,
+      "action": {
+        "type": "complete_quest",
+        "quest_id": "prime_lens_prophecy"
+      }
+    },
+    {
+      "turn": 6,
+      "action": {
+        "type": "accept_quest",
+        "quest_id": "shard_of_clarity"
+      }
+    },
+    {
+      "turn": 7,
+      "action": {
+        "type": "teleport",
+        "x": 150,
+        "y": 150
+      }
+    },
+    {
+      "turn": 8,
+      "action": {
+        "type": "attack",
+        "target_x": 150,
+        "target_y": 150
+      }
+    }
+  ],
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 200
+  },
+  "assertions": [
+    {
+      "at_turn": 1,
+      "check": {
+        "type": "message_contains",
+        "text": "Saint-Key authentication confirmed"
+      }
+    },
+    {
+      "at_turn": 2,
+      "check": {
+        "type": "faction_reputation",
+        "faction": "Heliograph Network",
+        "op": "gte",
+        "value": 30
+      }
+    },
+    {
+      "at_turn": 4,
+      "check": {
+        "type": "message_contains",
+        "text": "Prime Lens"
+      }
+    },
+    {
+      "at_turn": 6,
+      "check": {
+        "type": "quest_active",
+        "quest_id": "shard_of_clarity"
+      }
+    },
+    {
+      "at_turn": 9,
+      "check": {
+        "type": "enemy_at",
+        "x": 150,
+        "y": 150,
+        "alive": false
+      }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "has_item",
+        "item_id": "shard_of_clarity"
+      }
+    }
+  ]
+}

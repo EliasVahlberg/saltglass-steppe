@@ -1,0 +1,206 @@
+{
+  "name": "faction_reputation_system",
+  "description": "Test faction reputation changes and dialogue variations based on player alignment",
+  "seed": 888,
+  "map_setup": {
+    "clear_radius": 15,
+    "ensure_paths": [
+      {"from_x": 10, "from_y": 10, "to_x": 20, "to_y": 10},
+      {"from_x": 10, "from_y": 10, "to_x": 30, "to_y": 10},
+      {"from_x": 10, "from_y": 10, "to_x": 40, "to_y": 10}
+    ]
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "inventory": ["prime_lens_complete"],
+    "adaptations": ["Prismhide", "Sunveins", "Saltblood"],
+    "faction_reputation": {
+      "Iron Covenant": -10,
+      "Glass Prophets": 60,
+      "Synthesis Seekers": 30
+    }
+  },
+  "entities": [
+    {
+      "entity_type": "npc",
+      "id": "forge_master_durgan",
+      "x": 20,
+      "y": 10
+    },
+    {
+      "entity_type": "npc",
+      "id": "high_prism",
+      "x": 30,
+      "y": 10
+    },
+    {
+      "entity_type": "npc",
+      "id": "saint_matthias",
+      "x": 40,
+      "y": 10
+    }
+  ],
+  "quests": [
+    {
+      "quest_id": "vector_choice",
+      "status": "active"
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 3,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 4,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 5,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 6,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 7,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 8,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 9,
+      "action": {
+        "type": "move",
+        "dx": 1,
+        "dy": 0
+      }
+    },
+    {
+      "turn": 10,
+      "action": {
+        "type": "start_dialogue",
+        "target_x": 20,
+        "target_y": 10
+      }
+    },
+    {
+      "turn": 11,
+      "action": {
+        "type": "start_dialogue",
+        "target_x": 30,
+        "target_y": 10
+      }
+    },
+    {
+      "turn": 12,
+      "action": {
+        "type": "start_dialogue",
+        "target_x": 40,
+        "target_y": 10
+      }
+    },
+    {
+      "turn": 13,
+      "action": {
+        "type": "dialogue_action",
+        "action_id": "synthesis_guidance"
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_turn": 10,
+      "check": {
+        "type": "npc_at",
+        "x": 20,
+        "y": 10,
+        "npc_id": "forge_master_durgan"
+      }
+    },
+    {
+      "at_turn": 11,
+      "check": {
+        "type": "message_contains",
+        "text": "silicate"
+      }
+    },
+    {
+      "at_turn": 12,
+      "check": {
+        "type": "message_contains",
+        "text": "light within you"
+      }
+    },
+    {
+      "at_turn": 13,
+      "check": {
+        "type": "message_contains",
+        "text": "Prime Lens"
+      }
+    },
+    {
+      "at_turn": 14,
+      "check": {
+        "type": "faction_reputation",
+        "faction": "Synthesis Seekers",
+        "op": "gte",
+        "value": 100
+      }
+    }
+  ]
+}

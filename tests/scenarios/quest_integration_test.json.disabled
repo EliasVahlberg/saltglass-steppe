@@ -1,0 +1,124 @@
+{
+  "name": "quest_system_integration",
+  "description": "Test quest unlocking, progression, and completion mechanics for the enhanced main questline",
+  "seed": 999,
+  "map_setup": {
+    "clear_radius": 10
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 30,
+    "max_hp": 30,
+    "inventory": ["saint_key", "shard_of_clarity", "shard_of_will", "shard_of_soul"],
+    "faction_reputation": {
+      "Heliograph Network": 50
+    }
+  },
+  "entities": [
+    {
+      "entity_type": "npc",
+      "id": "the_architect",
+      "x": 15,
+      "y": 10
+    }
+  ],
+  "quests": [
+    {
+      "quest_id": "shard_of_clarity",
+      "status": "completed"
+    },
+    {
+      "quest_id": "shard_of_will", 
+      "status": "completed"
+    },
+    {
+      "quest_id": "shard_of_soul",
+      "status": "completed"
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "accept_quest",
+        "quest_id": "vector_choice"
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "teleport",
+        "x": 250,
+        "y": 250
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "use_item",
+        "item_index": 1
+      }
+    },
+    {
+      "turn": 3,
+      "action": {
+        "type": "use_item",
+        "item_index": 2
+      }
+    },
+    {
+      "turn": 4,
+      "action": {
+        "type": "use_item",
+        "item_index": 3
+      }
+    },
+    {
+      "turn": 5,
+      "action": {
+        "type": "teleport",
+        "x": 15,
+        "y": 10
+      }
+    },
+    {
+      "turn": 6,
+      "action": {
+        "type": "start_dialogue",
+        "target_x": 15,
+        "target_y": 10
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_turn": 0,
+      "check": {
+        "type": "quest_active",
+        "quest_id": "vector_choice"
+      }
+    },
+    {
+      "at_turn": 5,
+      "check": {
+        "type": "has_item",
+        "item_id": "prime_lens_complete"
+      }
+    },
+    {
+      "at_turn": 6,
+      "check": {
+        "type": "message_contains",
+        "text": "Great Work"
+      }
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "quest_active",
+        "quest_id": "vector_choice"
+      }
+    }
+  ]
+}
