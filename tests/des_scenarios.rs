@@ -62,6 +62,37 @@ fn bsp_algorithm_basic() {
 }
 
 #[test]
+fn cellular_automata_algorithm_basic() {
+    // Test Cellular Automata algorithm generates organic walls
+    use saltglass_steppe::game::generation::structures::algorithms::{CellularAutomataAlgorithm, CellularAutomataParams};
+    
+    let mut rng = ChaCha8Rng::seed_from_u64(12345);
+    let params = CellularAutomataParams::default();
+    let algorithm = CellularAutomataAlgorithm::new(params);
+    
+    let bounds = Rectangle::new(0, 0, 30, 20);
+    let walls = algorithm.generate(bounds, &mut rng);
+    
+    // Validate we get walls
+    assert!(walls.len() > 0, "Cellular Automata should generate walls");
+    
+    // Validate wall constraints (create new bounds for comparison)
+    let bounds_check = Rectangle::new(0, 0, 30, 20);
+    for (x, y) in &walls {
+        assert!(*x >= bounds_check.x as i32 && *x < (bounds_check.x + bounds_check.width) as i32, "Wall x out of bounds: {}", x);
+        assert!(*y >= bounds_check.y as i32 && *y < (bounds_check.y + bounds_check.height) as i32, "Wall y out of bounds: {}", y);
+    }
+    
+    // Test determinism
+    let mut rng2 = ChaCha8Rng::seed_from_u64(12345);
+    let bounds2 = Rectangle::new(0, 0, 30, 20);
+    let walls2 = algorithm.generate(bounds2, &mut rng2);
+    assert_eq!(walls, walls2, "Cellular Automata should be deterministic");
+    
+    println!("✅ Cellular Automata Algorithm: Generated {} wall tiles", walls.len());
+}
+
+#[test]
 fn void_energy_basic() {
     let result = run_scenario("tests/scenarios/void_energy_basic.json")
         .expect("Failed to run void_energy_basic scenario");

@@ -1,0 +1,25 @@
+{
+  "name": "cellular_automata_algorithm_test",
+  "seed": 12345,
+  "map_setup": {
+    "clear_radius": 15,
+    "ensure_paths": []
+  },
+  "player": {
+    "x": 10,
+    "y": 10,
+    "inventory": []
+  },
+  "entities": [],
+  "mocks": {},
+  "actions": [],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "message_contains",
+        "text": "Cellular Automata test completed"
+      }
+    }
+  ]
+}
