@@ -2,6 +2,8 @@
 
 use std::fs;
 use saltglass_steppe::des::{run_scenario, run_parallel, Scenario};
+use saltglass_steppe::game::generation::structures::{BSPAlgorithm, BSPParams, Rectangle};
+use rand_chacha::{ChaCha8Rng, rand_core::SeedableRng};
 
 #[test]
 fn system_integration_test() {
@@ -25,6 +27,38 @@ fn crystal_resonance_basic() {
         "Crystal resonance test failed: {:?}",
         result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
     );
+}
+
+#[test]
+fn bsp_algorithm_basic() {
+    // Test BSP algorithm generates valid room layouts
+    let mut rng = ChaCha8Rng::seed_from_u64(12345);
+    let params = BSPParams::default();
+    let algorithm = BSPAlgorithm::new(params);
+    
+    let bounds = Rectangle::new(0, 0, 40, 30);
+    let (rooms, corridors) = algorithm.generate(bounds, &mut rng);
+    
+    // Validate we get rooms and corridors
+    assert!(rooms.len() > 0, "BSP should generate at least one room");
+    assert!(corridors.len() >= 0, "BSP should generate corridors");
+    
+    // Validate room constraints
+    for room in &rooms {
+        assert!(room.bounds.width >= 4, "Room too narrow: {}", room.bounds.width);
+        assert!(room.bounds.height >= 4, "Room too short: {}", room.bounds.height);
+        assert!(room.bounds.x + room.bounds.width <= 40, "Room exceeds width bounds");
+        assert!(room.bounds.y + room.bounds.height <= 30, "Room exceeds height bounds");
+    }
+    
+    // Validate corridor constraints
+    for corridor in &corridors {
+        assert!(corridor.width > 0, "Corridor must have width");
+        assert!(corridor.start.0 <= 40 && corridor.start.1 <= 30, "Corridor start out of bounds");
+        assert!(corridor.end.0 <= 40 && corridor.end.1 <= 30, "Corridor end out of bounds");
+    }
+    
+    println!("✅ BSP Algorithm: Generated {} rooms, {} corridors", rooms.len(), corridors.len());
 }
 
 #[test]

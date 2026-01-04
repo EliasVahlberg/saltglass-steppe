@@ -1,6 +1,8 @@
 pub mod ruins_generator;
+pub mod algorithms;
 
 pub use ruins_generator::*;
+pub use algorithms::*;
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;

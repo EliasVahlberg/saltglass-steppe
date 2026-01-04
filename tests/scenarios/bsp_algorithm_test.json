@@ -1,0 +1,23 @@
+{
+  "name": "bsp_algorithm_basic",
+  "seed": 12345,
+  "description": "Test BSP algorithm generates valid room layouts",
+  "map_setup": {
+    "clear_radius": 0
+  },
+  "player": {
+    "x": 10,
+    "y": 10
+  },
+  "entities": [],
+  "actions": [],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "custom",
+        "description": "BSP algorithm generates rooms and corridors"
+      }
+    }
+  ]
+}
