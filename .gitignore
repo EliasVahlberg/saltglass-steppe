@@ -240,3 +240,8 @@ releases/
 untracked_scripts
 untracked_scripts/
 .agentic-tools-mcp/
+
+# Tile generation test outputs
+tile_test_output/
+custom_output/
+*_config.json

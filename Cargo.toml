@@ -24,6 +24,7 @@ textwrap = "0.16"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4.0", features = ["derive"] }
 which = "6.0"
+image = "0.25"
 
 [profile.release]
 codegen-units = 1        # Better optimization
@@ -31,3 +32,6 @@ lto = true              # Link-time optimization
 opt-level = 3           # Maximum speed optimization for TUI performance
 strip = true            # Remove debug symbols
 panic = "abort"         # Reduce binary size and avoid unwinding overhead
+
+[dev-dependencies]
+tempfile = "3.24.0"

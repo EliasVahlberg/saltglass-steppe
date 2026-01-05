@@ -1,0 +1,17 @@
+{
+  "seed": 4001,
+  "width": 80,
+  "height": 40,
+  "biome": "scrubland",
+  "terrain_type": "mesa",
+  "poi_type": "dungeon",
+  "quest_tile": false,
+  "enable_microstructures": true,
+  "enable_spawns": true,
+  "enable_loot": true,
+  "enable_narrative": false,
+  "custom_biome_attributes": {},
+  "output_layers": ["base_terrain", "poi_structures", "microstructures", "entity_spawns", "loot_placement"],
+  "output_format": ["text", "png"],
+  "output_dir": "tile-generation-sample-library"
+}

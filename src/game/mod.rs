@@ -56,7 +56,7 @@ pub use constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
 pub use equipment::{Equipment, EquipSlot};
 pub use fov::FieldOfView;
 pub use generation::{
-    GenerationPipeline, GenerationConfig, GenerationContext, load_generation_config, 
+    GenerationPipeline, GenerationConfig, load_generation_config, 
     TemplateLibrary, TemplateContext, ContentTemplate, 
     Grammar, GrammarContext, load_grammars_from_directory,
     BiomeSystem, BiomeProfile, BiomeGenerationContext, EnvironmentalFeature,
@@ -68,6 +68,10 @@ pub use generation::{
     get_loot_table, generate_loot, LootTable, LootEntry,
     StoryModel, StoryEvent, StoryCharacter, EventType, Relationship, RelationshipType,
     NarrativeGenerator, NarrativeTemplate, HistoricalEvent,
+    // New algorithm system
+    GenerationAlgorithm, AlgorithmRegistry, AlgorithmContext,
+    GenerationResult, AlgorithmParameters, GenerationLayer, GenerationError,
+    PerlinNoiseAlgorithm, GenerationConfiguration, ConfigurationLoader,
     events::{EventSystem, EventContext, DynamicEvent},
     narrative::{NarrativeIntegration, NarrativeContext, NarrativeState, StoryFragment},
 };

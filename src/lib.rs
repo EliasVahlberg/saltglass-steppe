@@ -6,6 +6,7 @@ pub mod ipc;
 pub mod cli;
 pub mod satellite;
 pub mod terminal_spawn;
+pub mod tilegen_tools;
 
 pub use game::*;
 pub use renderer::Renderer;
