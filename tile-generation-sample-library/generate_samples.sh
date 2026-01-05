@@ -17,11 +17,10 @@ echo "Building Tile Generation Sample Library..."
 echo "Project root: $PROJECT_ROOT"
 echo "Sample library: $SAMPLE_LIB_DIR"
 
-# Ensure tilegen-test-tool and dungeon-test-tool are built
+# Ensure tilegen-test-tool is built
 echo "Building test tools..."
 cd "$PROJECT_ROOT"
 cargo build --bin tilegen-test-tool --release
-cargo build --bin dungeon-test-tool --release
 
 # Create directories
 mkdir -p "$TEXT_DIR" "$PNG_DIR" "$SAMPLE_LIB_DIR/evaluations"
@@ -56,42 +55,20 @@ for config_file in "$CONFIG_DIR"/*.json; do
         config_name=$(basename "$config_file" .json)
         echo "Processing $config_name..."
         
-        # Check if this is a dungeon config
-        if [[ "$config_name" == dungeon_* ]]; then
-            # Use dungeon-test-tool for dungeon configs
-            cd "$PROJECT_ROOT"
-            
-            # Extract seed from config
-            seed=$(jq -r '.seed // 12345' "$config_file")
-            
-            # Generate dungeon samples with different presets
-            echo "Generating dungeon samples for $config_name (seed: $seed)..."
-            
-            # Generate text output
-            ./target/release/dungeon-test-tool "$seed" default > "$TEXT_DIR/${config_name}_default.txt" 2>/dev/null || true
-            ./target/release/dungeon-test-tool "$seed" small > "$TEXT_DIR/${config_name}_small.txt" 2>/dev/null || true
-            ./target/release/dungeon-test-tool "$seed" organic > "$TEXT_DIR/${config_name}_organic.txt" 2>/dev/null || true
-            ./target/release/dungeon-test-tool "$seed" structured > "$TEXT_DIR/${config_name}_structured.txt" 2>/dev/null || true
-            
-        else
-            # Use tilegen-test-tool for regular configs
-            cd "$PROJECT_ROOT"
-            ./target/release/tilegen-test-tool --config "$config_file" --save-eval-report
-            
-            # Move generated files to proper locations
-            mv "${config_name}"_*.txt "$TEXT_DIR/" 2>/dev/null || true
-            mv "${config_name}"_*.png "$PNG_DIR/" 2>/dev/null || true
-            mv "${config_name}"_evaluation.json "$SAMPLE_LIB_DIR/evaluations/" 2>/dev/null || true
-        fi
+        # Use tilegen-test-tool for all configs
+        cd "$PROJECT_ROOT"
+        ./target/release/tilegen-test-tool --config "$config_file"
+        
+        # Move generated files to proper directories
+        cd "$SAMPLE_LIB_DIR"
+        mv *_*.txt "$TEXT_DIR/" 2>/dev/null || true
+        mv *_*.png "$PNG_DIR/" 2>/dev/null || true
     fi
 done
 
-# Generate documentation after all files are processed
-for config_file in "$CONFIG_DIR"/*.json; do
-    if [[ -f "$config_file" ]]; then
-        config_name=$(basename "$config_file" .json)
-        
-        # Add to documentation
+echo "✅ Sample generation complete!"
+echo "📁 Text files: $TEXT_DIR"
+echo "📁 PNG files: $PNG_DIR"
         echo "### $config_name" >> "$DOC_FILE"
         echo "" >> "$DOC_FILE"
         echo "**Configuration:**" >> "$DOC_FILE"

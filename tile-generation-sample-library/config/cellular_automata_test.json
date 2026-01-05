@@ -1,0 +1,8 @@
+{
+  "name": "Cellular Automata Test", 
+  "description": "Test cellular automata for cave generation",
+  "seed": 9002,
+  "width": 80,
+  "height": 40,
+  "output_dir": "tile-generation-sample-library"
+}
