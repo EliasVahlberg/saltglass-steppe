@@ -1,0 +1,28 @@
+{
+  "name": "Organic Cave Dungeon - Heavy CA",
+  "description": "Dungeon with heavy cellular automata influence creating organic cave-like structures",
+  "generator": "DungeonGenerator", 
+  "seed": 7002,
+  "parameters": {
+    "width": 60,
+    "height": 30,
+    "min_room_size": [6, 6],
+    "max_room_size": [10, 8],
+    "corridor_width": 3,
+    "max_depth": 4,
+    "split_ratio_min": 0.3,
+    "split_ratio_max": 0.7,
+    "initial_wall_probability": 0.5,
+    "ca_iterations": 6,
+    "survival_threshold": 4,
+    "birth_threshold": 5,
+    "use_moore_neighborhood": true,
+    "organic_blend_factor": 0.7
+  },
+  "expected_features": [
+    "Organic cave-like walls",
+    "Natural-looking chambers",
+    "Irregular corridors",
+    "BSP structure preserved for connectivity"
+  ]
+}

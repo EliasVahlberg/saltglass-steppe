@@ -1,0 +1,28 @@
+{
+  "name": "BSP Dungeon - Small Structured",
+  "description": "Small dungeon with clear BSP room structure and minimal organic influence",
+  "generator": "DungeonGenerator",
+  "seed": 7001,
+  "parameters": {
+    "width": 40,
+    "height": 20,
+    "min_room_size": [4, 4],
+    "max_room_size": [8, 6],
+    "corridor_width": 2,
+    "max_depth": 3,
+    "split_ratio_min": 0.35,
+    "split_ratio_max": 0.65,
+    "initial_wall_probability": 0.45,
+    "ca_iterations": 3,
+    "survival_threshold": 4,
+    "birth_threshold": 5,
+    "use_moore_neighborhood": true,
+    "organic_blend_factor": 0.15
+  },
+  "expected_features": [
+    "Clear room separation",
+    "Structured corridors",
+    "Minimal organic walls",
+    "Good connectivity"
+  ]
+}

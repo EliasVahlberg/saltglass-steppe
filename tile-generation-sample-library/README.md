@@ -2,6 +2,28 @@
 
 This library contains examples of procedural tile generation using the Saltglass Steppe tile generation testing framework. Each sample demonstrates different combinations of biomes, terrain types, POI structures, and generation layers.
 
+## Dungeon Generation Samples
+
+### BSP Small Structured Dungeon
+**Configuration:** `dungeon_bsp_small.json`  
+**Seed:** 7001  
+**Features:** Small rooms with clear BSP structure, minimal organic influence  
+**Sample Output:** [dungeon_bsp_small_sample.txt](text/dungeon_bsp_small_sample.txt)
+
+### Organic Cave Dungeon  
+**Configuration:** `dungeon_organic_cave.json`  
+**Seed:** 7002  
+**Features:** Heavy cellular automata influence creating organic cave-like structures  
+**Sample Output:** [dungeon_organic_cave_sample.txt](text/dungeon_organic_cave_sample.txt)
+
+### Balanced Hybrid Dungeon
+**Configuration:** `dungeon_balanced_hybrid.json`  
+**Seed:** 7003  
+**Features:** Balanced combination of BSP structure with moderate organic influence  
+**Sample Output:** [dungeon_balanced_hybrid_sample.txt](text/dungeon_balanced_hybrid_sample.txt)
+
+## Terrain Generation Samples
+
 ## Sample 1001 - Saltflat Flat Terrain (Basic)
 - **Seed**: 1001
 - **Biome**: Saltflat
