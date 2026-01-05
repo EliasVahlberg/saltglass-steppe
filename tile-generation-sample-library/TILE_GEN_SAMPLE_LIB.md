@@ -28,6 +28,9 @@ Each sample is generated using a JSON configuration file that specifies:
 }
 ```
 
+**base_terrain Layer:**
+![bsp_test_base_terrain](pngs/9001_base_terrain.png)
+
 ---
 
 ### cellular_automata_test
@@ -43,6 +46,9 @@ Each sample is generated using a JSON configuration file that specifies:
   "output_dir": "tile-generation-sample-library"
 }
 ```
+
+**base_terrain Layer:**
+![cellular_automata_test_base_terrain](pngs/9002_base_terrain.png)
 
 ---
 
@@ -69,6 +75,9 @@ Each sample is generated using a JSON configuration file that specifies:
 }
 ```
 
+**base_terrain Layer:**
+![desert_minimal_base_terrain](pngs/6001_base_terrain.png)
+
 ---
 
 ### desert_town
@@ -93,6 +102,9 @@ Each sample is generated using a JSON configuration file that specifies:
   "output_dir": "tile-generation-sample-library"
 }
 ```
+
+**base_terrain Layer:**
+![desert_town_base_terrain](pngs/2001_base_terrain.png)
 
 ---
 
@@ -130,6 +142,9 @@ Each sample is generated using a JSON configuration file that specifies:
 }
 ```
 
+**base_terrain Layer:**
+![dungeon_balanced_hybrid_base_terrain](pngs/7003_base_terrain.png)
+
 ---
 
 ### dungeon_bsp_small
@@ -166,6 +181,9 @@ Each sample is generated using a JSON configuration file that specifies:
 }
 ```
 
+**base_terrain Layer:**
+![dungeon_bsp_small_base_terrain](pngs/7001_base_terrain.png)
+
 ---
 
 ### dungeon_organic_cave
@@ -201,6 +219,9 @@ Each sample is generated using a JSON configuration file that specifies:
   ]
 }
 ```
+
+**base_terrain Layer:**
+![dungeon_organic_cave_base_terrain](pngs/7002_base_terrain.png)
 
 ---
 
@@ -245,6 +266,9 @@ Each sample is generated using a JSON configuration file that specifies:
 }
 ```
 
+**base_terrain Layer:**
+![modular_perlin_enhanced_base_terrain](pngs/8001_base_terrain.png)
+
 ---
 
 ### oasis_landmark
@@ -269,6 +293,9 @@ Each sample is generated using a JSON configuration file that specifies:
   "output_dir": "tile-generation-sample-library"
 }
 ```
+
+**base_terrain Layer:**
+![oasis_landmark_base_terrain](pngs/5001_base_terrain.png)
 
 ---
 
@@ -325,6 +352,9 @@ Each sample is generated using a JSON configuration file that specifies:
 }
 ```
 
+**base_terrain Layer:**
+![registry_multipass_base_terrain](pngs/8002_base_terrain.png)
+
 ---
 
 ### ruins_shrine
@@ -349,6 +379,9 @@ Each sample is generated using a JSON configuration file that specifies:
   "output_dir": "tile-generation-sample-library"
 }
 ```
+
+**base_terrain Layer:**
+![ruins_shrine_base_terrain](pngs/3001_base_terrain.png)
 
 ---
 
@@ -375,6 +408,9 @@ Each sample is generated using a JSON configuration file that specifies:
 }
 ```
 
+**base_terrain Layer:**
+![saltflat_basic_base_terrain](pngs/1001_base_terrain.png)
+
 ---
 
 ### scrubland_dungeon
@@ -399,6 +435,9 @@ Each sample is generated using a JSON configuration file that specifies:
   "output_dir": "tile-generation-sample-library"
 }
 ```
+
+**base_terrain Layer:**
+![scrubland_dungeon_base_terrain](pngs/4001_base_terrain.png)
 
 ---
 

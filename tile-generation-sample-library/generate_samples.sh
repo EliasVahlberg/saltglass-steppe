@@ -79,10 +79,13 @@ for config_file in "$CONFIG_DIR"/*.json; do
         echo '```' >> "$DOC_FILE"
         echo "" >> "$DOC_FILE"
         
+        # Extract seed from config for PNG file matching
+        seed=$(grep -o '"seed"[[:space:]]*:[[:space:]]*[0-9]*' "$config_file" | grep -o '[0-9]*')
+        
         # Add PNG images for each layer
-        for png_file in "$PNG_DIR"/${config_name}_*.png; do
+        for png_file in "$PNG_DIR"/${seed}_*.png; do
             if [[ -f "$png_file" ]]; then
-                layer_name=$(basename "$png_file" .png | sed "s/${config_name}_//")
+                layer_name=$(basename "$png_file" .png | sed "s/${seed}_//")
                 echo "**${layer_name} Layer:**" >> "$DOC_FILE"
                 echo "![${config_name}_${layer_name}](pngs/$(basename "$png_file"))" >> "$DOC_FILE"
                 echo "" >> "$DOC_FILE"
