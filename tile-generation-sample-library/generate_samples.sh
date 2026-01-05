@@ -66,9 +66,11 @@ for config_file in "$CONFIG_DIR"/*.json; do
     fi
 done
 
-echo "✅ Sample generation complete!"
-echo "📁 Text files: $TEXT_DIR"
-echo "📁 PNG files: $PNG_DIR"
+# Generate documentation after all files are processed
+for config_file in "$CONFIG_DIR"/*.json; do
+    if [[ -f "$config_file" ]]; then
+        config_name=$(basename "$config_file" .json)
+        
         echo "### $config_name" >> "$DOC_FILE"
         echo "" >> "$DOC_FILE"
         echo "**Configuration:**" >> "$DOC_FILE"
@@ -91,6 +93,10 @@ echo "📁 PNG files: $PNG_DIR"
         echo "" >> "$DOC_FILE"
     fi
 done
+
+echo "✅ Sample generation complete!"
+echo "📁 Text files: $TEXT_DIR"
+echo "📁 PNG files: $PNG_DIR"
 
 # Add footer to documentation
 cat >> "$DOC_FILE" << 'EOF'
