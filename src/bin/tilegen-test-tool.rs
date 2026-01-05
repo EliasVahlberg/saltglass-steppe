@@ -250,7 +250,8 @@ impl LayeredTileGeneration {
         if let Some(heightmap) = result.output_layers.get("heightmap") {
             for y in 0..self.config.height as usize {
                 for x in 0..self.config.width as usize {
-                    let height_value = heightmap.data[y][x];
+                    if y < heightmap.data.len() && x < heightmap.data[0].len() {
+                        let height_value = heightmap.data[y][x];
                     let tile = if height_value > 0.3 {
                         Tile::Wall { id: "stone".to_string(), hp: 100 }
                     } else if height_value > 0.1 {
@@ -259,6 +260,7 @@ impl LayeredTileGeneration {
                         Tile::Glass
                     };
                     tiles[y * self.config.width as usize + x] = tile;
+                    }
                 }
             }
         }
