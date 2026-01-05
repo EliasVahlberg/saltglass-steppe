@@ -2,9 +2,35 @@
 
 This library contains examples of procedural tile generation using the Saltglass Steppe tile generation testing framework. Each sample demonstrates different combinations of biomes, terrain types, POI structures, and generation layers.
 
-## Dungeon Generation Samples
+## Algorithm Examples
 
-### BSP Small Structured Dungeon
+### BSP (Binary Space Partitioning) Algorithm
+**Demonstrated in:** DungeonGenerator with `structured` preset  
+**Sample Output:** [bsp_algorithm_sample.txt](text/bsp_algorithm_sample.txt)  
+**Features:**
+- Recursive space partitioning following standard BSP algorithm
+- Structured room layouts with guaranteed connectivity
+- Configurable room sizes and corridor widths
+- Deterministic generation with seeded RNG
+
+### Cellular Automata Algorithm  
+**Demonstrated in:** DungeonGenerator with `organic` preset  
+**Sample Output:** [cellular_automata_sample.txt](text/cellular_automata_sample.txt)  
+**Features:**
+- Standard 4-5 rule: survive with 4+ neighbors, born with 5+ neighbors
+- Organic cave-like wall generation following RogueBasin standards
+- Moore neighborhood (8-directional) neighbor counting
+- Configurable iterations and probability thresholds
+
+### Modular Architecture
+**Demonstrated in:** All new generation tools using AlgorithmRegistry  
+**Features:**
+- Plugin-based algorithm system with runtime registration
+- Type-safe parameter validation and configuration
+- Multi-pass generation pipelines with layer composition
+- JSON-based configuration and algorithm chaining
+
+## Dungeon Generation Samples
 **Configuration:** `dungeon_bsp_small.json`  
 **Seed:** 7001  
 **Features:** Small rooms with clear BSP structure, minimal organic influence  

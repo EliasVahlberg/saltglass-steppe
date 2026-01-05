@@ -1,0 +1,47 @@
+{
+  "name": "Algorithm Registry - Multi-Pass Generation",
+  "description": "Demonstrates algorithm registry with multiple generation passes",
+  "algorithm": "PerlinNoiseAlgorithm",
+  "seed": 8002,
+  "parameters": {
+    "width": 60,
+    "height": 30,
+    "scale": 0.12,
+    "octaves": 2,
+    "persistence": 0.4,
+    "lacunarity": 2.0,
+    "threshold": 0.2
+  },
+  "generation_passes": [
+    {
+      "algorithm_id": "perlin_noise",
+      "input_layers": [],
+      "output_layers": ["base_terrain"],
+      "parameters": {
+        "scale": 0.12,
+        "octaves": 2,
+        "persistence": 0.4,
+        "lacunarity": 2.0,
+        "threshold": 0.2
+      }
+    },
+    {
+      "algorithm_id": "perlin_noise", 
+      "input_layers": ["base_terrain"],
+      "output_layers": ["detail_layer"],
+      "parameters": {
+        "scale": 0.25,
+        "octaves": 1,
+        "persistence": 0.3,
+        "lacunarity": 2.0,
+        "threshold": 0.4
+      }
+    }
+  ],
+  "expected_features": [
+    "Multi-pass generation pipeline",
+    "Layer-based composition",
+    "Algorithm registry usage",
+    "Configurable pass parameters"
+  ]
+}

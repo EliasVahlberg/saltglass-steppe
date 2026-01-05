@@ -1,0 +1,35 @@
+{
+  "name": "Modular Architecture - Perlin Noise Enhanced",
+  "description": "Demonstrates new modular architecture with enhanced Perlin noise generation",
+  "algorithm": "PerlinNoiseAlgorithm",
+  "seed": 8001,
+  "parameters": {
+    "width": 80,
+    "height": 40,
+    "scale": 0.08,
+    "octaves": 4,
+    "persistence": 0.6,
+    "lacunarity": 2.1,
+    "threshold": 0.1
+  },
+  "generation_passes": [
+    {
+      "algorithm_id": "perlin_noise",
+      "input_layers": [],
+      "output_layers": ["heightmap"],
+      "parameters": {
+        "scale": 0.08,
+        "octaves": 4,
+        "persistence": 0.6,
+        "lacunarity": 2.1,
+        "threshold": 0.1
+      }
+    }
+  ],
+  "expected_features": [
+    "Multi-octave noise generation",
+    "Modular algorithm architecture",
+    "Configurable parameters",
+    "Enhanced terrain detail"
+  ]
+}

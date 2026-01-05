@@ -1,0 +1,7 @@
+🚀 Tile Generation Test Tool
+============================
+🎯 Starting layered tile generation...
+   Seed: 8003
+   Size: 80x40
+   Biome: Saltflat
+🔧 Using new algorithm architecture...
