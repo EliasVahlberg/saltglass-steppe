@@ -4,32 +4,32 @@ This file contains a comprehensive list of all project documentation with descri
 
 ## Root Level Documents
 
-| Document                                                                               | Description                                                      |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [README.md](../README.md)                                                              | Main project overview, setup instructions, and quick start guide |
-| [CHANGELOG.md](../CHANGELOG.md)                                                        | Version history and release notes                                |
-| [notes.md](../notes.md)                                                                | Miscellaneous development notes                                  |
-| [DOCUMENT_DATABASE.md](DOCUMENT_DATABASE.md)                                           | This file - index of all documentation                           |
-| [README.md](README.md)                                                                 | Documentation directory overview                                 |
-| [PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md](PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md) | Procedural generation improvements summary                 |
+| Document                                                                                     | Description                                                      |
+| -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| [README.md](../README.md)                                                                    | Main project overview, setup instructions, and quick start guide |
+| [CHANGELOG.md](../CHANGELOG.md)                                                              | Version history and release notes                                |
+| [notes.md](../notes.md)                                                                      | Miscellaneous development notes                                  |
+| [DOCUMENT_DATABASE.md](DOCUMENT_DATABASE.md)                                                 | This file - index of all documentation                           |
+| [README.md](README.md)                                                                       | Documentation directory overview                                 |
+| [PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md](PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md) | Procedural generation improvements summary                       |
 
 ## Papers and Research
 
-| Document                                                                               | Description                                                      |
-| -------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [glass_seam_bridging_paper.pdf](papers/glass_seam_bridging_paper.pdf)                 | Research paper on Glass Seam Bridging Algorithm                 |
-| [glass_seam_bridging_paper.md](papers/glass_seam_bridging_paper.md)                   | Markdown version of the research paper                          |
+| Document                                                              | Description                                     |
+| --------------------------------------------------------------------- | ----------------------------------------------- |
+| [glass_seam_bridging_paper.pdf](papers/glass_seam_bridging_paper.pdf) | Research paper on Glass Seam Bridging Algorithm |
+| [glass_seam_bridging_paper.md](papers/glass_seam_bridging_paper.md)   | Markdown version of the research paper          |
 
 ## Architecture Documentation
 
-| Document                                                              | Description                                                 |
-| --------------------------------------------------------------------- | ----------------------------------------------------------- |
-| [README.md](architecture/README.md)                                   | Architecture documentation overview                         |
-| [ARCHITECTURE_AUDIT.md](architecture/ARCHITECTURE_AUDIT.md)           | Technical architecture review and recommendations           |
-| [SCALABILITY_AUDIT.md](architecture/SCALABILITY_AUDIT.md)             | Performance and scalability analysis                        |
-| [TECH_STACK.md](architecture/TECH_STACK.md)                           | Technology choices and technical stack overview             |
-| [game_systems_overview.md](architecture/game_systems_overview.md)     | Comprehensive guide to game systems, patterns, and content  |
-| [systems_analysis.md](architecture/systems_analysis.md)               | Detailed refactoring history, anti-patterns, and work log   |
+| Document                                                          | Description                                                |
+| ----------------------------------------------------------------- | ---------------------------------------------------------- |
+| [README.md](architecture/README.md)                               | Architecture documentation overview                        |
+| [ARCHITECTURE_AUDIT.md](architecture/ARCHITECTURE_AUDIT.md)       | Technical architecture review and recommendations          |
+| [SCALABILITY_AUDIT.md](architecture/SCALABILITY_AUDIT.md)         | Performance and scalability analysis                       |
+| [TECH_STACK.md](architecture/TECH_STACK.md)                       | Technology choices and technical stack overview            |
+| [game_systems_overview.md](architecture/game_systems_overview.md) | Comprehensive guide to game systems, patterns, and content |
+| [systems_analysis.md](architecture/systems_analysis.md)           | Detailed refactoring history, anti-patterns, and work log  |
 
 ## Design Documentation
 
@@ -85,70 +85,70 @@ This file contains a comprehensive list of all project documentation with descri
 
 ### Side Quest Chains Subsection
 
-| Document                                                                       | Description                                    |
-| ------------------------------------------------------------------------------ | ---------------------------------------------- |
-| [The_Awakening_Protocol_Chain.md](design/side_quests/The_Awakening_Protocol_Chain.md) | Archive Consciousness emergence quest chain |
-| [The_Heliograph_Conspiracy_Chain.md](design/side_quests/The_Heliograph_Conspiracy_Chain.md) | Storm control conspiracy quest chain |
-| [The_Shattered_Mirror_Chain.md](design/side_quests/The_Shattered_Mirror_Chain.md) | Mirror Monk religious schism quest chain |
+| Document                                                                                    | Description                                 |
+| ------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| [The_Awakening_Protocol_Chain.md](design/side_quests/The_Awakening_Protocol_Chain.md)       | Archive Consciousness emergence quest chain |
+| [The_Heliograph_Conspiracy_Chain.md](design/side_quests/The_Heliograph_Conspiracy_Chain.md) | Storm control conspiracy quest chain        |
+| [The_Shattered_Mirror_Chain.md](design/side_quests/The_Shattered_Mirror_Chain.md)           | Mirror Monk religious schism quest chain    |
 
 ## Development Documentation
 
-| Document                                                                       | Description                                        |
-| ------------------------------------------------------------------------------ | -------------------------------------------------- |
-| [README.md](development/README.md)                                             | Development documentation overview                 |
-| [CONTENT_EXPANSION_SUMMARY.md](development/CONTENT_EXPANSION_SUMMARY.md)       | Summary of content expansion and system implementation |
-| [FUNCTIONALITY_REQUESTS.md](development/FUNCTIONALITY_REQUESTS.md)             | Feature requests and implementation status         |
-| [IMPLEMENTATION_STATUS_SUMMARY.md](development/IMPLEMENTATION_STATUS_SUMMARY.md) | Current implementation status overview           |
-| [NEW_SYSTEMS_DOCUMENTATION.md](development/NEW_SYSTEMS_DOCUMENTATION.md)       | Documentation for Light, Void, and Crystal systems |
-| [AUTO_EXPLORE_SYSTEM.md](development/AUTO_EXPLORE_SYSTEM.md)                   | Enhanced auto-explore system with item pickup, danger avoidance, and configuration |
-| [DEBUG_EXECUTION_SYSTEM.md](development/DEBUG_EXECUTION_SYSTEM.md)             | Debug Execution System (DES) overview              |
-| [DES_TODO.md](development/DES_TODO.md)                                         | DES development tasks and improvements             |
-| [DES_USAGE.md](development/DES_USAGE.md)                                       | How to use the Debug Execution System              |
-| [DES_README.md](development/DES_README.md)                                     | DES technical documentation                        |
-| [PSYCHIC_MENU_SYSTEM.md](development/PSYCHIC_MENU_SYSTEM.md)                   | Psychic abilities menu implementation guide        |
-| [CONTENT_CREATION_GUIDE.md](development/CONTENT_CREATION_GUIDE.md)             | Guide for creating game content                    |
-| [copilot-instructions.md](development/copilot-instructions.md)                 | GitHub Copilot configuration and guidelines        |
-| [DOCUMENTATION_GUIDELINES.md](development/DOCUMENTATION_GUIDELINES.md)         | Documentation writing and maintenance guidelines   |
-| [BIOME_SPECIFIC_CONTENT.md](development/BIOME_SPECIFIC_CONTENT.md)             | Biome-specific content implementation              |
-| [BUG_FIXES_20251229.md](development/BUG_FIXES_20251229.md)                     | Bug fixes log from Dec 29, 2025                    |
-| [CHEST_UI_SYSTEM.md](development/CHEST_UI_SYSTEM.md)                           | Chest and container UI system                      |
-| [ENHANCED_ENEMY_SYSTEMS.md](development/ENHANCED_ENEMY_SYSTEMS.md)             | Enhanced enemy AI and behavior systems             |
-| [ENHANCED_STORM_SYSTEM.md](development/ENHANCED_STORM_SYSTEM.md)               | Enhanced glass storm system                        |
-| [FOV_SYSTEM.md](development/FOV_SYSTEM.md)                                     | Field of view system documentation                 |
-| [INTEGRATED_NARRATIVE_ARCHITECTURE.md](development/INTEGRATED_NARRATIVE_ARCHITECTURE.md) | Narrative system architecture              |
-| [MICROSTRUCTURES_SYSTEM.md](development/MICROSTRUCTURES_SYSTEM.md)             | Microstructure placement system                    |
-| [MULTI_TERMINAL_SYSTEM.md](development/MULTI_TERMINAL_SYSTEM.md)               | Multi-terminal satellite window system             |
-| [NARRATIVE_SYSTEM.md](development/NARRATIVE_SYSTEM.md)                         | Narrative generation system                        |
-| [PROCEDURAL_GENERATION_OVERHAUL.md](development/PROCEDURAL_GENERATION_OVERHAUL.md) | Procedural generation system overhaul          |
-| [PROCEDURAL_GENERATION_INTEGRATION.md](development/PROCEDURAL_GENERATION_INTEGRATION.md) | Integration of procedural systems into main game |
-| [PROCEDURAL_GENERATION_RESTRUCTURE_ANALYSIS.md](development/PROCEDURAL_GENERATION_RESTRUCTURE_ANALYSIS.md) | Procedural generation systems restructure analysis |
-| [PROCEDURAL_GENERATION_MODULE_RESTRUCTURE.md](development/PROCEDURAL_GENERATION_MODULE_RESTRUCTURE.md) | Complete procedural generation module restructure documentation |
-| [PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md](development/PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md) | Comprehensive guide to procedural generation systems and configuration |
-| [SAMPLE_GENERATED_STORIES.md](development/SAMPLE_GENERATED_STORIES.md)         | Example generated narrative content                |
-| [SPAWN_AND_MICROSTRUCTURES_TODO.md](development/SPAWN_AND_MICROSTRUCTURES_TODO.md) | Spawn system TODO list                         |
-| [SPAWN_DISTRIBUTION_SYSTEM.md](development/SPAWN_DISTRIBUTION_SYSTEM.md)       | Entity spawn distribution system                   |
-| [CONSTRAINT_SYSTEM_GUIDE.md](development/CONSTRAINT_SYSTEM_GUIDE.md)       | Comprehensive guide to the constraint validation system for procedural generation |
-| [GLASS_SEAM_BRIDGING_ALGORITHM.md](development/GLASS_SEAM_BRIDGING_ALGORITHM.md) | Glass Seam Bridging Algorithm for map connectivity |
-| [ENHANCED_PROCEDURAL_GENERATION_SUMMARY.md](development/ENHANCED_PROCEDURAL_GENERATION_SUMMARY.md) | Enhanced procedural generation systems summary |
-| [STORY_MODEL.md](development/STORY_MODEL.md)                                   | Story and narrative model documentation             |
-| [BSP_ALGORITHM_IMPLEMENTATION.md](development/BSP_ALGORITHM_IMPLEMENTATION.md) | BSP dungeon generation implementation details |
-| [CONTENT_INTEGRATION_SUMMARY.md](development/CONTENT_INTEGRATION_SUMMARY.md) | Summary of content integration progress |
-| [ENHANCED_QUEST_CONTENT.md](development/ENHANCED_QUEST_CONTENT.md) | Specs for enhanced quest content |
-| [EXTENDED_QUESTLINE_IMPLEMENTATION.md](development/EXTENDED_QUESTLINE_IMPLEMENTATION.md) | Implementation details for extended quests |
-| [INTERACTION_SYSTEM.md](development/INTERACTION_SYSTEM.md) | Interaction system documentation |
-| [LORE_DRIVEN_CONTENT_EXPANSION.md](development/LORE_DRIVEN_CONTENT_EXPANSION.md) | Expansion of lore-driven content |
-| [MAIN_QUESTLINE_ENHANCEMENT_SUMMARY.md](development/MAIN_QUESTLINE_ENHANCEMENT_SUMMARY.md) | Summary of main questline enhancements |
-| [MAIN_QUESTLINE_IMPLEMENTATION_SUMMARY.md](development/MAIN_QUESTLINE_IMPLEMENTATION_SUMMARY.md) | Summary of main questline implementation |
-| [MAIN_QUESTLINE_LORE_ANALYSIS.md](development/MAIN_QUESTLINE_LORE_ANALYSIS.md) | Lore analysis for main questline |
-| [MISSING_QUEST_SYSTEMS.md](development/MISSING_QUEST_SYSTEMS.md) | Analysis of missing quest systems |
-| [MODULAR_PROCEDURAL_GENERATION_ARCHITECTURE.md](development/MODULAR_PROCEDURAL_GENERATION_ARCHITECTURE.md) | Architecture for modular procgen |
-| [PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md](development/PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md) | Summary of procgen enhancements |
-| [PROCEDURAL_STRUCTURE_GENERATION.md](development/PROCEDURAL_STRUCTURE_GENERATION.md) | Procedural structure generation guide |
-| [PROCEDURAL_STRUCTURE_PHASE1_IMPLEMENTATION.md](development/PROCEDURAL_STRUCTURE_PHASE1_IMPLEMENTATION.md) | Phase 1 of structure generation implementation |
-| [QUEST_ENFORCEMENT_IMPLEMENTATION.md](development/QUEST_ENFORCEMENT_IMPLEMENTATION.md) | Quest enforcement mechanics |
-| [QUEST_SATISFACTION_CONSTRAINT_SYSTEM.md](development/QUEST_SATISFACTION_CONSTRAINT_SYSTEM.md) | Constraint system for quest satisfaction |
-| [TECHNICAL_FEATURES_NEEDED.md](development/TECHNICAL_FEATURES_NEEDED.md) | List of required technical features |
-| [VISUAL_VARIETY_SYSTEMS.md](development/VISUAL_VARIETY_SYSTEMS.md) | Systems for visual variety |
+| Document                                                                                                   | Description                                                                        |
+| ---------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| [README.md](development/README.md)                                                                         | Development documentation overview                                                 |
+| [CONTENT_EXPANSION_SUMMARY.md](development/CONTENT_EXPANSION_SUMMARY.md)                                   | Summary of content expansion and system implementation                             |
+| [FUNCTIONALITY_REQUESTS.md](development/FUNCTIONALITY_REQUESTS.md)                                         | Feature requests and implementation status                                         |
+| [IMPLEMENTATION_STATUS_SUMMARY.md](development/IMPLEMENTATION_STATUS_SUMMARY.md)                           | Current implementation status overview                                             |
+| [NEW_SYSTEMS_DOCUMENTATION.md](development/NEW_SYSTEMS_DOCUMENTATION.md)                                   | Documentation for Light, Void, and Crystal systems                                 |
+| [AUTO_EXPLORE_SYSTEM.md](development/AUTO_EXPLORE_SYSTEM.md)                                               | Enhanced auto-explore system with item pickup, danger avoidance, and configuration |
+| [DEBUG_EXECUTION_SYSTEM.md](development/DEBUG_EXECUTION_SYSTEM.md)                                         | Debug Execution System (DES) overview                                              |
+| [DES_TODO.md](development/DES_TODO.md)                                                                     | DES development tasks and improvements                                             |
+| [DES_USAGE.md](development/DES_USAGE.md)                                                                   | How to use the Debug Execution System                                              |
+| [DES_README.md](development/DES_README.md)                                                                 | DES technical documentation                                                        |
+| [PSYCHIC_MENU_SYSTEM.md](development/PSYCHIC_MENU_SYSTEM.md)                                               | Psychic abilities menu implementation guide                                        |
+| [CONTENT_CREATION_GUIDE.md](development/CONTENT_CREATION_GUIDE.md)                                         | Guide for creating game content                                                    |
+| [copilot-instructions.md](development/copilot-instructions.md)                                             | GitHub Copilot configuration and guidelines                                        |
+| [DOCUMENTATION_GUIDELINES.md](development/DOCUMENTATION_GUIDELINES.md)                                     | Documentation writing and maintenance guidelines                                   |
+| [BIOME_SPECIFIC_CONTENT.md](development/BIOME_SPECIFIC_CONTENT.md)                                         | Biome-specific content implementation                                              |
+| [BUG_FIXES_20251229.md](development/BUG_FIXES_20251229.md)                                                 | Bug fixes log from Dec 29, 2025                                                    |
+| [CHEST_UI_SYSTEM.md](development/CHEST_UI_SYSTEM.md)                                                       | Chest and container UI system                                                      |
+| [ENHANCED_ENEMY_SYSTEMS.md](development/ENHANCED_ENEMY_SYSTEMS.md)                                         | Enhanced enemy AI and behavior systems                                             |
+| [ENHANCED_STORM_SYSTEM.md](development/ENHANCED_STORM_SYSTEM.md)                                           | Enhanced glass storm system                                                        |
+| [FOV_SYSTEM.md](development/FOV_SYSTEM.md)                                                                 | Field of view system documentation                                                 |
+| [INTEGRATED_NARRATIVE_ARCHITECTURE.md](development/INTEGRATED_NARRATIVE_ARCHITECTURE.md)                   | Narrative system architecture                                                      |
+| [MICROSTRUCTURES_SYSTEM.md](development/MICROSTRUCTURES_SYSTEM.md)                                         | Microstructure placement system                                                    |
+| [MULTI_TERMINAL_SYSTEM.md](development/MULTI_TERMINAL_SYSTEM.md)                                           | Multi-terminal satellite window system                                             |
+| [NARRATIVE_SYSTEM.md](development/NARRATIVE_SYSTEM.md)                                                     | Narrative generation system                                                        |
+| [PROCEDURAL_GENERATION_OVERHAUL.md](development/PROCEDURAL_GENERATION_OVERHAUL.md)                         | Procedural generation system overhaul                                              |
+| [PROCEDURAL_GENERATION_INTEGRATION.md](development/PROCEDURAL_GENERATION_INTEGRATION.md)                   | Integration of procedural systems into main game                                   |
+| [PROCEDURAL_GENERATION_RESTRUCTURE_ANALYSIS.md](development/PROCEDURAL_GENERATION_RESTRUCTURE_ANALYSIS.md) | Procedural generation systems restructure analysis                                 |
+| [PROCEDURAL_GENERATION_MODULE_RESTRUCTURE.md](development/PROCEDURAL_GENERATION_MODULE_RESTRUCTURE.md)     | Complete procedural generation module restructure documentation                    |
+| [PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md](development/PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md)   | Comprehensive guide to procedural generation systems and configuration             |
+| [SAMPLE_GENERATED_STORIES.md](development/SAMPLE_GENERATED_STORIES.md)                                     | Example generated narrative content                                                |
+| [SPAWN_AND_MICROSTRUCTURES_TODO.md](development/SPAWN_AND_MICROSTRUCTURES_TODO.md)                         | Spawn system TODO list                                                             |
+| [SPAWN_DISTRIBUTION_SYSTEM.md](development/SPAWN_DISTRIBUTION_SYSTEM.md)                                   | Entity spawn distribution system                                                   |
+| [CONSTRAINT_SYSTEM_GUIDE.md](development/CONSTRAINT_SYSTEM_GUIDE.md)                                       | Comprehensive guide to the constraint validation system for procedural generation  |
+| [GLASS_SEAM_BRIDGING_ALGORITHM.md](development/GLASS_SEAM_BRIDGING_ALGORITHM.md)                           | Glass Seam Bridging Algorithm for map connectivity                                 |
+| [ENHANCED_PROCEDURAL_GENERATION_SUMMARY.md](development/ENHANCED_PROCEDURAL_GENERATION_SUMMARY.md)         | Enhanced procedural generation systems summary                                     |
+| [STORY_MODEL.md](development/STORY_MODEL.md)                                                               | Story and narrative model documentation                                            |
+| [BSP_ALGORITHM_IMPLEMENTATION.md](development/BSP_ALGORITHM_IMPLEMENTATION.md)                             | BSP dungeon generation implementation details                                      |
+| [CONTENT_INTEGRATION_SUMMARY.md](development/CONTENT_INTEGRATION_SUMMARY.md)                               | Summary of content integration progress                                            |
+| [ENHANCED_QUEST_CONTENT.md](development/ENHANCED_QUEST_CONTENT.md)                                         | Specs for enhanced quest content                                                   |
+| [EXTENDED_QUESTLINE_IMPLEMENTATION.md](development/EXTENDED_QUESTLINE_IMPLEMENTATION.md)                   | Implementation details for extended quests                                         |
+| [INTERACTION_SYSTEM.md](development/INTERACTION_SYSTEM.md)                                                 | Interaction system documentation                                                   |
+| [LORE_DRIVEN_CONTENT_EXPANSION.md](development/LORE_DRIVEN_CONTENT_EXPANSION.md)                           | Expansion of lore-driven content                                                   |
+| [MAIN_QUESTLINE_ENHANCEMENT_SUMMARY.md](development/MAIN_QUESTLINE_ENHANCEMENT_SUMMARY.md)                 | Summary of main questline enhancements                                             |
+| [MAIN_QUESTLINE_IMPLEMENTATION_SUMMARY.md](development/MAIN_QUESTLINE_IMPLEMENTATION_SUMMARY.md)           | Summary of main questline implementation                                           |
+| [MAIN_QUESTLINE_LORE_ANALYSIS.md](development/MAIN_QUESTLINE_LORE_ANALYSIS.md)                             | Lore analysis for main questline                                                   |
+| [MISSING_QUEST_SYSTEMS.md](development/MISSING_QUEST_SYSTEMS.md)                                           | Analysis of missing quest systems                                                  |
+| [MODULAR_PROCEDURAL_GENERATION_ARCHITECTURE.md](development/MODULAR_PROCEDURAL_GENERATION_ARCHITECTURE.md) | Architecture for modular procgen                                                   |
+| [PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md](development/PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md)   | Summary of procgen enhancements                                                    |
+| [PROCEDURAL_STRUCTURE_GENERATION.md](development/PROCEDURAL_STRUCTURE_GENERATION.md)                       | Procedural structure generation guide                                              |
+| [PROCEDURAL_STRUCTURE_PHASE1_IMPLEMENTATION.md](development/PROCEDURAL_STRUCTURE_PHASE1_IMPLEMENTATION.md) | Phase 1 of structure generation implementation                                     |
+| [QUEST_ENFORCEMENT_IMPLEMENTATION.md](development/QUEST_ENFORCEMENT_IMPLEMENTATION.md)                     | Quest enforcement mechanics                                                        |
+| [QUEST_SATISFACTION_CONSTRAINT_SYSTEM.md](development/QUEST_SATISFACTION_CONSTRAINT_SYSTEM.md)             | Constraint system for quest satisfaction                                           |
+| [TECHNICAL_FEATURES_NEEDED.md](development/TECHNICAL_FEATURES_NEEDED.md)                                   | List of required technical features                                                |
+| [VISUAL_VARIETY_SYSTEMS.md](development/VISUAL_VARIETY_SYSTEMS.md)                                         | Systems for visual variety                                                         |
 
 ### Change Logs Subsection
 
@@ -179,13 +179,13 @@ This file contains a comprehensive list of all project documentation with descri
 
 ## Narrative Documentation
 
-| Document                                                | Description                           |
-| ------------------------------------------------------- | ------------------------------------- |
-| [README.md](narrative/README.md)                        | Narrative documentation overview      |
-| [ENTITIES_LORE.md](narrative/ENTITIES_LORE.md)          | Lore and background for game entities |
-| [lore_index.md](narrative/narrative_lore/lore_index.md) | Index of all lore documents           |
-| [COMEDIC_ELEMENTS_CONVERGENCE.md](narrative/COMEDIC_ELEMENTS_CONVERGENCE.md) | Convergence of comedic elements |
-| [COMEDIC_ELEMENTS_ORIGINAL_QUESTLINE.md](narrative/COMEDIC_ELEMENTS_ORIGINAL_QUESTLINE.md) | Original comedic questline notes |
+| Document                                                                                   | Description                           |
+| ------------------------------------------------------------------------------------------ | ------------------------------------- |
+| [README.md](narrative/README.md)                                                           | Narrative documentation overview      |
+| [ENTITIES_LORE.md](narrative/ENTITIES_LORE.md)                                             | Lore and background for game entities |
+| [lore_index.md](narrative/narrative_lore/lore_index.md)                                    | Index of all lore documents           |
+| [COMEDIC_ELEMENTS_CONVERGENCE.md](narrative/COMEDIC_ELEMENTS_CONVERGENCE.md)               | Convergence of comedic elements       |
+| [COMEDIC_ELEMENTS_ORIGINAL_QUESTLINE.md](narrative/COMEDIC_ELEMENTS_ORIGINAL_QUESTLINE.md) | Original comedic questline notes      |
 
 ### History
 
@@ -213,30 +213,30 @@ This file contains a comprehensive list of all project documentation with descri
 
 ### Manuals
 
-| Document                                                                                                  | Description                                  |
-| --------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| [The_Medical_Compendium.md](narrative/narrative_lore/manuals/The_Medical_Compendium.md)                   | Medical and healing system lore              |
-| [The_Merchant_Protocols.md](narrative/narrative_lore/manuals/The_Merchant_Protocols.md)                   | Trading and commerce lore                    |
-| [The_Psychic_Codex.md](narrative/narrative_lore/manuals/The_Psychic_Codex.md)                             | Psychic abilities and powers lore            |
-| [The_Resonance_Codex.md](narrative/narrative_lore/manuals/The_Resonance_Codex.md)                         | Resonance and energy system lore             |
-| [The_Ritual_Codex.md](narrative/narrative_lore/manuals/The_Ritual_Codex.md)                               | Ritual and ceremony lore                     |
-| [Liturgies_of_the_Mirror_Order.md](narrative/narrative_lore/manuals/Liturgies_of_the_Mirror_Order.md)     | Prayers and chants of the Monks              |
-| [The_Technical_Codex.md](narrative/narrative_lore/manuals/The_Technical_Codex.md)                         | Technical and technological lore             |
-| [The_Wanderers_Almanac.md](narrative/narrative_lore/manuals/The_Wanderers_Almanac.md)                     | Travel and exploration lore                  |
-| [Archive_Interaction_Protocols.md](narrative/narrative_lore/manuals/Archive_Interaction_Protocols.md)     | Guide to surviving drone encounters          |
-| [Psychi_World_Grounding.md](narrative/narrative_lore/manuals/Psychi_World_Grounding.md)                   | Psychic world building and grounding         |
-| [Scavengers_Guide_to_Storm_Glass.md](narrative/narrative_lore/manuals/Scavengers_Guide_to_Storm_Glass.md) | Practical guide to harvesting glass          |
-| [The_Crucible_Rites.md](narrative/narrative_lore/manuals/The_Crucible_Rites.md)                           | The ritual of becoming Glassborn             |
-| [Salt_Cured_Survival.md](narrative/narrative_lore/manuals/Salt_Cured_Survival.md)                         | Food and survival guide of the Hermits       |
-| [The_Lithopedia_of_Glass.md](narrative/narrative_lore/manuals/The_Lithopedia_of_Glass.md)                 | Classification of glass types and properties |
-| [The_Null_Hypothesis.md](narrative/narrative_lore/manuals/The_Null_Hypothesis.md)                         | Theory of darkness as system deletion        |
-| [The_Prophecy_of_the_Prime_Lens.md](narrative/narrative_lore/manuals/The_Prophecy_of_the_Prime_Lens.md)   | The mythic goal and main quest prophecy      |
-| [The_Lexicon_of_Refraction.md](narrative/narrative_lore/manuals/The_Lexicon_of_Refraction.md)             | Dialects and slang of the factions           |
-| [The_Dramatis_Personae.md](narrative/narrative_lore/manuals/The_Dramatis_Personae.md)                     | Profiles of key NPCs and their motivations   |
-| [The_Awakening_Protocol.md](narrative/narrative_lore/manuals/The_Awakening_Protocol.md)                   | Archive Consciousness emergence and evolution |
-| [The_Heliograph_Conspiracy.md](narrative/narrative_lore/manuals/The_Heliograph_Conspiracy.md)             | Suppressed report on storm control conspiracy |
+| Document                                                                                                  | Description                                     |
+| --------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [The_Medical_Compendium.md](narrative/narrative_lore/manuals/The_Medical_Compendium.md)                   | Medical and healing system lore                 |
+| [The_Merchant_Protocols.md](narrative/narrative_lore/manuals/The_Merchant_Protocols.md)                   | Trading and commerce lore                       |
+| [The_Psychic_Codex.md](narrative/narrative_lore/manuals/The_Psychic_Codex.md)                             | Psychic abilities and powers lore               |
+| [The_Resonance_Codex.md](narrative/narrative_lore/manuals/The_Resonance_Codex.md)                         | Resonance and energy system lore                |
+| [The_Ritual_Codex.md](narrative/narrative_lore/manuals/The_Ritual_Codex.md)                               | Ritual and ceremony lore                        |
+| [Liturgies_of_the_Mirror_Order.md](narrative/narrative_lore/manuals/Liturgies_of_the_Mirror_Order.md)     | Prayers and chants of the Monks                 |
+| [The_Technical_Codex.md](narrative/narrative_lore/manuals/The_Technical_Codex.md)                         | Technical and technological lore                |
+| [The_Wanderers_Almanac.md](narrative/narrative_lore/manuals/The_Wanderers_Almanac.md)                     | Travel and exploration lore                     |
+| [Archive_Interaction_Protocols.md](narrative/narrative_lore/manuals/Archive_Interaction_Protocols.md)     | Guide to surviving drone encounters             |
+| [Psychi_World_Grounding.md](narrative/narrative_lore/manuals/Psychi_World_Grounding.md)                   | Psychic world building and grounding            |
+| [Scavengers_Guide_to_Storm_Glass.md](narrative/narrative_lore/manuals/Scavengers_Guide_to_Storm_Glass.md) | Practical guide to harvesting glass             |
+| [The_Crucible_Rites.md](narrative/narrative_lore/manuals/The_Crucible_Rites.md)                           | The ritual of becoming Glassborn                |
+| [Salt_Cured_Survival.md](narrative/narrative_lore/manuals/Salt_Cured_Survival.md)                         | Food and survival guide of the Hermits          |
+| [The_Lithopedia_of_Glass.md](narrative/narrative_lore/manuals/The_Lithopedia_of_Glass.md)                 | Classification of glass types and properties    |
+| [The_Null_Hypothesis.md](narrative/narrative_lore/manuals/The_Null_Hypothesis.md)                         | Theory of darkness as system deletion           |
+| [The_Prophecy_of_the_Prime_Lens.md](narrative/narrative_lore/manuals/The_Prophecy_of_the_Prime_Lens.md)   | The mythic goal and main quest prophecy         |
+| [The_Lexicon_of_Refraction.md](narrative/narrative_lore/manuals/The_Lexicon_of_Refraction.md)             | Dialects and slang of the factions              |
+| [The_Dramatis_Personae.md](narrative/narrative_lore/manuals/The_Dramatis_Personae.md)                     | Profiles of key NPCs and their motivations      |
+| [The_Awakening_Protocol.md](narrative/narrative_lore/manuals/The_Awakening_Protocol.md)                   | Archive Consciousness emergence and evolution   |
+| [The_Heliograph_Conspiracy.md](narrative/narrative_lore/manuals/The_Heliograph_Conspiracy.md)             | Suppressed report on storm control conspiracy   |
 | [The_Refraction_Heresy.md](narrative/narrative_lore/manuals/The_Refraction_Heresy.md)                     | Banned theological treatise on adaptation truth |
-| [The_Convergence_Protocol.md](narrative/narrative_lore/manuals/The_Convergence_Protocol.md) | Lore manual: The Convergence Protocol |
+| [The_Convergence_Protocol.md](narrative/narrative_lore/manuals/The_Convergence_Protocol.md)               | Lore manual: The Convergence Protocol           |
 
 ### Stories
 
