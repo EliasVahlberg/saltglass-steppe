@@ -105,11 +105,24 @@ impl BSPAlgorithm {
         let max_width = bounds.width.min(self.params.max_room_size.0);
         let max_height = bounds.height.min(self.params.max_room_size.1);
         
-        let width = rng.gen_range(self.params.min_room_size.0..=max_width);
-        let height = rng.gen_range(self.params.min_room_size.1..=max_height);
+        // Ensure we have valid ranges
+        let width = if self.params.min_room_size.0 <= max_width {
+            rng.gen_range(self.params.min_room_size.0..=max_width)
+        } else {
+            max_width
+        };
         
-        let x = bounds.x + rng.gen_range(0..=(bounds.width - width));
-        let y = bounds.y + rng.gen_range(0..=(bounds.height - height));
+        let height = if self.params.min_room_size.1 <= max_height {
+            rng.gen_range(self.params.min_room_size.1..=max_height)
+        } else {
+            max_height
+        };
+        
+        let max_x_offset = if bounds.width > width { bounds.width - width } else { 0 };
+        let max_y_offset = if bounds.height > height { bounds.height - height } else { 0 };
+        
+        let x = bounds.x + if max_x_offset > 0 { rng.gen_range(0..=max_x_offset) } else { 0 };
+        let y = bounds.y + if max_y_offset > 0 { rng.gen_range(0..=max_y_offset) } else { 0 };
         
         Room {
             bounds: Rectangle::new(x, y, width, height),

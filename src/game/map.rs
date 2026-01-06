@@ -1,9 +1,12 @@
+use bracket_algorithm_traits::prelude::{Algorithm2D, BaseMap};
+use bracket_geometry::prelude::Point;
 use bracket_pathfinding::prelude::*;
 use noise::{NoiseFn, Perlin};
 use once_cell::sync::Lazy;
 use rand::{Rng, RngCore};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
+use smallvec::SmallVec;
 use std::collections::{HashMap, HashSet};
 
 use super::constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
@@ -230,6 +233,27 @@ pub struct Map {
 static VOID_WALL: Lazy<Tile> = Lazy::new(|| Tile::Wall { id: "void".to_string(), hp: 1000 });
 
 impl Map {
+    /// Create a new empty map filled with walls
+    pub fn new(width: usize, height: usize) -> Self {
+        Self {
+            width,
+            height,
+            tiles: vec![Tile::Wall { id: "stone".to_string(), hp: 100 }; width * height],
+            lights: Vec::new(),
+            inscriptions: Vec::new(),
+            area_description: None,
+            metadata: std::collections::HashMap::new(),
+        }
+    }
+
+    /// Set a tile at the given coordinates
+    pub fn set_tile(&mut self, x: usize, y: usize, tile: Tile) {
+        if x < self.width && y < self.height {
+            let idx = y * self.width + x;
+            self.tiles[idx] = tile;
+        }
+    }
+
     /// Generate a tile map from world context
     pub fn generate_from_world(
         rng: &mut ChaCha8Rng,

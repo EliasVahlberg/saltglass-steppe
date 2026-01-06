@@ -9,6 +9,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
+name = "aho-corasick"
+version = "1.1.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ddd31a130427c27518df266943a5308ed92d4b226cc639f5a8f1002816174301"
+dependencies = [
+ "memchr",
+]
+
+[[package]]
 name = "aligned"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -228,6 +237,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bracket-noise"
+version = "0.8.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f0b7443d0990c69db7a83f376f0101d684c20a911698e5f932bffbda2c8b08dd"
+dependencies = [
+ "bracket-random",
+]
+
+[[package]]
 name = "bracket-pathfinding"
 version = "0.8.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -237,6 +255,21 @@ dependencies = [
  "bracket-geometry",
  "num-rational",
  "smallvec",
+]
+
+[[package]]
+name = "bracket-random"
+version = "0.8.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "437be61484077b1ddb57002ce3c96b7d03cbf500b5d15157ee7e67e22332c39b"
+dependencies = [
+ "getrandom 0.2.16",
+ "js-sys",
+ "lazy_static",
+ "rand 0.8.5",
+ "rand_xorshift",
+ "regex",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -835,6 +868,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "lazy_static"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
+
+[[package]]
 name = "lebe"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1336,6 +1375,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "regex"
+version = "1.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "843bc0191f75f3e22651ae5f1e72939ab2f72a4bc30fa80a066bd66edefc24d4"
+dependencies = [
+ "aho-corasick",
+ "memchr",
+ "regex-automata",
+ "regex-syntax",
+]
+
+[[package]]
+name = "regex-automata"
+version = "0.4.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5276caf25ac86c8d810222b3dbb938e512c55c6831a10f3e6ed1c93b84041f1c"
+dependencies = [
+ "aho-corasick",
+ "memchr",
+ "regex-syntax",
+]
+
+[[package]]
+name = "regex-syntax"
+version = "0.8.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7a2d987857b319362043e95f5353c0535c1f58eec5336fdfcf626430af7def58"
+
+[[package]]
 name = "rgb"
 version = "0.8.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1404,6 +1472,9 @@ dependencies = [
 name = "saltglass-steppe"
 version = "0.1.0"
 dependencies = [
+ "bracket-algorithm-traits",
+ "bracket-geometry",
+ "bracket-noise",
  "bracket-pathfinding",
  "chrono",
  "clap",
@@ -1418,6 +1489,7 @@ dependencies = [
  "ron",
  "serde",
  "serde_json",
+ "smallvec",
  "tempfile",
  "textwrap",
  "which",

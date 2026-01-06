@@ -1,5 +1,6 @@
 pub mod algorithm;
 pub mod algorithms;
+pub mod adapters;
 pub mod config;
 pub mod structures;
 pub mod pipeline;
