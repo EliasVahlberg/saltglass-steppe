@@ -131,6 +131,24 @@ This file contains a comprehensive list of all project documentation with descri
 | [GLASS_SEAM_BRIDGING_ALGORITHM.md](development/GLASS_SEAM_BRIDGING_ALGORITHM.md) | Glass Seam Bridging Algorithm for map connectivity |
 | [ENHANCED_PROCEDURAL_GENERATION_SUMMARY.md](development/ENHANCED_PROCEDURAL_GENERATION_SUMMARY.md) | Enhanced procedural generation systems summary |
 | [STORY_MODEL.md](development/STORY_MODEL.md)                                   | Story and narrative model documentation             |
+| [BSP_ALGORITHM_IMPLEMENTATION.md](development/BSP_ALGORITHM_IMPLEMENTATION.md) | BSP dungeon generation implementation details |
+| [CONTENT_INTEGRATION_SUMMARY.md](development/CONTENT_INTEGRATION_SUMMARY.md) | Summary of content integration progress |
+| [ENHANCED_QUEST_CONTENT.md](development/ENHANCED_QUEST_CONTENT.md) | Specs for enhanced quest content |
+| [EXTENDED_QUESTLINE_IMPLEMENTATION.md](development/EXTENDED_QUESTLINE_IMPLEMENTATION.md) | Implementation details for extended quests |
+| [INTERACTION_SYSTEM.md](development/INTERACTION_SYSTEM.md) | Interaction system documentation |
+| [LORE_DRIVEN_CONTENT_EXPANSION.md](development/LORE_DRIVEN_CONTENT_EXPANSION.md) | Expansion of lore-driven content |
+| [MAIN_QUESTLINE_ENHANCEMENT_SUMMARY.md](development/MAIN_QUESTLINE_ENHANCEMENT_SUMMARY.md) | Summary of main questline enhancements |
+| [MAIN_QUESTLINE_IMPLEMENTATION_SUMMARY.md](development/MAIN_QUESTLINE_IMPLEMENTATION_SUMMARY.md) | Summary of main questline implementation |
+| [MAIN_QUESTLINE_LORE_ANALYSIS.md](development/MAIN_QUESTLINE_LORE_ANALYSIS.md) | Lore analysis for main questline |
+| [MISSING_QUEST_SYSTEMS.md](development/MISSING_QUEST_SYSTEMS.md) | Analysis of missing quest systems |
+| [MODULAR_PROCEDURAL_GENERATION_ARCHITECTURE.md](development/MODULAR_PROCEDURAL_GENERATION_ARCHITECTURE.md) | Architecture for modular procgen |
+| [PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md](development/PROCEDURAL_GENERATION_ENHANCEMENT_SUMMARY.md) | Summary of procgen enhancements |
+| [PROCEDURAL_STRUCTURE_GENERATION.md](development/PROCEDURAL_STRUCTURE_GENERATION.md) | Procedural structure generation guide |
+| [PROCEDURAL_STRUCTURE_PHASE1_IMPLEMENTATION.md](development/PROCEDURAL_STRUCTURE_PHASE1_IMPLEMENTATION.md) | Phase 1 of structure generation implementation |
+| [QUEST_ENFORCEMENT_IMPLEMENTATION.md](development/QUEST_ENFORCEMENT_IMPLEMENTATION.md) | Quest enforcement mechanics |
+| [QUEST_SATISFACTION_CONSTRAINT_SYSTEM.md](development/QUEST_SATISFACTION_CONSTRAINT_SYSTEM.md) | Constraint system for quest satisfaction |
+| [TECHNICAL_FEATURES_NEEDED.md](development/TECHNICAL_FEATURES_NEEDED.md) | List of required technical features |
+| [VISUAL_VARIETY_SYSTEMS.md](development/VISUAL_VARIETY_SYSTEMS.md) | Systems for visual variety |
 
 ### Change Logs Subsection
 
@@ -166,6 +184,8 @@ This file contains a comprehensive list of all project documentation with descri
 | [README.md](narrative/README.md)                        | Narrative documentation overview      |
 | [ENTITIES_LORE.md](narrative/ENTITIES_LORE.md)          | Lore and background for game entities |
 | [lore_index.md](narrative/narrative_lore/lore_index.md) | Index of all lore documents           |
+| [COMEDIC_ELEMENTS_CONVERGENCE.md](narrative/COMEDIC_ELEMENTS_CONVERGENCE.md) | Convergence of comedic elements |
+| [COMEDIC_ELEMENTS_ORIGINAL_QUESTLINE.md](narrative/COMEDIC_ELEMENTS_ORIGINAL_QUESTLINE.md) | Original comedic questline notes |
 
 ### History
 
@@ -216,6 +236,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [The_Awakening_Protocol.md](narrative/narrative_lore/manuals/The_Awakening_Protocol.md)                   | Archive Consciousness emergence and evolution |
 | [The_Heliograph_Conspiracy.md](narrative/narrative_lore/manuals/The_Heliograph_Conspiracy.md)             | Suppressed report on storm control conspiracy |
 | [The_Refraction_Heresy.md](narrative/narrative_lore/manuals/The_Refraction_Heresy.md)                     | Banned theological treatise on adaptation truth |
+| [The_Convergence_Protocol.md](narrative/narrative_lore/manuals/The_Convergence_Protocol.md) | Lore manual: The Convergence Protocol |
 
 ### Stories
 
@@ -255,5 +276,5 @@ This file contains a comprehensive list of all project documentation with descri
 
 ---
 
-_Last updated: 2026-01-02_
-_Total documents: 148_
+_Last updated: 2026-01-06_
+_Total documents: 169_
