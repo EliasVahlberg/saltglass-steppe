@@ -1,4 +1,4 @@
-use noise::{NoiseFn, Perlin};
+use bracket_noise::prelude::*;
 use rand::{RngCore, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use std::collections::HashMap;
@@ -81,8 +81,10 @@ impl GenerationAlgorithm for PerlinNoiseAlgorithm {
         
         // Create RNG from context seed  
         let mut rng = ChaCha8Rng::seed_from_u64(context.seed);
-        let noise_seed: u32 = rng.next_u32();
-        let noise = Perlin::new(noise_seed);
+        let noise_seed: u64 = rng.next_u64();
+        let mut noise = FastNoise::seeded(noise_seed);
+        noise.set_noise_type(NoiseType::Perlin);
+        noise.set_frequency(scale as f32);
         
         // Generate heightmap
         let mut heightmap = vec![vec![0.0; context.height]; context.width];
@@ -97,7 +99,7 @@ impl GenerationAlgorithm for PerlinNoiseAlgorithm {
                 
                 // Multi-octave noise
                 for _ in 0..octaves {
-                    value += noise.get([x as f64 * frequency, y as f64 * frequency]) * amplitude;
+                    value += (noise.get_noise((x as f64 * frequency) as f32, (y as f64 * frequency) as f32) as f64) * amplitude;
                     amplitude *= persistence;
                     frequency *= 2.0;
                 }

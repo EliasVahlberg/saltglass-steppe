@@ -1,0 +1,22 @@
+{
+  "seed": 3001,
+  "width": 80,
+  "height": 60,
+  "biome": "ruins",
+  "poi": "dungeon",
+  "terrain_type": "canyon",
+  "algorithm": "bsp",
+  "algorithm_params": {
+    "min_room_size": 6,
+    "max_room_size": 12,
+    "corridor_width": 1,
+    "split_ratio": 0.6
+  },
+  "use_bracket_noise": false,
+  "output_layers": ["base_terrain", "rooms", "corridors"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["space_partitioning", "room_placement", "corridor_generation"],
+  "test_suite": "BSP",
+  "output_dir": "enhanced-tile-test-suite"
+}

@@ -1,0 +1,22 @@
+{
+  "seed": 4002,
+  "width": 80,
+  "height": 60,
+  "biome": "oasis",
+  "poi": null,
+  "terrain_type": "hills",
+  "algorithm": "cellular_automata",
+  "algorithm_params": {
+    "initial_density": 0.55,
+    "iterations": 8,
+    "birth_limit": 5,
+    "death_limit": 2
+  },
+  "use_bracket_noise": false,
+  "output_layers": ["base_terrain", "iterations"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["initial_noise", "cellular_iterations", "connectivity_check"],
+  "test_suite": "CELLULAR_AUTOMATA",
+  "output_dir": "enhanced-tile-test-suite"
+}

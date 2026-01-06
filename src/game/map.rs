@@ -1,7 +1,7 @@
 use bracket_algorithm_traits::prelude::{Algorithm2D, BaseMap};
 use bracket_geometry::prelude::Point;
 use bracket_pathfinding::prelude::*;
-use noise::{NoiseFn, Perlin};
+use bracket_noise::prelude::*;
 use once_cell::sync::Lazy;
 use rand::{Rng, RngCore};
 use rand_chacha::ChaCha8Rng;
@@ -344,10 +344,18 @@ impl Map {
             }
         }
 
-        // Create noise generators
-        let terrain_noise = Perlin::new(seed);
-        let glass_noise = Perlin::new(seed + 1);
-        let diagonal_noise = Perlin::new(seed + 2);
+        // Create noise generators using bracket-noise
+        let mut terrain_noise = FastNoise::seeded(seed.wrapping_mul(100) as u64);
+        terrain_noise.set_noise_type(NoiseType::Perlin);
+        terrain_noise.set_frequency(1.0 / config.noise_scale as f32);
+        
+        let mut glass_noise = FastNoise::seeded(seed.wrapping_mul(100).wrapping_add(1) as u64);
+        glass_noise.set_noise_type(NoiseType::Perlin);
+        glass_noise.set_frequency(1.0 / config.noise_scale as f32);
+        
+        let mut diagonal_noise = FastNoise::seeded(seed.wrapping_mul(100).wrapping_add(2) as u64);
+        diagonal_noise.set_noise_type(NoiseType::Perlin);
+        diagonal_noise.set_frequency(4.0 / config.noise_scale as f32);
         
         let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
         let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
@@ -360,21 +368,21 @@ impl Map {
                 let nx = x as f64 / config.noise_scale;
                 let ny = y as f64 / config.noise_scale;
                 
-                let terrain_value = terrain_noise.get([nx, ny]);
+                let terrain_value = (terrain_noise.get_noise(nx as f32, ny as f32) as f64 + 1.0) / 2.0; // Convert to [0, 1]
                 
                 // Lower threshold for more open areas (50% more sparse)
                 if terrain_value > (floor_threshold - 0.5) {
                     tiles[idx] = Tile::Floor { id: floor_type.clone() };
                     
                     // Sharp diagonal glass formations
-                    let diag_value = diagonal_noise.get([nx * 4.0, ny * 4.0]);
+                    let diag_value = diagonal_noise.get_noise(nx as f32, ny as f32) as f64;
                     let diagonal_factor = ((x as f64 - y as f64) / 20.0).sin().abs();
                     
                     if diag_value > 0.4 && diagonal_factor > 0.7 {
                         tiles[idx] = Tile::Glass;
                     } else {
                         // Regular glass placement
-                        let glass_value = glass_noise.get([nx * 2.0, ny * 2.0]);
+                        let glass_value = (glass_noise.get_noise((nx * 2.0) as f32, (ny * 2.0) as f32) as f64 + 1.0) / 2.0; // Convert to [0, 1]
                         if glass_value > (1.0 - glass_density * 0.7) {
                             tiles[idx] = Tile::Glass;
                         }

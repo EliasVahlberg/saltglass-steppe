@@ -1,0 +1,14 @@
+{
+  "seed": 2002,
+  "width": 250,
+  "height": 110,
+  "biome": "desert",
+  "poi": "town",
+  "terrain_type": "dunes",
+  "use_bracket_noise": true,
+  "output_layers": ["base_terrain"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["noise_generation", "terrain_classification", "poi_integration"],
+  "output_dir": "enhanced-tile-test-suite"
+}

@@ -163,7 +163,7 @@ pub trait System {
 | -------------------- | ----------------------------- | ------------------------------------------- |
 | `GenerationPipeline` | `generation/pipeline.rs`      | Coordinates all generation systems          |
 | `WorldGenerator`     | `generation/world_gen.rs`     | Enhanced world map generation with POI preferences |
-| `TileGenerator`      | `generation/tile_gen.rs`      | Multi-layer tile generation with biome integration |
+| `TileGenerator`      | `generation/tile_gen.rs`      | Multi-layer tile generation with bracket-lib integration |
 | `SpawnSystem`        | `generation/spawn.rs`         | Weighted entity spawning by biome/level    |
 | `LootGeneration`     | `generation/loot.rs`          | Procedural loot generation with weighted tables |
 | `SpatialSystem`      | `generation/spatial.rs`       | Poisson disk sampling and spatial distribution |
@@ -178,6 +178,11 @@ pub trait System {
 | `StorySystem`        | `generation/story.rs`         | Procedural story and character generation |
 | `ConstraintSystem`   | `generation/constraints.rs`   | Constraint-based generation validation |
 | `ConnectivitySystem` | `generation/connectivity.rs`  | Glass Seam Bridging Algorithm for map connectivity |
+| `QuestConstraints`   | `generation/quest_constraints.rs` | Quest-driven generation constraints |
+| `AlgorithmRegistry`  | `generation/registry.rs`      | Plugin system for generation algorithms |
+| `GenerationAlgorithm`| `generation/algorithm.rs`     | Core algorithm trait and framework |
+| `StructureGenerators`| `generation/structures/`      | BSP, Cellular Automata, and dungeon generators |
+| `BracketAdapter`     | `generation/adapters/`        | bracket-lib integration layer |
 
 ### Adding a New System
 
@@ -286,18 +291,37 @@ pub fn all_item_ids() -> Vec<&'static str> {
 | `terrain_config.json`    | `generation/tile_gen.rs` | Terrain generation parameters |
 | `microstructures.json`   | `generation/microstructures.rs` | Mini-structure definitions |
 | `constraint_rules.json`  | `generation/constraints.rs` | Constraint validation rules |
+| `quest_constraints.json` | `generation/quest_constraints.rs` | Quest-driven generation constraints |
 | `auto_explore_config.json` | `ui/auto_explore.rs` | Auto-exploration system settings |
+| `interactables.json`     | `interactable.rs` | Interactive objects and quest triggers |
+| `structure_templates.json` | `structure_templates.rs` | Procedural structure definitions |
+| `structure_spawn_config.json` | `generation/microstructures.rs` | Structure spawning configuration |
+| `npc_spawn_config.json`  | `generation/spawn.rs` | NPC spawning configuration |
+| `world_generation_integration.json` | `generation/world_gen.rs` | World generation integration settings |
+| `walls.json`             | `map.rs`        | Wall type definitions |
+| `floors.json`            | `map.rs`        | Floor type definitions |
 | `traders.json`           | `npc.rs`        | Trader NPCs and their inventories |
 | `chests.json`            | `item.rs`       | Chest and container definitions |
 | `books.json`             | `item.rs`       | Readable books and lore texts |
 | `abilities.json`         | `abilities.rs`  | Player abilities and skills |
+| `skills.json`            | `skills.rs`     | Skill definitions and progression |
 | `psychic_abilities.json` | `psychic.rs`    | Psychic powers and mental abilities |
-| `main_questline.json`    | `quest.rs`      | Main story quest definitions |
 | `narrative_templates.json` | `generation/narrative_templates.rs` | Narrative generation templates |
 | `effects_config.json`    | `effects.rs`    | Visual effects configuration |
 | `themes.json`            | `ui/themes.rs`  | UI theme and color definitions |
 | `render_config.json`     | `renderer/config.rs` | Rendering system configuration |
 | `generation_config.json` | `generation/pipeline.rs` | Procedural generation settings |
+| `lore_based_quests.json` | `quest.rs`      | Lore-driven exploration quests |
+| `lore_database.json`     | `book.rs`       | Comprehensive lore database |
+| `expanded_spawn_tables.json` | `generation/spawn.rs` | Extended entity spawn tables |
+| `expanded_quests.json`   | `quest.rs`      | Extended quest definitions |
+| `weapons.json`           | `item.rs`       | Weapon definitions and stats |
+| `tutorial.json`          | `tutorial.rs`   | Tutorial system configuration |
+| `classes.json`           | `progression.rs` | Character class definitions |
+| `progression.json`       | `progression.rs` | Character progression settings |
+| `lights.json`            | `light.rs`      | Light source definitions |
+| `actions.json`           | `action.rs`     | Action definitions and costs |
+| `tiles.json`             | `map.rs`        | Tile type definitions |
 
 ---
 
@@ -324,6 +348,92 @@ Main Loop → AutoExplore::update()
 - **Danger Avoidance**: Stops exploration when enemies or hazards detected
 - **Configurable**: Behavior controlled via `auto_explore_config.json`
 - **Visual Feedback**: Shows exploration target and path in UI
+
+### Interaction System
+
+**Location**: `src/game/interactable.rs`
+
+**Integration**: Called from movement system when player interacts with objects
+
+**Flow**:
+```
+Player Input → MovementSystem::try_interact()
+  → InteractionSystem::handle_interaction()
+  → Execute interaction based on object type
+  → Update quest progress and game state
+```
+
+**Features**:
+- **Data-Driven Objects**: Toggles, buttons, and quest objectives defined in JSON
+- **Quest Integration**: Interactions can trigger quest progress
+- **State Persistence**: Object states are saved with game state
+- **Visual Feedback**: Objects show interaction prompts and state changes
+
+### Light Manipulation System
+
+**Location**: `src/game/light.rs`
+
+**Integration**: Called from debug commands and item usage
+
+**Flow**:
+```
+Player Action → Light System
+  → Create light beams with direction and intensity
+  → Trace beam paths with refraction calculations
+  → Apply light effects (damage, illumination)
+  → Update light sources and refraction surfaces
+```
+
+**Features**:
+- **Beam Tracing**: 8-directional light beams with range and intensity
+- **Refraction**: Light bends when hitting refraction surfaces
+- **Light Sources**: Fixed position emitters with configurable properties
+- **Player Abilities**: Focus Beam, Create Prism, Absorb Light
+- **Energy System**: Light energy resource for abilities
+
+### Void Energy System
+
+**Location**: `src/game/void_energy.rs`
+
+**Integration**: Called from item usage and game loop updates
+
+**Flow**:
+```
+Void Exposure → Progressive Corruption
+  → Unlock void abilities based on exposure level
+  → Reality distortions spawn randomly
+  → Void energy regeneration at high exposure
+  → Cross-system interactions with light/crystal
+```
+
+**Features**:
+- **Exposure Tracking**: 5 levels from None to Extreme
+- **Progressive Abilities**: 5 void abilities unlock with exposure
+- **Reality Distortions**: Temporal, Spatial, Material, Psychic effects
+- **Void Energy**: Resource system for ability usage
+- **Risk/Reward**: Power increases with corruption
+
+### Crystal Resonance System
+
+**Location**: `src/game/crystal_resonance.rs`
+
+**Integration**: Called from biome generation and item usage
+
+**Flow**:
+```
+Crystal Formation Generation → Player Interaction
+  → Resonate with crystals to gain energy
+  → Attune to different frequencies
+  → Create harmonic effects between crystals
+  → Plant crystal seeds to expand network
+```
+
+**Features**:
+- **Five Frequencies**: Alpha, Beta, Gamma, Delta, Epsilon with unique properties
+- **Crystal Growth**: Formations grow over time and can be cultivated
+- **Harmonic Effects**: Multiple crystals create combined effects
+- **Frequency Attunement**: Player specialization in crystal types
+- **Biome Integration**: Natural crystal spawning in appropriate areas
 
 ### Event System
 
@@ -1018,6 +1128,84 @@ Crystal Formation Generation → Player Interaction
 
 ---
 
+## Bracket-lib Integration
+
+**Status**: Phase 3 of Map Generation Overhaul (In Progress)
+
+The game is transitioning from the `noise` crate to `bracket-lib` for procedural generation, providing access to advanced algorithms and better performance.
+
+### Integration Architecture
+
+**Location**: `src/game/generation/adapters/`
+
+**Components**:
+- `bracket_adapter.rs` — Core adapter interface
+- `bracket_integration.rs` — Integration layer for bracket-lib algorithms
+
+### Current Status
+
+✅ **Completed**:
+- Replaced Perlin noise with bracket-noise FastNoise
+- Integrated bracket-lib noise functions into tile generation
+- Removed old noise crate dependency
+- Fixed noise range compatibility issues
+
+🚧 **In Progress**:
+- BSP room generation implementation
+- Cellular Automata cave generation
+- Algorithm validation and testing
+
+### Algorithm Support
+
+| Algorithm | Status | File Location |
+|-----------|--------|---------------|
+| FastNoise (Perlin) | ✅ Complete | `generation/algorithms/perlin_noise.rs` |
+| BSP Rooms | 🚧 In Progress | `generation/structures/algorithms/bsp.rs` |
+| Cellular Automata | 🚧 In Progress | `generation/structures/algorithms/cellular_automata.rs` |
+| Dungeon Generator | ✅ Complete | `generation/structures/dungeon_generator.rs` |
+
+### Testing Framework
+
+**Enhanced Tile Generation Test Suite**: Comprehensive testing framework with:
+- Algorithm-specific test configurations
+- PNG visualization output
+- Quality metrics and evaluation
+- Custom report generation per algorithm
+
+**Usage**:
+```bash
+# Test specific algorithms
+cargo test bsp_algorithm_test_suite
+cargo test cellular_automata_test_suite
+
+# Generate test reports
+cargo run --bin tilegen-test-tool -- --config enhanced-tile-test-suite/configs/bsp_basic.json
+```
+
+### Testing Tools
+
+**Tile Generation Testing**: `tilegen-test-tool` and `tilegen-tool` provide comprehensive testing capabilities:
+
+```bash
+# Test terrain generation with various biomes and POIs
+cargo run --bin tilegen-tool tile 12345 town desert
+cargo run --bin tilegen-tool tile 12345 shrine saltflat
+
+# Run enhanced evaluation system
+cargo run --bin tilegen-test-tool -- --config test_config.json
+
+# Generate comprehensive test suite with PNG output
+cargo test enhanced_tile_generation_test_suite
+```
+
+**Features**:
+- **Visual Output**: PNG generation for terrain visualization
+- **Quality Metrics**: Connectivity, variety, and constraint validation
+- **Algorithm Testing**: Support for BSP, Cellular Automata, and custom algorithms
+- **Deterministic Testing**: Seeded generation for reproducible results
+
+---
+
 ## Related Documentation
 
 - [ARCHITECTURE_AUDIT.md](./ARCHITECTURE_AUDIT.md) — Technical audit and recommendations
@@ -1049,3 +1237,12 @@ Crystal Formation Generation → Player Interaction
 | Crystal Frequency | One of five resonance types (Alpha, Beta, Gamma, Delta, Epsilon)    |
 | Refraction Surface | Light-bending surface created by player abilities                    |
 | Reality Distortion | Void-induced environmental effect                                    |
+| BSP        | Binary Space Partitioning — room-based dungeon generation algorithm     |
+| Cellular Automata | Cave generation algorithm using iterative rules                      |
+| Glass Seam Bridging | Algorithm ensuring map connectivity through optimal tunneling        |
+| Bracket-lib | Rust library providing advanced procedural generation algorithms       |
+| Algorithm Registry | Plugin system for swappable generation algorithms                    |
+| Constraint System | Validation system ensuring generated content meets requirements       |
+| Quest Constraints | Generation rules driven by active quest requirements                 |
+| Microstructures | Small procedural structures placed within larger generated areas      |
+| Interactable | Data-driven interactive objects (buttons, toggles, quest triggers)    |

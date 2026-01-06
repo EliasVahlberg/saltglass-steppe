@@ -1,0 +1,14 @@
+{
+  "seed": 2001,
+  "width": 250,
+  "height": 110,
+  "biome": "saltflat",
+  "poi": null,
+  "terrain_type": "flat",
+  "use_bracket_noise": true,
+  "output_layers": ["base_terrain"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["noise_generation", "terrain_classification", "constraint_validation"],
+  "output_dir": "enhanced-tile-test-suite"
+}

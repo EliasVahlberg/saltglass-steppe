@@ -1,0 +1,14 @@
+{
+  "seed": 2004,
+  "width": 250,
+  "height": 110,
+  "biome": "oasis",
+  "poi": "shrine",
+  "terrain_type": "hills",
+  "use_bracket_noise": true,
+  "output_layers": ["base_terrain"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["noise_generation", "terrain_classification", "biome_modification"],
+  "output_dir": "enhanced-tile-test-suite"
+}

@@ -877,7 +877,7 @@ impl GameState {
             match TileGenerator::new() {
                 Ok(mut tile_gen) => {
                     let biome_str = format!("{:?}", biome).to_lowercase();
-                    tile_gen.generate_enhanced_tile_with_structures(Some(poi), &biome_str, quest_ids)
+                    tile_gen.generate_enhanced_tile_with_structures_seeded(Some(poi), &biome_str, quest_ids, tile_seed)
                 },
                 Err(_) => {
                     // Fallback to old system if TileGenerator fails
@@ -886,9 +886,18 @@ impl GameState {
                 }
             }
         } else {
-            // Use old system for simple town generation
-            let (map, _) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
-            map
+            // Use new system for all generation now
+            match TileGenerator::new() {
+                Ok(mut tile_gen) => {
+                    let biome_str = format!("{:?}", biome).to_lowercase();
+                    tile_gen.generate_enhanced_tile_with_structures_seeded(Some(poi), &biome_str, quest_ids, tile_seed)
+                },
+                Err(_) => {
+                    // Fallback to old system if TileGenerator fails
+                    let (map, _) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
+                    map
+                }
+            }
         };
         
         // Find safe spawn position

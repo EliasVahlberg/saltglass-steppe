@@ -245,3 +245,4 @@ untracked_scripts/
 tile_test_output/
 custom_output/
 *_config.json
+test_output

@@ -2,7 +2,7 @@ use saltglass_steppe::game::generation::{
     TileGenerator,
     structures::{RuinsGenerator, StructureGenerator, StructureParams, StructureType}
 };
-use saltglass_steppe::game::world_map::POI;
+use saltglass_steppe::game::world_map::{POI, Biome, Terrain};
 use saltglass_steppe::game::map::Map;
 use saltglass_steppe::game::constants::{MAP_WIDTH, MAP_HEIGHT};
 use rand_chacha::ChaCha8Rng;
@@ -80,31 +80,45 @@ fn generate_tile_map(seed: u64, poi_type: Option<&str>, biome: Option<&str>) {
     });
     
     let biome_str = biome.unwrap_or("saltflat");
+    let biome = match biome_str {
+        "saltflat" => Biome::Saltflat,
+        "desert" => Biome::Desert,
+        "ruins" => Biome::Ruins,
+        "scrubland" => Biome::Scrubland,
+        "oasis" => Biome::Oasis,
+        _ => Biome::Saltflat,
+    };
     
     println!("POI: {:?}", poi);
-    println!("Biome: {}", biome_str);
+    println!("Biome: {:?}", biome);
     
-    // Generate with composite system
-    let quest_ids = if poi == Some(POI::Landmark) && biome_str == "ruins" {
+    // Use new bracket-noise based generation
+    let mut rng = ChaCha8Rng::seed_from_u64(seed);
+    let tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
+    
+    let quest_ids = if poi == Some(POI::Landmark) && biome == Biome::Ruins {
         vec!["the_broken_key".to_string()]
     } else {
         Vec::new()
     };
     
-    let mut tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
-    let map = tile_gen.generate_enhanced_tile_with_structures(poi, biome_str, quest_ids);
+    let (map, clearings) = tile_gen.generate_enhanced_tile_with_quests(
+        &mut rng,
+        biome,
+        Terrain::Canyon, // Default terrain
+        50, // Default elevation
+        poi.unwrap_or(POI::None),
+        &quest_ids
+    );
     
     display_tile_map(&map);
     
-    // Show generation layers
-    println!("\n=== GENERATION LAYERS ===");
-    println!("Layer 1: World Generation - POI placement and biome assignment");
-    println!("Layer 2: Tile Foundation - Base terrain using Perlin noise");
-    if poi.is_some() {
-        println!("Layer 3: Structure Generation - POI-specific structures");
-    }
-    println!("Layer 4: Content Population - Entity and item placement");
-    println!("Layer 5: Connectivity - Glass Seam Bridging Algorithm");
+    // Show generation info
+    println!("\n=== GENERATION INFO ===");
+    println!("Seed: {}", seed);
+    println!("Biome: {:?}", biome);
+    println!("POI: {:?}", poi);
+    println!("Clearings found: {}", clearings.len());
     
     if !map.metadata.is_empty() {
         println!("\n=== METADATA ===");
@@ -166,24 +180,30 @@ fn generate_composite_scenario(seed: u64, scenario: &str) {
     }
 }
 
-fn demo_quest_location(_seed: u64) {
+fn demo_quest_location(seed: u64) {
     println!("Demonstrating quest-driven structure generation...");
     println!("Scenario: Player travels to (50,50) for 'The Broken Key' quest");
     
     let quest_ids = vec!["the_broken_key".to_string()];
-    let mut tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
-    let map = tile_gen.generate_enhanced_tile_with_structures(
-        Some(POI::Landmark), 
-        "ruins", 
-        quest_ids
+    let mut rng = ChaCha8Rng::seed_from_u64(seed);
+    let tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
+    
+    let (map, clearings) = tile_gen.generate_enhanced_tile_with_quests(
+        &mut rng,
+        Biome::Ruins,
+        Terrain::Canyon,
+        50,
+        POI::Landmark,
+        &quest_ids
     );
     
     println!("\nGeneration Flow:");
     println!("1. Quest system detects 'the_broken_key' quest");
     println!("2. POI type: Landmark, Biome: Ruins");
-    println!("3. RuinsGenerator creates vitrified library structure");
+    println!("3. Bracket-noise generates organic terrain");
     println!("4. Structure integrated with terrain");
     println!("5. Quest items and enemies placed");
+    println!("6. Clearings found: {}", clearings.len());
     
     display_tile_map(&map);
     
@@ -197,25 +217,35 @@ fn demo_biome_variety(seed: u64) {
     println!("Demonstrating biome-specific generation...");
     
     let biomes = vec![
-        ("saltflat", POI::Town),
-        ("desert", POI::Shrine), 
-        ("ruins", POI::Landmark),
-        ("scrubland", POI::Dungeon),
+        (Biome::Saltflat, POI::Town),
+        (Biome::Desert, POI::Shrine), 
+        (Biome::Ruins, POI::Landmark),
+        (Biome::Scrubland, POI::Dungeon),
     ];
     
     for (i, (biome, poi)) in biomes.iter().enumerate() {
         let biome_seed = seed + i as u64 * 1000;
-        println!("\n--- {} + {:?} (Seed: {}) ---", biome.to_uppercase(), poi, biome_seed);
+        println!("\n--- {:?} + {:?} (Seed: {}) ---", biome, poi, biome_seed);
         
-        let mut tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
+        let mut rng = ChaCha8Rng::seed_from_u64(biome_seed);
+        let tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
         
-        let quest_ids = if *poi == POI::Landmark && *biome == "ruins" {
+        let quest_ids = if *poi == POI::Landmark && *biome == Biome::Ruins {
             vec!["the_broken_key".to_string()]
         } else {
             Vec::new()
         };
         
-        let map = tile_gen.generate_enhanced_tile_with_structures(Some(*poi), biome, quest_ids);
+        let (map, clearings) = tile_gen.generate_enhanced_tile_with_quests(
+            &mut rng,
+            *biome,
+            Terrain::Canyon,
+            50,
+            *poi,
+            &quest_ids
+        );
+        
+        println!("Clearings: {}", clearings.len());
         
         // Show small preview
         println!("Preview (top-left 20x10):");

@@ -1,0 +1,14 @@
+{
+  "seed": 2003,
+  "width": 250,
+  "height": 110,
+  "biome": "ruins",
+  "poi": "landmark",
+  "terrain_type": "canyon",
+  "use_bracket_noise": true,
+  "output_layers": ["base_terrain"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["noise_generation", "terrain_classification", "quest_integration"],
+  "output_dir": "enhanced-tile-test-suite"
+}

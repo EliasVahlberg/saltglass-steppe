@@ -1,4 +1,4 @@
-use noise::{NoiseFn, Perlin};
+use bracket_noise::prelude::*;
 use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, Instant};
@@ -96,7 +96,7 @@ pub struct WeatherParticle {
 
 pub struct ProceduralEffects {
     config: ProceduralConfig,
-    perlin: Perlin,
+    noise: FastNoise,
     weather_particles: Vec<WeatherParticle>,
     start_time: Instant,
     last_spawn: Instant,
@@ -104,9 +104,13 @@ pub struct ProceduralEffects {
 
 impl ProceduralEffects {
     pub fn new(config: ProceduralConfig) -> Self {
+        let mut noise = FastNoise::seeded(42);
+        noise.set_noise_type(NoiseType::Perlin);
+        noise.set_frequency(0.1);
+        
         Self {
             config,
-            perlin: Perlin::new(42),
+            noise,
             weather_particles: Vec::new(),
             start_time: Instant::now(),
             last_spawn: Instant::now(),
@@ -218,8 +222,8 @@ impl ProceduralEffects {
             
             // Use noise for more natural movement
             let time = self.start_time.elapsed().as_secs_f32();
-            let noise_x = self.perlin.get([x as f64 * 0.01, time as f64 * 0.1]) as f32;
-            let noise_y = self.perlin.get([y as f64 * 0.01, time as f64 * 0.1 + 100.0]) as f32;
+            let noise_x = self.noise.get_noise((x as f64 * 0.01) as f32, (time as f64 * 0.1) as f32) as f32;
+            let noise_y = self.noise.get_noise((y as f64 * 0.01) as f32, (time as f64 * 0.1 + 100.0) as f32) as f32;
             
             self.weather_particles.push(WeatherParticle {
                 x,
@@ -240,7 +244,7 @@ impl ProceduralEffects {
         }
 
         let time = self.start_time.elapsed().as_secs_f32();
-        let noise_value = self.perlin.get([time as f64 * self.config.ambient_lighting.variation_speed as f64]) as f32;
+        let noise_value = self.noise.get_noise((time as f64 * self.config.ambient_lighting.variation_speed as f64) as f32, 0.0) as f32;
         noise_value * self.config.ambient_lighting.variation_intensity
     }
 
@@ -254,8 +258,8 @@ impl ProceduralEffects {
         }
 
         let time = self.start_time.elapsed().as_secs_f32();
-        let noise_x = self.perlin.get([x as f64 * 0.1, y as f64 * 0.1, time as f64 * 2.0]) as f32;
-        let noise_y = self.perlin.get([x as f64 * 0.1 + 100.0, y as f64 * 0.1, time as f64 * 2.0]) as f32;
+        let noise_x = self.noise.get_noise((x as f64 * 0.1) as f32, (time as f64 * 2.0) as f32) as f32;
+        let noise_y = self.noise.get_noise((x as f64 * 0.1 + 100.0) as f32, (y as f64 * 0.1) as f32) as f32;
         
         let offset_x = (noise_x * 0.5).round() as i16;
         let offset_y = (noise_y * 0.3).round() as i16;
