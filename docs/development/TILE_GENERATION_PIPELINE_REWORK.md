@@ -154,13 +154,28 @@ For each task:
 
 ## Current Status
 
-- [ ] Phase 1: Library Integration & Evaluation
-- [ ] Phase 2: Replace Core Algorithms  
+- [✓] Phase 1: Library Integration & Evaluation
+- [✓] Phase 2: Replace Core Algorithms  
 - [ ] Phase 3: Map Generation Overhaul
 - [ ] Phase 4: Post-Processing Pipeline
 - [ ] Phase 5: Integration & Optimization
 - [ ] Phase 6: Documentation & Cleanup
 
----
+### Phase 2 Complete ✅
 
-*Next: Begin Phase 1 - Library Integration & Evaluation*
+**Accomplished:**
+- Replaced custom FOV implementation with bracket-lib's optimized field_of_view
+- Replaced custom BFS pathfinding in constraints system with bracket-lib's A*
+- Added idx_to_pos method to Map for index-to-position conversion
+- Updated GameState::update_fov() to use bracket-lib directly
+- Maintained backward compatibility with existing player_fov field
+- All bracket-lib integration tests passing
+- Clean build with no compilation errors
+
+**Technical Details:**
+- FOV now uses bracket-lib's field_of_view algorithm via compute_fov()
+- Constraint validation uses A* pathfinding instead of custom BFS
+- Removed unused is_tile_walkable method and cleaned up imports
+- Added proper idx_to_pos conversion method to Map struct
+
+**Next: Begin Phase 3 - Map Generation Overhaul**

@@ -606,6 +606,17 @@ impl Map {
         }
     }
 
+    /// Convert index to position
+    pub fn idx_to_pos(&self, idx: usize) -> Option<(i32, i32)> {
+        if idx < self.tiles.len() {
+            let x = (idx % self.width) as i32;
+            let y = (idx / self.width) as i32;
+            Some((x, y))
+        } else {
+            None
+        }
+    }
+
     /// Check if position is within map bounds
     pub fn is_valid_position(&self, x: i32, y: i32) -> bool {
         x >= 0 && y >= 0 && (x as usize) < self.width && (y as usize) < self.height

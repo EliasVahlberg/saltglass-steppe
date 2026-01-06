@@ -1,6 +1,6 @@
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize};
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::HashMap;
 use once_cell::sync::Lazy;
 
 use crate::game::map::{Map, Tile};
@@ -346,32 +346,11 @@ impl ConstraintSystem {
             return true;
         }
         
-        let mut visited = HashSet::new();
-        let mut queue = VecDeque::new();
-        queue.push_back(start);
-        visited.insert(start);
-        
-        while let Some((x, y)) = queue.pop_front() {
-            if (x, y) == end {
-                return true;
-            }
-            
-            // Check 4-directional neighbors
-            for (dx, dy) in [(0, 1), (0, -1), (1, 0), (-1, 0)] {
-                let nx = x + dx;
-                let ny = y + dy;
-                
-                if nx >= 0 && nx < map.width as i32 && ny >= 0 && ny < map.height as i32 {
-                    let pos = (nx, ny);
-                    if !visited.contains(&pos) && Self::is_tile_walkable(map, nx, ny) {
-                        visited.insert(pos);
-                        queue.push_back(pos);
-                    }
-                }
-            }
-        }
-        
-        false
+        // Use bracket-lib's A* pathfinding for consistency
+        let start_idx = map.idx(start.0, start.1);
+        let end_idx = map.idx(end.0, end.1);
+        let path = bracket_pathfinding::prelude::a_star_search(start_idx, end_idx, map);
+        path.success
     }
     
     /// Calculate Euclidean distance between two points
@@ -379,19 +358,6 @@ impl ConstraintSystem {
         let dx = (p1.0 - p2.0) as f32;
         let dy = (p1.1 - p2.1) as f32;
         (dx * dx + dy * dy).sqrt()
-    }
-    
-    /// Check if a tile is walkable (simplified check)
-    fn is_tile_walkable(map: &Map, x: i32, y: i32) -> bool {
-        if x < 0 || y < 0 || x >= map.width as i32 || y >= map.height as i32 {
-            return false;
-        }
-        
-        if let Some(idx) = map.pos_to_idx(x, y) {
-            matches!(map.tiles[idx], Tile::Floor { .. } | Tile::Glass)
-        } else {
-            false
-        }
     }
     
     /// Get constraint rules from static data

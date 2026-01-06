@@ -1278,16 +1278,17 @@ impl GameState {
 
     /// Update player field of view using shadow casting algorithm
     pub fn update_fov(&mut self) {
-        self.player_fov.mark_dirty();
-        self.player_fov.calculate(&self.map, (self.player_x, self.player_y));
+        // Use bracket-lib's optimized FOV algorithm
+        self.visible = crate::game::map::compute_fov(&self.map, self.player_x, self.player_y);
         
-        // Update legacy visible set for compatibility
-        self.visible.clear();
-        for &(x, y) in &self.player_fov.visible_tiles {
-            if let Some(idx) = self.map.pos_to_idx(x, y) {
-                self.visible.insert(idx);
+        // Update player_fov for compatibility
+        self.player_fov.visible_tiles.clear();
+        for &idx in &self.visible {
+            if let Some((x, y)) = self.map.idx_to_pos(idx) {
+                self.player_fov.visible_tiles.insert((x, y));
             }
         }
+        self.player_fov.dirty = false;
         
         // Update revealed tiles
         self.revealed.extend(&self.visible);
