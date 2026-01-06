@@ -4,7 +4,7 @@ use rand_chacha::ChaCha8Rng;
 use rand::{SeedableRng, Rng};
 use std::collections::HashMap;
 use serde::{Deserialize, Serialize};
-use image::{ImageBuffer, Rgb, RgbImage};
+use image::{ImageBuffer, Rgb};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SimpleConfig {

@@ -307,7 +307,7 @@ impl Default for AlgorithmRegistry {
 }
 
 // Thread-safe singleton registry instance
-use std::sync::{Once, OnceLock};
+use std::sync::OnceLock;
 
 static GLOBAL_REGISTRY: OnceLock<AlgorithmRegistry> = OnceLock::new();
 

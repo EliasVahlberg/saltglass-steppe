@@ -213,9 +213,9 @@ mod tests {
         let count = algorithm.count_neighbors(&grid, 1, 1);
         assert_eq!(count, 4);
         
-        // Corner cell should have 1 neighbor + 2 out-of-bounds = 3
+        // Corner cell should have 1 actual neighbor + 5 out-of-bounds = 6
         let count = algorithm.count_neighbors(&grid, 0, 0);
-        assert_eq!(count, 3); // 1 actual neighbor + 2 out-of-bounds treated as walls
+        assert_eq!(count, 6); // 1 actual neighbor + 5 out-of-bounds treated as walls
     }
     
     #[test]

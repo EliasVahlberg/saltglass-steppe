@@ -26,7 +26,7 @@ fn test_dying_pilgrim_spawn_position() {
     let pilgrim = state.npcs.iter().find(|npc| npc.id == "dying_pilgrim").unwrap();
     
     // Check that the pilgrim is near the player spawn
-    let distance = ((pilgrim.x - state.player_x).abs() + (pilgrim.y - state.player_y).abs());
+    let distance = (pilgrim.x - state.player_x).abs() + (pilgrim.y - state.player_y).abs();
     assert!(distance <= 2, "Dying pilgrim should be within 2 tiles of player spawn");
     
     // Check that the pilgrim is on a walkable tile
@@ -76,7 +76,7 @@ fn test_quest_objective_progression() {
 
 #[test]
 fn test_new_objective_types() {
-    use crate::game::quest::{ActiveQuest, ObjectiveType};
+    use crate::game::quest::ObjectiveType;
     
     // Test that new objective types can be created
     let interact_obj = ObjectiveType::Interact { target: "sand_pile".to_string() };

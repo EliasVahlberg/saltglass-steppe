@@ -86,6 +86,8 @@ impl GenerationAlgorithm for PerlinNoiseAlgorithm {
         
         // Generate heightmap
         let mut heightmap = vec![vec![0.0; context.height]; context.width];
+        let mut min_value = f64::INFINITY;
+        let mut max_value = f64::NEG_INFINITY;
         
         for x in 0..context.width {
             for y in 0..context.height {
@@ -100,8 +102,19 @@ impl GenerationAlgorithm for PerlinNoiseAlgorithm {
                     frequency *= 2.0;
                 }
                 
-                // Normalize to [0, 1]
-                heightmap[x][y] = (value + 1.0) / 2.0;
+                heightmap[x][y] = value;
+                min_value = min_value.min(value);
+                max_value = max_value.max(value);
+            }
+        }
+        
+        // Normalize to [0, 1] using actual min/max
+        let range = max_value - min_value;
+        if range > 0.0 {
+            for x in 0..context.width {
+                for y in 0..context.height {
+                    heightmap[x][y] = (heightmap[x][y] - min_value) / range;
+                }
             }
         }
         

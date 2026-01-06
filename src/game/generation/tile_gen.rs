@@ -90,7 +90,7 @@ impl TileGenerator {
         let mut rng = ChaCha8Rng::seed_from_u64(12345);
         
         // Generate base terrain using existing system
-        let (mut map, _) = if let Some(poi) = poi_type {
+        let (map, _) = if let Some(poi) = poi_type {
             self.generate_enhanced_tile_with_quests(&mut rng, biome_enum, Terrain::Flat, 50, poi, &quest_ids)
         } else {
             self.generate_enhanced_tile(&mut rng, biome_enum, Terrain::Flat, 50, POI::Town)

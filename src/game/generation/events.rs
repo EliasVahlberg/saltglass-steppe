@@ -335,7 +335,7 @@ mod tests {
 
     #[test]
     fn test_event_consequences() {
-        let system = EventSystem::new();
+        let _system = EventSystem::new();
         let mut context = create_test_context();
 
         // Create a test event

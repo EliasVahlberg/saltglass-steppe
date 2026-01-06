@@ -1,7 +1,6 @@
 use crate::game::generation::structures::{StructureGenerator, Rectangle, StructureParams, Structure, StructureType, Room, StructureFeature, POIType};
 use crate::game::map::{Map, Tile};
 use rand_chacha::ChaCha8Rng;
-use rand::Rng;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -35,7 +34,7 @@ impl DungeonGenerator {
     }
 
     /// Generate simple dungeon for demonstration
-    fn generate_simple(&self, rng: &mut ChaCha8Rng) -> Map {
+    fn generate_simple(&self, _rng: &mut ChaCha8Rng) -> Map {
         let total_tiles = (self.params.width * self.params.height) as usize;
         let tiles = vec![Tile::Wall { id: "stone".to_string(), hp: 100 }; total_tiles];
         

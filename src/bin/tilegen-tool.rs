@@ -2,7 +2,7 @@ use saltglass_steppe::game::generation::{
     TileGenerator,
     structures::{RuinsGenerator, StructureGenerator, StructureParams, StructureType}
 };
-use saltglass_steppe::game::world_map::{POI, Biome};
+use saltglass_steppe::game::world_map::POI;
 use saltglass_steppe::game::map::Map;
 use saltglass_steppe::game::constants::{MAP_WIDTH, MAP_HEIGHT};
 use rand_chacha::ChaCha8Rng;
@@ -166,7 +166,7 @@ fn generate_composite_scenario(seed: u64, scenario: &str) {
     }
 }
 
-fn demo_quest_location(seed: u64) {
+fn demo_quest_location(_seed: u64) {
     println!("Demonstrating quest-driven structure generation...");
     println!("Scenario: Player travels to (50,50) for 'The Broken Key' quest");
     

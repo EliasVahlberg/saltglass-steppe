@@ -41,7 +41,7 @@ fn bsp_algorithm_basic() {
     
     // Validate we get rooms and corridors
     assert!(rooms.len() > 0, "BSP should generate at least one room");
-    assert!(corridors.len() >= 0, "BSP should generate corridors");
+    assert!(corridors.len() > 0, "BSP should generate corridors");
     
     // Validate room constraints
     for room in &rooms {
