@@ -1,0 +1,18 @@
+{
+  "seed": 3000,
+  "biome": "saltflat",
+  "poi": null,
+  "size": [100, 80],
+  "algorithm": "bsp",
+  "algorithm_params": {
+    "min_room_size": 8,
+    "max_room_size": 20,
+    "max_depth": 5,
+    "room_ratio": 0.7,
+    "corridor_width": 1
+  },
+  "constraints": {
+    "min_connectivity": 0.8,
+    "max_wall_ratio": 0.6
+  }
+}

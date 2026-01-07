@@ -1,0 +1,59 @@
+{
+  "seed": 4003,
+  "width": 90,
+  "height": 60,
+  "biome": "saltflat",
+  "poi": "shrine",
+  "terrain_type": "flat",
+  "algorithm": "sequential_noise_maze_rooms",
+  "algorithm_params": {
+    "stage_1": {
+      "algorithm": "perlin_noise",
+      "params": {
+        "scale": 0.15,
+        "octaves": 3,
+        "persistence": 0.5,
+        "lacunarity": 2.0,
+        "threshold": 0.0
+      }
+    },
+    "stage_2": {
+      "algorithm": "maze",
+      "params": {
+        "cell_size": 5,
+        "wall_thickness": 1,
+        "algorithm": "recursive_backtracking",
+        "add_loops": true,
+        "loop_probability": 0.15
+      },
+      "apply_to": "high_elevation_areas"
+    },
+    "stage_3": {
+      "algorithm": "simple_rooms",
+      "params": {
+        "num_rooms": 4,
+        "min_room_size": [6, 6],
+        "max_room_size": [12, 8],
+        "corridor_width": 2,
+        "room_spacing": 3
+      },
+      "apply_to": "maze_dead_ends"
+    },
+    "blending_mode": "layered_priority",
+    "priority_order": ["rooms", "maze", "noise_terrain"]
+  },
+  "use_bracket_noise": true,
+  "output_layers": ["noise_base", "maze_overlay", "room_placement", "final_composite"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": [
+    "noise_terrain_generation",
+    "elevation_analysis",
+    "maze_structure_overlay",
+    "room_placement_optimization",
+    "layer_composition",
+    "connectivity_validation"
+  ],
+  "test_suite": "SEQUENTIAL_ALGORITHMS",
+  "output_dir": "enhanced-tile-test-suite"
+}

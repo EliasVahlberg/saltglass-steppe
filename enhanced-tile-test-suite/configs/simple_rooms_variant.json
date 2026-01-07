@@ -1,0 +1,20 @@
+{
+  "seed": 3003,
+  "width": 80,
+  "height": 60,
+  "biome": "ruins",
+  "poi": "dungeon",
+  "terrain_type": "canyon",
+  "algorithm": "simple_rooms",
+  "algorithm_params": {
+    "param1": "variant_value",
+    "param2": 84
+  },
+  "use_bracket_noise": false,
+  "output_layers": ["base_terrain"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["algorithm_stage_1", "algorithm_stage_2"],
+  "test_suite": "SIMPLE_ROOMS",
+  "output_dir": "enhanced-tile-test-suite"
+}

@@ -1,0 +1,48 @@
+{
+  "seed": 4001,
+  "width": 80,
+  "height": 40,
+  "output_dir": "enhanced-tile-test-suite",
+  "biome": "saltflat",
+  "poi": null,
+  "terrain_type": "mesa",
+  "algorithm": "layered",
+  "algorithm_params": {
+    "layers": [
+      {
+        "algorithm": "fractal",
+        "algorithm_params": {
+          "roughness": 0.6,
+          "iterations": 5,
+          "threshold": 0.4
+        },
+        "weight": 1.0,
+        "blend_mode": "Replace"
+      },
+      {
+        "algorithm": "percolation",
+        "algorithm_params": {
+          "probability": 0.45,
+          "iterations": 3,
+          "connectivity_threshold": 4
+        },
+        "weight": 0.6,
+        "blend_mode": "Intersection"
+      },
+      {
+        "algorithm": "dla",
+        "algorithm_params": {
+          "seed_count": 3,
+          "walker_count": 500,
+          "max_iterations": 5000
+        },
+        "weight": 0.3,
+        "blend_mode": "Additive"
+      }
+    ],
+    "blend_mode": "Replace"
+  },
+  "test_suite": "layered_environment",
+  "output_format": ["text", "png"],
+  "enable_evaluation": true
+}

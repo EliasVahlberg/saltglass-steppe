@@ -1,0 +1,20 @@
+{
+  "seed": 3003,
+  "width": 80,
+  "height": 60,
+  "biome": "saltflat",
+  "poi": null,
+  "terrain_type": "flat",
+  "algorithm": "maze",
+  "algorithm_params": {
+    "param1": "value1",
+    "param2": 42
+  },
+  "use_bracket_noise": false,
+  "output_layers": ["base_terrain"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["algorithm_stage_1", "algorithm_stage_2"],
+  "test_suite": "MAZE",
+  "output_dir": "enhanced-tile-test-suite"
+}

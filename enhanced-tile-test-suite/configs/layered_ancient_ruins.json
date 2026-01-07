@@ -1,0 +1,46 @@
+{
+  "seed": 5002,
+  "width": 80,
+  "height": 40,
+  "output_dir": "enhanced-tile-test-suite",
+  "biome": "ruins",
+  "poi": "landmark",
+  "terrain_type": "mesa",
+  "algorithm": "layered",
+  "algorithm_params": {
+    "layers": [
+      {
+        "algorithm": "simple_rooms",
+        "algorithm_params": {
+          "room_count": 4,
+          "min_room_size": 6,
+          "max_room_size": 12
+        },
+        "weight": 1.0,
+        "blend_mode": "Replace"
+      },
+      {
+        "algorithm": "smooth",
+        "algorithm_params": {
+          "iterations": 2,
+          "threshold": 4.0
+        },
+        "weight": 0.3,
+        "blend_mode": "Erosion"
+      },
+      {
+        "algorithm": "connect",
+        "algorithm_params": {
+          "corridor_width": 1,
+          "max_corridors": 3
+        },
+        "weight": 0.5,
+        "blend_mode": "Additive"
+      }
+    ],
+    "blend_mode": "Replace"
+  },
+  "test_suite": "layered_dungeon",
+  "output_format": ["text", "png"],
+  "enable_evaluation": true
+}

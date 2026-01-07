@@ -1,0 +1,67 @@
+{
+  "seed": 7003,
+  "width": 80,
+  "height": 60,
+  "biome": "desert",
+  "poi": "landmark",
+  "terrain_type": "mesa",
+  "algorithm": "layered",
+  "algorithm_params": {
+    "layers": [
+      {
+        "algorithm": "bsp",
+        "algorithm_params": {
+          "min_room_size": 8,
+          "max_room_size": 18,
+          "max_depth": 5
+        },
+        "weight": 1.0,
+        "blend_mode": "Replace"
+      },
+      {
+        "algorithm": "cellular_automata",
+        "algorithm_params": {
+          "initial_wall_probability": 0.5,
+          "iterations": 4
+        },
+        "weight": 0.4,
+        "blend_mode": "Intersection"
+      },
+      {
+        "algorithm": "drunkard_walk",
+        "algorithm_params": {
+          "num_walkers": 2,
+          "steps_per_walker": 100,
+          "carve_radius": 0
+        },
+        "weight": 0.2,
+        "blend_mode": "Additive"
+      }
+    ],
+    "blend_mode": "Replace"
+  },
+  "output_layers": ["base_terrain", "layer_breakdown"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["layer_generation", "blending", "connectivity_analysis"],
+  "test_suite": "LAYERED_GENERATION",
+  "output_dir": "enhanced-tile-test-suite",
+  "constraints": {
+    "connectivity": {
+      "min_reachable_percentage": 0.85,
+      "require_loops": true,
+      "max_dead_ends": 5
+    },
+    "balance": {
+      "min_open_space_percentage": 0.25,
+      "max_open_space_percentage": 0.65,
+      "min_room_count": 3,
+      "max_room_count": 12
+    },
+    "quality": {
+      "min_variety_score": 0.3,
+      "require_interesting_features": true,
+      "max_repetitive_patterns": 10
+    }
+  }
+}

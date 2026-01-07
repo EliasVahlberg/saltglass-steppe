@@ -1,0 +1,44 @@
+{
+  "seed": 4003,
+  "width": 80,
+  "height": 40,
+  "output_dir": "enhanced-tile-test-suite",
+  "biome": "desert",
+  "poi": "town",
+  "terrain_type": "flat",
+  "algorithm": "layered",
+  "algorithm_params": {
+    "layers": [
+      {
+        "algorithm": "simple_rooms",
+        "algorithm_params": {
+          "room_count": 6
+        },
+        "weight": 1.0,
+        "blend_mode": "Replace"
+      },
+      {
+        "algorithm": "drunkard_walk",
+        "algorithm_params": {
+          "walker_count": 4,
+          "max_steps": 200
+        },
+        "weight": 0.7,
+        "blend_mode": "Screen"
+      },
+      {
+        "algorithm": "smooth",
+        "algorithm_params": {
+          "iterations": 2,
+          "threshold": 3.5
+        },
+        "weight": 0.3,
+        "blend_mode": "Erosion"
+      }
+    ],
+    "blend_mode": "Replace"
+  },
+  "test_suite": "layered_environment",
+  "output_format": ["text", "png"],
+  "enable_evaluation": true
+}

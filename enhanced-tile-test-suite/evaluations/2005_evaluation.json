@@ -1,6 +1,9 @@
 {
   "config": {
+    "algorithm": null,
+    "algorithm_params": null,
     "biome": "scrubland",
+    "constraints": null,
     "enable_evaluation": true,
     "height": 110,
     "output_dir": "enhanced-tile-test-suite",
@@ -19,6 +22,7 @@
     "poi": "dungeon",
     "seed": 2005,
     "terrain_type": "mesa",
+    "test_suite": null,
     "use_bracket_noise": true,
     "width": 250
   },
@@ -67,5 +71,5 @@
     "total_tiles": 27500,
     "width": 250
   },
-  "timestamp": "2026-01-06T16:18:09.326430126+00:00"
+  "timestamp": "2026-01-07T20:37:57.120835834+00:00"
 }

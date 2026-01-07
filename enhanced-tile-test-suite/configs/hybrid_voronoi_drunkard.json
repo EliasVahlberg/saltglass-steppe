@@ -1,0 +1,46 @@
+{
+  "seed": 4002,
+  "width": 100,
+  "height": 70,
+  "biome": "desert",
+  "poi": "oasis",
+  "terrain_type": "dunes",
+  "algorithm": "hybrid_voronoi_drunkard",
+  "algorithm_params": {
+    "primary_algorithm": "voronoi",
+    "secondary_algorithm": "drunkard_walk",
+    "voronoi_params": {
+      "num_sites": 12,
+      "relaxation_iterations": 2,
+      "cell_type_distribution": {
+        "oasis": 0.2,
+        "dune": 0.6,
+        "rock": 0.2
+      },
+      "border_thickness": 2
+    },
+    "drunkard_params": {
+      "num_walkers": 4,
+      "steps_per_walker": 300,
+      "change_direction_chance": 0.08,
+      "spawn_new_walker_chance": 0.03,
+      "max_walkers": 8,
+      "carve_radius": 1
+    },
+    "connection_mode": "inter_region",
+    "connection_probability": 0.7
+  },
+  "use_bracket_noise": false,
+  "output_layers": ["base_terrain", "voronoi_regions", "walker_paths", "final_composite"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": [
+    "voronoi_generation",
+    "region_classification",
+    "walker_path_planning",
+    "inter_region_connection",
+    "terrain_blending"
+  ],
+  "test_suite": "HYBRID_ALGORITHMS",
+  "output_dir": "enhanced-tile-test-suite"
+}

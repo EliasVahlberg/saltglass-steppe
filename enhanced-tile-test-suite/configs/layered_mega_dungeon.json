@@ -1,0 +1,57 @@
+{
+  "seed": 5001,
+  "width": 80,
+  "height": 40,
+  "output_dir": "enhanced-tile-test-suite",
+  "biome": "ruins",
+  "poi": "dungeon",
+  "terrain_type": "canyon",
+  "algorithm": "layered",
+  "algorithm_params": {
+    "layers": [
+      {
+        "algorithm": "simple_rooms",
+        "algorithm_params": {
+          "room_count": 8,
+          "min_room_size": 6,
+          "max_room_size": 15,
+          "corridor_width": 2
+        },
+        "weight": 1.0,
+        "blend_mode": "Replace"
+      },
+      {
+        "algorithm": "maze",
+        "algorithm_params": {
+          "corridor_width": 1,
+          "branching_factor": 0.3
+        },
+        "weight": 0.6,
+        "blend_mode": "Additive"
+      },
+      {
+        "algorithm": "cellular_automata",
+        "algorithm_params": {
+          "initial_wall_probability": 0.4,
+          "iterations": 2
+        },
+        "weight": 0.3,
+        "blend_mode": "Erosion"
+      },
+      {
+        "algorithm": "drunkard_walk",
+        "algorithm_params": {
+          "walker_count": 3,
+          "max_steps": 200,
+          "step_probability": 0.7
+        },
+        "weight": 0.2,
+        "blend_mode": "Additive"
+      }
+    ],
+    "blend_mode": "Replace"
+  },
+  "test_suite": "layered_dungeon",
+  "output_format": ["text", "png"],
+  "enable_evaluation": true
+}

@@ -1,5 +1,5 @@
 {
-  "seed": 5002,
+  "seed": 5001,
   "width": 80,
   "height": 60,
   "biome": "ruins",
@@ -7,10 +7,10 @@
   "terrain_type": "canyon",
   "algorithm": "cellular_automata",
   "algorithm_params": {
-    "initial_wall_probability": 0.55,
-    "iterations": 7,
-    "survival_threshold": 5,
-    "birth_threshold": 6,
+    "initial_wall_probability": 0.35,
+    "iterations": 3,
+    "survival_threshold": 3,
+    "birth_threshold": 4,
     "use_moore_neighborhood": true
   },
   "use_bracket_noise": false,

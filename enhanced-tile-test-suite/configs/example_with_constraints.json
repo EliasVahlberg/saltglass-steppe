@@ -1,0 +1,64 @@
+{
+  "seed": 9999,
+  "width": 80,
+  "height": 40,
+  "output_dir": "enhanced-tile-test-suite",
+  "biome": "ruins",
+  "poi": "dungeon",
+  "terrain_type": "mesa",
+  "algorithm": "layered",
+  "algorithm_params": {
+    "layers": [
+      {
+        "algorithm": "bsp",
+        "algorithm_params": {
+          "min_room_size": 8,
+          "max_room_size": 16,
+          "max_depth": 4
+        },
+        "weight": 1.0,
+        "blend_mode": "Replace"
+      },
+      {
+        "algorithm": "smooth",
+        "algorithm_params": {
+          "iterations": 2,
+          "threshold": 4.0
+        },
+        "weight": 0.3,
+        "blend_mode": "Erosion"
+      },
+      {
+        "algorithm": "connect",
+        "algorithm_params": {
+          "corridor_width": 1,
+          "max_corridors": 4
+        },
+        "weight": 0.5,
+        "blend_mode": "Additive"
+      }
+    ],
+    "blend_mode": "Replace"
+  },
+  "constraints": {
+    "connectivity": {
+      "min_reachable_percentage": 0.90,
+      "require_loops": true,
+      "max_dead_ends": 3
+    },
+    "balance": {
+      "min_open_space_percentage": 0.30,
+      "max_open_space_percentage": 0.70,
+      "min_room_count": 4,
+      "max_room_count": 10
+    },
+    "quality": {
+      "min_variety_score": 0.4,
+      "require_interesting_features": true,
+      "max_repetitive_patterns": 8
+    }
+  },
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "test_suite": "constraint_validation_demo"
+}

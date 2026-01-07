@@ -1,0 +1,24 @@
+{
+  "seed": 3002,
+  "width": 80,
+  "height": 60,
+  "biome": "ruins",
+  "poi": "dungeon",
+  "terrain_type": "flat",
+  "algorithm": "simple_rooms",
+  "algorithm_params": {
+    "num_rooms": 8,
+    "min_room_size": [4, 4],
+    "max_room_size": [10, 8],
+    "corridor_width": 1,
+    "max_placement_attempts": 100,
+    "room_spacing": 2
+  },
+  "use_bracket_noise": false,
+  "output_layers": ["base_terrain", "rooms", "corridors"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["room_placement", "corridor_generation", "connectivity_validation"],
+  "test_suite": "SIMPLE_ROOMS",
+  "output_dir": "enhanced-tile-test-suite"
+}

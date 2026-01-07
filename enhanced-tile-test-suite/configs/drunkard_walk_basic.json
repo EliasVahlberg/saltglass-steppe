@@ -1,0 +1,24 @@
+{
+  "seed": 3001,
+  "width": 80,
+  "height": 60,
+  "biome": "ruins",
+  "poi": "dungeon",
+  "terrain_type": "canyon",
+  "algorithm": "drunkard_walk",
+  "algorithm_params": {
+    "num_walkers": 3,
+    "steps_per_walker": 400,
+    "change_direction_chance": 0.1,
+    "spawn_new_walker_chance": 0.05,
+    "max_walkers": 6,
+    "carve_radius": 1
+  },
+  "use_bracket_noise": false,
+  "output_layers": ["base_terrain", "carved_paths"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["walker_initialization", "path_carving", "connectivity_check"],
+  "test_suite": "DRUNKARD_WALK",
+  "output_dir": "enhanced-tile-test-suite"
+}

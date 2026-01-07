@@ -1,0 +1,39 @@
+{
+  "seed": 7001,
+  "width": 80,
+  "height": 60,
+  "biome": "ruins",
+  "poi": "dungeon",
+  "terrain_type": "canyon",
+  "algorithm": "layered",
+  "algorithm_params": {
+    "layers": [
+      {
+        "algorithm": "bsp",
+        "algorithm_params": {
+          "min_room_size": 6,
+          "max_room_size": 15,
+          "max_depth": 4
+        },
+        "weight": 1.0,
+        "blend_mode": "Replace"
+      },
+      {
+        "algorithm": "cellular_automata",
+        "algorithm_params": {
+          "initial_wall_probability": 0.45,
+          "iterations": 3
+        },
+        "weight": 0.3,
+        "blend_mode": "Erosion"
+      }
+    ],
+    "blend_mode": "Replace"
+  },
+  "output_layers": ["base_terrain", "layer_breakdown"],
+  "output_format": ["text", "png"],
+  "enable_evaluation": true,
+  "pipeline_stages": ["layer_generation", "blending", "connectivity_analysis"],
+  "test_suite": "LAYERED_GENERATION",
+  "output_dir": "enhanced-tile-test-suite"
+}
