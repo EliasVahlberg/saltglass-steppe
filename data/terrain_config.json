@@ -1,6 +1,8 @@
 {
   "feature_density": 0.15,
   "variation_intensity": 0.3,
+  "structure_algorithm": null,
+  "algorithm_params": null,
   "terrain_types": {
     "canyon": {
       "floor_threshold": -0.3,

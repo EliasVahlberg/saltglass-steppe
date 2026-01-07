@@ -246,3 +246,9 @@ tile_test_output/
 custom_output/
 *_config.json
 test_output
+
+# Enhanced tile test suite outputs
+enhanced-tile-test-suite/pngs/
+enhanced-tile-test-suite/evaluations/
+enhanced-tile-test-suite/text/
+enhanced-tile-test-suite/TEST_REPORT.md

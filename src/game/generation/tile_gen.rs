@@ -13,6 +13,9 @@ use super::grammar::{Grammar, GrammarContext};
 use super::templates::{TemplateLibrary, TemplateContext};
 use super::constraints::{ConstraintSystem, ConstraintContext, ObjectivePlacement, ConstraintSeverity};
 use super::connectivity::{ensure_connectivity, GSBParams};
+use super::structures::{Rectangle, Room, Corridor};
+use super::structures::algorithms::SimpleRoom;
+use super::structures::algorithms::*;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct TileGenConfig {
@@ -21,6 +24,8 @@ pub struct TileGenConfig {
     pub poi_layouts: HashMap<String, POILayout>,
     pub feature_density: f64,
     pub variation_intensity: f64,
+    pub structure_algorithm: Option<String>,
+    pub algorithm_params: Option<serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -322,6 +327,169 @@ impl TileGenerator {
     }
 
     fn generate_base_terrain(&self, seed: u32, biome: Biome, terrain: Terrain, poi: POI) -> (Map, Vec<(i32, i32)>) {
+        // Check if we should use structure algorithms instead of noise
+        if let Some(algorithm) = &TILE_CONFIG.structure_algorithm {
+            return self.generate_with_structure_algorithm(seed, algorithm, biome, terrain, poi);
+        }
+        
+        // Original noise-based generation
+        self.generate_noise_based_terrain(seed, biome, terrain, poi)
+    }
+    
+    fn generate_with_structure_algorithm(&self, seed: u32, algorithm: &str, biome: Biome, terrain: Terrain, poi: POI) -> (Map, Vec<(i32, i32)>) {
+        use rand::SeedableRng;
+        let mut rng = ChaCha8Rng::seed_from_u64(seed as u64);
+        let bounds = Rectangle::new(0, 0, MAP_WIDTH as u32, MAP_HEIGHT as u32);
+        
+        let mut tiles = vec![Tile::Wall { id: "stone".to_string(), hp: 100 }; MAP_WIDTH * MAP_HEIGHT];
+        let mut clearings = Vec::new();
+        
+        match algorithm {
+            "bsp" => {
+                let params = BSPParams::default();
+                let bsp = BSPAlgorithm::new(params);
+                let (rooms, corridors) = bsp.generate(bounds, &mut rng);
+                self.apply_bsp_result(&mut tiles, &rooms, &corridors, &mut clearings);
+            },
+            "cellular_automata" => {
+                let params = CellularAutomataParams::default();
+                let cellular = CellularAutomataAlgorithm::new(params);
+                let walls = cellular.generate(bounds, &mut rng);
+                self.apply_cellular_result(&mut tiles, &walls, &mut clearings);
+            },
+            "drunkard_walk" => {
+                let params = DrunkardWalkParams::default();
+                let drunkard = DrunkardWalkAlgorithm::new(params);
+                let carved = drunkard.generate(bounds, &mut rng);
+                self.apply_drunkard_result(&mut tiles, &carved, &mut clearings);
+            },
+            "simple_rooms" => {
+                let params = SimpleRoomsParams::default();
+                let simple = SimpleRoomsAlgorithm::new(params);
+                let (simple_rooms, corridors) = simple.generate(bounds, &mut rng);
+                self.apply_simple_rooms_result(&mut tiles, &simple_rooms, &corridors, &mut clearings);
+            },
+            _ => {
+                // Fallback to noise-based generation for unimplemented algorithms
+                return self.generate_noise_based_terrain(seed, biome, terrain, poi);
+            }
+        }
+        
+        let map = Map {
+            tiles,
+            width: MAP_WIDTH,
+            height: MAP_HEIGHT,
+            lights: Vec::new(),
+            inscriptions: Vec::new(),
+            area_description: None,
+            metadata: std::collections::HashMap::new(),
+        };
+        
+        (map, clearings)
+    }
+    
+    fn apply_bsp_result(&self, tiles: &mut Vec<Tile>, rooms: &[Room], corridors: &[Corridor], clearings: &mut Vec<(i32, i32)>) {
+        // Convert rooms to floor tiles
+        for room in rooms {
+            let bounds = &room.bounds;
+            for y in bounds.y..(bounds.y + bounds.height) {
+                for x in bounds.x..(bounds.x + bounds.width) {
+                    if let Some(idx) = self.pos_to_idx(x as i32, y as i32) {
+                        tiles[idx] = Tile::default_floor();
+                    }
+                }
+            }
+            // Add room center as clearing
+            let center_x = bounds.x + bounds.width / 2;
+            let center_y = bounds.y + bounds.height / 2;
+            clearings.push((center_x as i32, center_y as i32));
+        }
+        
+        // Add corridors - for now just connect start to end
+        for corridor in corridors {
+            let (start_x, start_y) = corridor.start;
+            let (end_x, end_y) = corridor.end;
+            
+            // Simple line drawing from start to end
+            let dx = end_x as i32 - start_x as i32;
+            let dy = end_y as i32 - start_y as i32;
+            let steps = dx.abs().max(dy.abs());
+            
+            if steps > 0 {
+                for i in 0..=steps {
+                    let x = start_x as i32 + (dx * i) / steps;
+                    let y = start_y as i32 + (dy * i) / steps;
+                    if let Some(idx) = self.pos_to_idx(x, y) {
+                        tiles[idx] = Tile::default_floor();
+                    }
+                }
+            }
+        }
+    }
+    
+    fn apply_cellular_result(&self, tiles: &mut Vec<Tile>, walls: &[(i32, i32)], clearings: &mut Vec<(i32, i32)>) {
+        // Start with all floors
+        for tile in tiles.iter_mut() {
+            *tile = Tile::default_floor();
+        }
+        
+        // Apply walls from cellular automata
+        for &(x, y) in walls {
+            if let Some(idx) = self.pos_to_idx(x, y) {
+                tiles[idx] = Tile::Wall { id: "stone".to_string(), hp: 100 };
+            }
+        }
+        
+        // Find clearings (large open areas)
+        clearings.extend(self.find_clearings(tiles));
+    }
+    
+    fn apply_drunkard_result(&self, tiles: &mut Vec<Tile>, carved: &[(u32, u32)], clearings: &mut Vec<(i32, i32)>) {
+        // Apply carved tiles as floors
+        for &(x, y) in carved {
+            if let Some(idx) = self.pos_to_idx(x as i32, y as i32) {
+                tiles[idx] = Tile::default_floor();
+            }
+        }
+        
+        // Find clearings
+        clearings.extend(self.find_clearings(tiles));
+    }
+    
+    fn apply_simple_rooms_result(&self, tiles: &mut Vec<Tile>, simple_rooms: &[SimpleRoom], corridors: &[(u32, u32)], clearings: &mut Vec<(i32, i32)>) {
+        // Convert SimpleRoom to floor tiles
+        for room in simple_rooms {
+            let bounds = &room.bounds;
+            for y in bounds.y..(bounds.y + bounds.height) {
+                for x in bounds.x..(bounds.x + bounds.width) {
+                    if let Some(idx) = self.pos_to_idx(x as i32, y as i32) {
+                        tiles[idx] = Tile::default_floor();
+                    }
+                }
+            }
+            // Add room center as clearing
+            let center_x = bounds.x + bounds.width / 2;
+            let center_y = bounds.y + bounds.height / 2;
+            clearings.push((center_x as i32, center_y as i32));
+        }
+        
+        // Add corridor tiles
+        for &(x, y) in corridors {
+            if let Some(idx) = self.pos_to_idx(x as i32, y as i32) {
+                tiles[idx] = Tile::default_floor();
+            }
+        }
+    }
+    
+    fn pos_to_idx(&self, x: i32, y: i32) -> Option<usize> {
+        if x >= 0 && x < MAP_WIDTH as i32 && y >= 0 && y < MAP_HEIGHT as i32 {
+            Some((y as usize) * MAP_WIDTH + (x as usize))
+        } else {
+            None
+        }
+    }
+
+    fn generate_noise_based_terrain(&self, seed: u32, biome: Biome, terrain: Terrain, poi: POI) -> (Map, Vec<(i32, i32)>) {
         let terrain_key = match terrain {
             Terrain::Canyon => "canyon",
             Terrain::Mesa => "mesa", 

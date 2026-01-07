@@ -4,7 +4,7 @@ use saltglass_steppe::game::generation::TileGenerator;
 use saltglass_steppe::game::world_map::{Biome, Terrain, POI};
 use rand_chacha::ChaCha8Rng;
 use rand::{SeedableRng, Rng};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet, VecDeque};
 use serde::{Deserialize, Serialize};
 use image::{ImageBuffer, Rgb};
 use chrono;
@@ -26,6 +26,36 @@ pub struct EnhancedConfig {
     pub algorithm: Option<String>,
     pub algorithm_params: Option<serde_json::Value>,
     pub test_suite: Option<String>,
+    pub constraints: Option<ConstraintConfig>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConstraintConfig {
+    pub connectivity: Option<ConnectivityConstraint>,
+    pub balance: Option<BalanceConstraint>,
+    pub quality: Option<QualityConstraint>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ConnectivityConstraint {
+    pub min_reachable_percentage: f64,
+    pub require_loops: bool,
+    pub max_dead_ends: Option<usize>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BalanceConstraint {
+    pub min_open_space_percentage: f64,
+    pub max_open_space_percentage: f64,
+    pub min_room_count: Option<usize>,
+    pub max_room_count: Option<usize>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct QualityConstraint {
+    pub min_variety_score: f64,
+    pub require_interesting_features: bool,
+    pub max_repetitive_patterns: Option<usize>,
 }
 
 impl EnhancedConfig {
@@ -58,6 +88,9 @@ impl EnhancedConfig {
         let algorithm_params = json.get("algorithm_params").cloned();
         let test_suite = json.get("test_suite").and_then(|v| v.as_str()).map(|s| s.to_string());
         
+        let constraints = json.get("constraints")
+            .and_then(|v| serde_json::from_value(v.clone()).ok());
+        
         Ok(EnhancedConfig {
             seed,
             width,
@@ -74,65 +107,111 @@ impl EnhancedConfig {
             algorithm,
             algorithm_params,
             test_suite,
+            constraints,
         })
     }
 }
 
 fn generate_enhanced_map(config: &EnhancedConfig) -> Result<(Map, serde_json::Value), Box<dyn std::error::Error>> {
-    let use_bracket_noise = config.use_bracket_noise.unwrap_or(true);
+    let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
+    let mut tile_gen = TileGenerator::new()?;
     
-    if use_bracket_noise {
-        let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
-        let tile_gen = TileGenerator::new()?;
+    let biome = config.biome.as_ref()
+        .and_then(|b| match b.as_str() {
+            "saltflat" => Some(Biome::Saltflat),
+            "desert" => Some(Biome::Desert),
+            "ruins" => Some(Biome::Ruins),
+            "scrubland" => Some(Biome::Scrubland),
+            "oasis" => Some(Biome::Oasis),
+            _ => None,
+        })
+        .unwrap_or(Biome::Saltflat);
         
-        let biome = config.biome.as_ref()
-            .and_then(|b| match b.as_str() {
-                "saltflat" => Some(Biome::Saltflat),
-                "desert" => Some(Biome::Desert),
-                "ruins" => Some(Biome::Ruins),
-                "scrubland" => Some(Biome::Scrubland),
-                "oasis" => Some(Biome::Oasis),
-                _ => None,
-            })
-            .unwrap_or(Biome::Saltflat);
-            
-        let poi = config.poi.as_ref()
-            .and_then(|p| match p.as_str() {
-                "town" => Some(POI::Town),
-                "shrine" => Some(POI::Shrine),
-                "landmark" => Some(POI::Landmark),
-                "dungeon" => Some(POI::Dungeon),
-                _ => None,
-            })
-            .unwrap_or(POI::None);
-            
-        let terrain = config.terrain_type.as_ref()
-            .and_then(|t| match t.as_str() {
-                "canyon" => Some(Terrain::Canyon),
-                "mesa" => Some(Terrain::Mesa),
-                "hills" => Some(Terrain::Hills),
-                "dunes" => Some(Terrain::Dunes),
-                "flat" => Some(Terrain::Flat),
-                _ => None,
-            })
-            .unwrap_or(Terrain::Flat);
+    let poi = config.poi.as_ref()
+        .and_then(|p| match p.as_str() {
+            "town" => Some(POI::Town),
+            "shrine" => Some(POI::Shrine),
+            "landmark" => Some(POI::Landmark),
+            "dungeon" => Some(POI::Dungeon),
+            _ => None,
+        })
+        .unwrap_or(POI::None);
         
-        let (map, clearings) = tile_gen.generate_enhanced_tile_with_quests(
+    let terrain = config.terrain_type.as_ref()
+        .and_then(|t| match t.as_str() {
+            "canyon" => Some(Terrain::Canyon),
+            "mesa" => Some(Terrain::Mesa),
+            "hills" => Some(Terrain::Hills),
+            "dunes" => Some(Terrain::Dunes),
+            "flat" => Some(Terrain::Flat),
+            _ => None,
+        })
+        .unwrap_or(Terrain::Flat);
+    
+    // Check if this config specifies a structure algorithm
+    let (map, clearings) = if let Some(algorithm) = &config.algorithm {
+        // Check if it's a layered algorithm
+        if algorithm.starts_with("layered_") || algorithm == "layered" {
+            use saltglass_steppe::game::generation::layered_generation::{LayeredGenerator, LayeredGenerationConfig};
+            
+            // Parse layered config from algorithm_params
+            let layered_config = if let Some(params) = &config.algorithm_params {
+                serde_json::from_value::<LayeredGenerationConfig>(params.clone())
+                    .map_err(|e| format!("Failed to parse layered config: {}", e))?
+            } else {
+                return Err("Layered algorithm requires algorithm_params with layers configuration".into());
+            };
+            
+            let generator = LayeredGenerator::new(layered_config);
+            let layered_map = generator.generate(config.seed);
+            
+            (layered_map, vec![])
+        } else {
+            // Handle regular structure algorithms
+            // Temporarily modify terrain config to use the specified algorithm
+            let original_config = std::fs::read_to_string("data/terrain_config.json")?;
+            let mut terrain_config: serde_json::Value = serde_json::from_str(&original_config)?;
+            
+            // Set the algorithm in the config
+            terrain_config["structure_algorithm"] = serde_json::Value::String(algorithm.clone());
+            if let Some(params) = &config.algorithm_params {
+                terrain_config["algorithm_params"] = params.clone();
+            }
+            
+            // Write temporary config
+            std::fs::write("data/terrain_config.json", serde_json::to_string_pretty(&terrain_config)?)?;
+        
+            // Generate with structure algorithm
+            let result = tile_gen.generate_enhanced_tile_with_quests(
+                &mut rng,
+                biome,
+                terrain,
+                50,
+                poi,
+                &[]
+            );
+            
+            // Restore original config
+            std::fs::write("data/terrain_config.json", original_config)?;
+            
+            result
+        }
+    } else {
+        // Use normal generation
+        tile_gen.generate_enhanced_tile_with_quests(
             &mut rng,
             biome,
             terrain,
             50,
             poi,
             &[]
-        );
-        
-        // Generate evaluation data
-        let evaluation = generate_evaluation(&map, config, clearings.len());
-        
-        Ok((map, evaluation))
-    } else {
-        Err("Simple generation not supported in enhanced mode".into())
-    }
+        )
+    };
+    
+    // Generate evaluation data
+    let evaluation = generate_evaluation(&map, config, clearings.len());
+    
+    Ok((map, evaluation))
 }
 
 fn generate_evaluation(map: &Map, config: &EnhancedConfig, clearings_count: usize) -> serde_json::Value {
@@ -168,6 +247,47 @@ fn generate_evaluation(map: &Map, config: &EnhancedConfig, clearings_count: usiz
     let wall_ratio = wall_count as f64 / total_tiles as f64;
     let connectivity_ratio = floor_count as f64 / (floor_count + glass_count) as f64;
     
+    // Run constraint validation if configured
+    let constraint_results = validate_constraints(map, config);
+    let constraint_json: Vec<serde_json::Value> = constraint_results.iter().map(|result| {
+        serde_json::json!({
+            "constraint_type": result.constraint_name,
+            "passed": result.passed,
+            "score": result.score,
+            "message": result.message
+        })
+    }).collect();
+    
+    // Add default constraints if no custom ones specified
+    let mut all_constraints = constraint_json;
+    if config.constraints.is_none() {
+        all_constraints.extend(vec![
+            serde_json::json!({
+                "constraint_type": "connectivity",
+                "expected_value": 0.8,
+                "actual_value": connectivity_ratio,
+                "passed": connectivity_ratio >= 0.8,
+                "message": format!("Connectivity ratio {:.2} {} minimum 0.80", 
+                    connectivity_ratio, if connectivity_ratio >= 0.8 { "meets" } else { "below" })
+            }),
+            serde_json::json!({
+                "constraint_type": "floor_density", 
+                "expected_value": 0.3,
+                "actual_value": floor_ratio,
+                "passed": floor_ratio >= 0.3,
+                "message": format!("Floor density {:.2} {} minimum 0.30",
+                    floor_ratio, if floor_ratio >= 0.3 { "meets" } else { "below" })
+            })
+        ]);
+    }
+    
+    // Calculate overall quality score
+    let constraint_score = if !constraint_results.is_empty() {
+        constraint_results.iter().map(|r| r.score).sum::<f64>() / constraint_results.len() as f64
+    } else {
+        (connectivity_ratio + floor_ratio) / 2.0
+    };
+    
     serde_json::json!({
         "config": config,
         "evaluation": {
@@ -185,25 +305,8 @@ fn generate_evaluation(map: &Map, config: &EnhancedConfig, clearings_count: usiz
                 "total_floor_tiles": floor_count,
                 "clearings_found": clearings_count
             },
-            "constraints": [
-                {
-                    "constraint_type": "connectivity",
-                    "expected_value": 0.8,
-                    "actual_value": connectivity_ratio,
-                    "passed": connectivity_ratio >= 0.8,
-                    "message": format!("Connectivity ratio {:.2} {} minimum 0.80", 
-                        connectivity_ratio, if connectivity_ratio >= 0.8 { "meets" } else { "below" })
-                },
-                {
-                    "constraint_type": "floor_density", 
-                    "expected_value": 0.3,
-                    "actual_value": floor_ratio,
-                    "passed": floor_ratio >= 0.3,
-                    "message": format!("Floor density {:.2} {} minimum 0.30",
-                        floor_ratio, if floor_ratio >= 0.3 { "meets" } else { "below" })
-                }
-            ],
-            "quality_score": (connectivity_ratio + floor_ratio) / 2.0
+            "constraints": all_constraints,
+            "quality_score": constraint_score
         },
         "metrics": {
             "width": map.width,
@@ -354,5 +457,221 @@ fn main() {
             eprintln!("Generation failed: {}", e);
             std::process::exit(1);
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ConstraintValidationResult {
+    pub constraint_name: String,
+    pub passed: bool,
+    pub score: f64,
+    pub message: String,
+}
+
+fn validate_constraints(map: &Map, config: &EnhancedConfig) -> Vec<ConstraintValidationResult> {
+    let mut results = Vec::new();
+    
+    if let Some(constraints) = &config.constraints {
+        // Connectivity validation
+        if let Some(connectivity) = &constraints.connectivity {
+            results.extend(validate_connectivity(map, connectivity));
+        }
+        
+        // Balance validation
+        if let Some(balance) = &constraints.balance {
+            results.extend(validate_balance(map, balance));
+        }
+        
+        // Quality validation
+        if let Some(quality) = &constraints.quality {
+            results.extend(validate_quality(map, quality));
+        }
+    }
+    
+    results
+}
+
+fn validate_connectivity(map: &Map, constraint: &ConnectivityConstraint) -> Vec<ConstraintValidationResult> {
+    let mut results = Vec::new();
+    
+    // Find all floor tiles
+    let mut floor_positions = Vec::new();
+    for (i, tile) in map.tiles.iter().enumerate() {
+        if matches!(tile, Tile::Floor { .. }) {
+            let x = i % map.width;
+            let y = i / map.width;
+            floor_positions.push((x, y));
+        }
+    }
+    
+    if floor_positions.is_empty() {
+        results.push(ConstraintValidationResult {
+            constraint_name: "connectivity_reachable".to_string(),
+            passed: false,
+            score: 0.0,
+            message: "No floor tiles found".to_string(),
+        });
+        return results;
+    }
+    
+    // Flood fill from first floor tile to find reachable area
+    let start = floor_positions[0];
+    let reachable = flood_fill_reachable(map, start);
+    let reachable_percentage = reachable.len() as f64 / floor_positions.len() as f64;
+    
+    let connectivity_passed = reachable_percentage >= constraint.min_reachable_percentage;
+    results.push(ConstraintValidationResult {
+        constraint_name: "connectivity_reachable".to_string(),
+        passed: connectivity_passed,
+        score: reachable_percentage,
+        message: format!("Reachable: {:.1}% (required: {:.1}%)", 
+                        reachable_percentage * 100.0, 
+                        constraint.min_reachable_percentage * 100.0),
+    });
+    
+    // Check for loops if required
+    if constraint.require_loops {
+        let has_loops = detect_loops(map, &reachable);
+        results.push(ConstraintValidationResult {
+            constraint_name: "connectivity_loops".to_string(),
+            passed: has_loops,
+            score: if has_loops { 1.0 } else { 0.0 },
+            message: format!("Loops detected: {}", has_loops),
+        });
+    }
+    
+    results
+}
+
+fn validate_balance(map: &Map, constraint: &BalanceConstraint) -> Vec<ConstraintValidationResult> {
+    let mut results = Vec::new();
+    
+    let total_tiles = map.tiles.len() as f64;
+    let floor_count = map.tiles.iter()
+        .filter(|tile| matches!(tile, Tile::Floor { .. }))
+        .count() as f64;
+    let open_space_percentage = floor_count / total_tiles;
+    
+    let balance_passed = open_space_percentage >= constraint.min_open_space_percentage 
+                        && open_space_percentage <= constraint.max_open_space_percentage;
+    
+    results.push(ConstraintValidationResult {
+        constraint_name: "balance_open_space".to_string(),
+        passed: balance_passed,
+        score: if balance_passed { 1.0 } else { 0.5 },
+        message: format!("Open space: {:.1}% (required: {:.1}%-{:.1}%)", 
+                        open_space_percentage * 100.0,
+                        constraint.min_open_space_percentage * 100.0,
+                        constraint.max_open_space_percentage * 100.0),
+    });
+    
+    results
+}
+
+fn validate_quality(map: &Map, constraint: &QualityConstraint) -> Vec<ConstraintValidationResult> {
+    let mut results = Vec::new();
+    
+    // Calculate variety score based on tile distribution
+    let variety_score = calculate_variety_score(map);
+    let variety_passed = variety_score >= constraint.min_variety_score;
+    
+    results.push(ConstraintValidationResult {
+        constraint_name: "quality_variety".to_string(),
+        passed: variety_passed,
+        score: variety_score,
+        message: format!("Variety score: {:.3} (required: {:.3})", 
+                        variety_score, constraint.min_variety_score),
+    });
+    
+    results
+}
+
+fn flood_fill_reachable(map: &Map, start: (usize, usize)) -> HashSet<(usize, usize)> {
+    let mut visited = HashSet::new();
+    let mut queue = VecDeque::new();
+    queue.push_back(start);
+    
+    while let Some((x, y)) = queue.pop_front() {
+        if visited.contains(&(x, y)) {
+            continue;
+        }
+        visited.insert((x, y));
+        
+        // Check 4-connected neighbors
+        for (dx, dy) in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
+            let nx = x as i32 + dx;
+            let ny = y as i32 + dy;
+            
+            if nx >= 0 && ny >= 0 && (nx as usize) < map.width && (ny as usize) < map.height {
+                let nx = nx as usize;
+                let ny = ny as usize;
+                let idx = ny * map.width + nx;
+                
+                if idx < map.tiles.len() && matches!(map.tiles[idx], Tile::Floor { .. }) && !visited.contains(&(nx, ny)) {
+                    queue.push_back((nx, ny));
+                }
+            }
+        }
+    }
+    
+    visited
+}
+
+fn detect_loops(map: &Map, reachable: &HashSet<(usize, usize)>) -> bool {
+    // Simple loop detection: check if any floor tile has more than 2 floor neighbors
+    for &(x, y) in reachable {
+        let mut neighbor_count = 0;
+        for (dx, dy) in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
+            let nx = x as i32 + dx;
+            let ny = y as i32 + dy;
+            
+            if nx >= 0 && ny >= 0 && (nx as usize) < map.width && (ny as usize) < map.height {
+                let nx = nx as usize;
+                let ny = ny as usize;
+                if reachable.contains(&(nx, ny)) {
+                    neighbor_count += 1;
+                }
+            }
+        }
+        
+        if neighbor_count > 2 {
+            return true; // Found a junction, indicating loops
+        }
+    }
+    false
+}
+
+fn calculate_variety_score(map: &Map) -> f64 {
+    // Calculate variety based on spatial distribution of features
+    let mut pattern_counts = HashMap::new();
+    
+    // Sample 3x3 patterns across the map
+    for y in 0..(map.height - 2) {
+        for x in 0..(map.width - 2) {
+            let mut pattern = String::new();
+            for py in 0..3 {
+                for px in 0..3 {
+                    let idx = (y + py) * map.width + (x + px);
+                    if idx < map.tiles.len() {
+                        pattern.push(match map.tiles[idx] {
+                            Tile::Floor { .. } => 'F',
+                            Tile::Wall { .. } => 'W',
+                            _ => 'O',
+                        });
+                    }
+                }
+            }
+            *pattern_counts.entry(pattern).or_insert(0) += 1;
+        }
+    }
+    
+    // Variety score is based on pattern diversity
+    let total_patterns = pattern_counts.values().sum::<i32>() as f64;
+    let unique_patterns = pattern_counts.len() as f64;
+    
+    if total_patterns > 0.0 {
+        unique_patterns / total_patterns.sqrt()
+    } else {
+        0.0
     }
 }
