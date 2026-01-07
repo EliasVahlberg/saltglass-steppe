@@ -46,7 +46,7 @@ pub struct Structure {
     pub metadata: HashMap<String, String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct Rectangle {
     pub x: u32,
     pub y: u32,

@@ -9,6 +9,7 @@ pub mod templates;
 pub mod grammar;
 pub mod biomes;
 pub mod constraints;
+pub mod constraint_tests;
 pub mod quest_constraints;
 pub mod connectivity;
 pub mod events;
@@ -22,6 +23,7 @@ pub mod spatial;
 pub mod loot;
 pub mod story;
 pub mod registry;
+pub mod layered_generation;
 
 #[cfg(test)]
 mod tests;
@@ -46,4 +48,6 @@ pub use spatial::*;
 pub use loot::*;
 pub use story::*;
 pub use structures::*;
-pub use narrative_templates::*;
+pub use layered_generation::*;
+pub use narrative::*;
+pub use narrative_templates::{NarrativeGenerator, NarrativeContext, NarrativeTemplate, HistoricalEvent};
