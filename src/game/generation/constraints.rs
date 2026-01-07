@@ -27,6 +27,10 @@ pub enum ConstraintType {
     Balance,
     Placement,
     Resource,
+    Tactical,
+    SafeZone,
+    EscapeRoute,
+    ObjectiveAccessibility,
 }
 
 /// Severity levels for constraint violations
@@ -117,6 +121,10 @@ impl ConstraintSystem {
             ConstraintType::Balance => Self::validate_balance(rule, context),
             ConstraintType::Placement => Self::validate_placement(rule, context),
             ConstraintType::Resource => Self::validate_resource(rule, context),
+            ConstraintType::Tactical => Self::validate_tactical(rule, context),
+            ConstraintType::SafeZone => Self::validate_safe_zone(rule, context),
+            ConstraintType::EscapeRoute => Self::validate_escape_route(rule, context),
+            ConstraintType::ObjectiveAccessibility => Self::validate_objective_accessibility(rule, context),
         }
     }
     
@@ -406,6 +414,313 @@ impl ConstraintSystem {
                     .collect()
             })
             .unwrap_or_default()
+    }
+
+    /// Validate tactical constraints (chokepoints, open areas)
+    fn validate_tactical(rule: &ConstraintRule, context: &ConstraintContext) -> ConstraintResult {
+        let min_chokepoints = Self::extract_u32(&rule.parameters, "min_chokepoints").unwrap_or(2);
+        let max_open_ratio = Self::extract_f32(&rule.parameters, "max_open_ratio").unwrap_or(0.4);
+        
+        let mut chokepoints = 0;
+        let mut open_tiles = 0;
+        let total_floor_tiles = context.map.tiles.iter()
+            .filter(|t| t.walkable()).count();
+        
+        // Count chokepoints (floor tiles with <= 2 adjacent floor tiles)
+        for y in 1..(context.map.height - 1) {
+            for x in 1..(context.map.width - 1) {
+                let idx = (y * context.map.width + x) as usize;
+                if context.map.tiles[idx].walkable() {
+                    let adjacent_floors = Self::count_adjacent_floors(context.map, x as i32, y as i32);
+                    if adjacent_floors <= 2 {
+                        chokepoints += 1;
+                    }
+                    if adjacent_floors >= 6 {
+                        open_tiles += 1;
+                    }
+                }
+            }
+        }
+        
+        let open_ratio = open_tiles as f32 / total_floor_tiles as f32;
+        let chokepoint_score = if chokepoints >= min_chokepoints { 1.0 } else { chokepoints as f32 / min_chokepoints as f32 };
+        let open_score = if open_ratio <= max_open_ratio { 1.0 } else { max_open_ratio / open_ratio };
+        
+        let score = (chokepoint_score + open_score) / 2.0;
+        let passed = score >= 0.7;
+        
+        ConstraintResult {
+            rule_id: rule.id.clone(),
+            passed,
+            severity: rule.severity.clone(),
+            message: format!("Tactical: {} chokepoints, {:.1}% open areas", chokepoints, open_ratio * 100.0),
+            score,
+        }
+    }
+
+    /// Validate safe zone constraints
+    fn validate_safe_zone(rule: &ConstraintRule, context: &ConstraintContext) -> ConstraintResult {
+        let min_safe_distance = Self::extract_u32(&rule.parameters, "min_safe_distance").unwrap_or(5);
+        let required_coverage = Self::extract_f32(&rule.parameters, "safe_zone_coverage").unwrap_or(0.3);
+        
+        let mut safe_tiles = 0;
+        let total_floor_tiles = context.map.tiles.iter()
+            .filter(|t| t.walkable()).count();
+        
+        // Check each floor tile for safety (distance from enemies/hazards)
+        for y in 0..context.map.height {
+            for x in 0..context.map.width {
+                let idx = (y * context.map.width + x) as usize;
+                if context.map.tiles[idx].walkable() {
+                    let mut is_safe = true;
+                    
+                    // Check distance from enemies
+                    for entity in &context.entities {
+                        if entity.entity_type == "enemy" {
+                            let distance = Self::calculate_distance((x as i32, y as i32), (entity.x, entity.y));
+                            if distance < min_safe_distance as f32 {
+                                is_safe = false;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if is_safe {
+                        safe_tiles += 1;
+                    }
+                }
+            }
+        }
+        
+        let coverage = safe_tiles as f32 / total_floor_tiles as f32;
+        let score = (coverage / required_coverage).min(1.0);
+        let passed = coverage >= required_coverage;
+        
+        ConstraintResult {
+            rule_id: rule.id.clone(),
+            passed,
+            severity: rule.severity.clone(),
+            message: format!("Safe zones: {:.1}% coverage ({} safe tiles)", coverage * 100.0, safe_tiles),
+            score,
+        }
+    }
+
+    /// Validate escape route constraints
+    fn validate_escape_route(rule: &ConstraintRule, context: &ConstraintContext) -> ConstraintResult {
+        let min_exit_routes = Self::extract_u32(&rule.parameters, "min_exit_routes").unwrap_or(2);
+        let max_dead_end_depth = Self::extract_u32(&rule.parameters, "max_dead_end_depth").unwrap_or(3);
+        
+        let mut valid_areas = 0;
+        let mut total_areas = 0;
+        let mut deep_dead_ends = 0;
+        
+        // Sample key positions and check escape routes
+        for y in (5..context.map.height).step_by(10) {
+            for x in (5..context.map.width).step_by(10) {
+                let idx = (y * context.map.width + x) as usize;
+                if context.map.tiles[idx].walkable() {
+                    total_areas += 1;
+                    
+                    let exit_routes = Self::count_exit_routes(context.map, x as i32, y as i32);
+                    if exit_routes >= min_exit_routes {
+                        valid_areas += 1;
+                    }
+                    
+                    let dead_end_depth = Self::calculate_dead_end_depth(context.map, x as i32, y as i32);
+                    if dead_end_depth > max_dead_end_depth {
+                        deep_dead_ends += 1;
+                    }
+                }
+            }
+        }
+        
+        let route_score = if total_areas > 0 { valid_areas as f32 / total_areas as f32 } else { 1.0 };
+        let dead_end_penalty = (deep_dead_ends as f32 / total_areas.max(1) as f32).min(0.5);
+        let score = (route_score - dead_end_penalty).max(0.0);
+        let passed = score >= 0.7;
+        
+        ConstraintResult {
+            rule_id: rule.id.clone(),
+            passed,
+            severity: rule.severity.clone(),
+            message: format!("Escape routes: {}/{} areas valid, {} deep dead ends", valid_areas, total_areas, deep_dead_ends),
+            score,
+        }
+    }
+
+    /// Validate objective accessibility constraints
+    fn validate_objective_accessibility(rule: &ConstraintRule, context: &ConstraintContext) -> ConstraintResult {
+        let min_path_complexity = Self::extract_u32(&rule.parameters, "min_path_complexity").unwrap_or(3);
+        let max_path_complexity = Self::extract_u32(&rule.parameters, "max_path_complexity").unwrap_or(50);
+        
+        let spawn_point = (context.map.width as i32 / 2, context.map.height as i32 / 2);
+        let mut accessible_objectives = 0;
+        let mut valid_complexity = 0;
+        
+        for objective in &context.objectives {
+            if objective.required {
+                let path_length = Self::calculate_path_length(
+                    context.map, 
+                    spawn_point, 
+                    (objective.x, objective.y)
+                );
+                
+                if path_length > 0 {
+                    accessible_objectives += 1;
+                    
+                    if path_length >= min_path_complexity && path_length <= max_path_complexity {
+                        valid_complexity += 1;
+                    }
+                }
+            }
+        }
+        
+        let required_objectives = context.objectives.iter().filter(|o| o.required).count();
+        let accessibility_score = if required_objectives > 0 {
+            accessible_objectives as f32 / required_objectives as f32
+        } else { 1.0 };
+        
+        let complexity_score = if accessible_objectives > 0 {
+            valid_complexity as f32 / accessible_objectives as f32
+        } else { 1.0 };
+        
+        let score = (accessibility_score + complexity_score) / 2.0;
+        let passed = accessibility_score >= 0.9 && complexity_score >= 0.7;
+        
+        ConstraintResult {
+            rule_id: rule.id.clone(),
+            passed,
+            severity: rule.severity.clone(),
+            message: format!("Objectives: {}/{} accessible, {}/{} valid complexity", 
+                accessible_objectives, required_objectives, valid_complexity, accessible_objectives),
+            score,
+        }
+    }
+
+    /// Helper: Count adjacent floor tiles
+    fn count_adjacent_floors(map: &Map, x: i32, y: i32) -> u32 {
+        let mut count = 0;
+        for dy in -1..=1 {
+            for dx in -1..=1 {
+                if dx == 0 && dy == 0 { continue; }
+                let nx = x + dx;
+                let ny = y + dy;
+                if nx >= 0 && nx < map.width as i32 && ny >= 0 && ny < map.height as i32 {
+                    let idx = (ny * map.width as i32 + nx) as usize;
+                    if map.tiles[idx].walkable() {
+                        count += 1;
+                    }
+                }
+            }
+        }
+        count
+    }
+
+    /// Helper: Count exit routes from a position
+    fn count_exit_routes(map: &Map, x: i32, y: i32) -> u32 {
+        // Simple implementation: count distinct directions with paths
+        let directions = [(0, 1), (1, 0), (0, -1), (-1, 0)];
+        let mut routes = 0;
+        
+        for (dx, dy) in directions {
+            let mut steps = 0;
+            let mut cx = x;
+            let mut cy = y;
+            
+            // Follow direction for up to 10 steps
+            while steps < 10 {
+                cx += dx;
+                cy += dy;
+                steps += 1;
+                
+                if cx < 0 || cx >= map.width as i32 || cy < 0 || cy >= map.height as i32 {
+                    routes += 1; // Reached map edge
+                    break;
+                }
+                
+                let idx = (cy * map.width as i32 + cx) as usize;
+                if !map.tiles[idx].walkable() {
+                    break; // Hit wall
+                }
+            }
+        }
+        
+        routes
+    }
+
+    /// Helper: Calculate dead end depth
+    fn calculate_dead_end_depth(map: &Map, x: i32, y: i32) -> u32 {
+        // Simple flood fill to find depth from nearest multi-path area
+        let mut visited = vec![false; map.tiles.len()];
+        let mut queue = vec![(x, y, 0)];
+        let start_idx = (y * map.width as i32 + x) as usize;
+        visited[start_idx] = true;
+        
+        while let Some((cx, cy, depth)) = queue.pop() {
+            let adjacent_floors = Self::count_adjacent_floors(map, cx, cy);
+            if adjacent_floors > 2 {
+                return depth; // Found multi-path area
+            }
+            
+            if depth >= 10 {
+                return depth; // Limit search depth
+            }
+            
+            for (dx, dy) in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
+                let nx = cx + dx;
+                let ny = cy + dy;
+                
+                if nx >= 0 && nx < map.width as i32 && ny >= 0 && ny < map.height as i32 {
+                    let idx = (ny * map.width as i32 + nx) as usize;
+                    if !visited[idx] && map.tiles[idx].walkable() {
+                        visited[idx] = true;
+                        queue.push((nx, ny, depth + 1));
+                    }
+                }
+            }
+        }
+        
+        10 // Max depth if no multi-path area found
+    }
+
+    /// Helper: Calculate path length between two points
+    fn calculate_path_length(map: &Map, start: (i32, i32), end: (i32, i32)) -> u32 {
+        // Simple BFS pathfinding
+        let mut visited = vec![false; map.tiles.len()];
+        let mut queue = std::collections::VecDeque::new();
+        queue.push_back((start.0, start.1, 0));
+        let start_idx = (start.1 * map.width as i32 + start.0) as usize;
+        
+        if start_idx >= map.tiles.len() || !map.tiles[start_idx].walkable() {
+            return 0; // Invalid start position
+        }
+        
+        visited[start_idx] = true;
+        
+        while let Some((x, y, dist)) = queue.pop_front() {
+            if x == end.0 && y == end.1 {
+                return dist;
+            }
+            
+            if dist >= 100 {
+                continue; // Path too long, skip this branch
+            }
+            
+            for (dx, dy) in [(0, 1), (1, 0), (0, -1), (-1, 0)] {
+                let nx = x + dx;
+                let ny = y + dy;
+                
+                if nx >= 0 && nx < map.width as i32 && ny >= 0 && ny < map.height as i32 {
+                    let idx = (ny * map.width as i32 + nx) as usize;
+                    if idx < map.tiles.len() && !visited[idx] && map.tiles[idx].walkable() {
+                        visited[idx] = true;
+                        queue.push_back((nx, ny, dist + 1));
+                    }
+                }
+            }
+        }
+        
+        0 // No path found
     }
 }
 

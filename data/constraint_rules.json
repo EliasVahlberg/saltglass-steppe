@@ -1,154 +1,70 @@
 {
   "rules": [
     {
-      "id": "basic_connectivity",
-      "name": "Basic Connectivity",
-      "constraint_type": "connectivity",
+      "id": "tactical_chokepoints",
+      "name": "Tactical Chokepoints",
+      "constraint_type": "tactical",
       "parameters": {
-        "start_points": [
-          {"x": 125, "y": 55}
-        ],
-        "end_points": [
-          {"x": 75, "y": 35},
-          {"x": 175, "y": 75}
-        ]
+        "min_chokepoints": 3,
+        "max_open_ratio": 0.3
       },
       "severity": "warning",
       "enabled": true
     },
     {
-      "id": "enemy_spacing",
-      "name": "Enemy Spacing",
-      "constraint_type": "distance",
+      "id": "safe_zone_coverage",
+      "name": "Safe Zone Coverage",
+      "constraint_type": "safe_zone",
       "parameters": {
-        "entity_type": "enemy",
-        "min_distance": 3.0,
-        "max_distance": 15.0
+        "min_safe_distance": 8,
+        "safe_zone_coverage": 0.25
       },
-      "severity": "warning",
+      "severity": "critical",
+      "enabled": true
+    },
+    {
+      "id": "escape_routes",
+      "name": "Escape Routes",
+      "constraint_type": "escape_route",
+      "parameters": {
+        "min_exit_routes": 2,
+        "max_dead_end_depth": 5
+      },
+      "severity": "critical",
       "enabled": true
     },
     {
       "id": "objective_accessibility",
       "name": "Objective Accessibility",
-      "constraint_type": "accessibility",
-      "parameters": {},
-      "severity": "warning",
+      "constraint_type": "objective_accessibility",
+      "parameters": {
+        "min_path_complexity": 5,
+        "max_path_complexity": 40
+      },
+      "severity": "critical",
       "enabled": true
     },
     {
-      "id": "resource_balance",
-      "name": "Resource Balance",
-      "constraint_type": "balance",
+      "id": "dungeon_tactical",
+      "name": "Dungeon Tactical Layout",
+      "constraint_type": "tactical",
       "parameters": {
-        "resource_type": "glass",
-        "min_amount": 5,
-        "max_amount": 300
+        "min_chokepoints": 5,
+        "max_open_ratio": 0.2
       },
-      "severity": "warning",
-      "enabled": true
+      "severity": "critical",
+      "enabled": false
     },
     {
-      "id": "saltflat_enemy_restriction",
-      "name": "Saltflat Enemy Restriction",
-      "constraint_type": "placement",
+      "id": "overworld_safe_zones",
+      "name": "Overworld Safe Zones",
+      "constraint_type": "safe_zone",
       "parameters": {
-        "entity_type": "fire_elemental",
-        "forbidden_biomes": ["saltflat", "oasis"]
+        "min_safe_distance": 12,
+        "safe_zone_coverage": 0.4
       },
       "severity": "warning",
-      "enabled": true
-    },
-    {
-      "id": "resource_density_limit",
-      "name": "Resource Density Limit",
-      "constraint_type": "resource",
-      "parameters": {
-        "max_density": 0.1
-      },
-      "severity": "warning",
-      "enabled": true
-    },
-    {
-      "id": "npc_spacing",
-      "name": "NPC Spacing",
-      "constraint_type": "distance",
-      "parameters": {
-        "entity_type": "npc",
-        "min_distance": 5.0,
-        "max_distance": 25.0
-      },
-      "severity": "suggestion",
-      "enabled": true
-    },
-    {
-      "id": "ruins_archive_placement",
-      "name": "Ruins Archive Placement",
-      "constraint_type": "placement",
-      "parameters": {
-        "entity_type": "archive_terminal",
-        "forbidden_biomes": ["desert", "scrubland"]
-      },
-      "severity": "warning",
-      "enabled": true
-    },
-    {
-      "id": "storm_glass_balance",
-      "name": "Storm Glass Balance",
-      "constraint_type": "balance",
-      "parameters": {
-        "resource_type": "storm_glass",
-        "min_amount": 3,
-        "max_amount": 75
-      },
-      "severity": "warning",
-      "enabled": true
-    },
-    {
-      "id": "exit_connectivity",
-      "name": "Exit Connectivity",
-      "constraint_type": "connectivity",
-      "parameters": {
-        "start_points": [
-          {"x": 125, "y": 55}
-        ],
-        "end_points": [
-          {"x": 200, "y": 55},
-          {"x": 50, "y": 55}
-        ]
-      },
-      "severity": "warning",
-      "enabled": true
-    },
-    {
-      "id": "minimum_open_space",
-      "name": "Minimum Open Space",
-      "constraint_type": "balance",
-      "parameters": {
-        "resource_type": "open_space",
-        "min_amount": 1000,
-        "max_amount": 25000
-      },
-      "severity": "warning",
-      "enabled": true
-    },
-    {
-      "id": "connectivity_spawn_to_edges",
-      "name": "Spawn to Edges Connectivity",
-      "constraint_type": "connectivity",
-      "parameters": {
-        "start_points": [
-          {"x": 125, "y": 55}
-        ],
-        "end_points": [
-          {"x": 50, "y": 30},
-          {"x": 200, "y": 30},
-          {"x": 50, "y": 80},
-          {"x": 200, "y": 80}
-        ]
-      },
-      "severity": "warning",
-      "enabled": true
+      "enabled": false
     }
   ]
 }
