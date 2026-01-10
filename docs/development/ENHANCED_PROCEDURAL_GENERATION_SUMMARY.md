@@ -68,7 +68,7 @@ Successfully integrated and enhanced the procedural generation systems by moving
 ### Integration Points
 
 1. **WorldMap.generate()** → Uses `WorldGenerator` for enhanced world creation
-2. **Map.generate_from_world_with_poi()** → Uses `TileGenerator` with fallback to legacy
+2. **Map.generate_from_world_with_poi()** → Uses `TerrainForgeGenerator` (terrain-forge) for tiles
 3. **All procedural systems integrated**: BiomeSystem, Grammar, TemplateLibrary
 4. **Backward compatibility maintained**: Legacy generation as fallback
 
@@ -79,13 +79,13 @@ World Generation:
 Seed → WorldGenerator → Enhanced POI placement → Road generation → Level calculation
 
 Tile Generation:  
-Biome/Terrain/POI → TileGenerator → Base terrain → Biome features → Procedural content → Enhanced clearings
+Biome/Terrain/POI → TerrainForgeGenerator → Base terrain → Biome features → Procedural content → Enhanced clearings
 ```
 
 ### Key Classes
 
 - **WorldGenerator**: Enhanced world map generation with POI preferences
-- **TileGenerator**: Multi-system tile generation with biome integration
+- **TerrainForgeGenerator**: tile generation via terrain-forge adapter, then biome/content layering
 - **Enhanced Configuration**: Data-driven terrain and biome parameters
 
 ## Quality Assurance

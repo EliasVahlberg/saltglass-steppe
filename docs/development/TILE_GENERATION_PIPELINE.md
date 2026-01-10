@@ -18,7 +18,7 @@ World Seed → Tile Seed → Multi-Layer Noise → Constraint Validation → Fin
 ```
 
 ### Key Components
-- **TileGenerator**: Main generation coordinator
+- **TerrainForgeGenerator**: Main generation coordinator
 - **Multi-layer noise**: 4 separate Perlin noise layers
 - **Constraint system**: Validation and emergency fixes
 - **Biome modifiers**: Data-driven terrain customization
@@ -276,7 +276,7 @@ Generated maps include metadata for debugging and analysis:
 ```rust
 // Called from GameState::travel_to_tile()
 let tile_seed = world_map.tile_seed(new_wx, new_wy);
-let mut tile_gen = TileGenerator::new()?;
+let mut tile_gen = TerrainForgeGenerator::new()?;
 let map = tile_gen.generate_enhanced_tile_with_structures_seeded(
     Some(poi), 
     &biome_str, 

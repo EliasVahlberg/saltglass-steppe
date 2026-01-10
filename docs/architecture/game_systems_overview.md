@@ -163,7 +163,7 @@ pub trait System {
 | -------------------- | ----------------------------- | ------------------------------------------- |
 | `GenerationPipeline` | `generation/pipeline.rs`      | Coordinates all generation systems          |
 | `WorldGenerator`     | `generation/world_gen.rs`     | Enhanced world map generation with POI preferences |
-| `TileGenerator`      | `generation/tile_gen.rs`      | Multi-layer tile generation with bracket-lib integration |
+| `TerrainForgeGenerator` | `generation/terrain_forge_adapter.rs` | Tile generation via terrain-forge (external crate) |
 | `SpawnSystem`        | `generation/spawn.rs`         | Weighted entity spawning by biome/level    |
 | `LootGeneration`     | `generation/loot.rs`          | Procedural loot generation with weighted tables |
 | `SpatialSystem`      | `generation/spatial.rs`       | Poisson disk sampling and spatial distribution |
@@ -492,7 +492,7 @@ travel_to_tile() → generate_narrative_fragments()
 
 **Flow**:
 ```
-TileGenerator::generate() → ConnectivitySystem::ensure_connectivity()
+TerrainForgeGenerator::generate_tile_with_seed() → ConnectivitySystem::ensure_connectivity()
   → Identify disconnected floor regions
   → Build connectivity graph with tunnel costs
   → Find optimal tunnel set using modified Dijkstra's algorithm
