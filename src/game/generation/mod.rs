@@ -16,7 +16,6 @@ pub mod events;
 pub mod narrative;
 pub mod narrative_templates;
 pub mod world_gen;
-pub mod tile_gen;
 pub mod microstructures;
 pub mod spawn;
 pub mod spatial;
@@ -24,6 +23,7 @@ pub mod loot;
 pub mod story;
 pub mod registry;
 pub mod layered_generation;
+pub mod terrain_forge_adapter;
 
 #[cfg(test)]
 mod tests;
@@ -41,7 +41,6 @@ pub use biomes::*;
 pub use constraints::*;
 pub use connectivity::*;
 pub use world_gen::*;
-pub use tile_gen::*;
 pub use microstructures::*;
 pub use spawn::*;
 pub use spatial::*;
@@ -51,3 +50,4 @@ pub use structures::*;
 pub use layered_generation::*;
 pub use narrative::*;
 pub use narrative_templates::{NarrativeGenerator, NarrativeContext, NarrativeTemplate, HistoricalEvent};
+pub use terrain_forge_adapter::*;

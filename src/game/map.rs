@@ -12,6 +12,7 @@ use std::collections::{HashMap, HashSet};
 use super::constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
 use super::light_defs::{get_spawn_rule, pick_light_type};
 use super::world_map::{Biome, Terrain, POI};
+use super::generation::TerrainForgeGenerator;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct WallDef {
@@ -284,18 +285,8 @@ impl Map {
         poi: POI,
         quest_ids: &[String],
     ) -> (Self, Vec<(i32, i32)>) {
-        use crate::game::generation::TileGenerator;
-        
-        // Try to use enhanced generator with quest constraints, fall back to legacy if it fails
-        if let Ok(generator) = TileGenerator::new() {
-            generator.generate_enhanced_tile_with_quests(rng, biome, terrain, elevation, poi, quest_ids)
-        } else {
-            // Fallback to legacy generation
-            let seed = rng.next_u32();
-            let (mut map, clearings) = Self::generate_noise_terrain(seed, biome, terrain, poi);
-            map.generate_narrative_content(rng, biome, terrain, poi);
-            (map, clearings)
-        }
+        let generator = TerrainForgeGenerator::new();
+        generator.generate_tile_with_seed(biome, terrain, elevation, poi, rng.next_u64(), quest_ids)
     }
 
     fn generate_noise_terrain(

@@ -1,9 +1,9 @@
 use clap::{Arg, Command};
 use saltglass_steppe::game::map::{Map, Tile};
-use saltglass_steppe::game::generation::TileGenerator;
+use saltglass_steppe::game::generation::TerrainForgeGenerator;
 use saltglass_steppe::game::world_map::{Biome, Terrain, POI};
 use rand_chacha::ChaCha8Rng;
-use rand::{SeedableRng, Rng};
+use rand::SeedableRng;
 use std::collections::{HashMap, HashSet, VecDeque};
 use serde::{Deserialize, Serialize};
 use image::{ImageBuffer, Rgb};
@@ -113,9 +113,9 @@ impl EnhancedConfig {
 }
 
 fn generate_enhanced_map(config: &EnhancedConfig) -> Result<(Map, serde_json::Value), Box<dyn std::error::Error>> {
+    let generator = TerrainForgeGenerator::new();
     let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
-    let mut tile_gen = TileGenerator::new()?;
-    
+ 
     let biome = config.biome.as_ref()
         .and_then(|b| match b.as_str() {
             "saltflat" => Some(Biome::Saltflat),
@@ -148,65 +148,8 @@ fn generate_enhanced_map(config: &EnhancedConfig) -> Result<(Map, serde_json::Va
         })
         .unwrap_or(Terrain::Flat);
     
-    // Check if this config specifies a structure algorithm
-    let (map, clearings) = if let Some(algorithm) = &config.algorithm {
-        // Check if it's a layered algorithm
-        if algorithm.starts_with("layered_") || algorithm == "layered" {
-            use saltglass_steppe::game::generation::layered_generation::{LayeredGenerator, LayeredGenerationConfig};
-            
-            // Parse layered config from algorithm_params
-            let layered_config = if let Some(params) = &config.algorithm_params {
-                serde_json::from_value::<LayeredGenerationConfig>(params.clone())
-                    .map_err(|e| format!("Failed to parse layered config: {}", e))?
-            } else {
-                return Err("Layered algorithm requires algorithm_params with layers configuration".into());
-            };
-            
-            let generator = LayeredGenerator::new(layered_config);
-            let layered_map = generator.generate(config.seed);
-            
-            (layered_map, vec![])
-        } else {
-            // Handle regular structure algorithms
-            // Temporarily modify terrain config to use the specified algorithm
-            let original_config = std::fs::read_to_string("data/terrain_config.json")?;
-            let mut terrain_config: serde_json::Value = serde_json::from_str(&original_config)?;
-            
-            // Set the algorithm in the config
-            terrain_config["structure_algorithm"] = serde_json::Value::String(algorithm.clone());
-            if let Some(params) = &config.algorithm_params {
-                terrain_config["algorithm_params"] = params.clone();
-            }
-            
-            // Write temporary config
-            std::fs::write("data/terrain_config.json", serde_json::to_string_pretty(&terrain_config)?)?;
-        
-            // Generate with structure algorithm
-            let result = tile_gen.generate_enhanced_tile_with_quests(
-                &mut rng,
-                biome,
-                terrain,
-                50,
-                poi,
-                &[]
-            );
-            
-            // Restore original config
-            std::fs::write("data/terrain_config.json", original_config)?;
-            
-            result
-        }
-    } else {
-        // Use normal generation
-        tile_gen.generate_enhanced_tile_with_quests(
-            &mut rng,
-            biome,
-            terrain,
-            50,
-            poi,
-            &[]
-        )
-    };
+    // Generate using terrain-forge adapter
+    let (map, clearings) = generator.generate_tile_with_seed(biome, terrain, 50, poi, config.seed, &[]);
     
     // Generate evaluation data
     let evaluation = generate_evaluation(&map, config, clearings.len());
@@ -404,6 +347,7 @@ fn save_png_output(map: &Map, config: &EnhancedConfig, output_dir: &str) -> Resu
     Ok(())
 }
 
+#[deprecated(note = "Legacy tile generation CLI; will be superseded by terrain-forge tooling.")]
 fn main() {
     let matches = Command::new("Enhanced Tile Generation Test Tool")
         .version("3.0")

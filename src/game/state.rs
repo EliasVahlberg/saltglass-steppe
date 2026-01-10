@@ -27,7 +27,7 @@ use super::{
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
-    generation::{weighted_pick_by_level_and_tier, get_biome_spawn_table, distribute_points_grid, generate_loot, StoryModel, EventType, NarrativeGenerator, NarrativeContext, TileGenerator},
+    generation::{weighted_pick_by_level_and_tier, get_biome_spawn_table, distribute_points_grid, generate_loot, StoryModel, EventType, NarrativeGenerator, NarrativeContext, TerrainForgeGenerator},
     storm::Storm,
 
     systems::movement::MovementSystem,
@@ -871,33 +871,11 @@ impl GameState {
         // Get quest IDs for this location
         let quest_ids = self.get_quest_ids_for_location(new_wx, new_wy);
         
-        // Generate new tile map with enhanced procedural structure system
-        let map = if !quest_ids.is_empty() || poi != super::world_map::POI::Town {
-            // Use new procedural structure generation system
-            match TileGenerator::new() {
-                Ok(mut tile_gen) => {
-                    let biome_str = format!("{:?}", biome).to_lowercase();
-                    tile_gen.generate_enhanced_tile_with_structures_seeded(Some(poi), &biome_str, quest_ids, tile_seed)
-                },
-                Err(_) => {
-                    // Fallback to old system if TileGenerator fails
-                    let (map, _) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
-                    map
-                }
-            }
-        } else {
-            // Use new system for all generation now
-            match TileGenerator::new() {
-                Ok(mut tile_gen) => {
-                    let biome_str = format!("{:?}", biome).to_lowercase();
-                    tile_gen.generate_enhanced_tile_with_structures_seeded(Some(poi), &biome_str, quest_ids, tile_seed)
-                },
-                Err(_) => {
-                    // Fallback to old system if TileGenerator fails
-                    let (map, _) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
-                    map
-                }
-            }
+        // Generate new tile map via terrain-forge adapter
+        let map = {
+            let generator = TerrainForgeGenerator::new();
+            let (map, _) = generator.generate_tile_with_seed(biome, terrain, elevation, poi, tile_seed, &quest_ids);
+            map
         };
         
         // Find safe spawn position

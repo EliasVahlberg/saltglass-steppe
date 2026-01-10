@@ -1,5 +1,5 @@
 use saltglass_steppe::game::generation::{
-    TileGenerator,
+    TerrainForgeGenerator,
     structures::{RuinsGenerator, StructureGenerator, StructureParams, StructureType}
 };
 use saltglass_steppe::game::world_map::{POI, Biome, Terrain};
@@ -9,6 +9,7 @@ use rand_chacha::ChaCha8Rng;
 use rand::SeedableRng;
 use std::env;
 
+#[deprecated(note = "Legacy tile generation CLI; will be superseded by terrain-forge tooling.")]
 fn main() {
     let args: Vec<String> = env::args().collect();
     
@@ -92,23 +93,20 @@ fn generate_tile_map(seed: u64, poi_type: Option<&str>, biome: Option<&str>) {
     println!("POI: {:?}", poi);
     println!("Biome: {:?}", biome);
     
-    // Use new bracket-noise based generation
-    let mut rng = ChaCha8Rng::seed_from_u64(seed);
-    let tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
-    
     let quest_ids = if poi == Some(POI::Landmark) && biome == Biome::Ruins {
         vec!["the_broken_key".to_string()]
     } else {
         Vec::new()
     };
-    
-    let (map, clearings) = tile_gen.generate_enhanced_tile_with_quests(
-        &mut rng,
+
+    let generator = TerrainForgeGenerator::new();
+    let (map, clearings) = generator.generate_tile_with_seed(
         biome,
-        Terrain::Canyon, // Default terrain
-        50, // Default elevation
+        Terrain::Canyon,
+        50,
         poi.unwrap_or(POI::None),
-        &quest_ids
+        seed,
+        &quest_ids,
     );
     
     display_tile_map(&map);
@@ -185,16 +183,14 @@ fn demo_quest_location(seed: u64) {
     println!("Scenario: Player travels to (50,50) for 'The Broken Key' quest");
     
     let quest_ids = vec!["the_broken_key".to_string()];
-    let mut rng = ChaCha8Rng::seed_from_u64(seed);
-    let tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
-    
-    let (map, clearings) = tile_gen.generate_enhanced_tile_with_quests(
-        &mut rng,
+    let generator = TerrainForgeGenerator::new();
+    let (map, clearings) = generator.generate_tile_with_seed(
         Biome::Ruins,
         Terrain::Canyon,
         50,
         POI::Landmark,
-        &quest_ids
+        seed,
+        &quest_ids,
     );
     
     println!("\nGeneration Flow:");
@@ -227,22 +223,20 @@ fn demo_biome_variety(seed: u64) {
         let biome_seed = seed + i as u64 * 1000;
         println!("\n--- {:?} + {:?} (Seed: {}) ---", biome, poi, biome_seed);
         
-        let mut rng = ChaCha8Rng::seed_from_u64(biome_seed);
-        let tile_gen = TileGenerator::new().expect("Failed to create TileGenerator");
-        
         let quest_ids = if *poi == POI::Landmark && *biome == Biome::Ruins {
             vec!["the_broken_key".to_string()]
         } else {
             Vec::new()
         };
         
-        let (map, clearings) = tile_gen.generate_enhanced_tile_with_quests(
-            &mut rng,
+        let generator = TerrainForgeGenerator::new();
+        let (map, clearings) = generator.generate_tile_with_seed(
             *biome,
             Terrain::Canyon,
             50,
             *poi,
-            &quest_ids
+            biome_seed,
+            &quest_ids,
         );
         
         println!("Clearings: {}", clearings.len());

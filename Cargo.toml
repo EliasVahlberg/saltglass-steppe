@@ -28,6 +28,7 @@ bracket-noise = "0.8.7"
 bracket-algorithm-traits = "0.8.7"
 smallvec = "1.15.1"
 bracket-geometry = "0.8.7"
+terrain-forge = "0.1.0"
 
 [profile.release]
 codegen-units = 1        # Better optimization
