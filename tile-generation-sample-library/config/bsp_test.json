@@ -1,8 +1,0 @@
-{
-  "name": "BSP Algorithm Test",
-  "description": "Test BSP algorithm for room generation",
-  "seed": 9001,
-  "width": 60,
-  "height": 30,
-  "output_dir": "tile-generation-sample-library"
-}
