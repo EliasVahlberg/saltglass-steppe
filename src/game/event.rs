@@ -9,4 +9,5 @@ pub enum GameEvent {
     AdaptationGained { name: String },
     StormArrived { intensity: u8 },
     LevelUp { level: u32 },
+    StoryHook { kind: String, x: i32, y: i32, context: std::collections::HashMap<String, String> },
 }

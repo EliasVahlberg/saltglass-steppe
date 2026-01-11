@@ -1,11 +1,12 @@
 use once_cell::sync::Lazy;
 use rand::distributions::{Distribution, WeightedIndex};
-use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde::Deserialize;
 use std::collections::HashMap;
-use terrain_forge::{Grid, Tile as ForgeTile, algorithms};
+use terrain_forge::{
+    Grid, Rng as ForgeRng, SemanticConfig, SemanticExtractor, Tile as ForgeTile, algorithms,
+};
 
 use crate::game::constants::{MAP_HEIGHT, MAP_WIDTH};
 use crate::game::map::{Map, MapFeature, Tile};
@@ -38,8 +39,6 @@ struct TileGenConfig {
     terrain_types: HashMap<String, TerrainConfig>,
     biome_modifiers: HashMap<String, BiomeModifier>,
     poi_layouts: HashMap<String, POILayout>,
-    #[serde(default = "default_feature_density")]
-    feature_density: f64,
     #[serde(default = "default_variation_intensity")]
     variation_intensity: f64,
     #[serde(default)]
@@ -48,18 +47,8 @@ struct TileGenConfig {
     algorithm_params: Option<serde_json::Value>,
 }
 
-fn default_feature_density() -> f64 {
-    0.1
-}
 fn default_variation_intensity() -> f64 {
     0.0
-}
-
-#[derive(Clone)]
-struct FeatureCandidate {
-    id: String,
-    weight: f64,
-    source: String,
 }
 
 static TILE_CONFIG: Lazy<TileGenConfig> = Lazy::new(|| {
@@ -171,21 +160,55 @@ impl TerrainForgeGenerator {
             }
         }
 
-        let mut available_positions = floor_positions.clone();
-
+        // POI-specific features (kept simple and data-driven)
         if let Some(layout) = poi_layout {
+            let mut available_positions = floor_positions.clone();
             place_special_features(&mut map, layout, &mut available_positions, &mut rng);
         }
 
-        let candidates = build_feature_candidates(base_cfg, modifier);
-        place_features(
-            &mut map,
-            &candidates,
-            TILE_CONFIG.feature_density,
-            TILE_CONFIG.variation_intensity,
-            available_positions,
-            &mut rng,
+        // Semantic extraction for spawn markers/regions
+        let mut forge_rng = ForgeRng::new(seed);
+        let mut semantic_config = semantic_config_for(&algo_name);
+        semantic_config.marker_types = marker_types_for(poi);
+        let extractor = SemanticExtractor::new(semantic_config);
+        let semantic = extractor.extract(&grid, &mut forge_rng);
+
+        let region_kinds: HashMap<u32, String> = semantic
+            .regions
+            .iter()
+            .map(|r| (r.id, r.kind.clone()))
+            .collect();
+        map.metadata.insert(
+            "forge_regions".to_string(),
+            semantic.regions.len().to_string(),
         );
+        map.metadata.insert(
+            "forge_markers".to_string(),
+            semantic.markers.len().to_string(),
+        );
+        map.metadata.insert(
+            "forge_connectivity_edges".to_string(),
+            semantic.connectivity.edges.len().to_string(),
+        );
+
+        for marker in semantic.markers {
+            let mut metadata = marker.metadata.clone();
+            if let Some(region_id) = marker.region_id {
+                if let Some(kind) = region_kinds.get(&region_id) {
+                    metadata.insert("region_kind".to_string(), kind.clone());
+                }
+                metadata.insert("region_id".to_string(), region_id.to_string());
+            }
+            metadata.insert("marker_weight".to_string(), marker.weight.to_string());
+
+            map.features.push(MapFeature {
+                x: marker.x as i32,
+                y: marker.y as i32,
+                feature_id: marker.tag.clone(),
+                source: Some("forge_marker".to_string()),
+                metadata,
+            });
+        }
 
         (map, floor_positions)
     }
@@ -294,59 +317,44 @@ fn collect_floor_positions(map: &Map) -> Vec<(i32, i32)> {
         .collect()
 }
 
-fn build_feature_candidates(
-    terrain_cfg: &TerrainConfig,
-    modifier: Option<&BiomeModifier>,
-) -> Vec<FeatureCandidate> {
-    let mut aggregated: HashMap<String, (f64, String)> = HashMap::new();
+fn semantic_config_for(algo_name: &str) -> SemanticConfig {
+    let mut config = if matches!(algo_name, "rooms" | "bsp") {
+        SemanticConfig::room_system()
+    } else if algo_name == "maze" {
+        SemanticConfig::maze_system()
+    } else {
+        SemanticConfig::cave_system()
+    };
+    config.max_markers_per_region = 4;
+    config.marker_scaling_factor = 80.0;
+    config.marker_placement.min_marker_distance = 3;
+    config
+}
 
-    if let Some(weights) = &terrain_cfg.feature_weights {
-        for (id, weight) in weights {
-            if *weight > 0.0 {
-                aggregated
-                    .entry(id.clone())
-                    .and_modify(|(w, _)| *w += weight)
-                    .or_insert((*weight, "terrain".to_string()));
-            }
+fn marker_types_for(poi: POI) -> Vec<(String, f32)> {
+    let mut markers = vec![
+        ("light_anchor".to_string(), 0.6),
+        ("loot_slot".to_string(), 0.45),
+        ("enemy_spawn".to_string(), 0.5),
+        ("story_hook".to_string(), 0.15),
+    ];
+
+    match poi {
+        POI::Town => {
+            markers.push(("npc_slot".to_string(), 0.4));
+            markers.push(("shop_slot".to_string(), 0.25));
         }
+        POI::Shrine => {
+            markers.push(("altar".to_string(), 0.35));
+            markers.push(("npc_slot".to_string(), 0.1));
+        }
+        POI::Dungeon | POI::Landmark => {
+            markers.push(("boss_core".to_string(), 0.2));
+        }
+        _ => {}
     }
 
-    if let Some(modifier) = modifier {
-        if let Some(weights) = &modifier.feature_weights {
-            for (id, weight) in weights {
-                if *weight > 0.0 {
-                    aggregated
-                        .entry(id.clone())
-                        .and_modify(|(w, s)| {
-                            *w += weight;
-                            if s == "terrain" {
-                                *s = "biome".to_string();
-                            }
-                        })
-                        .or_insert((*weight, "biome".to_string()));
-                }
-            }
-        }
-
-        if let Some(unique) = &modifier.unique_features {
-            for id in unique {
-                aggregated
-                    .entry(id.clone())
-                    .and_modify(|(w, s)| {
-                        *w += 1.0;
-                        if s == "terrain" {
-                            *s = "biome".to_string();
-                        }
-                    })
-                    .or_insert((1.0, "biome".to_string()));
-            }
-        }
-    }
-
-    aggregated
-        .into_iter()
-        .map(|(id, (weight, source))| FeatureCandidate { id, weight, source })
-        .collect()
+    markers
 }
 
 fn take_random_position(
@@ -374,53 +382,9 @@ fn place_special_features(
                     y,
                     feature_id: feature_id.clone(),
                     source: Some("poi".to_string()),
+                    metadata: HashMap::new(),
                 });
             }
         }
-    }
-}
-
-fn place_features(
-    map: &mut Map,
-    candidates: &[FeatureCandidate],
-    feature_density: f64,
-    variation_intensity: f64,
-    mut available_positions: Vec<(i32, i32)>,
-    rng: &mut ChaCha8Rng,
-) {
-    if candidates.is_empty() || available_positions.is_empty() || feature_density <= 0.0 {
-        return;
-    }
-
-    available_positions.shuffle(rng);
-    let density_scale = if variation_intensity > 0.0 {
-        1.0 + rng.gen_range(-variation_intensity..=variation_intensity)
-    } else {
-        1.0
-    };
-    let scaled_density = (feature_density * density_scale).max(0.0);
-    let feature_count = ((available_positions.len() as f64) * scaled_density).round() as usize;
-    if feature_count == 0 {
-        return;
-    }
-
-    let weights: Vec<f64> = candidates
-        .iter()
-        .map(|c| if c.weight > 0.0 { c.weight } else { 0.1 })
-        .collect();
-    let dist = match WeightedIndex::new(weights) {
-        Ok(d) => d,
-        Err(_) => return,
-    };
-
-    for pos in available_positions.into_iter().take(feature_count) {
-        let idx = dist.sample(rng);
-        let candidate = &candidates[idx];
-        map.features.push(MapFeature {
-            x: pos.0,
-            y: pos.1,
-            feature_id: candidate.id.clone(),
-            source: Some(candidate.source.clone()),
-        });
     }
 }

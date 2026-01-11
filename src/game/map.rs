@@ -202,6 +202,8 @@ pub struct MapFeature {
     pub feature_id: String,
     #[serde(default)]
     pub source: Option<String>,
+    #[serde(default)]
+    pub metadata: std::collections::HashMap<String, String>,
 }
 
 /// Inscription or graffiti placed on the map
