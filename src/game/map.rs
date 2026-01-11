@@ -9,9 +9,9 @@ use smallvec::SmallVec;
 use std::collections::{HashMap, HashSet};
 
 use super::constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
-use super::light_defs::{get_spawn_rule, pick_light_type};
-use super::world_map::{Biome, Terrain, POI};
 use super::generation::TerrainForgeGenerator;
+use super::light_defs::{get_spawn_rule, pick_light_type};
+use super::world_map::{Biome, POI, Terrain};
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct WallDef {
@@ -72,7 +72,7 @@ pub enum Tile {
     Floor { id: String },
     Wall { id: String, hp: i32 },
     Glass,
-    Glare,      // Hot light tile that affects visibility and movement
+    Glare, // Hot light tile that affects visibility and movement
     StairsDown,
     StairsUp,
     WorldExit,
@@ -81,7 +81,9 @@ pub enum Tile {
 impl Tile {
     /// Create a default floor tile
     pub fn default_floor() -> Self {
-        Tile::Floor { id: "dry_soil".to_string() }
+        Tile::Floor {
+            id: "dry_soil".to_string(),
+        }
     }
 
     /// Create a floor tile with specific type
@@ -112,8 +114,28 @@ impl Tile {
             Tile::WorldExit => 'O',
         }
     }
-    pub fn walkable(&self) -> bool { matches!(self, Tile::Floor { .. } | Tile::Glass | Tile::Glare | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
-    pub fn transparent(&self) -> bool { matches!(self, Tile::Floor { .. } | Tile::Glass | Tile::Glare | Tile::StairsDown | Tile::StairsUp | Tile::WorldExit) }
+    pub fn walkable(&self) -> bool {
+        matches!(
+            self,
+            Tile::Floor { .. }
+                | Tile::Glass
+                | Tile::Glare
+                | Tile::StairsDown
+                | Tile::StairsUp
+                | Tile::WorldExit
+        )
+    }
+    pub fn transparent(&self) -> bool {
+        matches!(
+            self,
+            Tile::Floor { .. }
+                | Tile::Glass
+                | Tile::Glare
+                | Tile::StairsDown
+                | Tile::StairsUp
+                | Tile::WorldExit
+        )
+    }
 
     pub fn name(&self) -> &str {
         match self {
@@ -172,6 +194,16 @@ pub struct MapLight {
     pub id: String,
 }
 
+/// Data-driven feature placed on the map
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct MapFeature {
+    pub x: i32,
+    pub y: i32,
+    pub feature_id: String,
+    #[serde(default)]
+    pub source: Option<String>,
+}
+
 /// Inscription or graffiti placed on the map
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MapInscription {
@@ -189,6 +221,8 @@ pub struct Map {
     #[serde(default)]
     pub lights: Vec<MapLight>,
     #[serde(default)]
+    pub features: Vec<MapFeature>,
+    #[serde(default)]
     pub inscriptions: Vec<MapInscription>,
     #[serde(default)]
     pub area_description: Option<String>,
@@ -196,7 +230,10 @@ pub struct Map {
     pub metadata: std::collections::HashMap<String, String>,
 }
 
-static VOID_WALL: Lazy<Tile> = Lazy::new(|| Tile::Wall { id: "void".to_string(), hp: 1000 });
+static VOID_WALL: Lazy<Tile> = Lazy::new(|| Tile::Wall {
+    id: "void".to_string(),
+    hp: 1000,
+});
 
 impl Map {
     /// Create a new empty map filled with walls
@@ -204,8 +241,15 @@ impl Map {
         Self {
             width,
             height,
-            tiles: vec![Tile::Wall { id: "stone".to_string(), hp: 100 }; width * height],
+            tiles: vec![
+                Tile::Wall {
+                    id: "stone".to_string(),
+                    hp: 100
+                };
+                width * height
+            ],
             lights: Vec::new(),
+            features: Vec::new(),
             inscriptions: Vec::new(),
             area_description: None,
             metadata: std::collections::HashMap::new(),
@@ -227,7 +271,13 @@ impl Map {
         terrain: Terrain,
         _elevation: u8,
     ) -> (Self, Vec<(i32, i32)>) {
-        Self::generate_from_world_with_poi(rng, biome, terrain, _elevation, super::world_map::POI::None)
+        Self::generate_from_world_with_poi(
+            rng,
+            biome,
+            terrain,
+            _elevation,
+            super::world_map::POI::None,
+        )
     }
 
     /// Generate a tile map from world context with POI and quest constraints
@@ -240,7 +290,7 @@ impl Map {
     ) -> (Self, Vec<(i32, i32)>) {
         Self::generate_from_world_with_poi_and_quests(rng, biome, terrain, elevation, poi, &[])
     }
-    
+
     /// Generate a tile map with quest constraint validation
     pub fn generate_from_world_with_poi_and_quests(
         rng: &mut ChaCha8Rng,
@@ -251,8 +301,14 @@ impl Map {
         quest_ids: &[String],
     ) -> (Self, Vec<(i32, i32)>) {
         let generator = TerrainForgeGenerator::new();
-        let (mut map, spawn_points) =
-            generator.generate_tile_with_seed(biome, terrain, elevation, poi, rng.next_u64(), quest_ids);
+        let (mut map, spawn_points) = generator.generate_tile_with_seed(
+            biome,
+            terrain,
+            elevation,
+            poi,
+            rng.next_u64(),
+            quest_ids,
+        );
         map.generate_narrative_content(rng, biome, terrain, poi);
         (map, spawn_points)
     }
@@ -262,7 +318,13 @@ impl Map {
         let wall_type = random_wall_type(rng);
         let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
         let floor_type = "dry_soil".to_string(); // Default floor type
-        let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
+        let mut tiles = vec![
+            Tile::Wall {
+                id: wall_type,
+                hp: wall_hp
+            };
+            MAP_WIDTH * MAP_HEIGHT
+        ];
         let mut room_centers = Vec::new();
         let num_rooms = rng.gen_range(5..9);
 
@@ -273,7 +335,9 @@ impl Map {
             let y = rng.gen_range(1..MAP_HEIGHT - h - 1);
             for ry in y..y + h {
                 for rx in x..x + w {
-                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor { id: floor_type.clone() };
+                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor {
+                        id: floor_type.clone(),
+                    };
                 }
             }
             room_centers.push(((x + w / 2) as i32, (y + h / 2) as i32));
@@ -283,10 +347,14 @@ impl Map {
             let (cx1, cy1) = room_centers[i - 1];
             let (cx2, cy2) = room_centers[i];
             for x in (cx1.min(cx2) as usize)..=(cx1.max(cx2) as usize) {
-                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor { id: floor_type.clone() };
+                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor {
+                    id: floor_type.clone(),
+                };
             }
             for y in (cy1.min(cy2) as usize)..=(cy1.max(cy2) as usize) {
-                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor { id: floor_type.clone() };
+                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor {
+                    id: floor_type.clone(),
+                };
             }
         }
 
@@ -307,20 +375,28 @@ impl Map {
                 if let Some(light_id) = pick_light_type(rule, rng) {
                     let lx = rx + rng.gen_range(-2..=2);
                     let ly = ry + rng.gen_range(-2..=2);
-                    lights.push(MapLight { x: lx, y: ly, id: light_id });
+                    lights.push(MapLight {
+                        x: lx,
+                        y: ly,
+                        id: light_id,
+                    });
                 }
             }
         }
 
-        (Self { 
-            tiles, 
-            width: MAP_WIDTH, 
-            height: MAP_HEIGHT, 
-            lights,
-            inscriptions: Vec::new(),
-            area_description: None,
-            metadata: std::collections::HashMap::new(),
-        }, room_centers)
+        (
+            Self {
+                tiles,
+                width: MAP_WIDTH,
+                height: MAP_HEIGHT,
+                lights,
+                features: Vec::new(),
+                inscriptions: Vec::new(),
+                area_description: None,
+                metadata: std::collections::HashMap::new(),
+            },
+            room_centers,
+        )
     }
 
     /// Generate a subterranean map (cave/dungeon)
@@ -328,11 +404,18 @@ impl Map {
         let wall_type = "shale".to_string();
         let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
         let floor_type = "ancient_tile".to_string(); // Archive floors
-        let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
+        let mut tiles = vec![
+            Tile::Wall {
+                id: wall_type,
+                hp: wall_hp
+            };
+            MAP_WIDTH * MAP_HEIGHT
+        ];
         let mut room_centers = Vec::new();
-        
+
         // More rooms deeper underground
-        let num_rooms = rng.gen_range(4 + layer.unsigned_abs() as usize..8 + layer.unsigned_abs() as usize * 2);
+        let num_rooms =
+            rng.gen_range(4 + layer.unsigned_abs() as usize..8 + layer.unsigned_abs() as usize * 2);
 
         for _ in 0..num_rooms.min(12) {
             let w = rng.gen_range(3..8);
@@ -341,7 +424,9 @@ impl Map {
             let y = rng.gen_range(1..MAP_HEIGHT - h - 1);
             for ry in y..y + h {
                 for rx in x..x + w {
-                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor { id: floor_type.clone() };
+                    tiles[ry * MAP_WIDTH + rx] = Tile::Floor {
+                        id: floor_type.clone(),
+                    };
                 }
             }
             room_centers.push(((x + w / 2) as i32, (y + h / 2) as i32));
@@ -352,10 +437,14 @@ impl Map {
             let (cx1, cy1) = room_centers[i - 1];
             let (cx2, cy2) = room_centers[i];
             for x in (cx1.min(cx2) as usize)..=(cx1.max(cx2) as usize) {
-                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor { id: floor_type.clone() };
+                tiles[cy1 as usize * MAP_WIDTH + x] = Tile::Floor {
+                    id: floor_type.clone(),
+                };
             }
             for y in (cy1.min(cy2) as usize)..=(cy1.max(cy2) as usize) {
-                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor { id: floor_type.clone() };
+                tiles[y * MAP_WIDTH + cx2 as usize] = Tile::Floor {
+                    id: floor_type.clone(),
+                };
             }
         }
 
@@ -374,27 +463,39 @@ impl Map {
         // Fewer lights underground
         let mut lights = Vec::new();
         for &(rx, ry) in room_centers.iter().take(2) {
-            lights.push(MapLight { x: rx, y: ry, id: "crystal".to_string() });
+            lights.push(MapLight {
+                x: rx,
+                y: ry,
+                id: "crystal".to_string(),
+            });
         }
 
-        (Self { 
-            tiles, 
-            width: MAP_WIDTH, 
-            height: MAP_HEIGHT, 
-            lights,
-            inscriptions: Vec::new(),
-            area_description: None,
-            metadata: std::collections::HashMap::new(),
-        }, room_centers)
+        (
+            Self {
+                tiles,
+                width: MAP_WIDTH,
+                height: MAP_HEIGHT,
+                lights,
+                features: Vec::new(),
+                inscriptions: Vec::new(),
+                area_description: None,
+                metadata: std::collections::HashMap::new(),
+            },
+            room_centers,
+        )
     }
 
     pub fn get(&self, x: i32, y: i32) -> Option<&Tile> {
         if x >= 0 && y >= 0 && (x as usize) < self.width && (y as usize) < self.height {
             Some(&self.tiles[y as usize * self.width + x as usize])
-        } else { None }
+        } else {
+            None
+        }
     }
 
-    pub fn idx(&self, x: i32, y: i32) -> usize { y as usize * self.width + x as usize }
+    pub fn idx(&self, x: i32, y: i32) -> usize {
+        y as usize * self.width + x as usize
+    }
 
     /// Convert position to index, returning None if out of bounds
     pub fn pos_to_idx(&self, x: i32, y: i32) -> Option<usize> {
@@ -425,45 +526,57 @@ impl Map {
     pub fn get_tile(&self, x: i32, y: i32) -> &Tile {
         self.get(x, y).unwrap_or(&VOID_WALL)
     }
-    
+
     /// Generate narrative content for the map
-    fn generate_narrative_content(&mut self, rng: &mut ChaCha8Rng, biome: Biome, terrain: Terrain, poi: POI) {
+    fn generate_narrative_content(
+        &mut self,
+        rng: &mut ChaCha8Rng,
+        biome: Biome,
+        terrain: Terrain,
+        poi: POI,
+    ) {
         // Generate area description
         self.area_description = self.generate_area_description(rng, biome, terrain, poi);
-        
+
         // Place inscriptions and graffiti
         self.place_inscriptions(rng, biome, poi);
     }
-    
+
     /// Generate contextual area description
-    fn generate_area_description(&self, rng: &mut ChaCha8Rng, biome: Biome, terrain: Terrain, poi: POI) -> Option<String> {
-        use super::generation::{NarrativeGenerator, NarrativeContext};
-        
+    fn generate_area_description(
+        &self,
+        rng: &mut ChaCha8Rng,
+        biome: Biome,
+        terrain: Terrain,
+        poi: POI,
+    ) -> Option<String> {
+        use super::generation::{NarrativeContext, NarrativeGenerator};
+
         if let Ok(generator) = NarrativeGenerator::new() {
             let biome_str = match biome {
                 Biome::Desert => "desert",
-                Biome::Saltflat => "saltflat", 
+                Biome::Saltflat => "saltflat",
                 Biome::Scrubland => "scrubland",
                 Biome::Oasis => "oasis",
                 Biome::Ruins => "ruins",
             };
-            
+
             let terrain_str = match terrain {
                 Terrain::Flat => "flat",
                 Terrain::Hills => "hills",
-                Terrain::Dunes => "dunes", 
+                Terrain::Dunes => "dunes",
                 Terrain::Canyon => "canyon",
                 Terrain::Mesa => "mesa",
             };
-            
+
             let location_type = match poi {
                 POI::Town => "town",
-                POI::Shrine => "shrine", 
+                POI::Shrine => "shrine",
                 POI::Landmark => "ruins",
                 POI::Dungeon => "archive",
                 _ => "wilderness",
             };
-            
+
             let context = NarrativeContext {
                 biome: Some(biome_str.to_string()),
                 terrain: Some(terrain_str.to_string()),
@@ -472,17 +585,17 @@ impl Map {
                 refraction_level: 0,
                 location_type: Some(location_type.to_string()),
             };
-            
+
             generator.generate_contextual_description(&context, &mut rng.clone())
         } else {
             None
         }
     }
-    
+
     /// Place inscriptions and graffiti on walls and glass
     fn place_inscriptions(&mut self, rng: &mut ChaCha8Rng, _biome: Biome, poi: POI) {
         use super::generation::NarrativeGenerator;
-        
+
         if let Ok(generator) = NarrativeGenerator::new() {
             let inscription_count = match poi {
                 POI::Town => rng.gen_range(2..5),
@@ -491,7 +604,7 @@ impl Map {
                 POI::Dungeon => rng.gen_range(1..3),
                 _ => rng.gen_range(0..2),
             };
-            
+
             for _ in 0..inscription_count {
                 if let Some((x, y)) = self.find_inscription_location(rng) {
                     let inscription_type = if matches!(poi, POI::Shrine) && rng.gen_bool(0.7) {
@@ -501,8 +614,10 @@ impl Map {
                     } else {
                         "graffiti"
                     };
-                    
-                    if let Some(text) = generator.generate_environmental_text(inscription_type, &mut rng.clone()) {
+
+                    if let Some(text) =
+                        generator.generate_environmental_text(inscription_type, &mut rng.clone())
+                    {
                         self.inscriptions.push(MapInscription {
                             x,
                             y,
@@ -514,11 +629,11 @@ impl Map {
             }
         }
     }
-    
+
     /// Find suitable location for inscription (wall or glass tile)
     fn find_inscription_location(&self, rng: &mut ChaCha8Rng) -> Option<(i32, i32)> {
         let mut candidates = Vec::new();
-        
+
         for y in 0..self.height {
             for x in 0..self.width {
                 let tile = &self.tiles[y * self.width + x];
@@ -535,7 +650,7 @@ impl Map {
                 }
             }
         }
-        
+
         if candidates.is_empty() {
             None
         } else {
@@ -545,7 +660,9 @@ impl Map {
 }
 
 impl BaseMap for Map {
-    fn is_opaque(&self, idx: usize) -> bool { !self.tiles[idx].transparent() }
+    fn is_opaque(&self, idx: usize) -> bool {
+        !self.tiles[idx].transparent()
+    }
     fn get_available_exits(&self, idx: usize) -> SmallVec<[(usize, f32); 10]> {
         let mut exits = SmallVec::new();
         let x = (idx % self.width) as i32;
@@ -562,11 +679,16 @@ impl BaseMap for Map {
 }
 
 impl Algorithm2D for Map {
-    fn dimensions(&self) -> Point { Point::new(self.width as i32, self.height as i32) }
+    fn dimensions(&self) -> Point {
+        Point::new(self.width as i32, self.height as i32)
+    }
 }
 
 pub fn compute_fov(map: &Map, x: i32, y: i32) -> HashSet<usize> {
-    field_of_view(Point::new(x, y), FOV_RANGE, map).into_iter().map(|p| map.idx(p.x, p.y)).collect()
+    field_of_view(Point::new(x, y), FOV_RANGE, map)
+        .into_iter()
+        .map(|p| map.idx(p.x, p.y))
+        .collect()
 }
 
 #[cfg(test)]
@@ -578,8 +700,10 @@ mod tests {
     fn generate_from_world_deterministic() {
         let mut rng1 = ChaCha8Rng::seed_from_u64(12345);
         let mut rng2 = ChaCha8Rng::seed_from_u64(12345);
-        let (map1, rooms1) = Map::generate_from_world(&mut rng1, Biome::Saltflat, Terrain::Canyon, 100);
-        let (map2, rooms2) = Map::generate_from_world(&mut rng2, Biome::Saltflat, Terrain::Canyon, 100);
+        let (map1, rooms1) =
+            Map::generate_from_world(&mut rng1, Biome::Saltflat, Terrain::Canyon, 100);
+        let (map2, rooms2) =
+            Map::generate_from_world(&mut rng2, Biome::Saltflat, Terrain::Canyon, 100);
         assert_eq!(map1.tiles, map2.tiles);
         assert_eq!(rooms1, rooms2);
     }

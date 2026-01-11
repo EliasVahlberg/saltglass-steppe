@@ -35,6 +35,7 @@ Successfully integrated and enhanced the procedural generation systems by moving
 - **Enhanced Inscriptions**: Context-aware text generation for walls and glass
 - **Template-Based Content**: Procedural content using TemplateLibrary system
 - **Improved Clearing Detection**: Biome and terrain-specific clearing requirements
+- **Data-Driven Feature Placement**: `terrain_config.json` drives algorithm choice, central clearings, structure density, and Map.features (biome/POI/special features recorded in metadata)
 
 **Results**:
 - Much more varied and interesting tile layouts
