@@ -27,7 +27,7 @@ fn test_dungeon_map() {
     let mut rng = ChaCha8Rng::seed_from_u64(12345);
     
     // Generate a dungeon-like map with rooms and corridors
-    let map = create_dungeon_map(&mut rng);
+    let map = create_dungeon_map();
     let context = create_dungeon_context(&map);
     
     let results = ConstraintSystem::validate_constraints(&context, &mut rng);
@@ -48,7 +48,7 @@ fn test_overworld_map() {
     println!("--- Testing Overworld Map ---");
     let mut rng = ChaCha8Rng::seed_from_u64(23456);
     
-    let map = create_overworld_map(&mut rng);
+    let map = create_overworld_map();
     let context = create_overworld_context(&map);
     
     let results = ConstraintSystem::validate_constraints(&context, &mut rng);
@@ -68,7 +68,7 @@ fn test_town_map() {
     println!("--- Testing Town Map ---");
     let mut rng = ChaCha8Rng::seed_from_u64(34567);
     
-    let map = create_town_map(&mut rng);
+    let map = create_town_map();
     let context = create_town_context(&map);
     
     let results = ConstraintSystem::validate_constraints(&context, &mut rng);
@@ -88,7 +88,7 @@ fn test_combat_arena() {
     println!("--- Testing Combat Arena ---");
     let mut rng = ChaCha8Rng::seed_from_u64(45678);
     
-    let map = create_combat_arena(&mut rng);
+    let map = create_combat_arena();
     let context = create_arena_context(&map);
     
     let results = ConstraintSystem::validate_constraints(&context, &mut rng);
@@ -104,7 +104,7 @@ fn test_combat_arena() {
     println!();
 }
 
-fn create_dungeon_map(rng: &mut ChaCha8Rng) -> Map {
+fn create_dungeon_map() -> Map {
     let mut map = Map::new(40, 30);
     
     // Create rooms connected by narrow corridors (good for chokepoints)
@@ -138,7 +138,7 @@ fn create_dungeon_map(rng: &mut ChaCha8Rng) -> Map {
     map
 }
 
-fn create_overworld_map(rng: &mut ChaCha8Rng) -> Map {
+fn create_overworld_map() -> Map {
     let mut map = Map::new(50, 40);
     
     // Create open terrain with some obstacles
@@ -166,7 +166,7 @@ fn create_overworld_map(rng: &mut ChaCha8Rng) -> Map {
     map
 }
 
-fn create_town_map(rng: &mut ChaCha8Rng) -> Map {
+fn create_town_map() -> Map {
     let mut map = Map::new(30, 25);
     
     // Create building blocks with streets
@@ -196,7 +196,7 @@ fn create_town_map(rng: &mut ChaCha8Rng) -> Map {
     map
 }
 
-fn create_combat_arena(rng: &mut ChaCha8Rng) -> Map {
+fn create_combat_arena() -> Map {
     let mut map = Map::new(25, 20);
     
     // Create arena with tactical features
@@ -252,7 +252,7 @@ fn create_corridor(map: &mut Map, x1: u32, y1: u32, x2: u32, y2: u32) {
     }
 }
 
-fn create_dungeon_context(map: &Map) -> ConstraintContext {
+fn create_dungeon_context(map: &Map) -> ConstraintContext<'_> {
     ConstraintContext {
         map,
         biome: Biome::Ruins,
@@ -271,7 +271,7 @@ fn create_dungeon_context(map: &Map) -> ConstraintContext {
     }
 }
 
-fn create_overworld_context(map: &Map) -> ConstraintContext {
+fn create_overworld_context(map: &Map) -> ConstraintContext<'_> {
     ConstraintContext {
         map,
         biome: Biome::Desert,
@@ -289,7 +289,7 @@ fn create_overworld_context(map: &Map) -> ConstraintContext {
     }
 }
 
-fn create_town_context(map: &Map) -> ConstraintContext {
+fn create_town_context(map: &Map) -> ConstraintContext<'_> {
     ConstraintContext {
         map,
         biome: Biome::Oasis,
@@ -309,7 +309,7 @@ fn create_town_context(map: &Map) -> ConstraintContext {
     }
 }
 
-fn create_arena_context(map: &Map) -> ConstraintContext {
+fn create_arena_context(map: &Map) -> ConstraintContext<'_> {
     ConstraintContext {
         map,
         biome: Biome::Ruins,
@@ -584,6 +584,6 @@ mod tests {
 
     #[test]
     fn test_constraint_maps() {
-        test_constraint_maps();
+        super::test_constraint_maps();
     }
 }

@@ -2,8 +2,6 @@ use clap::{Arg, Command};
 use saltglass_steppe::game::map::{Map, Tile};
 use saltglass_steppe::game::generation::TerrainForgeGenerator;
 use saltglass_steppe::game::world_map::{Biome, Terrain, POI};
-use rand_chacha::ChaCha8Rng;
-use rand::SeedableRng;
 use std::collections::{HashMap, HashSet, VecDeque};
 use serde::{Deserialize, Serialize};
 use image::{ImageBuffer, Rgb};
@@ -114,7 +112,6 @@ impl EnhancedConfig {
 
 fn generate_enhanced_map(config: &EnhancedConfig) -> Result<(Map, serde_json::Value), Box<dyn std::error::Error>> {
     let generator = TerrainForgeGenerator::new();
-    let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
  
     let biome = config.biome.as_ref()
         .and_then(|b| match b.as_str() {
@@ -187,7 +184,6 @@ fn generate_evaluation(map: &Map, config: &EnhancedConfig, clearings_count: usiz
     
     let total_tiles = map.tiles.len();
     let floor_ratio = floor_count as f64 / total_tiles as f64;
-    let wall_ratio = wall_count as f64 / total_tiles as f64;
     let connectivity_ratio = floor_count as f64 / (floor_count + glass_count) as f64;
     
     // Run constraint validation if configured

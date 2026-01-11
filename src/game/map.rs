@@ -1,7 +1,6 @@
 use bracket_algorithm_traits::prelude::{Algorithm2D, BaseMap};
 use bracket_geometry::prelude::Point;
 use bracket_pathfinding::prelude::*;
-use bracket_noise::prelude::*;
 use once_cell::sync::Lazy;
 use rand::{Rng, RngCore};
 use rand_chacha::ChaCha8Rng;
@@ -43,35 +42,6 @@ struct FloorsFile {
     floors: Vec<FloorDef>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
-struct TerrainConfig {
-    floor_threshold: f64,
-    glass_density: f64,
-    noise_scale: f64,
-    wall_type: String,
-    floor_type: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-struct BiomeModifier {
-    glass_density_multiplier: Option<f64>,
-    wall_type_override: Option<String>,
-    floor_type_override: Option<String>,
-    floor_threshold_bonus: Option<f64>,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-struct POILayout {
-    central_clearing_size: usize,
-}
-
-#[derive(Deserialize)]
-struct TerrainConfigFile {
-    terrain_types: HashMap<String, TerrainConfig>,
-    biome_modifiers: HashMap<String, BiomeModifier>,
-    poi_layouts: HashMap<String, POILayout>,
-}
-
 static WALL_DEFS: Lazy<HashMap<String, WallDef>> = Lazy::new(|| {
     let data = include_str!("../../data/walls.json");
     let file: WallsFile = serde_json::from_str(data).expect("Failed to parse walls.json");
@@ -82,11 +52,6 @@ static FLOOR_DEFS: Lazy<HashMap<String, FloorDef>> = Lazy::new(|| {
     let data = include_str!("../../data/floors.json");
     let file: FloorsFile = serde_json::from_str(data).expect("Failed to parse floors.json");
     file.floors.into_iter().map(|d| (d.id.clone(), d)).collect()
-});
-
-static TERRAIN_CONFIG: Lazy<TerrainConfigFile> = Lazy::new(|| {
-    let data = include_str!("../../data/terrain_config.json");
-    serde_json::from_str(data).expect("Failed to parse terrain_config.json")
 });
 
 pub fn get_wall_def(id: &str) -> Option<&'static WallDef> {
@@ -286,175 +251,10 @@ impl Map {
         quest_ids: &[String],
     ) -> (Self, Vec<(i32, i32)>) {
         let generator = TerrainForgeGenerator::new();
-        generator.generate_tile_with_seed(biome, terrain, elevation, poi, rng.next_u64(), quest_ids)
-    }
-
-    fn generate_noise_terrain(
-        seed: u32,
-        biome: Biome,
-        terrain: Terrain,
-        poi: POI,
-    ) -> (Self, Vec<(i32, i32)>) {
-        // Get terrain config
-        let terrain_key = match terrain {
-            Terrain::Canyon => "canyon",
-            Terrain::Mesa => "mesa", 
-            Terrain::Hills => "hills",
-            Terrain::Dunes => "dunes",
-            Terrain::Flat => "flat",
-        };
-        
-        let biome_key = match biome {
-            Biome::Saltflat => "saltflat",
-            Biome::Oasis => "oasis",
-            Biome::Ruins => "ruins",
-            _ => "desert",
-        };
-
-        let config = &TERRAIN_CONFIG.terrain_types[terrain_key];
-        let biome_mod = TERRAIN_CONFIG.biome_modifiers.get(biome_key);
-
-        // Apply biome modifiers
-        let mut floor_threshold = config.floor_threshold;
-        let mut glass_density = config.glass_density;
-        let mut wall_type = config.wall_type.clone();
-        let mut floor_type = config.floor_type.clone();
-
-        if let Some(modifier) = biome_mod {
-            if let Some(bonus) = modifier.floor_threshold_bonus {
-                floor_threshold += bonus;
-            }
-            if let Some(multiplier) = modifier.glass_density_multiplier {
-                glass_density *= multiplier;
-            }
-            if let Some(override_type) = &modifier.wall_type_override {
-                wall_type = override_type.clone();
-            }
-            if let Some(override_type) = &modifier.floor_type_override {
-                floor_type = override_type.clone();
-            }
-        }
-
-        // Create noise generators using bracket-noise
-        let mut terrain_noise = FastNoise::seeded(seed.wrapping_mul(100) as u64);
-        terrain_noise.set_noise_type(NoiseType::Perlin);
-        terrain_noise.set_frequency(1.0 / config.noise_scale as f32);
-        
-        let mut glass_noise = FastNoise::seeded(seed.wrapping_mul(100).wrapping_add(1) as u64);
-        glass_noise.set_noise_type(NoiseType::Perlin);
-        glass_noise.set_frequency(1.0 / config.noise_scale as f32);
-        
-        let mut diagonal_noise = FastNoise::seeded(seed.wrapping_mul(100).wrapping_add(2) as u64);
-        diagonal_noise.set_noise_type(NoiseType::Perlin);
-        diagonal_noise.set_frequency(4.0 / config.noise_scale as f32);
-        
-        let wall_hp = get_wall_def(&wall_type).map(|d| d.hp).unwrap_or(10);
-        let mut tiles = vec![Tile::Wall { id: wall_type, hp: wall_hp }; MAP_WIDTH * MAP_HEIGHT];
-        let mut clearings = Vec::new();
-
-        // Generate base terrain with noise - more open areas
-        for y in 0..MAP_HEIGHT {
-            for x in 0..MAP_WIDTH {
-                let idx = y * MAP_WIDTH + x;
-                let nx = x as f64 / config.noise_scale;
-                let ny = y as f64 / config.noise_scale;
-                
-                let terrain_value = (terrain_noise.get_noise(nx as f32, ny as f32) as f64 + 1.0) / 2.0; // Convert to [0, 1]
-                
-                // Lower threshold for more open areas (50% more sparse)
-                if terrain_value > (floor_threshold - 0.5) {
-                    tiles[idx] = Tile::Floor { id: floor_type.clone() };
-                    
-                    // Sharp diagonal glass formations
-                    let diag_value = diagonal_noise.get_noise(nx as f32, ny as f32) as f64;
-                    let diagonal_factor = ((x as f64 - y as f64) / 20.0).sin().abs();
-                    
-                    if diag_value > 0.4 && diagonal_factor > 0.7 {
-                        tiles[idx] = Tile::Glass;
-                    } else {
-                        // Regular glass placement
-                        let glass_value = (glass_noise.get_noise((nx * 2.0) as f32, (ny * 2.0) as f32) as f64 + 1.0) / 2.0; // Convert to [0, 1]
-                        if glass_value > (1.0 - glass_density * 0.7) {
-                            tiles[idx] = Tile::Glass;
-                        }
-                    }
-                }
-            }
-        }
-
-        // Add POI-specific features
-        if poi != POI::None {
-            Self::add_poi_features(&mut tiles, poi, &clearings);
-        }
-
-        // Find natural clearings for spawn points
-        clearings.extend(Self::find_clearings(&tiles));
-
-        let map = Map {
-            tiles,
-            width: MAP_WIDTH,
-            height: MAP_HEIGHT,
-            lights: Vec::new(),
-            inscriptions: Vec::new(),
-            area_description: None,
-            metadata: std::collections::HashMap::new(),
-        };
-
-        (map, clearings)
-    }
-
-    fn add_poi_features(tiles: &mut Vec<Tile>, poi: POI, _clearings: &[(i32, i32)]) {
-        let poi_key = match poi {
-            POI::Town => "town",
-            POI::Landmark => "ruins", 
-            POI::Shrine => "shrine",
-            POI::Dungeon => "archive",
-            _ => return,
-        };
-
-        if let Some(layout) = TERRAIN_CONFIG.poi_layouts.get(poi_key) {
-            let center_x = MAP_WIDTH / 2;
-            let center_y = MAP_HEIGHT / 2;
-            let size = layout.central_clearing_size;
-
-            // Create central clearing
-            for y in center_y.saturating_sub(size/2)..=(center_y + size/2).min(MAP_HEIGHT-1) {
-                for x in center_x.saturating_sub(size/2)..=(center_x + size/2).min(MAP_WIDTH-1) {
-                    tiles[y * MAP_WIDTH + x] = Tile::Floor { id: "dry_soil".to_string() };
-                }
-            }
-        }
-    }
-
-    pub fn find_clearings(tiles: &[Tile]) -> Vec<(i32, i32)> {
-        let mut clearings = Vec::new();
-        
-        // Find floor areas that could serve as spawn points
-        for y in 5..MAP_HEIGHT-5 {
-            for x in 5..MAP_WIDTH-5 {
-                if matches!(tiles[y * MAP_WIDTH + x], Tile::Floor { .. }) {
-                    // Check if there's enough open space around this point
-                    let mut open_count = 0;
-                    for dy in -2..=2 {
-                        for dx in -2..=2 {
-                            let ny = (y as i32 + dy) as usize;
-                            let nx = (x as i32 + dx) as usize;
-                            if ny < MAP_HEIGHT && nx < MAP_WIDTH {
-                                if matches!(tiles[ny * MAP_WIDTH + nx], Tile::Floor { .. }) {
-                                    open_count += 1;
-                                }
-                            }
-                        }
-                    }
-                    
-                    if open_count >= 15 { // At least 15 of 25 tiles are floor
-                        clearings.push((x as i32, y as i32));
-                    }
-                }
-            }
-        }
-        
-        clearings
+        let (mut map, spawn_points) =
+            generator.generate_tile_with_seed(biome, terrain, elevation, poi, rng.next_u64(), quest_ids);
+        map.generate_narrative_content(rng, biome, terrain, poi);
+        (map, spawn_points)
     }
 
     /// Legacy generate (uses default biome/terrain)

@@ -9,39 +9,20 @@ use crate::game::world_map::{Biome, POI, Terrain};
 
 #[derive(Debug, Clone, Deserialize)]
 struct TerrainConfig {
-    floor_threshold: f64,
-    glass_density: f64,
-    noise_scale: f64,
     wall_type: String,
     floor_type: String,
-    feature_weights: Option<HashMap<String, f64>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 struct BiomeModifier {
-    glass_density_multiplier: Option<f64>,
     wall_type_override: Option<String>,
     floor_type_override: Option<String>,
-    floor_threshold_bonus: Option<f64>,
-    unique_features: Option<Vec<String>>,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-struct POILayout {
-    central_clearing_size: usize,
-    structure_density: Option<f64>,
-    special_features: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
 struct TileGenConfig {
     terrain_types: HashMap<String, TerrainConfig>,
     biome_modifiers: HashMap<String, BiomeModifier>,
-    poi_layouts: HashMap<String, POILayout>,
-    feature_density: f64,
-    variation_intensity: f64,
-    structure_algorithm: Option<String>,
-    algorithm_params: Option<serde_json::Value>,
 }
 
 static TILE_CONFIG: Lazy<TileGenConfig> = Lazy::new(|| {
