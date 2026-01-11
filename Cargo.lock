@@ -1662,9 +1662,9 @@ dependencies = [
 
 [[package]]
 name = "terrain-forge"
-version = "0.1.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27e4bf180aa1aeb93ab02cfddd9ddbcf14eb613f62fe56b81b467fddb131e18b"
+checksum = "b53bbd2cddaf3057a64549019f83a67174ede1cf8193ecd294759d2f0e5125d0"
 dependencies = [
  "bracket-noise",
  "rand 0.8.5",

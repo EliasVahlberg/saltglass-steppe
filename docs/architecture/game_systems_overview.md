@@ -183,6 +183,7 @@ pub trait System {
 | `GenerationAlgorithm`| `generation/algorithm.rs`     | Core algorithm trait and framework |
 | `StructureGenerators`| `generation/structures/`      | BSP, Cellular Automata, and dungeon generators |
 | `BracketAdapter`     | `generation/adapters/`        | bracket-lib integration layer |
+| `MapFeature pipeline`| *(planned in generation/pipeline.rs)* | Materializes `Map.features` (from terrain-forge `SemanticExtractor`) into interactables, props, and spawns |
 
 ### Adding a New System
 
@@ -190,6 +191,11 @@ pub trait System {
 2. Implement the `System` trait
 3. Add `pub mod my_system;` to `src/game/systems/mod.rs`
 4. Call from `GameState::end_turn()` or relevant trigger point
+
+### Map Features (new)
+
+- `Map.features` (see `src/game/map.rs`) carries data-driven feature placements produced during tile generation (`TerrainForgeGenerator` consumes `data/terrain_config.json` POI layouts and biome feature weights).
+- Materialization is intentionally separate: a lightweight feature materializer should run after map generation to translate feature ids into interactables (`data/interactables.json`), props/loot (via `generation/spawn.rs`), or narrative hooks—keeping generation deterministic but decoupled from runtime systems.
 
 ---
 
