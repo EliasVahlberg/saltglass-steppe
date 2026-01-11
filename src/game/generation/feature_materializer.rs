@@ -15,11 +15,33 @@ pub fn materialize_features(
 ) {
     let features = state.map.features.clone();
     let table = get_biome_spawn_table(&biome);
+    let mut occupied: HashSet<(i32, i32)> = HashSet::new();
+    for e in &state.enemies {
+        occupied.insert((e.x, e.y));
+    }
+    for n in &state.npcs {
+        occupied.insert((n.x, n.y));
+    }
+    for i in &state.items {
+        occupied.insert((i.x, i.y));
+    }
+    for i in &state.interactables {
+        occupied.insert((i.x, i.y));
+    }
 
     for feature in features {
         let Some(def) = get_feature_def(&feature.feature_id) else {
             continue;
         };
+
+        // Require walkable tiles and avoid overlaps
+        let idx = match state.map.pos_to_idx(feature.x, feature.y) {
+            Some(i) => i,
+            None => continue,
+        };
+        if !state.map.tiles[idx].walkable() || occupied.contains(&(feature.x, feature.y)) {
+            continue;
+        }
 
         match def.handler.as_str() {
             "light" => place_light(state, &feature, &def.params),
@@ -30,6 +52,8 @@ pub fn materialize_features(
             "story" => emit_story_hook(state, &feature, &def.params),
             _ => {}
         }
+
+        occupied.insert((feature.x, feature.y));
     }
 }
 
@@ -125,4 +149,30 @@ fn emit_story_hook(
         y: feature.y,
         context: feature.metadata.clone(),
     });
+}
+use std::collections::HashSet;
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::game::map::{Map, MapFeature};
+
+    #[test]
+    fn story_hook_materializes() {
+        let mut state = GameState::new(12345);
+        state.map = Map::new(10, 10);
+        state.map.features.push(MapFeature {
+            x: 1,
+            y: 1,
+            feature_id: "story_hook".to_string(),
+            source: Some("test".to_string()),
+            metadata: std::collections::HashMap::new(),
+        });
+
+        materialize_features(&mut state, Biome::Desert, Terrain::Flat, POI::None, 1);
+
+        let hook = state.event_queue.iter().any(|e| matches!(e, crate::game::event::GameEvent::StoryHook { .. }));
+        assert!(hook, "story hook event should be enqueued");
+    }
 }

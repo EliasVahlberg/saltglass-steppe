@@ -1119,6 +1119,15 @@ impl GameState {
         self.items = items;
         self.npcs = Vec::new(); // NPCs are tile-specific
 
+        // Materialize terrain-forge markers into entities for the new map
+        crate::game::generation::feature_materializer::materialize_features(
+            self,
+            biome,
+            terrain,
+            poi,
+            level,
+        );
+
         // Spawn quest-required NPCs if needed
         self.spawn_quest_required_npcs();
 
