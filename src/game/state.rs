@@ -844,6 +844,15 @@ impl GameState {
         let story_model = StoryModel::new(seed + 3);
         state.story_model = Some(story_model);
 
+        // Materialize terrain-forge markers into entities
+        crate::game::generation::feature_materializer::materialize_features(
+            &mut state,
+            biome,
+            terrain,
+            poi,
+            level,
+        );
+
         // Generate backstories for NPCs now that story model is available
         state.generate_npc_backstories();
 

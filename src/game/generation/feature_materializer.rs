@@ -3,7 +3,6 @@ use crate::game::generation::spawn::{get_biome_spawn_table, weighted_pick_by_lev
 use crate::game::light_defs::{get_spawn_rule, pick_light_type};
 use crate::game::world_map::{Biome, Terrain, POI};
 use crate::game::{Enemy, GameState, Interactable};
-use rand_chacha::ChaCha8Rng;
 use serde_json::Value;
 
 /// Materialize Map.features into runtime entities based on a data-driven registry.
@@ -13,7 +12,6 @@ pub fn materialize_features(
     _terrain: Terrain,
     _poi: POI,
     level: u32,
-    rng: &mut ChaCha8Rng,
 ) {
     let features = state.map.features.clone();
     let table = get_biome_spawn_table(&biome);
@@ -24,10 +22,10 @@ pub fn materialize_features(
         };
 
         match def.handler.as_str() {
-            "light" => place_light(state, &feature, &def.params, rng),
-            "loot" => place_loot(state, &feature, &def.params, rng),
-            "enemy" => place_enemy(state, &feature, &def.params, level, &table.enemies, rng),
-            "npc" => place_npc(state, &feature, &def.params, rng),
+            "light" => place_light(state, &feature, &def.params),
+            "loot" => place_loot(state, &feature, &def.params),
+            "enemy" => place_enemy(state, &feature, &def.params, level, &table.enemies),
+            "npc" => place_npc(state, &feature, &def.params),
             "interactable" => place_interactable(state, &feature, &def.params),
             "story" => emit_story_hook(state, &feature, &def.params),
             _ => {}
@@ -39,14 +37,17 @@ fn place_light(
     state: &mut GameState,
     feature: &crate::game::map::MapFeature,
     params: &Value,
-    rng: &mut ChaCha8Rng,
 ) {
     let table_id = params
         .get("table")
         .and_then(|v| v.as_str())
         .unwrap_or("default");
     let rule = get_spawn_rule(table_id);
-    if let Some(id) = pick_light_type(rule, rng) {
+    let id = {
+        let rng = &mut state.rng;
+        pick_light_type(rule, rng)
+    };
+    if let Some(id) = id {
         state.map.lights.push(crate::game::map::MapLight {
             x: feature.x,
             y: feature.y,
@@ -59,7 +60,6 @@ fn place_loot(
     state: &mut GameState,
     feature: &crate::game::map::MapFeature,
     _params: &Value,
-    rng: &mut ChaCha8Rng,
 ) {
     // Simple: drop a chest item using existing loot generator by spawn table.
     let id = "generic_chest";
@@ -67,7 +67,6 @@ fn place_loot(
         .items
         .push(crate::game::item::Item::new(feature.x, feature.y, id));
     // Future: hook loot tables here.
-    let _ = rng; // keep deterministic usage pattern (not used yet)
 }
 
 fn place_enemy(
@@ -76,11 +75,14 @@ fn place_enemy(
     params: &Value,
     level: u32,
     spawns: &[crate::game::generation::spawn::WeightedSpawn],
-    rng: &mut ChaCha8Rng,
 ) {
     let table_id = params.get("table").and_then(|v| v.as_str()).unwrap_or("default");
     let use_boss = table_id == "boss";
-    if let Some(id) = weighted_pick_by_level_and_tier(spawns, level, rng, use_boss) {
+    let picked = {
+        let rng = &mut state.rng;
+        weighted_pick_by_level_and_tier(spawns, level, rng, use_boss)
+    };
+    if let Some(id) = picked {
         state.enemies.push(Enemy::new(feature.x, feature.y, id));
     }
 }
@@ -89,7 +91,6 @@ fn place_npc(
     state: &mut GameState,
     feature: &crate::game::map::MapFeature,
     params: &Value,
-    _rng: &mut ChaCha8Rng,
 ) {
     let table_id = params.get("table").and_then(|v| v.as_str()).unwrap_or("default");
     // For now, reuse interactables as stand-ins for NPC markers; real NPC table can be added later.
