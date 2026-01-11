@@ -16,24 +16,30 @@ use super::{
     equipment::{EquipSlot, Equipment},
     event::GameEvent,
     fov::FieldOfView,
+    generation::{
+        BiomeSystem, ConstraintSystem, GenerationConfig, GenerationPipeline, Grammar,
+        GrammarContext, TemplateContext, TemplateLibrary,
+        events::{EventContext, EventSystem},
+        narrative::NarrativeIntegration,
+    },
+    generation::{
+        EventType, NarrativeContext, NarrativeGenerator, StoryModel, TerrainForgeGenerator,
+        distribute_points_grid, generate_loot, get_biome_spawn_table,
+        weighted_pick_by_level_and_tier,
+    },
+    generation::{PlacedMicroStructure, place_microstructures},
     interactable::Interactable,
-    item::{get_item_def, Item},
-    lighting::{compute_lighting, LightMap, LightSource},
-
+    item::{Item, get_item_def},
+    lighting::{LightMap, LightSource, compute_lighting},
     map::{Map, Tile},
     map_features::MapFeatures,
-    generation::{place_microstructures, PlacedMicroStructure},
-
     npc::Npc,
     quest::QuestLog,
     sanity::SanitySystem,
-    generation::{weighted_pick_by_level_and_tier, get_biome_spawn_table, distribute_points_grid, generate_loot, StoryModel, EventType, NarrativeGenerator, NarrativeContext, TerrainForgeGenerator},
     storm::Storm,
-
     systems::movement::MovementSystem,
     tutorial::TutorialProgress,
     world_map::WorldMap,
-    generation::{events::{EventSystem, EventContext}, narrative::{NarrativeIntegration}, BiomeSystem, Grammar, GrammarContext, TemplateLibrary, TemplateContext, ConstraintSystem, GenerationPipeline, GenerationConfig},
 };
 
 mod rng_serde {
@@ -78,7 +84,11 @@ pub struct GameMessage {
 
 impl GameMessage {
     pub fn new(text: impl Into<String>, msg_type: MsgType, turn: u32) -> Self {
-        Self { text: text.into(), msg_type, turn }
+        Self {
+            text: text.into(),
+            msg_type,
+            turn,
+        }
     }
 }
 
@@ -88,16 +98,20 @@ pub struct TriggeredEffect {
     pub turns_remaining: u32,
 }
 
-fn default_ambient_light() -> u8 { 100 }
-fn default_time_of_day() -> u8 { 8 } // Start at 8 AM
+fn default_ambient_light() -> u8 {
+    100
+}
+fn default_time_of_day() -> u8 {
+    8
+} // Start at 8 AM
 
 /// Weather conditions affecting visibility and lighting
 #[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 pub enum Weather {
     #[default]
     Clear,
-    Dusty,      // Reduced visibility
-    Sandstorm,  // Severely reduced visibility
+    Dusty,     // Reduced visibility
+    Sandstorm, // Severely reduced visibility
 }
 
 impl Weather {
@@ -108,7 +122,7 @@ impl Weather {
             Weather::Sandstorm => -4,
         }
     }
-    
+
     pub fn ambient_modifier(&self) -> i32 {
         match self {
             Weather::Clear => 0,
@@ -128,7 +142,10 @@ pub struct Decoy {
 
 #[derive(Serialize, Deserialize)]
 pub struct GameState {
-    pub player_x: i32, pub player_y: i32, pub player_hp: i32, pub player_max_hp: i32,
+    pub player_x: i32,
+    pub player_y: i32,
+    pub player_hp: i32,
+    pub player_max_hp: i32,
     #[serde(default = "default_player_ap")]
     pub player_ap: i32,
     #[serde(default = "default_player_ap")]
@@ -161,22 +178,26 @@ pub struct GameState {
     pub equipment: Equipment,
     #[serde(default)]
     pub status_effects: Vec<super::status::StatusEffect>,
-    pub map: Map, pub enemies: Vec<Enemy>,
+    pub map: Map,
+    pub enemies: Vec<Enemy>,
     pub npcs: Vec<Npc>,
     pub items: Vec<Item>,
     pub chests: Vec<Chest>,
     pub interactables: Vec<Interactable>,
     pub inventory: Vec<String>,
-    pub visible: HashSet<usize>, pub revealed: HashSet<usize>,
+    pub visible: HashSet<usize>,
+    pub revealed: HashSet<usize>,
     #[serde(skip)]
     pub player_fov: FieldOfView,
     #[serde(skip)]
     pub light_map: LightMap,
     #[serde(default = "default_ambient_light")]
     pub ambient_light: u8,
-    pub messages: Vec<GameMessage>, pub turn: u32,
+    pub messages: Vec<GameMessage>,
+    pub turn: u32,
     #[serde(with = "rng_serde")]
-    pub rng: ChaCha8Rng, pub storm: Storm,
+    pub rng: ChaCha8Rng,
+    pub storm: Storm,
     pub refraction: u32,
     pub adaptations: Vec<Adaptation>,
     #[serde(default)]
@@ -364,21 +385,23 @@ impl GameState {
         let world_map = WorldMap::generate(seed);
         let world_x = super::world_map::WORLD_WIDTH / 2;
         let world_y = super::world_map::WORLD_HEIGHT / 2;
-        
+
         // Get world context for starting tile
-        let (biome, terrain, elevation, poi, _resources, _connected, level) = world_map.get(world_x, world_y);
-        
+        let (biome, terrain, elevation, poi, _resources, _connected, level) =
+            world_map.get(world_x, world_y);
+
         // Generate tile map using world context
         let tile_seed = world_map.tile_seed(world_x, world_y);
         let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
-        let (mut map, rooms) = Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
+        let (mut map, rooms) =
+            Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
         let (px, py) = rooms[0];
-        
+
         // Add world exit to starting tile (near spawn point)
         let exit_x = (px + 1).min(map.width as i32 - 1) as usize;
         let exit_y = py as usize;
         map.tiles[exit_y * map.width + exit_x] = Tile::WorldExit;
-        
+
         let visible = {
             let mut fov = FieldOfView::new(super::constants::FOV_RANGE);
             fov.calculate(&map, (px, py));
@@ -397,8 +420,9 @@ impl GameState {
         let max_enemies = 8; // Limit total enemies regardless of clearing count
         let safe_distance = 15; // Minimum distance from player spawn
         let (px, py) = rooms[0]; // Player spawn position
-        
-        let safe_rooms: Vec<_> = rooms.iter()
+
+        let safe_rooms: Vec<_> = rooms
+            .iter()
             .filter(|&&(rx, ry)| {
                 let dx = (rx - px).abs();
                 let dy = (ry - py).abs();
@@ -406,34 +430,48 @@ impl GameState {
             })
             .cloned()
             .collect();
-            
+
         // Use spatial distribution to spread out enemy spawns
         let distributed_positions = distribute_points_grid(
-            &safe_rooms, 
-            max_enemies, 
+            &safe_rooms,
+            max_enemies,
             20, // Minimum distance between enemies
-            &mut rng
+            &mut rng,
         );
-            
+
         for (rx, ry) in distributed_positions {
-            if let Some(id) = weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false) {
+            if let Some(id) =
+                weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false)
+            {
                 enemies.push(Enemy::new(rx, ry, id));
             }
         }
 
         // Spawn NPCs
         let mut npcs = Vec::new();
-        
+
         // ALWAYS spawn the dying pilgrim on the first tile for main questline
         // Find a safe position near the player spawn
         let pilgrim_pos = {
-            let offsets = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)];
+            let offsets = [
+                (1, 0),
+                (-1, 0),
+                (0, 1),
+                (0, -1),
+                (1, 1),
+                (-1, -1),
+                (1, -1),
+                (-1, 1),
+            ];
             let mut spawn_pos = (px + 1, py); // Default fallback
             for &(dx, dy) in &offsets {
                 let test_x = px + dx;
                 let test_y = py + dy;
-                if test_x >= 0 && test_y >= 0 && 
-                   test_x < map.width as i32 && test_y < map.height as i32 {
+                if test_x >= 0
+                    && test_y >= 0
+                    && test_x < map.width as i32
+                    && test_y < map.height as i32
+                {
                     let test_idx = map.idx(test_x, test_y);
                     if map.tiles[test_idx].walkable() {
                         spawn_pos = (test_x, test_y);
@@ -444,7 +482,7 @@ impl GameState {
             spawn_pos
         };
         npcs.push(Npc::new(pilgrim_pos.0, pilgrim_pos.1, "dying_pilgrim"));
-        
+
         // Spawn other NPCs from spawn table
         let late_room = rooms.len().saturating_sub(2);
         for spawn in &table.npcs {
@@ -452,7 +490,7 @@ impl GameState {
             if spawn.id == "dying_pilgrim" {
                 continue;
             }
-            
+
             let room_idx = match spawn.room.as_deref() {
                 Some("late") => Some(late_room),
                 Some("last") => Some(rooms.len() - 1),
@@ -460,7 +498,9 @@ impl GameState {
                 _ => {
                     if rng.gen_ratio(spawn.weight.min(10), 10) {
                         Some(rng.gen_range(1..rooms.len()))
-                    } else { None }
+                    } else {
+                        None
+                    }
                 }
             };
             if let Some(idx) = room_idx {
@@ -469,17 +509,31 @@ impl GameState {
                     // If spawning in first room (where player is), find adjacent position
                     let (npc_x, npc_y) = if idx == 0 {
                         // Try adjacent positions around the room center
-                        let offsets = [(1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)];
+                        let offsets = [
+                            (1, 0),
+                            (-1, 0),
+                            (0, 1),
+                            (0, -1),
+                            (1, 1),
+                            (-1, -1),
+                            (1, -1),
+                            (-1, 1),
+                        ];
                         let mut spawn_pos = (rx, ry);
                         for &(dx, dy) in &offsets {
                             let test_x = rx + dx;
                             let test_y = ry + dy;
-                            if test_x >= 0 && test_y >= 0 && 
-                               test_x < map.width as i32 && test_y < map.height as i32 {
+                            if test_x >= 0
+                                && test_y >= 0
+                                && test_x < map.width as i32
+                                && test_y < map.height as i32
+                            {
                                 let test_idx = map.idx(test_x, test_y);
-                                if map.tiles[test_idx].walkable() && 
+                                if map.tiles[test_idx].walkable() &&
                                    (test_x != px || test_y != py) && // Don't spawn on player
-                                   (test_x != pilgrim_pos.0 || test_y != pilgrim_pos.1) { // Don't spawn on pilgrim
+                                   (test_x != pilgrim_pos.0 || test_y != pilgrim_pos.1)
+                                {
+                                    // Don't spawn on pilgrim
                                     spawn_pos = (test_x, test_y);
                                     break;
                                 }
@@ -497,15 +551,15 @@ impl GameState {
         // Spawn items (more on starting tile for hospitable start)
         let mut items = Vec::new();
         let mut used_positions = HashSet::new();
-        
+
         // Always spawn hand torch near player start
         items.push(Item::new(px + 1, py, "hand_torch"));
         used_positions.insert((px + 1, py));
-        
+
         // Always spawn glass pick (wall break tool) near player start
         items.push(Item::new(px - 1, py, "glass_pick"));
         used_positions.insert((px - 1, py));
-        
+
         for spawn in &table.items {
             if let Some("last") = spawn.room.as_deref() {
                 if let Some(&(rx, ry)) = rooms.last() {
@@ -514,7 +568,12 @@ impl GameState {
                         // Check tier eligibility for last room items
                         if let Some(item_def) = super::item::get_item_def(&spawn.id) {
                             let tier_threshold = match level {
-                                1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
+                                1 => 1,
+                                2..=3 => 2,
+                                4..=6 => 3,
+                                7..=8 => 4,
+                                9..=10 => 5,
+                                _ => 1,
                             };
                             if item_def.tier <= tier_threshold {
                                 items.push(Item::new(rx, ry, &spawn.id));
@@ -524,7 +583,8 @@ impl GameState {
                 }
                 continue;
             }
-            for _ in 0..(spawn.weight + 1) { // +1 for hospitable start
+            for _ in 0..(spawn.weight + 1) {
+                // +1 for hospitable start
                 if let Some(&(rx, ry)) = rooms.get(rng.gen_range(1..rooms.len())) {
                     let ix = rx + rng.gen_range(-1..=1);
                     let iy = ry + rng.gen_range(-1..=1);
@@ -533,7 +593,12 @@ impl GameState {
                         // Check tier eligibility for regular items
                         if let Some(item_def) = super::item::get_item_def(&spawn.id) {
                             let tier_threshold = match level {
-                                1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
+                                1 => 1,
+                                2..=3 => 2,
+                                4..=6 => 3,
+                                7..=8 => 4,
+                                9..=10 => 5,
+                                _ => 1,
                             };
                             if item_def.tier <= tier_threshold {
                                 items.push(Item::new(ix, iy, &spawn.id));
@@ -546,16 +611,18 @@ impl GameState {
 
         // Spawn chests in some rooms
         let mut chests = Vec::new();
-        let chest_rooms: Vec<_> = rooms.iter()
+        let chest_rooms: Vec<_> = rooms
+            .iter()
             .skip(2) // Skip first two rooms (player start and adjacent)
             .take(3) // Limit to 3 chests per tile
             .collect();
-            
+
         for &(rx, ry) in chest_rooms {
-            if rng.gen_ratio(3, 10) { // 30% chance for chest in each room
+            if rng.gen_ratio(3, 10) {
+                // 30% chance for chest in each room
                 let chest_types = ["wooden_chest", "supply_crate", "glass_cache"];
                 let chest_id = chest_types[rng.gen_range(0..chest_types.len())];
-                
+
                 // Generate loot for the chest
                 let mut chest = Chest::new(rx, ry, chest_id);
                 if let Some(def) = super::chest::get_chest_def(chest_id) {
@@ -573,28 +640,40 @@ impl GameState {
         // Place micro-structures
         let biome_str = match biome {
             super::world_map::Biome::Saltflat => "saltflat",
-            super::world_map::Biome::Oasis => "oasis", 
+            super::world_map::Biome::Oasis => "oasis",
             super::world_map::Biome::Ruins => "ruins",
             super::world_map::Biome::Scrubland => "scrubland",
             _ => "saltflat",
         };
-        
-        let (microstructures, mut structure_npcs, mut structure_chests, mut structure_items) = 
+
+        let (microstructures, mut structure_npcs, mut structure_chests, mut structure_items) =
             place_microstructures(&mut map, biome_str, &rooms, (px, py), &mut rng);
-        
+
         // Add structure entities to main collections
         npcs.append(&mut structure_npcs);
         chests.append(&mut structure_chests);
         items.append(&mut structure_items);
 
         let ambient = 100u8;
-        let light_sources = vec![LightSource { x: px, y: py, radius: 8, intensity: 120 }]; // Reduced from 150 to avoid glare
+        let light_sources = vec![LightSource {
+            x: px,
+            y: py,
+            radius: 8,
+            intensity: 120,
+        }]; // Reduced from 150 to avoid glare
         let light_map = compute_lighting(&light_sources, ambient);
 
         let mut state = Self {
-            player_x: px, player_y: py, player_hp: 20, player_max_hp: 20,
-            player_ap: default_player_ap(), player_max_ap: default_player_ap(),
-            player_reflex: 5, player_armor: 0, player_xp: 0, player_level: 0,
+            player_x: px,
+            player_y: py,
+            player_hp: 20,
+            player_max_hp: 20,
+            player_ap: default_player_ap(),
+            player_max_ap: default_player_ap(),
+            player_reflex: 5,
+            player_armor: 0,
+            player_xp: 0,
+            player_level: 0,
             pending_stat_points: 0,
             salt_scrip: 50,
             equipped_weapon: None,
@@ -604,16 +683,28 @@ impl GameState {
             completed_rituals: Vec::new(),
             equipment: Equipment::default(),
             status_effects: Vec::new(),
-            map, enemies, npcs, items, chests, interactables: Vec::new(), inventory: Vec::new(),
-            visible: visible.clone(), revealed: visible,
+            map,
+            enemies,
+            npcs,
+            items,
+            chests,
+            interactables: Vec::new(),
+            inventory: Vec::new(),
+            visible: visible.clone(),
+            revealed: visible,
             player_fov: FieldOfView::new(super::constants::FOV_RANGE),
-            light_map, ambient_light: ambient,
+            light_map,
+            ambient_light: ambient,
             messages: vec![
                 GameMessage::new("Welcome to the Saltglass Steppe.", MsgType::System, 0),
-                GameMessage::new("Quest added: The Pilgrim's Last Angle", MsgType::System, 0)
+                GameMessage::new("Quest added: The Pilgrim's Last Angle", MsgType::System, 0),
             ],
-            turn: 0, rng, storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
-            refraction: 0, adaptations: Vec::new(), adaptations_hidden_turns: 0,
+            turn: 0,
+            rng,
+            storm: Storm::forecast(&mut ChaCha8Rng::seed_from_u64(seed + 1)),
+            refraction: 0,
+            adaptations: Vec::new(),
+            adaptations_hidden_turns: 0,
             quest_log: {
                 let mut quest_log = QuestLog::default();
                 // Always start with the first main quest
@@ -674,7 +765,7 @@ impl GameState {
             void_system: super::void_energy::VoidSystem::new(),
             crystal_system: super::crystal_resonance::CrystalSystem::new(),
         };
-        
+
         // Initialize dynamic event system
         let event_system = EventSystem::new();
         let _event_context = EventContext {
@@ -690,7 +781,7 @@ impl GameState {
         };
         // Don't trigger events on initialization, just set up the system
         state.event_system = Some(event_system);
-        
+
         // Initialize narrative integration system
         let mut narrative_integration = NarrativeIntegration::new();
         let narrative_context = super::generation::narrative::NarrativeContext {
@@ -704,11 +795,11 @@ impl GameState {
         };
         narrative_integration.initialize(&narrative_context, &mut state.rng);
         state.narrative_integration = Some(narrative_integration);
-        
+
         // Initialize biome system
         let biome_system = BiomeSystem;
         state.biome_system = Some(biome_system);
-        
+
         // Initialize grammar system
         let grammar_system = match Grammar::load_from_file("data/grammars/descriptions.json") {
             Ok(grammar) => Some(grammar),
@@ -718,28 +809,29 @@ impl GameState {
             }
         };
         state.grammar_system = grammar_system;
-        
+
         // Initialize template library
-        let template_library = match TemplateLibrary::load_from_file("data/templates/content_templates.json") {
-            Ok(library) => Some(library),
-            Err(_e) => {
-                // Silently fail and use fallback content generation
-                None
-            }
-        };
+        let template_library =
+            match TemplateLibrary::load_from_file("data/templates/content_templates.json") {
+                Ok(library) => Some(library),
+                Err(_e) => {
+                    // Silently fail and use fallback content generation
+                    None
+                }
+            };
         state.template_library = template_library;
-        
+
         // Initialize constraint system
         let constraint_system = ConstraintSystem;
         state.constraint_system = Some(constraint_system);
-        
+
         // Initialize generation pipeline
         let pipeline_config = GenerationConfig {
             passes: vec![], // Minimal config for now
         };
         let generation_pipeline = GenerationPipeline::new(pipeline_config);
         state.generation_pipeline = Some(generation_pipeline);
-        
+
         // Initialize narrative generator and generate world history
         if let Ok(generator) = NarrativeGenerator::new() {
             let mut history_rng = ChaCha8Rng::seed_from_u64(seed + 2);
@@ -747,14 +839,14 @@ impl GameState {
             state.world_history = history;
             state.narrative_generator = Some(generator);
         }
-        
+
         // Initialize story model
         let story_model = StoryModel::new(seed + 3);
         state.story_model = Some(story_model);
-        
+
         // Generate backstories for NPCs now that story model is available
         state.generate_npc_backstories();
-        
+
         state.rebuild_spatial_index();
         state
     }
@@ -762,28 +854,28 @@ impl GameState {
     /// Create a new game with a specific character class
     pub fn new_with_class(seed: u64, class_id: &str) -> Self {
         let mut state = Self::new(seed);
-        
+
         if let Some(class) = super::meta::get_class(class_id) {
             state.player_hp = class.starting_hp;
             state.player_max_hp = class.starting_hp;
             state.player_ap = class.starting_ap;
             state.player_max_ap = class.starting_ap;
-            
+
             // Add starting items
             for item_id in &class.starting_items {
                 state.inventory.push(item_id.clone());
             }
-            
+
             // Add starting adaptations
             for adapt_id in &class.starting_adaptations {
                 if let Some(adapt) = Adaptation::from_id(adapt_id) {
                     state.adaptations.push(adapt);
                 }
             }
-            
+
             state.log(format!("You begin as a {}.", class.name));
         }
-        
+
         state
     }
 
@@ -791,14 +883,14 @@ impl GameState {
     pub fn mark_spatial_dirty(&mut self) {
         self.spatial_dirty = true;
     }
-    
+
     /// Ensure spatial index is up to date before querying
     fn ensure_spatial_index(&mut self) {
         if self.spatial_dirty {
             self.rebuild_spatial_index_internal();
         }
     }
-    
+
     /// Internal rebuild that clears the dirty flag
     fn rebuild_spatial_index_internal(&mut self) {
         self.enemy_positions.clear();
@@ -813,7 +905,10 @@ impl GameState {
         }
         self.item_positions.clear();
         for (i, item) in self.items.iter().enumerate() {
-            self.item_positions.entry((item.x, item.y)).or_default().push(i);
+            self.item_positions
+                .entry((item.x, item.y))
+                .or_default()
+                .push(i);
         }
         self.chest_positions.clear();
         for (i, chest) in self.chests.iter().enumerate() {
@@ -821,7 +916,8 @@ impl GameState {
         }
         self.interactable_positions.clear();
         for (i, interactable) in self.interactables.iter().enumerate() {
-            self.interactable_positions.insert((interactable.x, interactable.y), i);
+            self.interactable_positions
+                .insert((interactable.x, interactable.y), i);
         }
         self.spatial_dirty = false;
     }
@@ -834,7 +930,7 @@ impl GameState {
     /// Get quest IDs that have objectives at the given world coordinates
     fn get_quest_ids_for_location(&self, world_x: usize, world_y: usize) -> Vec<String> {
         let mut quest_ids = Vec::new();
-        
+
         for quest in &self.quest_log.active {
             if let Some(def) = quest.def() {
                 for (i, quest_obj) in def.objectives.iter().enumerate() {
@@ -853,7 +949,7 @@ impl GameState {
                 }
             }
         }
-        
+
         quest_ids
     }
 
@@ -863,26 +959,31 @@ impl GameState {
             Some(wm) => wm,
             None => return,
         };
-        
-        let (biome, terrain, elevation, poi, _resources, _connected, level) = world_map.get(new_wx, new_wy);
+
+        let (biome, terrain, elevation, poi, _resources, _connected, level) =
+            world_map.get(new_wx, new_wy);
         let tile_seed = world_map.tile_seed(new_wx, new_wy);
         let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
-        
+
         // Get quest IDs for this location
         let quest_ids = self.get_quest_ids_for_location(new_wx, new_wy);
-        
+
         // Generate new tile map via terrain-forge adapter
         let map = {
             let generator = TerrainForgeGenerator::new();
-            let (map, _) = generator.generate_tile_with_seed(biome, terrain, elevation, poi, tile_seed, &quest_ids);
+            let (map, _) = generator
+                .generate_tile_with_seed(biome, terrain, elevation, poi, tile_seed, &quest_ids);
             map
         };
-        
+
         // Find safe spawn position
         let (px, py) = self.find_safe_spawn_position_in_map(&map);
-        
+
         // Collect walkable positions for later use
-        let walkable_positions: Vec<(i32, i32)> = map.tiles.iter().enumerate()
+        let walkable_positions: Vec<(i32, i32)> = map
+            .tiles
+            .iter()
+            .enumerate()
             .filter_map(|(idx, tile)| {
                 if tile.walkable() {
                     let x = (idx % map.width) as i32;
@@ -893,13 +994,14 @@ impl GameState {
                 }
             })
             .collect();
-        
+
         // Spawn enemies based on POI and quest structure data
         let mut enemies = Vec::new();
-        
+
         // Check for quest structure spawns first
         if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
-            if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data) {
+            if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data)
+            {
                 for (x, y, spawn_type, id) in spawns {
                     if spawn_type == "enemy" {
                         enemies.push(Enemy::new(x, y, &id));
@@ -907,7 +1009,7 @@ impl GameState {
                 }
             }
         }
-        
+
         // Add regular enemies if not a quest structure location
         if enemies.is_empty() {
             let table = get_biome_spawn_table(&biome);
@@ -916,9 +1018,10 @@ impl GameState {
                 super::world_map::POI::Shrine => 1,
                 _ => 4, // Fixed number for now
             };
-            
+
             // Find walkable positions for enemy spawning (use pre-collected positions)
-            let safe_positions: Vec<(i32, i32)> = walkable_positions.iter()
+            let safe_positions: Vec<(i32, i32)> = walkable_positions
+                .iter()
                 .filter(|&&(x, y)| {
                     let dx = (x - px).abs();
                     let dy = (y - py).abs();
@@ -927,29 +1030,32 @@ impl GameState {
                 })
                 .cloned()
                 .collect();
-            
+
             // Use spatial distribution to spread out enemy spawns
             let distributed_positions = distribute_points_grid(
-                &safe_positions, 
-                enemy_count, 
+                &safe_positions,
+                enemy_count,
                 20, // Minimum distance between enemies
-                &mut rng
+                &mut rng,
             );
-                
+
             for (rx, ry) in distributed_positions {
-                if let Some(id) = weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false) {
+                if let Some(id) =
+                    weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false)
+                {
                     enemies.push(Enemy::new(rx, ry, id));
                 }
             }
         }
-        
+
         // Spawn items
         let mut items = Vec::new();
         let mut used_positions = HashSet::new();
-        
+
         // Check for quest structure item spawns first
         if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
-            if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data) {
+            if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data)
+            {
                 for (x, y, spawn_type, id) in spawns {
                     if spawn_type == "item" {
                         items.push(Item::new(x, y, &id));
@@ -958,7 +1064,7 @@ impl GameState {
                 }
             }
         }
-        
+
         // Add regular items if not many quest items
         if items.len() < 3 {
             let table = get_biome_spawn_table(&biome);
@@ -976,7 +1082,12 @@ impl GameState {
                                 // Check tier eligibility for travel items
                                 if let Some(item_def) = super::item::get_item_def(&spawn.id) {
                                     let tier_threshold = match level {
-                                        1 => 1, 2..=3 => 2, 4..=6 => 3, 7..=8 => 4, 9..=10 => 5, _ => 1,
+                                        1 => 1,
+                                        2..=3 => 2,
+                                        4..=6 => 3,
+                                        7..=8 => 4,
+                                        9..=10 => 5,
+                                        _ => 1,
                                     };
                                     if item_def.tier <= tier_threshold {
                                         items.push(Item::new(ix, iy, &spawn.id));
@@ -990,7 +1101,7 @@ impl GameState {
                 }
             }
         }
-        
+
         // Update state
         self.world_x = new_wx;
         self.world_y = new_wy;
@@ -998,42 +1109,56 @@ impl GameState {
         self.enemies = enemies;
         self.items = items;
         self.npcs = Vec::new(); // NPCs are tile-specific
-        
+
         // Spawn quest-required NPCs if needed
         self.spawn_quest_required_npcs();
-        
+
         self.player_x = px;
         self.player_y = py;
         self.update_fov();
         self.rebuild_spatial_index();
         self.update_lighting();
-        
+
         // Generate narrative fragments for new tile
         self.generate_narrative_fragments(biome.as_str());
-        
+
         // Generate biome-specific environmental content
         self.generate_biome_content(&biome, level as u8);
-        
+
         // Generate crystal formations for appropriate biomes
         self.generate_crystal_formations(&biome, &walkable_positions, &mut rng);
-        
+
         // Generate template-based procedural content
         let mut template_context = std::collections::HashMap::new();
-        template_context.insert("biome".to_string(), serde_json::Value::String(biome.as_str().to_string()));
-        template_context.insert("level".to_string(), serde_json::Value::Number(serde_json::Number::from(level)));
-        template_context.insert("storm_intensity".to_string(), serde_json::Value::String(
-            if self.storm.intensity <= 2 { "low" } else { "high" }.to_string()
-        ));
+        template_context.insert(
+            "biome".to_string(),
+            serde_json::Value::String(biome.as_str().to_string()),
+        );
+        template_context.insert(
+            "level".to_string(),
+            serde_json::Value::Number(serde_json::Number::from(level)),
+        );
+        template_context.insert(
+            "storm_intensity".to_string(),
+            serde_json::Value::String(
+                if self.storm.intensity <= 2 {
+                    "low"
+                } else {
+                    "high"
+                }
+                .to_string(),
+            ),
+        );
         self.generate_template_content("encounter", template_context);
-        
+
         self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
     }
-    
+
     /// Spawn NPCs required for active quests
     fn spawn_quest_required_npcs(&mut self) {
         // Check all active quests for NPCs that need to be spawned
         let mut required_npcs = Vec::new();
-        
+
         for quest in &self.quest_log.active {
             if let Some(def) = super::quest::get_quest_def(&quest.quest_id) {
                 for objective in &def.objectives {
@@ -1049,7 +1174,7 @@ impl GameState {
                 }
             }
         }
-        
+
         // Spawn required NPCs at safe positions
         for npc_id in required_npcs {
             let spawn_pos = self.find_safe_spawn_position();
@@ -1059,42 +1184,55 @@ impl GameState {
             }
         }
     }
-    
+
     /// Find a safe position to spawn an NPC (not on player, walls, or other entities)
     fn find_safe_spawn_position(&self) -> Option<(i32, i32)> {
         let offsets = [
-            (1, 0), (-1, 0), (0, 1), (0, -1), 
-            (1, 1), (-1, -1), (1, -1), (-1, 1),
-            (2, 0), (-2, 0), (0, 2), (0, -2)
+            (1, 0),
+            (-1, 0),
+            (0, 1),
+            (0, -1),
+            (1, 1),
+            (-1, -1),
+            (1, -1),
+            (-1, 1),
+            (2, 0),
+            (-2, 0),
+            (0, 2),
+            (0, -2),
         ];
-        
+
         for &(dx, dy) in &offsets {
             let test_x = self.player_x + dx;
             let test_y = self.player_y + dy;
-            
-            if test_x >= 0 && test_y >= 0 && 
-               test_x < self.map.width as i32 && test_y < self.map.height as i32 {
+
+            if test_x >= 0
+                && test_y >= 0
+                && test_x < self.map.width as i32
+                && test_y < self.map.height as i32
+            {
                 let test_idx = self.map.idx(test_x, test_y);
                 if self.map.tiles[test_idx].walkable() {
                     // Check if position is free of other entities
-                    let position_free = !self.enemies.iter().any(|e| e.x == test_x && e.y == test_y) &&
-                                       !self.npcs.iter().any(|n| n.x == test_x && n.y == test_y) &&
-                                       !self.items.iter().any(|i| i.x == test_x && i.y == test_y);
-                    
+                    let position_free =
+                        !self.enemies.iter().any(|e| e.x == test_x && e.y == test_y)
+                            && !self.npcs.iter().any(|n| n.x == test_x && n.y == test_y)
+                            && !self.items.iter().any(|i| i.x == test_x && i.y == test_y);
+
                     if position_free {
                         return Some((test_x, test_y));
                     }
                 }
             }
         }
-        
+
         None
     }
-    
+
     /// Find a safe spawn position in a given map (for initial player placement)
     fn find_safe_spawn_position_in_map(&self, map: &Map) -> (i32, i32) {
-        use crate::game::constants::{MAP_WIDTH, MAP_HEIGHT};
-        
+        use crate::game::constants::{MAP_HEIGHT, MAP_WIDTH};
+
         // Try center area first
         for y in (MAP_HEIGHT / 2 - 10)..(MAP_HEIGHT / 2 + 10) {
             for x in (MAP_WIDTH / 2 - 10)..(MAP_WIDTH / 2 + 10) {
@@ -1104,7 +1242,7 @@ impl GameState {
                 }
             }
         }
-        
+
         // Fallback: find any walkable tile
         for (idx, tile) in map.tiles.iter().enumerate() {
             if tile.walkable() {
@@ -1113,7 +1251,7 @@ impl GameState {
                 return (x as i32, y as i32);
             }
         }
-        
+
         // Ultimate fallback
         (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2)
     }
@@ -1121,18 +1259,22 @@ impl GameState {
     /// Travel to a world tile with safe spawn (not on wall/enemy/glass)
     pub fn travel_to_tile_safe(&mut self, new_wx: usize, new_wy: usize) {
         self.travel_to_tile(new_wx, new_wy);
-        
+
         // Find safe spawn position (not wall, glass, or enemy)
         let (mut px, mut py) = (self.player_x, self.player_y);
-        
+
         // Check if current position is safe
         let is_safe = |map: &Map, enemies: &[Enemy], x: i32, y: i32| -> bool {
             if let Some(tile) = map.get(x, y) {
-                if matches!(*tile, Tile::Floor { .. }) { return false; }
-            } else { return false; }
+                if matches!(*tile, Tile::Floor { .. }) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
             !enemies.iter().any(|e| e.x == x && e.y == y && e.hp > 0)
         };
-        
+
         if !is_safe(&self.map, &self.enemies, px, py) {
             // Search for safe position in expanding squares
             'search: for radius in 1i32..20 {
@@ -1151,7 +1293,7 @@ impl GameState {
                 }
             }
         }
-        
+
         self.player_x = px;
         self.player_y = py;
         self.update_fov();
@@ -1162,19 +1304,25 @@ impl GameState {
     pub fn enter_subterranean(&mut self) -> bool {
         // Check if standing on stairs down
         if let Some(tile) = self.map.get(self.player_x, self.player_y) {
-            if *tile != Tile::StairsDown { return false; }
-        } else { return false; }
+            if *tile != Tile::StairsDown {
+                return false;
+            }
+        } else {
+            return false;
+        }
 
         self.layer -= 1;
-        let seed = self.world_map.as_ref()
+        let seed = self
+            .world_map
+            .as_ref()
             .map(|wm| wm.tile_seed(self.world_x, self.world_y))
             .unwrap_or(42)
             .wrapping_add(self.layer.unsigned_abs() as u64 * 1000);
         let mut rng = ChaCha8Rng::seed_from_u64(seed);
-        
+
         let (map, rooms) = Map::generate_subterranean(&mut rng, self.layer);
         let (px, py) = rooms[0];
-        
+
         self.map = map;
         self.enemies = Vec::new();
         self.items = Vec::new();
@@ -1184,7 +1332,7 @@ impl GameState {
         self.update_fov();
         self.rebuild_spatial_index();
         self.update_lighting();
-        
+
         self.log(format!("You descend to level {}.", -self.layer));
         true
     }
@@ -1193,28 +1341,36 @@ impl GameState {
     pub fn exit_subterranean(&mut self) -> bool {
         // Check if standing on stairs up
         if let Some(tile) = self.map.get(self.player_x, self.player_y) {
-            if *tile != Tile::StairsUp { return false; }
-        } else { return false; }
+            if *tile != Tile::StairsUp {
+                return false;
+            }
+        } else {
+            return false;
+        }
 
-        if self.layer >= 0 { return false; } // Already on surface
+        if self.layer >= 0 {
+            return false;
+        } // Already on surface
 
         self.layer += 1;
-        
+
         if self.layer == 0 {
             // Return to surface - regenerate surface tile
             self.travel_to_tile(self.world_x, self.world_y);
             self.log("You return to the surface.");
         } else {
             // Go up one underground level
-            let seed = self.world_map.as_ref()
+            let seed = self
+                .world_map
+                .as_ref()
                 .map(|wm| wm.tile_seed(self.world_x, self.world_y))
                 .unwrap_or(42)
                 .wrapping_add(self.layer.unsigned_abs() as u64 * 1000);
             let mut rng = ChaCha8Rng::seed_from_u64(seed);
-            
+
             let (map, rooms) = Map::generate_subterranean(&mut rng, self.layer);
             let (px, py) = rooms.last().copied().unwrap_or((5, 5));
-            
+
             self.map = map;
             self.enemies = Vec::new();
             self.items = Vec::new();
@@ -1224,7 +1380,7 @@ impl GameState {
             self.update_fov();
             self.rebuild_spatial_index();
             self.update_lighting();
-            
+
             self.log(format!("You ascend to level {}.", -self.layer));
         }
         true
@@ -1232,16 +1388,26 @@ impl GameState {
 
     pub fn update_lighting(&mut self) {
         let mut sources = Vec::new();
-        
+
         // Always add default player light
-        sources.push(LightSource { x: self.player_x, y: self.player_y, radius: 5, intensity: 100 });
-        
+        sources.push(LightSource {
+            x: self.player_x,
+            y: self.player_y,
+            radius: 5,
+            intensity: 100,
+        });
+
         // Equipped light sources (check all slots)
         for (_, slot_item) in self.equipment.iter() {
             if let Some(id) = slot_item {
                 if let Some(def) = get_item_def(id) {
                     if let Some(ref ls) = def.light_source {
-                        sources.push(LightSource { x: self.player_x, y: self.player_y, radius: ls.radius, intensity: ls.intensity });
+                        sources.push(LightSource {
+                            x: self.player_x,
+                            y: self.player_y,
+                            radius: ls.radius,
+                            intensity: ls.intensity,
+                        });
                     }
                 }
             }
@@ -1249,14 +1415,24 @@ impl GameState {
         // Map lights
         for ml in &self.map.lights {
             if let Some(def) = super::light_defs::get_light_def(&ml.id) {
-                sources.push(LightSource { x: ml.x, y: ml.y, radius: def.radius, intensity: def.intensity });
+                sources.push(LightSource {
+                    x: ml.x,
+                    y: ml.y,
+                    radius: def.radius,
+                    intensity: def.intensity,
+                });
             }
         }
         // Items on ground with light_source property
         for item in &self.items {
             if let Some(def) = get_item_def(&item.id) {
                 if let Some(ref ls) = def.light_source {
-                    sources.push(LightSource { x: item.x, y: item.y, radius: ls.radius, intensity: ls.intensity });
+                    sources.push(LightSource {
+                        x: item.x,
+                        y: item.y,
+                        radius: ls.radius,
+                        intensity: ls.intensity,
+                    });
                 }
             }
         }
@@ -1267,7 +1443,7 @@ impl GameState {
     pub fn update_fov(&mut self) {
         // Use bracket-lib's optimized FOV algorithm
         self.visible = crate::game::map::compute_fov(&self.map, self.player_x, self.player_y);
-        
+
         // Update player_fov for compatibility
         self.player_fov.visible_tiles.clear();
         for &idx in &self.visible {
@@ -1276,7 +1452,7 @@ impl GameState {
             }
         }
         self.player_fov.dirty = false;
-        
+
         // Update revealed tiles
         self.revealed.extend(&self.visible);
     }
@@ -1304,16 +1480,19 @@ impl GameState {
     pub fn generate_contextual_description(&mut self) -> Option<String> {
         if let Some(ref generator) = self.narrative_generator {
             let context = self.create_narrative_context();
-            
+
             // Try story-based description first
             if let Some(ref story_model) = self.story_model {
                 if let Some(faction_lore) = story_model.get_faction_lore("Mirror Monks") {
                     if context.faction_reputation.get("Mirror Monks").unwrap_or(&0) > &50 {
-                        return Some(format!("Your understanding of the Mirror Monks deepens: {}", faction_lore));
+                        return Some(format!(
+                            "Your understanding of the Mirror Monks deepens: {}",
+                            faction_lore
+                        ));
                     }
                 }
             }
-            
+
             generator.generate_contextual_description(&context, &mut self.rng)
         } else {
             None
@@ -1342,16 +1521,22 @@ impl GameState {
     pub fn get_area_description(&self) -> Option<String> {
         self.map.area_description.clone()
     }
-    
+
     /// Generate NPC backstory using story model
-    pub fn generate_npc_backstory(&mut self, npc_id: &str, story_model: &StoryModel) -> Option<String> {
+    pub fn generate_npc_backstory(
+        &mut self,
+        npc_id: &str,
+        story_model: &StoryModel,
+    ) -> Option<String> {
         if let Some(ref generator) = self.narrative_generator {
             // Get NPC definition to understand their faction
             if let Some(npc_def) = super::npc::get_npc_def(npc_id) {
                 // Try to find a character from the story model that matches this NPC's faction
-                let matching_character = story_model.characters.iter()
+                let matching_character = story_model
+                    .characters
+                    .iter()
                     .find(|(_, c)| c.faction == npc_def.faction);
-                
+
                 if let Some((_, character)) = matching_character {
                     // Generate backstory based on the character's history
                     let achievements = if character.achievements.is_empty() {
@@ -1359,12 +1544,10 @@ impl GameState {
                     } else {
                         character.achievements.join(", ")
                     };
-                    
+
                     let backstory = format!(
                         "{} has connections to {}. They remember when {}.",
-                        npc_def.name,
-                        character.name,
-                        achievements
+                        npc_def.name, character.name, achievements
                     );
                     Some(backstory)
                 } else {
@@ -1383,11 +1566,14 @@ impl GameState {
     pub fn generate_npc_backstories(&mut self) {
         if let Some(ref story_model) = self.story_model.clone() {
             // Collect NPC IDs that need backstories
-            let npc_ids: Vec<(usize, String)> = self.npcs.iter().enumerate()
+            let npc_ids: Vec<(usize, String)> = self
+                .npcs
+                .iter()
+                .enumerate()
                 .filter(|(_, npc)| npc.backstory.is_none())
                 .map(|(i, npc)| (i, npc.id.clone()))
                 .collect();
-            
+
             // Generate backstories
             for (index, npc_id) in npc_ids {
                 let backstory = self.generate_npc_backstory(&npc_id, &story_model);
@@ -1405,7 +1591,9 @@ impl GameState {
             None
         };
 
-        let adaptations = self.adaptations.iter()
+        let adaptations = self
+            .adaptations
+            .iter()
             .map(|a| format!("{:?}", a).to_lowercase())
             .collect();
 
@@ -1426,7 +1614,9 @@ impl GameState {
 
     /// Get artifact inscription from story model
     pub fn get_artifact_inscription(&self, artifact_name: &str) -> Option<String> {
-        self.story_model.as_ref()?.get_artifact_inscription(artifact_name)
+        self.story_model
+            .as_ref()?
+            .get_artifact_inscription(artifact_name)
     }
 
     /// Get shrine text from story model
@@ -1436,7 +1626,8 @@ impl GameState {
 
     /// Get character relationships from story model
     pub fn get_character_relationships(&self, character_id: &str) -> Vec<String> {
-        self.story_model.as_ref()
+        self.story_model
+            .as_ref()
             .map(|sm| sm.get_character_relationships(character_id))
             .unwrap_or_default()
     }
@@ -1447,9 +1638,14 @@ impl GameState {
     }
 
     /// Generate crystal formations for appropriate biomes
-    fn generate_crystal_formations(&mut self, biome: &super::world_map::Biome, rooms: &[(i32, i32)], rng: &mut ChaCha8Rng) {
+    fn generate_crystal_formations(
+        &mut self,
+        biome: &super::world_map::Biome,
+        rooms: &[(i32, i32)],
+        rng: &mut ChaCha8Rng,
+    ) {
         use super::crystal_resonance::CrystalFrequency;
-        
+
         let formation_chance = match biome {
             super::world_map::Biome::Ruins => 0.6,
             super::world_map::Biome::Oasis => 0.4,
@@ -1457,33 +1653,39 @@ impl GameState {
             super::world_map::Biome::Scrubland => 0.2,
             super::world_map::Biome::Desert => 0.1,
         };
-        
+
         if !rng.gen_bool(formation_chance as f64) {
             return;
         }
-        
+
         let formation_count = match biome {
             super::world_map::Biome::Ruins => rng.gen_range(2..=4),
             super::world_map::Biome::Oasis => rng.gen_range(1..=3),
             _ => rng.gen_range(1..=2),
         };
-        
+
         let frequencies = CrystalFrequency::all();
-        
+
         for _ in 0..formation_count {
             if let Some(&(rx, ry)) = rooms.get(rng.gen_range(0..rooms.len())) {
                 let x = rx + rng.gen_range(-2..=2);
                 let y = ry + rng.gen_range(-2..=2);
-                
+
                 // Don't place on player spawn or too close to enemies
                 if (x - self.player_x).abs() < 5 && (y - self.player_y).abs() < 5 {
                     continue;
                 }
-                
+
                 let frequency = frequencies[rng.gen_range(0..frequencies.len())];
                 self.crystal_system.add_crystal(x, y, frequency);
-                
-                self.log_typed(format!("A {} crystal formation glimmers nearby.", frequency.name().to_lowercase()), MsgType::Loot);
+
+                self.log_typed(
+                    format!(
+                        "A {} crystal formation glimmers nearby.",
+                        frequency.name().to_lowercase()
+                    ),
+                    MsgType::Loot,
+                );
             }
         }
     }
@@ -1501,17 +1703,17 @@ impl GameState {
         if self.layer < 0 {
             return 30;
         }
-        
+
         // Base ambient from time of day (0-23 hours)
         let time_ambient = match self.time_of_day {
-            0..=4 => 30,    // Night
-            5..=6 => 60,    // Dawn
-            7..=17 => 120,  // Day
-            18..=19 => 80,  // Dusk
-            20..=23 => 40,  // Night
+            0..=4 => 30,   // Night
+            5..=6 => 60,   // Dawn
+            7..=17 => 120, // Day
+            18..=19 => 80, // Dusk
+            20..=23 => 40, // Night
             _ => 100,
         };
-        
+
         // Apply weather modifier
         let weather_mod = self.weather.ambient_modifier();
         (time_ambient as i32 + weather_mod).clamp(10, 200) as u8
@@ -1521,7 +1723,7 @@ impl GameState {
     pub fn tick_time(&mut self) {
         if self.turn % 10 == 0 {
             self.time_of_day = (self.time_of_day + 1) % 24;
-            
+
             // Random weather changes at dawn/dusk
             if self.time_of_day == 6 || self.time_of_day == 18 {
                 let roll = self.rng.gen_range(0..10);
@@ -1536,7 +1738,9 @@ impl GameState {
     }
 
     pub fn get_light_level(&self, x: i32, y: i32) -> u8 {
-        if x < 0 || y < 0 { return 0; }
+        if x < 0 || y < 0 {
+            return 0;
+        }
         let idx = y as usize * self.map.width + x as usize;
         self.light_map.get(idx).copied().unwrap_or(0)
     }
@@ -1557,16 +1761,20 @@ impl GameState {
     }
 
     pub fn visible_adaptation_count(&self) -> usize {
-        if self.adaptations_hidden_turns > 0 { 0 } else { self.adaptations.len() }
+        if self.adaptations_hidden_turns > 0 {
+            0
+        } else {
+            self.adaptations.len()
+        }
     }
 
     /// Gain XP and check for level up
     pub fn gain_xp(&mut self, amount: u32) {
-        use super::progression::{xp_for_level, stat_points_per_level, max_level};
-        
+        use super::progression::{max_level, stat_points_per_level, xp_for_level};
+
         self.player_xp += amount;
         self.log(format!("+{} XP", amount));
-        
+
         // Check for level up
         while self.player_level < max_level() {
             let next_threshold = xp_for_level(self.player_level + 1);
@@ -1576,8 +1784,13 @@ impl GameState {
                 self.pending_stat_points += points;
                 // Also gain skill points
                 self.skills.skill_points += 2;
-                self.log(format!("⬆ LEVEL {}! (+{} stat points, +2 skill points)", self.player_level, points));
-                self.emit(GameEvent::LevelUp { level: self.player_level });
+                self.log(format!(
+                    "⬆ LEVEL {}! (+{} stat points, +2 skill points)",
+                    self.player_level, points
+                ));
+                self.emit(GameEvent::LevelUp {
+                    level: self.player_level,
+                });
             } else {
                 break;
             }
@@ -1586,8 +1799,10 @@ impl GameState {
 
     /// Allocate a stat point to a specific stat
     pub fn allocate_stat(&mut self, stat: &str) -> bool {
-        if self.pending_stat_points <= 0 { return false; }
-        
+        if self.pending_stat_points <= 0 {
+            return false;
+        }
+
         match stat {
             "max_hp" => {
                 self.player_max_hp += 1;
@@ -1597,7 +1812,7 @@ impl GameState {
             "reflex" => self.player_reflex += 1,
             _ => return false,
         }
-        
+
         self.pending_stat_points -= 1;
         self.log(format!("+1 {}", stat));
         true
@@ -1605,11 +1820,11 @@ impl GameState {
 
     /// End turn: reset AP, tick status effects, run enemy turns, tick storm, tick time
     pub fn end_turn(&mut self) {
-        use super::systems::{System, StatusEffectSystem, StormSystem};
-        
+        use super::systems::{StatusEffectSystem, StormSystem, System};
+
         // Ensure spatial index is up to date before AI/systems run
         self.ensure_spatial_index();
-        
+
         self.player_ap = self.player_max_ap;
         StatusEffectSystem.update(self);
         self.psychic.tick();
@@ -1619,21 +1834,23 @@ impl GameState {
         self.crystal_system.update(&mut self.rng);
         self.tick_turn();
         self.update_enemies();
-        if self.storm.tick() { StormSystem::apply_storm(self); }
+        if self.storm.tick() {
+            StormSystem::apply_storm(self);
+        }
         self.tick_time();
         self.update_lighting();
         self.update_fov();
-        
+
         // Check for dynamic events
         self.check_dynamic_events();
-        
+
         // Notify quests of turn passing (for wait objectives)
         self.quest_log.on_turn_passed();
-        
+
         // Process queued events
         self.process_events();
     }
-    
+
     /// Generate narrative fragments for the current tile
     fn generate_narrative_fragments(&mut self, biome: &str) {
         if let Some(ref mut narrative) = self.narrative_integration {
@@ -1644,21 +1861,28 @@ impl GameState {
                 turn: self.turn,
                 faction_standings: std::collections::HashMap::new(),
                 discovered_fragments: Vec::new(),
-                player_adaptations: self.adaptations.iter().map(|a| a.name().to_string()).collect(),
+                player_adaptations: self
+                    .adaptations
+                    .iter()
+                    .map(|a| a.name().to_string())
+                    .collect(),
             };
-            
+
             let fragments = narrative.generate_fragments(&context, &mut self.rng);
             let fragment_count = fragments.len();
-            
+
             if fragment_count > 0 {
                 // Track narrative momentum
                 narrative.track_narrative_event("fragments_generated", &context);
             }
-            
+
             // Log after releasing the borrow
             let _ = narrative;
             if fragment_count > 0 {
-                self.log(format!("You sense {} story fragments in this area.", fragment_count));
+                self.log(format!(
+                    "You sense {} story fragments in this area.",
+                    fragment_count
+                ));
             }
         }
     }
@@ -1671,55 +1895,66 @@ impl GameState {
                 storm_intensity: self.storm.intensity,
                 time_of_day: "day".to_string(), // Could be enhanced with day/night cycle
                 weather_conditions: "clear".to_string(), // Could be enhanced with weather system
-                player_adaptations: self.adaptations.iter().map(|a| a.name().to_string()).collect(),
+                player_adaptations: self
+                    .adaptations
+                    .iter()
+                    .map(|a| a.name().to_string())
+                    .collect(),
             };
-            
+
             // Generate environmental description using Grammar system
             let description = if let Some(ref grammar) = self.grammar_system {
                 let grammar_context = GrammarContext {
                     variables: std::collections::HashMap::new(),
                 };
-                
+
                 match grammar.generate("description", &grammar_context, &mut self.rng) {
                     Ok(generated_desc) => generated_desc,
                     Err(_) => {
                         // Fallback to BiomeSystem description
                         super::generation::BiomeSystem::generate_environment_description(
-                            *biome, &context, &mut self.rng
+                            *biome,
+                            &context,
+                            &mut self.rng,
                         )
                     }
                 }
             } else {
                 // Fallback to BiomeSystem description
                 super::generation::BiomeSystem::generate_environment_description(
-                    *biome, &context, &mut self.rng
+                    *biome,
+                    &context,
+                    &mut self.rng,
                 )
             };
-            
+
             // Generate environmental features (1-3 features per tile)
             let feature_count = self.rng.gen_range(1..=3);
             let features = super::generation::BiomeSystem::generate_environmental_features(
-                *biome, feature_count, &mut self.rng
+                *biome,
+                feature_count,
+                &mut self.rng,
             );
-            
+
             // Check for hazards
-            let hazards = super::generation::BiomeSystem::check_hazards(
-                *biome, &context, &mut self.rng
-            );
-            
+            let hazards =
+                super::generation::BiomeSystem::check_hazards(*biome, &context, &mut self.rng);
+
             // Log environmental content
             if !description.is_empty() {
                 self.log(description);
             }
-            
+
             for feature in &features {
-                if self.rng.gen_range(0.0..1.0) < 0.3 { // 30% chance to notice each feature
+                if self.rng.gen_range(0.0..1.0) < 0.3 {
+                    // 30% chance to notice each feature
                     self.log(format!("You notice: {}", feature.description_template));
                 }
             }
-            
+
             for hazard in &hazards {
-                if hazard.severity >= 5 { // Only log significant hazards
+                if hazard.severity >= 5 {
+                    // Only log significant hazards
                     self.log(format!("Warning: {}", hazard.description));
                 }
             }
@@ -1727,22 +1962,30 @@ impl GameState {
     }
 
     /// Generate procedural content using templates
-    fn generate_template_content(&mut self, category: &str, context_vars: std::collections::HashMap<String, serde_json::Value>) {
+    fn generate_template_content(
+        &mut self,
+        category: &str,
+        context_vars: std::collections::HashMap<String, serde_json::Value>,
+    ) {
         if let Some(ref template_library) = self.template_library {
             let template_context = TemplateContext {
                 variables: context_vars,
             };
-            
+
             // Find templates in the specified category by trying known template IDs
             let template_candidates = match category {
                 "encounter" => vec!["encounter_basic", "storm_encounter"],
                 "room" => vec!["basic_room", "glass_room"],
                 _ => vec![],
             };
-            
+
             for template_id in template_candidates {
                 if let Some(_template) = template_library.get_template(template_id) {
-                    match template_library.instantiate(template_id, &template_context, &mut self.rng) {
+                    match template_library.instantiate(
+                        template_id,
+                        &template_context,
+                        &mut self.rng,
+                    ) {
                         Ok(result) => {
                             // Log the generated content
                             if let Some(description) = result.get("description") {
@@ -1766,11 +2009,15 @@ impl GameState {
     fn check_dynamic_events(&mut self) {
         if let Some(ref mut event_system) = self.event_system {
             let current_biome = if let Some(ref world_map) = self.world_map {
-                world_map.get(self.world_x, self.world_y).0.as_str().to_string()
+                world_map
+                    .get(self.world_x, self.world_y)
+                    .0
+                    .as_str()
+                    .to_string()
             } else {
                 "desert".to_string()
             };
-            
+
             let context = EventContext {
                 player_hp: self.player_hp,
                 player_max_hp: self.player_max_hp,
@@ -1782,53 +2029,60 @@ impl GameState {
                 refraction_level: self.refraction,
                 variables: std::collections::HashMap::new(),
             };
-            
+
             let triggered_events = event_system.check_triggers(&context, &mut self.rng);
             let has_events = !triggered_events.is_empty();
             let mut messages_to_log = Vec::new();
-            
+
             for event_id in triggered_events {
                 let mut event_context = context.clone();
                 let messages = event_system.apply_consequences(&event_id, &mut event_context);
-                
+
                 // Apply consequences to game state
                 if let Some(damage) = event_context.variables.get("damage_taken") {
                     if let Some(damage) = damage.as_i64() {
                         self.player_hp = (self.player_hp - damage as i32).max(0);
                     }
                 }
-                
+
                 if let Some(healing) = event_context.variables.get("healing_received") {
                     if let Some(healing) = healing.as_i64() {
                         self.player_hp = (self.player_hp + healing as i32).min(self.player_max_hp);
                     }
                 }
-                
+
                 if let Some(refraction) = event_context.variables.get("refraction_gained") {
                     if let Some(refraction) = refraction.as_u64() {
                         self.refraction += refraction as u32;
                     }
                 }
-                
+
                 // Collect messages to log later
                 messages_to_log.extend(messages);
             }
-            
+
             // Track narrative events
             if has_events {
                 if let Some(ref mut narrative) = self.narrative_integration {
-                    narrative.track_narrative_event("dynamic_event", &super::generation::narrative::NarrativeContext {
-                        player_x: self.player_x,
-                        player_y: self.player_y,
-                        current_biome: current_biome,
-                        turn: self.turn,
-                        faction_standings: std::collections::HashMap::new(),
-                        discovered_fragments: Vec::new(),
-                        player_adaptations: self.adaptations.iter().map(|a| a.name().to_string()).collect(),
-                    });
+                    narrative.track_narrative_event(
+                        "dynamic_event",
+                        &super::generation::narrative::NarrativeContext {
+                            player_x: self.player_x,
+                            player_y: self.player_y,
+                            current_biome: current_biome,
+                            turn: self.turn,
+                            faction_standings: std::collections::HashMap::new(),
+                            discovered_fragments: Vec::new(),
+                            player_adaptations: self
+                                .adaptations
+                                .iter()
+                                .map(|a| a.name().to_string())
+                                .collect(),
+                        },
+                    );
                 }
             }
-            
+
             // Log messages after releasing borrows
             for message in messages_to_log {
                 self.log(message);
@@ -1839,32 +2093,32 @@ impl GameState {
     /// Process all queued game events
     /// This enables decoupled communication between systems
     fn process_events(&mut self) {
-        use super::systems::{System, LootSystem, QuestSystem};
-        
+        use super::systems::{LootSystem, QuestSystem, System};
+
         let events = self.drain_events();
         for event in events {
             // Dispatch to systems
             LootSystem.on_event(self, &event);
             QuestSystem.on_event(self, &event);
-            
+
             // Internal logging/handling
             self.handle_event(&event);
         }
     }
-    
+
     /// Handle a single game event - internal logging and state updates
     fn handle_event(&mut self, event: &GameEvent) {
         match event {
             GameEvent::EnemyKilled { enemy_id, x, y } => {
                 self.log_typed(
                     format!("[Event] Enemy '{}' killed at ({}, {})", enemy_id, x, y),
-                    MsgType::System
+                    MsgType::System,
                 );
             }
             GameEvent::LevelUp { level } => {
                 self.log_typed(
                     format!("[Event] Player reached level {}!", level),
-                    MsgType::Status
+                    MsgType::Status,
                 );
             }
             GameEvent::ItemPickedUp { .. } => {
@@ -1873,13 +2127,13 @@ impl GameState {
             GameEvent::AdaptationGained { name } => {
                 self.log_typed(
                     format!("[Event] Gained adaptation: {}", name),
-                    MsgType::Status
+                    MsgType::Status,
                 );
             }
             GameEvent::StormArrived { intensity } => {
                 self.log_typed(
                     format!("[Event] Storm arrived with intensity {}", intensity),
-                    MsgType::Warning
+                    MsgType::Warning,
                 );
             }
             _ => {}
@@ -1888,7 +2142,10 @@ impl GameState {
 
     /// Apply a status effect to the player
     pub fn apply_status(&mut self, effect: super::status::StatusEffect) {
-        self.log_typed(format!("You are {}! ({} turns)", effect.name, effect.duration), MsgType::System);
+        self.log_typed(
+            format!("You are {}! ({} turns)", effect.name, effect.duration),
+            MsgType::System,
+        );
         self.status_effects.push(effect);
     }
 
@@ -1896,12 +2153,14 @@ impl GameState {
     pub fn wait_turn(&mut self) {
         // Check for nearby enemies (within 8 tiles, not FOV range)
         let enemies_nearby = self.enemies.iter().any(|e| {
-            if e.hp <= 0 { return false; } // Ignore dead enemies
+            if e.hp <= 0 {
+                return false;
+            } // Ignore dead enemies
             let dx = (e.x - self.player_x).abs();
             let dy = (e.y - self.player_y).abs();
             dx <= 8 && dy <= 8 // Much smaller range for healing
         });
-        
+
         if enemies_nearby {
             self.wait_counter = 0;
         } else {
@@ -1910,7 +2169,10 @@ impl GameState {
             if self.wait_counter >= 10 && self.player_hp < self.player_max_hp {
                 let heal = (self.player_max_hp / 20).max(1); // 5% instead of 10%
                 self.player_hp = (self.player_hp + heal).min(self.player_max_hp);
-                self.log_typed(format!("You rest and recover {} HP.", heal), MsgType::Status);
+                self.log_typed(
+                    format!("You rest and recover {} HP.", heal),
+                    MsgType::Status,
+                );
                 self.wait_counter = 0;
             }
         }
@@ -1966,7 +2228,10 @@ impl GameState {
         if self.adaptations_hidden_turns > 0 {
             self.adaptations_hidden_turns -= 1;
             if self.adaptations_hidden_turns == 0 {
-                self.log_typed("The tincture wears off. Your glow returns.", MsgType::Status);
+                self.log_typed(
+                    "The tincture wears off. Your glow returns.",
+                    MsgType::Status,
+                );
             }
         }
         // Tick down triggered effects
@@ -1979,7 +2244,7 @@ impl GameState {
             d.turns_remaining = d.turns_remaining.saturating_sub(1);
             d.turns_remaining > 0
         });
-        
+
         // Apply light-based effects
         self.apply_light_effects();
     }
@@ -1989,31 +2254,34 @@ impl GameState {
     }
 
     pub fn log_typed(&mut self, msg: impl Into<String>, msg_type: MsgType) {
-        self.messages.push(GameMessage::new(msg, msg_type, self.turn));
-        if self.messages.len() > 5 { self.messages.remove(0); }
+        self.messages
+            .push(GameMessage::new(msg, msg_type, self.turn));
+        if self.messages.len() > 5 {
+            self.messages.remove(0);
+        }
     }
 
     /// Interact with an object at the given position
     pub fn interact_at(&mut self, x: i32, y: i32) {
         self.ensure_spatial_index();
-        
+
         // Check for interactables at this position
         if let Some(&interactable_idx) = self.interactable_positions.get(&(x, y)) {
             if let Some(interactable) = self.interactables.get_mut(interactable_idx) {
                 let interactable_id = interactable.id.clone();
                 if let Some(message) = interactable.interact() {
                     self.log(&message);
-                    
+
                     // Check quest objectives for interaction
                     self.quest_log.on_interact(&interactable_id);
-                    
+
                     // Mark spatial index as dirty since interactable state changed
                     self.spatial_dirty = true;
                     return;
                 }
             }
         }
-        
+
         // Check for NPCs at this position
         if let Some(&npc_idx) = self.npc_positions.get(&(x, y)) {
             if let Some(npc) = self.npcs.get(npc_idx) {
@@ -2024,7 +2292,7 @@ impl GameState {
                 return;
             }
         }
-        
+
         // Check for chests at this position
         if let Some(&chest_idx) = self.chest_positions.get(&(x, y)) {
             if let Some(chest) = self.chests.get(chest_idx) {
@@ -2033,39 +2301,44 @@ impl GameState {
                 return;
             }
         }
-        
+
         self.log("There's nothing to interact with here.");
     }
 
     /// Examine an object at the given position
     pub fn examine_at(&mut self, x: i32, y: i32) {
         self.ensure_spatial_index();
-        
+
         // Check for interactables at this position
         if let Some(&interactable_idx) = self.interactable_positions.get(&(x, y)) {
             if let Some(interactable) = self.interactables.get(interactable_idx) {
                 let interactable_id = interactable.id.clone();
                 if let Some(message) = interactable.examine() {
                     self.log(&message);
-                    
+
                     // Check quest objectives for examination
                     self.quest_log.on_examine(&interactable_id);
                     return;
                 }
             }
         }
-        
+
         // Check for enemies at this position
         if let Some(&enemy_idx) = self.enemy_positions.get(&(x, y)) {
             if let Some(enemy) = self.enemies.get(enemy_idx) {
                 if enemy.hp > 0 {
                     let max_hp = enemy.max_hp().unwrap_or(0);
-                    self.log(&format!("You see a {}. HP: {}/{}", enemy.name(), enemy.hp, max_hp));
+                    self.log(&format!(
+                        "You see a {}. HP: {}/{}",
+                        enemy.name(),
+                        enemy.hp,
+                        max_hp
+                    ));
                     return;
                 }
             }
         }
-        
+
         // Check for NPCs at this position
         if let Some(&npc_idx) = self.npc_positions.get(&(x, y)) {
             if let Some(npc) = self.npcs.get(npc_idx) {
@@ -2075,7 +2348,7 @@ impl GameState {
                 return;
             }
         }
-        
+
         // Check for items at this position
         if let Some(item_indices) = self.item_positions.get(&(x, y)) {
             if !item_indices.is_empty() {
@@ -2084,7 +2357,7 @@ impl GameState {
                 return;
             }
         }
-        
+
         // Check for chests at this position
         if let Some(&chest_idx) = self.chest_positions.get(&(x, y)) {
             if let Some(chest) = self.chests.get(chest_idx) {
@@ -2094,7 +2367,7 @@ impl GameState {
                 return;
             }
         }
-        
+
         // Examine the tile itself
         let tile = self.map.get_tile(x, y);
         match tile {
@@ -2124,7 +2397,14 @@ impl GameState {
             }
             Some("phase") => {
                 self.debug_phase = !self.debug_phase;
-                self.log(format!("Debug: Phase {}", if self.debug_phase { "enabled" } else { "disabled" }));
+                self.log(format!(
+                    "Debug: Phase {}",
+                    if self.debug_phase {
+                        "enabled"
+                    } else {
+                        "disabled"
+                    }
+                ));
             }
             Some("save_debug") => {
                 let filename = if parts.len() > 1 {
@@ -2150,37 +2430,47 @@ impl GameState {
                     self.log("Usage: load_debug <filename>");
                 }
             }
-            Some("list_debug") => {
-                match Self::list_debug_states() {
-                    Ok(states) => {
-                        if states.is_empty() {
-                            self.log("No debug states found");
-                        } else {
-                            self.log("Debug states:");
-                            for state in states {
-                                self.log(format!("  {}", state));
-                            }
+            Some("list_debug") => match Self::list_debug_states() {
+                Ok(states) => {
+                    if states.is_empty() {
+                        self.log("No debug states found");
+                    } else {
+                        self.log("Debug states:");
+                        for state in states {
+                            self.log(format!("  {}", state));
                         }
                     }
-                    Err(e) => self.log(format!("Failed to list debug states: {}", e)),
                 }
-            }
+                Err(e) => self.log(format!("Failed to list debug states: {}", e)),
+            },
             Some("debug_info") => {
                 let info = self.get_debug_info();
-                self.log(format!("Turn: {} | Pos: ({},{}) | HP: {}/{}", 
-                    info.turn, info.player_pos.0, info.player_pos.1, 
-                    info.player_hp.0, info.player_hp.1));
-                self.log(format!("Enemies: {} | Items: {} | Storm: {}/{}", 
-                    info.enemies_count, info.items_count, 
-                    info.storm_intensity, info.storm_turns));
-                self.log(format!("Seed: {} | Memory: {}", info.seed, info.memory_usage));
+                self.log(format!(
+                    "Turn: {} | Pos: ({},{}) | HP: {}/{}",
+                    info.turn,
+                    info.player_pos.0,
+                    info.player_pos.1,
+                    info.player_hp.0,
+                    info.player_hp.1
+                ));
+                self.log(format!(
+                    "Enemies: {} | Items: {} | Storm: {}/{}",
+                    info.enemies_count, info.items_count, info.storm_intensity, info.storm_turns
+                ));
+                self.log(format!(
+                    "Seed: {} | Memory: {}",
+                    info.seed, info.memory_usage
+                ));
             }
             Some("run_des") => {
                 if let Some(filename) = parts.get(1) {
                     match super::des_testing::run_des_test_file(filename) {
                         Ok(result) => {
-                            self.log(format!("DES Test '{}': {}", result.test_name, 
-                                if result.passed { "PASSED" } else { "FAILED" }));
+                            self.log(format!(
+                                "DES Test '{}': {}",
+                                result.test_name,
+                                if result.passed { "PASSED" } else { "FAILED" }
+                            ));
                             for log_entry in result.execution_log {
                                 self.log(format!("  {}", log_entry));
                             }
@@ -2197,58 +2487,60 @@ impl GameState {
                     self.log("Usage: run_des <filename>");
                 }
             }
-            Some("list_des") => {
-                match super::des_testing::list_des_tests() {
-                    Ok(tests) => {
-                        if tests.is_empty() {
-                            self.log("No DES test files found");
-                        } else {
-                            self.log("Available DES tests:");
-                            for test in tests {
-                                self.log(format!("  {}", test));
-                            }
+            Some("list_des") => match super::des_testing::list_des_tests() {
+                Ok(tests) => {
+                    if tests.is_empty() {
+                        self.log("No DES test files found");
+                    } else {
+                        self.log("Available DES tests:");
+                        for test in tests {
+                            self.log(format!("  {}", test));
                         }
                     }
-                    Err(e) => self.log(format!("Failed to list DES tests: {}", e)),
                 }
-            }
-            Some("create_sample_des") => {
-                match super::des_testing::save_sample_des_test() {
-                    Ok(()) => self.log("Sample DES test created: tests/sample_test.des"),
-                    Err(e) => self.log(format!("Failed to create sample DES test: {}", e)),
-                }
-            }
+                Err(e) => self.log(format!("Failed to list DES tests: {}", e)),
+            },
+            Some("create_sample_des") => match super::des_testing::save_sample_des_test() {
+                Ok(()) => self.log("Sample DES test created: tests/sample_test.des"),
+                Err(e) => self.log(format!("Failed to create sample DES test: {}", e)),
+            },
             Some("spawn") => {
                 if let Some(ui_type) = parts.get(1) {
                     match ui_type {
-                        &"log" => {
-                            match crate::terminal_spawn::spawn_terminal_window("log-ui") {
-                                Ok(()) => self.log("Spawned log terminal"),
-                                Err(e) => self.log(format!("Failed to spawn log terminal: {}", e)),
-                            }
-                        }
+                        &"log" => match crate::terminal_spawn::spawn_terminal_window("log-ui") {
+                            Ok(()) => self.log("Spawned log terminal"),
+                            Err(e) => self.log(format!("Failed to spawn log terminal: {}", e)),
+                        },
                         &"status" => {
                             match crate::terminal_spawn::spawn_terminal_window("status-ui") {
                                 Ok(()) => self.log("Spawned status terminal"),
-                                Err(e) => self.log(format!("Failed to spawn status terminal: {}", e)),
+                                Err(e) => {
+                                    self.log(format!("Failed to spawn status terminal: {}", e))
+                                }
                             }
                         }
                         &"inventory" => {
                             match crate::terminal_spawn::spawn_terminal_window("inventory-ui") {
                                 Ok(()) => self.log("Spawned inventory terminal"),
-                                Err(e) => self.log(format!("Failed to spawn inventory terminal: {}", e)),
+                                Err(e) => {
+                                    self.log(format!("Failed to spawn inventory terminal: {}", e))
+                                }
                             }
                         }
                         &"gamelog" => {
                             match crate::terminal_spawn::spawn_terminal_window("game-log-ui") {
                                 Ok(()) => self.log("Spawned game log terminal"),
-                                Err(e) => self.log(format!("Failed to spawn game log terminal: {}", e)),
+                                Err(e) => {
+                                    self.log(format!("Failed to spawn game log terminal: {}", e))
+                                }
                             }
                         }
                         &"debug" => {
                             match crate::terminal_spawn::spawn_terminal_window("debug-ui") {
                                 Ok(()) => self.log("Spawned debug terminal"),
-                                Err(e) => self.log(format!("Failed to spawn debug terminal: {}", e)),
+                                Err(e) => {
+                                    self.log(format!("Failed to spawn debug terminal: {}", e))
+                                }
                             }
                         }
                         _ => self.log("Usage: spawn <log|gamelog|status|inventory|debug>"),
@@ -2290,7 +2582,12 @@ impl GameState {
                 for id in super::adaptation::all_adaptation_ids() {
                     if let Some(def) = super::adaptation::get_adaptation_def(id) {
                         let has = self.adaptations.iter().any(|a| a.id() == id);
-                        self.log(format!("  {} - {} {}", id, def.name, if has { "[HAVE]" } else { "" }));
+                        self.log(format!(
+                            "  {} - {} {}",
+                            id,
+                            def.name,
+                            if has { "[HAVE]" } else { "" }
+                        ));
                     }
                 }
             }
@@ -2315,7 +2612,13 @@ impl GameState {
                 for id in super::psychic::all_ability_ids() {
                     if let Some(def) = super::psychic::get_ability_def(id) {
                         let has = self.psychic.unlocked_abilities.contains(&id.to_string());
-                        self.log(format!("  {} - {} (Cost: {}) {}", id, def.name, def.coherence_cost, if has { "[HAVE]" } else { "" }));
+                        self.log(format!(
+                            "  {} - {} (Cost: {}) {}",
+                            id,
+                            def.name,
+                            def.coherence_cost,
+                            if has { "[HAVE]" } else { "" }
+                        ));
                     }
                 }
             }
@@ -2336,13 +2639,19 @@ impl GameState {
                 if let Some(amount_str) = parts.get(1) {
                     if let Ok(amount) = amount_str.parse::<u32>() {
                         self.skills.skill_points += amount;
-                        self.log(format!("Added {} skill points (total: {})", amount, self.skills.skill_points));
+                        self.log(format!(
+                            "Added {} skill points (total: {})",
+                            amount, self.skills.skill_points
+                        ));
                     } else {
                         self.log("Invalid amount. Use a number.");
                     }
                 } else {
                     self.skills.skill_points += 10;
-                    self.log(format!("Added 10 skill points (total: {})", self.skills.skill_points));
+                    self.log(format!(
+                        "Added 10 skill points (total: {})",
+                        self.skills.skill_points
+                    ));
                 }
             }
             Some("set_stamina") => {
@@ -2385,7 +2694,12 @@ impl GameState {
                 for id in super::skills::all_ability_ids() {
                     if let Some(def) = super::skills::get_ability_def(id) {
                         let unlocked = self.skills.unlocked_abilities.contains(&id.to_string());
-                        self.log(format!("  {} - {} {}", id, def.name, if unlocked { "[UNLOCKED]" } else { "" }));
+                        self.log(format!(
+                            "  {} - {} {}",
+                            id,
+                            def.name,
+                            if unlocked { "[UNLOCKED]" } else { "" }
+                        ));
                     }
                 }
             }
@@ -2405,8 +2719,11 @@ impl GameState {
                             return;
                         }
                     };
-                    
-                    if self.light_system.focus_beam(self.player_x, self.player_y, direction, 10) {
+
+                    if self
+                        .light_system
+                        .focus_beam(self.player_x, self.player_y, direction, 10)
+                    {
                         self.log("You focus a beam of light!");
                     } else {
                         self.log("Not enough light energy!");
@@ -2437,10 +2754,15 @@ impl GameState {
                     50
                 };
                 self.light_system.light_energy += amount;
-                self.log(format!("Added {} light energy (total: {})", amount, self.light_system.light_energy));
+                self.log(format!(
+                    "Added {} light energy (total: {})",
+                    amount, self.light_system.light_energy
+                ));
             }
             Some("absorb_light") => {
-                let absorbed = self.light_system.absorb_light(self.player_x, self.player_y, &self.map);
+                let absorbed =
+                    self.light_system
+                        .absorb_light(self.player_x, self.player_y, &self.map);
                 if absorbed > 0 {
                     self.log(format!("Absorbed {} light energy", absorbed));
                 } else {
@@ -2454,9 +2776,15 @@ impl GameState {
                     10
                 };
                 let level_changed = self.void_system.add_exposure(amount);
-                self.log(format!("Added {} void exposure (total: {})", amount, self.void_system.void_exposure));
+                self.log(format!(
+                    "Added {} void exposure (total: {})",
+                    amount, self.void_system.void_exposure
+                ));
                 if level_changed {
-                    self.log(format!("Void exposure level: {:?}", self.void_system.exposure_level()));
+                    self.log(format!(
+                        "Void exposure level: {:?}",
+                        self.void_system.exposure_level()
+                    ));
                 }
             }
             Some("add_void_energy") => {
@@ -2466,13 +2794,18 @@ impl GameState {
                     25
                 };
                 self.void_system.gain_energy(amount);
-                self.log(format!("Added {} void energy (total: {}/{})", 
-                    amount, self.void_system.void_energy, self.void_system.max_void_energy));
+                self.log(format!(
+                    "Added {} void energy (total: {}/{})",
+                    amount, self.void_system.void_energy, self.void_system.max_void_energy
+                ));
             }
             Some("void_step") => {
                 if parts.len() >= 3 {
                     if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
-                        if self.void_system.void_step(self.player_x, self.player_y, x, y) {
+                        if self
+                            .void_system
+                            .void_step(self.player_x, self.player_y, x, y)
+                        {
                             self.player_x = x;
                             self.player_y = y;
                             self.log("You step through the void!");
@@ -2492,7 +2825,9 @@ impl GameState {
                         if let Some(damage) = self.void_system.reality_rend(x, y) {
                             self.log(format!("Reality rend deals {} void damage!", damage));
                         } else {
-                            self.log("Cannot use reality rend (insufficient energy or not unlocked)");
+                            self.log(
+                                "Cannot use reality rend (insufficient energy or not unlocked)",
+                            );
                         }
                     } else {
                         self.log("Invalid coordinates");
@@ -2511,13 +2846,20 @@ impl GameState {
                             "delta" => super::crystal_resonance::CrystalFrequency::Delta,
                             "epsilon" => super::crystal_resonance::CrystalFrequency::Epsilon,
                             _ => {
-                                self.log("Invalid frequency. Use: alpha, beta, gamma, delta, epsilon");
+                                self.log(
+                                    "Invalid frequency. Use: alpha, beta, gamma, delta, epsilon",
+                                );
                                 return;
                             }
                         };
-                        
+
                         if self.crystal_system.create_crystal_seed(x, y, frequency, 20) {
-                            self.log(format!("Created {} crystal at ({}, {})", frequency.name(), x, y));
+                            self.log(format!(
+                                "Created {} crystal at ({}, {})",
+                                frequency.name(),
+                                x,
+                                y
+                            ));
                         } else {
                             self.log("Not enough resonance energy!");
                         }
@@ -2542,13 +2884,21 @@ impl GameState {
                 } else {
                     30
                 };
-                self.crystal_system.resonance_energy = (self.crystal_system.resonance_energy + amount)
+                self.crystal_system.resonance_energy = (self.crystal_system.resonance_energy
+                    + amount)
                     .min(self.crystal_system.max_resonance_energy);
-                self.log(format!("Added {} resonance energy (total: {}/{})", 
-                    amount, self.crystal_system.resonance_energy, self.crystal_system.max_resonance_energy));
+                self.log(format!(
+                    "Added {} resonance energy (total: {}/{})",
+                    amount,
+                    self.crystal_system.resonance_energy,
+                    self.crystal_system.max_resonance_energy
+                ));
             }
             Some("harmonize") => {
-                if self.crystal_system.harmonize(self.player_x, self.player_y, 3, 40) {
+                if self
+                    .crystal_system
+                    .harmonize(self.player_x, self.player_y, 3, 40)
+                {
                     self.log("Created harmonic resonance!");
                 } else {
                     self.log("Cannot harmonize (insufficient energy or crystals)");
@@ -2557,9 +2907,15 @@ impl GameState {
             Some("spawn_enemy") => {
                 if let Some(id) = parts.get(1) {
                     if super::enemy::get_enemy_def(id).is_some() {
-                        let x = parts.get(2).and_then(|s| s.parse().ok()).unwrap_or(self.player_x + 1);
-                        let y = parts.get(3).and_then(|s| s.parse().ok()).unwrap_or(self.player_y);
-                        
+                        let x = parts
+                            .get(2)
+                            .and_then(|s| s.parse().ok())
+                            .unwrap_or(self.player_x + 1);
+                        let y = parts
+                            .get(3)
+                            .and_then(|s| s.parse().ok())
+                            .unwrap_or(self.player_y);
+
                         if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
                             let enemy = super::enemy::Enemy::new(x, y, id);
                             self.enemies.push(enemy);
@@ -2581,23 +2937,37 @@ impl GameState {
                             if super::enemy::get_enemy_def(id).is_some() {
                                 let swarm_id = format!("swarm_{}", self.turn);
                                 let mut spawned = 0;
-                                
+
                                 for dx in -2..=2 {
                                     for dy in -2..=2 {
-                                        if spawned >= count { break; }
+                                        if spawned >= count {
+                                            break;
+                                        }
                                         let x = self.player_x + dx;
                                         let y = self.player_y + dy;
-                                        
-                                        if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
-                                            let enemy = super::enemy::Enemy::new_swarm_member(x, y, id, swarm_id.clone(), spawned == 0);
+
+                                        if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false)
+                                        {
+                                            let enemy = super::enemy::Enemy::new_swarm_member(
+                                                x,
+                                                y,
+                                                id,
+                                                swarm_id.clone(),
+                                                spawned == 0,
+                                            );
                                             self.enemies.push(enemy);
                                             spawned += 1;
                                         }
                                     }
-                                    if spawned >= count { break; }
+                                    if spawned >= count {
+                                        break;
+                                    }
                                 }
-                                
-                                self.log(format!("Spawned swarm of {} {} (count: {})", spawned, id, count));
+
+                                self.log(format!(
+                                    "Spawned swarm of {} {} (count: {})",
+                                    spawned, id, count
+                                ));
                             } else {
                                 self.log(format!("Unknown enemy: {}", id));
                             }
@@ -2614,14 +2984,26 @@ impl GameState {
             Some("spawn_npc") => {
                 if let Some(id) = parts.get(1) {
                     if super::npc::get_npc_def(id).is_some() {
-                        let x = parts.get(2).and_then(|s| s.parse().ok()).unwrap_or(self.player_x + 1);
-                        let y = parts.get(3).and_then(|s| s.parse().ok()).unwrap_or(self.player_y);
-                        
+                        let x = parts
+                            .get(2)
+                            .and_then(|s| s.parse().ok())
+                            .unwrap_or(self.player_x + 1);
+                        let y = parts
+                            .get(3)
+                            .and_then(|s| s.parse().ok())
+                            .unwrap_or(self.player_y);
+
                         if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
                             let npc = super::npc::Npc::new(x, y, id);
                             self.npcs.push(npc);
                             self.spatial_dirty = true; // Mark spatial index as dirty
-                            self.log(format!("Spawned NPC {} at ({}, {}) - Total NPCs: {}", id, x, y, self.npcs.len()));
+                            self.log(format!(
+                                "Spawned NPC {} at ({}, {}) - Total NPCs: {}",
+                                id,
+                                x,
+                                y,
+                                self.npcs.len()
+                            ));
                         } else {
                             self.log("Cannot spawn at that location (not walkable)");
                         }
@@ -2644,7 +3026,10 @@ impl GameState {
                 if self.npcs.is_empty() {
                     self.log("No NPCs currently spawned");
                 } else {
-                    let npc_info: Vec<String> = self.npcs.iter().enumerate()
+                    let npc_info: Vec<String> = self
+                        .npcs
+                        .iter()
+                        .enumerate()
                         .map(|(i, npc)| format!("  {}: {} at ({}, {})", i, npc.id, npc.x, npc.y))
                         .collect();
                     self.log(format!("Current NPCs ({}): ", self.npcs.len()));
@@ -2702,20 +3087,24 @@ impl GameState {
             }
             Some("list_quests") => {
                 let mut messages = Vec::new();
-                
+
                 if self.quest_log.active.is_empty() {
                     messages.push("No active quests".to_string());
                 } else {
                     messages.push("Active quests:".to_string());
                     for quest in &self.quest_log.active {
                         if let Some(def) = quest.def() {
-                            let completed_objectives = quest.objectives.iter().filter(|o| o.completed).count();
+                            let completed_objectives =
+                                quest.objectives.iter().filter(|o| o.completed).count();
                             let total_objectives = quest.objectives.len();
-                            messages.push(format!("  {} - {} ({}/{})", quest.quest_id, def.name, completed_objectives, total_objectives));
+                            messages.push(format!(
+                                "  {} - {} ({}/{})",
+                                quest.quest_id, def.name, completed_objectives, total_objectives
+                            ));
                         }
                     }
                 }
-                
+
                 if !self.quest_log.completed.is_empty() {
                     messages.push("Completed quests:".to_string());
                     for quest_id in &self.quest_log.completed {
@@ -2724,7 +3113,7 @@ impl GameState {
                         }
                     }
                 }
-                
+
                 // Log all messages
                 for message in messages {
                     self.log(message);
@@ -2808,7 +3197,10 @@ impl GameState {
                 self.log("  Left/Right - Navigate suggestions");
                 self.log("  Esc - Close console");
             }
-            _ => self.log(format!("Unknown command: {}. Type 'help' for commands.", cmd)),
+            _ => self.log(format!(
+                "Unknown command: {}. Type 'help' for commands.",
+                cmd
+            )),
         }
     }
 
@@ -2826,10 +3218,13 @@ impl GameState {
                 break;
             }
         }
-        
+
         // Log result after the borrow is released
         if quest_found {
-            self.log(format!("Debug: Completed quest objectives for {}", quest_id));
+            self.log(format!(
+                "Debug: Completed quest objectives for {}",
+                quest_id
+            ));
         } else {
             self.log(format!("Quest not found: {}", quest_id));
         }
@@ -2850,12 +3245,20 @@ impl GameState {
 
     /// Check if position has active hit flash
     pub fn has_hit_flash(&self, x: i32, y: i32) -> bool {
-        self.hit_flash_positions.iter().any(|(fx, fy, _)| *fx == x && *fy == y)
+        self.hit_flash_positions
+            .iter()
+            .any(|(fx, fy, _)| *fx == x && *fy == y)
     }
 
     /// Spawn a floating damage number
     pub fn spawn_damage_number(&mut self, x: i32, y: i32, value: i32, is_heal: bool) {
-        self.damage_numbers.push(DamageNumber { x, y, value, frames: 12, is_heal });
+        self.damage_numbers.push(DamageNumber {
+            x,
+            y,
+            value,
+            frames: 12,
+            is_heal,
+        });
     }
 
     /// Tick damage number animations
@@ -2911,7 +3314,13 @@ impl GameState {
     }
 
     /// Spawn a light beam from source to target
-    pub fn spawn_beam(&mut self, from: (i32, i32), to: (i32, i32), beam_type: BeamType, duration: u32) {
+    pub fn spawn_beam(
+        &mut self,
+        from: (i32, i32),
+        to: (i32, i32),
+        beam_type: BeamType,
+        duration: u32,
+    ) {
         let path = line_path(from, to);
         if path.len() > 1 {
             self.light_beams.push(LightBeam {
@@ -2962,7 +3371,7 @@ impl GameState {
     pub fn get_adaptation_visual_effects(&self) -> Vec<super::effect::VisualEffect> {
         use super::effect::VisualEffect;
         let mut effects = Vec::new();
-        
+
         for adaptation in &self.adaptations {
             match adaptation.name() {
                 "Prismhide" => {
@@ -3017,7 +3426,12 @@ impl GameState {
                     // Complex multi-effect for transcendent adaptation
                     effects.push(VisualEffect::Rainbow {
                         speed: 2,
-                        colors: vec![Color::White, Color::LightCyan, Color::LightMagenta, Color::LightYellow],
+                        colors: vec![
+                            Color::White,
+                            Color::LightCyan,
+                            Color::LightMagenta,
+                            Color::LightYellow,
+                        ],
                     });
                     effects.push(VisualEffect::Pulse {
                         speed: 3,
@@ -3027,10 +3441,9 @@ impl GameState {
                 _ => {} // No visual effect for other adaptations
             }
         }
-        
+
         effects
     }
-
 
     pub fn check_adaptation_threshold(&mut self) {
         // Get all available adaptations sorted by threshold
@@ -3039,18 +3452,20 @@ impl GameState {
             .filter_map(|&id| {
                 super::adaptation::get_adaptation_def(id).map(|def| (id, def.threshold))
             })
-            .filter(|(id, _)| {
-                !self.adaptations.iter().any(|a| a.id() == *id)
-            })
+            .filter(|(id, _)| !self.adaptations.iter().any(|a| a.id() == *id))
             .collect();
-        
+
         available.sort_by_key(|(_, threshold)| *threshold);
-        
+
         // Find first unlockable adaptation
-        if let Some(&(adaptation_id, _threshold)) = available.iter().find(|(_, t)| self.refraction >= *t) {
+        if let Some(&(adaptation_id, _threshold)) =
+            available.iter().find(|(_, t)| self.refraction >= *t)
+        {
             if let Some(adaptation) = super::adaptation::Adaptation::from_id(adaptation_id) {
                 self.adaptations.push(adaptation);
-                self.emit(GameEvent::AdaptationGained { name: adaptation.name().to_string() });
+                self.emit(GameEvent::AdaptationGained {
+                    name: adaptation.name().to_string(),
+                });
                 self.log(format!("🧬 You gain {}!", adaptation.name()));
             }
         }
@@ -3077,45 +3492,45 @@ impl GameState {
     /// Enhanced with item pickup, danger avoidance, and enemy detection
     pub fn auto_explore(&mut self) -> bool {
         use crate::game::auto_explore::get_auto_explore_config;
-        
+
         let config = get_auto_explore_config();
-        
+
         // Check for nearby enemies first
         if config.stop_on_enemies && self.has_nearby_enemies(config.enemy_detection_range) {
             self.messages.push(crate::game::GameMessage::new(
                 "Auto-explore stopped: enemy detected nearby".to_string(),
                 crate::game::MsgType::System,
-                self.turn
+                self.turn,
             ));
             return false;
         }
-        
+
         // Pick up items at current position if configured
         if config.pickup_items {
             self.pickup_filtered_items();
         }
-        
+
         let start = self.map.idx(self.player_x, self.player_y);
-        
+
         // BFS to find nearest item or unexplored walkable tile
         let mut visited = HashSet::new();
         let mut queue = std::collections::VecDeque::new();
         queue.push_back((start, vec![start]));
         visited.insert(start);
-        
+
         let target = loop {
             let (idx, path) = match queue.pop_front() {
                 Some(p) => p,
                 None => return false, // No items or unexplored tiles reachable
             };
-            
+
             let mut found_target = false;
-            
+
             // Check if this tile has items we want to pick up
             if config.pickup_items {
                 let x = (idx % self.map.width) as i32;
                 let y = (idx / self.map.width) as i32;
-                
+
                 for item in &self.items {
                     if item.x == x && item.y == y && config.should_pickup_item(&item.id) {
                         found_target = true;
@@ -3123,26 +3538,30 @@ impl GameState {
                     }
                 }
             }
-            
+
             // Check if this tile has an NPC we haven't talked to yet
             if !found_target {
                 let x = (idx % self.map.width) as i32;
                 let y = (idx / self.map.width) as i32;
-                
+
                 for npc in &self.npcs {
                     // Only target NPCs that haven't been talked to AND don't have ongoing quest interactions
-                    if npc.x == x && npc.y == y && !npc.talked && !self.has_interacted_with_npc(&npc.id) {
+                    if npc.x == x
+                        && npc.y == y
+                        && !npc.talked
+                        && !self.has_interacted_with_npc(&npc.id)
+                    {
                         found_target = true;
                         break;
                     }
                 }
             }
-            
+
             // Check if this tile is unexplored
             if !found_target && !self.revealed.contains(&idx) {
                 found_target = true;
             }
-            
+
             if found_target {
                 // Return the first step toward this tile
                 if path.len() > 1 {
@@ -3150,7 +3569,7 @@ impl GameState {
                 }
                 return false;
             }
-            
+
             // Add neighbors, but avoid dangerous tiles if configured
             for (next_idx, _) in self.map.get_available_exits(idx) {
                 if !visited.contains(&next_idx) {
@@ -3158,12 +3577,12 @@ impl GameState {
                     if config.avoid_dangers && self.is_dangerous_tile(next_idx) {
                         continue;
                     }
-                    
+
                     // Check if there's an NPC we've already talked to on this tile
                     if self.has_talked_npc_at_idx(next_idx) {
                         continue;
                     }
-                    
+
                     visited.insert(next_idx);
                     let mut new_path = path.clone();
                     new_path.push(next_idx);
@@ -3171,39 +3590,39 @@ impl GameState {
                 }
             }
         };
-        
+
         if let Some(next_idx) = target {
             let nx = (next_idx % self.map.width) as i32;
             let ny = (next_idx / self.map.width) as i32;
             let dx = nx - self.player_x;
             let dy = ny - self.player_y;
-            
+
             // Final check: don't move to dangerous tile
             let target_x = self.player_x + dx;
             let target_y = self.player_y + dy;
             let target_idx = self.map.idx(target_x, target_y);
-            
+
             if config.avoid_dangers && self.is_dangerous_tile(target_idx) {
                 return false;
             }
-            
+
             self.try_move(dx, dy)
         } else {
             false
         }
     }
-    
+
     /// Check if there are enemies nearby within the given range
     fn has_nearby_enemies(&self, range: i32) -> bool {
         use crate::game::auto_explore::get_auto_explore_config;
         let config = get_auto_explore_config();
-        
+
         for enemy in &self.enemies {
             // Skip dead enemies
             if enemy.hp <= 0 {
                 continue;
             }
-            
+
             let distance = (enemy.x - self.player_x).abs() + (enemy.y - self.player_y).abs();
             if distance <= range {
                 // If ignoring weak enemies, check enemy HP
@@ -3217,64 +3636,66 @@ impl GameState {
         }
         false
     }
-    
+
     /// Check if a tile is dangerous based on configuration
     fn is_dangerous_tile(&self, idx: usize) -> bool {
         use crate::game::auto_explore::get_auto_explore_config;
         let config = get_auto_explore_config();
-        
+
         let tile = &self.map.tiles[idx];
-        
+
         // Check for glass tiles
         if config.is_danger_type("glass") && matches!(tile, crate::game::map::Tile::Glass) {
             return true;
         }
-        
+
         // Check for glare tiles
         if config.is_danger_type("glare") && matches!(tile, crate::game::map::Tile::Glare) {
             return true;
         }
-        
+
         false
     }
-    
+
     /// Check if there's an NPC we've already talked to at the given tile index
     fn has_talked_npc_at_idx(&self, idx: usize) -> bool {
         let x = (idx % self.map.width) as i32;
         let y = (idx / self.map.width) as i32;
-        
-        self.npcs.iter().any(|npc| npc.x == x && npc.y == y && npc.talked)
+
+        self.npcs
+            .iter()
+            .any(|npc| npc.x == x && npc.y == y && npc.talked)
     }
-    
+
     /// Check if we've interacted with an NPC (either talked or has quest progress)
     fn has_interacted_with_npc(&self, npc_id: &str) -> bool {
         // Special case for dying pilgrim - check if first quest has any progress
         if npc_id == "dying_pilgrim" {
-            return self.quest_log.active.iter().any(|quest| 
-                quest.quest_id == "pilgrims_last_angle" && 
-                quest.objectives.iter().any(|obj| obj.current > 0)
-            );
+            return self.quest_log.active.iter().any(|quest| {
+                quest.quest_id == "pilgrims_last_angle"
+                    && quest.objectives.iter().any(|obj| obj.current > 0)
+            });
         }
-        
+
         // For other NPCs, check if they've been talked to
         false
     }
-    
+
     /// Pick up items at current position, filtered by configuration
     fn pickup_filtered_items(&mut self) {
         use crate::game::auto_explore::get_auto_explore_config;
         let config = get_auto_explore_config();
-        
+
         let player_idx = self.map.idx(self.player_x, self.player_y);
         let mut items_to_remove = Vec::new();
-        
+
         for (i, item) in self.items.iter().enumerate() {
             let item_idx = self.map.idx(item.x, item.y);
             if item_idx == player_idx && config.should_pickup_item(&item.id) {
                 items_to_remove.push(i);
             }
         }
-        
+
         // Remove items in reverse order to maintain indices
         for &i in items_to_remove.iter().rev() {
             let item = self.items.remove(i);
@@ -3282,7 +3703,7 @@ impl GameState {
             self.messages.push(crate::game::GameMessage::new(
                 format!("Picked up {}", item.name()),
                 crate::game::MsgType::System,
-                self.turn
+                self.turn,
             ));
         }
     }
@@ -3301,11 +3722,11 @@ impl GameState {
         if chest_index >= self.chests.len() {
             return false;
         }
-        
+
         let chest = &self.chests[chest_index];
         let player_pos = (self.player_x, self.player_y);
         let chest_pos = (chest.x, chest.y);
-        
+
         // Check if player is adjacent to chest
         let dx = (player_pos.0 - chest_pos.0).abs();
         let dy = (player_pos.1 - chest_pos.1).abs();
@@ -3316,11 +3737,11 @@ impl GameState {
         if !self.can_open_chest(chest_index) {
             return false;
         }
-        
+
         // Check if chest is locked and handle unlocking
         let chest_id = self.chests[chest_index].id.clone();
         let is_locked = self.chests[chest_index].is_locked();
-        
+
         if is_locked {
             if let Some(def) = super::chest::get_chest_def(&chest_id) {
                 if let Some(key_id) = &def.key_required {
@@ -3334,7 +3755,7 @@ impl GameState {
                 }
             }
         }
-        
+
         self.chests[chest_index].opened = true;
         let def = super::chest::get_chest_def(&chest_id);
         let name = def.map(|d| d.name.as_str()).unwrap_or("chest");
@@ -3346,17 +3767,17 @@ impl GameState {
         if chest_index >= self.chests.len() || inventory_index >= self.inventory.len() {
             return false;
         }
-        
+
         let chest = &mut self.chests[chest_index];
         if !chest.can_add_item() {
             self.log("Chest is full.");
             return false;
         }
-        
+
         let item_id = self.inventory.remove(inventory_index);
         let item = Item::new(chest.x, chest.y, &item_id);
         chest.add_item(item);
-        
+
         let item_def = super::item::get_item_def(&item_id);
         let name = item_def.map(|d| d.name.as_str()).unwrap_or(&item_id);
         self.log(format!("Stored {} in chest.", name));
@@ -3367,11 +3788,11 @@ impl GameState {
         if chest_index >= self.chests.len() {
             return false;
         }
-        
+
         let chest = &mut self.chests[chest_index];
         if let Some(item) = chest.remove_item(chest_item_index) {
             self.inventory.push(item.id.clone());
-            
+
             let item_def = super::item::get_item_def(&item.id);
             let name = item_def.map(|d| d.name.as_str()).unwrap_or(&item.id);
             self.log(format!("Took {} from chest.", name));
@@ -3382,9 +3803,13 @@ impl GameState {
     }
 
     pub fn use_item(&mut self, idx: usize) -> bool {
-        if idx >= self.inventory.len() { return false; }
+        if idx >= self.inventory.len() {
+            return false;
+        }
         let cost = action_cost("use_item");
-        if self.player_ap < cost { return false; }
+        if self.player_ap < cost {
+            return false;
+        }
         let id = &self.inventory[idx];
         let def = match get_item_def(id) {
             Some(d) => d,
@@ -3394,7 +3819,7 @@ impl GameState {
             self.log(format!("You can't use {} right now.", def.name));
             return false;
         }
-        
+
         // Check if it's a book
         if let Some(book_id) = &def.book_id {
             self.pending_book_open = Some(book_id.clone());
@@ -3406,19 +3831,31 @@ impl GameState {
         if def.heal > 0 {
             let heal = def.heal.min(self.player_max_hp - self.player_hp);
             self.player_hp += heal;
-            self.log_typed(format!("You use {}. (+{} HP)", def.name, heal), MsgType::Loot);
+            self.log_typed(
+                format!("You use {}. (+{} HP)", def.name, heal),
+                MsgType::Loot,
+            );
         }
         if def.reduces_refraction > 0 {
             let reduce = def.reduces_refraction.min(self.refraction);
             self.refraction -= reduce;
-            self.log_typed(format!("Your glow fades slightly. (-{} Refraction)", reduce), MsgType::Status);
+            self.log_typed(
+                format!("Your glow fades slightly. (-{} Refraction)", reduce),
+                MsgType::Status,
+            );
         }
         if def.suppresses_adaptations {
             self.adaptations_hidden_turns = 10;
-            self.log_typed("Your glow dims. The tincture masks your changes.", MsgType::Status);
+            self.log_typed(
+                "Your glow dims. The tincture masks your changes.",
+                MsgType::Status,
+            );
         }
         if def.reveals_map {
-            self.log_typed(format!("The {} reveals hidden paths...", def.name), MsgType::Loot);
+            self.log_typed(
+                format!("The {} reveals hidden paths...", def.name),
+                MsgType::Loot,
+            );
             for idx in 0..self.map.tiles.len() {
                 self.revealed.insert(idx);
             }
@@ -3429,33 +3866,67 @@ impl GameState {
             // Trigger ARIA dialogue if we have a pending dialogue system
             // For now, we just log it.
         }
-        
+
         // New system integrations
         if def.light_energy > 0 {
             self.light_system.light_energy += def.light_energy;
-            self.log_typed(format!("Light energy surges through you! (+{} Light Energy)", def.light_energy), MsgType::Status);
+            self.log_typed(
+                format!(
+                    "Light energy surges through you! (+{} Light Energy)",
+                    def.light_energy
+                ),
+                MsgType::Status,
+            );
         }
         if def.teaches_light_manipulation {
-            self.log_typed("You learn to manipulate light! Use debug commands: focus_beam, create_prism", MsgType::System);
+            self.log_typed(
+                "You learn to manipulate light! Use debug commands: focus_beam, create_prism",
+                MsgType::System,
+            );
         }
         if def.void_exposure > 0 {
             let level_changed = self.void_system.add_exposure(def.void_exposure);
-            self.log_typed(format!("Void corruption seeps into you! (+{} Void Exposure)", def.void_exposure), MsgType::Status);
+            self.log_typed(
+                format!(
+                    "Void corruption seeps into you! (+{} Void Exposure)",
+                    def.void_exposure
+                ),
+                MsgType::Status,
+            );
             if level_changed {
-                self.log_typed(format!("Void exposure level: {:?}", self.void_system.exposure_level()), MsgType::Status);
+                self.log_typed(
+                    format!(
+                        "Void exposure level: {:?}",
+                        self.void_system.exposure_level()
+                    ),
+                    MsgType::Status,
+                );
             }
         }
         if def.void_energy > 0 {
             self.void_system.gain_energy(def.void_energy);
-            self.log_typed(format!("Void energy flows through you! (+{} Void Energy)", def.void_energy), MsgType::Status);
+            self.log_typed(
+                format!(
+                    "Void energy flows through you! (+{} Void Energy)",
+                    def.void_energy
+                ),
+                MsgType::Status,
+            );
         }
         if def.teaches_crystal_resonance {
             self.log_typed("You learn crystal resonance! Use debug commands: create_crystal, resonate, harmonize", MsgType::System);
         }
         if def.resonance_energy > 0 {
-            self.crystal_system.resonance_energy = (self.crystal_system.resonance_energy + def.resonance_energy)
+            self.crystal_system.resonance_energy = (self.crystal_system.resonance_energy
+                + def.resonance_energy)
                 .min(self.crystal_system.max_resonance_energy);
-            self.log_typed(format!("Crystal resonance fills you! (+{} Resonance Energy)", def.resonance_energy), MsgType::Status);
+            self.log_typed(
+                format!(
+                    "Crystal resonance fills you! (+{} Resonance Energy)",
+                    def.resonance_energy
+                ),
+                MsgType::Status,
+            );
         }
         if let Some(frequency) = &def.crystal_frequency {
             let freq = match frequency.as_str() {
@@ -3466,10 +3937,14 @@ impl GameState {
                 "epsilon" => super::crystal_resonance::CrystalFrequency::Epsilon,
                 _ => super::crystal_resonance::CrystalFrequency::Alpha,
             };
-            self.crystal_system.add_crystal(self.player_x, self.player_y, freq);
-            self.log_typed(format!("A {} crystal grows at your feet!", frequency), MsgType::Loot);
+            self.crystal_system
+                .add_crystal(self.player_x, self.player_y, freq);
+            self.log_typed(
+                format!("A {} crystal grows at your feet!", frequency),
+                MsgType::Loot,
+            );
         }
-        
+
         if def.consumable {
             self.inventory.remove(idx);
         }
@@ -3477,8 +3952,10 @@ impl GameState {
     }
 
     pub fn use_item_on_tile(&mut self, idx: usize, x: i32, y: i32) -> bool {
-        if idx >= self.inventory.len() { return false; }
-        
+        if idx >= self.inventory.len() {
+            return false;
+        }
+
         // Check range (must be adjacent)
         let dx = (x - self.player_x).abs();
         let dy = (y - self.player_y).abs();
@@ -3488,7 +3965,9 @@ impl GameState {
         }
 
         let cost = action_cost("use_item");
-        if self.player_ap < cost { return false; }
+        if self.player_ap < cost {
+            return false;
+        }
 
         let id = &self.inventory[idx];
         let def = match get_item_def(id) {
@@ -3498,7 +3977,9 @@ impl GameState {
 
         if def.breaks_walls {
             let tile_idx = (y * self.map.width as i32 + x) as usize;
-            if tile_idx >= self.map.tiles.len() { return false; }
+            if tile_idx >= self.map.tiles.len() {
+                return false;
+            }
 
             let is_wall = matches!(self.map.tiles[tile_idx], super::map::Tile::Wall { .. });
             if !is_wall {
@@ -3514,8 +3995,11 @@ impl GameState {
                     broken = true;
                 }
             }
-            
-            self.log_typed("You strike the wall. Cracks spread through the glass.", MsgType::Combat);
+
+            self.log_typed(
+                "You strike the wall. Cracks spread through the glass.",
+                MsgType::Combat,
+            );
 
             if broken {
                 self.map.tiles[tile_idx] = super::map::Tile::default_floor();
@@ -3544,33 +4028,41 @@ impl GameState {
                         // Stun nearby enemies
                         let mut stunned_count = 0;
                         for enemy in &mut self.enemies {
-                            let dist = ((enemy.x - self.player_x).pow(2) + (enemy.y - self.player_y).pow(2)) as f32;
-                            if dist <= 25.0 { // Radius 5
+                            let dist = ((enemy.x - self.player_x).pow(2)
+                                + (enemy.y - self.player_y).pow(2))
+                                as f32;
+                            if dist <= 25.0 {
+                                // Radius 5
                                 enemy.apply_status("stun", 2);
                                 stunned_count += 1;
                             }
                         }
-                        self.log_typed(format!("Stunned {} enemies.", stunned_count), MsgType::Combat);
-                    },
+                        self.log_typed(
+                            format!("Stunned {} enemies.", stunned_count),
+                            MsgType::Combat,
+                        );
+                    }
                     "guaranteed_hit" => {
                         self.apply_status_effect("guaranteed_hit", 1);
-                    },
+                    }
                     "phasing" => {
                         self.apply_status_effect("phasing", 5);
                         self.debug_phase = true; // Or handle via status effect check in movement
-                    },
+                    }
                     _ => self.log("Effect not implemented."),
                 }
-            },
+            }
             Err(e) => self.log(e),
         }
     }
 
     /// Equip an item from inventory to a slot
     pub fn equip_item(&mut self, inv_idx: usize, slot: EquipSlot) -> bool {
-        if inv_idx >= self.inventory.len() { return false; }
+        if inv_idx >= self.inventory.len() {
+            return false;
+        }
         let item_id = self.inventory[inv_idx].clone();
-        
+
         // Unequip current item in slot (returns to inventory)
         if let Some(old) = self.equipment.set(slot, Some(item_id)) {
             self.inventory.push(old);
@@ -3595,9 +4087,12 @@ impl GameState {
     fn recalc_equipment_stats(&mut self) {
         // Sync equipped_weapon with equipment.weapon for backward compat
         self.equipped_weapon = self.equipment.weapon.clone();
-        
+
         // Calculate armor from equipped jacket item
-        self.player_armor = self.equipment.jacket.as_ref()
+        self.player_armor = self
+            .equipment
+            .jacket
+            .as_ref()
             .and_then(|id| get_item_def(id))
             .map(|def| def.armor_value)
             .unwrap_or(0);
@@ -3610,14 +4105,14 @@ impl GameState {
         if !can_accept {
             return false;
         }
-        
+
         // Create the quest
         if let Some(quest) = super::quest::ActiveQuest::new(quest_id) {
             self.quest_log.active.push(quest);
-            
+
             if let Some(def) = super::quest::get_quest_def(quest_id) {
                 self.log(format!("Quest accepted: {}", def.name));
-                
+
                 // Handle faction alignment for main questline
                 if def.category == "main" && quest_id.starts_with("faction_choice_") {
                     let faction = if quest_id.contains("monks") {
@@ -3629,7 +4124,7 @@ impl GameState {
                     } else {
                         return true;
                     };
-                    
+
                     if self.quest_log.set_faction_alignment(faction) {
                         self.log(format!("You have aligned with the {}", faction));
                     }
@@ -3677,11 +4172,11 @@ impl GameState {
             Some(r) => r,
             None => return false,
         };
-        
+
         if !super::crafting::can_craft(recipe, &self.inventory) {
             return false;
         }
-        
+
         // Remove materials
         for (item_id, &count) in &recipe.materials {
             for _ in 0..count {
@@ -3690,12 +4185,12 @@ impl GameState {
                 }
             }
         }
-        
+
         // Add output
         for _ in 0..recipe.output_count {
             self.inventory.push(recipe.output.clone());
         }
-        
+
         self.log(format!("Crafted {}.", recipe.name));
         true
     }
@@ -3703,22 +4198,25 @@ impl GameState {
     /// Buy an item from an NPC shop
     pub fn buy_item(&mut self, item_id: &str, npc_id: &str) -> Result<(), String> {
         // Check if NPC exists and has the item in shop
-        let npc_def = super::npc::get_npc_def(npc_id)
-            .ok_or_else(|| format!("NPC '{}' not found", npc_id))?;
-        
+        let npc_def =
+            super::npc::get_npc_def(npc_id).ok_or_else(|| format!("NPC '{}' not found", npc_id))?;
+
         if !npc_def.shop_inventory.contains(&item_id.to_string()) {
             return Err(format!("{} doesn't sell that item", npc_def.name));
         }
 
         // Get item value
-        let item_def = get_item_def(item_id)
-            .ok_or_else(|| format!("Item '{}' not found", item_id))?;
-        
+        let item_def =
+            get_item_def(item_id).ok_or_else(|| format!("Item '{}' not found", item_id))?;
+
         let price = item_def.value;
-        
+
         // Check if player has enough currency
         if self.salt_scrip < price {
-            return Err(format!("Not enough salt scrip (need {}, have {})", price, self.salt_scrip));
+            return Err(format!(
+                "Not enough salt scrip (need {}, have {})",
+                price, self.salt_scrip
+            ));
         }
 
         // Execute transaction
@@ -3731,20 +4229,26 @@ impl GameState {
     /// Sell an item to an NPC
     pub fn sell_item(&mut self, item_id: &str) -> Result<(), String> {
         // Check if player has the item
-        let item_idx = self.inventory.iter().position(|id| id == item_id)
+        let item_idx = self
+            .inventory
+            .iter()
+            .position(|id| id == item_id)
             .ok_or_else(|| format!("You don't have that item"))?;
 
         // Get item value
-        let item_def = get_item_def(item_id)
-            .ok_or_else(|| format!("Item '{}' not found", item_id))?;
-        
+        let item_def =
+            get_item_def(item_id).ok_or_else(|| format!("Item '{}' not found", item_id))?;
+
         // Sell for half value
         let sell_price = item_def.value / 2;
-        
+
         // Execute transaction
         self.inventory.remove(item_idx);
         self.salt_scrip += sell_price;
-        self.log(format!("Sold {} for {} salt scrip", item_def.name, sell_price));
+        self.log(format!(
+            "Sold {} for {} salt scrip",
+            item_def.name, sell_price
+        ));
         Ok(())
     }
 
@@ -3763,10 +4267,13 @@ impl GameState {
         let current = self.faction_reputation.get(faction).copied().unwrap_or(0);
         let new_rep = (current + delta).clamp(-100, 100);
         self.faction_reputation.insert(faction.to_string(), new_rep);
-        
+
         if delta != 0 {
             let change_desc = if delta > 0 { "improved" } else { "worsened" };
-            self.log_typed(format!("Your reputation with {} has {}.", faction, change_desc), MsgType::Social);
+            self.log_typed(
+                format!("Your reputation with {} has {}.", faction, change_desc),
+                MsgType::Social,
+            );
         }
     }
 
@@ -3799,7 +4306,7 @@ impl GameState {
         let reputation = self.get_reputation(faction);
         let modifier = 1.0 + (reputation as f32 * -0.002); // -0.2% per reputation point
         let price = (base_price as f32 * modifier) as u32;
-        
+
         if buying {
             price.max(1) // Minimum 1 scrip when buying
         } else {
@@ -3814,10 +4321,14 @@ impl GameState {
             existing.duration = existing.duration.max(duration); // Take longer duration
             existing.add_stack(5); // Max 5 stacks for most effects
         } else {
-            self.status_effects.push(super::status::StatusEffect::new(effect_id, duration));
+            self.status_effects
+                .push(super::status::StatusEffect::new(effect_id, duration));
         }
-        
-        self.log_typed(format!("You are affected by {}.", effect_id), MsgType::Combat);
+
+        self.log_typed(
+            format!("You are affected by {}.", effect_id),
+            MsgType::Combat,
+        );
     }
 
     /// Check if player has specific status effect
@@ -3826,38 +4337,49 @@ impl GameState {
     }
 
     /// Process enemy behavior on attack
-    pub fn process_enemy_behavior(&mut self, enemy_index: usize, behavior_type: &str, params: &super::enemy::Behavior) -> bool {
+    pub fn process_enemy_behavior(
+        &mut self,
+        enemy_index: usize,
+        behavior_type: &str,
+        params: &super::enemy::Behavior,
+    ) -> bool {
         match behavior_type {
             "reflect_damage" => {
                 if let Some(percent) = params.percent {
                     let reflected = (self.last_damage_dealt * percent / 100) as i32;
                     if reflected > 0 {
                         self.player_hp -= reflected;
-                        self.log_typed(format!("The enemy reflects {} damage back at you!", reflected), MsgType::Combat);
+                        self.log_typed(
+                            format!("The enemy reflects {} damage back at you!", reflected),
+                            MsgType::Combat,
+                        );
                         return true;
                     }
                 }
-            },
+            }
             "poison_sting" => {
                 if let Some(duration) = params.value {
                     self.apply_status_effect("poison", duration as i32);
                     return true;
                 }
-            },
+            }
             "web_trap" => {
                 if let Some(turns) = params.value {
                     self.apply_status_effect("immobilized", turns as i32);
                     self.log_typed("You are trapped in webbing!".to_string(), MsgType::Combat);
                     return true;
                 }
-            },
+            }
             "drain_sanity" => {
                 if let Some(amount) = params.value {
                     // Placeholder for sanity system
-                    self.log_typed(format!("Your mind reels from the encounter! (-{} sanity)", amount), MsgType::Combat);
+                    self.log_typed(
+                        format!("Your mind reels from the encounter! (-{} sanity)", amount),
+                        MsgType::Combat,
+                    );
                     return true;
                 }
-            },
+            }
             "teleport" => {
                 if let Some(range) = params.value {
                     // Find valid teleport position
@@ -3866,7 +4388,7 @@ impl GameState {
                         let dy = self.rng.gen_range(-(range as i32)..=(range as i32));
                         let new_x = self.enemies[enemy_index].x + dx;
                         let new_y = self.enemies[enemy_index].y + dy;
-                        
+
                         if let Some(tile) = self.map.get(new_x, new_y) {
                             if matches!(*tile, super::map::Tile::Floor { .. }) {
                                 self.enemies[enemy_index].x = new_x;
@@ -3878,7 +4400,7 @@ impl GameState {
                         }
                     }
                 }
-            },
+            }
             _ => return false,
         }
         false
@@ -3889,8 +4411,9 @@ impl GameState {
         if self.debug_disable_glare {
             return;
         }
-        let light_level = super::lighting::get_light_level(&self.light_map, self.player_x, self.player_y);
-        
+        let light_level =
+            super::lighting::get_light_level(&self.light_map, self.player_x, self.player_y);
+
         // Glare damage - disabled until lighting system is properly balanced
         // if super::lighting::has_glare(&self.light_map, self.player_x, self.player_y, 250) {
         //     if !self.has_status_effect("glare_protection") {
@@ -3899,22 +4422,28 @@ impl GameState {
         //         self.apply_status_effect("blinded", 2);
         //     }
         // }
-        
+
         // Light-based item effects
         for item_id in &self.inventory.clone() {
             if let Some(def) = super::item::get_item_def(item_id) {
                 if def.reveals_storm_timing && light_level > 150 {
                     // Storm Chart works better in bright light
                     if self.rng.gen_range(0..100) < 10 {
-                        self.log_typed("The Storm Chart glows, revealing storm patterns...".to_string(), MsgType::System);
+                        self.log_typed(
+                            "The Storm Chart glows, revealing storm patterns...".to_string(),
+                            MsgType::System,
+                        );
                     }
                 }
-                
+
                 if def.grants_invisibility && light_level < 50 {
                     // Refraction Oil works better in darkness
                     if !self.has_status_effect("invisible") {
                         self.apply_status_effect("invisible", 3);
-                        self.log_typed("You blend into the shadows...".to_string(), MsgType::System);
+                        self.log_typed(
+                            "You blend into the shadows...".to_string(),
+                            MsgType::System,
+                        );
                     }
                 }
             }
@@ -3947,10 +4476,18 @@ fn line_path(from: (i32, i32), to: (i32, i32)) -> Vec<(i32, i32)> {
     let mut err = dx + dy;
     loop {
         path.push((x0, y0));
-        if x0 == x1 && y0 == y1 { break; }
+        if x0 == x1 && y0 == y1 {
+            break;
+        }
         let e2 = 2 * err;
-        if e2 >= dy { err += dy; x0 += sx; }
-        if e2 <= dx { err += dx; y0 += sy; }
+        if e2 >= dy {
+            err += dy;
+            x0 += sx;
+        }
+        if e2 <= dx {
+            err += dx;
+            y0 += sy;
+        }
     }
     path
 }

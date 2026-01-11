@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -36,8 +36,12 @@ struct StatusEffectsFile {
 
 static STATUS_EFFECT_DEFS: Lazy<HashMap<String, StatusEffectDef>> = Lazy::new(|| {
     let data = include_str!("../../data/status_effects.json");
-    let file: StatusEffectsFile = serde_json::from_str(data).expect("Failed to parse status_effects.json");
-    file.status_effects.into_iter().map(|d| (d.id.clone(), d)).collect()
+    let file: StatusEffectsFile =
+        serde_json::from_str(data).expect("Failed to parse status_effects.json");
+    file.status_effects
+        .into_iter()
+        .map(|d| (d.id.clone(), d))
+        .collect()
 });
 
 pub fn get_status_def(id: &str) -> Option<&'static StatusEffectDef> {
@@ -46,7 +50,9 @@ pub fn get_status_def(id: &str) -> Option<&'static StatusEffectDef> {
 
 impl StatusEffect {
     pub fn new(id: &str, duration: i32) -> Self {
-        let name = get_status_def(id).map(|d| d.name.clone()).unwrap_or_else(|| id.to_string());
+        let name = get_status_def(id)
+            .map(|d| d.name.clone())
+            .unwrap_or_else(|| id.to_string());
         Self {
             id: id.to_string(),
             name,

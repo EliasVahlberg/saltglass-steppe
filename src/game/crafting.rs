@@ -26,7 +26,9 @@ pub struct Recipe {
     pub faction_required: Option<String>,
 }
 
-fn default_output_count() -> u32 { 1 }
+fn default_output_count() -> u32 {
+    1
+}
 
 #[derive(Deserialize)]
 struct RecipesFile {
@@ -36,7 +38,10 @@ struct RecipesFile {
 static RECIPES: Lazy<HashMap<String, Recipe>> = Lazy::new(|| {
     let data = include_str!("../../data/recipes.json");
     let file: RecipesFile = serde_json::from_str(data).expect("Failed to parse recipes.json");
-    file.recipes.into_iter().map(|r| (r.id.clone(), r)).collect()
+    file.recipes
+        .into_iter()
+        .map(|r| (r.id.clone(), r))
+        .collect()
 });
 
 pub fn get_recipe(id: &str) -> Option<&'static Recipe> {
@@ -60,36 +65,36 @@ pub fn can_craft(recipe: &Recipe, inventory: &[String]) -> bool {
 
 /// Check if player can craft recipe (materials + skill + station + faction)
 pub fn can_craft_advanced(
-    recipe: &Recipe, 
-    inventory: &[String], 
+    recipe: &Recipe,
+    inventory: &[String],
     player_level: u32,
     available_stations: &[String],
-    faction_reputation: &HashMap<String, i32>
+    faction_reputation: &HashMap<String, i32>,
 ) -> bool {
     // Check materials
     if !can_craft(recipe, inventory) {
         return false;
     }
-    
+
     // Check skill requirement (use player level as crafting skill)
     if player_level < recipe.skill_required {
         return false;
     }
-    
+
     // Check crafting station
     if let Some(required_station) = &recipe.station_required {
         if !available_stations.contains(required_station) {
             return false;
         }
     }
-    
+
     // Check faction requirement (need positive reputation)
     if let Some(required_faction) = &recipe.faction_required {
         if faction_reputation.get(required_faction).unwrap_or(&0) <= &0 {
             return false;
         }
     }
-    
+
     true
 }
 
@@ -98,10 +103,19 @@ pub fn available_recipes(
     inventory: &[String],
     player_level: u32,
     available_stations: &[String],
-    faction_reputation: &HashMap<String, i32>
+    faction_reputation: &HashMap<String, i32>,
 ) -> Vec<&'static Recipe> {
-    RECIPES.values()
-        .filter(|recipe| can_craft_advanced(recipe, inventory, player_level, available_stations, faction_reputation))
+    RECIPES
+        .values()
+        .filter(|recipe| {
+            can_craft_advanced(
+                recipe,
+                inventory,
+                player_level,
+                available_stations,
+                faction_reputation,
+            )
+        })
         .collect()
 }
 

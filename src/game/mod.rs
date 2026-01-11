@@ -31,13 +31,13 @@ pub mod progression;
 pub mod psychic;
 pub mod qa_tools;
 pub mod quest;
-pub mod structure_templates;
 pub mod ritual;
 pub mod sanity;
 pub mod skills;
 pub mod state;
 pub mod status;
 pub mod storm;
+pub mod structure_templates;
 pub mod systems;
 pub mod trading;
 pub mod tutorial;
@@ -49,59 +49,115 @@ pub mod tests;
 
 pub use action::{action_cost, default_enemy_ap, default_player_ap};
 pub use adaptation::Adaptation;
-pub use auto_explore::{get_auto_explore_config, AutoExploreConfig};
-pub use chest::{get_chest_def, Chest, ChestDef};
-pub use combat::{calc_damage, calc_hit_chance, default_weapon, get_weapon_def, roll_attack, CombatResult, WeaponDef};
+pub use auto_explore::{AutoExploreConfig, get_auto_explore_config};
+pub use chest::{Chest, ChestDef, get_chest_def};
+pub use combat::{
+    CombatResult, WeaponDef, calc_damage, calc_hit_chance, default_weapon, get_weapon_def,
+    roll_attack,
+};
 pub use constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
-pub use equipment::{Equipment, EquipSlot};
+pub use effect::{
+    EffectContext, VisualEffect, get_active_effects, get_enemy_effects, parse_effect,
+};
+pub use enemy::{Enemy, EnemyDef, all_enemy_ids, get_enemy_def};
+pub use entity::{Entity, EntityType};
+pub use equipment::{EquipSlot, Equipment};
 pub use fov::FieldOfView;
 pub use generation::{
-    GenerationPipeline, GenerationConfig, load_generation_config, 
-    TemplateLibrary, TemplateContext, ContentTemplate, 
-    Grammar, GrammarContext, load_grammars_from_directory,
-    BiomeSystem, BiomeProfile, BiomeGenerationContext, EnvironmentalFeature,
-    AtmosphericElement, BiomeHazard, ResourceModifiers, MechanicalEffects,
-    ConstraintSystem, ConstraintRule, ConstraintType, ConstraintSeverity,
-    ConstraintResult, ConstraintContext, EntityPlacement, ResourcePlacement, ObjectivePlacement,
-    get_microstructure_def, place_microstructures, PlacedMicroStructure, MicroStructureDef,
-    PoissonSampler, distribute_points_grid,
-    get_loot_table, generate_loot, LootTable, LootEntry,
-    StoryModel, StoryEvent, StoryCharacter, EventType, Relationship, RelationshipType,
-    NarrativeGenerator, NarrativeTemplate, HistoricalEvent,
+    AlgorithmContext,
+    AlgorithmParameters,
+    AlgorithmRegistry,
+    AtmosphericElement,
+    BiomeGenerationContext,
+    BiomeHazard,
+    BiomeProfile,
+    BiomeSystem,
+    ConfigurationLoader,
+    ConstraintContext,
+    ConstraintResult,
+    ConstraintRule,
+    ConstraintSeverity,
+    ConstraintSystem,
+    ConstraintType,
+    ContentTemplate,
+    EntityPlacement,
+    EnvironmentalFeature,
+    EventType,
     // New algorithm system
-    GenerationAlgorithm, AlgorithmRegistry, AlgorithmContext,
-    GenerationResult, AlgorithmParameters, GenerationLayer, GenerationError,
-    PerlinNoiseAlgorithm, GenerationConfiguration, ConfigurationLoader,
-    events::{EventSystem, EventContext, DynamicEvent},
-    narrative::{NarrativeIntegration, NarrativeContext, NarrativeState, StoryFragment},
+    GenerationAlgorithm,
+    GenerationConfig,
+    GenerationConfiguration,
+    GenerationError,
+    GenerationLayer,
+    GenerationPipeline,
+    GenerationResult,
+    Grammar,
+    GrammarContext,
+    HistoricalEvent,
+    LootEntry,
+    LootTable,
+    MechanicalEffects,
+    MicroStructureDef,
+    NarrativeGenerator,
+    NarrativeTemplate,
+    ObjectivePlacement,
+    PerlinNoiseAlgorithm,
+    PlacedMicroStructure,
+    PoissonSampler,
+    Relationship,
+    RelationshipType,
+    ResourceModifiers,
+    ResourcePlacement,
+    StoryCharacter,
+    StoryEvent,
+    StoryModel,
+    TemplateContext,
+    TemplateLibrary,
+    distribute_points_grid,
+    events::{DynamicEvent, EventContext, EventSystem},
+    generate_loot,
+    get_loot_table,
+    get_microstructure_def,
+    load_generation_config,
+    load_grammars_from_directory,
+    narrative::{NarrativeContext, NarrativeIntegration, NarrativeState, StoryFragment},
+    place_microstructures,
 };
-pub use status::{is_stunned, slow_penalty, StatusEffect, StatusType};
-pub use effect::{get_active_effects, get_enemy_effects, parse_effect, EffectContext, VisualEffect};
-pub use enemy::{all_enemy_ids, get_enemy_def, Enemy, EnemyDef};
-pub use entity::{Entity, EntityType};
-pub use interactable::{get_interactable_def, Interactable, InteractableDef};
-pub use item::{all_item_ids, get_item_def, Item, ItemDef};
+pub use interactable::{Interactable, InteractableDef, get_interactable_def};
+pub use item::{Item, ItemDef, all_item_ids, get_item_def};
+pub use status::{StatusEffect, StatusType, is_stunned, slow_penalty};
 
-pub use map::{compute_fov, Map, Tile};
+pub use map::{Map, Tile, compute_fov};
 pub use map_features::MapFeatures;
 
-
-pub use npc::{get_npc_def, Npc, NpcDef};
+pub use npc::{Npc, NpcDef, get_npc_def};
 pub use state::{DamageNumber, GameMessage, GameState, MsgType, ProjectileTrail, TriggeredEffect};
 
-pub use storm::Storm;
-pub use world_map::{Biome, POI, Terrain, WorldMap, WORLD_SIZE};
-pub use lighting::{compute_lighting, is_lit, LightMap, LightSource};
+pub use crafting::{
+    Recipe, all_recipe_ids, available_recipes, can_craft, can_craft_advanced,
+    crafting_success_chance, get_recipe,
+};
 pub use light_defs::get_light_def;
+pub use lighting::{LightMap, LightSource, compute_lighting, is_lit};
 pub use map::MapLight;
-pub use quest::{get_quest_def, ActiveQuest, QuestLog, QuestReward};
-pub use crafting::{get_recipe, all_recipe_ids, can_craft, available_recipes, can_craft_advanced, crafting_success_chance, Recipe};
-pub use sanity::{SanitySystem, MentalEffect, MentalEffectType};
-pub use skills::{get_skill_def, get_ability_def, all_skill_ids, all_ability_ids, SkillsState, SkillCategory, calculate_skill_cost, get_skills_by_category, get_abilities_by_category};
+pub use quest::{ActiveQuest, QuestLog, QuestReward, get_quest_def};
+pub use sanity::{MentalEffect, MentalEffectType, SanitySystem};
+pub use skills::{
+    SkillCategory, SkillsState, all_ability_ids, all_skill_ids, calculate_skill_cost,
+    get_abilities_by_category, get_ability_def, get_skill_def, get_skills_by_category,
+};
+pub use storm::Storm;
+pub use world_map::{Biome, POI, Terrain, WORLD_SIZE, WorldMap};
 
-pub use trading::{get_trader, get_trade_interface, execute_trade, execute_sell, TradeInterface, AvailableTradeItem, calculate_area_tier};
-pub use dialogue::{get_dialogue_tree, start_dialogue, continue_dialogue, DialogueState};
-pub use meta::{all_classes, get_class, ClassDef, MetaProgress};
-pub use tutorial::{get_tutorial_data, TutorialProgress};
+pub use des_testing::{
+    DesTest, DesTestResult, create_sample_des_test, list_des_tests, run_des_test_file,
+    save_sample_des_test,
+};
+pub use dialogue::{DialogueState, continue_dialogue, get_dialogue_tree, start_dialogue};
+pub use meta::{ClassDef, MetaProgress, all_classes, get_class};
 pub use qa_tools::{DebugInfo, IssueCategory, IssueReport, IssueSeverity};
-pub use des_testing::{DesTest, DesTestResult, run_des_test_file, list_des_tests, create_sample_des_test, save_sample_des_test};
+pub use trading::{
+    AvailableTradeItem, TradeInterface, calculate_area_tier, execute_sell, execute_trade,
+    get_trade_interface, get_trader,
+};
+pub use tutorial::{TutorialProgress, get_tutorial_data};

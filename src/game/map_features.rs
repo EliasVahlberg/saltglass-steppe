@@ -42,9 +42,18 @@ impl MapFeatures {
     }
 
     /// Mark a safe route from NPC dialogue
-    pub fn add_safe_route(&mut self, from: (i32, i32), to: (i32, i32), npc_name: String, description: String) {
+    pub fn add_safe_route(
+        &mut self,
+        from: (i32, i32),
+        to: (i32, i32),
+        npc_name: String,
+        description: String,
+    ) {
         self.safe_routes.push(SafeRoute {
-            from, to, marked_by: npc_name, description
+            from,
+            to,
+            marked_by: npc_name,
+            description,
         });
     }
 
@@ -60,7 +69,12 @@ impl MapFeatures {
 
     /// Add waypoint
     pub fn add_waypoint(&mut self, x: i32, y: i32, name: String, description: String) {
-        self.waypoints.push(Waypoint { x, y, name, description });
+        self.waypoints.push(Waypoint {
+            x,
+            y,
+            name,
+            description,
+        });
     }
 
     /// Check if location is revealed
@@ -70,6 +84,9 @@ impl MapFeatures {
 
     /// Get safe routes from a position
     pub fn get_safe_routes_from(&self, x: i32, y: i32) -> Vec<&SafeRoute> {
-        self.safe_routes.iter().filter(|r| r.from == (x, y)).collect()
+        self.safe_routes
+            .iter()
+            .filter(|r| r.from == (x, y))
+            .collect()
     }
 }

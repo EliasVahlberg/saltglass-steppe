@@ -107,7 +107,7 @@ impl ProceduralEffects {
         let mut noise = FastNoise::seeded(42);
         noise.set_noise_type(NoiseType::Perlin);
         noise.set_frequency(0.1);
-        
+
         Self {
             config,
             noise,
@@ -122,7 +122,12 @@ impl ProceduralEffects {
         self.spawn_weather_particles(viewport_width, viewport_height);
     }
 
-    fn update_weather_particles(&mut self, delta_time: f32, viewport_width: i32, viewport_height: i32) {
+    fn update_weather_particles(
+        &mut self,
+        delta_time: f32,
+        viewport_width: i32,
+        viewport_height: i32,
+    ) {
         // Update existing particles
         for particle in &mut self.weather_particles {
             particle.x += particle.velocity_x * delta_time;
@@ -132,20 +137,22 @@ impl ProceduralEffects {
 
         // Remove particles that are out of bounds or expired
         self.weather_particles.retain(|p| {
-            p.x >= -5.0 && p.x < viewport_width as f32 + 5.0 &&
-            p.y >= -5.0 && p.y < viewport_height as f32 + 5.0 &&
-            p.lifetime < p.max_lifetime
+            p.x >= -5.0
+                && p.x < viewport_width as f32 + 5.0
+                && p.y >= -5.0
+                && p.y < viewport_height as f32 + 5.0
+                && p.lifetime < p.max_lifetime
         });
     }
 
     fn spawn_weather_particles(&mut self, viewport_width: i32, viewport_height: i32) {
         let now = Instant::now();
         let spawn_interval = Duration::from_millis(100);
-        
+
         if now.duration_since(self.last_spawn) < spawn_interval {
             return;
         }
-        
+
         self.last_spawn = now;
 
         // Spawn rain particles
@@ -167,13 +174,17 @@ impl ProceduralEffects {
     fn spawn_rain_particles(&mut self, viewport_width: i32, _viewport_height: i32) {
         let config = &self.config.weather.rain;
         let spawn_count = (config.intensity * 10.0) as usize;
-        
+
         for _ in 0..spawn_count {
             let x = rand::random::<f32>() * (viewport_width as f32 + 10.0) - 5.0;
             let y = -2.0;
-            let character = config.characters[rand::random::<usize>() % config.characters.len()].chars().next().unwrap_or('|');
-            let color = self.parse_color(&config.colors[rand::random::<usize>() % config.colors.len()]);
-            
+            let character = config.characters[rand::random::<usize>() % config.characters.len()]
+                .chars()
+                .next()
+                .unwrap_or('|');
+            let color =
+                self.parse_color(&config.colors[rand::random::<usize>() % config.colors.len()]);
+
             self.weather_particles.push(WeatherParticle {
                 x,
                 y,
@@ -190,13 +201,17 @@ impl ProceduralEffects {
     fn spawn_snow_particles(&mut self, viewport_width: i32, _viewport_height: i32) {
         let config = &self.config.weather.snow;
         let spawn_count = (config.intensity * 8.0) as usize;
-        
+
         for _ in 0..spawn_count {
             let x = rand::random::<f32>() * (viewport_width as f32 + 10.0) - 5.0;
             let y = -2.0;
-            let character = config.characters[rand::random::<usize>() % config.characters.len()].chars().next().unwrap_or('*');
-            let color = self.parse_color(&config.colors[rand::random::<usize>() % config.colors.len()]);
-            
+            let character = config.characters[rand::random::<usize>() % config.characters.len()]
+                .chars()
+                .next()
+                .unwrap_or('*');
+            let color =
+                self.parse_color(&config.colors[rand::random::<usize>() % config.colors.len()]);
+
             self.weather_particles.push(WeatherParticle {
                 x,
                 y,
@@ -213,18 +228,28 @@ impl ProceduralEffects {
     fn spawn_dust_particles(&mut self, viewport_width: i32, viewport_height: i32) {
         let config = &self.config.weather.dust;
         let spawn_count = (config.intensity * 5.0) as usize;
-        
+
         for _ in 0..spawn_count {
             let x = rand::random::<f32>() * viewport_width as f32;
             let y = rand::random::<f32>() * viewport_height as f32;
-            let character = config.characters[rand::random::<usize>() % config.characters.len()].chars().next().unwrap_or('·');
-            let color = self.parse_color(&config.colors[rand::random::<usize>() % config.colors.len()]);
-            
+            let character = config.characters[rand::random::<usize>() % config.characters.len()]
+                .chars()
+                .next()
+                .unwrap_or('·');
+            let color =
+                self.parse_color(&config.colors[rand::random::<usize>() % config.colors.len()]);
+
             // Use noise for more natural movement
             let time = self.start_time.elapsed().as_secs_f32();
-            let noise_x = self.noise.get_noise((x as f64 * 0.01) as f32, (time as f64 * 0.1) as f32) as f32;
-            let noise_y = self.noise.get_noise((y as f64 * 0.01) as f32, (time as f64 * 0.1 + 100.0) as f32) as f32;
-            
+            let noise_x = self
+                .noise
+                .get_noise((x as f64 * 0.01) as f32, (time as f64 * 0.1) as f32)
+                as f32;
+            let noise_y = self
+                .noise
+                .get_noise((y as f64 * 0.01) as f32, (time as f64 * 0.1 + 100.0) as f32)
+                as f32;
+
             self.weather_particles.push(WeatherParticle {
                 x,
                 y,
@@ -244,7 +269,10 @@ impl ProceduralEffects {
         }
 
         let time = self.start_time.elapsed().as_secs_f32();
-        let noise_value = self.noise.get_noise((time as f64 * self.config.ambient_lighting.variation_speed as f64) as f32, 0.0) as f32;
+        let noise_value = self.noise.get_noise(
+            (time as f64 * self.config.ambient_lighting.variation_speed as f64) as f32,
+            0.0,
+        ) as f32;
         noise_value * self.config.ambient_lighting.variation_intensity
     }
 
@@ -258,12 +286,17 @@ impl ProceduralEffects {
         }
 
         let time = self.start_time.elapsed().as_secs_f32();
-        let noise_x = self.noise.get_noise((x as f64 * 0.1) as f32, (time as f64 * 2.0) as f32) as f32;
-        let noise_y = self.noise.get_noise((x as f64 * 0.1 + 100.0) as f32, (y as f64 * 0.1) as f32) as f32;
-        
+        let noise_x =
+            self.noise
+                .get_noise((x as f64 * 0.1) as f32, (time as f64 * 2.0) as f32) as f32;
+        let noise_y = self
+            .noise
+            .get_noise((x as f64 * 0.1 + 100.0) as f32, (y as f64 * 0.1) as f32)
+            as f32;
+
         let offset_x = (noise_x * 0.5).round() as i16;
         let offset_y = (noise_y * 0.3).round() as i16;
-        
+
         (offset_x, offset_y)
     }
 

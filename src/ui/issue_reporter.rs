@@ -1,8 +1,8 @@
+use crate::{IssueCategory, IssueSeverity};
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, Clear, Paragraph, Wrap},
 };
-use crate::{IssueCategory, IssueSeverity};
 
 #[derive(Default)]
 pub struct IssueReporter {
@@ -112,10 +112,18 @@ impl IssueReporter {
 
     pub fn pop_char(&mut self) {
         match self.step {
-            IssueStep::Description => { self.description.pop(); }
-            IssueStep::Steps => { self.current_step.pop(); }
-            IssueStep::Expected => { self.expected.pop(); }
-            IssueStep::Actual => { self.actual.pop(); }
+            IssueStep::Description => {
+                self.description.pop();
+            }
+            IssueStep::Steps => {
+                self.current_step.pop();
+            }
+            IssueStep::Expected => {
+                self.expected.pop();
+            }
+            IssueStep::Actual => {
+                self.actual.pop();
+            }
             _ => {}
         }
     }
@@ -143,9 +151,9 @@ impl IssueReporter {
     }
 
     pub fn is_complete(&self) -> bool {
-        !self.description.trim().is_empty() &&
-        !self.expected.trim().is_empty() &&
-        !self.actual.trim().is_empty()
+        !self.description.trim().is_empty()
+            && !self.expected.trim().is_empty()
+            && !self.actual.trim().is_empty()
     }
 }
 
@@ -169,10 +177,10 @@ pub fn render_issue_reporter(f: &mut Frame, reporter: &IssueReporter) {
         IssueStep::Description => {
             let text = format!(
                 "Step 1/6: Issue Description\n\n{}\n\n[Enter] Next | [Esc] Cancel",
-                if reporter.description.is_empty() { 
-                    "Describe the issue you encountered..." 
-                } else { 
-                    &reporter.description 
+                if reporter.description.is_empty() {
+                    "Describe the issue you encountered..."
+                } else {
+                    &reporter.description
                 }
             );
             Paragraph::new(text).wrap(Wrap { trim: true })
@@ -190,10 +198,10 @@ pub fn render_issue_reporter(f: &mut Frame, reporter: &IssueReporter) {
         IssueStep::Expected => {
             let text = format!(
                 "Step 3/6: Expected Behavior\n\n{}\n\n[Enter] Next | [Esc] Cancel",
-                if reporter.expected.is_empty() { 
-                    "What did you expect to happen?" 
-                } else { 
-                    &reporter.expected 
+                if reporter.expected.is_empty() {
+                    "What did you expect to happen?"
+                } else {
+                    &reporter.expected
                 }
             );
             Paragraph::new(text).wrap(Wrap { trim: true })
@@ -201,10 +209,10 @@ pub fn render_issue_reporter(f: &mut Frame, reporter: &IssueReporter) {
         IssueStep::Actual => {
             let text = format!(
                 "Step 4/6: Actual Behavior\n\n{}\n\n[Enter] Next | [Esc] Cancel",
-                if reporter.actual.is_empty() { 
-                    "What actually happened?" 
-                } else { 
-                    &reporter.actual 
+                if reporter.actual.is_empty() {
+                    "What actually happened?"
+                } else {
+                    &reporter.actual
                 }
             );
             Paragraph::new(text).wrap(Wrap { trim: true })

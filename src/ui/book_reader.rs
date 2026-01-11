@@ -1,9 +1,9 @@
 use ratatui::{
+    Frame,
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::Span,
     widgets::{Block, Borders, Paragraph, Wrap},
-    Frame,
 };
 
 use crate::game::book::get_book_def;
@@ -20,12 +20,7 @@ pub fn render_book_reader(f: &mut Frame, ui_state: &UiState) {
     };
 
     let area = f.area();
-    let popup_area = Rect::new(
-        area.width / 2 - 35,
-        area.height / 2 - 15,
-        70,
-        30,
-    );
+    let popup_area = Rect::new(area.width / 2 - 35, area.height / 2 - 15, 70, 30);
 
     // Clear background
     f.render_widget(
@@ -37,7 +32,9 @@ pub fn render_book_reader(f: &mut Frame, ui_state: &UiState) {
         .borders(Borders::ALL)
         .title(Span::styled(
             format!(" {} ", book_def.title),
-            Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD),
+            Style::default()
+                .fg(Color::Yellow)
+                .add_modifier(Modifier::BOLD),
         ))
         .title_alignment(Alignment::Center)
         .border_style(Style::default().fg(Color::White));
@@ -45,13 +42,13 @@ pub fn render_book_reader(f: &mut Frame, ui_state: &UiState) {
     f.render_widget(block.clone(), popup_area);
 
     let inner_area = block.inner(popup_area);
-    
+
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(1),  // Author
-            Constraint::Min(1),     // Content
-            Constraint::Length(1),  // Footer
+            Constraint::Length(1), // Author
+            Constraint::Min(1),    // Content
+            Constraint::Length(1), // Footer
         ])
         .split(inner_area);
 
@@ -98,7 +95,7 @@ pub fn render_book_reader(f: &mut Frame, ui_state: &UiState) {
         ui_state.book_reader.current_page + 1,
         book_def.pages.len()
     );
-    
+
     f.render_widget(
         Paragraph::new(footer_text)
             .alignment(Alignment::Center)

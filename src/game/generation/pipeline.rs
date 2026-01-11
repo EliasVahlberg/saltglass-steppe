@@ -1,8 +1,8 @@
+use crate::game::Map;
+use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
-use rand_chacha::ChaCha8Rng;
-use crate::game::Map;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub enum PassType {
@@ -42,11 +42,11 @@ impl GenerationPipeline {
 
     pub fn generate(&self, mut context: GenerationContext) -> Result<GenerationContext, String> {
         let sorted_passes = self.sort_passes_by_dependencies()?;
-        
+
         for pass in sorted_passes {
             context = self.execute_pass(&pass, context)?;
         }
-        
+
         Ok(context)
     }
 
@@ -72,7 +72,10 @@ impl GenerationPipeline {
         visiting: &mut std::collections::HashSet<String>,
     ) -> Result<(), String> {
         if visiting.contains(&pass.id) {
-            return Err(format!("Circular dependency detected involving pass: {}", pass.id));
+            return Err(format!(
+                "Circular dependency detected involving pass: {}",
+                pass.id
+            ));
         }
 
         if visited.contains(&pass.id) {
@@ -96,7 +99,11 @@ impl GenerationPipeline {
         Ok(())
     }
 
-    fn execute_pass(&self, pass: &GenerationPass, context: GenerationContext) -> Result<GenerationContext, String> {
+    fn execute_pass(
+        &self,
+        pass: &GenerationPass,
+        context: GenerationContext,
+    ) -> Result<GenerationContext, String> {
         match pass.pass_type {
             PassType::Terrain => self.execute_terrain_pass(pass, context),
             PassType::Features => self.execute_features_pass(pass, context),
@@ -105,22 +112,38 @@ impl GenerationPipeline {
         }
     }
 
-    fn execute_terrain_pass(&self, _pass: &GenerationPass, context: GenerationContext) -> Result<GenerationContext, String> {
+    fn execute_terrain_pass(
+        &self,
+        _pass: &GenerationPass,
+        context: GenerationContext,
+    ) -> Result<GenerationContext, String> {
         // Placeholder - will integrate existing terrain generation
         Ok(context)
     }
 
-    fn execute_features_pass(&self, _pass: &GenerationPass, context: GenerationContext) -> Result<GenerationContext, String> {
+    fn execute_features_pass(
+        &self,
+        _pass: &GenerationPass,
+        context: GenerationContext,
+    ) -> Result<GenerationContext, String> {
         // Placeholder - will add feature placement logic
         Ok(context)
     }
 
-    fn execute_entities_pass(&self, _pass: &GenerationPass, context: GenerationContext) -> Result<GenerationContext, String> {
+    fn execute_entities_pass(
+        &self,
+        _pass: &GenerationPass,
+        context: GenerationContext,
+    ) -> Result<GenerationContext, String> {
         // Placeholder - will add entity spawning logic
         Ok(context)
     }
 
-    fn execute_narrative_pass(&self, _pass: &GenerationPass, context: GenerationContext) -> Result<GenerationContext, String> {
+    fn execute_narrative_pass(
+        &self,
+        _pass: &GenerationPass,
+        context: GenerationContext,
+    ) -> Result<GenerationContext, String> {
         // Placeholder - will add narrative element placement
         Ok(context)
     }

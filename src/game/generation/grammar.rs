@@ -1,6 +1,6 @@
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use rand::Rng;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct Grammar {
@@ -58,7 +58,9 @@ impl Grammar {
         }
 
         // Get the rule
-        let rule = self.rules.get(rule_name)
+        let rule = self
+            .rules
+            .get(rule_name)
             .ok_or_else(|| format!("Rule not found: {}", rule_name))?;
 
         // Select expansion
@@ -68,7 +70,11 @@ impl Grammar {
         self.process_expansion(expansion, context, rng, depth + 1)
     }
 
-    fn select_expansion<'a, R: Rng>(&self, rule: &'a GrammarRule, rng: &mut R) -> Result<&'a str, String> {
+    fn select_expansion<'a, R: Rng>(
+        &self,
+        rule: &'a GrammarRule,
+        rng: &mut R,
+    ) -> Result<&'a str, String> {
         if rule.expansions.is_empty() {
             return Err("Rule has no expansions".to_string());
         }
@@ -141,9 +147,11 @@ impl Grammar {
     }
 }
 
-pub fn load_grammars_from_directory(dir_path: &str) -> Result<HashMap<String, Grammar>, Box<dyn std::error::Error>> {
+pub fn load_grammars_from_directory(
+    dir_path: &str,
+) -> Result<HashMap<String, Grammar>, Box<dyn std::error::Error>> {
     let mut grammars = HashMap::new();
-    
+
     if let Ok(entries) = std::fs::read_dir(dir_path) {
         for entry in entries {
             if let Ok(entry) = entry {
@@ -158,6 +166,6 @@ pub fn load_grammars_from_directory(dir_path: &str) -> Result<HashMap<String, Gr
             }
         }
     }
-    
+
     Ok(grammars)
 }

@@ -1,14 +1,9 @@
 //! Combat action methods for GameState
 
 use super::{
-    action::action_cost,
-    adaptation::total_stat_modifiers,
-    combat::CombatResult,
-    item::get_item_def,
-    map::Tile,
-    state::GameState,
+    action::action_cost, adaptation::total_stat_modifiers, combat::CombatResult,
+    item::get_item_def, map::Tile, state::GameState, systems::ai::AiSystem,
     systems::combat::CombatSystem,
-    systems::ai::AiSystem,
 };
 
 impl GameState {
@@ -24,9 +19,10 @@ impl GameState {
 
     /// Break a wall at position (requires tool)
     pub fn try_break_wall(&mut self, x: i32, y: i32) -> bool {
-        let has_pick = self.inventory.iter().any(|id| {
-            get_item_def(id).map(|d| d.breaks_walls).unwrap_or(false)
-        });
+        let has_pick = self
+            .inventory
+            .iter()
+            .any(|id| get_item_def(id).map(|d| d.breaks_walls).unwrap_or(false));
         if !has_pick {
             self.log("You need a tool to break walls.");
             return false;
@@ -39,7 +35,9 @@ impl GameState {
         }
 
         let cost = action_cost("break_wall");
-        if self.player_ap < cost { return false; }
+        if self.player_ap < cost {
+            return false;
+        }
 
         let idx = self.map.idx(x, y);
         if let Tile::Wall { ref id, hp } = self.map.tiles[idx].clone() {
@@ -49,7 +47,10 @@ impl GameState {
                 self.map.tiles[idx] = Tile::default_floor();
                 self.log("The wall crumbles!");
             } else {
-                self.map.tiles[idx] = Tile::Wall { id: id.clone(), hp: new_hp };
+                self.map.tiles[idx] = Tile::Wall {
+                    id: id.clone(),
+                    hp: new_hp,
+                };
                 self.log(format!("Cracks spread through the wall. (HP: {})", new_hp));
             }
             self.check_auto_end_turn();
@@ -58,16 +59,20 @@ impl GameState {
         self.log("Nothing to break there.");
         false
     }
-    
+
     // Helper for tests/mocks - delegated to CombatSystem if needed, but for now we keep the fields in GameState
     // and CombatSystem reads them.
     pub fn apply_combat_mocks(&self, mut result: CombatResult) -> CombatResult {
         if let Some(force_hit) = self.mock_combat_hit {
             result.hit = force_hit;
-            if !force_hit { result.damage = 0; }
+            if !force_hit {
+                result.damage = 0;
+            }
         }
         if let Some(dmg) = self.mock_combat_damage {
-            if result.hit { result.damage = dmg; }
+            if result.hit {
+                result.damage = dmg;
+            }
         }
         result
     }

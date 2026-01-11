@@ -1,18 +1,18 @@
+use crate::game::entity::Entity;
+use crate::game::status::StatusEffect;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use crate::game::status::StatusEffect;
-use crate::game::entity::Entity;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum AIDemeanor {
     #[default]
-    Aggressive,  // Attacks on sight
-    Defensive,   // Takes cover, attacks when close
-    Neutral,     // Ignores unless attacked
-    Friendly,    // Helps player, becomes defensive if attacked
-    Pacifist,    // Flees when threatened
+    Aggressive, // Attacks on sight
+    Defensive, // Takes cover, attacks when close
+    Neutral,   // Ignores unless attacked
+    Friendly,  // Helps player, becomes defensive if attacked
+    Pacifist,  // Flees when threatened
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -105,8 +105,12 @@ pub struct EnemyDef {
     pub level: u32,
 }
 
-fn default_sight() -> i32 { 6 }
-fn default_level() -> u32 { 1 }
+fn default_sight() -> i32 {
+    6
+}
+fn default_level() -> u32 {
+    1
+}
 
 #[derive(Deserialize)]
 struct EnemiesFile {
@@ -116,7 +120,10 @@ struct EnemiesFile {
 static ENEMY_DEFS: Lazy<HashMap<String, EnemyDef>> = Lazy::new(|| {
     let data = include_str!("../../data/enemies.json");
     let file: EnemiesFile = serde_json::from_str(data).expect("Failed to parse enemies.json");
-    file.enemies.into_iter().map(|d| (d.id.clone(), d)).collect()
+    file.enemies
+        .into_iter()
+        .map(|d| (d.id.clone(), d))
+        .collect()
 });
 
 pub fn get_enemy_def(id: &str) -> Option<&'static EnemyDef> {
@@ -139,7 +146,7 @@ impl Behavior {
             Some(c) => c,
             None => return true,
         };
-        
+
         if cond.starts_with("player_adaptations >= ") {
             if let Ok(n) = cond[22..].parse::<usize>() {
                 return ctx.player_adaptations >= n;
@@ -162,31 +169,35 @@ pub struct Enemy {
     #[serde(default)]
     pub ai_disabled: bool,
     #[serde(default)]
-    pub provoked: bool,  // Set when attacked by player
+    pub provoked: bool, // Set when attacked by player
     #[serde(default)]
-    pub inventory: Vec<String>,  // Items carried by enemy
+    pub inventory: Vec<String>, // Items carried by enemy
     #[serde(default)]
     pub status_effects: Vec<StatusEffect>,
     #[serde(default)]
-    pub spawned_count: u32,  // For spawners
+    pub spawned_count: u32, // For spawners
     #[serde(default)]
-    pub last_spawn_turn: u32,  // For spawners
+    pub last_spawn_turn: u32, // For spawners
     #[serde(default)]
-    pub aoe_target: Option<(i32, i32)>,  // AOE attack target
+    pub aoe_target: Option<(i32, i32)>, // AOE attack target
     #[serde(default)]
-    pub aoe_warning_turns: u32,  // Turns until AOE attack
+    pub aoe_warning_turns: u32, // Turns until AOE attack
     #[serde(default)]
-    pub swarm_leader: bool,  // Is this the swarm leader
+    pub swarm_leader: bool, // Is this the swarm leader
     #[serde(default)]
-    pub swarm_id: Option<String>,  // Swarm group identifier
+    pub swarm_id: Option<String>, // Swarm group identifier
 }
 
 impl Enemy {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
         let max_hp = get_enemy_def(id).map(|d| d.max_hp).unwrap_or(10);
-        Self { 
-            x, y, id: id.to_string(), hp: max_hp, 
-            ai_disabled: false, provoked: false, 
+        Self {
+            x,
+            y,
+            id: id.to_string(),
+            hp: max_hp,
+            ai_disabled: false,
+            provoked: false,
             inventory: Vec::new(),
             status_effects: Vec::new(),
             spawned_count: 0,
@@ -214,7 +225,9 @@ impl Enemy {
     }
 
     pub fn glyph(&self) -> char {
-        self.def().map(|d| d.glyph.chars().next().unwrap_or('?')).unwrap_or('?')
+        self.def()
+            .map(|d| d.glyph.chars().next().unwrap_or('?'))
+            .unwrap_or('?')
     }
 
     pub fn name(&self) -> &str {
@@ -251,9 +264,9 @@ impl Enemy {
 
     pub fn can_spawn(&self, current_turn: u32) -> bool {
         if let Some(def) = self.def() {
-            def.is_spawner && 
-            self.spawned_count < def.max_spawns &&
-            current_turn >= self.last_spawn_turn + def.spawn_rate
+            def.is_spawner
+                && self.spawned_count < def.max_spawns
+                && current_turn >= self.last_spawn_turn + def.spawn_rate
         } else {
             false
         }
@@ -313,32 +326,45 @@ impl Enemy {
 }
 
 impl Entity for Enemy {
-    fn x(&self) -> i32 { self.x }
-    fn y(&self) -> i32 { self.y }
-    
+    fn x(&self) -> i32 {
+        self.x
+    }
+    fn y(&self) -> i32 {
+        self.y
+    }
+
     fn set_position(&mut self, x: i32, y: i32) {
         self.x = x;
         self.y = y;
     }
-    
-    fn hp(&self) -> Option<i32> { Some(self.hp) }
-    
-    fn set_hp(&mut self, hp: i32) { self.hp = hp; }
-    
+
+    fn hp(&self) -> Option<i32> {
+        Some(self.hp)
+    }
+
+    fn set_hp(&mut self, hp: i32) {
+        self.hp = hp;
+    }
+
     fn max_hp(&self) -> Option<i32> {
         self.def().map(|d| d.max_hp)
     }
-    
-    fn status_effects(&self) -> &[StatusEffect] { &self.status_effects }
-    
-    fn status_effects_mut(&mut self) -> &mut Vec<StatusEffect> { &mut self.status_effects }
-    
+
+    fn status_effects(&self) -> &[StatusEffect] {
+        &self.status_effects
+    }
+
+    fn status_effects_mut(&mut self) -> &mut Vec<StatusEffect> {
+        &mut self.status_effects
+    }
+
     fn name(&self) -> &str {
         self.def().map(|d| d.name.as_str()).unwrap_or(&self.id)
     }
-    
+
     fn glyph(&self) -> char {
-        self.def().and_then(|d| d.glyph.chars().next()).unwrap_or('?')
+        self.def()
+            .and_then(|d| d.glyph.chars().next())
+            .unwrap_or('?')
     }
 }
-

@@ -1,9 +1,9 @@
 //! Rendering configuration loaded from JSON
 
-use serde::{Deserialize, Serialize};
-use crate::renderer::particles::ParticleConfig;
 use crate::renderer::animations::VisualAnimationConfig;
+use crate::renderer::particles::ParticleConfig;
 use ratatui::prelude::Color;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -187,10 +187,14 @@ pub fn parse_color(color_str: &str) -> Color {
         "Gray" => Color::Gray,
         s if s.starts_with("Rgb(") && s.ends_with(')') => {
             // Parse "Rgb(r, g, b)" format
-            let inner = &s[4..s.len()-1];
+            let inner = &s[4..s.len() - 1];
             let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
             if parts.len() == 3 {
-                if let (Ok(r), Ok(g), Ok(b)) = (parts[0].parse::<u8>(), parts[1].parse::<u8>(), parts[2].parse::<u8>()) {
+                if let (Ok(r), Ok(g), Ok(b)) = (
+                    parts[0].parse::<u8>(),
+                    parts[1].parse::<u8>(),
+                    parts[2].parse::<u8>(),
+                ) {
                     return Color::Rgb(r, g, b);
                 }
             }
@@ -221,8 +225,12 @@ mod tests {
                         status_effects: HashMap::new(),
                     },
                     enemies: HashMap::new(),
-                    npcs: NpcColors { base: "Green".to_string() },
-                    items: ItemColors { base: "LightMagenta".to_string() },
+                    npcs: NpcColors {
+                        base: "Green".to_string(),
+                    },
+                    items: ItemColors {
+                        base: "LightMagenta".to_string(),
+                    },
                 },
                 tiles: TileColors {
                     floor: "DarkGray".to_string(),

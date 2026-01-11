@@ -20,7 +20,9 @@ pub struct WeaponDef {
     pub description: String,
 }
 
-fn default_ap_cost() -> i32 { 2 }
+fn default_ap_cost() -> i32 {
+    2
+}
 
 #[derive(Deserialize)]
 struct WeaponsFile {
@@ -30,7 +32,10 @@ struct WeaponsFile {
 static WEAPON_DEFS: Lazy<HashMap<String, WeaponDef>> = Lazy::new(|| {
     let data = include_str!("../../data/weapons.json");
     let file: WeaponsFile = serde_json::from_str(data).expect("Failed to parse weapons.json");
-    file.weapons.into_iter().map(|w| (w.id.clone(), w)).collect()
+    file.weapons
+        .into_iter()
+        .map(|w| (w.id.clone(), w))
+        .collect()
 });
 
 pub fn get_weapon_def(id: &str) -> Option<&'static WeaponDef> {
@@ -70,18 +75,26 @@ pub fn roll_attack<R: Rng>(
 ) -> CombatResult {
     let hit_chance = calc_hit_chance(weapon.accuracy, target_reflex, cover_bonus);
     let roll = rng.gen_range(1..=100);
-    
+
     if roll > hit_chance {
-        return CombatResult { hit: false, damage: 0, crit: false };
+        return CombatResult {
+            hit: false,
+            damage: 0,
+            crit: false,
+        };
     }
-    
+
     // Crit on roll <= 5 (5% chance when hit)
     let crit = roll <= 5;
     let base_damage = rng.gen_range(weapon.damage_min..=weapon.damage_max);
     let damage = if crit { base_damage * 2 } else { base_damage };
     let final_damage = calc_damage(damage, target_armor);
-    
-    CombatResult { hit: true, damage: final_damage, crit }
+
+    CombatResult {
+        hit: true,
+        damage: final_damage,
+        crit,
+    }
 }
 
 #[cfg(test)]
@@ -91,7 +104,7 @@ mod tests {
     #[test]
     fn hit_chance_clamped() {
         assert_eq!(calc_hit_chance(100, 0, 0), 95); // Max 95%
-        assert_eq!(calc_hit_chance(0, 100, 0), 5);  // Min 5%
+        assert_eq!(calc_hit_chance(0, 100, 0), 5); // Min 5%
         assert_eq!(calc_hit_chance(80, 10, 20), 50);
     }
 

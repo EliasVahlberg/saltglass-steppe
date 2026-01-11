@@ -27,14 +27,14 @@ impl Camera {
         // Use integer division to avoid fractional centering that causes jitter
         let half_width = view_width / 2;
         let half_height = view_height / 2;
-        
+
         self.target_x = (target_x - half_width) as f32;
         self.target_y = (target_y - half_height) as f32;
 
         // Smooth interpolation towards target
         let dx = self.target_x - self.current_x;
         let dy = self.target_y - self.current_y;
-        
+
         self.current_x += dx * self.smoothing;
         self.current_y += dy * self.smoothing;
 
@@ -82,19 +82,19 @@ mod tests {
     #[test]
     fn test_camera_movement() {
         let mut camera = Camera::new();
-        
+
         // Initial position should be 0,0
         assert_eq!(camera.position(), (0, 0));
-        
+
         // Update to new target (20, 20) with view size (20, 20)
         // This centers at (20 - 10, 20 - 10) = (10, 10)
         camera.update(20, 20, 20, 20);
-        
+
         // Should move towards target but not instantly (due to smoothing)
         let (x, y) = camera.position();
         assert!(x >= 0 && x <= 10);
         assert!(y >= 0 && y <= 10);
-        
+
         // After many updates, should reach target
         for _ in 0..100 {
             camera.update(20, 20, 20, 20);
@@ -105,23 +105,23 @@ mod tests {
     #[test]
     fn test_camera_snap() {
         let mut camera = Camera::new();
-        
+
         // Update to target (20, 20) with view size (20, 20) -> centers at (10, 10)
         camera.update(20, 20, 20, 20);
         camera.snap_to_target();
-        
+
         assert_eq!(camera.position(), (10, 10));
     }
 
     #[test]
     fn test_smoothing_factor() {
         let mut camera = Camera::new();
-        
+
         // No smoothing - should move instantly
         camera.set_smoothing(1.0);
         camera.update(20, 20, 20, 20); // Centers at (10, 10)
         assert_eq!(camera.position(), (10, 10));
-        
+
         // Reset and test with no smoothing
         camera = Camera::new();
         camera.set_smoothing(0.0);

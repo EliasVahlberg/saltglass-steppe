@@ -34,17 +34,23 @@ pub fn get_light_def(id: &str) -> Option<&'static LightDef> {
 }
 
 pub fn get_spawn_rule(biome: &str) -> &'static SpawnRule {
-    LIGHTS_DATA.spawn_rules.get(biome)
+    LIGHTS_DATA
+        .spawn_rules
+        .get(biome)
         .or_else(|| LIGHTS_DATA.spawn_rules.get("default"))
         .expect("No default spawn rule")
 }
 
 pub fn pick_light_type(rule: &SpawnRule, rng: &mut impl rand::Rng) -> Option<String> {
     let total: u32 = rule.weights.values().sum();
-    if total == 0 { return None; }
+    if total == 0 {
+        return None;
+    }
     let mut roll = rng.gen_range(0..total);
     for (id, weight) in &rule.weights {
-        if roll < *weight { return Some(id.clone()); }
+        if roll < *weight {
+            return Some(id.clone());
+        }
         roll -= weight;
     }
     None

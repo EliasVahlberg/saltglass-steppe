@@ -1,10 +1,8 @@
-use serde::{Deserialize, Serialize};
 use crate::renderer::{
-    particles::ParticleConfig,
-    animations::VisualAnimationConfig,
+    animations::VisualAnimationConfig, particles::ParticleConfig, procedural::ProceduralConfig,
     themes::ThemeConfig,
-    procedural::ProceduralConfig,
 };
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EffectsConfig {

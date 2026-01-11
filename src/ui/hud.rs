@@ -1,12 +1,12 @@
 //! HUD rendering - side panel with stats, bottom panel with log
 
+use super::theme::theme;
+use crate::game::equipment::EquipSlot;
+use crate::game::{GameState, MsgType, get_item_def, get_quest_def};
 use ratatui::{
     prelude::*,
-    widgets::{Block, Borders, Paragraph, List, ListItem},
+    widgets::{Block, Borders, List, ListItem, Paragraph},
 };
-use crate::game::{GameState, MsgType, get_item_def, get_quest_def};
-use crate::game::equipment::EquipSlot;
-use super::theme::theme;
 
 /// Unicode block characters for smooth health bars (8 levels)
 const BAR_CHARS: [char; 9] = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '▉', '█'];
@@ -14,23 +14,37 @@ const BAR_CHARS: [char; 9] = [' ', '▏', '▎', '▍', '▌', '▋', '▊', '�
 /// Get gradient color based on percentage using theme
 fn health_color(pct: f32) -> Color {
     let t = theme();
-    if pct > 0.5 { t.hp_high }
-    else if pct > 0.25 { t.hp_mid }
-    else { t.hp_low }
+    if pct > 0.5 {
+        t.hp_high
+    } else if pct > 0.25 {
+        t.hp_mid
+    } else {
+        t.hp_low
+    }
 }
 
 /// Render a gradient health bar with Unicode blocks
 fn render_bar(current: i32, max: i32, width: usize) -> (String, Color) {
-    let pct = if max > 0 { current.max(0) as f32 / max as f32 } else { 0.0 };
+    let pct = if max > 0 {
+        current.max(0) as f32 / max as f32
+    } else {
+        0.0
+    };
     let color = health_color(pct);
     let filled = pct * width as f32;
     let full_blocks = filled as usize;
     let partial = ((filled - full_blocks as f32) * 8.0) as usize;
-    
+
     let mut bar = String::with_capacity(width);
-    for _ in 0..full_blocks { bar.push(BAR_CHARS[8]); }
-    if full_blocks < width { bar.push(BAR_CHARS[partial]); }
-    while bar.chars().count() < width { bar.push(BAR_CHARS[0]); }
+    for _ in 0..full_blocks {
+        bar.push(BAR_CHARS[8]);
+    }
+    if full_blocks < width {
+        bar.push(BAR_CHARS[partial]);
+    }
+    while bar.chars().count() < width {
+        bar.push(BAR_CHARS[0]);
+    }
     (bar, color)
 }
 
@@ -43,7 +57,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(10),  // Stats (expanded for sanity)
+            Constraint::Length(10), // Stats (expanded for sanity)
             Constraint::Length(5),  // Status Effects
             Constraint::Length(7),  // Storm Forecast
             Constraint::Length(9),  // Equipment
@@ -55,69 +69,125 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     let bar_width = 10;
     let (hp_bar, hp_color) = render_bar(state.player_hp, state.player_max_hp, bar_width);
     let (ap_bar, _) = render_bar(state.player_ap, state.player_max_ap, bar_width);
-    let (coherence_bar, _) = render_bar(state.psychic.coherence as i32, state.psychic.max_coherence as i32, bar_width);
-    let (stamina_bar, _) = render_bar(state.skills.stamina as i32, state.skills.max_stamina as i32, bar_width);
+    let (coherence_bar, _) = render_bar(
+        state.psychic.coherence as i32,
+        state.psychic.max_coherence as i32,
+        bar_width,
+    );
+    let (stamina_bar, _) = render_bar(
+        state.skills.stamina as i32,
+        state.skills.max_stamina as i32,
+        bar_width,
+    );
 
     let stats = vec![
         Line::from(vec![
             Span::raw("HP "),
             Span::styled(hp_bar, Style::default().fg(hp_color)),
-            Span::styled(format!(" {}/{}", state.player_hp, state.player_max_hp), Style::default().fg(hp_color)),
+            Span::styled(
+                format!(" {}/{}", state.player_hp, state.player_max_hp),
+                Style::default().fg(hp_color),
+            ),
         ]),
         Line::from(vec![
             Span::raw("AP "),
             Span::styled(ap_bar, Style::default().fg(Color::Cyan)),
-            Span::styled(format!(" {}/{}", state.player_ap, state.player_max_ap), Style::default().fg(Color::Cyan)),
+            Span::styled(
+                format!(" {}/{}", state.player_ap, state.player_max_ap),
+                Style::default().fg(Color::Cyan),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Co "),
             Span::styled(coherence_bar, Style::default().fg(Color::Magenta)),
-            Span::styled(format!(" {}/{}", state.psychic.coherence, state.psychic.max_coherence), Style::default().fg(Color::Magenta)),
+            Span::styled(
+                format!(
+                    " {}/{}",
+                    state.psychic.coherence, state.psychic.max_coherence
+                ),
+                Style::default().fg(Color::Magenta),
+            ),
         ]),
         Line::from(vec![
             Span::raw("St "),
             Span::styled(stamina_bar, Style::default().fg(Color::Green)),
-            Span::styled(format!(" {}/{}", state.skills.stamina, state.skills.max_stamina), Style::default().fg(Color::Green)),
+            Span::styled(
+                format!(" {}/{}", state.skills.stamina, state.skills.max_stamina),
+                Style::default().fg(Color::Green),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Sanity: "),
-            Span::styled(format!("{}/{}", state.sanity.current_sanity, state.sanity.max_sanity), 
-                Style::default().fg(if state.sanity.current_sanity > 60 { Color::Green } 
-                    else if state.sanity.current_sanity > 30 { Color::Yellow } 
-                    else { Color::Red })),
+            Span::styled(
+                format!(
+                    "{}/{}",
+                    state.sanity.current_sanity, state.sanity.max_sanity
+                ),
+                Style::default().fg(if state.sanity.current_sanity > 60 {
+                    Color::Green
+                } else if state.sanity.current_sanity > 30 {
+                    Color::Yellow
+                } else {
+                    Color::Red
+                }),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Lvl: "),
-            Span::styled(format!("{}", state.player_level), Style::default().fg(Color::Yellow)),
+            Span::styled(
+                format!("{}", state.player_level),
+                Style::default().fg(Color::Yellow),
+            ),
             Span::raw(format!(" XP: {}", state.player_xp)),
         ]),
         Line::from(vec![
             Span::raw("Ref: "),
-            Span::styled(format!("{}", state.refraction), Style::default().fg(Color::Magenta)),
+            Span::styled(
+                format!("{}", state.refraction),
+                Style::default().fg(Color::Magenta),
+            ),
             Span::raw(" Arm: "),
-            Span::styled(format!("{}", state.player_armor), Style::default().fg(Color::Blue)),
+            Span::styled(
+                format!("{}", state.player_armor),
+                Style::default().fg(Color::Blue),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Scrip: "),
-            Span::styled(format!("{}", state.salt_scrip), Style::default().fg(Color::Yellow)),
+            Span::styled(
+                format!("{}", state.salt_scrip),
+                Style::default().fg(Color::Yellow),
+            ),
         ]),
         Line::from(vec![
             Span::raw("Time: "),
-            Span::styled(format!("{:02}:00", state.time_of_day), Style::default().fg(Color::White)),
+            Span::styled(
+                format!("{:02}:00", state.time_of_day),
+                Style::default().fg(Color::White),
+            ),
             Span::raw(format!(" {:?}", state.weather)),
         ]),
     ];
     frame.render_widget(Paragraph::new(stats), chunks[0]);
 
     // Status Effects section
-    let mut status_lines = vec![Line::from(Span::styled("─Status─", Style::default().fg(Color::DarkGray)))];
+    let mut status_lines = vec![Line::from(Span::styled(
+        "─Status─",
+        Style::default().fg(Color::DarkGray),
+    ))];
     if state.status_effects.is_empty() {
-        status_lines.push(Line::from(Span::styled("None", Style::default().fg(Color::DarkGray))));
+        status_lines.push(Line::from(Span::styled(
+            "None",
+            Style::default().fg(Color::DarkGray),
+        )));
     } else {
         for effect in &state.status_effects {
             status_lines.push(Line::from(vec![
                 Span::styled(format!("{} ", effect.name), Style::default().fg(Color::Red)),
-                Span::styled(format!("({})", effect.duration), Style::default().fg(Color::Yellow)),
+                Span::styled(
+                    format!("({})", effect.duration),
+                    Style::default().fg(Color::Yellow),
+                ),
             ]));
         }
     }
@@ -127,20 +197,35 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     super::storm_forecast::render_storm_forecast(frame, chunks[2], state);
 
     // Equipment section
-    let mut equip_lines = vec![Line::from(Span::styled("─Equipment─", Style::default().fg(Color::DarkGray)))];
+    let mut equip_lines = vec![Line::from(Span::styled(
+        "─Equipment─",
+        Style::default().fg(Color::DarkGray),
+    ))];
     for slot in EquipSlot::all() {
-        let item_name = state.equipment.get(*slot)
+        let item_name = state
+            .equipment
+            .get(*slot)
             .and_then(|id| get_item_def(id))
             .map(|d| d.name.as_str())
             .unwrap_or("-");
-        equip_lines.push(Line::from(format!("{}: {}", slot.display_name(), item_name)));
+        equip_lines.push(Line::from(format!(
+            "{}: {}",
+            slot.display_name(),
+            item_name
+        )));
     }
     frame.render_widget(Paragraph::new(equip_lines), chunks[3]);
 
     // Active quests section
-    let mut quest_lines = vec![Line::from(Span::styled("─Quests─", Style::default().fg(Color::DarkGray)))];
+    let mut quest_lines = vec![Line::from(Span::styled(
+        "─Quests─",
+        Style::default().fg(Color::DarkGray),
+    ))];
     if state.quest_log.active.is_empty() {
-        quest_lines.push(Line::from(Span::styled("(none)", Style::default().fg(Color::DarkGray))));
+        quest_lines.push(Line::from(Span::styled(
+            "(none)",
+            Style::default().fg(Color::DarkGray),
+        )));
     } else {
         for quest in state.quest_log.active.iter().take(3) {
             if let Some(def) = get_quest_def(&quest.quest_id) {
@@ -160,21 +245,20 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
 pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     let chunks = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([
-            Constraint::Percentage(70),
-            Constraint::Percentage(30),
-        ])
+        .constraints([Constraint::Percentage(70), Constraint::Percentage(30)])
         .split(area);
 
     // Message log with color-coded types
     let log_block = Block::default().title(" Log ").borders(Borders::ALL);
     let log_inner = log_block.inner(chunks[0]);
     frame.render_widget(log_block, chunks[0]);
-    
+
     let t = theme();
     let msg_count = log_inner.height as usize;
     let total = state.messages.len();
-    let messages: Vec<ListItem> = state.messages.iter()
+    let messages: Vec<ListItem> = state
+        .messages
+        .iter()
         .rev()
         .take(msg_count)
         .rev()
@@ -198,7 +282,9 @@ pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     frame.render_widget(List::new(messages), log_inner);
 
     // Hotkeys
-    let hotkeys_block = Block::default().title(" Combat Keys ").borders(Borders::ALL);
+    let hotkeys_block = Block::default()
+        .title(" Combat Keys ")
+        .borders(Borders::ALL);
     let hotkeys = vec![
         "hjkl  Move/Attack",
         "f     Ranged attack",
@@ -220,13 +306,22 @@ pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
 
 /// Render inventory bar (compact view)
 pub fn render_inventory_bar(frame: &mut Frame, area: Rect, state: &GameState) {
-    let items: Vec<Span> = state.inventory.iter().enumerate().take(9).map(|(i, id)| {
-        let name = get_item_def(id).map(|d| d.name.as_str()).unwrap_or("?");
-        Span::raw(format!("[{}]{} ", i + 1, name))
-    }).collect();
-    
+    let items: Vec<Span> = state
+        .inventory
+        .iter()
+        .enumerate()
+        .take(9)
+        .map(|(i, id)| {
+            let name = get_item_def(id).map(|d| d.name.as_str()).unwrap_or("?");
+            Span::raw(format!("[{}]{} ", i + 1, name))
+        })
+        .collect();
+
     let line = if items.is_empty() {
-        Line::from(Span::styled("Inventory: (empty)", Style::default().fg(Color::DarkGray)))
+        Line::from(Span::styled(
+            "Inventory: (empty)",
+            Style::default().fg(Color::DarkGray),
+        ))
     } else {
         Line::from(items)
     };
@@ -242,37 +337,43 @@ pub fn render_target_hud(frame: &mut Frame, state: &GameState, target_idx: usize
     if enemy.hp <= 0 {
         return;
     }
-    
+
     let def = enemy.def();
     let name = enemy.name();
     let max_hp = def.map(|d| d.max_hp).unwrap_or(10);
     let demeanor = format!("{:?}", enemy.demeanor()).to_lowercase();
-    
+
     let bar_width = 12;
     let (hp_bar, hp_color) = render_bar(enemy.hp, max_hp, bar_width);
-    
+
     let lines = vec![
         Line::from(Span::styled(name, Style::default().fg(Color::Red).bold())),
         Line::from(vec![
             Span::raw("HP "),
             Span::styled(hp_bar, Style::default().fg(hp_color)),
-            Span::styled(format!(" {}/{}", enemy.hp, max_hp), Style::default().fg(hp_color)),
+            Span::styled(
+                format!(" {}/{}", enemy.hp, max_hp),
+                Style::default().fg(hp_color),
+            ),
         ]),
-        Line::from(Span::styled(format!("({})", demeanor), Style::default().fg(Color::DarkGray))),
+        Line::from(Span::styled(
+            format!("({})", demeanor),
+            Style::default().fg(Color::DarkGray),
+        )),
     ];
-    
+
     let area = frame.area();
     let width = 22u16;
     let height = 5u16;
     let x = area.width.saturating_sub(width + 1);
     let y = area.height.saturating_sub(height + 1);
     let hud_area = Rect::new(x, y, width, height);
-    
+
     let block = Block::default()
         .title(" Target ")
         .borders(Borders::ALL)
         .style(Style::default().bg(Color::Black));
-    
+
     frame.render_widget(ratatui::widgets::Clear, hud_area);
     frame.render_widget(Paragraph::new(lines).block(block), hud_area);
 }

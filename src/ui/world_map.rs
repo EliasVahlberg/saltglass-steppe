@@ -5,18 +5,18 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-use crate::game::world_map::{Biome, POI, Terrain, WorldMap, WORLD_WIDTH, WORLD_HEIGHT};
 use crate::game::GameState;
+use crate::game::world_map::{Biome, POI, Terrain, WORLD_HEIGHT, WORLD_WIDTH, WorldMap};
 
 /// Check if there's an active quest objective at the given world coordinates
 fn has_quest_objective_at(state: &GameState, world_x: usize, world_y: usize) -> bool {
     state.quest_log.active.iter().any(|quest| {
         quest.objectives.iter().any(|obj| {
-            !obj.completed && 
+            !obj.completed &&
             quest.def().map_or(false, |def| {
                 def.objectives.iter().any(|quest_obj| {
                     quest_obj.id == obj.objective_id &&
-                    matches!(quest_obj.objective_type, crate::game::quest::ObjectiveType::Reach { x, y } 
+                    matches!(quest_obj.objective_type, crate::game::quest::ObjectiveType::Reach { x, y }
                         if x as usize == world_x && y as usize == world_y)
                 })
             })
@@ -83,11 +83,11 @@ fn terrain_glyph(terrain: Terrain) -> char {
 /// Get color intensity based on level (for background/border)
 fn level_color(level: u32) -> Color {
     match level {
-        1 => Color::DarkGray,      // Safe areas
-        2..=3 => Color::Gray,      // Low threat
-        4..=6 => Color::Yellow,    // Medium threat  
-        7..=8 => Color::LightRed,  // High threat
-        9..=10 => Color::Red,      // Extreme threat
+        1 => Color::DarkGray,     // Safe areas
+        2..=3 => Color::Gray,     // Low threat
+        4..=6 => Color::Yellow,   // Medium threat
+        7..=8 => Color::LightRed, // High threat
+        9..=10 => Color::Red,     // Extreme threat
         _ => Color::Red,
     }
 }
@@ -106,17 +106,17 @@ pub fn render_world_map(
         .title(" World Map [M close, arrows move, Enter travel, C center] ")
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Cyan));
-    
+
     let inner = block.inner(area);
     frame.render_widget(block, area);
 
     // Calculate viewport (center on cursor)
     let view_width = inner.width as usize;
     let view_height = inner.height.saturating_sub(2) as usize; // Leave room for info
-    
+
     let half_w = view_width / 2;
     let half_h = view_height / 2;
-    
+
     let start_x = view.cursor_x.saturating_sub(half_w);
     let start_y = view.cursor_y.saturating_sub(half_h);
     let end_x = (start_x + view_width).min(WORLD_WIDTH);
@@ -125,8 +125,9 @@ pub fn render_world_map(
     // Render map tiles
     for (screen_y, world_y) in (start_y..end_y).enumerate() {
         for (screen_x, world_x) in (start_x..end_x).enumerate() {
-            let (biome, terrain, _elev, poi, resources, connected, level) = world_map.get(world_x, world_y);
-            
+            let (biome, terrain, _elev, poi, resources, connected, level) =
+                world_map.get(world_x, world_y);
+
             let (ch, fg) = if world_x == player_wx && world_y == player_wy {
                 ('@', Color::White)
             } else if world_x == view.cursor_x && world_y == view.cursor_y {
@@ -154,7 +155,11 @@ pub fn render_world_map(
             };
 
             // Use level for background color to show threat zones
-            let bg = if level > 1 { Some(level_color(level)) } else { None };
+            let bg = if level > 1 {
+                Some(level_color(level))
+            } else {
+                None
+            };
             let style = if let Some(bg_color) = bg {
                 Style::default().fg(fg).bg(bg_color)
             } else {
@@ -173,7 +178,8 @@ pub fn render_world_map(
     }
 
     // Render info bar at bottom
-    let (biome, terrain, _elev, poi, resources, _connected, level) = world_map.get(view.cursor_x, view.cursor_y);
+    let (biome, terrain, _elev, poi, resources, _connected, level) =
+        world_map.get(view.cursor_x, view.cursor_y);
     let poi_str = match poi {
         POI::None => "",
         POI::Town => " [Town]",

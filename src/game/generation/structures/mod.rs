@@ -1,11 +1,11 @@
-pub mod ruins_generator;
 pub mod algorithms;
 pub mod dungeon_generator;
+pub mod ruins_generator;
 
-pub use ruins_generator::*;
 pub use algorithms::*;
 pub use dungeon_generator::*;
 use rand_chacha::ChaCha8Rng;
+pub use ruins_generator::*;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -100,12 +100,16 @@ impl POIType {
 
 impl Rectangle {
     pub fn new(x: u32, y: u32, width: u32, height: u32) -> Self {
-        Self { x, y, width, height }
+        Self {
+            x,
+            y,
+            width,
+            height,
+        }
     }
-    
+
     pub fn contains(&self, x: u32, y: u32) -> bool {
-        x >= self.x && x < self.x + self.width && 
-        y >= self.y && y < self.y + self.height
+        x >= self.x && x < self.x + self.width && y >= self.y && y < self.y + self.height
     }
 }
 

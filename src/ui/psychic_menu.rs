@@ -1,10 +1,13 @@
 //! Psychic abilities menu for combat
 
+use crate::game::{
+    GameState,
+    psychic::{PsychicCategory, get_ability_def},
+};
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, List, ListItem, Paragraph},
 };
-use crate::game::{GameState, psychic::{get_ability_def, PsychicCategory}};
 
 #[derive(Default)]
 pub struct PsychicMenu {
@@ -25,7 +28,9 @@ impl PsychicMenu {
     }
 
     pub fn navigate(&mut self, delta: i32, max_items: usize) {
-        if max_items == 0 { return; }
+        if max_items == 0 {
+            return;
+        }
         let new_index = (self.selected_index as i32 + delta).rem_euclid(max_items as i32) as usize;
         self.selected_index = new_index;
     }
@@ -39,14 +44,21 @@ impl PsychicMenu {
     }
 }
 
-fn render_psychic_menu_internal(frame: &mut Frame, area: Rect, state: &GameState, menu: &PsychicMenu) {
-    if !menu.active { return; }
+fn render_psychic_menu_internal(
+    frame: &mut Frame,
+    area: Rect,
+    state: &GameState,
+    menu: &PsychicMenu,
+) {
+    if !menu.active {
+        return;
+    }
 
     let block = Block::default()
         .title(" Psychic Abilities ")
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Magenta));
-    
+
     let inner = block.inner(area);
     frame.render_widget(block, area);
 
@@ -56,13 +68,16 @@ fn render_psychic_menu_internal(frame: &mut Frame, area: Rect, state: &GameState
         .split(inner);
 
     // Left side: ability list
-    let abilities: Vec<ListItem> = state.psychic.unlocked_abilities.iter()
+    let abilities: Vec<ListItem> = state
+        .psychic
+        .unlocked_abilities
+        .iter()
         .enumerate()
         .map(|(i, id)| {
             let def = get_ability_def(id).unwrap();
             let on_cooldown = state.psychic.cooldowns.get(id).unwrap_or(&0) > &0;
             let can_afford = state.psychic.coherence >= def.coherence_cost;
-            
+
             let style = if i == menu.selected_index {
                 Style::default().bg(Color::DarkGray).fg(Color::White)
             } else if on_cooldown {
@@ -79,8 +94,11 @@ fn render_psychic_menu_internal(frame: &mut Frame, area: Rect, state: &GameState
                 String::new()
             };
 
-            ListItem::new(format!("{} [{}]{}", def.name, def.coherence_cost, cooldown_text))
-                .style(style)
+            ListItem::new(format!(
+                "{} [{}]{}",
+                def.name, def.coherence_cost, cooldown_text
+            ))
+            .style(style)
         })
         .collect();
 
@@ -100,18 +118,30 @@ fn render_psychic_menu_internal(frame: &mut Frame, area: Rect, state: &GameState
             let details = vec![
                 Line::from(vec![
                     Span::styled("Category: ", Style::default().fg(Color::Gray)),
-                    Span::styled(format!("{:?}", def.category), Style::default().fg(category_color)),
+                    Span::styled(
+                        format!("{:?}", def.category),
+                        Style::default().fg(category_color),
+                    ),
                 ]),
                 Line::from(vec![
                     Span::styled("Cost: ", Style::default().fg(Color::Gray)),
-                    Span::styled(format!("{} Coherence", def.coherence_cost), Style::default().fg(Color::Cyan)),
+                    Span::styled(
+                        format!("{} Coherence", def.coherence_cost),
+                        Style::default().fg(Color::Cyan),
+                    ),
                 ]),
                 Line::from(vec![
                     Span::styled("Cooldown: ", Style::default().fg(Color::Gray)),
-                    Span::styled(format!("{} turns", def.cooldown), Style::default().fg(Color::Yellow)),
+                    Span::styled(
+                        format!("{} turns", def.cooldown),
+                        Style::default().fg(Color::Yellow),
+                    ),
                 ]),
                 Line::from(""),
-                Line::from(Span::styled(&def.description, Style::default().fg(Color::White))),
+                Line::from(Span::styled(
+                    &def.description,
+                    Style::default().fg(Color::White),
+                )),
             ];
 
             frame.render_widget(Paragraph::new(details), chunks[1]);
@@ -121,7 +151,7 @@ fn render_psychic_menu_internal(frame: &mut Frame, area: Rect, state: &GameState
     // Instructions at bottom
     let instructions = Paragraph::new("↑↓: Navigate | Enter: Use | Esc: Close")
         .style(Style::default().fg(Color::DarkGray));
-    
+
     let bottom_area = Rect {
         x: area.x + 1,
         y: area.y + area.height - 2,

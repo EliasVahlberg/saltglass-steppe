@@ -1,7 +1,7 @@
 //! Lighting system for the renderer
 
-use crate::GameState;
 use super::config::RenderConfig;
+use crate::GameState;
 
 /// Handles lighting calculations and light level queries
 pub struct LightingRenderer {
@@ -47,8 +47,8 @@ impl LightingRenderer {
         light_sources.push(LightSource {
             x: state.player_x,
             y: state.player_y,
-            radius: 16,  // Much larger radius
-            intensity: 255,  // Maximum intensity
+            radius: 16,     // Much larger radius
+            intensity: 255, // Maximum intensity
         });
 
         // Add equipment light sources if detection is enabled
@@ -99,25 +99,31 @@ impl LightingRenderer {
     }
 
     /// Apply a single light source to the light map
-    fn apply_light_source(&self, light_map: &mut [u8], source: &LightSource, map_width: usize, map_height: usize) {
+    fn apply_light_source(
+        &self,
+        light_map: &mut [u8],
+        source: &LightSource,
+        map_width: usize,
+        map_height: usize,
+    ) {
         for dy in -source.radius..=source.radius {
             for dx in -source.radius..=source.radius {
                 let x = source.x + dx;
                 let y = source.y + dy;
-                
+
                 if x < 0 || y < 0 || x >= map_width as i32 || y >= map_height as i32 {
                     continue;
                 }
 
                 let dist_sq = dx * dx + dy * dy;
-                
+
                 // Use larger radius for smoother gradients
                 let extended_radius = source.radius + 4;
                 let extended_radius_sq = extended_radius * extended_radius;
-                
+
                 if dist_sq <= extended_radius_sq {
                     let idx = y as usize * map_width + x as usize;
-                    
+
                     // Very slow falloff for long range
                     let dist = (dist_sq as f32).sqrt();
                     // Ensure center tile (dist=0) gets full intensity
@@ -126,9 +132,10 @@ impl LightingRenderer {
                     } else {
                         (1.0 - (dist / (extended_radius as f32 * 1.2))).max(0.0)
                     };
-                    
+
                     let light_contribution = (source.intensity as f32 * falloff) as u8;
-                    let new_light = (light_map[idx] as u16 + light_contribution as u16).min(255) as u8;
+                    let new_light =
+                        (light_map[idx] as u16 + light_contribution as u16).min(255) as u8;
                     light_map[idx] = new_light;
                 }
             }
@@ -140,14 +147,18 @@ impl LightingRenderer {
         if x < 0 || y < 0 || x >= map_width as i32 || y >= map_height as i32 {
             return 0;
         }
-        
+
         let idx = y as usize * map_width + x as usize;
-        self.light_map.get(idx).copied().unwrap_or(self.config.lighting.ambient_level)
+        self.light_map
+            .get(idx)
+            .copied()
+            .unwrap_or(self.config.lighting.ambient_level)
     }
 
     /// Check if a position is visible (above visibility threshold)
     pub fn is_visible(&self, x: i32, y: i32, map_width: usize, map_height: usize) -> bool {
-        self.get_light_level(x, y, map_width, map_height) >= self.config.lighting.visibility_threshold
+        self.get_light_level(x, y, map_width, map_height)
+            >= self.config.lighting.visibility_threshold
     }
 
     /// Check if a position has glare (too bright)
@@ -156,13 +167,17 @@ impl LightingRenderer {
     }
 
     /// Dim a color based on light level
-    pub fn dim_color(&self, color: ratatui::prelude::Color, light_level: u8) -> ratatui::prelude::Color {
-        if light_level >= 200 { 
-            return color; 
+    pub fn dim_color(
+        &self,
+        color: ratatui::prelude::Color,
+        light_level: u8,
+    ) -> ratatui::prelude::Color {
+        if light_level >= 200 {
+            return color;
         }
-        
+
         let factor = light_level as f32 / 255.0;
-        
+
         match color {
             ratatui::prelude::Color::Rgb(r, g, b) => ratatui::prelude::Color::Rgb(
                 (r as f32 * factor) as u8,
@@ -170,24 +185,24 @@ impl LightingRenderer {
                 (b as f32 * factor) as u8,
             ),
             ratatui::prelude::Color::Gray | ratatui::prelude::Color::DarkGray => {
-                if light_level < 100 { 
-                    ratatui::prelude::Color::Black 
-                } else { 
-                    ratatui::prelude::Color::DarkGray 
+                if light_level < 100 {
+                    ratatui::prelude::Color::Black
+                } else {
+                    ratatui::prelude::Color::DarkGray
                 }
-            },
+            }
             ratatui::prelude::Color::Cyan => {
-                if light_level < 100 { 
-                    ratatui::prelude::Color::DarkGray 
-                } else { 
-                    color 
+                if light_level < 100 {
+                    ratatui::prelude::Color::DarkGray
+                } else {
+                    color
                 }
-            },
+            }
             _ => {
-                if light_level < 100 { 
-                    ratatui::prelude::Color::DarkGray 
-                } else { 
-                    color 
+                if light_level < 100 {
+                    ratatui::prelude::Color::DarkGray
+                } else {
+                    color
                 }
             }
         }
@@ -233,8 +248,12 @@ mod tests {
                         status_effects: std::collections::HashMap::new(),
                     },
                     enemies: std::collections::HashMap::new(),
-                    npcs: NpcColors { base: "Green".to_string() },
-                    items: ItemColors { base: "LightMagenta".to_string() },
+                    npcs: NpcColors {
+                        base: "Green".to_string(),
+                    },
+                    items: ItemColors {
+                        base: "LightMagenta".to_string(),
+                    },
                 },
                 tiles: TileColors {
                     floor: "DarkGray".to_string(),
@@ -315,7 +334,7 @@ mod tests {
     fn test_lighting_disabled() {
         let mut config = create_test_config();
         config.lighting.enabled = false;
-        
+
         let _lighting = LightingRenderer::new(&config);
         // Create a minimal game state for testing
         // This would need to be adapted based on your actual GameState structure
@@ -325,13 +344,13 @@ mod tests {
     fn test_dim_color() {
         let config = create_test_config();
         let lighting = LightingRenderer::new(&config);
-        
+
         let bright_red = ratatui::prelude::Color::Red;
         let dimmed = lighting.dim_color(bright_red, 50); // Use low light level
         // Should be dimmed to DarkGray
         assert_ne!(dimmed, bright_red);
         assert_eq!(dimmed, ratatui::prelude::Color::DarkGray);
-        
+
         let full_bright = lighting.dim_color(bright_red, 255);
         assert_eq!(full_bright, bright_red);
     }

@@ -1,5 +1,5 @@
 //! Quest Satisfaction Constraint System
-//! 
+//!
 //! Ensures that quest content can spawn properly and is reachable/interactable.
 //! Integrates with the existing constraint system to guarantee playable quest content.
 
@@ -7,9 +7,9 @@ use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashSet, VecDeque};
 
+use super::constraints::{ConstraintContext, ConstraintResult, ConstraintSeverity};
 use crate::game::map::{Map, Tile};
 use crate::game::quest::{ObjectiveType, QuestDef, get_quest_def};
-use super::constraints::{ConstraintResult, ConstraintSeverity, ConstraintContext};
 
 /// Quest-specific constraint validation
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -76,7 +76,7 @@ impl QuestConstraintSystem {
         rng: &mut ChaCha8Rng,
     ) -> Vec<ConstraintResult> {
         let mut results = Vec::new();
-        
+
         for quest_id in quest_ids {
             if let Some(quest_def) = get_quest_def(quest_id) {
                 let quest_constraint = Self::generate_quest_constraint(quest_def);
@@ -84,14 +84,14 @@ impl QuestConstraintSystem {
                 results.extend(quest_results);
             }
         }
-        
+
         results
     }
-    
+
     /// Generate quest constraints from quest definition
     fn generate_quest_constraint(quest_def: &QuestDef) -> QuestConstraint {
         let mut objective_requirements = Vec::new();
-        
+
         for objective in &quest_def.objectives {
             let spatial_req = match &objective.objective_type {
                 ObjectiveType::Reach { .. } => SpatialRequirement {
@@ -112,12 +112,14 @@ impl QuestConstraintSystem {
                     requires_line_of_sight: false,
                     requires_safe_path: true,
                 },
-                ObjectiveType::Interact { .. } | ObjectiveType::Examine { .. } => SpatialRequirement {
-                    min_accessible_area: 1,
-                    max_distance_from_spawn: Some(150),
-                    requires_line_of_sight: false,
-                    requires_safe_path: true,
-                },
+                ObjectiveType::Interact { .. } | ObjectiveType::Examine { .. } => {
+                    SpatialRequirement {
+                        min_accessible_area: 1,
+                        max_distance_from_spawn: Some(150),
+                        requires_line_of_sight: false,
+                        requires_safe_path: true,
+                    }
+                }
                 ObjectiveType::InterfaceWithAria { .. } => SpatialRequirement {
                     min_accessible_area: 9, // Archive terminals need more space
                     max_distance_from_spawn: Some(100),
@@ -131,9 +133,9 @@ impl QuestConstraintSystem {
                     requires_safe_path: false,
                 },
             };
-            
+
             let entity_requirements = Self::generate_entity_requirements(&objective.objective_type);
-            
+
             objective_requirements.push(ObjectiveRequirement {
                 objective_id: objective.id.clone(),
                 objective_type: objective.objective_type.clone(),
@@ -141,7 +143,7 @@ impl QuestConstraintSystem {
                 entity_requirements,
             });
         }
-        
+
         // Determine accessibility and spawn requirements based on quest category
         let (accessibility_req, spawn_req) = match quest_def.category.as_str() {
             "main" => (
@@ -155,7 +157,7 @@ impl QuestConstraintSystem {
                     required_microstructures: vec!["vitrified_library_ruins".to_string()],
                     min_structure_coverage: 0.4, // 40% coverage for main quest locations
                     hostile_density_range: (0.3, 0.7), // Moderate to high danger
-                }
+                },
             ),
             "side" => (
                 AccessibilityRequirement {
@@ -168,7 +170,7 @@ impl QuestConstraintSystem {
                     required_microstructures: vec![],
                     min_structure_coverage: 0.1, // 10% coverage minimum
                     hostile_density_range: (0.1, 0.5), // Lower danger
-                }
+                },
             ),
             _ => (
                 AccessibilityRequirement {
@@ -181,10 +183,10 @@ impl QuestConstraintSystem {
                     required_microstructures: vec![],
                     min_structure_coverage: 0.05,
                     hostile_density_range: (0.0, 0.3),
-                }
+                },
             ),
         };
-        
+
         QuestConstraint {
             quest_id: quest_def.id.clone(),
             objective_requirements,
@@ -192,50 +194,44 @@ impl QuestConstraintSystem {
             spawn_requirements: spawn_req,
         }
     }
-    
+
     /// Generate entity requirements for an objective type
     fn generate_entity_requirements(objective_type: &ObjectiveType) -> Vec<EntityRequirement> {
         match objective_type {
-            ObjectiveType::TalkTo { npc_id } => vec![
-                EntityRequirement {
-                    entity_type: "npc".to_string(),
-                    entity_id: npc_id.clone(),
-                    must_be_reachable: true,
-                    must_be_interactable: true,
-                    min_spawn_chance: 0.9,
-                }
-            ],
-            ObjectiveType::Collect { item_id, .. } => vec![
-                EntityRequirement {
-                    entity_type: "item".to_string(),
-                    entity_id: item_id.clone(),
-                    must_be_reachable: true,
-                    must_be_interactable: true,
-                    min_spawn_chance: 0.8,
-                }
-            ],
-            ObjectiveType::Interact { target } | ObjectiveType::Examine { target } => vec![
-                EntityRequirement {
+            ObjectiveType::TalkTo { npc_id } => vec![EntityRequirement {
+                entity_type: "npc".to_string(),
+                entity_id: npc_id.clone(),
+                must_be_reachable: true,
+                must_be_interactable: true,
+                min_spawn_chance: 0.9,
+            }],
+            ObjectiveType::Collect { item_id, .. } => vec![EntityRequirement {
+                entity_type: "item".to_string(),
+                entity_id: item_id.clone(),
+                must_be_reachable: true,
+                must_be_interactable: true,
+                min_spawn_chance: 0.8,
+            }],
+            ObjectiveType::Interact { target } | ObjectiveType::Examine { target } => {
+                vec![EntityRequirement {
                     entity_type: "interactable".to_string(),
                     entity_id: target.clone(),
                     must_be_reachable: true,
                     must_be_interactable: true,
                     min_spawn_chance: 0.9,
-                }
-            ],
-            ObjectiveType::InterfaceWithAria { .. } => vec![
-                EntityRequirement {
-                    entity_type: "npc".to_string(),
-                    entity_id: "archive_terminal".to_string(),
-                    must_be_reachable: true,
-                    must_be_interactable: true,
-                    min_spawn_chance: 1.0,
-                }
-            ],
+                }]
+            }
+            ObjectiveType::InterfaceWithAria { .. } => vec![EntityRequirement {
+                entity_type: "npc".to_string(),
+                entity_id: "archive_terminal".to_string(),
+                must_be_reachable: true,
+                must_be_interactable: true,
+                min_spawn_chance: 1.0,
+            }],
             _ => vec![], // Kill, Wait, CollectData don't require specific entities
         }
     }
-    
+
     /// Validate a single quest's constraints
     fn validate_single_quest(
         quest_constraint: &QuestConstraint,
@@ -243,21 +239,21 @@ impl QuestConstraintSystem {
         _rng: &mut ChaCha8Rng,
     ) -> Vec<ConstraintResult> {
         let mut results = Vec::new();
-        
+
         // Validate accessibility requirements
         results.push(Self::validate_accessibility_requirement(
             &quest_constraint.accessibility_requirements,
             context,
             &quest_constraint.quest_id,
         ));
-        
+
         // Validate spawn requirements
         results.push(Self::validate_spawn_requirement(
             &quest_constraint.spawn_requirements,
             context,
             &quest_constraint.quest_id,
         ));
-        
+
         // Validate each objective requirement
         for obj_req in &quest_constraint.objective_requirements {
             results.extend(Self::validate_objective_requirement(
@@ -266,10 +262,10 @@ impl QuestConstraintSystem {
                 &quest_constraint.quest_id,
             ));
         }
-        
+
         results
     }
-    
+
     /// Validate accessibility requirements
     fn validate_accessibility_requirement(
         req: &AccessibilityRequirement,
@@ -278,21 +274,30 @@ impl QuestConstraintSystem {
     ) -> ConstraintResult {
         let connectivity_score = Self::calculate_connectivity_score(context.map);
         let passed = connectivity_score >= req.min_connectivity_score;
-        
+
         ConstraintResult {
             rule_id: format!("{}_accessibility", quest_id),
             passed,
             severity: ConstraintSeverity::Critical,
             message: if passed {
-                format!("Quest {} accessibility satisfied (score: {:.2})", quest_id, connectivity_score)
+                format!(
+                    "Quest {} accessibility satisfied (score: {:.2})",
+                    quest_id, connectivity_score
+                )
             } else {
-                format!("Quest {} accessibility failed (score: {:.2}, required: {:.2})", 
-                       quest_id, connectivity_score, req.min_connectivity_score)
+                format!(
+                    "Quest {} accessibility failed (score: {:.2}, required: {:.2})",
+                    quest_id, connectivity_score, req.min_connectivity_score
+                )
             },
-            score: if passed { 1.0 } else { connectivity_score / req.min_connectivity_score },
+            score: if passed {
+                1.0
+            } else {
+                connectivity_score / req.min_connectivity_score
+            },
         }
     }
-    
+
     /// Validate spawn requirements
     fn validate_spawn_requirement(
         req: &SpawnRequirement,
@@ -301,13 +306,13 @@ impl QuestConstraintSystem {
     ) -> ConstraintResult {
         let structure_coverage = Self::calculate_structure_coverage(context);
         let hostile_density = Self::calculate_hostile_density(context);
-        
+
         let coverage_ok = structure_coverage >= req.min_structure_coverage;
-        let density_ok = hostile_density >= req.hostile_density_range.0 && 
-                        hostile_density <= req.hostile_density_range.1;
-        
+        let density_ok = hostile_density >= req.hostile_density_range.0
+            && hostile_density <= req.hostile_density_range.1;
+
         let passed = coverage_ok && density_ok;
-        
+
         ConstraintResult {
             rule_id: format!("{}_spawn", quest_id),
             passed,
@@ -315,13 +320,15 @@ impl QuestConstraintSystem {
             message: if passed {
                 format!("Quest {} spawn requirements satisfied", quest_id)
             } else {
-                format!("Quest {} spawn requirements failed (coverage: {:.2}, density: {:.2})", 
-                       quest_id, structure_coverage, hostile_density)
+                format!(
+                    "Quest {} spawn requirements failed (coverage: {:.2}, density: {:.2})",
+                    quest_id, structure_coverage, hostile_density
+                )
             },
             score: if passed { 1.0 } else { 0.5 },
         }
     }
-    
+
     /// Validate objective requirements
     fn validate_objective_requirement(
         req: &ObjectiveRequirement,
@@ -329,7 +336,7 @@ impl QuestConstraintSystem {
         quest_id: &str,
     ) -> Vec<ConstraintResult> {
         let mut results = Vec::new();
-        
+
         // Validate spatial requirements
         results.push(Self::validate_spatial_requirement(
             &req.spatial_requirements,
@@ -337,7 +344,7 @@ impl QuestConstraintSystem {
             quest_id,
             &req.objective_id,
         ));
-        
+
         // Validate entity requirements
         for entity_req in &req.entity_requirements {
             results.push(Self::validate_entity_requirement(
@@ -347,10 +354,10 @@ impl QuestConstraintSystem {
                 &req.objective_id,
             ));
         }
-        
+
         results
     }
-    
+
     /// Validate spatial requirements for an objective
     fn validate_spatial_requirement(
         req: &SpatialRequirement,
@@ -360,7 +367,7 @@ impl QuestConstraintSystem {
     ) -> ConstraintResult {
         let accessible_area = Self::calculate_accessible_area(context.map);
         let passed = accessible_area >= req.min_accessible_area;
-        
+
         ConstraintResult {
             rule_id: format!("{}_{}_spatial", quest_id, objective_id),
             passed,
@@ -368,13 +375,19 @@ impl QuestConstraintSystem {
             message: if passed {
                 format!("Objective {} spatial requirements satisfied", objective_id)
             } else {
-                format!("Objective {} spatial requirements failed (area: {}, required: {})", 
-                       objective_id, accessible_area, req.min_accessible_area)
+                format!(
+                    "Objective {} spatial requirements failed (area: {}, required: {})",
+                    objective_id, accessible_area, req.min_accessible_area
+                )
             },
-            score: if passed { 1.0 } else { accessible_area as f32 / req.min_accessible_area as f32 },
+            score: if passed {
+                1.0
+            } else {
+                accessible_area as f32 / req.min_accessible_area as f32
+            },
         }
     }
-    
+
     /// Validate entity requirements for an objective
     fn validate_entity_requirement(
         req: &EntityRequirement,
@@ -388,39 +401,44 @@ impl QuestConstraintSystem {
         } else {
             true
         };
-        
+
         let passed = entity_present && entity_reachable;
-        
+
         ConstraintResult {
             rule_id: format!("{}_{}_{}_entity", quest_id, objective_id, req.entity_id),
             passed,
             severity: ConstraintSeverity::Critical,
             message: if passed {
-                format!("Entity {} requirements satisfied for objective {}", req.entity_id, objective_id)
+                format!(
+                    "Entity {} requirements satisfied for objective {}",
+                    req.entity_id, objective_id
+                )
             } else {
-                format!("Entity {} requirements failed for objective {} (present: {}, reachable: {})", 
-                       req.entity_id, objective_id, entity_present, entity_reachable)
+                format!(
+                    "Entity {} requirements failed for objective {} (present: {}, reachable: {})",
+                    req.entity_id, objective_id, entity_present, entity_reachable
+                )
             },
             score: if passed { 1.0 } else { 0.0 },
         }
     }
-    
+
     /// Calculate connectivity score for the map
     fn calculate_connectivity_score(map: &Map) -> f32 {
-        let total_floor_tiles = map.tiles.iter()
-            .filter(|tile| tile.walkable())
-            .count();
-        
+        let total_floor_tiles = map.tiles.iter().filter(|tile| tile.walkable()).count();
+
         if total_floor_tiles == 0 {
             return 0.0;
         }
-        
+
         // Find a starting floor tile
-        let start_pos = map.tiles.iter()
+        let start_pos = map
+            .tiles
+            .iter()
             .enumerate()
             .find(|(_, tile)| tile.walkable())
             .map(|(i, _)| (i as i32 % map.width as i32, i as i32 / map.width as i32));
-        
+
         if let Some((start_x, start_y)) = start_pos {
             let reachable_tiles = Self::flood_fill_reachable(map, start_x, start_y);
             reachable_tiles as f32 / total_floor_tiles as f32
@@ -428,48 +446,56 @@ impl QuestConstraintSystem {
             0.0
         }
     }
-    
+
     /// Calculate structure coverage percentage
     fn calculate_structure_coverage(context: &ConstraintContext) -> f32 {
         let total_tiles = (context.map.width * context.map.height) as f32;
-        let structure_tiles = context.map.tiles.iter()
+        let structure_tiles = context
+            .map
+            .tiles
+            .iter()
             .filter(|tile| !matches!(tile, Tile::Glass { .. }))
             .count() as f32;
-        
+
         structure_tiles / total_tiles
     }
-    
+
     /// Calculate hostile entity density
     fn calculate_hostile_density(context: &ConstraintContext) -> f32 {
-        let hostile_count = context.entities.iter()
+        let hostile_count = context
+            .entities
+            .iter()
             .filter(|e| e.entity_type == "enemy")
             .count() as f32;
-        
+
         let total_area = (context.map.width * context.map.height) as f32;
         hostile_count / total_area * 100.0 // Entities per 100 tiles
     }
-    
+
     /// Calculate accessible area
     fn calculate_accessible_area(map: &Map) -> u32 {
-        map.tiles.iter()
-            .filter(|tile| tile.walkable())
-            .count() as u32
+        map.tiles.iter().filter(|tile| tile.walkable()).count() as u32
     }
-    
+
     /// Check if required entity is present
     fn check_entity_presence(req: &EntityRequirement, context: &ConstraintContext) -> bool {
-        context.entities.iter()
-            .any(|e| e.entity_type == req.entity_type && 
-                     e.properties.get("id").map_or(false, |id| id == &req.entity_id))
+        context.entities.iter().any(|e| {
+            e.entity_type == req.entity_type
+                && e.properties
+                    .get("id")
+                    .map_or(false, |id| id == &req.entity_id)
+        })
     }
-    
+
     /// Check if entity is reachable from spawn
     fn check_entity_reachability(req: &EntityRequirement, context: &ConstraintContext) -> bool {
         // Find the entity
-        if let Some(entity) = context.entities.iter()
-            .find(|e| e.entity_type == req.entity_type && 
-                      e.properties.get("id").map_or(false, |id| id == &req.entity_id)) {
-            
+        if let Some(entity) = context.entities.iter().find(|e| {
+            e.entity_type == req.entity_type
+                && e.properties
+                    .get("id")
+                    .map_or(false, |id| id == &req.entity_id)
+        }) {
             // Simple reachability check - ensure the entity is on a walkable tile
             if let Some(tile) = context.map.get(entity.x, entity.y) {
                 tile.walkable()
@@ -480,22 +506,22 @@ impl QuestConstraintSystem {
             false
         }
     }
-    
+
     /// Flood fill to find reachable tiles
     fn flood_fill_reachable(map: &Map, start_x: i32, start_y: i32) -> usize {
         let mut visited = HashSet::new();
         let mut queue = VecDeque::new();
         queue.push_back((start_x, start_y));
-        
+
         while let Some((x, y)) = queue.pop_front() {
             if visited.contains(&(x, y)) {
                 continue;
             }
-            
+
             if let Some(tile) = map.get(x, y) {
                 if tile.walkable() {
                     visited.insert((x, y));
-                    
+
                     // Add neighbors
                     for (dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
                         let nx = x + dx;
@@ -507,7 +533,7 @@ impl QuestConstraintSystem {
                 }
             }
         }
-        
+
         visited.len()
     }
 }
@@ -525,15 +551,16 @@ impl QuestConstraintSystem {
             map,
             biome: crate::game::world_map::Biome::Ruins, // Default for quest locations
             entities: entities.to_vec(),
-            resources: vec![], // Not used for quest validation
+            resources: vec![],  // Not used for quest validation
             objectives: vec![], // Generated from quest definitions
         };
-        
+
         let results = Self::validate_quest_constraints(quest_ids, &context, rng);
-        let critical_satisfied = results.iter()
+        let critical_satisfied = results
+            .iter()
             .filter(|r| r.severity == ConstraintSeverity::Critical)
             .all(|r| r.passed);
-        
+
         (critical_satisfied, results)
     }
 }

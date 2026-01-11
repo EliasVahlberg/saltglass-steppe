@@ -61,11 +61,20 @@ impl ViewportCuller {
     }
 
     /// Get viewport bounds, using cache if camera hasn't moved
-    pub fn get_bounds(&mut self, cam_x: i32, cam_y: i32, width: i32, height: i32) -> (i32, i32, i32, i32) {
+    pub fn get_bounds(
+        &mut self,
+        cam_x: i32,
+        cam_y: i32,
+        width: i32,
+        height: i32,
+    ) -> (i32, i32, i32, i32) {
         // Check if we can use cached bounds
         if let Some(bounds) = self.cached_bounds {
-            if cam_x == self.last_cam_x && cam_y == self.last_cam_y && 
-               width == self.last_width && height == self.last_height {
+            if cam_x == self.last_cam_x
+                && cam_y == self.last_cam_y
+                && width == self.last_width
+                && height == self.last_height
+            {
                 return bounds;
             }
         }
@@ -110,7 +119,7 @@ mod tests {
     fn test_frame_limiter() {
         let mut limiter = FrameLimiter::new(60);
         assert_eq!(limiter.fps(), 60);
-        
+
         limiter.set_fps(30);
         assert_eq!(limiter.fps(), 30);
     }
@@ -118,14 +127,14 @@ mod tests {
     #[test]
     fn test_viewport_culler() {
         let mut culler = ViewportCuller::new();
-        
+
         let bounds = culler.get_bounds(10, 10, 20, 20);
         assert_eq!(bounds, (8, 8, 32, 32)); // With buffer
-        
+
         // Test caching
         let bounds2 = culler.get_bounds(10, 10, 20, 20);
         assert_eq!(bounds, bounds2);
-        
+
         // Test bounds checking
         assert!(culler.is_in_bounds(15, 15, bounds));
         assert!(!culler.is_in_bounds(50, 50, bounds));

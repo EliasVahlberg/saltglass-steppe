@@ -43,7 +43,9 @@ impl MovementSystem {
         };
 
         let cost = action_cost("interact");
-        if state.player_ap < cost { return false; }
+        if state.player_ap < cost {
+            return false;
+        }
         state.player_ap -= cost;
 
         // Build dialogue context
@@ -64,13 +66,17 @@ impl MovementSystem {
         let dialogue = state.npcs[ni].dialogue(&ctx).to_string();
         let name = state.npcs[ni].name().to_string();
         let npc_id = state.npcs[ni].id.clone();
-        let actions: Vec<_> = state.npcs[ni].available_actions(&ctx).into_iter().cloned().collect();
+        let actions: Vec<_> = state.npcs[ni]
+            .available_actions(&ctx)
+            .into_iter()
+            .cloned()
+            .collect();
 
         // Store pending dialogue for UI
         state.pending_dialogue = Some((name.clone(), dialogue.clone()));
         state.log_typed(
             format!("{}: \"{}\"", name, dialogue.replace("</nextpage>", " ")),
-            MsgType::Dialogue
+            MsgType::Dialogue,
         );
 
         // Execute first available action effect
@@ -82,16 +88,19 @@ impl MovementSystem {
             state.npcs[ni].talked = true;
         }
         let completed_quests = state.quest_log.on_npc_talked(&state.npcs[ni].id);
-        
+
         // Provide feedback for completed quests
         for quest_id in completed_quests {
             if let Some(def) = crate::game::quest::get_quest_def(&quest_id) {
                 state.log_typed(format!("Quest completed: {}", def.name), MsgType::System);
-                
+
                 // Log unlocked quests
                 for unlock_id in &def.reward.unlocks_quests {
                     if let Some(unlock_def) = crate::game::quest::get_quest_def(unlock_id) {
-                        state.log_typed(format!("New quest available: {}", unlock_def.name), MsgType::System);
+                        state.log_typed(
+                            format!("New quest available: {}", unlock_def.name),
+                            MsgType::System,
+                        );
                     }
                 }
             }
@@ -101,13 +110,15 @@ impl MovementSystem {
 
         true
     }
-    
+
     /// Check if there are pending quest objectives for this NPC
     fn has_pending_quest_objectives(state: &GameState, npc_id: &str) -> bool {
         for quest in &state.quest_log.active {
             if let Some(def) = quest.def() {
                 for (i, obj) in def.objectives.iter().enumerate() {
-                    if let crate::game::quest::ObjectiveType::TalkTo { npc_id: target } = &obj.objective_type {
+                    if let crate::game::quest::ObjectiveType::TalkTo { npc_id: target } =
+                        &obj.objective_type
+                    {
                         if target == npc_id && !quest.objectives[i].completed {
                             return true;
                         }
@@ -119,17 +130,25 @@ impl MovementSystem {
     }
 
     /// Execute effects from NPC dialogue actions
-    fn execute_npc_action_effects(state: &mut GameState, actions: &[crate::game::npc::NpcAction], npc_id: &str) {
+    fn execute_npc_action_effects(
+        state: &mut GameState,
+        actions: &[crate::game::npc::NpcAction],
+        npc_id: &str,
+    ) {
         for action in actions {
             // Item exchange
-            if let (Some(gives), Some(consumes)) = (&action.effect.gives_item, &action.effect.consumes) {
+            if let (Some(gives), Some(consumes)) =
+                (&action.effect.gives_item, &action.effect.consumes)
+            {
                 if let Some(idx) = state.inventory.iter().position(|id| id == consumes) {
                     state.inventory.remove(idx);
                     state.inventory.push(gives.clone());
-                    let gives_name = get_item_def(gives).map(|d| d.name.as_str()).unwrap_or("item");
+                    let gives_name = get_item_def(gives)
+                        .map(|d| d.name.as_str())
+                        .unwrap_or("item");
                     state.log_typed(
                         format!("The pilgrim presses {} into your hand.", gives_name),
-                        MsgType::Loot
+                        MsgType::Loot,
                     );
                     return;
                 }
@@ -161,7 +180,9 @@ impl MovementSystem {
             state.end_turn();
         }
         let hit = state.attack_melee(new_x, new_y);
-        if hit { state.check_auto_end_turn(); }
+        if hit {
+            state.check_auto_end_turn();
+        }
         hit
     }
 
@@ -178,7 +199,9 @@ impl MovementSystem {
         }
 
         let cost = action_cost("move");
-        if state.player_ap < cost { return false; }
+        if state.player_ap < cost {
+            return false;
+        }
         state.player_ap -= cost;
 
         // Handle pre-movement effects (Mirage Step)
@@ -214,7 +237,11 @@ impl MovementSystem {
 
     /// Handle pre-movement effects like Mirage Step
     fn handle_pre_movement(state: &mut GameState) {
-        if state.adaptations.iter().any(|a| a.has_ability("mirage_step")) {
+        if state
+            .adaptations
+            .iter()
+            .any(|a| a.has_ability("mirage_step"))
+        {
             state.decoys.push(Decoy {
                 x: state.player_x,
                 y: state.player_y,
@@ -239,7 +266,7 @@ impl MovementSystem {
             Tile::Glare => {
                 state.player_ap = (state.player_ap - 1).max(0);
                 state.log("Intense glare impairs your movement! (-1 AP)");
-                
+
                 if state.rng.gen_range(0..100) < 30 {
                     state.log("The glare blinds you temporarily!");
                 }
@@ -278,28 +305,30 @@ impl MovementSystem {
     pub fn pickup_items(state: &mut GameState) {
         let px = state.player_x;
         let py = state.player_y;
-        
+
         let indices = match state.item_positions.remove(&(px, py)) {
             Some(v) => v,
             None => return,
         };
 
         let mut picked_up = Vec::new();
-        
+
         // Process in reverse order to maintain valid indices
         for &i in indices.iter().rev() {
-            if i >= state.items.len() { continue; }
-            
+            if i >= state.items.len() {
+                continue;
+            }
+
             let id = state.items[i].id.clone();
             let def = get_item_def(&id);
-            
+
             // Skip non-pickup items (e.g., light sources)
             if !def.map(|d| d.pickup).unwrap_or(true) {
                 continue;
             }
-            
+
             let name = def.map(|d| d.name.as_str()).unwrap_or("item");
-            
+
             // Trigger on_pickup effects
             if let Some(d) = def {
                 for e in &d.effects {
@@ -308,10 +337,12 @@ impl MovementSystem {
                     }
                 }
             }
-            
+
             state.inventory.push(id.clone());
             state.quest_log.on_item_collected(&id);
-            state.emit(GameEvent::ItemPickedUp { item_id: id.clone() });
+            state.emit(GameEvent::ItemPickedUp {
+                item_id: id.clone(),
+            });
             state.meta.discover_item(&id);
             state.log_typed(format!("Picked up {}.", name), MsgType::Loot);
             picked_up.push(i);
@@ -323,7 +354,7 @@ impl MovementSystem {
                 state.items.remove(i);
             }
         }
-        
+
         // Rebuild spatial index
         state.rebuild_spatial_index();
     }

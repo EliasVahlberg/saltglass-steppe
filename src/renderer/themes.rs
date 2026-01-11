@@ -57,102 +57,111 @@ pub struct ThemeUiColors {
 impl Default for ThemeConfig {
     fn default() -> Self {
         let mut themes = HashMap::new();
-        
+
         // Classic theme
-        themes.insert("classic".to_string(), Theme {
-            name: "Classic".to_string(),
-            description: "Traditional roguelike colors".to_string(),
-            colors: ThemeColors {
-                entities: ThemeEntityColors {
-                    player: "Yellow".to_string(),
-                    enemies: "Red".to_string(),
-                    npcs: "Green".to_string(),
-                    items: "LightMagenta".to_string(),
-                },
-                tiles: ThemeTileColors {
-                    floor: "DarkGray".to_string(),
-                    wall: "Gray".to_string(),
-                    glass: "Cyan".to_string(),
-                    stairs: "Yellow".to_string(),
-                    world_exit: "Green".to_string(),
-                },
-                lighting: ThemeLightingColors {
-                    torch: "Yellow".to_string(),
-                    ambient: "DarkGray".to_string(),
-                },
-                ui: ThemeUiColors {
-                    revealed_tile: "DarkGray".to_string(),
-                    look_cursor_bg: "White".to_string(),
-                    look_cursor_fg: "Black".to_string(),
-                    hit_flash_bg: "Red".to_string(),
-                    hit_flash_fg: "White".to_string(),
+        themes.insert(
+            "classic".to_string(),
+            Theme {
+                name: "Classic".to_string(),
+                description: "Traditional roguelike colors".to_string(),
+                colors: ThemeColors {
+                    entities: ThemeEntityColors {
+                        player: "Yellow".to_string(),
+                        enemies: "Red".to_string(),
+                        npcs: "Green".to_string(),
+                        items: "LightMagenta".to_string(),
+                    },
+                    tiles: ThemeTileColors {
+                        floor: "DarkGray".to_string(),
+                        wall: "Gray".to_string(),
+                        glass: "Cyan".to_string(),
+                        stairs: "Yellow".to_string(),
+                        world_exit: "Green".to_string(),
+                    },
+                    lighting: ThemeLightingColors {
+                        torch: "Yellow".to_string(),
+                        ambient: "DarkGray".to_string(),
+                    },
+                    ui: ThemeUiColors {
+                        revealed_tile: "DarkGray".to_string(),
+                        look_cursor_bg: "White".to_string(),
+                        look_cursor_fg: "Black".to_string(),
+                        hit_flash_bg: "Red".to_string(),
+                        hit_flash_fg: "White".to_string(),
+                    },
                 },
             },
-        });
+        );
 
         // Dark theme
-        themes.insert("dark".to_string(), Theme {
-            name: "Dark".to_string(),
-            description: "Dark mode with muted colors".to_string(),
-            colors: ThemeColors {
-                entities: ThemeEntityColors {
-                    player: "LightYellow".to_string(),
-                    enemies: "LightRed".to_string(),
-                    npcs: "LightGreen".to_string(),
-                    items: "LightMagenta".to_string(),
-                },
-                tiles: ThemeTileColors {
-                    floor: "Black".to_string(),
-                    wall: "DarkGray".to_string(),
-                    glass: "DarkGray".to_string(),
-                    stairs: "LightYellow".to_string(),
-                    world_exit: "LightGreen".to_string(),
-                },
-                lighting: ThemeLightingColors {
-                    torch: "LightYellow".to_string(),
-                    ambient: "Black".to_string(),
-                },
-                ui: ThemeUiColors {
-                    revealed_tile: "Black".to_string(),
-                    look_cursor_bg: "Gray".to_string(),
-                    look_cursor_fg: "White".to_string(),
-                    hit_flash_bg: "DarkGray".to_string(),
-                    hit_flash_fg: "LightRed".to_string(),
+        themes.insert(
+            "dark".to_string(),
+            Theme {
+                name: "Dark".to_string(),
+                description: "Dark mode with muted colors".to_string(),
+                colors: ThemeColors {
+                    entities: ThemeEntityColors {
+                        player: "LightYellow".to_string(),
+                        enemies: "LightRed".to_string(),
+                        npcs: "LightGreen".to_string(),
+                        items: "LightMagenta".to_string(),
+                    },
+                    tiles: ThemeTileColors {
+                        floor: "Black".to_string(),
+                        wall: "DarkGray".to_string(),
+                        glass: "DarkGray".to_string(),
+                        stairs: "LightYellow".to_string(),
+                        world_exit: "LightGreen".to_string(),
+                    },
+                    lighting: ThemeLightingColors {
+                        torch: "LightYellow".to_string(),
+                        ambient: "Black".to_string(),
+                    },
+                    ui: ThemeUiColors {
+                        revealed_tile: "Black".to_string(),
+                        look_cursor_bg: "Gray".to_string(),
+                        look_cursor_fg: "White".to_string(),
+                        hit_flash_bg: "DarkGray".to_string(),
+                        hit_flash_fg: "LightRed".to_string(),
+                    },
                 },
             },
-        });
+        );
 
         // High contrast theme
-        themes.insert("high_contrast".to_string(), Theme {
-            name: "High Contrast".to_string(),
-            description: "High contrast for accessibility".to_string(),
-            colors: ThemeColors {
-                entities: ThemeEntityColors {
-                    player: "White".to_string(),
-                    enemies: "Red".to_string(),
-                    npcs: "Green".to_string(),
-                    items: "Magenta".to_string(),
-                },
-                tiles: ThemeTileColors {
-                    floor: "Black".to_string(),
-                    wall: "White".to_string(),
-                    glass: "White".to_string(),
-                    stairs: "Yellow".to_string(),
-                    world_exit: "Green".to_string(),
-                },
-                lighting: ThemeLightingColors {
-                    torch: "White".to_string(),
-                    ambient: "Black".to_string(),
-                },
-                ui: ThemeUiColors {
-                    revealed_tile: "Black".to_string(),
-                    look_cursor_bg: "Yellow".to_string(),
-                    look_cursor_fg: "Black".to_string(),
-                    hit_flash_bg: "White".to_string(),
-                    hit_flash_fg: "Black".to_string(),
+        themes.insert(
+            "high_contrast".to_string(),
+            Theme {
+                name: "High Contrast".to_string(),
+                description: "High contrast for accessibility".to_string(),
+                colors: ThemeColors {
+                    entities: ThemeEntityColors {
+                        player: "White".to_string(),
+                        enemies: "Red".to_string(),
+                        npcs: "Green".to_string(),
+                        items: "Magenta".to_string(),
+                    },
+                    tiles: ThemeTileColors {
+                        floor: "Black".to_string(),
+                        wall: "White".to_string(),
+                        glass: "White".to_string(),
+                        stairs: "Yellow".to_string(),
+                        world_exit: "Green".to_string(),
+                    },
+                    lighting: ThemeLightingColors {
+                        torch: "White".to_string(),
+                        ambient: "Black".to_string(),
+                    },
+                    ui: ThemeUiColors {
+                        revealed_tile: "Black".to_string(),
+                        look_cursor_bg: "Yellow".to_string(),
+                        look_cursor_fg: "Black".to_string(),
+                        hit_flash_bg: "White".to_string(),
+                        hit_flash_fg: "Black".to_string(),
+                    },
                 },
             },
-        });
+        );
 
         Self {
             themes,

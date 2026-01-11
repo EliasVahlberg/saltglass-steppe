@@ -1,11 +1,11 @@
-use serde::{Deserialize, Serialize};
 use once_cell::sync::Lazy;
-use std::collections::HashMap;
 use rand::Rng;
 use rand_chacha::ChaCha8Rng;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
+use super::{WeightedEntry, WeightedSpawn, WeightedTable, weighted_pick};
 use crate::game::item::Item;
-use super::{weighted_pick, WeightedTable, WeightedEntry, WeightedSpawn};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LootEntry {
@@ -28,8 +28,12 @@ pub struct LootTable {
 
 static LOOT_TABLES: Lazy<HashMap<String, LootTable>> = Lazy::new(|| {
     let data = include_str!("../../../data/loot_tables.json");
-    let tables: Vec<LootTable> = serde_json::from_str(data).expect("Failed to parse loot_tables.json");
-    tables.into_iter().map(|table| (table.id.clone(), table)).collect()
+    let tables: Vec<LootTable> =
+        serde_json::from_str(data).expect("Failed to parse loot_tables.json");
+    tables
+        .into_iter()
+        .map(|table| (table.id.clone(), table))
+        .collect()
 });
 
 pub fn get_loot_table(id: &str) -> Option<&'static LootTable> {
@@ -41,22 +45,25 @@ pub fn generate_loot(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8Rng) -> Ve
         Some(t) => t,
         None => return Vec::new(),
     };
-    
+
     let mut loot = Vec::new();
     let item_count = rng.gen_range(table.min_items..=table.max_items);
-    
+
     for _ in 0..item_count {
         // Filter entries by chance
-        let available_entries: Vec<_> = table.entries.iter()
+        let available_entries: Vec<_> = table
+            .entries
+            .iter()
             .filter(|entry| rng.gen_range(0.0..1.0) < entry.chance)
             .collect();
-            
+
         if available_entries.is_empty() {
             continue;
         }
-        
+
         // Create weighted spawn entries for selection
-        let weighted_entries: Vec<_> = available_entries.iter()
+        let weighted_entries: Vec<_> = available_entries
+            .iter()
             .map(|entry| WeightedSpawn {
                 id: entry.item_id.clone(),
                 weight: entry.weight,
@@ -65,19 +72,20 @@ pub fn generate_loot(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8Rng) -> Ve
                 max_level: 10,
             })
             .collect();
-            
+
         if let Some(item_id) = weighted_pick(&weighted_entries, rng) {
-            let entry = available_entries.iter()
+            let entry = available_entries
+                .iter()
                 .find(|e| e.item_id == item_id)
                 .unwrap();
-                
+
             let count = rng.gen_range(entry.min_count..=entry.max_count);
             for _ in 0..count {
                 loot.push(Item::new(x, y, item_id));
             }
         }
     }
-    
+
     loot
 }
 
@@ -87,27 +95,33 @@ pub fn generate_loot_enhanced(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8R
         Some(t) => t,
         None => return Vec::new(),
     };
-    
+
     let mut loot = Vec::new();
     let item_count = rng.gen_range(table.min_items..=table.max_items);
-    
+
     for _ in 0..item_count {
         // Filter entries by chance and create weighted table
-        let available_entries: Vec<_> = table.entries.iter()
+        let available_entries: Vec<_> = table
+            .entries
+            .iter()
             .filter(|entry| rng.gen_range(0.0..1.0) < entry.chance)
             .collect();
-            
+
         if available_entries.is_empty() {
             continue;
         }
-        
+
         // Create weighted table directly
-        let weighted_entries: Vec<WeightedEntry<&LootEntry>> = available_entries.iter()
-            .map(|entry| WeightedEntry { item: *entry, weight: entry.weight as f32 })
+        let weighted_entries: Vec<WeightedEntry<&LootEntry>> = available_entries
+            .iter()
+            .map(|entry| WeightedEntry {
+                item: *entry,
+                weight: entry.weight as f32,
+            })
             .collect();
-            
+
         let weighted_table = WeightedTable::new(weighted_entries);
-        
+
         if let Some(entry) = weighted_table.select(rng) {
             let count = rng.gen_range(entry.min_count..=entry.max_count);
             for _ in 0..count {
@@ -115,6 +129,6 @@ pub fn generate_loot_enhanced(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8R
             }
         }
     }
-    
+
     loot
 }

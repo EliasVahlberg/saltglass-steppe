@@ -1,6 +1,6 @@
-use std::fs;
-use serde::{Deserialize, Serialize};
 use crate::GameState;
+use serde::{Deserialize, Serialize};
+use std::fs;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DesTest {
@@ -58,12 +58,19 @@ impl DesTest {
 
         // Load initial state
         let mut state = GameState::load_debug_state(&self.initial_state_file)?;
-        result.execution_log.push(format!("Loaded initial state: {}", self.initial_state_file));
+        result
+            .execution_log
+            .push(format!("Loaded initial state: {}", self.initial_state_file));
 
         // Execute actions
         for (i, action) in self.actions.iter().enumerate() {
-            result.execution_log.push(format!("Action {}: {} - {}", i + 1, action.action_type, action.description));
-            
+            result.execution_log.push(format!(
+                "Action {}: {} - {}",
+                i + 1,
+                action.action_type,
+                action.description
+            ));
+
             match self.execute_action(&mut state, action) {
                 Ok(msg) => result.execution_log.push(format!("  Success: {}", msg)),
                 Err(e) => {
@@ -77,37 +84,59 @@ impl DesTest {
         for expectation in &self.expected_outcomes {
             match self.check_expectation(&state, expectation) {
                 Ok(true) => {
-                    result.execution_log.push(format!("✓ {}", expectation.description));
+                    result
+                        .execution_log
+                        .push(format!("✓ {}", expectation.description));
                 }
                 Ok(false) => {
-                    result.execution_log.push(format!("✗ {}", expectation.description));
-                    result.failed_expectations.push(expectation.description.clone());
+                    result
+                        .execution_log
+                        .push(format!("✗ {}", expectation.description));
+                    result
+                        .failed_expectations
+                        .push(expectation.description.clone());
                     result.passed = false;
                 }
                 Err(e) => {
-                    result.execution_log.push(format!("✗ {} (Error: {})", expectation.description, e));
-                    result.failed_expectations.push(format!("{} (Error: {})", expectation.description, e));
+                    result
+                        .execution_log
+                        .push(format!("✗ {} (Error: {})", expectation.description, e));
+                    result
+                        .failed_expectations
+                        .push(format!("{} (Error: {})", expectation.description, e));
                     result.passed = false;
                 }
             }
         }
 
         // Save final state
-        let final_state_filename = format!("des_final_{}_{}.ron", self.name, chrono::Utc::now().format("%Y%m%d_%H%M%S"));
+        let final_state_filename = format!(
+            "des_final_{}_{}.ron",
+            self.name,
+            chrono::Utc::now().format("%Y%m%d_%H%M%S")
+        );
         match state.save_debug_state(&final_state_filename) {
             Ok(_) => {
                 result.final_state_file = Some(final_state_filename.clone());
-                result.execution_log.push(format!("Final state saved: {}", final_state_filename));
+                result
+                    .execution_log
+                    .push(format!("Final state saved: {}", final_state_filename));
             }
             Err(e) => {
-                result.execution_log.push(format!("Failed to save final state: {}", e));
+                result
+                    .execution_log
+                    .push(format!("Failed to save final state: {}", e));
             }
         }
 
         Ok(result)
     }
 
-    fn execute_action(&self, state: &mut GameState, action: &DesAction) -> Result<String, Box<dyn std::error::Error>> {
+    fn execute_action(
+        &self,
+        state: &mut GameState,
+        action: &DesAction,
+    ) -> Result<String, Box<dyn std::error::Error>> {
         match action.action_type.as_str() {
             "move" => {
                 if action.parameters.len() >= 2 {
@@ -115,7 +144,10 @@ impl DesTest {
                     let dy: i32 = action.parameters[1].parse()?;
                     let old_pos = (state.player_x, state.player_y);
                     state.try_move(dx, dy);
-                    Ok(format!("Moved from ({},{}) to ({},{})", old_pos.0, old_pos.1, state.player_x, state.player_y))
+                    Ok(format!(
+                        "Moved from ({},{}) to ({},{})",
+                        old_pos.0, old_pos.1, state.player_x, state.player_y
+                    ))
                 } else {
                     Err("Move action requires dx and dy parameters".into())
                 }
@@ -155,11 +187,15 @@ impl DesTest {
                     Err("Debug command action requires command parameter".into())
                 }
             }
-            _ => Err(format!("Unknown action type: {}", action.action_type).into())
+            _ => Err(format!("Unknown action type: {}", action.action_type).into()),
         }
     }
 
-    fn check_expectation(&self, state: &GameState, expectation: &DesExpectation) -> Result<bool, Box<dyn std::error::Error>> {
+    fn check_expectation(
+        &self,
+        state: &GameState,
+        expectation: &DesExpectation,
+    ) -> Result<bool, Box<dyn std::error::Error>> {
         match expectation.check_type.as_str() {
             "player_hp" => {
                 let expected: i32 = expectation.expected_value.parse()?;
@@ -175,9 +211,7 @@ impl DesTest {
                     Err("Position expectation must be in format 'x,y'".into())
                 }
             }
-            "inventory_contains" => {
-                Ok(state.inventory.contains(&expectation.expected_value))
-            }
+            "inventory_contains" => Ok(state.inventory.contains(&expectation.expected_value)),
             "inventory_count" => {
                 let expected: usize = expectation.expected_value.parse()?;
                 Ok(state.inventory.len() == expected)
@@ -190,7 +224,7 @@ impl DesTest {
                 let expected: usize = expectation.expected_value.parse()?;
                 Ok(state.enemies.len() == expected)
             }
-            _ => Err(format!("Unknown expectation type: {}", expectation.check_type).into())
+            _ => Err(format!("Unknown expectation type: {}", expectation.check_type).into()),
         }
     }
 }
@@ -204,27 +238,27 @@ pub fn run_des_test_file(path: &str) -> Result<DesTestResult, Box<dyn std::error
     } else {
         return Err(format!("Test file not found: {}", path).into());
     };
-    
+
     let test = DesTest::load_from_file(&test_path)?;
     test.execute()
 }
 
 pub fn list_des_tests() -> Result<Vec<String>, Box<dyn std::error::Error>> {
     let mut tests = Vec::new();
-    
+
     // Check tests directory first, then current directory for backward compatibility
     let dirs = ["tests", "."];
-    
+
     for dir in &dirs {
         if std::path::Path::new(dir).exists() {
             for entry in fs::read_dir(dir)? {
                 let entry = entry?;
                 if let Some(name) = entry.file_name().to_str() {
                     if name.ends_with("_test.des") || name.ends_with(".des") {
-                        let path = if *dir == "." { 
-                            name.to_string() 
-                        } else { 
-                            format!("{}/{}", dir, name) 
+                        let path = if *dir == "." {
+                            name.to_string()
+                        } else {
+                            format!("{}/{}", dir, name)
                         };
                         if !tests.contains(&path) {
                             tests.push(path);
@@ -234,7 +268,7 @@ pub fn list_des_tests() -> Result<Vec<String>, Box<dyn std::error::Error>> {
             }
         }
     }
-    
+
     tests.sort();
     Ok(tests)
 }
@@ -261,13 +295,11 @@ pub fn create_sample_des_test() -> DesTest {
                 description: "Wait one turn".to_string(),
             },
         ],
-        expected_outcomes: vec![
-            DesExpectation {
-                check_type: "turn_number".to_string(),
-                expected_value: "3".to_string(),
-                description: "Should be on turn 3".to_string(),
-            },
-        ],
+        expected_outcomes: vec![DesExpectation {
+            check_type: "turn_number".to_string(),
+            expected_value: "3".to_string(),
+            description: "Should be on turn 3".to_string(),
+        }],
     }
 }
 

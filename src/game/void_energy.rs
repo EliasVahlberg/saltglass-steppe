@@ -1,15 +1,15 @@
-use serde::{Deserialize, Serialize};
-use rand_chacha::ChaCha8Rng;
 use rand::Rng;
+use rand_chacha::ChaCha8Rng;
+use serde::{Deserialize, Serialize};
 
 /// Void exposure levels and effects
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum VoidExposureLevel {
-    None,       // 0-10 exposure
-    Minimal,    // 11-25 exposure
-    Moderate,   // 26-50 exposure
-    High,       // 51-75 exposure
-    Extreme,    // 76-100 exposure
+    None,     // 0-10 exposure
+    Minimal,  // 11-25 exposure
+    Moderate, // 26-50 exposure
+    High,     // 51-75 exposure
+    Extreme,  // 76-100 exposure
 }
 
 impl VoidExposureLevel {
@@ -37,11 +37,11 @@ impl VoidExposureLevel {
 /// Void-based abilities
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum VoidAbility {
-    VoidStep,       // Short-range teleportation
-    RealityRend,    // Damage that ignores armor
-    VoidShield,     // Absorb damage using void energy
-    PhaseWalk,      // Walk through walls temporarily
-    VoidDrain,      // Drain energy from enemies
+    VoidStep,    // Short-range teleportation
+    RealityRend, // Damage that ignores armor
+    VoidShield,  // Absorb damage using void energy
+    PhaseWalk,   // Walk through walls temporarily
+    VoidDrain,   // Drain energy from enemies
 }
 
 impl VoidAbility {
@@ -78,10 +78,10 @@ pub struct RealityDistortion {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DistortionType {
-    Temporal,    // Time flows differently
-    Spatial,     // Space is warped
-    Material,    // Matter becomes unstable
-    Psychic,     // Mental effects
+    Temporal, // Time flows differently
+    Spatial,  // Space is warped
+    Material, // Matter becomes unstable
+    Psychic,  // Mental effects
 }
 
 /// Void energy system state
@@ -117,13 +117,13 @@ impl VoidSystem {
     pub fn add_exposure(&mut self, amount: u32) -> bool {
         let old_level = self.exposure_level();
         self.void_exposure = (self.void_exposure + amount).min(100);
-        
+
         // Increase max void energy as exposure increases
         self.max_void_energy = 50 + (self.void_exposure / 2);
-        
+
         // Check for new ability unlocks
         self.check_ability_unlocks();
-        
+
         // Return true if exposure level changed
         old_level != self.exposure_level()
     }
@@ -139,8 +139,9 @@ impl VoidSystem {
         ];
 
         for ability in abilities {
-            if self.void_exposure >= ability.min_exposure_required() 
-                && !self.unlocked_abilities.contains(&ability) {
+            if self.void_exposure >= ability.min_exposure_required()
+                && !self.unlocked_abilities.contains(&ability)
+            {
                 self.unlocked_abilities.push(ability);
             }
         }
@@ -175,17 +176,28 @@ impl VoidSystem {
     }
 
     /// Create reality distortion at position
-    pub fn create_distortion(&mut self, x: i32, y: i32, intensity: u8, 
-                           duration: u32, effect_type: DistortionType) {
+    pub fn create_distortion(
+        &mut self,
+        x: i32,
+        y: i32,
+        intensity: u8,
+        duration: u32,
+        effect_type: DistortionType,
+    ) {
         let distortion = RealityDistortion {
-            x, y, intensity, duration, effect_type
+            x,
+            y,
+            intensity,
+            duration,
+            effect_type,
         };
         self.active_distortions.push(distortion);
     }
 
     /// Check if position has reality distortion
     pub fn has_distortion(&self, x: i32, y: i32) -> Option<&RealityDistortion> {
-        self.active_distortions.iter()
+        self.active_distortions
+            .iter()
             .find(|d| d.x == x && d.y == y)
     }
 
@@ -277,7 +289,7 @@ impl VoidSystem {
         }
 
         let base_damage = 15 + (self.void_exposure / 10);
-        
+
         // Create distortion at target
         self.create_distortion(target_x, target_y, 3, 2, DistortionType::Material);
 

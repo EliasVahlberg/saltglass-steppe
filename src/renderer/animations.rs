@@ -135,11 +135,12 @@ impl Animation {
                 base_style.fg(color)
             }
             AnimationType::Glow { config } => {
-                let cycle_progress = (progress * config.intensity_steps as f32) % config.intensity_steps as f32;
+                let cycle_progress =
+                    (progress * config.intensity_steps as f32) % config.intensity_steps as f32;
                 let intensity = (cycle_progress.sin().abs() * 255.0) as u8;
                 let base_color = parse_color(&config.base_color);
                 let glow_color = parse_color(&config.glow_color);
-                
+
                 // Blend colors based on intensity
                 let blended_color = blend_colors(base_color, glow_color, intensity);
                 base_style.fg(blended_color)
@@ -161,10 +162,10 @@ impl Animation {
                 let elapsed = self.start_time.elapsed();
                 let progress = elapsed.as_secs_f32();
                 let frequency = config.frequency_hz * 2.0 * std::f32::consts::PI;
-                
+
                 let x_offset = (progress * frequency).sin() * config.intensity as f32;
                 let y_offset = (progress * frequency * 1.3).cos() * config.intensity as f32;
-                
+
                 (x_offset as i16, y_offset as i16)
             }
             _ => (0, 0),
@@ -205,9 +206,9 @@ impl AnimationSystem {
     }
 
     pub fn get_combined_style(&self, base_style: Style) -> Style {
-        self.animations.iter().fold(base_style, |style, animation| {
-            animation.get_style(style)
-        })
+        self.animations
+            .iter()
+            .fold(base_style, |style, animation| animation.get_style(style))
     }
 
     pub fn get_screen_offset(&self) -> (i16, i16) {
@@ -242,9 +243,5 @@ fn parse_color(color_str: &str) -> Color {
 
 fn blend_colors(base: Color, glow: Color, intensity: u8) -> Color {
     // Simple color blending - in a real implementation you might want more sophisticated blending
-    if intensity > 128 {
-        glow
-    } else {
-        base
-    }
+    if intensity > 128 { glow } else { base }
 }

@@ -1,6 +1,6 @@
 use crate::game::generation::structures::Rectangle;
-use rand_chacha::ChaCha8Rng;
 use rand::Rng;
+use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -26,7 +26,7 @@ impl Default for WaveFunctionCollapseParams {
         weights.insert("floor".to_string(), 0.6);
         weights.insert("wall".to_string(), 0.3);
         weights.insert("door".to_string(), 0.1);
-        
+
         Self {
             tile_size: 3,
             overlap: 1,
@@ -60,14 +60,24 @@ impl WaveFunctionCollapseGenerator {
         Self { params, patterns }
     }
 
-    pub fn generate(&self, bounds: Rectangle, rng: &mut ChaCha8Rng) -> HashMap<String, Vec<(u32, u32)>> {
+    pub fn generate(
+        &self,
+        bounds: Rectangle,
+        rng: &mut ChaCha8Rng,
+    ) -> HashMap<String, Vec<(u32, u32)>> {
         let grid_width = (bounds.width / self.params.tile_size) as usize;
         let grid_height = (bounds.height / self.params.tile_size) as usize;
-        
-        let mut grid = vec![vec![Cell {
-            possible_patterns: (0..self.patterns.len()).collect(),
-            collapsed: false,
-        }; grid_width]; grid_height];
+
+        let mut grid = vec![
+            vec![
+                Cell {
+                    possible_patterns: (0..self.patterns.len()).collect(),
+                    collapsed: false,
+                };
+                grid_width
+            ];
+            grid_height
+        ];
 
         let mut iterations = 0;
         while iterations < self.params.max_iterations && !self.is_fully_collapsed(&grid) {
@@ -75,13 +85,13 @@ impl WaveFunctionCollapseGenerator {
             if let Some((x, y)) = self.find_minimum_entropy_cell(&grid) {
                 // Collapse the cell
                 self.collapse_cell(&mut grid, x, y, rng);
-                
+
                 // Propagate constraints (simplified)
                 self.propagate_constraints(&mut grid, x, y);
             } else {
                 break; // No more cells to collapse or contradiction
             }
-            
+
             iterations += 1;
         }
 
@@ -92,7 +102,7 @@ impl WaveFunctionCollapseGenerator {
     fn generate_basic_patterns(params: &WaveFunctionCollapseParams) -> Vec<Pattern> {
         let mut patterns = Vec::new();
         let size = params.tile_size as usize;
-        
+
         // Generate basic patterns
         for (tile_type, &weight) in &params.pattern_weights {
             // Solid pattern
@@ -102,7 +112,7 @@ impl WaveFunctionCollapseGenerator {
             };
             patterns.push(solid_pattern);
         }
-        
+
         patterns
     }
 
@@ -113,7 +123,7 @@ impl WaveFunctionCollapseGenerator {
     fn find_minimum_entropy_cell(&self, grid: &[Vec<Cell>]) -> Option<(usize, usize)> {
         let mut min_entropy = usize::MAX;
         let mut candidates = Vec::new();
-        
+
         for (y, row) in grid.iter().enumerate() {
             for (x, cell) in row.iter().enumerate() {
                 if !cell.collapsed {
@@ -128,7 +138,7 @@ impl WaveFunctionCollapseGenerator {
                 }
             }
         }
-        
+
         if candidates.is_empty() {
             None
         } else {
@@ -141,16 +151,18 @@ impl WaveFunctionCollapseGenerator {
         if cell.possible_patterns.is_empty() {
             return; // Contradiction - cannot collapse
         }
-        
+
         // Weighted random selection
-        let total_weight: f32 = cell.possible_patterns.iter()
+        let total_weight: f32 = cell
+            .possible_patterns
+            .iter()
             .map(|&i| self.patterns[i].weight)
             .sum();
-        
+
         let random_val = rng.r#gen::<f32>();
         let mut roll = random_val * total_weight;
         let mut selected_pattern = 0;
-        
+
         for &pattern_idx in &cell.possible_patterns {
             roll -= self.patterns[pattern_idx].weight;
             if roll <= 0.0 {
@@ -158,7 +170,7 @@ impl WaveFunctionCollapseGenerator {
                 break;
             }
         }
-        
+
         cell.possible_patterns = vec![selected_pattern];
         cell.collapsed = true;
     }
@@ -166,16 +178,15 @@ impl WaveFunctionCollapseGenerator {
     fn propagate_constraints(&self, grid: &mut [Vec<Cell>], start_x: usize, start_y: usize) {
         // Simplified constraint propagation - just ensure neighboring cells are compatible
         let directions = [(0i32, 1i32), (1, 0), (0, -1), (-1, 0)];
-        
+
         for (dx, dy) in directions {
             let nx = start_x as i32 + dx;
             let ny = start_y as i32 + dy;
-            
-            if nx >= 0 && ny >= 0 && 
-               (nx as usize) < grid[0].len() && (ny as usize) < grid.len() {
+
+            if nx >= 0 && ny >= 0 && (nx as usize) < grid[0].len() && (ny as usize) < grid.len() {
                 let nx = nx as usize;
                 let ny = ny as usize;
-                
+
                 if !grid[ny][nx].collapsed {
                     // Simplified: just remove incompatible patterns
                     let reference_pattern = grid[start_y][start_x].possible_patterns[0];
@@ -192,23 +203,30 @@ impl WaveFunctionCollapseGenerator {
         true
     }
 
-    fn grid_to_world_coords(&self, grid: &[Vec<Cell>], bounds: &Rectangle) -> HashMap<String, Vec<(u32, u32)>> {
+    fn grid_to_world_coords(
+        &self,
+        grid: &[Vec<Cell>],
+        bounds: &Rectangle,
+    ) -> HashMap<String, Vec<(u32, u32)>> {
         let mut result: HashMap<String, Vec<(u32, u32)>> = HashMap::new();
         let tile_size = self.params.tile_size;
-        
+
         for (grid_y, row) in grid.iter().enumerate() {
             for (grid_x, cell) in row.iter().enumerate() {
                 if cell.collapsed && !cell.possible_patterns.is_empty() {
                     let pattern_idx = cell.possible_patterns[0];
                     let pattern = &self.patterns[pattern_idx];
-                    
+
                     for (py, pattern_row) in pattern.tiles.iter().enumerate() {
                         for (px, tile_type) in pattern_row.iter().enumerate() {
                             let world_x = bounds.x + (grid_x as u32 * tile_size) + px as u32;
                             let world_y = bounds.y + (grid_y as u32 * tile_size) + py as u32;
-                            
-                            if world_x < bounds.x + bounds.width && world_y < bounds.y + bounds.height {
-                                result.entry(tile_type.clone())
+
+                            if world_x < bounds.x + bounds.width
+                                && world_y < bounds.y + bounds.height
+                            {
+                                result
+                                    .entry(tile_type.clone())
                                     .or_insert_with(Vec::new)
                                     .push((world_x, world_y));
                             }
@@ -217,7 +235,7 @@ impl WaveFunctionCollapseGenerator {
                 }
             }
         }
-        
+
         result
     }
 }

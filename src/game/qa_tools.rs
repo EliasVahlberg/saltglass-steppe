@@ -66,10 +66,18 @@ pub struct DebugInfo {
 }
 
 impl GameState {
-    pub fn create_issue_report(&self, description: String, steps: Vec<String>, expected: String, actual: String, severity: IssueSeverity, category: IssueCategory) -> IssueReport {
+    pub fn create_issue_report(
+        &self,
+        description: String,
+        steps: Vec<String>,
+        expected: String,
+        actual: String,
+        severity: IssueSeverity,
+        category: IssueCategory,
+    ) -> IssueReport {
         let timestamp = chrono::Utc::now().format("%Y-%m-%d_%H-%M-%S").to_string();
         let id = format!("issue_{}", timestamp);
-        
+
         IssueReport {
             id: id.clone(),
             timestamp,
@@ -103,7 +111,7 @@ impl GameState {
         } else {
             format!("debug_states/{}", filename)
         };
-        
+
         let content = fs::read_to_string(&path)?;
         let state: GameState = ron::from_str(&content)?;
         Ok(state)
@@ -112,12 +120,14 @@ impl GameState {
     pub fn get_debug_info(&self) -> DebugInfo {
         let mut metrics = HashMap::new();
         metrics.insert("fov_calculation_time".to_string(), 0.0); // Placeholder
-        metrics.insert("ai_processing_time".to_string(), 0.0);   // Placeholder
-        
-        let tile_seed = self.world_map.as_ref()
+        metrics.insert("ai_processing_time".to_string(), 0.0); // Placeholder
+
+        let tile_seed = self
+            .world_map
+            .as_ref()
             .map(|wm| wm.tile_seed(self.world_x, self.world_y))
             .unwrap_or(0);
-        
+
         DebugInfo {
             player_pos: (self.player_x, self.player_y),
             player_hp: (self.player_hp, self.player_max_hp),
@@ -134,26 +144,29 @@ impl GameState {
         }
     }
 
-    pub fn save_issue_report(&self, report: &IssueReport) -> Result<(), Box<dyn std::error::Error>> {
+    pub fn save_issue_report(
+        &self,
+        report: &IssueReport,
+    ) -> Result<(), Box<dyn std::error::Error>> {
         fs::create_dir_all("issue_reports")?;
         fs::create_dir_all("debug_states")?;
-        
+
         // Save the issue report
         let report_path = format!("issue_reports/{}.json", report.id);
         let report_json = serde_json::to_string_pretty(report)?;
         fs::write(&report_path, report_json)?;
-        
+
         // Save the gamestate if specified
         if let Some(gamestate_file) = &report.gamestate_file {
             self.save_debug_state(gamestate_file)?;
         }
-        
+
         Ok(())
     }
 
     pub fn list_debug_states() -> Result<Vec<String>, Box<dyn std::error::Error>> {
         let mut states = Vec::new();
-        
+
         if Path::new("debug_states").exists() {
             for entry in fs::read_dir("debug_states")? {
                 let entry = entry?;
@@ -164,14 +177,14 @@ impl GameState {
                 }
             }
         }
-        
+
         states.sort();
         Ok(states)
     }
 
     pub fn list_issue_reports() -> Result<Vec<String>, Box<dyn std::error::Error>> {
         let mut reports = Vec::new();
-        
+
         if Path::new("issue_reports").exists() {
             for entry in fs::read_dir("issue_reports")? {
                 let entry = entry?;
@@ -182,7 +195,7 @@ impl GameState {
                 }
             }
         }
-        
+
         reports.sort();
         Ok(reports)
     }

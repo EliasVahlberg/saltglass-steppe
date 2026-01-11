@@ -7,19 +7,19 @@ use std::fmt;
 pub trait GenerationAlgorithm: Send + Sync {
     /// Generate content based on the provided context
     fn generate(&self, context: &AlgorithmContext) -> Result<GenerationResult, GenerationError>;
-    
+
     /// Get algorithm-specific parameters and their current values
     fn parameters(&self) -> &AlgorithmParameters;
-    
+
     /// Validate that the context is suitable for this algorithm
     fn validate_context(&self, context: &AlgorithmContext) -> Result<(), ValidationError>;
-    
+
     /// Unique identifier for this algorithm
     fn algorithm_id(&self) -> &str;
-    
+
     /// Human-readable name for this algorithm
     fn display_name(&self) -> &str;
-    
+
     /// Description of what this algorithm does
     fn description(&self) -> &str;
 }
@@ -30,25 +30,25 @@ pub struct AlgorithmContext {
     /// Map dimensions
     pub width: usize,
     pub height: usize,
-    
+
     /// Random seed for deterministic generation
     pub seed: u64,
-    
+
     /// Biome type for this generation
     pub biome: String,
-    
+
     /// Point of Interest type (if any)
     pub poi_type: Option<String>,
-    
+
     /// Input layers from previous generation passes
     pub input_layers: HashMap<String, GenerationLayer>,
-    
+
     /// Algorithm-specific parameters
     pub parameters: AlgorithmParameters,
-    
+
     /// Quest IDs that need to be supported
     pub quest_ids: Vec<String>,
-    
+
     /// Additional metadata
     pub metadata: HashMap<String, serde_json::Value>,
 }
@@ -58,10 +58,10 @@ pub struct AlgorithmContext {
 pub struct GenerationResult {
     /// Output layers for use by subsequent algorithms
     pub output_layers: HashMap<String, GenerationLayer>,
-    
+
     /// Generation metadata and statistics
     pub metadata: GenerationMetadata,
-    
+
     /// Any warnings or issues encountered during generation
     pub warnings: Vec<String>,
 }
@@ -71,13 +71,13 @@ pub struct GenerationResult {
 pub struct GenerationLayer {
     /// Layer name/identifier
     pub name: String,
-    
+
     /// Layer data type
     pub layer_type: LayerType,
-    
+
     /// Raw layer data
     pub data: Vec<Vec<f64>>,
-    
+
     /// Layer metadata
     pub metadata: HashMap<String, serde_json::Value>,
 }
@@ -87,22 +87,22 @@ pub struct GenerationLayer {
 pub enum LayerType {
     /// Height/elevation data
     Heightmap,
-    
+
     /// Moisture/humidity data
     Moisture,
-    
+
     /// Temperature data
     Temperature,
-    
+
     /// Density/probability data
     Density,
-    
+
     /// Binary mask data
     Mask,
-    
+
     /// Flow/direction data
     Flow,
-    
+
     /// Custom layer type
     Custom(String),
 }
@@ -112,7 +112,7 @@ pub enum LayerType {
 pub struct AlgorithmParameters {
     /// Parameter values
     pub values: HashMap<String, ParameterValue>,
-    
+
     /// Parameter definitions and constraints
     pub definitions: HashMap<String, ParameterDefinition>,
 }
@@ -132,19 +132,19 @@ pub enum ParameterValue {
 pub struct ParameterDefinition {
     /// Parameter name
     pub name: String,
-    
+
     /// Parameter description
     pub description: String,
-    
+
     /// Parameter type
     pub param_type: ParameterType,
-    
+
     /// Default value
     pub default_value: ParameterValue,
-    
+
     /// Validation constraints
     pub constraints: Option<ParameterConstraints>,
-    
+
     /// Whether this parameter is required
     pub required: bool,
 }
@@ -164,13 +164,13 @@ pub enum ParameterType {
 pub struct ParameterConstraints {
     /// Minimum value (for numeric types)
     pub min_value: Option<f64>,
-    
+
     /// Maximum value (for numeric types)
     pub max_value: Option<f64>,
-    
+
     /// Valid string values (for string types)
     pub valid_values: Option<Vec<String>>,
-    
+
     /// Array length constraints
     pub array_length: Option<(usize, usize)>, // (min, max)
 }
@@ -180,19 +180,19 @@ pub struct ParameterConstraints {
 pub struct GenerationMetadata {
     /// Algorithm that generated this result
     pub algorithm_id: String,
-    
+
     /// Generation time in milliseconds
     pub generation_time_ms: u64,
-    
+
     /// Random seed used
     pub seed: u64,
-    
+
     /// Quality metrics
     pub quality_metrics: HashMap<String, f64>,
-    
+
     /// Performance metrics
     pub performance_metrics: HashMap<String, f64>,
-    
+
     /// Additional algorithm-specific metadata
     pub algorithm_metadata: HashMap<String, serde_json::Value>,
 }
@@ -202,16 +202,16 @@ pub struct GenerationMetadata {
 pub enum GenerationError {
     /// Invalid context provided
     InvalidContext(String),
-    
+
     /// Parameter validation failed
     InvalidParameters(String),
-    
+
     /// Algorithm execution failed
     ExecutionFailed(String),
-    
+
     /// Resource constraints exceeded
     ResourceExhausted(String),
-    
+
     /// Generic error with message
     Other(String),
 }
@@ -256,25 +256,30 @@ impl AlgorithmParameters {
             definitions: HashMap::new(),
         }
     }
-    
+
     /// Get a parameter value by name
     pub fn get<T>(&self, name: &str) -> Result<T, GenerationError>
     where
         T: TryFrom<ParameterValue>,
         T::Error: fmt::Display,
     {
-        let value = self.values.get(name)
-            .ok_or_else(|| GenerationError::InvalidParameters(format!("Missing parameter: {}", name)))?;
-        
-        T::try_from(value.clone())
-            .map_err(|e| GenerationError::InvalidParameters(format!("Parameter conversion failed for {}: {}", name, e)))
+        let value = self.values.get(name).ok_or_else(|| {
+            GenerationError::InvalidParameters(format!("Missing parameter: {}", name))
+        })?;
+
+        T::try_from(value.clone()).map_err(|e| {
+            GenerationError::InvalidParameters(format!(
+                "Parameter conversion failed for {}: {}",
+                name, e
+            ))
+        })
     }
-    
+
     /// Set a parameter value
     pub fn set(&mut self, name: String, value: ParameterValue) {
         self.values.insert(name, value);
     }
-    
+
     /// Validate all parameters against their definitions
     pub fn validate(&self) -> Result<(), ValidationError> {
         for (name, definition) in &self.definitions {
@@ -284,15 +289,20 @@ impl AlgorithmParameters {
                     field: Some(name.clone()),
                 });
             }
-            
+
             if let Some(value) = self.values.get(name) {
                 self.validate_parameter_value(name, value, definition)?;
             }
         }
         Ok(())
     }
-    
-    fn validate_parameter_value(&self, name: &str, value: &ParameterValue, definition: &ParameterDefinition) -> Result<(), ValidationError> {
+
+    fn validate_parameter_value(
+        &self,
+        name: &str,
+        value: &ParameterValue,
+        definition: &ParameterDefinition,
+    ) -> Result<(), ValidationError> {
         if let Some(constraints) = &definition.constraints {
             match value {
                 ParameterValue::Float(f) => {
@@ -335,7 +345,10 @@ impl AlgorithmParameters {
                     if let Some(valid_values) = &constraints.valid_values {
                         if !valid_values.contains(s) {
                             return Err(ValidationError {
-                                message: format!("Invalid value '{}', must be one of: {:?}", s, valid_values),
+                                message: format!(
+                                    "Invalid value '{}', must be one of: {:?}",
+                                    s, valid_values
+                                ),
                                 field: Some(name.to_string()),
                             });
                         }
@@ -345,7 +358,12 @@ impl AlgorithmParameters {
                     if let Some((min_len, max_len)) = constraints.array_length {
                         if arr.len() < min_len || arr.len() > max_len {
                             return Err(ValidationError {
-                                message: format!("Array length {} not in range [{}, {}]", arr.len(), min_len, max_len),
+                                message: format!(
+                                    "Array length {} not in range [{}, {}]",
+                                    arr.len(),
+                                    min_len,
+                                    max_len
+                                ),
                                 field: Some(name.to_string()),
                             });
                         }
@@ -361,7 +379,7 @@ impl AlgorithmParameters {
 // Conversion implementations for ParameterValue
 impl TryFrom<ParameterValue> for f64 {
     type Error = String;
-    
+
     fn try_from(value: ParameterValue) -> Result<Self, Self::Error> {
         match value {
             ParameterValue::Float(f) => Ok(f),
@@ -373,7 +391,7 @@ impl TryFrom<ParameterValue> for f64 {
 
 impl TryFrom<ParameterValue> for i64 {
     type Error = String;
-    
+
     fn try_from(value: ParameterValue) -> Result<Self, Self::Error> {
         match value {
             ParameterValue::Integer(i) => Ok(i),
@@ -385,7 +403,7 @@ impl TryFrom<ParameterValue> for i64 {
 
 impl TryFrom<ParameterValue> for bool {
     type Error = String;
-    
+
     fn try_from(value: ParameterValue) -> Result<Self, Self::Error> {
         match value {
             ParameterValue::Boolean(b) => Ok(b),
@@ -396,7 +414,7 @@ impl TryFrom<ParameterValue> for bool {
 
 impl TryFrom<ParameterValue> for String {
     type Error = String;
-    
+
     fn try_from(value: ParameterValue) -> Result<Self, Self::Error> {
         match value {
             ParameterValue::String(s) => Ok(s),
@@ -418,7 +436,7 @@ mod tests {
         fn new(id: &str) -> Self {
             let mut parameters = AlgorithmParameters::new();
             parameters.set("test_param".to_string(), ParameterValue::Float(1.0));
-            
+
             Self {
                 id: id.to_string(),
                 parameters,
@@ -427,9 +445,12 @@ mod tests {
     }
 
     impl GenerationAlgorithm for TestAlgorithm {
-        fn generate(&self, context: &AlgorithmContext) -> Result<GenerationResult, GenerationError> {
+        fn generate(
+            &self,
+            context: &AlgorithmContext,
+        ) -> Result<GenerationResult, GenerationError> {
             let mut output_layers = HashMap::new();
-            
+
             // Create a simple test layer
             let data = vec![vec![0.5; context.width]; context.height];
             let layer = GenerationLayer {
@@ -439,7 +460,7 @@ mod tests {
                 metadata: HashMap::new(),
             };
             output_layers.insert("test_layer".to_string(), layer);
-            
+
             Ok(GenerationResult {
                 output_layers,
                 metadata: GenerationMetadata {
@@ -501,14 +522,20 @@ mod tests {
         params.set("float_param".to_string(), ParameterValue::Float(3.14));
         params.set("int_param".to_string(), ParameterValue::Integer(42));
         params.set("bool_param".to_string(), ParameterValue::Boolean(true));
-        params.set("string_param".to_string(), ParameterValue::String("test".to_string()));
+        params.set(
+            "string_param".to_string(),
+            ParameterValue::String("test".to_string()),
+        );
 
         // Test using the generic get method
         assert_eq!(params.get::<f64>("float_param").unwrap(), 3.14);
         assert_eq!(params.get::<i64>("int_param").unwrap(), 42);
         assert_eq!(params.get::<bool>("bool_param").unwrap(), true);
-        assert_eq!(params.get::<String>("string_param").unwrap(), "test".to_string());
-        
+        assert_eq!(
+            params.get::<String>("string_param").unwrap(),
+            "test".to_string()
+        );
+
         // Test missing parameter
         assert!(params.get::<f64>("nonexistent").is_err());
     }
@@ -544,10 +571,10 @@ mod tests {
         };
 
         let result = algorithm.generate(&context).unwrap();
-        
+
         assert!(result.output_layers.contains_key("test_layer"));
         assert_eq!(result.metadata.algorithm_id, "test_algo");
-        
+
         let layer = &result.output_layers["test_layer"];
         assert_eq!(layer.data.len(), 5); // height
         assert_eq!(layer.data[0].len(), 5); // width

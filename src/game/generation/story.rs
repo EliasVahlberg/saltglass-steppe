@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use rand::prelude::*;
 use rand_chacha::ChaCha8Rng;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct StoryModel {
@@ -118,14 +118,14 @@ impl StoryModel {
             locations: HashMap::new(),
             current_age: 0,
         };
-        
+
         model.initialize_factions(&mut rng);
         model.generate_founding_characters(&mut rng);
         model.generate_initial_events(&mut rng);
-        
+
         model
     }
-    
+
     fn initialize_factions(&mut self, rng: &mut ChaCha8Rng) {
         let factions = vec![
             ("Mirror Monks", "Seek enlightenment through refraction", 70),
@@ -134,26 +134,32 @@ impl StoryModel {
             ("Salt Hermits", "Preserve ancient knowledge", 40),
             ("Archive Remnants", "Maintain pre-storm protocols", 30),
         ];
-        
+
         for (name, ideology, power) in factions {
-            self.faction_dynamics.insert(name.to_string(), FactionState {
-                name: name.to_string(),
-                power_level: power + rng.gen_range(-10..=10),
-                territory: Vec::new(),
-                leaders: Vec::new(),
-                ideology: ideology.to_string(),
-                recent_actions: Vec::new(),
-            });
+            self.faction_dynamics.insert(
+                name.to_string(),
+                FactionState {
+                    name: name.to_string(),
+                    power_level: power + rng.gen_range(-10..=10),
+                    territory: Vec::new(),
+                    leaders: Vec::new(),
+                    ideology: ideology.to_string(),
+                    recent_actions: Vec::new(),
+                },
+            );
         }
     }
-    
+
     fn generate_founding_characters(&mut self, rng: &mut ChaCha8Rng) {
         let names = vec![
-            "Saint Vex", "Keth the Seeker", "Naia Glassborn", 
-            "The Salt Prophet", "Archive Keeper Zara"
+            "Saint Vex",
+            "Keth the Seeker",
+            "Naia Glassborn",
+            "The Salt Prophet",
+            "Archive Keeper Zara",
         ];
         let factions: Vec<String> = self.faction_dynamics.keys().cloned().collect();
-        
+
         for (i, name) in names.iter().enumerate() {
             let faction = factions[i % factions.len()].clone();
             let character = StoryCharacter {
@@ -168,14 +174,14 @@ impl StoryModel {
                 adaptations: Vec::new(),
                 reputation: rng.gen_range(60..100),
             };
-            
+
             self.characters.insert(character.id.clone(), character);
             if let Some(faction_state) = self.faction_dynamics.get_mut(&faction) {
                 faction_state.leaders.push(format!("founder_{}", i));
             }
         }
     }
-    
+
     fn generate_initial_events(&mut self, rng: &mut ChaCha8Rng) {
         for i in 0..8 {
             let event_type = match rng.gen_range(0..4) {
@@ -184,14 +190,14 @@ impl StoryModel {
                 2 => EventType::Conflict,
                 _ => EventType::Alliance,
             };
-            
+
             let char_keys: Vec<String> = self.characters.keys().cloned().collect();
             let num_participants = rng.gen_range(1..=3.min(char_keys.len()));
             let participants: Vec<String> = char_keys
                 .choose_multiple(rng, num_participants)
                 .cloned()
                 .collect();
-            
+
             let event = StoryEvent {
                 id: format!("event_{}", i),
                 age: rng.gen_range(0..100),
@@ -201,24 +207,24 @@ impl StoryModel {
                 description: self.generate_event_description(rng),
                 consequences: vec![self.generate_consequence(rng)],
             };
-            
+
             self.events.push(event);
         }
-        
+
         self.events.sort_by_key(|e| e.age);
     }
-    
+
     fn generate_event_description(&self, rng: &mut ChaCha8Rng) -> String {
         let templates = vec![
             "A great storm revealed ancient secrets",
-            "The factions clashed over sacred territory", 
+            "The factions clashed over sacred territory",
             "A powerful artifact was discovered",
             "An alliance was forged in desperation",
             "The glass sang with new harmonies",
         ];
         templates.choose(rng).unwrap().to_string()
     }
-    
+
     fn generate_consequence(&self, rng: &mut ChaCha8Rng) -> String {
         let consequences = vec![
             "The balance of power shifted",
@@ -229,7 +235,7 @@ impl StoryModel {
         ];
         consequences.choose(rng).unwrap().to_string()
     }
-    
+
     pub fn add_player_event(&mut self, event_type: EventType, description: String) {
         let event = StoryEvent {
             id: format!("player_event_{}", self.events.len()),
@@ -240,60 +246,71 @@ impl StoryModel {
             description,
             consequences: Vec::new(),
         };
-        
+
         self.events.push(event);
     }
-    
+
     pub fn get_artifact_inscription(&self, artifact_name: &str) -> Option<String> {
         if let Some(artifact) = self.artifacts.get(artifact_name) {
-            Some(format!("'{}' - {}", artifact.legend, 
-                artifact.creator.as_ref().unwrap_or(&"Unknown".to_string())))
+            Some(format!(
+                "'{}' - {}",
+                artifact.legend,
+                artifact.creator.as_ref().unwrap_or(&"Unknown".to_string())
+            ))
         } else {
             None
         }
     }
-    
+
     pub fn get_shrine_text(&self, location: &str) -> Option<String> {
         // Find events that happened at this location
-        let local_events: Vec<&StoryEvent> = self.events.iter()
+        let local_events: Vec<&StoryEvent> = self
+            .events
+            .iter()
             .filter(|e| e.location.as_ref() == Some(&location.to_string()))
             .collect();
-            
+
         if let Some(event) = local_events.first() {
             Some(format!("Here {}", event.description.to_lowercase()))
         } else {
             None
         }
     }
-    
+
     pub fn get_character_relationships(&self, character_id: &str) -> Vec<String> {
         if let Some(char_relationships) = self.relationships.get(character_id) {
-            char_relationships.iter()
+            char_relationships
+                .iter()
                 .map(|(other_id, rel)| {
-                    let other_name = self.characters.get(other_id)
+                    let other_name = self
+                        .characters
+                        .get(other_id)
                         .map(|c| c.name.clone())
                         .unwrap_or_else(|| other_id.clone());
-                    format!("{:?} of {} (strength: {})", 
-                        rel.relationship_type, other_name, rel.strength)
+                    format!(
+                        "{:?} of {} (strength: {})",
+                        rel.relationship_type, other_name, rel.strength
+                    )
                 })
                 .collect()
         } else {
             Vec::new()
         }
     }
-    
+
     pub fn get_faction_lore(&self, faction_name: &str) -> Option<String> {
         if let Some(faction) = self.faction_dynamics.get(faction_name) {
             let default_action = "maintains their ancient ways".to_string();
-            let recent_action = faction.recent_actions.last()
-                .unwrap_or(&default_action);
-            Some(format!("The {} currently {}. Their ideology: {}", 
-                faction.name, recent_action, faction.ideology))
+            let recent_action = faction.recent_actions.last().unwrap_or(&default_action);
+            Some(format!(
+                "The {} currently {}. Their ideology: {}",
+                faction.name, recent_action, faction.ideology
+            ))
         } else {
             None
         }
     }
-    
+
     pub fn advance_age(&mut self) {
         self.current_age += 1;
     }
@@ -302,7 +319,7 @@ impl StoryModel {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_story_model_creation() {
         let model = StoryModel::new(12345);
@@ -310,7 +327,7 @@ mod tests {
         assert!(!model.faction_dynamics.is_empty());
         assert!(!model.events.is_empty());
     }
-    
+
     #[test]
     fn test_faction_lore() {
         let model = StoryModel::new(12345);

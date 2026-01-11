@@ -74,7 +74,9 @@ impl Interactable {
     }
 
     pub fn name(&self) -> String {
-        self.def().map(|d| d.name.clone()).unwrap_or_else(|| "Unknown".to_string())
+        self.def()
+            .map(|d| d.name.clone())
+            .unwrap_or_else(|| "Unknown".to_string())
     }
 }
 
@@ -85,8 +87,12 @@ struct InteractablesFile {
 
 static INTERACTABLES: Lazy<HashMap<String, InteractableDef>> = Lazy::new(|| {
     let data = include_str!("../../data/interactables.json");
-    let file: InteractablesFile = serde_json::from_str(data).expect("Failed to parse interactables.json");
-    file.interactables.into_iter().map(|i| (i.id.clone(), i)).collect()
+    let file: InteractablesFile =
+        serde_json::from_str(data).expect("Failed to parse interactables.json");
+    file.interactables
+        .into_iter()
+        .map(|i| (i.id.clone(), i))
+        .collect()
 });
 
 pub fn get_interactable_def(id: &str) -> Option<&'static InteractableDef> {

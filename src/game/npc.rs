@@ -1,9 +1,9 @@
-use once_cell::sync::Lazy;
-use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 use super::adaptation::Adaptation;
 use super::entity::Entity;
 use super::status::StatusEffect;
+use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 /// Context for evaluating dialogue conditions
 pub struct DialogueContext<'a> {
@@ -136,10 +136,10 @@ pub struct Npc {
 
 impl Npc {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
-        Self { 
-            x, 
-            y, 
-            id: id.to_string(), 
+        Self {
+            x,
+            y,
+            id: id.to_string(),
             talked: false,
             backstory: None,
         }
@@ -150,7 +150,9 @@ impl Npc {
     }
 
     pub fn glyph(&self) -> char {
-        self.def().map(|d| d.glyph.chars().next().unwrap_or('?')).unwrap_or('?')
+        self.def()
+            .map(|d| d.glyph.chars().next().unwrap_or('?'))
+            .unwrap_or('?')
     }
 
     pub fn name(&self) -> &str {
@@ -168,8 +170,8 @@ impl Npc {
     pub fn dialogue(&self, ctx: &DialogueContext) -> &str {
         if let Some(def) = self.def() {
             for entry in &def.dialogue {
-                let all_match = entry.conditions.is_empty() 
-                    || entry.conditions.iter().all(|c| c.evaluate(ctx));
+                let all_match =
+                    entry.conditions.is_empty() || entry.conditions.iter().all(|c| c.evaluate(ctx));
                 if all_match {
                     return &entry.text;
                 }
@@ -180,7 +182,8 @@ impl Npc {
 
     pub fn available_actions(&self, ctx: &DialogueContext) -> Vec<&'static NpcAction> {
         if let Some(def) = self.def() {
-            def.actions.iter()
+            def.actions
+                .iter()
                 .filter(|a| a.conditions.is_empty() || a.conditions.iter().all(|c| c.evaluate(ctx)))
                 .collect()
         } else {
@@ -190,29 +193,40 @@ impl Npc {
 }
 
 impl Entity for Npc {
-    fn x(&self) -> i32 { self.x }
-    fn y(&self) -> i32 { self.y }
-    
+    fn x(&self) -> i32 {
+        self.x
+    }
+    fn y(&self) -> i32 {
+        self.y
+    }
+
     fn set_position(&mut self, x: i32, y: i32) {
         self.x = x;
         self.y = y;
     }
-    
-    fn hp(&self) -> Option<i32> { None }
+
+    fn hp(&self) -> Option<i32> {
+        None
+    }
     fn set_hp(&mut self, _hp: i32) {}
-    fn max_hp(&self) -> Option<i32> { None }
-    
-    fn status_effects(&self) -> &[StatusEffect] { &[] }
+    fn max_hp(&self) -> Option<i32> {
+        None
+    }
+
+    fn status_effects(&self) -> &[StatusEffect] {
+        &[]
+    }
     fn status_effects_mut(&mut self) -> &mut Vec<StatusEffect> {
         panic!("NPCs do not have status effects")
     }
-    
+
     fn name(&self) -> &str {
         self.def().map(|d| d.name.as_str()).unwrap_or(&self.id)
     }
-    
+
     fn glyph(&self) -> char {
-        self.def().and_then(|d| d.glyph.chars().next()).unwrap_or('@')
+        self.def()
+            .and_then(|d| d.glyph.chars().next())
+            .unwrap_or('@')
     }
 }
-

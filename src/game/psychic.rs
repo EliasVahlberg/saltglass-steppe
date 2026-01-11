@@ -1,7 +1,7 @@
 //! Quantum Consciousness / Psychic System
 
-use serde::{Deserialize, Serialize};
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -63,8 +63,12 @@ static ABILITIES: Lazy<HashMap<String, PsychicAbilityDef>> = Lazy::new(|| {
     // But ideally we should create the file
     match include_str!("../../data/psychic_abilities.json") {
         data => {
-            let file: AbilitiesFile = serde_json::from_str(data).expect("Failed to parse psychic_abilities.json");
-            file.abilities.into_iter().map(|a| (a.id.clone(), a)).collect()
+            let file: AbilitiesFile =
+                serde_json::from_str(data).expect("Failed to parse psychic_abilities.json");
+            file.abilities
+                .into_iter()
+                .map(|a| (a.id.clone(), a))
+                .collect()
         }
     }
 });
@@ -117,13 +121,13 @@ impl PsychicState {
         if !self.unlocked_abilities.contains(&ability_id.to_string()) {
             return Err("Ability not unlocked".to_string());
         }
-        
+
         if self.cooldowns.contains_key(ability_id) {
             return Err("Ability on cooldown".to_string());
         }
 
         let def = get_ability_def(ability_id).ok_or("Unknown ability")?;
-        
+
         if self.coherence < def.coherence_cost {
             return Err("Insufficient coherence".to_string());
         }
@@ -133,11 +137,11 @@ impl PsychicState {
 
     pub fn use_ability(&mut self, ability_id: &str) -> Result<String, String> {
         self.can_use_ability(ability_id)?;
-        
+
         let def = get_ability_def(ability_id).unwrap();
         self.coherence -= def.coherence_cost;
         self.cooldowns.insert(ability_id.to_string(), def.cooldown);
-        
+
         // Effect application should be handled by GameState, but we can return the effect ID
         Ok(def.effect.clone())
     }

@@ -1,6 +1,6 @@
 use crate::game::generation::structures::Rectangle;
-use rand_chacha::ChaCha8Rng;
 use rand::Rng;
+use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -21,7 +21,7 @@ impl Default for DrunkardWalkParams {
             change_direction_chance: 0.15,
             spawn_new_walker_chance: 0.02,
             max_walkers: 4,
-            carve_radius: 0,  // Only carve single tiles
+            carve_radius: 0, // Only carve single tiles
         }
     }
 }
@@ -66,14 +66,14 @@ impl DrunkardWalkAlgorithm {
 
             for i in 0..walker_count {
                 let walker = &mut walkers[i];
-                
+
                 // Carve current position
                 self.carve_area(walker.x, walker.y, &mut carved_tiles, &bounds);
 
                 // Move walker
                 let new_x = (walker.x as i32 + walker.direction.0).max(0) as u32;
                 let new_y = (walker.y as i32 + walker.direction.1).max(0) as u32;
-                
+
                 walker.x = new_x.min(bounds.x + bounds.width - 2).max(bounds.x + 1);
                 walker.y = new_y.min(bounds.y + bounds.height - 2).max(bounds.y + 1);
 
@@ -85,9 +85,11 @@ impl DrunkardWalkAlgorithm {
 
                 // Spawn new walker (with stricter limits)
                 let spawn_val = rng.r#gen::<f32>();
-                if spawn_val < self.params.spawn_new_walker_chance 
-                   && walker_count + new_walkers.len() < self.params.max_walkers as usize
-                   && total_iterations < MAX_ITERATIONS / 2 { // Stop spawning halfway through
+                if spawn_val < self.params.spawn_new_walker_chance
+                    && walker_count + new_walkers.len() < self.params.max_walkers as usize
+                    && total_iterations < MAX_ITERATIONS / 2
+                {
+                    // Stop spawning halfway through
                     new_walkers.push(Walker {
                         x: walker.x,
                         y: walker.y,
@@ -121,8 +123,11 @@ impl DrunkardWalkAlgorithm {
         let radius = self.params.carve_radius;
         if radius == 0 {
             // Only carve single tile
-            if x >= bounds.x && x < bounds.x + bounds.width &&
-               y >= bounds.y && y < bounds.y + bounds.height {
+            if x >= bounds.x
+                && x < bounds.x + bounds.width
+                && y >= bounds.y
+                && y < bounds.y + bounds.height
+            {
                 carved_tiles.push((x, y));
             }
         } else {
@@ -131,9 +136,12 @@ impl DrunkardWalkAlgorithm {
                 for dx in 0..=radius * 2 {
                     let nx = x.saturating_sub(radius).saturating_add(dx);
                     let ny = y.saturating_sub(radius).saturating_add(dy);
-                    
-                    if nx >= bounds.x && nx < bounds.x + bounds.width &&
-                       ny >= bounds.y && ny < bounds.y + bounds.height {
+
+                    if nx >= bounds.x
+                        && nx < bounds.x + bounds.width
+                        && ny >= bounds.y
+                        && ny < bounds.y + bounds.height
+                    {
                         carved_tiles.push((nx, ny));
                     }
                 }

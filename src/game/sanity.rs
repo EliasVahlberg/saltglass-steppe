@@ -27,7 +27,7 @@ pub enum MentalEffectType {
     Paranoia,
     Confusion,
     Despair,
-    Clarity,      // Positive effect
+    Clarity,       // Positive effect
     Determination, // Positive effect
 }
 
@@ -50,18 +50,21 @@ impl SanitySystem {
     /// Lose sanity from various sources
     pub fn lose_sanity(&mut self, amount: u32, source: &str) -> Vec<String> {
         let mut messages = Vec::new();
-        
+
         // Apply adaptation tolerance
         let actual_loss = if source.contains("adaptation") {
             amount.saturating_sub(self.adaptation_tolerance)
         } else {
             amount
         };
-        
+
         if actual_loss > 0 {
             self.current_sanity = self.current_sanity.saturating_sub(actual_loss);
-            messages.push(format!("You feel your sanity slipping... (-{} sanity)", actual_loss));
-            
+            messages.push(format!(
+                "You feel your sanity slipping... (-{} sanity)",
+                actual_loss
+            ));
+
             // Check for new mental effects based on sanity level
             if self.current_sanity <= 20 && !self.has_effect(MentalEffectType::Despair) {
                 self.add_mental_effect(MentalEffectType::Despair, 10, 3);
@@ -74,7 +77,7 @@ impl SanitySystem {
                 messages.push("Your thoughts feel muddled and unclear.".to_string());
             }
         }
-        
+
         messages
     }
 
@@ -83,7 +86,7 @@ impl SanitySystem {
         let old_sanity = self.current_sanity;
         self.current_sanity = (self.current_sanity + amount).min(self.max_sanity);
         let actual_gain = self.current_sanity - old_sanity;
-        
+
         if actual_gain > 0 {
             // Remove negative effects if sanity is restored enough
             if self.current_sanity > 60 {
@@ -93,18 +96,26 @@ impl SanitySystem {
             if self.current_sanity > 40 {
                 self.remove_effect(MentalEffectType::Confusion);
             }
-            
-            format!("You feel more mentally stable. (+{} sanity from {})", actual_gain, source)
+
+            format!(
+                "You feel more mentally stable. (+{} sanity from {})",
+                actual_gain, source
+            )
         } else {
             "Your sanity is already at maximum.".to_string()
         }
     }
 
     /// Add a mental effect
-    pub fn add_mental_effect(&mut self, effect_type: MentalEffectType, duration: u32, intensity: u32) {
+    pub fn add_mental_effect(
+        &mut self,
+        effect_type: MentalEffectType,
+        duration: u32,
+        intensity: u32,
+    ) {
         // Remove existing effect of same type
         self.remove_effect(effect_type.clone());
-        
+
         self.mental_effects.push(MentalEffect {
             effect_type,
             duration,
@@ -114,7 +125,9 @@ impl SanitySystem {
 
     /// Check if has specific mental effect
     pub fn has_effect(&self, effect_type: MentalEffectType) -> bool {
-        self.mental_effects.iter().any(|e| e.effect_type == effect_type)
+        self.mental_effects
+            .iter()
+            .any(|e| e.effect_type == effect_type)
     }
 
     /// Remove mental effect
@@ -125,14 +138,16 @@ impl SanitySystem {
     /// Tick mental effects each turn
     pub fn tick_effects(&mut self) -> Vec<String> {
         let mut messages = Vec::new();
-        
+
         // Tick down durations
         self.mental_effects.retain_mut(|effect| {
             effect.duration = effect.duration.saturating_sub(1);
             if effect.duration == 0 {
                 messages.push(match effect.effect_type {
                     MentalEffectType::Hallucinations => "The hallucinations fade away.".to_string(),
-                    MentalEffectType::Paranoia => "The feeling of being watched subsides.".to_string(),
+                    MentalEffectType::Paranoia => {
+                        "The feeling of being watched subsides.".to_string()
+                    }
                     MentalEffectType::Confusion => "Your thoughts become clearer.".to_string(),
                     MentalEffectType::Despair => "The crushing despair lifts slightly.".to_string(),
                     MentalEffectType::Clarity => "Your moment of clarity passes.".to_string(),
@@ -143,7 +158,7 @@ impl SanitySystem {
                 true
             }
         });
-        
+
         messages
     }
 
@@ -155,17 +170,21 @@ impl SanitySystem {
             41..=60 => -1,
             _ => 0,
         };
-        
+
         // Add mental effect penalties
-        let effect_penalty: i32 = self.mental_effects.iter().map(|e| match e.effect_type {
-            MentalEffectType::Confusion => -(e.intensity as i32),
-            MentalEffectType::Paranoia => -(e.intensity as i32) / 2,
-            MentalEffectType::Despair => -(e.intensity as i32),
-            MentalEffectType::Clarity => e.intensity as i32,
-            MentalEffectType::Determination => (e.intensity as i32) / 2,
-            _ => 0,
-        }).sum();
-        
+        let effect_penalty: i32 = self
+            .mental_effects
+            .iter()
+            .map(|e| match e.effect_type {
+                MentalEffectType::Confusion => -(e.intensity as i32),
+                MentalEffectType::Paranoia => -(e.intensity as i32) / 2,
+                MentalEffectType::Despair => -(e.intensity as i32),
+                MentalEffectType::Clarity => e.intensity as i32,
+                MentalEffectType::Determination => (e.intensity as i32) / 2,
+                _ => 0,
+            })
+            .sum();
+
         base_penalty + effect_penalty
     }
 
@@ -192,7 +211,7 @@ impl SanitySystem {
             "Colors seem more vivid and wrong somehow.",
             "You smell something burning that isn't there.",
         ];
-        
+
         hallucinations[rng.gen_range(0..hallucinations.len())].to_string()
     }
 
@@ -205,15 +224,16 @@ impl SanitySystem {
             "shard_skin" => 15,
             _ => 3, // Default for unknown adaptations
         };
-        
-        let mut messages = self.lose_sanity(sanity_loss, &format!("adaptation: {}", adaptation_name));
-        
+
+        let mut messages =
+            self.lose_sanity(sanity_loss, &format!("adaptation: {}", adaptation_name));
+
         // Increase adaptation tolerance slightly
         if self.adaptation_tolerance < 10 {
             self.adaptation_tolerance += 1;
             messages.push("You feel slightly more accustomed to the changes.".to_string());
         }
-        
+
         messages
     }
 

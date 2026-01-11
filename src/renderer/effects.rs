@@ -1,8 +1,8 @@
 //! Visual effects processing pipeline
 
-use ratatui::prelude::*;
-use crate::GameState;
 use super::config::RenderConfig;
+use crate::GameState;
+use ratatui::prelude::*;
 
 /// Handles visual effects processing and application
 pub struct EffectsRenderer {
@@ -36,24 +36,18 @@ impl EffectsRenderer {
         // Convert to owned spans to avoid lifetime issues
         let height = view_height.min(tile_spans.len() as i32) as usize;
         let mut result = Vec::with_capacity(height);
-        
+
         for y in 0..height {
             let width = view_width.min(tile_spans[y].len() as i32) as usize;
             let mut row = Vec::with_capacity(width);
-            
+
             for x in 0..width {
                 let span = if let Some(ref entity_span) = entity_spans[y][x] {
                     // Create owned span from entity
-                    Span::styled(
-                        entity_span.content.to_string(),
-                        entity_span.style
-                    )
+                    Span::styled(entity_span.content.to_string(), entity_span.style)
                 } else {
                     // Create owned span from tile
-                    Span::styled(
-                        tile_spans[y][x].content.to_string(),
-                        tile_spans[y][x].style
-                    )
+                    Span::styled(tile_spans[y][x].content.to_string(), tile_spans[y][x].style)
                 };
                 row.push(span);
             }

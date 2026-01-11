@@ -1,36 +1,39 @@
 //! Modular rendering system for TUI RPG
-//! 
+//!
 //! This module provides a data-driven, modular rendering system that separates
 //! concerns between lighting, visual effects, entity rendering, and tile rendering.
 
+pub mod animations;
+pub mod camera;
 pub mod config;
-pub mod lighting;
 pub mod effects;
 pub mod effects_config;
 pub mod entities;
-pub mod tiles;
-pub mod camera;
-pub mod performance;
+pub mod lighting;
 pub mod particles;
-pub mod animations;
-pub mod themes;
+pub mod performance;
 pub mod procedural;
+pub mod themes;
+pub mod tiles;
 
-use ratatui::{prelude::*, widgets::{Block, Borders, Paragraph}};
-use crate::GameState;
 use self::{
-    config::{RenderConfig, parse_color},
-    lighting::LightingRenderer,
-    effects::EffectsRenderer,
-    entities::EntityRenderer,
-    tiles::TileRenderer,
-    camera::Camera,
-    performance::{FrameLimiter, ViewportCuller},
-    particles::{ParticleSystem, ParticleType},
     animations::AnimationSystem,
-    themes::ThemeManager,
-    procedural::ProceduralEffects,
+    camera::Camera,
+    config::{RenderConfig, parse_color},
+    effects::EffectsRenderer,
     effects_config::EffectsManager,
+    entities::EntityRenderer,
+    lighting::LightingRenderer,
+    particles::{ParticleSystem, ParticleType},
+    performance::{FrameLimiter, ViewportCuller},
+    procedural::ProceduralEffects,
+    themes::ThemeManager,
+    tiles::TileRenderer,
+};
+use crate::GameState;
+use ratatui::{
+    prelude::*,
+    widgets::{Block, Borders, Paragraph},
 };
 
 /// Main renderer that coordinates all rendering subsystems
@@ -54,15 +57,15 @@ impl Renderer {
     /// Create a new renderer with configuration loaded from JSON
     pub fn new() -> Result<Self, Box<dyn std::error::Error>> {
         let config = RenderConfig::load("data/render_config.json")?;
-        
+
         // Load theme manager
         let theme_manager = ThemeManager::load_from_file("data/themes.json")
             .unwrap_or_else(|_| ThemeManager::new());
-        
+
         // Load effects manager
         let effects_manager = EffectsManager::load_from_file("data/effects_config.json")
             .unwrap_or_else(|_| EffectsManager::new());
-        
+
         Ok(Self {
             lighting: LightingRenderer::new(&config),
             effects: EffectsRenderer::new(&config),
@@ -74,7 +77,9 @@ impl Renderer {
             particle_system: ParticleSystem::new(config.particles.clone()),
             animation_system: AnimationSystem::new(config.visual_animations.clone()),
             theme_manager,
-            procedural_effects: ProceduralEffects::new(effects_manager.get_config().procedural.clone()),
+            procedural_effects: ProceduralEffects::new(
+                effects_manager.get_config().procedural.clone(),
+            ),
             effects_manager,
             config,
         })
@@ -96,7 +101,12 @@ impl Renderer {
         frame.render_widget(block, area);
 
         // Update camera position
-        self.camera.update(state.player_x, state.player_y, inner.width as i32, inner.height as i32);
+        self.camera.update(
+            state.player_x,
+            state.player_y,
+            inner.width as i32,
+            inner.height as i32,
+        );
         let (cam_x, cam_y) = self.camera.position();
 
         // Update particle system only if not paused
@@ -109,7 +119,8 @@ impl Renderer {
 
         // Update procedural effects only if not paused
         if !pause_particles {
-            self.procedural_effects.update(1.0 / 60.0, inner.width as i32, inner.height as i32);
+            self.procedural_effects
+                .update(1.0 / 60.0, inner.width as i32, inner.height as i32);
         }
 
         // Get screen shake offset
@@ -119,7 +130,10 @@ impl Renderer {
 
         // Get viewport bounds for culling
         let _viewport_bounds = self.viewport_culler.get_bounds(
-            adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32
+            adjusted_cam_x,
+            adjusted_cam_y,
+            inner.width as i32,
+            inner.height as i32,
         );
 
         // Calculate lighting if enabled (only for visible area)
@@ -165,12 +179,24 @@ impl Renderer {
 
         // Render particles on top of everything else (only if not paused)
         if !pause_particles {
-            self.render_particles(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
+            self.render_particles(
+                &mut final_spans,
+                adjusted_cam_x,
+                adjusted_cam_y,
+                inner.width as i32,
+                inner.height as i32,
+            );
         }
 
         // Render procedural effects (only if not paused)
         if !pause_particles {
-            self.render_procedural_effects(&mut final_spans, adjusted_cam_x, adjusted_cam_y, inner.width as i32, inner.height as i32);
+            self.render_procedural_effects(
+                &mut final_spans,
+                adjusted_cam_x,
+                adjusted_cam_y,
+                inner.width as i32,
+                inner.height as i32,
+            );
         }
 
         // Apply animation effects to all spans
@@ -184,16 +210,20 @@ impl Renderer {
         let final_spans = if let Some((lx, ly)) = look_cursor {
             let screen_x = lx - adjusted_cam_x;
             let screen_y = ly - adjusted_cam_y;
-            
-            if screen_y >= 0 && screen_y < final_spans.len() as i32 &&
-               screen_x >= 0 && screen_x < final_spans[screen_y as usize].len() as i32 {
+
+            if screen_y >= 0
+                && screen_y < final_spans.len() as i32
+                && screen_x >= 0
+                && screen_x < final_spans[screen_y as usize].len() as i32
+            {
                 let mut spans = final_spans;
                 let content = spans[screen_y as usize][screen_x as usize].content.clone();
                 let style = spans[screen_y as usize][screen_x as usize].style;
                 spans[screen_y as usize][screen_x as usize] = Span::styled(
                     content,
-                    style.bg(parse_color(&self.config.colors.ui.look_cursor.bg))
-                         .fg(parse_color(&self.config.colors.ui.look_cursor.fg))
+                    style
+                        .bg(parse_color(&self.config.colors.ui.look_cursor.bg))
+                        .fg(parse_color(&self.config.colors.ui.look_cursor.fg)),
                 );
                 spans
             } else {
@@ -239,30 +269,34 @@ impl Renderer {
     }
 
     /// Render particles onto the span grid
-    fn render_particles(&self, spans: &mut Vec<Vec<Span<'static>>>, cam_x: i32, cam_y: i32, view_width: i32, view_height: i32) {
+    fn render_particles(
+        &self,
+        spans: &mut Vec<Vec<Span<'static>>>,
+        cam_x: i32,
+        cam_y: i32,
+        view_width: i32,
+        view_height: i32,
+    ) {
         for particle in self.particle_system.particles() {
             let screen_x = particle.position.0 as i32 - cam_x;
             let screen_y = particle.position.1 as i32 - cam_y;
-            
+
             // Check if particle is within viewport
-            if screen_x >= 0 && screen_x < view_width && 
-               screen_y >= 0 && screen_y < view_height {
+            if screen_x >= 0 && screen_x < view_width && screen_y >= 0 && screen_y < view_height {
                 let x = screen_x as usize;
                 let y = screen_y as usize;
-                
+
                 if y < spans.len() && x < spans[y].len() {
                     // Apply brightness to particle color
                     let mut color = particle.color;
                     if particle.brightness < 1.0 {
                         color = self.dim_particle_color(color, particle.brightness);
                     }
-                    
+
                     // Create particle span
-                    let particle_span = Span::styled(
-                        particle.character.to_string(),
-                        Style::default().fg(color)
-                    );
-                    
+                    let particle_span =
+                        Span::styled(particle.character.to_string(), Style::default().fg(color));
+
                     spans[y][x] = particle_span;
                 }
             }
@@ -277,7 +311,13 @@ impl Renderer {
                 (g as f32 * brightness) as u8,
                 (b as f32 * brightness) as u8,
             ),
-            _ => if brightness < 0.5 { Color::DarkGray } else { color },
+            _ => {
+                if brightness < 0.5 {
+                    Color::DarkGray
+                } else {
+                    color
+                }
+            }
         }
     }
 
@@ -292,25 +332,31 @@ impl Renderer {
     }
 
     /// Render procedural effects onto the span grid
-    fn render_procedural_effects(&self, spans: &mut Vec<Vec<Span<'static>>>, cam_x: i32, cam_y: i32, view_width: i32, view_height: i32) {
+    fn render_procedural_effects(
+        &self,
+        spans: &mut Vec<Vec<Span<'static>>>,
+        cam_x: i32,
+        cam_y: i32,
+        view_width: i32,
+        view_height: i32,
+    ) {
         // Render weather particles
         for particle in self.procedural_effects.get_weather_particles() {
             let screen_x = particle.x as i32 - cam_x;
             let screen_y = particle.y as i32 - cam_y;
-            
+
             // Check if particle is within viewport
-            if screen_x >= 0 && screen_x < view_width && 
-               screen_y >= 0 && screen_y < view_height {
+            if screen_x >= 0 && screen_x < view_width && screen_y >= 0 && screen_y < view_height {
                 let x = screen_x as usize;
                 let y = screen_y as usize;
-                
+
                 if y < spans.len() && x < spans[y].len() {
                     // Apply alpha based on lifetime for fade effect
                     let alpha = 1.0 - (particle.lifetime / particle.max_lifetime);
                     if alpha > 0.1 {
                         let weather_span = Span::styled(
                             particle.character.to_string(),
-                            Style::default().fg(particle.color)
+                            Style::default().fg(particle.color),
                         );
                         spans[y][x] = weather_span;
                     }
@@ -351,12 +397,17 @@ impl Renderer {
 
     /// Get list of available themes
     pub fn list_themes(&self) -> Vec<String> {
-        self.theme_manager.list_themes().iter().map(|t| t.name.clone()).collect()
+        self.theme_manager
+            .list_themes()
+            .iter()
+            .map(|t| t.name.clone())
+            .collect()
     }
 
     /// Get current active theme name
     pub fn get_active_theme(&self) -> String {
-        self.theme_manager.get_active_theme()
+        self.theme_manager
+            .get_active_theme()
             .map(|t| t.name.clone())
             .unwrap_or_else(|| "classic".to_string())
     }
@@ -373,14 +424,15 @@ impl Renderer {
 
     /// Save effects configuration to file
     pub fn save_effects_config(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.effects_manager.save_to_file("data/effects_config.json")
+        self.effects_manager
+            .save_to_file("data/effects_config.json")
     }
 
     /// Apply theme colors to the render config
     fn apply_theme_to_config(&mut self, theme_colors: &themes::ThemeColors) {
         // Update entity colors
         self.config.colors.entities.player.base = theme_colors.entities.player.clone();
-        
+
         // Update tile colors
         self.config.colors.tiles.floor = theme_colors.tiles.floor.clone();
         self.config.colors.tiles.wall = theme_colors.tiles.wall.clone();
@@ -388,7 +440,7 @@ impl Renderer {
         self.config.colors.tiles.stairs_down = theme_colors.tiles.stairs.clone();
         self.config.colors.tiles.stairs_up = theme_colors.tiles.stairs.clone();
         self.config.colors.tiles.world_exit = theme_colors.tiles.world_exit.clone();
-        
+
         // Update UI colors
         self.config.colors.ui.revealed_tile = theme_colors.ui.revealed_tile.clone();
         self.config.colors.ui.look_cursor.bg = theme_colors.ui.look_cursor_bg.clone();
@@ -410,7 +462,14 @@ pub struct RenderContext {
 }
 
 impl RenderContext {
-    pub fn new(frame_count: u64, cam_x: i32, cam_y: i32, view_w: i32, view_h: i32, god_view: bool) -> Self {
+    pub fn new(
+        frame_count: u64,
+        cam_x: i32,
+        cam_y: i32,
+        view_w: i32,
+        view_h: i32,
+        god_view: bool,
+    ) -> Self {
         Self {
             frame_count,
             camera_x: cam_x,
@@ -425,9 +484,12 @@ impl RenderContext {
     pub fn world_to_screen(&self, x: i32, y: i32) -> Option<(i32, i32)> {
         let screen_x = x - self.camera_x;
         let screen_y = y - self.camera_y;
-        
-        if screen_x >= 0 && screen_x < self.view_width && 
-           screen_y >= 0 && screen_y < self.view_height {
+
+        if screen_x >= 0
+            && screen_x < self.view_width
+            && screen_y >= 0
+            && screen_y < self.view_height
+        {
             Some((screen_x, screen_y))
         } else {
             None

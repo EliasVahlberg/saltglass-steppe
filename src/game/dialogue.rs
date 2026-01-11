@@ -1,6 +1,6 @@
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use std::collections::HashMap;
-use once_cell::sync::Lazy;
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct DialogueCondition {
@@ -70,7 +70,10 @@ struct DialoguesFile {
 static DIALOGUES: Lazy<HashMap<String, DialogueTree>> = Lazy::new(|| {
     let data = include_str!("../../data/dialogues.json");
     let file: DialoguesFile = serde_json::from_str(data).expect("Failed to parse dialogues.json");
-    file.dialogues.into_iter().map(|d| (d.npc_id.clone(), d)).collect()
+    file.dialogues
+        .into_iter()
+        .map(|d| (d.npc_id.clone(), d))
+        .collect()
 });
 
 /// Current dialogue state for UI
@@ -90,16 +93,18 @@ pub fn get_dialogue_tree(npc_id: &str) -> Option<&'static DialogueTree> {
 pub fn start_dialogue(npc_id: &str, game_state: &crate::game::GameState) -> Option<DialogueState> {
     let tree = get_dialogue_tree(npc_id)?;
     let root_node = tree.nodes.iter().find(|n| n.id == tree.root_node)?;
-    
+
     // Check if root node condition is met
     if let Some(condition) = &root_node.condition {
         if !check_dialogue_condition(game_state, condition) {
             return None;
         }
     }
-    
+
     // Filter available options based on conditions
-    let available_options: Vec<DialogueOption> = root_node.options.iter()
+    let available_options: Vec<DialogueOption> = root_node
+        .options
+        .iter()
         .filter(|opt| {
             if let Some(condition) = &opt.condition {
                 check_dialogue_condition(game_state, condition)
@@ -109,7 +114,7 @@ pub fn start_dialogue(npc_id: &str, game_state: &crate::game::GameState) -> Opti
         })
         .cloned()
         .collect();
-    
+
     Some(DialogueState {
         npc_id: npc_id.to_string(),
         current_node: root_node.id.clone(),
@@ -126,30 +131,32 @@ pub fn continue_dialogue(
 ) -> Option<DialogueState> {
     let tree = get_dialogue_tree(&dialogue_state.npc_id)?;
     let option = dialogue_state.options.get(option_index)?;
-    
+
     // Execute action if present
     if let Some(action) = &option.action {
         execute_dialogue_action(action, game_state);
     }
-    
+
     // Check if conversation ends
     if option.ends_conversation {
         return None;
     }
-    
+
     // Move to next node if specified
     if let Some(next_node_id) = &option.leads_to {
         let next_node = tree.nodes.iter().find(|n| n.id == *next_node_id)?;
-        
+
         // Check node condition
         if let Some(condition) = &next_node.condition {
             if !check_dialogue_condition(game_state, condition) {
                 return None;
             }
         }
-        
+
         // Filter available options
-        let available_options: Vec<DialogueOption> = next_node.options.iter()
+        let available_options: Vec<DialogueOption> = next_node
+            .options
+            .iter()
             .filter(|opt| {
                 if let Some(condition) = &opt.condition {
                     check_dialogue_condition(game_state, condition)
@@ -159,7 +166,7 @@ pub fn continue_dialogue(
             })
             .cloned()
             .collect();
-        
+
         Some(DialogueState {
             npc_id: dialogue_state.npc_id.clone(),
             current_node: next_node.id.clone(),
@@ -172,7 +179,10 @@ pub fn continue_dialogue(
     }
 }
 
-fn check_dialogue_condition(game_state: &crate::game::GameState, condition: &DialogueCondition) -> bool {
+fn check_dialogue_condition(
+    game_state: &crate::game::GameState,
+    condition: &DialogueCondition,
+) -> bool {
     // Check currency requirement
     if let Some(required_currency) = condition.has_currency {
         if game_state.salt_scrip < required_currency {
@@ -212,7 +222,11 @@ fn check_dialogue_condition(game_state: &crate::game::GameState, condition: &Dia
 
     // Check adaptation
     if let Some(adaptation_id) = &condition.has_adaptation {
-        if !game_state.adaptations.iter().any(|a| a.id() == *adaptation_id) {
+        if !game_state
+            .adaptations
+            .iter()
+            .any(|a| a.id() == *adaptation_id)
+        {
             return false;
         }
     }
@@ -241,10 +255,12 @@ fn execute_dialogue_action(action: &DialogueAction, game_state: &mut crate::game
         "reputation_change" => {
             if let (Some(faction), Some(change)) = (
                 action.parameters.get("faction").and_then(|v| v.as_str()),
-                action.parameters.get("change").and_then(|v| v.as_i64())
+                action.parameters.get("change").and_then(|v| v.as_i64()),
             ) {
                 let current = game_state.faction_reputation.get(faction).unwrap_or(&0);
-                game_state.faction_reputation.insert(faction.to_string(), current + change as i32);
+                game_state
+                    .faction_reputation
+                    .insert(faction.to_string(), current + change as i32);
             }
         }
         "give_item" => {
@@ -310,11 +326,17 @@ impl crate::game::state::GameState {
     }
 
     /// Get available dialogue options for an NPC
-    pub fn get_available_dialogue_options<'a>(&self, dialogue: &'a DialogueTree) -> Vec<&'a DialogueOption> {
-        dialogue.nodes.iter()
+    pub fn get_available_dialogue_options<'a>(
+        &self,
+        dialogue: &'a DialogueTree,
+    ) -> Vec<&'a DialogueOption> {
+        dialogue
+            .nodes
+            .iter()
             .find(|node| node.id == dialogue.root_node)
             .map(|node| node.options.iter().collect())
-            .unwrap_or_else(Vec::new).into_iter()
+            .unwrap_or_else(Vec::new)
+            .into_iter()
             .filter(|option| {
                 if let Some(condition) = &option.condition {
                     self.check_dialogue_condition(condition)

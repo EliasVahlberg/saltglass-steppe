@@ -12,7 +12,9 @@ struct ProgressionFile {
     stat_growth: HashMap<String, i32>,
 }
 
-fn default_stat_points() -> i32 { 3 }
+fn default_stat_points() -> i32 {
+    3
+}
 
 static PROGRESSION: Lazy<ProgressionFile> = Lazy::new(|| {
     let data = include_str!("../../data/progression.json");
@@ -20,7 +22,11 @@ static PROGRESSION: Lazy<ProgressionFile> = Lazy::new(|| {
 });
 
 pub fn xp_for_level(level: u32) -> u32 {
-    PROGRESSION.level_thresholds.get(level as usize).copied().unwrap_or(u32::MAX)
+    PROGRESSION
+        .level_thresholds
+        .get(level as usize)
+        .copied()
+        .unwrap_or(u32::MAX)
 }
 
 pub fn stat_points_per_level() -> i32 {

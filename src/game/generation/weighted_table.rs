@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use rand::Rng;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct WeightedEntry<T> {
@@ -28,7 +28,7 @@ impl<T: Clone> WeightedTable<T> {
         }
 
         let mut roll = rng.gen_range(0.0..total_weight);
-        
+
         for entry in &self.entries {
             if roll < entry.weight {
                 return Some(entry.item.clone());

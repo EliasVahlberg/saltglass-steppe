@@ -1,8 +1,8 @@
 //! Tile rendering system
 
-use ratatui::prelude::*;
-use crate::{GameState, Tile};
 use super::config::{RenderConfig, parse_color};
+use crate::{GameState, Tile};
+use ratatui::prelude::*;
 
 /// Handles tile rendering with animations and lighting
 pub struct TileRenderer {
@@ -37,10 +37,10 @@ impl TileRenderer {
         for vy in 0..view_height {
             let mut row_spans = Vec::new();
             let y = cam_y + vy;
-            
+
             for vx in 0..view_width {
                 let x = cam_x + vx;
-                
+
                 if x < 0 || y < 0 || x >= state.map.width as i32 || y >= state.map.height as i32 {
                     // Out of bounds - render empty space
                     row_spans.push(Span::raw(" "));
@@ -48,7 +48,8 @@ impl TileRenderer {
                 }
 
                 let idx = state.map.idx(x, y);
-                let light_level = self.get_light_level(x, y, light_map, state.map.width, state.map.height);
+                let light_level =
+                    self.get_light_level(x, y, light_map, state.map.width, state.map.height);
                 let visible = light_level > 80 || state.debug_god_view;
                 let revealed = state.revealed.contains(&idx) || state.debug_god_view;
 
@@ -69,13 +70,22 @@ impl TileRenderer {
     }
 
     /// Render a visible tile with full lighting and animations
-    fn render_visible_tile(&self, state: &GameState, x: i32, y: i32, idx: usize, light_map: &[u8], frame_count: u64) -> Span<'_> {
+    fn render_visible_tile(
+        &self,
+        state: &GameState,
+        x: i32,
+        y: i32,
+        idx: usize,
+        light_map: &[u8],
+        frame_count: u64,
+    ) -> Span<'_> {
         let tile = &state.map.tiles[idx];
         let light_level = self.get_light_level(x, y, light_map, state.map.width, state.map.height);
 
-        let (glyph, base_color) = self.get_tile_appearance(tile, x, y, frame_count, state.animation_frame);
+        let (glyph, base_color) =
+            self.get_tile_appearance(tile, x, y, frame_count, state.animation_frame);
         let final_color = self.dim_color(base_color, light_level);
-        
+
         Span::styled(glyph.to_string(), Style::default().fg(final_color))
     }
 
@@ -84,17 +94,29 @@ impl TileRenderer {
         let tile = &_state.map.tiles[_idx];
         let glyph = tile.glyph();
         let color = parse_color(&self.config.colors.ui.revealed_tile);
-        
+
         Span::styled(glyph.to_string(), Style::default().fg(color))
     }
 
     /// Get the appearance (glyph and color) for a tile
-    fn get_tile_appearance(&self, tile: &Tile, x: i32, y: i32, _frame_count: u64, animation_frame: u32) -> (char, Color) {
+    fn get_tile_appearance(
+        &self,
+        tile: &Tile,
+        x: i32,
+        y: i32,
+        _frame_count: u64,
+        animation_frame: u32,
+    ) -> (char, Color) {
         match tile {
             Tile::Glass => {
-                if self.config.animations.glass_shimmer.enabled && self.config.animations.tile_animations {
+                if self.config.animations.glass_shimmer.enabled
+                    && self.config.animations.tile_animations
+                {
                     // Glass shimmers between different shades
-                    let phase = ((animation_frame / self.config.animations.glass_shimmer.speed as u32) + (x as u32 ^ y as u32)) % self.config.animations.glass_shimmer.colors.len() as u32;
+                    let phase = ((animation_frame
+                        / self.config.animations.glass_shimmer.speed as u32)
+                        + (x as u32 ^ y as u32))
+                        % self.config.animations.glass_shimmer.colors.len() as u32;
                     let color_name = &self.config.animations.glass_shimmer.colors[phase as usize];
                     let color = parse_color(color_name);
                     ('░', color)
@@ -154,12 +176,22 @@ impl TileRenderer {
     }
 
     /// Get light level at position
-    fn get_light_level(&self, x: i32, y: i32, light_map: &[u8], map_width: usize, map_height: usize) -> u8 {
+    fn get_light_level(
+        &self,
+        x: i32,
+        y: i32,
+        light_map: &[u8],
+        map_width: usize,
+        map_height: usize,
+    ) -> u8 {
         if x < 0 || y < 0 || x >= map_width as i32 || y >= map_height as i32 {
             return 0;
         }
         let idx = y as usize * map_width + x as usize;
-        light_map.get(idx).copied().unwrap_or(self.config.lighting.ambient_level)
+        light_map
+            .get(idx)
+            .copied()
+            .unwrap_or(self.config.lighting.ambient_level)
     }
 
     /// Dim a color based on light level
@@ -172,37 +204,37 @@ impl TileRenderer {
                     (g as f32 * factor) as u8,
                     (b as f32 * factor) as u8,
                 )
-            },
+            }
             Color::Gray => {
-                if light_level >= 150 { 
-                    Color::White 
-                } else if light_level >= 100 { 
-                    Color::Gray 
+                if light_level >= 150 {
+                    Color::White
+                } else if light_level >= 100 {
+                    Color::Gray
                 } else if light_level >= 50 {
                     Color::DarkGray
                 } else {
                     Color::Black
                 }
-            },
+            }
             Color::DarkGray => {
                 // Fixed: DarkGray should brighten to White at high light levels
-                if light_level >= 200 { 
-                    Color::White    // Very bright: white
-                } else if light_level >= 150 { 
-                    Color::Gray     // Bright: gray
-                } else if light_level >= 100 { 
+                if light_level >= 200 {
+                    Color::White // Very bright: white
+                } else if light_level >= 150 {
+                    Color::Gray // Bright: gray
+                } else if light_level >= 100 {
                     Color::DarkGray // Medium: dark gray
                 } else {
                     Color::DarkGray // Low: still dark gray (no black)
                 }
-            },
+            }
             _ => {
-                if light_level >= 200 { 
-                    color 
-                } else if light_level >= 100 { 
-                    color 
-                } else { 
-                    Color::DarkGray 
+                if light_level >= 200 {
+                    color
+                } else if light_level >= 100 {
+                    color
+                } else {
+                    Color::DarkGray
                 }
             }
         }
@@ -223,8 +255,12 @@ mod tests {
                         status_effects: std::collections::HashMap::new(),
                     },
                     enemies: std::collections::HashMap::new(),
-                    npcs: super::super::config::NpcColors { base: "Green".to_string() },
-                    items: super::super::config::ItemColors { base: "LightMagenta".to_string() },
+                    npcs: super::super::config::NpcColors {
+                        base: "Green".to_string(),
+                    },
+                    items: super::super::config::ItemColors {
+                        base: "LightMagenta".to_string(),
+                    },
                 },
                 tiles: super::super::config::TileColors {
                     floor: "DarkGray".to_string(),
@@ -299,13 +335,13 @@ mod tests {
             particles: crate::renderer::particles::ParticleConfig::default(),
             visual_animations: crate::renderer::animations::VisualAnimationConfig::default(),
         };
-        
+
         let renderer = TileRenderer::new(&config);
-        
+
         // Test floor tile
         let (glyph, _color) = renderer.get_tile_appearance(&Tile::default_floor(), 0, 0, 0, 0);
         assert_eq!(glyph, '.');
-        
+
         // Test glass tile
         let (glyph, _color) = renderer.get_tile_appearance(&Tile::Glass, 0, 0, 0, 0);
         assert_eq!(glyph, '░');

@@ -1,4 +1,4 @@
-use super::constants::{MAP_WIDTH, MAP_HEIGHT};
+use super::constants::{MAP_HEIGHT, MAP_WIDTH};
 
 /// Light level per tile (0 = dark, 255 = bright)
 pub type LightMap = Vec<u8>;
@@ -15,7 +15,7 @@ pub struct LightSource {
 /// Compute light levels for all tiles given light sources
 pub fn compute_lighting(sources: &[LightSource], ambient: u8) -> LightMap {
     let mut light = vec![ambient; MAP_WIDTH * MAP_HEIGHT];
-    
+
     for src in sources {
         for dy in -src.radius..=src.radius {
             for dx in -src.radius..=src.radius {
@@ -69,11 +69,11 @@ pub fn get_light_level(light_map: &LightMap, x: i32, y: i32) -> u8 {
 /// Calculate visibility modifier based on light level
 pub fn visibility_modifier(light_level: u8) -> f32 {
     match light_level {
-        0..=30 => 0.1,      // Very dark - hard to see
-        31..=60 => 0.5,     // Dim - reduced visibility  
-        61..=120 => 1.0,    // Normal - full visibility
-        121..=200 => 1.2,   // Bright - enhanced visibility
-        201..=255 => 0.8,   // Glare - reduced visibility from brightness
+        0..=30 => 0.1,    // Very dark - hard to see
+        31..=60 => 0.5,   // Dim - reduced visibility
+        61..=120 => 1.0,  // Normal - full visibility
+        121..=200 => 1.2, // Bright - enhanced visibility
+        201..=255 => 0.8, // Glare - reduced visibility from brightness
     }
 }
 
@@ -83,7 +83,12 @@ mod tests {
 
     #[test]
     fn light_source_illuminates_area() {
-        let sources = vec![LightSource { x: 10, y: 10, radius: 5, intensity: 200 }];
+        let sources = vec![LightSource {
+            x: 10,
+            y: 10,
+            radius: 5,
+            intensity: 200,
+        }];
         let light = compute_lighting(&sources, 0);
         // Center should be bright
         assert!(light[10 * MAP_WIDTH + 10] >= 200);

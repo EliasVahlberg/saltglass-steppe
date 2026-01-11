@@ -130,14 +130,19 @@ impl ParticleSystem {
     }
 
     /// Update a single particle based on its type (static version to avoid borrowing issues)
-    fn update_particle_static(particle: &mut Particle, delta_time: f32, config: &ParticleConfig, frame_count: u64) {
+    fn update_particle_static(
+        particle: &mut Particle,
+        delta_time: f32,
+        config: &ParticleConfig,
+        frame_count: u64,
+    ) {
         // Update position
         particle.position.0 += particle.velocity.0 * delta_time;
         particle.position.1 += particle.velocity.1 * delta_time;
-        
+
         // Update lifetime
         particle.lifetime -= delta_time;
-        
+
         // Type-specific updates
         match particle.effect_type {
             ParticleType::Sparkle => {
@@ -148,9 +153,9 @@ impl ParticleSystem {
             ParticleType::Glow => {
                 // Glowing particles pulse
                 let pulse = (frame_count as f32 * config.glow.pulse_speed).sin();
-                particle.brightness = config.glow.min_brightness + 
-                    (config.glow.max_brightness - config.glow.min_brightness) * 
-                    (pulse * 0.5 + 0.5);
+                particle.brightness = config.glow.min_brightness
+                    + (config.glow.max_brightness - config.glow.min_brightness)
+                        * (pulse * 0.5 + 0.5);
             }
             ParticleType::Float => {
                 // Floating particles affected by gravity
@@ -168,8 +173,8 @@ impl ParticleSystem {
             }
             ParticleType::Shimmer => {
                 // Shimmering particles cycle through colors
-                let cycle_pos = (frame_count as f32 * config.shimmer.speed) % 
-                    config.shimmer.color_cycle.len() as f32;
+                let cycle_pos = (frame_count as f32 * config.shimmer.speed)
+                    % config.shimmer.color_cycle.len() as f32;
                 let color_index = cycle_pos as usize % config.shimmer.color_cycle.len();
                 particle.color = parse_color(&config.shimmer.color_cycle[color_index]);
             }
@@ -183,8 +188,8 @@ impl ParticleSystem {
         }
 
         // Spawn sparkles
-        if self.config.sparkles.enabled && 
-           self.spawn_timer >= 1.0 / self.config.sparkles.spawn_rate {
+        if self.config.sparkles.enabled && self.spawn_timer >= 1.0 / self.config.sparkles.spawn_rate
+        {
             self.spawn_sparkle();
             self.spawn_timer = 0.0;
         }
@@ -194,10 +199,12 @@ impl ParticleSystem {
     fn spawn_sparkle(&mut self) {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        
-        let color_name = &self.config.sparkles.colors[rng.gen_range(0..self.config.sparkles.colors.len())];
-        let character = self.config.sparkles.characters[rng.gen_range(0..self.config.sparkles.characters.len())];
-        
+
+        let color_name =
+            &self.config.sparkles.colors[rng.gen_range(0..self.config.sparkles.colors.len())];
+        let character = self.config.sparkles.characters
+            [rng.gen_range(0..self.config.sparkles.characters.len())];
+
         let particle = Particle {
             position: (rng.gen_range(0.0..80.0), rng.gen_range(0.0..24.0)),
             velocity: (rng.gen_range(-2.0..2.0), rng.gen_range(-1.0..1.0)),
@@ -209,7 +216,7 @@ impl ParticleSystem {
             brightness: self.config.sparkles.intensity,
             effect_type: ParticleType::Sparkle,
         };
-        
+
         self.particles.push(particle);
     }
 
@@ -227,7 +234,7 @@ impl ParticleSystem {
             ParticleType::Pulse => self.create_pulse_at(x, y),
             ParticleType::Shimmer => self.create_shimmer_at(x, y),
         };
-        
+
         self.particles.push(particle);
     }
 
@@ -235,10 +242,12 @@ impl ParticleSystem {
     fn create_sparkle_at(&self, x: f32, y: f32) -> Particle {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        
-        let color_name = &self.config.sparkles.colors[rng.gen_range(0..self.config.sparkles.colors.len())];
-        let character = self.config.sparkles.characters[rng.gen_range(0..self.config.sparkles.characters.len())];
-        
+
+        let color_name =
+            &self.config.sparkles.colors[rng.gen_range(0..self.config.sparkles.colors.len())];
+        let character = self.config.sparkles.characters
+            [rng.gen_range(0..self.config.sparkles.characters.len())];
+
         Particle {
             position: (x, y),
             velocity: (rng.gen_range(-1.0..1.0), rng.gen_range(-1.0..1.0)),
@@ -254,7 +263,7 @@ impl ParticleSystem {
 
     fn create_glow_at(&self, x: f32, y: f32) -> Particle {
         let color_name = &self.config.glow.colors[0];
-        
+
         Particle {
             position: (x, y),
             velocity: (0.0, 0.0),
@@ -271,10 +280,12 @@ impl ParticleSystem {
     fn create_float_at(&self, x: f32, y: f32) -> Particle {
         use rand::Rng;
         let mut rng = rand::thread_rng();
-        
-        let character = self.config.float.characters[rng.gen_range(0..self.config.float.characters.len())];
-        let velocity = rng.gen_range(self.config.float.velocity_range.0..self.config.float.velocity_range.1);
-        
+
+        let character =
+            self.config.float.characters[rng.gen_range(0..self.config.float.characters.len())];
+        let velocity =
+            rng.gen_range(self.config.float.velocity_range.0..self.config.float.velocity_range.1);
+
         Particle {
             position: (x, y),
             velocity: (0.0, -velocity), // Float upward
@@ -318,7 +329,7 @@ impl ParticleSystem {
 
     fn create_shimmer_at(&self, x: f32, y: f32) -> Particle {
         let color_name = &self.config.shimmer.color_cycle[0];
-        
+
         Particle {
             position: (x, y),
             velocity: (0.0, 0.0),
@@ -378,7 +389,11 @@ impl Default for ParticleConfig {
                 enabled: true,
                 spawn_rate: 2.0,
                 lifetime: 1.0,
-                colors: vec!["White".to_string(), "Yellow".to_string(), "Cyan".to_string()],
+                colors: vec![
+                    "White".to_string(),
+                    "Yellow".to_string(),
+                    "Cyan".to_string(),
+                ],
                 characters: vec!['*', '✦', '✧', '◆'],
                 intensity: 1.0,
             },
@@ -411,7 +426,11 @@ impl Default for ParticleConfig {
             shimmer: ShimmerConfig {
                 enabled: true,
                 speed: 0.05,
-                color_cycle: vec!["Cyan".to_string(), "LightCyan".to_string(), "White".to_string()],
+                color_cycle: vec![
+                    "Cyan".to_string(),
+                    "LightCyan".to_string(),
+                    "White".to_string(),
+                ],
                 intensity_variation: 0.2,
             },
         }
@@ -426,10 +445,10 @@ mod tests {
     fn test_particle_creation() {
         let config = ParticleConfig::default();
         let mut system = ParticleSystem::new(config);
-        
+
         system.add_particle(10.0, 10.0, ParticleType::Sparkle);
         assert_eq!(system.particles().len(), 1);
-        
+
         let particle = &system.particles()[0];
         assert_eq!(particle.position, (10.0, 10.0));
         assert_eq!(particle.effect_type, ParticleType::Sparkle);
@@ -439,12 +458,12 @@ mod tests {
     fn test_particle_update() {
         let config = ParticleConfig::default();
         let mut system = ParticleSystem::new(config);
-        
+
         system.add_particle(10.0, 10.0, ParticleType::Float);
         let initial_lifetime = system.particles()[0].lifetime;
-        
+
         system.update(0.1);
-        
+
         let particle = &system.particles()[0];
         assert!(particle.lifetime < initial_lifetime);
         assert_ne!(particle.position, (10.0, 10.0)); // Should have moved
@@ -455,15 +474,16 @@ mod tests {
         let mut config = ParticleConfig::default();
         config.sparkles.enabled = false; // Disable automatic spawning
         let mut system = ParticleSystem::new(config);
-        
+
         system.add_particle(10.0, 10.0, ParticleType::Sparkle);
         assert_eq!(system.particles().len(), 1);
-        
+
         // Update many times to exceed lifetime
-        for _ in 0..20 { // 2 seconds should be enough for 1.0s lifetime
+        for _ in 0..20 {
+            // 2 seconds should be enough for 1.0s lifetime
             system.update(0.1);
         }
-        
+
         assert_eq!(system.particles().len(), 0); // Should be removed
     }
 }

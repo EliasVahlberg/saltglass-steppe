@@ -156,9 +156,15 @@ pub struct ItemDef {
     pub crystal_frequency: Option<String>,
 }
 
-fn default_pickup() -> bool { true }
-fn default_consumable() -> bool { true }
-fn default_tier() -> u32 { 1 }
+fn default_pickup() -> bool {
+    true
+}
+fn default_consumable() -> bool {
+    true
+}
+fn default_tier() -> u32 {
+    1
+}
 
 #[derive(Deserialize)]
 struct ItemsFile {
@@ -188,7 +194,11 @@ pub struct Item {
 
 impl Item {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
-        Self { x, y, id: id.to_string() }
+        Self {
+            x,
+            y,
+            id: id.to_string(),
+        }
     }
 
     pub fn def(&self) -> Option<&'static ItemDef> {
@@ -196,7 +206,9 @@ impl Item {
     }
 
     pub fn glyph(&self) -> char {
-        self.def().map(|d| d.glyph.chars().next().unwrap_or('?')).unwrap_or('?')
+        self.def()
+            .map(|d| d.glyph.chars().next().unwrap_or('?'))
+            .unwrap_or('?')
     }
 
     pub fn name(&self) -> &str {

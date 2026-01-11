@@ -23,7 +23,10 @@ pub fn inspect_item(id: &str) -> Option<ItemInfo> {
             description: w.description.clone(),
             item_type: "Weapon".into(),
             stats: vec![
-                ("Damage".into(), format!("{}-{}", w.damage_min, w.damage_max)),
+                (
+                    "Damage".into(),
+                    format!("{}-{}", w.damage_min, w.damage_max),
+                ),
                 ("Accuracy".into(), format!("{}%", w.accuracy)),
                 ("Range".into(), w.range.to_string()),
                 ("AP Cost".into(), w.ap_cost.to_string()),
@@ -34,7 +37,7 @@ pub fn inspect_item(id: &str) -> Option<ItemInfo> {
     let d = get_item_def(id)?;
     let hidden = &d.hidden_properties;
     let mut stats = Vec::new();
-    
+
     macro_rules! add_stat {
         ($key:expr, $cond:expr, $val:expr) => {
             if $cond && !hidden.iter().any(|h| h == $key) {
@@ -42,21 +45,41 @@ pub fn inspect_item(id: &str) -> Option<ItemInfo> {
             }
         };
     }
-    
+
     add_stat!("value", d.value > 0, d.value.to_string());
     add_stat!("weight", d.weight > 0, d.weight.to_string());
     add_stat!("heal", d.heal > 0, format!("+{} HP", d.heal));
-    add_stat!("armor_value", d.armor_value > 0, format!("+{}", d.armor_value));
-    add_stat!("reduces_refraction", d.reduces_refraction > 0, format!("-{}", d.reduces_refraction));
+    add_stat!(
+        "armor_value",
+        d.armor_value > 0,
+        format!("+{}", d.armor_value)
+    );
+    add_stat!(
+        "reduces_refraction",
+        d.reduces_refraction > 0,
+        format!("-{}", d.reduces_refraction)
+    );
     add_stat!("reveals_map", d.reveals_map, "Reveals map".into());
-    add_stat!("suppresses_adaptations", d.suppresses_adaptations, "Hides adaptations".into());
+    add_stat!(
+        "suppresses_adaptations",
+        d.suppresses_adaptations,
+        "Hides adaptations".into()
+    );
     add_stat!("breaks_walls", d.breaks_walls, "Breaks walls".into());
-    add_stat!("equip_slot", d.equip_slot.is_some(), d.equip_slot.clone().unwrap_or_default());
-    
-    let item_type = if d.equip_slot.is_some() { "Equipment" }
-        else if d.usable { "Consumable" }
-        else { "Item" };
-    
+    add_stat!(
+        "equip_slot",
+        d.equip_slot.is_some(),
+        d.equip_slot.clone().unwrap_or_default()
+    );
+
+    let item_type = if d.equip_slot.is_some() {
+        "Equipment"
+    } else if d.usable {
+        "Consumable"
+    } else {
+        "Item"
+    };
+
     Some(ItemInfo {
         name: d.name.clone(),
         description: d.description.clone(),
@@ -81,27 +104,37 @@ impl GameState {
         }
         if let Some(ei) = self.enemy_at(x, y) {
             let e = &self.enemies[ei];
-            let desc = e.def().map(|d| d.description.as_str()).unwrap_or("A creature");
+            let desc = e
+                .def()
+                .map(|d| d.description.as_str())
+                .unwrap_or("A creature");
             let demeanor = format!("{:?}", e.demeanor()).to_lowercase();
             return format!("{} (HP: {}, {}) - {}", e.name(), e.hp, demeanor, desc);
         }
         if let Some(ni) = self.npc_at(x, y) {
             let n = &self.npcs[ni];
-            let desc = n.def().map(|d| d.description.as_str()).unwrap_or("A person");
+            let desc = n
+                .def()
+                .map(|d| d.description.as_str())
+                .unwrap_or("A person");
             let mut info = format!("{} - {}", n.name(), desc);
-            
+
             // Add backstory if available
             if let Some(backstory) = n.backstory() {
                 info.push_str(&format!(" ({})", backstory));
             }
-            
+
             return info;
         }
         if let Some(item) = self.items.iter().find(|i| i.x == x && i.y == y) {
             if let Some(def) = get_item_def(&item.id) {
-                let item_type = if def.armor_value > 0 { "armor" }
-                    else if def.usable { "consumable" }
-                    else { "item" };
+                let item_type = if def.armor_value > 0 {
+                    "armor"
+                } else if def.usable {
+                    "consumable"
+                } else {
+                    "item"
+                };
                 return format!("{} ({}) - {}", def.name, item_type, def.description);
             }
             if let Some(wdef) = get_weapon_def(&item.id) {
@@ -114,7 +147,7 @@ impl GameState {
                 return format!("{} (light source)", def.name);
             }
         }
-        
+
         // Check for inscriptions at this position
         if let Some(inscription) = self.map.inscriptions.iter().find(|i| i.x == x && i.y == y) {
             let inscription_desc = match inscription.inscription_type.as_str() {
@@ -124,7 +157,7 @@ impl GameState {
             };
             return format!("{}: \"{}\"", inscription_desc, inscription.text);
         }
-        
+
         if let Some(tile) = self.map.get(x, y) {
             return format!("{} - {}", tile.name(), tile.description());
         }

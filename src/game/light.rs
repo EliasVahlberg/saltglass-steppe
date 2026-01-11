@@ -1,12 +1,18 @@
-use serde::{Deserialize, Serialize};
-use rand_chacha::ChaCha8Rng;
 use rand::Rng;
+use rand_chacha::ChaCha8Rng;
+use serde::{Deserialize, Serialize};
 
 /// Light beam direction
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Direction {
-    North, South, East, West,
-    NorthEast, NorthWest, SouthEast, SouthWest,
+    North,
+    South,
+    East,
+    West,
+    NorthEast,
+    NorthWest,
+    SouthEast,
+    SouthWest,
 }
 
 impl Direction {
@@ -38,12 +44,12 @@ pub struct LightBeam {
 /// Light colors with different properties
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LightColor {
-    White,   // Standard light
-    Red,     // Heat/damage
-    Blue,    // Cold/slowing
-    Green,   // Healing
-    Yellow,  // Revealing/detection
-    Violet,  // Psychic enhancement
+    White,  // Standard light
+    Red,    // Heat/damage
+    Blue,   // Cold/slowing
+    Green,  // Healing
+    Yellow, // Revealing/detection
+    Violet, // Psychic enhancement
 }
 
 impl LightColor {
@@ -72,7 +78,7 @@ pub struct LightSource {
 pub struct RefractionSurface {
     pub x: i32,
     pub y: i32,
-    pub angle: u8, // 0-7 representing 8 directions
+    pub angle: u8,       // 0-7 representing 8 directions
     pub efficiency: f32, // 0.0-1.0
 }
 
@@ -87,8 +93,15 @@ pub struct LightSystem {
 
 impl LightSystem {
     /// Create a new light beam from a source
-    pub fn create_beam(&mut self, source_x: i32, source_y: i32, direction: Direction, 
-                      intensity: u8, color: LightColor, range: u8) {
+    pub fn create_beam(
+        &mut self,
+        source_x: i32,
+        source_y: i32,
+        direction: Direction,
+        intensity: u8,
+        color: LightColor,
+        range: u8,
+    ) {
         let beam = LightBeam {
             x: source_x,
             y: source_y,
@@ -112,18 +125,24 @@ impl LightSystem {
             let (dx, dy) = current_dir.to_delta();
             current_x += dx;
             current_y += dy;
-            
+
             // Check bounds
-            if current_x < 0 || current_y < 0 || 
-               current_x >= map.width as i32 || current_y >= map.height as i32 {
+            if current_x < 0
+                || current_y < 0
+                || current_x >= map.width as i32
+                || current_y >= map.height as i32
+            {
                 break;
             }
 
             path.push((current_x, current_y));
 
             // Check for refraction surfaces
-            if let Some(surface) = self.refraction_surfaces.iter()
-                .find(|s| s.x == current_x && s.y == current_y) {
+            if let Some(surface) = self
+                .refraction_surfaces
+                .iter()
+                .find(|s| s.x == current_x && s.y == current_y)
+            {
                 // Refract the beam
                 current_dir = self.refract_direction(current_dir, surface.angle);
             }
@@ -143,28 +162,41 @@ impl LightSystem {
     /// Refract light direction based on surface angle
     fn refract_direction(&self, incoming: Direction, surface_angle: u8) -> Direction {
         let directions = [
-            Direction::North, Direction::NorthEast, Direction::East, Direction::SouthEast,
-            Direction::South, Direction::SouthWest, Direction::West, Direction::NorthWest,
+            Direction::North,
+            Direction::NorthEast,
+            Direction::East,
+            Direction::SouthEast,
+            Direction::South,
+            Direction::SouthWest,
+            Direction::West,
+            Direction::NorthWest,
         ];
-        
+
         let incoming_idx = directions.iter().position(|&d| d == incoming).unwrap_or(0);
         let reflection_offset = (surface_angle as usize * 2) % 8;
         let new_idx = (incoming_idx + reflection_offset) % 8;
-        
+
         directions[new_idx]
     }
 
     /// Add light source at position
     pub fn add_light_source(&mut self, x: i32, y: i32, intensity: u8, color: LightColor) {
         self.light_sources.push(LightSource {
-            x, y, intensity, color, active: true
+            x,
+            y,
+            intensity,
+            color,
+            active: true,
         });
     }
 
     /// Add refraction surface at position
     pub fn add_refraction_surface(&mut self, x: i32, y: i32, angle: u8, efficiency: f32) {
         self.refraction_surfaces.push(RefractionSurface {
-            x, y, angle, efficiency
+            x,
+            y,
+            angle,
+            efficiency,
         });
     }
 
@@ -188,7 +220,9 @@ impl LightSystem {
     pub fn is_illuminated(&self, x: i32, y: i32, map: &crate::game::Map) -> bool {
         // Check direct light sources
         for source in &self.light_sources {
-            if !source.active { continue; }
+            if !source.active {
+                continue;
+            }
             let distance = ((x - source.x).abs() + (y - source.y).abs()) as u8;
             if distance <= source.intensity {
                 return true;
@@ -224,8 +258,13 @@ impl LightSystem {
     }
 
     /// Player ability: Focus light beam
-    pub fn focus_beam(&mut self, player_x: i32, player_y: i32, direction: Direction, 
-                     cost: u32) -> bool {
+    pub fn focus_beam(
+        &mut self,
+        player_x: i32,
+        player_y: i32,
+        direction: Direction,
+        cost: u32,
+    ) -> bool {
         if self.light_energy < cost {
             return false;
         }
@@ -251,7 +290,9 @@ impl LightSystem {
         let mut absorbed = 0;
 
         for source in &self.light_sources {
-            if !source.active { continue; }
+            if !source.active {
+                continue;
+            }
             let distance = ((x - source.x).abs() + (y - source.y).abs()) as u8;
             if distance <= 2 {
                 absorbed += source.intensity as u32;

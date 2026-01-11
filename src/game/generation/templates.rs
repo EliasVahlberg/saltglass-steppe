@@ -1,7 +1,7 @@
+use rand::Rng;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
-use rand::Rng;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ContentTemplate {
@@ -39,12 +39,12 @@ impl TemplateLibrary {
     pub fn load_from_file(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let data = std::fs::read_to_string(path)?;
         let templates: Vec<ContentTemplate> = serde_json::from_str(&data)?;
-        
+
         let mut library = Self::new();
         for template in templates {
             library.add_template(template);
         }
-        
+
         Ok(library)
     }
 
@@ -62,11 +62,12 @@ impl TemplateLibrary {
         context: &TemplateContext,
         rng: &mut R,
     ) -> Result<HashMap<String, Value>, String> {
-        let template = self.get_template(template_id)
+        let template = self
+            .get_template(template_id)
             .ok_or_else(|| format!("Template not found: {}", template_id))?;
 
         let mut result = self.resolve_inheritance(template)?;
-        
+
         // Select variant if any exist
         if !template.variants.is_empty() {
             let variant = self.select_variant(&template.variants, context, rng)?;
@@ -82,14 +83,18 @@ impl TemplateLibrary {
         Ok(result)
     }
 
-    fn resolve_inheritance(&self, template: &ContentTemplate) -> Result<HashMap<String, Value>, String> {
+    fn resolve_inheritance(
+        &self,
+        template: &ContentTemplate,
+    ) -> Result<HashMap<String, Value>, String> {
         let mut result = HashMap::new();
 
         // Apply parent template first if inheritance exists
         if let Some(parent_id) = &template.inheritance {
-            let parent = self.get_template(parent_id)
+            let parent = self
+                .get_template(parent_id)
                 .ok_or_else(|| format!("Parent template not found: {}", parent_id))?;
-            
+
             let parent_params = self.resolve_inheritance(parent)?;
             result.extend(parent_params);
         }
@@ -151,12 +156,18 @@ impl TemplateLibrary {
             false
         } else {
             // Check if key exists and is truthy
-            context.variables.get(condition)
+            context
+                .variables
+                .get(condition)
                 .map_or(false, |v| !v.is_null() && v != &Value::Bool(false))
         }
     }
 
-    fn substitute_variables(&self, params: &mut HashMap<String, Value>, context: &TemplateContext) -> Result<(), String> {
+    fn substitute_variables(
+        &self,
+        params: &mut HashMap<String, Value>,
+        context: &TemplateContext,
+    ) -> Result<(), String> {
         for (_, value) in params.iter_mut() {
             self.substitute_value(value, context)?;
         }
@@ -185,21 +196,23 @@ impl TemplateLibrary {
 
     fn substitute_string(&self, s: &str, context: &TemplateContext) -> Result<String, String> {
         let mut result = s.to_string();
-        
+
         // Simple variable substitution: ${variable_name}
         while let Some(start) = result.find("${") {
             if let Some(end) = result[start..].find('}') {
                 let var_name = &result[start + 2..start + end];
-                let replacement = context.variables.get(var_name)
+                let replacement = context
+                    .variables
+                    .get(var_name)
                     .and_then(|v| v.as_str())
                     .unwrap_or("");
-                
+
                 result.replace_range(start..start + end + 1, replacement);
             } else {
                 break; // Malformed variable reference
             }
         }
-        
+
         Ok(result)
     }
 }

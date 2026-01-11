@@ -1,6 +1,6 @@
 use crate::game::generation::structures::Rectangle;
-use rand_chacha::ChaCha8Rng;
 use rand::Rng;
+use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -40,25 +40,38 @@ impl SimpleRoomsAlgorithm {
         Self { params }
     }
 
-    pub fn generate(&self, bounds: Rectangle, rng: &mut ChaCha8Rng) -> (Vec<SimpleRoom>, Vec<(u32, u32)>) {
+    pub fn generate(
+        &self,
+        bounds: Rectangle,
+        rng: &mut ChaCha8Rng,
+    ) -> (Vec<SimpleRoom>, Vec<(u32, u32)>) {
         let mut rooms = Vec::new();
         let mut attempts = 0;
 
         // Generate rooms
-        while rooms.len() < self.params.num_rooms as usize && attempts < self.params.max_placement_attempts {
-            let room_width = rng.gen_range(self.params.min_room_size.0..=self.params.max_room_size.0);
-            let room_height = rng.gen_range(self.params.min_room_size.1..=self.params.max_room_size.1);
-            
+        while rooms.len() < self.params.num_rooms as usize
+            && attempts < self.params.max_placement_attempts
+        {
+            let room_width =
+                rng.gen_range(self.params.min_room_size.0..=self.params.max_room_size.0);
+            let room_height =
+                rng.gen_range(self.params.min_room_size.1..=self.params.max_room_size.1);
+
             if room_width >= bounds.width || room_height >= bounds.height {
                 attempts += 1;
                 continue;
             }
-            
+
             let x = bounds.x + rng.gen_range(1..bounds.width - room_width - 1);
             let y = bounds.y + rng.gen_range(1..bounds.height - room_height - 1);
-            
+
             let new_room = SimpleRoom {
-                bounds: Rectangle { x, y, width: room_width, height: room_height }
+                bounds: Rectangle {
+                    x,
+                    y,
+                    width: room_width,
+                    height: room_height,
+                },
             };
 
             // Check if room overlaps with existing rooms
@@ -86,16 +99,16 @@ impl SimpleRoomsAlgorithm {
 
     fn rooms_intersect(&self, room1: &SimpleRoom, room2: &SimpleRoom) -> bool {
         let spacing = self.params.room_spacing;
-        
-        room1.bounds.x < room2.bounds.x + room2.bounds.width + spacing &&
-        room1.bounds.x + room1.bounds.width + spacing > room2.bounds.x &&
-        room1.bounds.y < room2.bounds.y + room2.bounds.height + spacing &&
-        room1.bounds.y + room1.bounds.height + spacing > room2.bounds.y
+
+        room1.bounds.x < room2.bounds.x + room2.bounds.width + spacing
+            && room1.bounds.x + room1.bounds.width + spacing > room2.bounds.x
+            && room1.bounds.y < room2.bounds.y + room2.bounds.height + spacing
+            && room1.bounds.y + room1.bounds.height + spacing > room2.bounds.y
     }
 
     fn connect_rooms(&self, rooms: &[SimpleRoom], rng: &mut ChaCha8Rng) -> Vec<(u32, u32)> {
         let mut corridor_tiles = Vec::new();
-        
+
         if rooms.len() < 2 {
             return corridor_tiles;
         }
@@ -104,7 +117,7 @@ impl SimpleRoomsAlgorithm {
         for i in 0..rooms.len() - 1 {
             let room1 = &rooms[i];
             let room2 = &rooms[i + 1];
-            
+
             let tiles = self.create_corridor(room1, room2, rng);
             corridor_tiles.extend(tiles);
         }
@@ -120,9 +133,14 @@ impl SimpleRoomsAlgorithm {
         corridor_tiles
     }
 
-    fn create_corridor(&self, room1: &SimpleRoom, room2: &SimpleRoom, rng: &mut ChaCha8Rng) -> Vec<(u32, u32)> {
+    fn create_corridor(
+        &self,
+        room1: &SimpleRoom,
+        room2: &SimpleRoom,
+        rng: &mut ChaCha8Rng,
+    ) -> Vec<(u32, u32)> {
         let mut tiles = Vec::new();
-        
+
         let start_x = room1.bounds.x + rng.gen_range(0..room1.bounds.width);
         let start_y = room1.bounds.y + rng.gen_range(0..room1.bounds.height);
         let end_x = room2.bounds.x + rng.gen_range(0..room2.bounds.width);

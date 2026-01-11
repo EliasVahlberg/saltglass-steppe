@@ -1,8 +1,8 @@
+use crate::GameState;
 use ratatui::{
     prelude::*,
     widgets::{Block, Borders, Clear, Gauge, List, ListItem, Paragraph, Wrap},
 };
-use crate::GameState;
 
 #[derive(Default)]
 pub struct DebugMenu {
@@ -71,7 +71,9 @@ pub fn render_debug_menu(f: &mut Frame, menu: &DebugMenu, state: &GameState) {
         .enumerate()
         .map(|(i, &title)| {
             let style = if i == menu.tab as usize {
-                Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD)
             } else {
                 Style::default().fg(Color::Gray)
             };
@@ -79,8 +81,8 @@ pub fn render_debug_menu(f: &mut Frame, menu: &DebugMenu, state: &GameState) {
         })
         .collect();
 
-    let tabs_paragraph = Paragraph::new(Line::from(tab_spans))
-        .block(Block::default().borders(Borders::BOTTOM));
+    let tabs_paragraph =
+        Paragraph::new(Line::from(tab_spans)).block(Block::default().borders(Borders::BOTTOM));
     f.render_widget(tabs_paragraph, tab_layout[0]);
 
     // Tab content
@@ -108,7 +110,7 @@ pub fn render_debug_menu(f: &mut Frame, menu: &DebugMenu, state: &GameState) {
 
 fn render_debug_info(f: &mut Frame, area: Rect, state: &GameState) {
     let info = state.get_debug_info();
-    
+
     let layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -122,15 +124,18 @@ fn render_debug_info(f: &mut Frame, area: Rect, state: &GameState) {
     let basic_info = format!(
         "Turn: {}\nPlayer Position: ({}, {})\nPlayer HP: {}/{}\nWorld Seed: {}\nTile Seed: {}\nWorld Position: ({}, {})\nEnemies: {}\nItems: {}",
         info.turn,
-        info.player_pos.0, info.player_pos.1,
-        info.player_hp.0, info.player_hp.1,
+        info.player_pos.0,
+        info.player_pos.1,
+        info.player_hp.0,
+        info.player_hp.1,
         info.seed,
         info.tile_seed,
-        info.world_pos.0, info.world_pos.1,
+        info.world_pos.0,
+        info.world_pos.1,
         info.enemies_count,
         info.items_count
     );
-    
+
     let basic_paragraph = Paragraph::new(basic_info)
         .block(Block::default().title("Game State").borders(Borders::ALL))
         .wrap(Wrap { trim: true });
@@ -139,10 +144,9 @@ fn render_debug_info(f: &mut Frame, area: Rect, state: &GameState) {
     // Storm info
     let storm_info = format!(
         "Storm Intensity: {}\nTurns Until Storm: {}",
-        info.storm_intensity,
-        info.storm_turns
+        info.storm_intensity, info.storm_turns
     );
-    
+
     let storm_paragraph = Paragraph::new(storm_info)
         .block(Block::default().title("Storm").borders(Borders::ALL))
         .wrap(Wrap { trim: true });
@@ -157,7 +161,7 @@ fn render_debug_info(f: &mut Frame, area: Rect, state: &GameState) {
 
 fn render_performance_info(f: &mut Frame, area: Rect, state: &GameState) {
     let info = state.get_debug_info();
-    
+
     let layout = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
@@ -169,7 +173,11 @@ fn render_performance_info(f: &mut Frame, area: Rect, state: &GameState) {
 
     // FPS/Performance metrics (placeholder)
     let fps_gauge = Gauge::default()
-        .block(Block::default().title("FPS (Simulated)").borders(Borders::ALL))
+        .block(
+            Block::default()
+                .title("FPS (Simulated)")
+                .borders(Borders::ALL),
+        )
         .gauge_style(Style::default().fg(Color::Green))
         .percent(85); // Placeholder
     f.render_widget(fps_gauge, layout[0]);
@@ -185,7 +193,7 @@ fn render_performance_info(f: &mut Frame, area: Rect, state: &GameState) {
     for (key, value) in &info.performance_metrics {
         metrics_text.push_str(&format!("{}: {:.2}ms\n", key, value));
     }
-    
+
     let metrics_paragraph = Paragraph::new(metrics_text)
         .block(Block::default().title("Timing").borders(Borders::ALL))
         .wrap(Wrap { trim: true });
@@ -204,7 +212,11 @@ fn render_debug_states(f: &mut Frame, area: Rect) {
         .collect();
 
     let list = List::new(items)
-        .block(Block::default().title("Saved Debug States").borders(Borders::ALL))
+        .block(
+            Block::default()
+                .title("Saved Debug States")
+                .borders(Borders::ALL),
+        )
         .highlight_style(Style::default().add_modifier(Modifier::REVERSED));
 
     f.render_widget(list, area);
@@ -213,7 +225,7 @@ fn render_debug_states(f: &mut Frame, area: Rect) {
 fn render_debug_commands(f: &mut Frame, area: Rect) {
     let commands = vec![
         "show tile - Enable god view",
-        "hide tile - Disable god view", 
+        "hide tile - Disable god view",
         "sturdy - Set HP to 9999",
         "phase - Toggle wall phasing",
         "save_debug [name] - Save debug state",
@@ -224,13 +236,13 @@ fn render_debug_commands(f: &mut Frame, area: Rect) {
         "help - Show all commands",
     ];
 
-    let items: Vec<ListItem> = commands
-        .iter()
-        .map(|cmd| ListItem::new(*cmd))
-        .collect();
+    let items: Vec<ListItem> = commands.iter().map(|cmd| ListItem::new(*cmd)).collect();
 
-    let list = List::new(items)
-        .block(Block::default().title("Available Commands").borders(Borders::ALL));
+    let list = List::new(items).block(
+        Block::default()
+            .title("Available Commands")
+            .borders(Borders::ALL),
+    );
 
     f.render_widget(list, area);
 }

@@ -62,8 +62,10 @@ impl crate::game::state::GameState {
             for (faction, required_rep) in faction_reqs {
                 let current_rep = self.get_reputation(faction);
                 if current_rep < *required_rep {
-                    missing.push(format!("Need {} reputation with {} (have {})", 
-                        required_rep, faction, current_rep));
+                    missing.push(format!(
+                        "Need {} reputation with {} (have {})",
+                        required_rep, faction, current_rep
+                    ));
                 }
             }
         }
@@ -71,8 +73,11 @@ impl crate::game::state::GameState {
         // Check adaptation count requirement
         if let Some(required_count) = ritual.requirements.adaptations_count {
             if self.adaptations.len() < required_count {
-                missing.push(format!("Need {} adaptations (have {})", 
-                    required_count, self.adaptations.len()));
+                missing.push(format!(
+                    "Need {} adaptations (have {})",
+                    required_count,
+                    self.adaptations.len()
+                ));
             }
         }
 
@@ -138,7 +143,10 @@ impl crate::game::state::GameState {
         if let Some(adaptation_id) = &ritual.effects.add_adaptation {
             if let Some(adaptation) = super::adaptation::Adaptation::from_id(adaptation_id) {
                 self.adaptations.push(adaptation);
-                self.log_typed(format!("Gained adaptation: {}", adaptation_id), super::state::MsgType::System);
+                self.log_typed(
+                    format!("Gained adaptation: {}", adaptation_id),
+                    super::state::MsgType::System,
+                );
             }
         }
 
@@ -148,7 +156,7 @@ impl crate::game::state::GameState {
                     "max_hp" => {
                         self.player_max_hp += change;
                         self.player_hp += change; // Also heal
-                    },
+                    }
                     "reflex" => self.player_reflex += change,
                     "armor" => self.player_armor += change,
                     _ => {}
@@ -168,12 +176,17 @@ impl crate::game::state::GameState {
             completed_at: self.turn as u64,
         });
 
-        self.log_typed(format!("Ritual completed: {}", ritual.name), super::state::MsgType::System);
+        self.log_typed(
+            format!("Ritual completed: {}", ritual.name),
+            super::state::MsgType::System,
+        );
         Ok(ritual.confirmation_text)
     }
 
     /// Check if ritual has been completed
     pub fn has_completed_ritual(&self, ritual_id: &str) -> bool {
-        self.completed_rituals.iter().any(|r| r.ritual_id == ritual_id)
+        self.completed_rituals
+            .iter()
+            .any(|r| r.ritual_id == ritual_id)
     }
 }

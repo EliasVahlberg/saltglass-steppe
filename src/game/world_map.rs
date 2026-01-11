@@ -1,11 +1,17 @@
 use serde::{Deserialize, Serialize};
 
-pub const WORLD_SIZE: usize = 64;  // Height (kept for backward compat)
+pub const WORLD_SIZE: usize = 64; // Height (kept for backward compat)
 pub const WORLD_WIDTH: usize = 192; // 3x wider
 pub const WORLD_HEIGHT: usize = 64;
 
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug, Hash)]
-pub enum Biome { Desert, Saltflat, Scrubland, Oasis, Ruins }
+pub enum Biome {
+    Desert,
+    Saltflat,
+    Scrubland,
+    Oasis,
+    Ruins,
+}
 
 impl Biome {
     pub fn as_str(&self) -> &'static str {
@@ -20,10 +26,22 @@ impl Biome {
 }
 
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub enum Terrain { Flat, Hills, Dunes, Canyon, Mesa }
+pub enum Terrain {
+    Flat,
+    Hills,
+    Dunes,
+    Canyon,
+    Mesa,
+}
 
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug)]
-pub enum POI { None, Town, Dungeon, Landmark, Shrine }
+pub enum POI {
+    None,
+    Town,
+    Dungeon,
+    Landmark,
+    Shrine,
+}
 
 /// Resource types that can be found in tiles
 #[derive(Clone, Copy, PartialEq, Eq, Serialize, Deserialize, Debug, Default)]
@@ -45,24 +63,34 @@ pub struct WorldMap {
     pub seed: u64,
     pub biomes: Vec<Biome>,
     pub terrain: Vec<Terrain>,
-    pub elevation: Vec<u8>,  // 0-255
+    pub elevation: Vec<u8>, // 0-255
     pub pois: Vec<POI>,
     #[serde(default)]
     pub resources: Vec<Resources>,
     #[serde(default)]
     pub connected: Vec<Connected>,
     #[serde(default)]
-    pub levels: Vec<u32>,  // Threat level for each tile
+    pub levels: Vec<u32>, // Threat level for each tile
 }
 
 impl WorldMap {
     pub fn generate(seed: u64) -> Self {
         use crate::game::generation::WorldGenerator;
-        
+
         let generator = WorldGenerator::new();
-        let (biomes, terrain, elevation, pois, resources, connected, levels) = generator.generate(seed);
-        
-        Self { seed, biomes, terrain, elevation, pois, resources, connected, levels }
+        let (biomes, terrain, elevation, pois, resources, connected, levels) =
+            generator.generate(seed);
+
+        Self {
+            seed,
+            biomes,
+            terrain,
+            elevation,
+            pois,
+            resources,
+            connected,
+            levels,
+        }
     }
 
     #[allow(dead_code)]
@@ -74,37 +102,40 @@ impl WorldMap {
         for y in 0..WORLD_HEIGHT {
             for x in 0..WORLD_WIDTH {
                 let idx = y * WORLD_WIDTH + x;
-                
+
                 // Base level from distance to start (center)
                 let dx = (x as i32 - start_x as i32).abs() as f64;
                 let dy = (y as i32 - start_y as i32).abs() as f64;
                 let distance = (dx * dx + dy * dy).sqrt();
-                
+
                 // Level increases with distance from center
                 let base_level = 1 + (distance / 15.0) as u32;
-                
+
                 // Terrain modifiers
                 let terrain_mod = match terrain[idx] {
-                    Terrain::Canyon => 1,  // Dangerous terrain
-                    Terrain::Mesa => 1,    // High elevation = higher threat
-                    Terrain::Hills => 0,   // Moderate
-                    Terrain::Dunes => 0,   // Standard
-                    Terrain::Flat => 0,    // Easy terrain
+                    Terrain::Canyon => 1, // Dangerous terrain
+                    Terrain::Mesa => 1,   // High elevation = higher threat
+                    Terrain::Hills => 0,  // Moderate
+                    Terrain::Dunes => 0,  // Standard
+                    Terrain::Flat => 0,   // Easy terrain
                 };
-                
+
                 // POI modifiers
                 let poi_mod = match pois[idx] {
-                    POI::Dungeon => 2,     // Dungeons are much more dangerous
-                    POI::Landmark => 1,    // Ruins have threats
-                    POI::Town => -1,       // Towns are safer (but min 1)
-                    POI::Shrine => 0,      // Neutral
+                    POI::Dungeon => 2,  // Dungeons are much more dangerous
+                    POI::Landmark => 1, // Ruins have threats
+                    POI::Town => -1,    // Towns are safer (but min 1)
+                    POI::Shrine => 0,   // Neutral
                     POI::None => 0,
                 };
-                
-                levels[idx] = (base_level + terrain_mod).saturating_add_signed(poi_mod).max(1).min(10);
+
+                levels[idx] = (base_level + terrain_mod)
+                    .saturating_add_signed(poi_mod)
+                    .max(1)
+                    .min(10);
             }
         }
-        
+
         levels
     }
 
@@ -149,7 +180,11 @@ mod tests {
     fn has_pois() {
         let w = WorldMap::generate(42);
         let poi_count = w.pois.iter().filter(|&&p| p != POI::None).count();
-        assert!(poi_count >= 10, "Expected at least 10 POIs, got {}", poi_count);
+        assert!(
+            poi_count >= 10,
+            "Expected at least 10 POIs, got {}",
+            poi_count
+        );
     }
 
     #[test]

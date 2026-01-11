@@ -70,10 +70,10 @@ struct EffectIndex {
 static EFFECT_INDEX: Lazy<EffectIndex> = Lazy::new(|| {
     let data = include_str!("../../data/effects.json");
     let file: EffectsFile = serde_json::from_str(data).expect("Failed to parse effects.json");
-    
+
     let mut player_effects = Vec::new();
     let mut enemy_effects: HashMap<String, Vec<VisualEffect>> = HashMap::new();
-    
+
     for def in file.effects {
         if let Some(effect) = parse_effect(&def.effect) {
             if def.target == "player" {
@@ -88,8 +88,11 @@ static EFFECT_INDEX: Lazy<EffectIndex> = Lazy::new(|| {
             }
         }
     }
-    
-    EffectIndex { player_effects, enemy_effects }
+
+    EffectIndex {
+        player_effects,
+        enemy_effects,
+    }
 });
 
 fn parse_color(s: &str) -> Color {
@@ -114,10 +117,10 @@ fn parse_color(s: &str) -> Color {
 
 pub fn parse_effect(s: &str) -> Option<VisualEffect> {
     let s = s.trim();
-    
+
     // Blink: B(@speed &color)
     if s.starts_with("B(") && s.ends_with(')') {
-        let inner = &s[2..s.len()-1];
+        let inner = &s[2..s.len() - 1];
         let mut speed = 4u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
@@ -129,10 +132,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         }
         return Some(VisualEffect::Blink { speed, color });
     }
-    
+
     // Glow: G(&color)
     if s.starts_with("G(") && s.ends_with(')') {
-        let inner = &s[2..s.len()-1];
+        let inner = &s[2..s.len() - 1];
         let mut color = Color::White;
         for part in inner.split_whitespace() {
             if part.starts_with('&') {
@@ -141,10 +144,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         }
         return Some(VisualEffect::Glow { color });
     }
-    
+
     // Pulse: P(@speed &color)
     if s.starts_with("P(") && s.ends_with(')') {
-        let inner = &s[2..s.len()-1];
+        let inner = &s[2..s.len() - 1];
         let mut speed = 8u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
@@ -156,10 +159,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         }
         return Some(VisualEffect::Pulse { speed, color });
     }
-    
+
     // Wave: W(@speed &color)
     if s.starts_with("W(") && s.ends_with(')') {
-        let inner = &s[2..s.len()-1];
+        let inner = &s[2..s.len() - 1];
         let mut speed = 6u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
@@ -171,10 +174,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         }
         return Some(VisualEffect::Wave { speed, color });
     }
-    
+
     // Shimmer: S(@speed &color1 &color2 ...)
     if s.starts_with("S(") && s.ends_with(')') {
-        let inner = &s[2..s.len()-1];
+        let inner = &s[2..s.len() - 1];
         let mut speed = 6u32;
         let mut colors = Vec::new();
         for part in inner.split_whitespace() {
@@ -184,13 +187,15 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
                 colors.push(parse_color(&part[1..]));
             }
         }
-        if colors.is_empty() { colors.push(Color::White); }
+        if colors.is_empty() {
+            colors.push(Color::White);
+        }
         return Some(VisualEffect::Shimmer { speed, colors });
     }
-    
+
     // Rainbow: R(@speed &color1 &color2 ...)
     if s.starts_with("R(") && s.ends_with(')') {
-        let inner = &s[2..s.len()-1];
+        let inner = &s[2..s.len() - 1];
         let mut speed = 8u32;
         let mut colors = Vec::new();
         for part in inner.split_whitespace() {
@@ -200,13 +205,15 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
                 colors.push(parse_color(&part[1..]));
             }
         }
-        if colors.is_empty() { colors.push(Color::White); }
+        if colors.is_empty() {
+            colors.push(Color::White);
+        }
         return Some(VisualEffect::Rainbow { speed, colors });
     }
-    
+
     // Fade: F(@speed &color)
     if s.starts_with("F(") && s.ends_with(')') {
-        let inner = &s[2..s.len()-1];
+        let inner = &s[2..s.len() - 1];
         let mut speed = 16u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
@@ -218,10 +225,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         }
         return Some(VisualEffect::Fade { speed, color });
     }
-    
+
     // Drift: D(@speed &color)
     if s.starts_with("D(") && s.ends_with(')') {
-        let inner = &s[2..s.len()-1];
+        let inner = &s[2..s.len() - 1];
         let mut speed = 12u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
@@ -233,7 +240,7 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         }
         return Some(VisualEffect::Drift { speed, color });
     }
-    
+
     None
 }
 
@@ -254,45 +261,70 @@ pub struct EffectContext {
 impl EffectCondition {
     pub fn evaluate(&self, ctx: &EffectContext) -> bool {
         if let Some(threshold) = self.low_hp {
-            if ctx.player_hp > threshold { return false; }
+            if ctx.player_hp > threshold {
+                return false;
+            }
         }
         if let Some(turns) = self.storm_near {
-            if ctx.storm_turns > turns { return false; }
+            if ctx.storm_turns > turns {
+                return false;
+            }
         }
         if let Some(true) = self.has_adaptation {
-            if !ctx.has_adaptation { return false; }
+            if !ctx.has_adaptation {
+                return false;
+            }
         }
         if let Some(ref tile) = self.on_tile {
-            if tile == "Glass" && !ctx.on_glass { return false; }
+            if tile == "Glass" && !ctx.on_glass {
+                return false;
+            }
         }
         if let Some(true) = self.adaptations_hidden {
-            if !ctx.adaptations_hidden { return false; }
+            if !ctx.adaptations_hidden {
+                return false;
+            }
         }
         if let Some(count) = self.adaptation_count_gte {
-            if ctx.adaptation_count < count { return false; }
+            if ctx.adaptation_count < count {
+                return false;
+            }
         }
         if let Some(true) = self.in_storm_eye {
-            if !ctx.in_storm_eye { return false; }
+            if !ctx.in_storm_eye {
+                return false;
+            }
         }
         if let Some(true) = self.on_fragile_glass {
-            if !ctx.on_fragile_glass { return false; }
+            if !ctx.on_fragile_glass {
+                return false;
+            }
         }
         if let Some(true) = self.psychic_active {
-            if !ctx.psychic_active { return false; }
+            if !ctx.psychic_active {
+                return false;
+            }
         }
         if let Some(true) = self.high_salt_exposure {
-            if !ctx.high_salt_exposure { return false; }
+            if !ctx.high_salt_exposure {
+                return false;
+            }
         }
         if let Some(true) = self.void_exposure {
-            if !ctx.void_exposure { return false; }
+            if !ctx.void_exposure {
+                return false;
+            }
         }
         true
     }
 }
 
 pub fn get_active_effects(ctx: &EffectContext, target: &str) -> Vec<VisualEffect> {
-    if target != "player" { return Vec::new(); }
-    EFFECT_INDEX.player_effects
+    if target != "player" {
+        return Vec::new();
+    }
+    EFFECT_INDEX
+        .player_effects
         .iter()
         .filter(|e| e.condition.evaluate(ctx))
         .map(|e| e.effect.clone())
@@ -300,7 +332,8 @@ pub fn get_active_effects(ctx: &EffectContext, target: &str) -> Vec<VisualEffect
 }
 
 pub fn get_enemy_effects(enemy_id: &str) -> Vec<VisualEffect> {
-    EFFECT_INDEX.enemy_effects
+    EFFECT_INDEX
+        .enemy_effects
         .get(enemy_id)
         .cloned()
         .unwrap_or_default()

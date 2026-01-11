@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
-use rand_chacha::ChaCha8Rng;
 use rand::Rng;
+use rand_chacha::ChaCha8Rng;
+use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 /// Crystal frequency types
@@ -51,15 +51,17 @@ pub struct CrystalFormation {
     pub x: i32,
     pub y: i32,
     pub frequency: CrystalFrequency,
-    pub size: u8, // 1-10, affects resonance range and power
-    pub stability: u8, // 1-100, affects how long it lasts
+    pub size: u8,         // 1-10, affects resonance range and power
+    pub stability: u8,    // 1-100, affects how long it lasts
     pub growth_stage: u8, // 0-5, crystals can grow over time
 }
 
 impl CrystalFormation {
     pub fn new(x: i32, y: i32, frequency: CrystalFrequency) -> Self {
         Self {
-            x, y, frequency,
+            x,
+            y,
+            frequency,
             size: 1,
             stability: 100,
             growth_stage: 0,
@@ -75,7 +77,7 @@ impl CrystalFormation {
         let size_multiplier = self.size as u32;
         let growth_multiplier = self.growth_stage as u32 + 1;
         let stability_factor = self.stability as f32 / 100.0;
-        
+
         ((base * size_multiplier * growth_multiplier) as f32 * stability_factor) as u32
     }
 
@@ -104,11 +106,11 @@ pub struct HarmonicEffect {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum HarmonicType {
-    Healing,        // Gamma + Beta
-    Enhancement,    // Delta + Alpha
-    Psychic,        // Beta + Epsilon
-    Structural,     // Alpha + Gamma
-    Chaotic,        // Epsilon + any other
+    Healing,     // Gamma + Beta
+    Enhancement, // Delta + Alpha
+    Psychic,     // Beta + Epsilon
+    Structural,  // Alpha + Gamma
+    Chaotic,     // Epsilon + any other
 }
 
 /// Crystal resonance system state
@@ -140,7 +142,8 @@ impl CrystalSystem {
 
     /// Get crystals within range of position
     pub fn get_crystals_in_range(&self, x: i32, y: i32, range: u8) -> Vec<&CrystalFormation> {
-        self.crystal_formations.iter()
+        self.crystal_formations
+            .iter()
             .filter(|crystal| {
                 let distance = ((x - crystal.x).abs() + (y - crystal.y).abs()) as u8;
                 distance <= range
@@ -165,22 +168,41 @@ impl CrystalSystem {
 
     /// Attune to crystal frequency
     pub fn attune_frequency(&mut self, frequency: CrystalFrequency, amount: u32) {
-        let current = self.frequency_attunement.get(&frequency).copied().unwrap_or(0);
-        self.frequency_attunement.insert(frequency, (current + amount).min(100));
+        let current = self
+            .frequency_attunement
+            .get(&frequency)
+            .copied()
+            .unwrap_or(0);
+        self.frequency_attunement
+            .insert(frequency, (current + amount).min(100));
     }
 
     /// Get attunement level for frequency
     pub fn get_attunement(&self, frequency: CrystalFrequency) -> u32 {
-        self.frequency_attunement.get(&frequency).copied().unwrap_or(0)
+        self.frequency_attunement
+            .get(&frequency)
+            .copied()
+            .unwrap_or(0)
     }
 
     /// Create harmonic resonance between crystals
-    pub fn create_harmonic(&mut self, x: i32, y: i32, frequencies: Vec<CrystalFrequency>, power: u32) {
+    pub fn create_harmonic(
+        &mut self,
+        x: i32,
+        y: i32,
+        frequencies: Vec<CrystalFrequency>,
+        power: u32,
+    ) {
         let effect_type = self.determine_harmonic_type(&frequencies);
         let duration = 5 + (power / 10);
 
         let harmonic = HarmonicEffect {
-            x, y, frequencies, power, duration, effect_type
+            x,
+            y,
+            frequencies,
+            power,
+            duration,
+            effect_type,
         };
 
         self.active_harmonics.push(harmonic);
@@ -192,9 +214,13 @@ impl CrystalSystem {
             return HarmonicType::Chaotic;
         }
 
-        if frequencies.contains(&CrystalFrequency::Gamma) && frequencies.contains(&CrystalFrequency::Beta) {
+        if frequencies.contains(&CrystalFrequency::Gamma)
+            && frequencies.contains(&CrystalFrequency::Beta)
+        {
             HarmonicType::Healing
-        } else if frequencies.contains(&CrystalFrequency::Delta) && frequencies.contains(&CrystalFrequency::Alpha) {
+        } else if frequencies.contains(&CrystalFrequency::Delta)
+            && frequencies.contains(&CrystalFrequency::Alpha)
+        {
             HarmonicType::Enhancement
         } else if frequencies.contains(&CrystalFrequency::Beta) {
             HarmonicType::Psychic
@@ -207,7 +233,8 @@ impl CrystalSystem {
 
     /// Check for harmonic effects at position
     pub fn get_harmonic_effects(&self, x: i32, y: i32) -> Vec<&HarmonicEffect> {
-        self.active_harmonics.iter()
+        self.active_harmonics
+            .iter()
             .filter(|effect| {
                 let distance = ((x - effect.x).abs() + (y - effect.y).abs()) as u32;
                 distance <= effect.power / 5 // Effect range based on power
@@ -223,13 +250,14 @@ impl CrystalSystem {
         for (frequency, power) in power_map {
             // Gain attunement
             self.attune_frequency(frequency, power / 10);
-            
+
             // Gain resonance energy
             let energy = power * (self.get_attunement(frequency) + 10) / 20;
             total_energy += energy;
         }
 
-        self.resonance_energy = (self.resonance_energy + total_energy).min(self.max_resonance_energy);
+        self.resonance_energy =
+            (self.resonance_energy + total_energy).min(self.max_resonance_energy);
         total_energy
     }
 
@@ -268,20 +296,23 @@ impl CrystalSystem {
 
         // Random crystal growth
         for crystal in &mut self.crystal_formations {
-            if crystal.can_grow() && rng.gen_bool(0.05) { // 5% chance per turn
+            if crystal.can_grow() && rng.gen_bool(0.05) {
+                // 5% chance per turn
                 crystal.grow();
             }
         }
 
         // Crystal stability decay
         for crystal in &mut self.crystal_formations {
-            if rng.gen_bool(0.02) { // 2% chance per turn
+            if rng.gen_bool(0.02) {
+                // 2% chance per turn
                 crystal.stability = crystal.stability.saturating_sub(1);
             }
         }
 
         // Remove unstable crystals
-        self.crystal_formations.retain(|crystal| crystal.stability > 0);
+        self.crystal_formations
+            .retain(|crystal| crystal.stability > 0);
 
         // Passive resonance energy regeneration
         if rng.gen_bool(0.1) {
@@ -290,7 +321,13 @@ impl CrystalSystem {
     }
 
     /// Create crystal seed (player ability)
-    pub fn create_crystal_seed(&mut self, x: i32, y: i32, frequency: CrystalFrequency, cost: u32) -> bool {
+    pub fn create_crystal_seed(
+        &mut self,
+        x: i32,
+        y: i32,
+        frequency: CrystalFrequency,
+        cost: u32,
+    ) -> bool {
         if !self.use_resonance_energy(cost) {
             return false;
         }
@@ -330,12 +367,8 @@ impl CrystalSystem {
             return false; // Need at least 2 crystals for harmony
         }
 
-        let frequencies: Vec<CrystalFrequency> = crystals.iter()
-            .map(|c| c.frequency)
-            .collect();
-        let total_power: u32 = crystals.iter()
-            .map(|c| c.power_output())
-            .sum();
+        let frequencies: Vec<CrystalFrequency> = crystals.iter().map(|c| c.frequency).collect();
+        let total_power: u32 = crystals.iter().map(|c| c.power_output()).sum();
 
         self.create_harmonic(x, y, frequencies, total_power);
         true

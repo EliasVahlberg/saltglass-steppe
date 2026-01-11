@@ -1,8 +1,8 @@
-use rand_chacha::ChaCha8Rng;
+use once_cell::sync::Lazy;
 use rand::Rng;
+use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use once_cell::sync::Lazy;
 
 /// Event trigger conditions based on player/world state
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -97,10 +97,8 @@ impl EventSystem {
             if all_triggers_met {
                 triggered_events.push(event_id.clone());
                 // Set cooldown
-                self.event_cooldowns.insert(
-                    event_id.clone(),
-                    context.turn + event.cooldown_turns,
-                );
+                self.event_cooldowns
+                    .insert(event_id.clone(), context.turn + event.cooldown_turns);
             }
         }
 
@@ -108,7 +106,12 @@ impl EventSystem {
     }
 
     /// Evaluate a single trigger condition
-    fn evaluate_trigger(&self, trigger: &EventTrigger, context: &EventContext, rng: &mut ChaCha8Rng) -> bool {
+    fn evaluate_trigger(
+        &self,
+        trigger: &EventTrigger,
+        context: &EventContext,
+        rng: &mut ChaCha8Rng,
+    ) -> bool {
         // Check probability first
         if rng.gen_range(0.0..1.0) > trigger.probability {
             return false;
@@ -118,7 +121,8 @@ impl EventSystem {
             "player_hp_below" => {
                 if let Some(threshold) = trigger.conditions.get("threshold") {
                     if let Some(threshold) = threshold.as_f64() {
-                        return (context.player_hp as f64 / context.player_max_hp as f64) < threshold;
+                        return (context.player_hp as f64 / context.player_max_hp as f64)
+                            < threshold;
                     }
                 }
             }
@@ -170,7 +174,10 @@ impl EventSystem {
                                     "damage_taken".to_string(),
                                     serde_json::Value::Number(serde_json::Number::from(amount)),
                                 );
-                                messages.push(format!("You take {} damage from {}", amount, event.name));
+                                messages.push(format!(
+                                    "You take {} damage from {}",
+                                    amount, event.name
+                                ));
                             }
                         }
                     }
@@ -181,7 +188,10 @@ impl EventSystem {
                                     "healing_received".to_string(),
                                     serde_json::Value::Number(serde_json::Number::from(amount)),
                                 );
-                                messages.push(format!("You recover {} health from {}", amount, event.name));
+                                messages.push(format!(
+                                    "You recover {} health from {}",
+                                    amount, event.name
+                                ));
                             }
                         }
                     }
@@ -192,7 +202,10 @@ impl EventSystem {
                                     "refraction_gained".to_string(),
                                     serde_json::Value::Number(serde_json::Number::from(amount)),
                                 );
-                                messages.push(format!("Glass energy courses through you (+{} Refraction)", amount));
+                                messages.push(format!(
+                                    "Glass energy courses through you (+{} Refraction)",
+                                    amount
+                                ));
                             }
                         }
                     }
@@ -248,7 +261,10 @@ static EVENTS: Lazy<HashMap<String, DynamicEvent>> = Lazy::new(|| {
 static CHAINS: Lazy<HashMap<String, EventChain>> = Lazy::new(|| {
     let data = include_str!("../../../data/dynamic_events.json");
     let file: EventsFile = serde_json::from_str(data).expect("Failed to parse dynamic_events.json");
-    file.chains.into_iter().map(|c| (c.chain_id.clone(), c)).collect()
+    file.chains
+        .into_iter()
+        .map(|c| (c.chain_id.clone(), c))
+        .collect()
 });
 
 #[cfg(test)]
@@ -280,12 +296,15 @@ mod tests {
     fn test_hp_trigger_evaluation() {
         let system = EventSystem::new();
         let mut rng = ChaCha8Rng::seed_from_u64(12345);
-        
+
         let trigger = EventTrigger {
             trigger_type: "player_hp_below".to_string(),
             conditions: {
                 let mut map = HashMap::new();
-                map.insert("threshold".to_string(), serde_json::Value::Number(serde_json::Number::from_f64(0.6).unwrap()));
+                map.insert(
+                    "threshold".to_string(),
+                    serde_json::Value::Number(serde_json::Number::from_f64(0.6).unwrap()),
+                );
                 map
             },
             probability: 1.0,
@@ -299,12 +318,15 @@ mod tests {
     fn test_biome_trigger_evaluation() {
         let system = EventSystem::new();
         let mut rng = ChaCha8Rng::seed_from_u64(12345);
-        
+
         let trigger = EventTrigger {
             trigger_type: "biome_match".to_string(),
             conditions: {
                 let mut map = HashMap::new();
-                map.insert("biome".to_string(), serde_json::Value::String("desert".to_string()));
+                map.insert(
+                    "biome".to_string(),
+                    serde_json::Value::String("desert".to_string()),
+                );
                 map
             },
             probability: 1.0,
@@ -318,12 +340,15 @@ mod tests {
     fn test_storm_intensity_trigger() {
         let system = EventSystem::new();
         let mut rng = ChaCha8Rng::seed_from_u64(12345);
-        
+
         let trigger = EventTrigger {
             trigger_type: "storm_intensity".to_string(),
             conditions: {
                 let mut map = HashMap::new();
-                map.insert("min_intensity".to_string(), serde_json::Value::Number(serde_json::Number::from(2)));
+                map.insert(
+                    "min_intensity".to_string(),
+                    serde_json::Value::Number(serde_json::Number::from(2)),
+                );
                 map
             },
             probability: 1.0,
@@ -349,7 +374,10 @@ mod tests {
                     consequence_type: "damage_player".to_string(),
                     parameters: {
                         let mut map = HashMap::new();
-                        map.insert("amount".to_string(), serde_json::Value::Number(serde_json::Number::from(10)));
+                        map.insert(
+                            "amount".to_string(),
+                            serde_json::Value::Number(serde_json::Number::from(10)),
+                        );
                         map
                     },
                 },
@@ -357,7 +385,10 @@ mod tests {
                     consequence_type: "environmental_story".to_string(),
                     parameters: {
                         let mut map = HashMap::new();
-                        map.insert("message".to_string(), serde_json::Value::String("The glass shimmers ominously.".to_string()));
+                        map.insert(
+                            "message".to_string(),
+                            serde_json::Value::String("The glass shimmers ominously.".to_string()),
+                        );
                         map
                     },
                 },
@@ -385,7 +416,9 @@ mod tests {
         let context = create_test_context();
 
         // Set a cooldown
-        system.event_cooldowns.insert("test_event".to_string(), context.turn + 5);
+        system
+            .event_cooldowns
+            .insert("test_event".to_string(), context.turn + 5);
 
         // Create a test event that would normally trigger
         let event = DynamicEvent {
@@ -396,7 +429,10 @@ mod tests {
                 trigger_type: "biome_match".to_string(),
                 conditions: {
                     let mut map = HashMap::new();
-                    map.insert("biome".to_string(), serde_json::Value::String("desert".to_string()));
+                    map.insert(
+                        "biome".to_string(),
+                        serde_json::Value::String("desert".to_string()),
+                    );
                     map
                 },
                 probability: 1.0,

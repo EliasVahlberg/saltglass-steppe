@@ -1,11 +1,14 @@
 //! Input handling for game UI
 
+use super::trade_menu::TradeMode;
+use super::{
+    CraftingMenu, DebugMenu, InventoryMenu, IssueReporter, MenuPanel, PsychicMenu, QuestLogMenu,
+    SkillsMenu, TradeMenu, WikiMenu, WorldMapView,
+};
+use crate::GameState;
+use crate::all_recipe_ids;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
 use std::io::Result;
-use crate::GameState;
-use super::{InventoryMenu, QuestLogMenu, CraftingMenu, WikiMenu, TradeMenu, MenuPanel, WorldMapView, DebugMenu, IssueReporter, PsychicMenu, SkillsMenu};
-use super::trade_menu::TradeMode;
-use crate::all_recipe_ids;
 
 /// Look mode cursor state
 pub struct LookMode {
@@ -16,7 +19,11 @@ pub struct LookMode {
 
 impl Default for LookMode {
     fn default() -> Self {
-        Self { active: false, x: 0, y: 0 }
+        Self {
+            active: false,
+            x: 0,
+            y: 0,
+        }
     }
 }
 
@@ -32,30 +39,33 @@ pub struct DebugConsole {
 }
 
 impl DebugConsole {
-    pub fn toggle(&mut self) { 
-        self.active = !self.active; 
+    pub fn toggle(&mut self) {
+        self.active = !self.active;
         if self.active {
             self.input.clear();
             self.history_index = None;
             self.update_suggestions();
         }
     }
-    
-    pub fn push(&mut self, c: char) { 
-        self.input.push(c); 
+
+    pub fn push(&mut self, c: char) {
+        self.input.push(c);
         self.update_suggestions();
     }
-    
-    pub fn pop(&mut self) { 
-        self.input.pop(); 
+
+    pub fn pop(&mut self) {
+        self.input.pop();
         self.update_suggestions();
     }
-    
+
     pub fn submit(&mut self) -> Option<String> {
-        if self.input.is_empty() { return None; }
+        if self.input.is_empty() {
+            return None;
+        }
         let cmd = self.input.clone();
         self.history.push(cmd.clone());
-        if self.history.len() > 50 { // Keep last 50 commands
+        if self.history.len() > 50 {
+            // Keep last 50 commands
             self.history.remove(0);
         }
         self.input.clear();
@@ -63,9 +73,11 @@ impl DebugConsole {
         self.suggestions.clear();
         Some(cmd)
     }
-    
+
     pub fn history_up(&mut self) {
-        if self.history.is_empty() { return; }
+        if self.history.is_empty() {
+            return;
+        }
         match self.history_index {
             None => {
                 self.history_index = Some(self.history.len() - 1);
@@ -79,7 +91,7 @@ impl DebugConsole {
         }
         self.update_suggestions();
     }
-    
+
     pub fn history_down(&mut self) {
         match self.history_index {
             Some(idx) if idx < self.history.len() - 1 => {
@@ -94,20 +106,20 @@ impl DebugConsole {
         }
         self.update_suggestions();
     }
-    
+
     pub fn accept_suggestion(&mut self) {
         if !self.suggestions.is_empty() && self.suggestion_index < self.suggestions.len() {
             self.input = self.suggestions[self.suggestion_index].clone();
             self.suggestions.clear();
         }
     }
-    
+
     pub fn next_suggestion(&mut self) {
         if !self.suggestions.is_empty() {
             self.suggestion_index = (self.suggestion_index + 1) % self.suggestions.len();
         }
     }
-    
+
     pub fn prev_suggestion(&mut self) {
         if !self.suggestions.is_empty() {
             self.suggestion_index = if self.suggestion_index == 0 {
@@ -117,31 +129,47 @@ impl DebugConsole {
             };
         }
     }
-    
+
     fn update_suggestions(&mut self) {
         self.suggestions.clear();
         self.suggestion_index = 0;
-        
+
         if self.input.is_empty() {
             return;
         }
-        
+
         let input_lower = self.input.to_lowercase();
         let mut candidates = Vec::new();
-        
+
         // Command suggestions
         let commands = [
-            "show tile", "hide tile", "sturdy", "phase", "save_debug", "load_debug", 
-            "list_debug", "debug_info", "run_des", "list_des", "help", "spawn",
-            "terminals", "report_issue", "complete_quest", "list_quests", "interact", "examine", "collect_data"
+            "show tile",
+            "hide tile",
+            "sturdy",
+            "phase",
+            "save_debug",
+            "load_debug",
+            "list_debug",
+            "debug_info",
+            "run_des",
+            "list_des",
+            "help",
+            "spawn",
+            "terminals",
+            "report_issue",
+            "complete_quest",
+            "list_quests",
+            "interact",
+            "examine",
+            "collect_data",
         ];
-        
+
         for cmd in &commands {
             if cmd.starts_with(&input_lower) {
                 candidates.push(cmd.to_string());
             }
         }
-        
+
         // Command-specific suggestions
         if self.input.contains(' ') {
             let parts: Vec<&str> = self.input.split_whitespace().collect();
@@ -172,7 +200,7 @@ impl DebugConsole {
                 }
             }
         }
-        
+
         candidates.sort();
         candidates.dedup();
         self.suggestions = candidates;
@@ -194,16 +222,19 @@ impl DialogBox {
     pub fn show(&mut self, speaker: &str, text: &str) {
         self.active = true;
         self.speaker = speaker.to_string();
-        self.pages = text.split("</nextpage>").map(|s| s.trim().to_string()).collect();
+        self.pages = text
+            .split("</nextpage>")
+            .map(|s| s.trim().to_string())
+            .collect();
         self.current_page = 0;
         self.chars_shown = 0;
         self.cpm = 1200; // default ~20 chars/sec
     }
-    
+
     pub fn close(&mut self) {
         self.active = false;
     }
-    
+
     pub fn next_page(&mut self) -> bool {
         let char_count = self.current_text().chars().count();
         // If text still revealing, show all
@@ -221,23 +252,29 @@ impl DialogBox {
             false
         }
     }
-    
+
     pub fn current_text(&self) -> &str {
-        self.pages.get(self.current_page).map(|s| s.as_str()).unwrap_or("")
+        self.pages
+            .get(self.current_page)
+            .map(|s| s.as_str())
+            .unwrap_or("")
     }
-    
+
     pub fn visible_text(&self) -> &str {
         let text = self.current_text();
         // chars_shown counts characters, not bytes - find the byte index
-        let byte_end = text.char_indices()
+        let byte_end = text
+            .char_indices()
             .nth(self.chars_shown)
             .map(|(i, _)| i)
             .unwrap_or(text.len());
         &text[..byte_end]
     }
-    
+
     pub fn tick(&mut self, frame_ms: u64) {
-        if !self.active { return; }
+        if !self.active {
+            return;
+        }
         let chars_per_ms = self.cpm as f64 / 60000.0;
         let chars_to_add = (chars_per_ms * frame_ms as f64).max(1.0) as usize;
         let char_count = self.current_text().chars().count();
@@ -285,17 +322,17 @@ impl BookReader {
         self.book_id = book_id.to_string();
         self.current_page = 0;
     }
-    
+
     pub fn close(&mut self) {
         self.active = false;
     }
-    
+
     pub fn next_page(&mut self, total_pages: usize) {
         if self.current_page + 1 < total_pages {
             self.current_page += 1;
         }
     }
-    
+
     pub fn prev_page(&mut self) {
         if self.current_page > 0 {
             self.current_page -= 1;
@@ -311,8 +348,13 @@ pub struct PauseMenu {
 }
 
 impl PauseMenu {
-    pub fn open(&mut self) { self.active = true; self.selected_index = 0; }
-    pub fn close(&mut self) { self.active = false; }
+    pub fn open(&mut self) {
+        self.active = true;
+        self.selected_index = 0;
+    }
+    pub fn close(&mut self) {
+        self.active = false;
+    }
     pub fn navigate(&mut self, dy: i32, count: usize) {
         self.selected_index = (self.selected_index as i32 + dy).rem_euclid(count as i32) as usize;
     }
@@ -344,7 +386,7 @@ impl UiState {
             camera_y: 0.0,
         }
     }
-    
+
     pub fn tick_frame(&mut self) {
         self.frame_count = self.frame_count.wrapping_add(1);
     }
@@ -408,12 +450,12 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
     if !event::poll(std::time::Duration::from_millis(16))? {
         return Ok(Action::None);
     }
-    
+
     if let Event::Key(key) = event::read()? {
         if key.kind != KeyEventKind::Press {
             return Ok(Action::None);
         }
-        
+
         // Death screen - only allow Esc to return to main menu
         if state.player_hp <= 0 {
             match key.code {
@@ -421,27 +463,29 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
                 _ => return Ok(Action::None),
             }
         }
-        
+
         // Dialog box input (highest priority when active)
         if ui.dialog_box.active {
             match key.code {
                 KeyCode::Esc => ui.dialog_box.close(),
-                KeyCode::Enter | KeyCode::Char(' ') => { ui.dialog_box.next_page(); }
+                KeyCode::Enter | KeyCode::Char(' ') => {
+                    ui.dialog_box.next_page();
+                }
                 _ => {}
             }
             return Ok(Action::None);
         }
-        
+
         // Debug console input
         if ui.debug_console.active {
             return Ok(handle_debug_console_input(ui, key.code));
         }
-        
+
         // Issue reporter input
         if ui.issue_reporter.active {
             return Ok(handle_issue_reporter_input(ui, key.code));
         }
-        
+
         // Psychic menu input
         if ui.psychic_menu.active {
             return Ok(handle_psychic_menu_input(ui, state, key.code));
@@ -454,7 +498,7 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
         if ui.debug_menu.active {
             return Ok(handle_debug_menu_input(ui, key.code));
         }
-        
+
         // Pause menu input
         if ui.pause_menu.active {
             return Ok(handle_pause_menu_input(ui, key.code));
@@ -503,7 +547,7 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
 
 fn handle_book_reader_input(ui: &mut UiState, code: KeyCode) -> Action {
     use crate::game::book::get_book_def;
-    
+
     let total_pages = match get_book_def(&ui.book_reader.book_id) {
         Some(def) => def.pages.len(),
         None => 0,
@@ -511,7 +555,9 @@ fn handle_book_reader_input(ui: &mut UiState, code: KeyCode) -> Action {
 
     match code {
         KeyCode::Esc | KeyCode::Char('q') => ui.book_reader.close(),
-        KeyCode::Right | KeyCode::Char('l') | KeyCode::Char(' ') => ui.book_reader.next_page(total_pages),
+        KeyCode::Right | KeyCode::Char('l') | KeyCode::Char(' ') => {
+            ui.book_reader.next_page(total_pages)
+        }
         KeyCode::Left | KeyCode::Char('h') => ui.book_reader.prev_page(),
         _ => {}
     }
@@ -519,10 +565,10 @@ fn handle_book_reader_input(ui: &mut UiState, code: KeyCode) -> Action {
 }
 
 fn handle_wiki_input(ui: &mut UiState, _state: &mut GameState, code: KeyCode) -> Action {
-    use crate::game::{all_item_ids, all_enemy_ids};
-    use crate::game::npc::all_npc_ids;
     use super::wiki::WikiTab;
-    
+    use crate::game::npc::all_npc_ids;
+    use crate::game::{all_enemy_ids, all_item_ids};
+
     let count = match ui.wiki_menu.tab {
         WikiTab::Items => all_item_ids().len(),
         WikiTab::Enemies => all_enemy_ids().len(),
@@ -566,11 +612,17 @@ fn handle_inventory_input(ui: &mut UiState, state: &mut GameState, code: KeyCode
         KeyCode::Esc | KeyCode::Char('i') => ui.inventory_menu.close(),
         KeyCode::Char('j') | KeyCode::Down => ui.inventory_menu.navigate(1, state.inventory.len()),
         KeyCode::Char('k') | KeyCode::Up => ui.inventory_menu.navigate(-1, state.inventory.len()),
-        KeyCode::Char('h') | KeyCode::Char('l') | KeyCode::Left | KeyCode::Right => ui.inventory_menu.switch_panel(),
-        KeyCode::Char('x') => ui.inventory_menu.inspect(&state.inventory, &state.equipment),
+        KeyCode::Char('h') | KeyCode::Char('l') | KeyCode::Left | KeyCode::Right => {
+            ui.inventory_menu.switch_panel()
+        }
+        KeyCode::Char('x') => ui
+            .inventory_menu
+            .inspect(&state.inventory, &state.equipment),
         KeyCode::Char('u') => {
             // Use selected item from inventory
-            if ui.inventory_menu.panel == MenuPanel::Inventory && ui.inventory_menu.inspect_item.is_none() {
+            if ui.inventory_menu.panel == MenuPanel::Inventory
+                && ui.inventory_menu.inspect_item.is_none()
+            {
                 if let Some(idx) = ui.inventory_menu.selected_inv_index() {
                     if idx < state.inventory.len() {
                         return Action::UseItem(idx);
@@ -625,7 +677,9 @@ pub const PAUSE_OPTIONS: &[&str] = &["Resume", "Save", "Controls", "Main Menu", 
 
 fn handle_pause_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
     match code {
-        KeyCode::Esc => { ui.pause_menu.close(); }
+        KeyCode::Esc => {
+            ui.pause_menu.close();
+        }
         KeyCode::Up | KeyCode::Char('k') => ui.pause_menu.navigate(-1, PAUSE_OPTIONS.len()),
         KeyCode::Down | KeyCode::Char('j') => ui.pause_menu.navigate(1, PAUSE_OPTIONS.len()),
         KeyCode::Enter => {
@@ -658,27 +712,31 @@ fn handle_debug_console_input(ui: &mut UiState, code: KeyCode) -> Action {
                 return Action::DebugCommand(cmd);
             }
         }
-        KeyCode::Backspace => { ui.debug_console.pop(); }
-        KeyCode::Up => { 
+        KeyCode::Backspace => {
+            ui.debug_console.pop();
+        }
+        KeyCode::Up => {
             if !ui.debug_console.suggestions.is_empty() {
                 ui.debug_console.prev_suggestion();
             } else {
                 ui.debug_console.history_up();
             }
         }
-        KeyCode::Down => { 
+        KeyCode::Down => {
             if !ui.debug_console.suggestions.is_empty() {
                 ui.debug_console.next_suggestion();
             } else {
                 ui.debug_console.history_down();
             }
         }
-        KeyCode::Tab => { ui.debug_console.accept_suggestion(); }
-        KeyCode::Right if !ui.debug_console.suggestions.is_empty() => { 
-            ui.debug_console.next_suggestion(); 
+        KeyCode::Tab => {
+            ui.debug_console.accept_suggestion();
         }
-        KeyCode::Left if !ui.debug_console.suggestions.is_empty() => { 
-            ui.debug_console.prev_suggestion(); 
+        KeyCode::Right if !ui.debug_console.suggestions.is_empty() => {
+            ui.debug_console.next_suggestion();
+        }
+        KeyCode::Left if !ui.debug_console.suggestions.is_empty() => {
+            ui.debug_console.prev_suggestion();
         }
         KeyCode::Char(c) => ui.debug_console.push(c),
         _ => {}
@@ -713,8 +771,14 @@ fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode
 
 fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
     match code {
-        KeyCode::Char('`') => { ui.debug_console.toggle(); Action::None }
-        KeyCode::F(12) => { ui.debug_menu.toggle(); Action::None }
+        KeyCode::Char('`') => {
+            ui.debug_console.toggle();
+            Action::None
+        }
+        KeyCode::F(12) => {
+            ui.debug_menu.toggle();
+            Action::None
+        }
         KeyCode::Char('S') => Action::Save,
         KeyCode::Char('L') => Action::Load,
         KeyCode::Char('x') => Action::EnterLook,
@@ -752,19 +816,19 @@ fn handle_chest_input(ui: &mut UiState, key: KeyCode) -> Action {
                 chest_ui.move_selection(-1);
             }
             Action::None
-        },
+        }
         KeyCode::Down | KeyCode::Char('j') => {
             if let Some(ref mut chest_ui) = ui.chest_ui {
                 chest_ui.move_selection(1);
             }
             Action::None
-        },
+        }
         KeyCode::Tab => {
             if let Some(ref mut chest_ui) = ui.chest_ui {
                 chest_ui.switch_panel();
             }
             Action::None
-        },
+        }
         KeyCode::Enter => Action::ChestTransfer,
         KeyCode::Esc => Action::CloseChest,
         _ => Action::None,
@@ -776,36 +840,38 @@ fn handle_trade_input(ui: &mut UiState, state: &mut GameState, key: KeyCode) -> 
         Some(i) => i,
         None => return Action::None,
     };
-    
+
     let list_len = match ui.trade_menu.mode {
         TradeMode::Buy => interface.available_items.len(),
         TradeMode::Sell => state.inventory.len(),
     };
-    
+
     match key {
         KeyCode::Esc => {
             ui.trade_menu.close();
             Action::None
-        },
+        }
         KeyCode::Tab => {
             ui.trade_menu.toggle_mode();
             Action::None
-        },
+        }
         KeyCode::Up | KeyCode::Char('w') | KeyCode::Char('k') => {
             ui.trade_menu.navigate(-1, list_len);
             Action::None
-        },
+        }
         KeyCode::Down | KeyCode::Char('s') | KeyCode::Char('j') => {
             ui.trade_menu.navigate(1, list_len);
             Action::None
-        },
+        }
         KeyCode::Enter => {
-            if list_len == 0 { return Action::None; }
+            if list_len == 0 {
+                return Action::None;
+            }
             match ui.trade_menu.mode {
                 TradeMode::Buy => Action::TradeBuy(ui.trade_menu.selected_index),
                 TradeMode::Sell => Action::TradeSell(ui.trade_menu.selected_index),
             }
-        },
+        }
         _ => Action::None,
     }
 }
@@ -829,35 +895,33 @@ fn handle_debug_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
 
 fn handle_issue_reporter_input(ui: &mut UiState, code: KeyCode) -> Action {
     use super::issue_reporter::IssueStep;
-    
+
     match code {
         KeyCode::Esc => {
             ui.issue_reporter.close();
             Action::None
         }
-        KeyCode::Enter => {
-            match ui.issue_reporter.step {
-                IssueStep::Steps => {
-                    if !ui.issue_reporter.current_step.trim().is_empty() {
-                        ui.issue_reporter.add_step();
-                    } else {
-                        ui.issue_reporter.next_step();
-                    }
-                    Action::None
-                }
-                IssueStep::Review => {
-                    if ui.issue_reporter.is_complete() {
-                        Action::SubmitIssueReport
-                    } else {
-                        Action::None
-                    }
-                }
-                _ => {
+        KeyCode::Enter => match ui.issue_reporter.step {
+            IssueStep::Steps => {
+                if !ui.issue_reporter.current_step.trim().is_empty() {
+                    ui.issue_reporter.add_step();
+                } else {
                     ui.issue_reporter.next_step();
+                }
+                Action::None
+            }
+            IssueStep::Review => {
+                if ui.issue_reporter.is_complete() {
+                    Action::SubmitIssueReport
+                } else {
                     Action::None
                 }
             }
-        }
+            _ => {
+                ui.issue_reporter.next_step();
+                Action::None
+            }
+        },
         KeyCode::Char('\n') if ui.issue_reporter.step == IssueStep::Steps => {
             ui.issue_reporter.next_step();
             Action::None
@@ -880,11 +944,21 @@ fn handle_issue_reporter_input(ui: &mut UiState, code: KeyCode) -> Action {
             }
             Action::None
         }
-        KeyCode::Char(c) if matches!(ui.issue_reporter.step, IssueStep::Description | IssueStep::Steps | IssueStep::Expected | IssueStep::Actual) => {
+        KeyCode::Char(c)
+            if matches!(
+                ui.issue_reporter.step,
+                IssueStep::Description | IssueStep::Steps | IssueStep::Expected | IssueStep::Actual
+            ) =>
+        {
             ui.issue_reporter.push_char(c);
             Action::None
         }
-        KeyCode::Char(' ') if matches!(ui.issue_reporter.step, IssueStep::Severity | IssueStep::Category) => {
+        KeyCode::Char(' ')
+            if matches!(
+                ui.issue_reporter.step,
+                IssueStep::Severity | IssueStep::Category
+            ) =>
+        {
             match ui.issue_reporter.step {
                 IssueStep::Severity => ui.issue_reporter.cycle_severity(),
                 IssueStep::Category => ui.issue_reporter.cycle_category(),
@@ -901,15 +975,17 @@ fn handle_psychic_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyC
         KeyCode::Esc | KeyCode::Char('p') => {
             ui.psychic_menu.close();
             Action::None
-        },
+        }
         KeyCode::Up | KeyCode::Char('k') => {
-            ui.psychic_menu.navigate(-1, state.psychic.unlocked_abilities.len());
+            ui.psychic_menu
+                .navigate(-1, state.psychic.unlocked_abilities.len());
             Action::None
-        },
+        }
         KeyCode::Down | KeyCode::Char('j') => {
-            ui.psychic_menu.navigate(1, state.psychic.unlocked_abilities.len());
+            ui.psychic_menu
+                .navigate(1, state.psychic.unlocked_abilities.len());
             Action::None
-        },
+        }
         KeyCode::Enter => {
             if let Some(ability_id) = ui.psychic_menu.get_selected_ability(state) {
                 ui.psychic_menu.close();
@@ -917,69 +993,71 @@ fn handle_psychic_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyC
             } else {
                 Action::None
             }
-        },
+        }
         _ => Action::None,
     }
 }
 
 fn handle_skills_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
-    use crate::game::skills::{get_skills_by_category, get_abilities_by_category};
     use super::skills_menu::SkillsMenuMode;
-    
+    use crate::game::skills::{get_abilities_by_category, get_skills_by_category};
+
     match code {
         KeyCode::Esc | KeyCode::Char('s') => {
             ui.skills_menu.active = false;
             Action::None
-        },
+        }
         KeyCode::Tab => {
             ui.skills_menu.toggle_mode();
             Action::None
-        },
+        }
         KeyCode::Left | KeyCode::Char('h') => {
             ui.skills_menu.prev_category();
             Action::None
-        },
+        }
         KeyCode::Right | KeyCode::Char('l') => {
             ui.skills_menu.next_category();
             Action::None
-        },
+        }
         KeyCode::Up | KeyCode::Char('k') => {
             ui.skills_menu.navigate_up();
             Action::None
-        },
+        }
         KeyCode::Down | KeyCode::Char('j') => {
             let max_items = match ui.skills_menu.mode {
-                SkillsMenuMode::Skills => get_skills_by_category(&ui.skills_menu.selected_category).len(),
-                SkillsMenuMode::Abilities => get_abilities_by_category(&ui.skills_menu.selected_category).len(),
+                SkillsMenuMode::Skills => {
+                    get_skills_by_category(&ui.skills_menu.selected_category).len()
+                }
+                SkillsMenuMode::Abilities => {
+                    get_abilities_by_category(&ui.skills_menu.selected_category).len()
+                }
             };
             ui.skills_menu.navigate_down(max_items);
             Action::None
-        },
+        }
         KeyCode::Enter => {
             match ui.skills_menu.mode {
                 SkillsMenuMode::Skills => {
                     match ui.skills_menu.upgrade_skill(state) {
                         Ok(()) => {
                             // Success message will be logged by the upgrade function
-                        },
+                        }
                         Err(e) => {
                             state.log(e);
                         }
                     }
-                },
-                SkillsMenuMode::Abilities => {
-                    match ui.skills_menu.use_ability(state) {
-                        Ok(()) => {
-                            ui.skills_menu.active = false;
-                        },
-                        Err(e) => {
-                            state.log(e);
-                        }
+                }
+                SkillsMenuMode::Abilities => match ui.skills_menu.use_ability(state) {
+                    Ok(()) => {
+                        ui.skills_menu.active = false;
+                    }
+                    Err(e) => {
+                        state.log(e);
                     }
                 },
             }
             Action::None
-        },
+        }
         _ => Action::None,
     }
 }

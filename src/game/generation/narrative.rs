@@ -1,8 +1,8 @@
-use rand_chacha::ChaCha8Rng;
+use once_cell::sync::Lazy;
 use rand::Rng;
+use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use once_cell::sync::Lazy;
 
 /// Narrative seed for generating consistent story elements
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -123,11 +123,13 @@ impl NarrativeIntegration {
         let num_seeds = rng.gen_range(2..=3);
         for seed in available_seeds.iter().take(num_seeds) {
             self.state.active_seeds.push(seed.seed_id.clone());
-            
+
             // Initialize faction standings based on seed
             for faction in &seed.factions {
                 let standing = rng.gen_range(-0.2..0.2);
-                self.state.faction_standings.insert(faction.clone(), standing);
+                self.state
+                    .faction_standings
+                    .insert(faction.clone(), standing);
             }
         }
 
@@ -136,20 +138,28 @@ impl NarrativeIntegration {
     }
 
     /// Generate story fragments for placement
-    pub fn generate_fragments(&mut self, context: &NarrativeContext, rng: &mut ChaCha8Rng) -> Vec<PlacedFragment> {
+    pub fn generate_fragments(
+        &mut self,
+        context: &NarrativeContext,
+        rng: &mut ChaCha8Rng,
+    ) -> Vec<PlacedFragment> {
         let mut new_fragments = Vec::new();
 
         for seed_id in &self.state.active_seeds.clone() {
             if let Some(_seed) = self.seeds.get(seed_id) {
                 // Find fragments that match this seed
-                let matching_fragment_ids: Vec<String> = self.fragments.iter()
+                let matching_fragment_ids: Vec<String> = self
+                    .fragments
+                    .iter()
                     .filter(|(_, f)| f.narrative_seed == *seed_id)
                     .map(|(id, _)| id.clone())
                     .collect();
 
                 if !matching_fragment_ids.is_empty() {
-                    let fragment_id = matching_fragment_ids[rng.gen_range(0..matching_fragment_ids.len())].clone();
-                    
+                    let fragment_id = matching_fragment_ids
+                        [rng.gen_range(0..matching_fragment_ids.len())]
+                    .clone();
+
                     // Clone the fragment to avoid borrow checker issues
                     if let Some(fragment) = self.fragments.get(&fragment_id).cloned() {
                         // Check placement rules
@@ -171,7 +181,11 @@ impl NarrativeIntegration {
     fn can_place_fragment(&self, fragment: &StoryFragment, context: &NarrativeContext) -> bool {
         // Check biome requirements
         if !fragment.placement_rules.biomes.is_empty() {
-            if !fragment.placement_rules.biomes.contains(&context.current_biome) {
+            if !fragment
+                .placement_rules
+                .biomes
+                .contains(&context.current_biome)
+            {
                 return false;
             }
         }
@@ -184,7 +198,11 @@ impl NarrativeIntegration {
         }
 
         // Check if already placed
-        if self.state.placed_fragments.contains_key(&fragment.fragment_id) {
+        if self
+            .state
+            .placed_fragments
+            .contains_key(&fragment.fragment_id)
+        {
             return false;
         }
 
@@ -192,16 +210,21 @@ impl NarrativeIntegration {
     }
 
     /// Place a fragment in the world
-    fn place_fragment(&mut self, fragment: &StoryFragment, context: &NarrativeContext, rng: &mut ChaCha8Rng) -> Option<PlacedFragment> {
+    fn place_fragment(
+        &mut self,
+        fragment: &StoryFragment,
+        context: &NarrativeContext,
+        rng: &mut ChaCha8Rng,
+    ) -> Option<PlacedFragment> {
         let rules = &fragment.placement_rules;
-        
+
         // Generate placement coordinates within distance constraints
         let min_dist = rules.min_distance_from_player as i32;
         let max_dist = rules.max_distance_from_player as i32;
-        
+
         let angle = rng.gen_range(0.0..std::f32::consts::TAU);
         let distance = rng.gen_range(min_dist..=max_dist);
-        
+
         let x = context.player_x + (distance as f32 * angle.cos()) as i32;
         let y = context.player_y + (distance as f32 * angle.sin()) as i32;
 
@@ -213,7 +236,9 @@ impl NarrativeIntegration {
             activation_turn: context.turn,
         };
 
-        self.state.placed_fragments.insert(fragment.fragment_id.clone(), placed.clone());
+        self.state
+            .placed_fragments
+            .insert(fragment.fragment_id.clone(), placed.clone());
         Some(placed)
     }
 
@@ -221,7 +246,9 @@ impl NarrativeIntegration {
     pub fn update_faction_influence(&mut self, faction_id: &str, change: f32) {
         let current = self.state.faction_standings.get(faction_id).unwrap_or(&0.0);
         let new_standing = (current + change).clamp(-1.0, 1.0);
-        self.state.faction_standings.insert(faction_id.to_string(), new_standing);
+        self.state
+            .faction_standings
+            .insert(faction_id.to_string(), new_standing);
 
         // Update narrative momentum based on faction changes
         self.state.narrative_momentum += change.abs() * 0.1;
@@ -269,7 +296,11 @@ impl NarrativeIntegration {
     }
 
     /// Get narrative content influenced by factions
-    pub fn get_faction_influenced_content(&self, base_content: &str, location_factions: &[String]) -> String {
+    pub fn get_faction_influenced_content(
+        &self,
+        base_content: &str,
+        location_factions: &[String],
+    ) -> String {
         let mut influenced_content = base_content.to_string();
 
         for faction_id in location_factions {
@@ -277,9 +308,15 @@ impl NarrativeIntegration {
                 if let Some(standing) = self.state.faction_standings.get(faction_id) {
                     // Modify content based on faction standing
                     if *standing > 0.5 {
-                        influenced_content = format!("{} [The {} regard you favorably.]", influenced_content, faction_id);
+                        influenced_content = format!(
+                            "{} [The {} regard you favorably.]",
+                            influenced_content, faction_id
+                        );
                     } else if *standing < -0.5 {
-                        influenced_content = format!("{} [The {} view you with suspicion.]", influenced_content, faction_id);
+                        influenced_content = format!(
+                            "{} [The {} view you with suspicion.]",
+                            influenced_content, faction_id
+                        );
                     }
                 }
             }
@@ -295,7 +332,9 @@ impl NarrativeIntegration {
 
     /// Get placed fragments near a location
     pub fn get_fragments_near(&self, x: i32, y: i32, radius: i32) -> Vec<&PlacedFragment> {
-        self.state.placed_fragments.values()
+        self.state
+            .placed_fragments
+            .values()
             .filter(|fragment| {
                 let dx = fragment.x - x;
                 let dy = fragment.y - y;
@@ -308,7 +347,7 @@ impl NarrativeIntegration {
     pub fn discover_fragment(&mut self, fragment_id: &str) -> Option<String> {
         if let Some(fragment) = self.state.placed_fragments.get_mut(fragment_id) {
             fragment.discovered = true;
-            
+
             // Get the fragment content
             if let Some(story_fragment) = self.fragments.get(fragment_id) {
                 return Some(story_fragment.content.clone());
@@ -348,20 +387,32 @@ struct NarrativeFile {
 
 static NARRATIVE_SEEDS: Lazy<HashMap<String, NarrativeSeed>> = Lazy::new(|| {
     let data = include_str!("../../../data/narrative_integration.json");
-    let file: NarrativeFile = serde_json::from_str(data).expect("Failed to parse narrative_integration.json");
-    file.narrative_seeds.into_iter().map(|s| (s.seed_id.clone(), s)).collect()
+    let file: NarrativeFile =
+        serde_json::from_str(data).expect("Failed to parse narrative_integration.json");
+    file.narrative_seeds
+        .into_iter()
+        .map(|s| (s.seed_id.clone(), s))
+        .collect()
 });
 
 static STORY_FRAGMENTS: Lazy<HashMap<String, StoryFragment>> = Lazy::new(|| {
     let data = include_str!("../../../data/narrative_integration.json");
-    let file: NarrativeFile = serde_json::from_str(data).expect("Failed to parse narrative_integration.json");
-    file.story_fragments.into_iter().map(|f| (f.fragment_id.clone(), f)).collect()
+    let file: NarrativeFile =
+        serde_json::from_str(data).expect("Failed to parse narrative_integration.json");
+    file.story_fragments
+        .into_iter()
+        .map(|f| (f.fragment_id.clone(), f))
+        .collect()
 });
 
 static FACTION_INFLUENCES: Lazy<HashMap<String, FactionInfluence>> = Lazy::new(|| {
     let data = include_str!("../../../data/narrative_integration.json");
-    let file: NarrativeFile = serde_json::from_str(data).expect("Failed to parse narrative_integration.json");
-    file.faction_influences.into_iter().map(|f| (f.faction_id.clone(), f)).collect()
+    let file: NarrativeFile =
+        serde_json::from_str(data).expect("Failed to parse narrative_integration.json");
+    file.faction_influences
+        .into_iter()
+        .map(|f| (f.faction_id.clone(), f))
+        .collect()
 });
 
 #[cfg(test)]
@@ -396,7 +447,7 @@ mod tests {
         let context = create_test_context();
 
         system.initialize(&context, &mut rng);
-        
+
         assert!(!system.state.active_seeds.is_empty());
         assert!(system.state.narrative_momentum > 0.0);
     }
@@ -408,12 +459,15 @@ mod tests {
         let context = create_test_context();
 
         system.initialize(&context, &mut rng);
-        
+
         // Ensure we have active seeds
-        assert!(system.has_active_seeds(), "Should have active seeds after initialization");
-        
+        assert!(
+            system.has_active_seeds(),
+            "Should have active seeds after initialization"
+        );
+
         let fragments = system.generate_fragments(&context, &mut rng);
-        
+
         // Should generate some fragments (may be empty if placement rules don't match)
         // This is acceptable behavior - not all contexts will generate fragments
     }
@@ -421,10 +475,13 @@ mod tests {
     #[test]
     fn test_faction_influence_update() {
         let mut system = NarrativeIntegration::new();
-        
+
         system.update_faction_influence("mirror_monks", 0.3);
-        
-        assert_eq!(system.state.faction_standings.get("mirror_monks"), Some(&0.3));
+
+        assert_eq!(
+            system.state.faction_standings.get("mirror_monks"),
+            Some(&0.3)
+        );
         assert!(system.state.narrative_momentum > 0.0);
     }
 
@@ -435,19 +492,22 @@ mod tests {
         let initial_momentum = system.state.narrative_momentum;
 
         system.track_narrative_event("fragment_discovered", &context);
-        
+
         assert!(system.state.narrative_momentum > initial_momentum);
     }
 
     #[test]
     fn test_faction_influenced_content() {
         let mut system = NarrativeIntegration::new();
-        system.state.faction_standings.insert("mirror_monks".to_string(), 0.8);
+        system
+            .state
+            .faction_standings
+            .insert("mirror_monks".to_string(), 0.8);
 
         let base_content = "You find ancient ruins.";
         let factions = vec!["mirror_monks".to_string()];
         let influenced = system.get_faction_influenced_content(base_content, &factions);
-        
+
         assert!(influenced.contains("favorably"));
     }
 
@@ -459,12 +519,16 @@ mod tests {
 
         system.initialize(&context, &mut rng);
         let fragments = system.generate_fragments(&context, &mut rng);
-        
+
         if let Some(fragment) = fragments.first() {
             let content = system.discover_fragment(&fragment.fragment_id);
             assert!(content.is_some());
-            
-            let discovered_fragment = system.state.placed_fragments.get(&fragment.fragment_id).unwrap();
+
+            let discovered_fragment = system
+                .state
+                .placed_fragments
+                .get(&fragment.fragment_id)
+                .unwrap();
             assert!(discovered_fragment.discovered);
         }
     }

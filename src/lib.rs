@@ -1,12 +1,12 @@
-pub mod game;
-pub mod des;
-pub mod ui;
-pub mod renderer;
-pub mod ipc;
 pub mod cli;
+pub mod des;
+pub mod game;
+pub mod ipc;
+pub mod renderer;
 pub mod satellite;
 pub mod terminal_spawn;
 pub mod tilegen_tools;
+pub mod ui;
 
 pub use game::*;
 pub use renderer::Renderer;
@@ -37,10 +37,14 @@ mod tests {
     fn player_cannot_walk_through_walls() {
         let mut state = GameState::new(42);
         let start_x = state.player_x;
-        for _ in 0..100 { state.try_move(-1, 0); }
+        for _ in 0..100 {
+            state.try_move(-1, 0);
+        }
         let tile = state.map.get(state.player_x - 1, state.player_y);
         if let Some(t) = tile {
-            if !t.walkable() { assert!(state.player_x <= start_x); }
+            if !t.walkable() {
+                assert!(state.player_x <= start_x);
+            }
         }
     }
 
@@ -48,11 +52,21 @@ mod tests {
     fn storm_converts_walls_to_glass() {
         use game::systems::StormSystem;
         let mut state = GameState::new(42);
-        let walls_before: usize = state.map.tiles.iter().filter(|t| matches!(t, Tile::Wall { .. })).count();
+        let walls_before: usize = state
+            .map
+            .tiles
+            .iter()
+            .filter(|t| matches!(t, Tile::Wall { .. }))
+            .count();
         state.storm.turns_until = 0;
         state.storm.intensity = 3;
         StormSystem::apply_storm(&mut state);
-        let walls_after: usize = state.map.tiles.iter().filter(|t| matches!(t, Tile::Wall { .. })).count();
+        let walls_after: usize = state
+            .map
+            .tiles
+            .iter()
+            .filter(|t| matches!(t, Tile::Wall { .. }))
+            .count();
         assert!(walls_after <= walls_before);
     }
 
@@ -91,7 +105,10 @@ mod tests {
                 state.player_x = ex - 1; // Reset position for next attempt
             }
             // With 90% accuracy and 5 attempts, very unlikely to miss all
-            assert!(state.enemies[0].hp < initial_hp, "Expected at least one hit in 5 attempts");
+            assert!(
+                state.enemies[0].hp < initial_hp,
+                "Expected at least one hit in 5 attempts"
+            );
         }
     }
 
@@ -121,7 +138,10 @@ mod tests {
         let initial_refraction = state.refraction;
         let moved = state.try_move(1, 0);
         assert!(moved, "Player should be able to move onto glass tile");
-        assert!(state.refraction > initial_refraction, "Refraction should increase after walking on glass");
+        assert!(
+            state.refraction > initial_refraction,
+            "Refraction should increase after walking on glass"
+        );
     }
 
     #[test]
@@ -153,7 +173,9 @@ mod tests {
         let item_y = state.player_y;
         // Ensure tile is walkable
         let idx = state.map.idx(item_x, item_y);
-        state.map.tiles[idx] = Tile::Floor { id: "test_floor".to_string() };
+        state.map.tiles[idx] = Tile::Floor {
+            id: "test_floor".to_string(),
+        };
         // Clear existing items and add test item
         state.items.clear();
         state.items.push(Item::new(item_x, item_y, "brine_vial"));
@@ -163,14 +185,20 @@ mod tests {
         let moved = state.try_move(1, 0);
         assert!(moved, "Player should be able to move onto the item tile");
         // Item should be removed from map
-        assert_eq!(state.items.len(), 0, "Item should be removed after walking onto it");
+        assert_eq!(
+            state.items.len(),
+            0,
+            "Item should be removed after walking onto it"
+        );
         assert_eq!(state.inventory.len(), 1, "Inventory should have 1 item");
     }
 
     #[test]
     fn pickup_adds_to_inventory() {
         let mut state = GameState::new(42);
-        state.items.push(Item::new(state.player_x, state.player_y, "brine_vial"));
+        state
+            .items
+            .push(Item::new(state.player_x, state.player_y, "brine_vial"));
         state.rebuild_spatial_index();
         let items_before = state.items.len();
         state.pickup_items();
@@ -189,30 +217,30 @@ mod tests {
 
     #[test]
     fn npc_dialogue_reacts_to_adaptations() {
-        use crate::game::npc::Npc;
         use crate::game::Adaptation;
+        use crate::game::npc::Npc;
         use std::collections::HashMap;
-        
+
         let npc = Npc::new(0, 0, "mirror_monk");
         use crate::game::npc::DialogueContext;
         let empty_rep = HashMap::new();
-        
+
         // No adaptations
-        let ctx = DialogueContext { 
-            adaptations: &[], 
+        let ctx = DialogueContext {
+            adaptations: &[],
             inventory: &[],
             salt_scrip: 0,
-            faction_reputation: &empty_rep
+            faction_reputation: &empty_rep,
         };
         let dialogue = npc.dialogue(&ctx);
         assert!(dialogue.contains("unmarked"));
-        
+
         // With Prismhide
-        let ctx = DialogueContext { 
-            adaptations: &[Adaptation::Prismhide], 
+        let ctx = DialogueContext {
+            adaptations: &[Adaptation::Prismhide],
             inventory: &[],
             salt_scrip: 0,
-            faction_reputation: &empty_rep
+            faction_reputation: &empty_rep,
         };
         let dialogue = npc.dialogue(&ctx);
         assert!(dialogue.contains("refracts"));
@@ -221,22 +249,30 @@ mod tests {
     #[test]
     fn npc_bump_to_talk() {
         use crate::game::npc::Npc;
-        
+
         let mut state = GameState::new(100);
         // Place NPC adjacent to player
         let npc_x = state.player_x + 1;
         let npc_y = state.player_y;
-        
+
         state.npcs.push(Npc::new(npc_x, npc_y, "mirror_monk"));
         state.rebuild_spatial_index();
-        
+
         // Get the index of our NPC
-        let npc_idx = state.npc_at(npc_x, npc_y).expect("NPC should be in spatial index");
-        assert!(!state.npcs[npc_idx].talked, "NPC should not be talked to initially");
-        
+        let npc_idx = state
+            .npc_at(npc_x, npc_y)
+            .expect("NPC should be in spatial index");
+        assert!(
+            !state.npcs[npc_idx].talked,
+            "NPC should not be talked to initially"
+        );
+
         // Bump into NPC
         state.try_move(1, 0);
-        
-        assert!(state.npcs[npc_idx].talked, "NPC should be talked to after bump");
+
+        assert!(
+            state.npcs[npc_idx].talked,
+            "NPC should be talked to after bump"
+        );
     }
 }

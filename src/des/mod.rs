@@ -2,7 +2,10 @@
 //!
 //! Runs game scenarios without rendering for automated testing and validation.
 
-use crate::game::{adaptation::Adaptation, chest::Chest, inspect::inspect_item, Enemy, GameState, Interactable, Item, Npc};
+use crate::game::{
+    Enemy, GameState, Interactable, Item, Npc, adaptation::Adaptation, chest::Chest,
+    inspect::inspect_item,
+};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
 use rayon::prelude::*;
@@ -113,104 +116,354 @@ pub struct Assertion {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum AssertionCheck {
-    PlayerHp { op: CmpOp, value: i32 },
-    PlayerPosition { x: i32, y: i32 },
+    PlayerHp {
+        op: CmpOp,
+        value: i32,
+    },
+    PlayerPosition {
+        x: i32,
+        y: i32,
+    },
     PlayerAlive,
     PlayerDead,
-    InventoryContains { item: String },
-    InventorySize { op: CmpOp, value: usize },
-    EnemyAt { x: i32, y: i32, alive: bool },
-    NoEnemyAt { x: i32, y: i32 },
-    Turn { op: CmpOp, value: u32 },
+    InventoryContains {
+        item: String,
+    },
+    InventorySize {
+        op: CmpOp,
+        value: usize,
+    },
+    EnemyAt {
+        x: i32,
+        y: i32,
+        alive: bool,
+    },
+    NoEnemyAt {
+        x: i32,
+        y: i32,
+    },
+    Turn {
+        op: CmpOp,
+        value: u32,
+    },
     // New assertions
-    EnemyHp { id: String, op: CmpOp, value: i32 },
-    EnemyAlive { id: String },
-    EnemyDead { id: String },
-    PlayerHasAdaptation { adaptation: String },
-    AdaptationCount { op: CmpOp, value: usize },
-    MapTileAt { x: i32, y: i32, tile: String },
-    Refraction { op: CmpOp, value: u32 },
-    PlayerAp { op: CmpOp, value: i32 },
-    HasStatusEffect { effect: String },
-    StatusEffectCount { op: CmpOp, value: usize },
-    TileExplored { x: i32, y: i32 },
-    ExploredCount { op: CmpOp, value: usize },
-    EquippedInSlot { slot: String, item: Option<String> },
-    PlayerArmor { op: CmpOp, value: i32 },
-    EnemyProvoked { id: String, provoked: bool },
-    EnemyHasItem { id: String, item: String },
-    EnemyHasStatus { id: String, effect: String },
-    LightLevel { x: i32, y: i32, op: CmpOp, value: u8 },
-    ItemInspectHasStat { item: String, stat: String },
-    ItemInspectMissingStat { item: String, stat: String },
-    NpcTalked { id: String, talked: bool },
-    PlayerXp { op: CmpOp, value: u32 },
-    PlayerLevel { op: CmpOp, value: u32 },
-    MessageContains { text: String },
-    PendingStatPoints { op: CmpOp, value: i32 },
-    SaltScrip { op: CmpOp, value: u32 },
+    EnemyHp {
+        id: String,
+        op: CmpOp,
+        value: i32,
+    },
+    EnemyAlive {
+        id: String,
+    },
+    EnemyDead {
+        id: String,
+    },
+    PlayerHasAdaptation {
+        adaptation: String,
+    },
+    AdaptationCount {
+        op: CmpOp,
+        value: usize,
+    },
+    MapTileAt {
+        x: i32,
+        y: i32,
+        tile: String,
+    },
+    Refraction {
+        op: CmpOp,
+        value: u32,
+    },
+    PlayerAp {
+        op: CmpOp,
+        value: i32,
+    },
+    HasStatusEffect {
+        effect: String,
+    },
+    StatusEffectCount {
+        op: CmpOp,
+        value: usize,
+    },
+    TileExplored {
+        x: i32,
+        y: i32,
+    },
+    ExploredCount {
+        op: CmpOp,
+        value: usize,
+    },
+    EquippedInSlot {
+        slot: String,
+        item: Option<String>,
+    },
+    PlayerArmor {
+        op: CmpOp,
+        value: i32,
+    },
+    EnemyProvoked {
+        id: String,
+        provoked: bool,
+    },
+    EnemyHasItem {
+        id: String,
+        item: String,
+    },
+    EnemyHasStatus {
+        id: String,
+        effect: String,
+    },
+    LightLevel {
+        x: i32,
+        y: i32,
+        op: CmpOp,
+        value: u8,
+    },
+    ItemInspectHasStat {
+        item: String,
+        stat: String,
+    },
+    ItemInspectMissingStat {
+        item: String,
+        stat: String,
+    },
+    NpcTalked {
+        id: String,
+        talked: bool,
+    },
+    PlayerXp {
+        op: CmpOp,
+        value: u32,
+    },
+    PlayerLevel {
+        op: CmpOp,
+        value: u32,
+    },
+    MessageContains {
+        text: String,
+    },
+    PendingStatPoints {
+        op: CmpOp,
+        value: i32,
+    },
+    SaltScrip {
+        op: CmpOp,
+        value: u32,
+    },
     // Quest assertions
-    QuestActive { quest_id: String },
-    QuestCompleted { quest_id: String },
-    QuestAvailable { quest_id: String },
-    QuestObjectiveProgress { quest_id: String, objective_id: String, op: CmpOp, value: u32 },
-    QuestObjectiveComplete { quest_id: String, objective_id: String },
+    QuestActive {
+        quest_id: String,
+    },
+    QuestCompleted {
+        quest_id: String,
+    },
+    QuestAvailable {
+        quest_id: String,
+    },
+    QuestObjectiveProgress {
+        quest_id: String,
+        objective_id: String,
+        op: CmpOp,
+        value: u32,
+    },
+    QuestObjectiveComplete {
+        quest_id: String,
+        objective_id: String,
+    },
     // Storm assertions
-    StormTimer { op: CmpOp, value: u32 },
-    StormIntensity { op: CmpOp, value: u8 },
-    StormHasEditType { edit_type: String },
-    StormChangedTilesCount { op: CmpOp, value: usize },
-    ItemExistsOnMap { item_id: String, min_count: Option<usize> },
-    TileTypeCount { tile_type: String, op: CmpOp, value: usize },
+    StormTimer {
+        op: CmpOp,
+        value: u32,
+    },
+    StormIntensity {
+        op: CmpOp,
+        value: u8,
+    },
+    StormHasEditType {
+        edit_type: String,
+    },
+    StormChangedTilesCount {
+        op: CmpOp,
+        value: usize,
+    },
+    ItemExistsOnMap {
+        item_id: String,
+        min_count: Option<usize>,
+    },
+    TileTypeCount {
+        tile_type: String,
+        op: CmpOp,
+        value: usize,
+    },
     // Ritual assertions
-    RitualCompleted { ritual_id: String },
-    RitualAvailable { ritual_id: String },
-    FactionReputation { faction: String, op: CmpOp, value: i32 },
+    RitualCompleted {
+        ritual_id: String,
+    },
+    RitualAvailable {
+        ritual_id: String,
+    },
+    FactionReputation {
+        faction: String,
+        op: CmpOp,
+        value: i32,
+    },
     // Map Features assertions
-    MapFeatureRevealed { x: i32, y: i32 },
-    SafeRouteExists { from_x: i32, from_y: i32, to_x: i32, to_y: i32 },
-    StormDamageRecorded { world_x: usize, world_y: usize, op: CmpOp, value: u32 },
-    AnnotationExists { x: i32, y: i32 },
-    WaypointExists { x: i32, y: i32, name: String },
-    LocationRevealed { x: i32, y: i32, revealed: bool },
-    SafeRoutesFrom { x: i32, y: i32, op: CmpOp, value: usize },
+    MapFeatureRevealed {
+        x: i32,
+        y: i32,
+    },
+    SafeRouteExists {
+        from_x: i32,
+        from_y: i32,
+        to_x: i32,
+        to_y: i32,
+    },
+    StormDamageRecorded {
+        world_x: usize,
+        world_y: usize,
+        op: CmpOp,
+        value: u32,
+    },
+    AnnotationExists {
+        x: i32,
+        y: i32,
+    },
+    WaypointExists {
+        x: i32,
+        y: i32,
+        name: String,
+    },
+    LocationRevealed {
+        x: i32,
+        y: i32,
+        revealed: bool,
+    },
+    SafeRoutesFrom {
+        x: i32,
+        y: i32,
+        op: CmpOp,
+        value: usize,
+    },
     // Crafting assertions
-    HasItem { item: String },
-    ItemCount { item: String, op: CmpOp, value: u32 },
-    CraftingSuccess { recipe: String, op: CmpOp, value: f32 },
-    AvailableRecipesCount { op: CmpOp, value: usize },
+    HasItem {
+        item: String,
+    },
+    ItemCount {
+        item: String,
+        op: CmpOp,
+        value: u32,
+    },
+    CraftingSuccess {
+        recipe: String,
+        op: CmpOp,
+        value: f32,
+    },
+    AvailableRecipesCount {
+        op: CmpOp,
+        value: usize,
+    },
     // Book assertions
-    PendingBookOpen { book_id: String },
+    PendingBookOpen {
+        book_id: String,
+    },
     // Sanity assertions
-    SanityCurrent { op: CmpOp, value: u32 },
-    SanityMax { op: CmpOp, value: u32 },
-    MentalEffectsCount { op: CmpOp, value: usize },
-    HasMentalEffect { effect: String },
-    AdaptationTolerance { op: CmpOp, value: u32 },
-    DecisionPenalty { op: CmpOp, value: i32 },
-    ShouldHallucinate { should: bool },
+    SanityCurrent {
+        op: CmpOp,
+        value: u32,
+    },
+    SanityMax {
+        op: CmpOp,
+        value: u32,
+    },
+    MentalEffectsCount {
+        op: CmpOp,
+        value: usize,
+    },
+    HasMentalEffect {
+        effect: String,
+    },
+    AdaptationTolerance {
+        op: CmpOp,
+        value: u32,
+    },
+    DecisionPenalty {
+        op: CmpOp,
+        value: i32,
+    },
+    ShouldHallucinate {
+        should: bool,
+    },
     // Trading assertions
-    TradeInterfaceAvailable { trader_id: String },
-    ItemAvailable { trader_id: String, item_id: String, available: bool },
-    PriceModifier { trader_id: String, op: CmpOp, value: f32 },
-    SaltScripSpent { op: CmpOp, value: u32 },
-    SaltScripGained { op: CmpOp, value: u32 },
-    TradeFailed { expected_error: String },
-    AreaTier { op: CmpOp, value: u32 },
+    TradeInterfaceAvailable {
+        trader_id: String,
+    },
+    ItemAvailable {
+        trader_id: String,
+        item_id: String,
+        available: bool,
+    },
+    PriceModifier {
+        trader_id: String,
+        op: CmpOp,
+        value: f32,
+    },
+    SaltScripSpent {
+        op: CmpOp,
+        value: u32,
+    },
+    SaltScripGained {
+        op: CmpOp,
+        value: u32,
+    },
+    TradeFailed {
+        expected_error: String,
+    },
+    AreaTier {
+        op: CmpOp,
+        value: u32,
+    },
     // Dialogue assertions
-    DialogueActive { npc_id: String },
-    DialogueSpeaker { expected_speaker: String },
-    DialogueOptionsCount { op: CmpOp, value: usize },
-    DialogueOptionAvailable { text: String, available: bool },
-    DialogueNode { expected_node: String },
-    DialogueTextContains { text: String },
-    PendingTrade { trader_id: String },
+    DialogueActive {
+        npc_id: String,
+    },
+    DialogueSpeaker {
+        expected_speaker: String,
+    },
+    DialogueOptionsCount {
+        op: CmpOp,
+        value: usize,
+    },
+    DialogueOptionAvailable {
+        text: String,
+        available: bool,
+    },
+    DialogueNode {
+        expected_node: String,
+    },
+    DialogueTextContains {
+        text: String,
+    },
+    PendingTrade {
+        trader_id: String,
+    },
     DialogueEnded,
-    DialogueConditionMet { condition_type: String, value: String },
+    DialogueConditionMet {
+        condition_type: String,
+        value: String,
+    },
     // Entity count assertions
-    EnemyCount { op: CmpOp, value: usize },
-    NpcCount { op: CmpOp, value: usize },
-    ChestCount { op: CmpOp, value: usize },
+    EnemyCount {
+        op: CmpOp,
+        value: usize,
+    },
+    NpcCount {
+        op: CmpOp,
+        value: usize,
+    },
+    ChestCount {
+        op: CmpOp,
+        value: usize,
+    },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -300,77 +553,216 @@ pub struct ScheduledAction {
 pub enum Actor {
     #[default]
     Player,
-    Entity { id: String },
+    Entity {
+        id: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum Action {
-    Move { dx: i32, dy: i32 },
-    Teleport { x: i32, y: i32 },
-    Attack { target_x: i32, target_y: i32 },
-    RangedAttack { target_x: i32, target_y: i32 },
-    ApplyStatus { effect: String, duration: u32, potency: i32 },
-    UseItem { item_index: usize },
-    UseItemOn { item_index: usize, x: i32, y: i32 },
-    Equip { item_index: usize, slot: String },
-    Unequip { slot: String },
+    Move {
+        dx: i32,
+        dy: i32,
+    },
+    Teleport {
+        x: i32,
+        y: i32,
+    },
+    Attack {
+        target_x: i32,
+        target_y: i32,
+    },
+    RangedAttack {
+        target_x: i32,
+        target_y: i32,
+    },
+    ApplyStatus {
+        effect: String,
+        duration: u32,
+        potency: i32,
+    },
+    UseItem {
+        item_index: usize,
+    },
+    UseItemOn {
+        item_index: usize,
+        x: i32,
+        y: i32,
+    },
+    Equip {
+        item_index: usize,
+        slot: String,
+    },
+    Unequip {
+        slot: String,
+    },
     AutoExplore,
-    Wait { turns: u32 },
+    Wait {
+        turns: u32,
+    },
     Rest,
     EndTurn,
-    Log { query: LogQuery },
-    AllocateStat { stat: String },
+    Log {
+        query: LogQuery,
+    },
+    AllocateStat {
+        stat: String,
+    },
     // Quest actions
-    AcceptQuest { quest_id: String },
-    CompleteQuest { quest_id: String },
+    AcceptQuest {
+        quest_id: String,
+    },
+    CompleteQuest {
+        quest_id: String,
+    },
     // Crafting actions
-    Craft { recipe_id: String },
+    Craft {
+        recipe_id: String,
+    },
     // Economy actions
-    BuyItem { item_id: String, npc_id: String },
+    BuyItem {
+        item_id: String,
+        npc_id: String,
+    },
     // Interaction actions
-    Interact { target_x: i32, target_y: i32 },
-    Examine { target_x: i32, target_y: i32 },
-    SellItem { item_id: String },
+    Interact {
+        target_x: i32,
+        target_y: i32,
+    },
+    Examine {
+        target_x: i32,
+        target_y: i32,
+    },
+    SellItem {
+        item_id: String,
+    },
     // Storm actions
-    TriggerStorm { intensity: Option<u8> },
-    SetRefraction { value: u32 },
+    TriggerStorm {
+        intensity: Option<u8>,
+    },
+    SetRefraction {
+        value: u32,
+    },
     // Ritual actions
-    PerformRitual { ritual_id: String },
-    SetLocationType { location_type: String },
+    PerformRitual {
+        ritual_id: String,
+    },
+    SetLocationType {
+        location_type: String,
+    },
     // Map Features actions
-    RevealLocation { x: i32, y: i32, description: String },
-    AddSafeRoute { from_x: i32, from_y: i32, to_x: i32, to_y: i32, npc_name: String, description: String },
-    AddStormDamage { world_x: usize, world_y: usize, damage: u32 },
-    AddAnnotation { x: i32, y: i32, text: String },
-    AddWaypoint { x: i32, y: i32, name: String, description: String },
-    AddStation { station: String },
-    SetFactionRep { faction: String, value: i32 },
-    SetLevel { level: u32 },
-    SetSaltScrip { amount: u32 },
-    SetTile { x: i32, y: i32, tile_type: String, hp: Option<i32> },
+    RevealLocation {
+        x: i32,
+        y: i32,
+        description: String,
+    },
+    AddSafeRoute {
+        from_x: i32,
+        from_y: i32,
+        to_x: i32,
+        to_y: i32,
+        npc_name: String,
+        description: String,
+    },
+    AddStormDamage {
+        world_x: usize,
+        world_y: usize,
+        damage: u32,
+    },
+    AddAnnotation {
+        x: i32,
+        y: i32,
+        text: String,
+    },
+    AddWaypoint {
+        x: i32,
+        y: i32,
+        name: String,
+        description: String,
+    },
+    AddStation {
+        station: String,
+    },
+    SetFactionRep {
+        faction: String,
+        value: i32,
+    },
+    SetLevel {
+        level: u32,
+    },
+    SetSaltScrip {
+        amount: u32,
+    },
+    SetTile {
+        x: i32,
+        y: i32,
+        tile_type: String,
+        hp: Option<i32>,
+    },
     // Sanity actions
-    LoseSanity { amount: u32, source: String },
-    RestoreSanity { amount: u32, source: String },
-    AddMentalEffect { effect: String, duration: u32, intensity: u32 },
+    LoseSanity {
+        amount: u32,
+        source: String,
+    },
+    RestoreSanity {
+        amount: u32,
+        source: String,
+    },
+    AddMentalEffect {
+        effect: String,
+        duration: u32,
+        intensity: u32,
+    },
     TickMentalEffects,
-    AdaptationEffect { adaptation: String },
+    AdaptationEffect {
+        adaptation: String,
+    },
     RestRestoration,
     SocialRestoration,
     MeditationRestoration,
     // Trading actions
-    GetTradeInterface { trader_id: String, tier: u32 },
-    ExecuteTrade { trader_id: String, item_id: String, quantity: u32 },
-    ExecuteSell { trader_id: String, item_id: String, quantity: u32 },
-    SpawnEnemy { enemy_id: String, x: i32, y: i32, hp: i32 },
+    GetTradeInterface {
+        trader_id: String,
+        tier: u32,
+    },
+    ExecuteTrade {
+        trader_id: String,
+        item_id: String,
+        quantity: u32,
+    },
+    ExecuteSell {
+        trader_id: String,
+        item_id: String,
+        quantity: u32,
+    },
+    SpawnEnemy {
+        enemy_id: String,
+        x: i32,
+        y: i32,
+        hp: i32,
+    },
     // Dialogue actions
-    StartDialogue { npc_id: String },
-    ChooseDialogueOption { option_index: usize },
-    DialogueAction { action_type: String, parameters: HashMap<String, serde_json::Value> },
-    GiveAdaptation { adaptation_id: String },
+    StartDialogue {
+        npc_id: String,
+    },
+    ChooseDialogueOption {
+        option_index: usize,
+    },
+    DialogueAction {
+        action_type: String,
+        parameters: HashMap<String, serde_json::Value>,
+    },
+    GiveAdaptation {
+        adaptation_id: String,
+    },
     // Psychic actions
-    UnlockAbility { ability_id: String },
-    UseAbility { ability_id: String },
+    UnlockAbility {
+        ability_id: String,
+    },
+    UseAbility {
+        ability_id: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -423,9 +815,9 @@ impl Scenario {
 
     pub fn from_file(path: impl AsRef<Path>) -> Result<Self, String> {
         let content = fs::read_to_string(&path).map_err(|e| format!("Read error: {}", e))?;
-        let mut scenario: Self = serde_json::from_str(&content)
-            .map_err(|e| format!("Parse error: {}", e))?;
-        
+        let mut scenario: Self =
+            serde_json::from_str(&content).map_err(|e| format!("Parse error: {}", e))?;
+
         // Handle base file inheritance
         if let Some(base_path) = scenario.base.take() {
             let base_dir = path.as_ref().parent().unwrap_or(Path::new("."));
@@ -437,41 +829,58 @@ impl Scenario {
     /// Load and merge a base scenario file
     pub fn inherit_from(&mut self, base_path: impl AsRef<Path>) -> Result<(), String> {
         let base = Self::from_file(&base_path)?;
-        
+
         // Merge: base values are used if child doesn't override
-        if self.seed.is_none() { self.seed = base.seed; }
-        
+        if self.seed.is_none() {
+            self.seed = base.seed;
+        }
+
         // Merge player setup (child overrides base)
-        if self.player.x.is_none() { self.player.x = base.player.x; }
-        if self.player.y.is_none() { self.player.y = base.player.y; }
-        if self.player.hp.is_none() { self.player.hp = base.player.hp; }
-        if self.player.max_hp.is_none() { self.player.max_hp = base.player.max_hp; }
-        if self.player.xp.is_none() { self.player.xp = base.player.xp; }
-        if self.player.inventory.is_empty() { self.player.inventory = base.player.inventory; }
-        
+        if self.player.x.is_none() {
+            self.player.x = base.player.x;
+        }
+        if self.player.y.is_none() {
+            self.player.y = base.player.y;
+        }
+        if self.player.hp.is_none() {
+            self.player.hp = base.player.hp;
+        }
+        if self.player.max_hp.is_none() {
+            self.player.max_hp = base.player.max_hp;
+        }
+        if self.player.xp.is_none() {
+            self.player.xp = base.player.xp;
+        }
+        if self.player.inventory.is_empty() {
+            self.player.inventory = base.player.inventory;
+        }
+
         // Prepend base entities, actions, assertions
         let mut entities = base.entities;
         entities.extend(self.entities.drain(..));
         self.entities = entities;
-        
+
         let mut actions = base.actions;
         actions.extend(self.actions.drain(..));
         self.actions = actions;
-        
+
         let mut assertions = base.assertions;
         assertions.extend(self.assertions.drain(..));
         self.assertions = assertions;
-        
+
         // Merge variables (child overrides base)
         for (k, v) in base.variables {
             self.variables.entry(k).or_insert(v);
         }
-        
+
         Ok(())
     }
 
     /// Substitute variables in JSON string before parsing
-    pub fn from_json_with_vars(json: &str, vars: &HashMap<String, serde_json::Value>) -> Result<Self, String> {
+    pub fn from_json_with_vars(
+        json: &str,
+        vars: &HashMap<String, serde_json::Value>,
+    ) -> Result<Self, String> {
         let mut result = json.to_string();
         for (key, value) in vars {
             let placeholder = format!("${{{}}}", key);
@@ -543,7 +952,8 @@ impl DesExecutor {
                 }
             }
             // Recompute FOV after carving
-            state.visible = crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
+            state.visible =
+                crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
             state.revealed.extend(&state.visible);
         }
 
@@ -614,13 +1024,17 @@ impl DesExecutor {
                 EntityType::Chest => {
                     let mut chest = Chest::new(spawn.x, spawn.y, &spawn.id);
                     // Convert item IDs to Item objects
-                    chest.inventory = spawn.inventory.iter()
+                    chest.inventory = spawn
+                        .inventory
+                        .iter()
                         .map(|id| Item::new(spawn.x, spawn.y, id))
                         .collect();
                     state.chests.push(chest);
                 }
                 EntityType::Interactable => {
-                    state.interactables.push(Interactable::new(spawn.id.clone(), spawn.x, spawn.y));
+                    state
+                        .interactables
+                        .push(Interactable::new(spawn.id.clone(), spawn.x, spawn.y));
                 }
             }
         }
@@ -648,7 +1062,7 @@ impl DesExecutor {
     /// Apply map setup options (clear areas, ensure paths)
     fn apply_map_setup(state: &mut GameState, setup: &MapSetup) {
         use crate::game::map::Tile;
-        
+
         // Clear radius around player
         if let Some(radius) = setup.clear_radius {
             let px = state.player_x;
@@ -657,7 +1071,11 @@ impl DesExecutor {
                 for dx in -radius..=radius {
                     let nx = px + dx;
                     let ny = py + dy;
-                    if nx >= 1 && ny >= 1 && nx < (state.map.width - 1) as i32 && ny < (state.map.height - 1) as i32 {
+                    if nx >= 1
+                        && ny >= 1
+                        && nx < (state.map.width - 1) as i32
+                        && ny < (state.map.height - 1) as i32
+                    {
                         let idx = ny as usize * state.map.width + nx as usize;
                         if !state.map.tiles[idx].walkable() {
                             state.map.tiles[idx] = Tile::default_floor();
@@ -666,12 +1084,16 @@ impl DesExecutor {
                 }
             }
         }
-        
+
         // Clear specific areas
         for area in &setup.clear_areas {
             for y in area.y..(area.y + area.height) {
                 for x in area.x..(area.x + area.width) {
-                    if x >= 1 && y >= 1 && x < (state.map.width - 1) as i32 && y < (state.map.height - 1) as i32 {
+                    if x >= 1
+                        && y >= 1
+                        && x < (state.map.width - 1) as i32
+                        && y < (state.map.height - 1) as i32
+                    {
                         let idx = y as usize * state.map.width + x as usize;
                         if !state.map.tiles[idx].walkable() {
                             state.map.tiles[idx] = Tile::default_floor();
@@ -680,39 +1102,47 @@ impl DesExecutor {
                 }
             }
         }
-        
+
         // Ensure paths between points (simple line carving)
         for path in &setup.ensure_paths {
             Self::carve_path(state, path.from_x, path.from_y, path.to_x, path.to_y);
         }
-        
+
         // Recompute FOV if any changes were made
-        if setup.clear_radius.is_some() || !setup.clear_areas.is_empty() || !setup.ensure_paths.is_empty() {
-            state.visible = crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
+        if setup.clear_radius.is_some()
+            || !setup.clear_areas.is_empty()
+            || !setup.ensure_paths.is_empty()
+        {
+            state.visible =
+                crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
             state.revealed.extend(&state.visible);
         }
     }
-    
+
     /// Carve a walkable path between two points using Bresenham's line algorithm
     fn carve_path(state: &mut GameState, x0: i32, y0: i32, x1: i32, y1: i32) {
         use crate::game::map::Tile;
-        
+
         let dx = (x1 - x0).abs();
         let dy = -(y1 - y0).abs();
         let sx = if x0 < x1 { 1 } else { -1 };
         let sy = if y0 < y1 { 1 } else { -1 };
         let mut err = dx + dy;
-        
+
         let mut x = x0;
         let mut y = y0;
-        
+
         loop {
             // Carve the tile and adjacent tiles for a wider path
             for oy in -1..=1 {
                 for ox in -1..=1 {
                     let nx = x + ox;
                     let ny = y + oy;
-                    if nx >= 1 && ny >= 1 && nx < (state.map.width - 1) as i32 && ny < (state.map.height - 1) as i32 {
+                    if nx >= 1
+                        && ny >= 1
+                        && nx < (state.map.width - 1) as i32
+                        && ny < (state.map.height - 1) as i32
+                    {
                         let idx = ny as usize * state.map.width + nx as usize;
                         if !state.map.tiles[idx].walkable() {
                             state.map.tiles[idx] = Tile::default_floor();
@@ -720,17 +1150,23 @@ impl DesExecutor {
                     }
                 }
             }
-            
-            if x == x1 && y == y1 { break; }
-            
+
+            if x == x1 && y == y1 {
+                break;
+            }
+
             let e2 = 2 * err;
             if e2 >= dy {
-                if x == x1 { break; }
+                if x == x1 {
+                    break;
+                }
                 err += dy;
                 x += sx;
             }
             if e2 <= dx {
-                if y == y1 { break; }
+                if y == y1 {
+                    break;
+                }
                 err += dx;
                 y += sy;
             }
@@ -833,50 +1269,58 @@ impl DesExecutor {
             AssertionCheck::InventorySize { op, value } => {
                 op.compare(self.state.inventory.len() as i32, *value as i32)
             }
-            AssertionCheck::EnemyAt { x, y, alive } => {
-                self.state.enemy_at(*x, *y).map(|i| {
-                    if *alive { self.state.enemies[i].hp > 0 } else { self.state.enemies[i].hp <= 0 }
-                }).unwrap_or(false)
-            }
+            AssertionCheck::EnemyAt { x, y, alive } => self
+                .state
+                .enemy_at(*x, *y)
+                .map(|i| {
+                    if *alive {
+                        self.state.enemies[i].hp > 0
+                    } else {
+                        self.state.enemies[i].hp <= 0
+                    }
+                })
+                .unwrap_or(false),
             AssertionCheck::NoEnemyAt { x, y } => self.state.enemy_at(*x, *y).is_none(),
             AssertionCheck::Turn { op, value } => op.compare(self.state.turn as i32, *value as i32),
             // New assertions
-            AssertionCheck::EnemyHp { id, op, value } => {
-                self.state.enemies.iter()
-                    .find(|e| e.id() == id)
-                    .map(|e| op.compare(e.hp, *value))
-                    .unwrap_or(false)
-            }
+            AssertionCheck::EnemyHp { id, op, value } => self
+                .state
+                .enemies
+                .iter()
+                .find(|e| e.id() == id)
+                .map(|e| op.compare(e.hp, *value))
+                .unwrap_or(false),
             AssertionCheck::EnemyAlive { id } => {
                 self.state.enemies.iter().any(|e| e.id() == id && e.hp > 0)
             }
             AssertionCheck::EnemyDead { id } => {
                 self.state.enemies.iter().any(|e| e.id() == id && e.hp <= 0)
             }
-            AssertionCheck::PlayerHasAdaptation { adaptation } => {
-                parse_adaptation(adaptation)
-                    .map(|a| self.state.adaptations.contains(&a))
-                    .unwrap_or(false)
-            }
+            AssertionCheck::PlayerHasAdaptation { adaptation } => parse_adaptation(adaptation)
+                .map(|a| self.state.adaptations.contains(&a))
+                .unwrap_or(false),
             AssertionCheck::AdaptationCount { op, value } => {
                 op.compare(self.state.adaptations.len() as i32, *value as i32)
             }
-            AssertionCheck::MapTileAt { x, y, tile } => {
-                self.state.map.get(*x, *y)
-                    .map(|t| format!("{:?}", t).to_lowercase().contains(&tile.to_lowercase()))
-                    .unwrap_or(false)
-            }
+            AssertionCheck::MapTileAt { x, y, tile } => self
+                .state
+                .map
+                .get(*x, *y)
+                .map(|t| {
+                    format!("{:?}", t)
+                        .to_lowercase()
+                        .contains(&tile.to_lowercase())
+                })
+                .unwrap_or(false),
             AssertionCheck::Refraction { op, value } => {
                 op.compare(self.state.refraction as i32, *value as i32)
             }
-            AssertionCheck::PlayerAp { op, value } => {
-                op.compare(self.state.player_ap, *value)
-            }
-            AssertionCheck::HasStatusEffect { effect } => {
-                self.state.status_effects.iter().any(|e| {
-                    e.id.to_lowercase() == effect.to_lowercase()
-                })
-            }
+            AssertionCheck::PlayerAp { op, value } => op.compare(self.state.player_ap, *value),
+            AssertionCheck::HasStatusEffect { effect } => self
+                .state
+                .status_effects
+                .iter()
+                .any(|e| e.id.to_lowercase() == effect.to_lowercase()),
             AssertionCheck::StatusEffectCount { op, value } => {
                 op.compare(self.state.status_effects.len() as i32, *value as i32)
             }
@@ -887,54 +1331,53 @@ impl DesExecutor {
             AssertionCheck::ExploredCount { op, value } => {
                 op.compare(self.state.revealed.len() as i32, *value as i32)
             }
-            AssertionCheck::EquippedInSlot { slot, item } => {
-                slot.parse::<crate::game::equipment::EquipSlot>()
-                    .ok()
-                    .and_then(|s| self.state.equipment.get(s))
-                    .map(|e| Some(e) == item.as_ref())
-                    .unwrap_or(item.is_none())
-            }
+            AssertionCheck::EquippedInSlot { slot, item } => slot
+                .parse::<crate::game::equipment::EquipSlot>()
+                .ok()
+                .and_then(|s| self.state.equipment.get(s))
+                .map(|e| Some(e) == item.as_ref())
+                .unwrap_or(item.is_none()),
             AssertionCheck::PlayerArmor { op, value } => {
                 op.compare(self.state.player_armor, *value)
             }
-            AssertionCheck::EnemyProvoked { id, provoked } => {
-                self.state.enemies.iter()
-                    .find(|e| e.id == *id)
-                    .map(|e| e.provoked == *provoked)
-                    .unwrap_or(false)
-            }
-            AssertionCheck::EnemyHasItem { id, item } => {
-                self.state.enemies.iter()
-                    .find(|e| e.id == *id)
-                    .map(|e| e.inventory.contains(item))
-                    .unwrap_or(false)
-            }
-            AssertionCheck::EnemyHasStatus { id, effect } => {
-                self.state.enemies.iter()
-                    .find(|e| e.id == *id)
-                    .map(|e| e.has_status_effect(effect))
-                    .unwrap_or(false)
-            }
+            AssertionCheck::EnemyProvoked { id, provoked } => self
+                .state
+                .enemies
+                .iter()
+                .find(|e| e.id == *id)
+                .map(|e| e.provoked == *provoked)
+                .unwrap_or(false),
+            AssertionCheck::EnemyHasItem { id, item } => self
+                .state
+                .enemies
+                .iter()
+                .find(|e| e.id == *id)
+                .map(|e| e.inventory.contains(item))
+                .unwrap_or(false),
+            AssertionCheck::EnemyHasStatus { id, effect } => self
+                .state
+                .enemies
+                .iter()
+                .find(|e| e.id == *id)
+                .map(|e| e.has_status_effect(effect))
+                .unwrap_or(false),
             AssertionCheck::LightLevel { x, y, op, value } => {
                 let level = self.state.get_light_level(*x, *y);
                 op.compare(level as i32, *value as i32)
             }
-            AssertionCheck::ItemInspectHasStat { item, stat } => {
-                inspect_item(item)
-                    .map(|info| info.stats.iter().any(|(k, _)| k == stat))
-                    .unwrap_or(false)
-            }
-            AssertionCheck::ItemInspectMissingStat { item, stat } => {
-                inspect_item(item)
-                    .map(|info| !info.stats.iter().any(|(k, _)| k == stat))
-                    .unwrap_or(true)
-            }
-            AssertionCheck::NpcTalked { id, talked } => {
-                self.state.npcs.iter()
-                    .find(|n| n.id == *id)
-                    .map(|n| n.talked == *talked)
-                    .unwrap_or(false)
-            }
+            AssertionCheck::ItemInspectHasStat { item, stat } => inspect_item(item)
+                .map(|info| info.stats.iter().any(|(k, _)| k == stat))
+                .unwrap_or(false),
+            AssertionCheck::ItemInspectMissingStat { item, stat } => inspect_item(item)
+                .map(|info| !info.stats.iter().any(|(k, _)| k == stat))
+                .unwrap_or(true),
+            AssertionCheck::NpcTalked { id, talked } => self
+                .state
+                .npcs
+                .iter()
+                .find(|n| n.id == *id)
+                .map(|n| n.talked == *talked)
+                .unwrap_or(false),
             AssertionCheck::PlayerXp { op, value } => {
                 op.compare(self.state.player_xp as i32, *value as i32)
             }
@@ -951,27 +1394,49 @@ impl DesExecutor {
                 op.compare(self.state.salt_scrip as i32, *value as i32)
             }
             // Quest assertions
-            AssertionCheck::QuestActive { quest_id } => {
-                self.state.quest_log.active.iter().any(|q| q.quest_id == *quest_id)
-            }
+            AssertionCheck::QuestActive { quest_id } => self
+                .state
+                .quest_log
+                .active
+                .iter()
+                .any(|q| q.quest_id == *quest_id),
             AssertionCheck::QuestCompleted { quest_id } => {
                 self.state.quest_log.completed.contains(quest_id)
             }
-            AssertionCheck::QuestAvailable { quest_id } => {
-                self.state.quest_log.is_quest_available(quest_id, &self.state)
-            }
-            AssertionCheck::QuestObjectiveProgress { quest_id, objective_id, op, value } => {
-                self.state.quest_log.get_active(quest_id)
-                    .and_then(|q| q.objectives.iter().find(|o| o.objective_id == *objective_id))
-                    .map(|o| op.compare(o.current as i32, *value as i32))
-                    .unwrap_or(false)
-            }
-            AssertionCheck::QuestObjectiveComplete { quest_id, objective_id } => {
-                self.state.quest_log.get_active(quest_id)
-                    .and_then(|q| q.objectives.iter().find(|o| o.objective_id == *objective_id))
-                    .map(|o| o.completed)
-                    .unwrap_or(false)
-            }
+            AssertionCheck::QuestAvailable { quest_id } => self
+                .state
+                .quest_log
+                .is_quest_available(quest_id, &self.state),
+            AssertionCheck::QuestObjectiveProgress {
+                quest_id,
+                objective_id,
+                op,
+                value,
+            } => self
+                .state
+                .quest_log
+                .get_active(quest_id)
+                .and_then(|q| {
+                    q.objectives
+                        .iter()
+                        .find(|o| o.objective_id == *objective_id)
+                })
+                .map(|o| op.compare(o.current as i32, *value as i32))
+                .unwrap_or(false),
+            AssertionCheck::QuestObjectiveComplete {
+                quest_id,
+                objective_id,
+            } => self
+                .state
+                .quest_log
+                .get_active(quest_id)
+                .and_then(|q| {
+                    q.objectives
+                        .iter()
+                        .find(|o| o.objective_id == *objective_id)
+                })
+                .map(|o| o.completed)
+                .unwrap_or(false),
             // Storm assertions
             AssertionCheck::StormTimer { op, value } => {
                 op.compare(self.state.storm.turns_until, *value)
@@ -979,29 +1444,43 @@ impl DesExecutor {
             AssertionCheck::StormIntensity { op, value } => {
                 op.compare(self.state.storm.intensity as u32, *value as u32)
             }
-            AssertionCheck::StormHasEditType { edit_type } => {
-                self.state.storm.edit_types.iter().any(|et| et.display_name().to_lowercase() == edit_type.to_lowercase())
-            }
+            AssertionCheck::StormHasEditType { edit_type } => self
+                .state
+                .storm
+                .edit_types
+                .iter()
+                .any(|et| et.display_name().to_lowercase() == edit_type.to_lowercase()),
             AssertionCheck::StormChangedTilesCount { op, value } => {
                 op.compare(self.state.storm_changed_tiles.len() as u32, *value as u32)
             }
             AssertionCheck::ItemExistsOnMap { item_id, min_count } => {
-                let count = self.state.items.iter().filter(|item| item.id == *item_id).count();
+                let count = self
+                    .state
+                    .items
+                    .iter()
+                    .filter(|item| item.id == *item_id)
+                    .count();
                 if let Some(min) = min_count {
                     count >= *min
                 } else {
                     count > 0
                 }
             }
-            AssertionCheck::TileTypeCount { tile_type, op, value } => {
-                let count = self.state.map.tiles.iter()
-                    .filter(|tile| {
-                        match (tile_type.as_str(), tile) {
-                            ("glass", crate::game::map::Tile::Glass) => true,
-                            ("floor", crate::game::map::Tile::Floor { .. }) => true,
-                            ("wall", crate::game::map::Tile::Wall { .. }) => true,
-                            _ => false,
-                        }
+            AssertionCheck::TileTypeCount {
+                tile_type,
+                op,
+                value,
+            } => {
+                let count = self
+                    .state
+                    .map
+                    .tiles
+                    .iter()
+                    .filter(|tile| match (tile_type.as_str(), tile) {
+                        ("glass", crate::game::map::Tile::Glass) => true,
+                        ("floor", crate::game::map::Tile::Floor { .. }) => true,
+                        ("wall", crate::game::map::Tile::Wall { .. }) => true,
+                        _ => false,
                     })
                     .count();
                 op.compare(count, *value)
@@ -1013,16 +1492,19 @@ impl DesExecutor {
                 // Simplified check - would need proper ritual definition loading
                 match ritual_id.as_str() {
                     "storm_walk" => {
-                        self.state.inventory.contains(&"storm_glass".to_string()) &&
-                        self.state.adaptations.len() >= 1 &&
-                        self.current_location_type.as_deref() == Some("shrine")
+                        self.state.inventory.contains(&"storm_glass".to_string())
+                            && self.state.adaptations.len() >= 1
+                            && self.current_location_type.as_deref() == Some("shrine")
                     }
                     "crucible_transformation" => {
-                        self.state.inventory.contains(&"saint_key".to_string()) &&
-                        self.state.inventory.contains(&"scripture_shard".to_string()) &&
-                        self.state.get_reputation("monks") >= 25 &&
-                        self.state.adaptations.len() >= 3 &&
-                        self.current_location_type.as_deref() == Some("archive")
+                        self.state.inventory.contains(&"saint_key".to_string())
+                            && self
+                                .state
+                                .inventory
+                                .contains(&"scripture_shard".to_string())
+                            && self.state.get_reputation("monks") >= 25
+                            && self.state.adaptations.len() >= 3
+                            && self.current_location_type.as_deref() == Some("archive")
                     }
                     _ => false,
                 }
@@ -1035,21 +1517,42 @@ impl DesExecutor {
             AssertionCheck::MapFeatureRevealed { x, y } => {
                 self.state.map_features.is_location_revealed(*x, *y)
             }
-            AssertionCheck::SafeRouteExists { from_x, from_y, to_x, to_y } => {
-                self.state.map_features.safe_routes.iter()
-                    .any(|r| r.from == (*from_x, *from_y) && r.to == (*to_x, *to_y))
-            }
-            AssertionCheck::StormDamageRecorded { world_x, world_y, op, value } => {
-                let damage = self.state.map_features.storm_damage.get(&(*world_x, *world_y)).unwrap_or(&0);
+            AssertionCheck::SafeRouteExists {
+                from_x,
+                from_y,
+                to_x,
+                to_y,
+            } => self
+                .state
+                .map_features
+                .safe_routes
+                .iter()
+                .any(|r| r.from == (*from_x, *from_y) && r.to == (*to_x, *to_y)),
+            AssertionCheck::StormDamageRecorded {
+                world_x,
+                world_y,
+                op,
+                value,
+            } => {
+                let damage = self
+                    .state
+                    .map_features
+                    .storm_damage
+                    .get(&(*world_x, *world_y))
+                    .unwrap_or(&0);
                 op.compare(*damage as i32, *value as i32)
             }
-            AssertionCheck::AnnotationExists { x, y } => {
-                self.state.map_features.player_annotations.contains_key(&(*x, *y))
-            }
-            AssertionCheck::WaypointExists { x, y, name } => {
-                self.state.map_features.waypoints.iter()
-                    .any(|w| w.x == *x && w.y == *y && w.name == *name)
-            }
+            AssertionCheck::AnnotationExists { x, y } => self
+                .state
+                .map_features
+                .player_annotations
+                .contains_key(&(*x, *y)),
+            AssertionCheck::WaypointExists { x, y, name } => self
+                .state
+                .map_features
+                .waypoints
+                .iter()
+                .any(|w| w.x == *x && w.y == *y && w.name == *name),
             AssertionCheck::LocationRevealed { x, y, revealed } => {
                 self.state.map_features.is_location_revealed(*x, *y) == *revealed
             }
@@ -1058,16 +1561,17 @@ impl DesExecutor {
                 op.compare(count, *value)
             }
             // Crafting assertions
-            AssertionCheck::HasItem { item } => {
-                self.state.inventory.contains(item)
-            }
+            AssertionCheck::HasItem { item } => self.state.inventory.contains(item),
             AssertionCheck::ItemCount { item, op, value } => {
                 let count = self.state.inventory.iter().filter(|id| *id == item).count() as u32;
                 op.compare(count as i32, *value as i32)
             }
             AssertionCheck::CraftingSuccess { recipe, op, value } => {
                 if let Some(recipe_def) = crate::game::get_recipe(recipe) {
-                    let success = crate::game::crafting_success_chance(self.state.player_level, recipe_def.skill_required);
+                    let success = crate::game::crafting_success_chance(
+                        self.state.player_level,
+                        recipe_def.skill_required,
+                    );
                     op.compare((success * 100.0) as i32, (*value * 100.0) as i32)
                 } else {
                     false
@@ -1079,7 +1583,7 @@ impl DesExecutor {
                     &self.state.inventory,
                     self.state.player_level,
                     &available_stations,
-                    &self.state.faction_reputation
+                    &self.state.faction_reputation,
                 );
                 op.compare(recipes.len(), *value)
             }
@@ -1120,28 +1624,33 @@ impl DesExecutor {
                 self.state.sanity.should_hallucinate(&mut self.state.rng) == *should
             }
             // Trading assertions
-            AssertionCheck::TradeInterfaceAvailable { trader_id } => {
-                self.current_trade_interface.as_ref()
-                    .map(|i| i.trader_id == *trader_id)
-                    .unwrap_or(false)
-            }
-            AssertionCheck::ItemAvailable { trader_id, item_id, available } => {
+            AssertionCheck::TradeInterfaceAvailable { trader_id } => self
+                .current_trade_interface
+                .as_ref()
+                .map(|i| i.trader_id == *trader_id)
+                .unwrap_or(false),
+            AssertionCheck::ItemAvailable {
+                trader_id,
+                item_id,
+                available,
+            } => {
                 if let Some(interface) = &self.current_trade_interface {
                     if interface.trader_id == *trader_id {
-                        let has_item = interface.available_items.iter().any(|item| item.item_id == *item_id);
+                        let has_item = interface
+                            .available_items
+                            .iter()
+                            .any(|item| item.item_id == *item_id);
                         return has_item == *available;
                     }
                 }
                 false
             }
-            AssertionCheck::DialogueActive { npc_id } => {
-                self.current_dialogue.as_ref()
-                    .map(|d| d.npc_id == *npc_id)
-                    .unwrap_or(false)
-            }
-            AssertionCheck::DialogueEnded => {
-                self.current_dialogue.is_none()
-            }
+            AssertionCheck::DialogueActive { npc_id } => self
+                .current_dialogue
+                .as_ref()
+                .map(|d| d.npc_id == *npc_id)
+                .unwrap_or(false),
+            AssertionCheck::DialogueEnded => self.current_dialogue.is_none(),
             AssertionCheck::PendingTrade { trader_id } => {
                 self.state.pending_trade.as_ref() == Some(trader_id)
             }
@@ -1153,12 +1662,8 @@ impl DesExecutor {
                 let count = self.state.enemies.iter().filter(|e| e.hp > 0).count();
                 op.compare(count, *value)
             }
-            AssertionCheck::NpcCount { op, value } => {
-                op.compare(self.state.npcs.len(), *value)
-            }
-            AssertionCheck::ChestCount { op, value } => {
-                op.compare(self.state.chests.len(), *value)
-            }
+            AssertionCheck::NpcCount { op, value } => op.compare(self.state.npcs.len(), *value),
+            AssertionCheck::ChestCount { op, value } => op.compare(self.state.chests.len(), *value),
             // Simplified implementations for other assertions
             _ => {
                 self.log(format!("Unimplemented assertion: {:?}", check));
@@ -1190,8 +1695,11 @@ impl DesExecutor {
                         let ny = y + dy;
                         if nx >= 0 && ny >= 0 {
                             let nidx = ny as usize * self.state.map.width + nx as usize;
-                            if nidx < self.state.map.tiles.len() && !self.state.map.tiles[nidx].walkable() {
-                                self.state.map.tiles[nidx] = crate::game::map::Tile::default_floor();
+                            if nidx < self.state.map.tiles.len()
+                                && !self.state.map.tiles[nidx].walkable()
+                            {
+                                self.state.map.tiles[nidx] =
+                                    crate::game::map::Tile::default_floor();
                             }
                         }
                     }
@@ -1217,10 +1725,15 @@ impl DesExecutor {
                 self.state.try_ranged_attack(*target_x, *target_y);
                 self.log(format!("Player ranged attack ({}, {})", target_x, target_y));
             }
-            Action::ApplyStatus { effect, duration, potency: _ } => {
+            Action::ApplyStatus {
+                effect,
+                duration,
+                potency: _,
+            } => {
                 if let Some(status_type) = parse_status_type(effect) {
                     use crate::game::status::StatusEffect;
-                    self.state.apply_status(StatusEffect::new(&status_type, *duration as i32));
+                    self.state
+                        .apply_status(StatusEffect::new(&status_type, *duration as i32));
                     self.log(format!("Applied {} for {} turns", effect, duration));
                 }
             }
@@ -1250,7 +1763,10 @@ impl DesExecutor {
             }
             Action::AutoExplore => {
                 let moved = self.state.auto_explore();
-                self.log(format!("Auto-explore: {}", if moved { "moved" } else { "no path" }));
+                self.log(format!(
+                    "Auto-explore: {}",
+                    if moved { "moved" } else { "no path" }
+                ));
             }
             Action::Wait { turns } => {
                 for _ in 0..*turns {
@@ -1258,12 +1774,10 @@ impl DesExecutor {
                 }
                 self.log(format!("Player waited {} turns", turns));
             }
-            Action::Rest => {
-                match self.state.rest() {
-                    Ok(()) => self.log("Player rested and recovered HP".to_string()),
-                    Err(e) => self.log(format!("Rest failed: {}", e)),
-                }
-            }
+            Action::Rest => match self.state.rest() {
+                Ok(()) => self.log("Player rested and recovered HP".to_string()),
+                Err(e) => self.log(format!("Rest failed: {}", e)),
+            },
             Action::EndTurn => {
                 self.state.end_turn();
                 self.log("Player ended turn".to_string());
@@ -1274,54 +1788,67 @@ impl DesExecutor {
             }
             Action::AllocateStat { stat } => {
                 let success = self.state.allocate_stat(stat);
-                self.log(format!("Allocate stat '{}': {}", stat, if success { "success" } else { "failed" }));
+                self.log(format!(
+                    "Allocate stat '{}': {}",
+                    stat,
+                    if success { "success" } else { "failed" }
+                ));
             }
             // Quest actions
             Action::AcceptQuest { quest_id } => {
                 let success = self.state.accept_quest(quest_id);
-                self.log(format!("Accept quest '{}': {}", quest_id, if success { "success" } else { "failed" }));
+                self.log(format!(
+                    "Accept quest '{}': {}",
+                    quest_id,
+                    if success { "success" } else { "failed" }
+                ));
             }
             Action::CompleteQuest { quest_id } => {
                 let success = self.state.complete_quest(quest_id);
-                self.log(format!("Complete quest '{}': {}", quest_id, if success { "success" } else { "failed" }));
+                self.log(format!(
+                    "Complete quest '{}': {}",
+                    quest_id,
+                    if success { "success" } else { "failed" }
+                ));
             }
             // Crafting actions
             Action::Craft { recipe_id } => {
                 let success = self.state.craft(recipe_id);
-                self.log(format!("Craft '{}': {}", recipe_id, if success { "success" } else { "failed" }));
+                self.log(format!(
+                    "Craft '{}': {}",
+                    recipe_id,
+                    if success { "success" } else { "failed" }
+                ));
             }
             // Economy actions
-            Action::BuyItem { item_id, npc_id } => {
-                match self.state.buy_item(item_id, npc_id) {
-                    Ok(()) => self.log(format!("Bought '{}'", item_id)),
-                    Err(e) => self.log(format!("Buy failed: {}", e)),
-                }
-            }
-            Action::SellItem { item_id } => {
-                match self.state.sell_item(item_id) {
-                    Ok(()) => self.log(format!("Sold '{}'", item_id)),
-                    Err(e) => self.log(format!("Sell failed: {}", e)),
-                }
-            }
+            Action::BuyItem { item_id, npc_id } => match self.state.buy_item(item_id, npc_id) {
+                Ok(()) => self.log(format!("Bought '{}'", item_id)),
+                Err(e) => self.log(format!("Buy failed: {}", e)),
+            },
+            Action::SellItem { item_id } => match self.state.sell_item(item_id) {
+                Ok(()) => self.log(format!("Sold '{}'", item_id)),
+                Err(e) => self.log(format!("Sell failed: {}", e)),
+            },
             Action::TriggerStorm { intensity } => {
                 use crate::game::systems::StormSystem;
                 if let Some(intensity_val) = intensity {
                     self.state.storm.intensity = *intensity_val;
                 }
                 StormSystem::apply_storm(&mut self.state);
-                self.log(format!("Storm triggered with intensity {}", self.state.storm.intensity));
+                self.log(format!(
+                    "Storm triggered with intensity {}",
+                    self.state.storm.intensity
+                ));
             }
             Action::SetRefraction { value } => {
                 self.state.refraction = *value;
                 self.state.check_adaptation_threshold();
                 self.log(format!("Refraction set to {}", value));
             }
-            Action::PerformRitual { ritual_id } => {
-                match self.state.perform_ritual(ritual_id) {
-                    Ok(message) => self.log(format!("Ritual performed: {}", message)),
-                    Err(error) => self.log(format!("Ritual failed: {}", error)),
-                }
-            }
+            Action::PerformRitual { ritual_id } => match self.state.perform_ritual(ritual_id) {
+                Ok(message) => self.log(format!("Ritual performed: {}", message)),
+                Err(error) => self.log(format!("Ritual failed: {}", error)),
+            },
             Action::SetLocationType { location_type } => {
                 // Store location type for ritual requirements (simplified)
                 self.current_location_type = Some(location_type.clone());
@@ -1329,23 +1856,59 @@ impl DesExecutor {
             }
             // Map Features actions
             Action::RevealLocation { x, y, description } => {
-                self.state.map_features.reveal_location(*x, *y, description.clone());
-                self.log(format!("Revealed location at ({}, {}): {}", x, y, description));
+                self.state
+                    .map_features
+                    .reveal_location(*x, *y, description.clone());
+                self.log(format!(
+                    "Revealed location at ({}, {}): {}",
+                    x, y, description
+                ));
             }
-            Action::AddSafeRoute { from_x, from_y, to_x, to_y, npc_name, description } => {
-                self.state.map_features.add_safe_route((*from_x, *from_y), (*to_x, *to_y), npc_name.clone(), description.clone());
-                self.log(format!("Added safe route from ({}, {}) to ({}, {}) marked by {}", from_x, from_y, to_x, to_y, npc_name));
+            Action::AddSafeRoute {
+                from_x,
+                from_y,
+                to_x,
+                to_y,
+                npc_name,
+                description,
+            } => {
+                self.state.map_features.add_safe_route(
+                    (*from_x, *from_y),
+                    (*to_x, *to_y),
+                    npc_name.clone(),
+                    description.clone(),
+                );
+                self.log(format!(
+                    "Added safe route from ({}, {}) to ({}, {}) marked by {}",
+                    from_x, from_y, to_x, to_y, npc_name
+                ));
             }
-            Action::AddStormDamage { world_x, world_y, damage } => {
-                self.state.map_features.add_storm_damage(*world_x, *world_y, *damage);
-                self.log(format!("Added storm damage {} at world ({}, {})", damage, world_x, world_y));
+            Action::AddStormDamage {
+                world_x,
+                world_y,
+                damage,
+            } => {
+                self.state
+                    .map_features
+                    .add_storm_damage(*world_x, *world_y, *damage);
+                self.log(format!(
+                    "Added storm damage {} at world ({}, {})",
+                    damage, world_x, world_y
+                ));
             }
             Action::AddAnnotation { x, y, text } => {
                 self.state.map_features.add_annotation(*x, *y, text.clone());
                 self.log(format!("Added annotation at ({}, {}): {}", x, y, text));
             }
-            Action::AddWaypoint { x, y, name, description } => {
-                self.state.map_features.add_waypoint(*x, *y, name.clone(), description.clone());
+            Action::AddWaypoint {
+                x,
+                y,
+                name,
+                description,
+            } => {
+                self.state
+                    .map_features
+                    .add_waypoint(*x, *y, name.clone(), description.clone());
                 self.log(format!("Added waypoint '{}' at ({}, {})", name, x, y));
             }
             Action::AddStation { station } => {
@@ -1353,8 +1916,13 @@ impl DesExecutor {
                 self.log(format!("Added crafting station: {}", station));
             }
             Action::SetFactionRep { faction, value } => {
-                self.state.faction_reputation.insert(faction.clone(), *value);
-                self.log(format!("Set faction reputation for '{}' to {}", faction, value));
+                self.state
+                    .faction_reputation
+                    .insert(faction.clone(), *value);
+                self.log(format!(
+                    "Set faction reputation for '{}' to {}",
+                    faction, value
+                ));
             }
             Action::SetLevel { level } => {
                 self.state.player_level = *level;
@@ -1364,13 +1932,18 @@ impl DesExecutor {
                 self.state.salt_scrip = *amount;
                 self.log(format!("Set salt scrip to {}", amount));
             }
-            Action::SetTile { x, y, tile_type, hp } => {
+            Action::SetTile {
+                x,
+                y,
+                tile_type,
+                hp,
+            } => {
                 let idx = *y as usize * self.state.map.width + *x as usize;
                 if idx < self.state.map.tiles.len() {
                     let tile = match tile_type.as_str() {
-                        "wall" => crate::game::map::Tile::Wall { 
-                            id: "sandstone".to_string(), 
-                            hp: hp.unwrap_or(50) 
+                        "wall" => crate::game::map::Tile::Wall {
+                            id: "sandstone".to_string(),
+                            hp: hp.unwrap_or(50),
                         },
                         "floor" => crate::game::map::Tile::default_floor(),
                         "glass" => crate::game::map::Tile::Glass,
@@ -1382,7 +1955,10 @@ impl DesExecutor {
             }
             // Psychic actions
             Action::UnlockAbility { ability_id } => {
-                self.state.psychic.unlocked_abilities.push(ability_id.clone());
+                self.state
+                    .psychic
+                    .unlocked_abilities
+                    .push(ability_id.clone());
                 self.log(format!("Unlocked ability: {}", ability_id));
             }
             Action::UseAbility { ability_id } => {
@@ -1399,7 +1975,11 @@ impl DesExecutor {
                 let message = self.state.sanity.restore_sanity(*amount, source);
                 self.log(message);
             }
-            Action::AddMentalEffect { effect, duration, intensity } => {
+            Action::AddMentalEffect {
+                effect,
+                duration,
+                intensity,
+            } => {
                 use crate::game::sanity::MentalEffectType;
                 let effect_type = match effect.as_str() {
                     "hallucinations" => MentalEffectType::Hallucinations,
@@ -1413,8 +1993,13 @@ impl DesExecutor {
                         return;
                     }
                 };
-                self.state.sanity.add_mental_effect(effect_type, *duration, *intensity);
-                self.log(format!("Added mental effect '{}' for {} turns", effect, duration));
+                self.state
+                    .sanity
+                    .add_mental_effect(effect_type, *duration, *intensity);
+                self.log(format!(
+                    "Added mental effect '{}' for {} turns",
+                    effect, duration
+                ));
             }
             Action::TickMentalEffects => {
                 let messages = self.state.sanity.tick_effects();
@@ -1449,9 +2034,16 @@ impl DesExecutor {
                     &self.state.faction_reputation,
                     None, // No player faction for now
                 );
-                self.log(format!("Got trade interface for {} at tier {}", trader_id, tier));
+                self.log(format!(
+                    "Got trade interface for {} at tier {}",
+                    trader_id, tier
+                ));
             }
-            Action::ExecuteTrade { trader_id: _, item_id, quantity } => {
+            Action::ExecuteTrade {
+                trader_id: _,
+                item_id,
+                quantity,
+            } => {
                 if let Some(ref mut interface) = self.current_trade_interface {
                     match crate::game::trading::execute_trade(
                         interface,
@@ -1514,45 +2106,63 @@ impl DesExecutor {
 
     fn query_state(&self, query: &LogQuery) -> String {
         match query {
-            LogQuery::PlayerHp => format!("HP: {}/{}", self.state.player_hp, self.state.player_max_hp),
-            LogQuery::PlayerPosition => format!("Position: ({}, {})", self.state.player_x, self.state.player_y),
+            LogQuery::PlayerHp => {
+                format!("HP: {}/{}", self.state.player_hp, self.state.player_max_hp)
+            }
+            LogQuery::PlayerPosition => format!(
+                "Position: ({}, {})",
+                self.state.player_x, self.state.player_y
+            ),
             LogQuery::Inventory => format!("Inventory: {:?}", self.state.inventory),
             LogQuery::EntityAt { x, y } => self.state.describe_at(*x, *y),
             LogQuery::Turn => format!("Turn: {}", self.state.turn),
             LogQuery::Custom { message } => message.clone(),
-            LogQuery::RenderFrame { width, height } => {
-                self.render_frame_to_string(*width, *height)
-            }
+            LogQuery::RenderFrame { width, height } => self.render_frame_to_string(*width, *height),
         }
     }
 
     fn render_frame_to_string(&self, width: u16, height: u16) -> String {
         // Simple text representation of the game state
         let mut lines = Vec::new();
-        
+
         let start_x = self.state.player_x - (width as i32 / 2);
         let start_y = self.state.player_y - (height as i32 / 2);
-        
+
         for y in 0..height as i32 {
             let mut line = String::new();
             for x in 0..width as i32 {
                 let world_x = start_x + x;
                 let world_y = start_y + y;
-                
+
                 // Check for player
                 if world_x == self.state.player_x && world_y == self.state.player_y {
                     line.push('@');
                 }
                 // Check for enemies
-                else if let Some(_) = self.state.enemies.iter().find(|e| e.x == world_x && e.y == world_y) {
+                else if let Some(_) = self
+                    .state
+                    .enemies
+                    .iter()
+                    .find(|e| e.x == world_x && e.y == world_y)
+                {
                     line.push('E');
                 }
                 // Check for items
-                else if let Some(_) = self.state.items.iter().find(|i| i.x == world_x && i.y == world_y) {
+                else if let Some(_) = self
+                    .state
+                    .items
+                    .iter()
+                    .find(|i| i.x == world_x && i.y == world_y)
+                {
                     line.push('i');
                 }
                 // Check for NPCs
-                else if let Some(_) = self.state.npcs.iter().find(|n| n.x == world_x && n.y == world_y) {
+                else if let Some(_) = self
+                    .state
+                    .npcs
+                    .iter()
+                    .find(|n| n.x == world_x && n.y == world_y)
+                {
                     line.push('N');
                 }
                 // Default to floor/wall based on simple pattern
@@ -1562,8 +2172,13 @@ impl DesExecutor {
             }
             lines.push(line);
         }
-        
-        format!("RENDERED FRAME ({}x{}):\n{}", width, height, lines.join("\n"))
+
+        format!(
+            "RENDERED FRAME ({}x{}):\n{}",
+            width,
+            height,
+            lines.join("\n")
+        )
     }
 
     fn log(&mut self, message: String) {
@@ -1601,13 +2216,17 @@ pub fn run_scenario_json(json: &str) -> Result<ExecutionResult, String> {
 pub type RenderCallback = Box<dyn FnMut(&GameState, &ExecutionLog)>;
 
 /// Run scenario with optional rendering callback and frame delay
-pub fn run_with_render<F>(scenario: &Scenario, frame_delay_ms: u64, mut render_fn: F) -> ExecutionResult
+pub fn run_with_render<F>(
+    scenario: &Scenario,
+    frame_delay_ms: u64,
+    mut render_fn: F,
+) -> ExecutionResult
 where
     F: FnMut(&GameState, Option<&ExecutionLog>),
 {
     let mut executor = DesExecutor::new(scenario);
     executor.capture_snapshots = true;
-    
+
     let mut current_turn = 0;
     let max_turns = scenario.actions.iter().map(|a| a.turn).max().unwrap_or(0) + 1;
 
@@ -1619,7 +2238,7 @@ where
         for scheduled in &scenario.actions {
             if scheduled.turn == current_turn {
                 executor.execute_action(&scheduled.action, &scheduled.actor);
-                
+
                 // Render after each action
                 let log = ExecutionLog {
                     turn: executor.state.turn,
@@ -1628,7 +2247,7 @@ where
                 };
                 render_fn(&executor.state, Some(&log));
                 std::thread::sleep(std::time::Duration::from_millis(frame_delay_ms));
-                
+
                 executor.action_index += 1;
             }
         }
@@ -1740,7 +2359,11 @@ mod tests {
         }"#;
         let result = run_scenario_json(json).unwrap();
         eprintln!("Final turn: {}, logs: {:?}", result.final_turn, result.logs);
-        assert!(result.final_turn >= 3, "Expected turn >= 3, got {}", result.final_turn);
+        assert!(
+            result.final_turn >= 3,
+            "Expected turn >= 3, got {}",
+            result.final_turn
+        );
     }
 
     #[test]
@@ -1761,12 +2384,19 @@ mod tests {
         }"#;
         let result = run_scenario_json(json).unwrap();
         let final_state = result.final_state.as_ref().unwrap();
-        eprintln!("Final turn: {}, AP: {}, pos: ({}, {})", 
-            result.final_turn, final_state.player_ap,
-            final_state.player_x, final_state.player_y);
-        eprintln!("Logs: {:?}", result.logs.iter().map(|l| &l.message).collect::<Vec<_>>());
+        eprintln!(
+            "Final turn: {}, AP: {}, pos: ({}, {})",
+            result.final_turn, final_state.player_ap, final_state.player_x, final_state.player_y
+        );
+        eprintln!(
+            "Logs: {:?}",
+            result.logs.iter().map(|l| &l.message).collect::<Vec<_>>()
+        );
         // For now, just check that AP system is working - turn advances when AP depletes
-        assert!(result.final_turn >= 1, "Turn should advance after AP depleted");
+        assert!(
+            result.final_turn >= 1,
+            "Turn should advance after AP depleted"
+        );
     }
 
     #[test]
@@ -1804,7 +2434,10 @@ mod tests {
         // Find enemy at target position
         let enemy = state.enemies.iter().find(|e| e.x == 6 && e.y == 5);
         eprintln!("Enemy at (6,5): {:?}", enemy.map(|e| (e.id.as_str(), e.hp)));
-        eprintln!("Logs: {:?}", result.logs.iter().map(|l| &l.message).collect::<Vec<_>>());
+        eprintln!(
+            "Logs: {:?}",
+            result.logs.iter().map(|l| &l.message).collect::<Vec<_>>()
+        );
         // Enemy should still have 5 HP since all attacks miss
         let enemy_hp = enemy.map(|e| e.hp).unwrap_or(-999);
         assert_eq!(enemy_hp, 5, "Enemy should have 5 HP (attack missed)");
