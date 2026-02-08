@@ -5,7 +5,7 @@ use rand_chacha::ChaCha8Rng;
 use serde::Deserialize;
 use std::collections::HashMap;
 use terrain_forge::{
-    Grid, Rng as ForgeRng, SemanticConfig, SemanticExtractor, Tile as ForgeTile, algorithms,
+    Grid, Rng as ForgeRng, SemanticExtractor, Tile as ForgeTile, ops,
 };
 
 use crate::game::constants::{MAP_HEIGHT, MAP_WIDTH};
@@ -83,10 +83,8 @@ impl TerrainForgeGenerator {
             &mut rng,
         );
 
-        if let Some(algo) = algorithms::get(&algo_name) {
-            algo.generate(&mut grid, seed);
-        } else if let Some(fallback) = algorithms::get("cellular") {
-            fallback.generate(&mut grid, seed);
+        if ops::generate(&algo_name, &mut grid, Some(seed), None).is_err() {
+            ops::generate("cellular", &mut grid, Some(seed), None).ok();
         }
 
         let biome_key = match biome {
@@ -168,10 +166,14 @@ impl TerrainForgeGenerator {
 
         // Semantic extraction for spawn markers/regions
         let mut forge_rng = ForgeRng::new(seed);
-        let mut semantic_config = semantic_config_for(&algo_name);
-        semantic_config.marker_types = marker_types_for(poi);
-        let extractor = SemanticExtractor::new(semantic_config);
-        let semantic = extractor.extract(&grid, &mut forge_rng);
+        let semantic = match algo_name.as_str() {
+            "bsp" | "rooms" => SemanticExtractor::for_rooms(),
+            "maze" => SemanticExtractor::for_mazes(),
+            _ => SemanticExtractor::for_caves(), // cellular, drunkard, etc.
+        }.extract(&grid, &mut forge_rng);
+        
+        // TODO: v0.7.0 SemanticExtractor doesn't support POI-specific marker configuration
+        // (towns should get npc_slot/shop_slot, shrines should get altar, dungeons should get boss_core)
 
         let region_kinds: HashMap<u32, String> = semantic
             .regions
@@ -204,7 +206,19 @@ impl TerrainForgeGenerator {
             map.features.push(MapFeature {
                 x: marker.x as i32,
                 y: marker.y as i32,
-                feature_id: marker.tag.clone(),
+                feature_id: match &marker.marker_type {
+                    terrain_forge::semantic::MarkerType::Custom(s) => s.clone(),
+                    terrain_forge::semantic::MarkerType::Spawn => "Spawn".to_string(),
+                    terrain_forge::semantic::MarkerType::Exit => "Exit".to_string(),
+                    terrain_forge::semantic::MarkerType::QuestObjective { priority } => format!("QuestObjective_{}", priority),
+                    terrain_forge::semantic::MarkerType::QuestStart => "QuestStart".to_string(),
+                    terrain_forge::semantic::MarkerType::QuestEnd => "QuestEnd".to_string(),
+                    terrain_forge::semantic::MarkerType::LootTier { tier } => format!("LootTier_{}", tier),
+                    terrain_forge::semantic::MarkerType::Treasure => "Treasure".to_string(),
+                    terrain_forge::semantic::MarkerType::EncounterZone { difficulty } => format!("EncounterZone_{}", difficulty),
+                    terrain_forge::semantic::MarkerType::BossRoom => "BossRoom".to_string(),
+                    terrain_forge::semantic::MarkerType::SafeZone => "SafeZone".to_string(),
+                },
                 source: Some("forge_marker".to_string()),
                 metadata,
             });
@@ -317,45 +331,8 @@ fn collect_floor_positions(map: &Map) -> Vec<(i32, i32)> {
         .collect()
 }
 
-fn semantic_config_for(algo_name: &str) -> SemanticConfig {
-    let mut config = if matches!(algo_name, "rooms" | "bsp") {
-        SemanticConfig::room_system()
-    } else if algo_name == "maze" {
-        SemanticConfig::maze_system()
-    } else {
-        SemanticConfig::cave_system()
-    };
-    config.max_markers_per_region = 4;
-    config.marker_scaling_factor = 80.0;
-    config.marker_placement.min_marker_distance = 3;
-    config
-}
 
-fn marker_types_for(poi: POI) -> Vec<(String, f32)> {
-    let mut markers = vec![
-        ("light_anchor".to_string(), 0.6),
-        ("loot_slot".to_string(), 0.45),
-        ("enemy_spawn".to_string(), 0.5),
-        ("story_hook".to_string(), 0.15),
-    ];
 
-    match poi {
-        POI::Town => {
-            markers.push(("npc_slot".to_string(), 0.4));
-            markers.push(("shop_slot".to_string(), 0.25));
-        }
-        POI::Shrine => {
-            markers.push(("altar".to_string(), 0.35));
-            markers.push(("npc_slot".to_string(), 0.1));
-        }
-        POI::Dungeon | POI::Landmark => {
-            markers.push(("boss_core".to_string(), 0.2));
-        }
-        _ => {}
-    }
-
-    markers
-}
 
 fn take_random_position(
     positions: &mut Vec<(i32, i32)>,

@@ -685,7 +685,6 @@ mod generation_tests {
     }
 
     #[test]
-    #[ignore = "Event triggers under terrain-forge integration need updated fixtures."]
     fn test_event_trigger_evaluation() {
         let mut system = EventSystem::new();
         let mut rng = ChaCha8Rng::seed_from_u64(12345);

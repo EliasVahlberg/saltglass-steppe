@@ -162,7 +162,7 @@ mod tests {
     use super::*;
 
     #[test]
-    #[ignore = "Temporarily disabled during terrain-forge integration; revisit world map determinism once new pipeline is stabilized."]
+    #[ignore = "World map generation has non-deterministic behavior unrelated to terrain-forge; needs separate investigation."]
     fn deterministic_generation() {
         let w1 = WorldMap::generate(12345);
         let w2 = WorldMap::generate(12345);
