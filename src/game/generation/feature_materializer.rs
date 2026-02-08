@@ -156,12 +156,14 @@ use std::collections::HashSet;
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::game::map::{Map, MapFeature};
+    use crate::game::map::{Map, MapFeature, Tile};
 
     #[test]
     fn story_hook_materializes() {
         let mut state = GameState::new(12345);
         state.map = Map::new(10, 10);
+        // Set tile to floor so materializer doesn't skip it
+        state.map.set_tile(1, 1, Tile::Floor { id: "stone_floor".to_string() });
         state.map.features.push(MapFeature {
             x: 1,
             y: 1,

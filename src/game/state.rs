@@ -978,7 +978,7 @@ impl GameState {
         let quest_ids = self.get_quest_ids_for_location(new_wx, new_wy);
 
         // Generate new tile map via terrain-forge adapter
-        let map = {
+        let mut map = {
             let generator = TerrainForgeGenerator::new();
             let (map, _) = generator
                 .generate_tile_with_seed(biome, terrain, elevation, poi, tile_seed, &quest_ids);
@@ -1111,13 +1111,40 @@ impl GameState {
             }
         }
 
+        // Place microstructures (matching GameState::new() behavior)
+        let biome_str = biome.as_str();
+        let (_microstructures, mut structure_npcs, structure_chests, mut structure_items) =
+            place_microstructures(&mut map, biome_str, &walkable_positions, (px, py), &mut rng);
+        items.append(&mut structure_items);
+
+        // Spawn biome NPCs
+        let mut npcs = Vec::new();
+        let npc_table = get_biome_spawn_table(&biome);
+        for spawn in &npc_table.npcs {
+            if spawn.weight > 0 && rng.gen_ratio(spawn.weight.min(10), 10) {
+                if let Some(&(nx, ny)) = walkable_positions
+                    .iter()
+                    .filter(|&&(x, y)| {
+                        let dx = (x - px).abs();
+                        let dy = (y - py).abs();
+                        dx >= 8 || dy >= 8
+                    })
+                    .nth(rng.gen_range(0..walkable_positions.len().max(1)))
+                {
+                    npcs.push(Npc::new(nx, ny, &spawn.id));
+                }
+            }
+        }
+        npcs.append(&mut structure_npcs);
+
         // Update state
         self.world_x = new_wx;
         self.world_y = new_wy;
         self.map = map;
         self.enemies = enemies;
         self.items = items;
-        self.npcs = Vec::new(); // NPCs are tile-specific
+        self.npcs = npcs;
+        self.chests = structure_chests;
 
         // Materialize terrain-forge markers into entities for the new map
         crate::game::generation::feature_materializer::materialize_features(
@@ -1281,16 +1308,14 @@ impl GameState {
         // Find safe spawn position (not wall, glass, or enemy)
         let (mut px, mut py) = (self.player_x, self.player_y);
 
-        // Check if current position is safe
+        // Check if current position is safe (walkable floor, no enemy)
         let is_safe = |map: &Map, enemies: &[Enemy], x: i32, y: i32| -> bool {
-            if let Some(tile) = map.get(x, y) {
-                if matches!(*tile, Tile::Floor { .. }) {
-                    return false;
+            match map.get(x, y) {
+                Some(tile) if tile.walkable() => {
+                    !enemies.iter().any(|e| e.x == x && e.y == y && e.hp > 0)
                 }
-            } else {
-                return false;
+                _ => false,
             }
-            !enemies.iter().any(|e| e.x == x && e.y == y && e.hp > 0)
         };
 
         if !is_safe(&self.map, &self.enemies, px, py) {

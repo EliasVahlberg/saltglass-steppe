@@ -141,6 +141,15 @@ impl TerrainForgeGenerator {
             }
         }
 
+        // Ensure map connectivity via Glass Seam Bridging
+        let spawn_center = (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2);
+        crate::game::generation::connectivity::ensure_connectivity(
+            &mut map,
+            spawn_center,
+            &crate::game::generation::connectivity::GSBParams::fast(),
+            &mut rng,
+        );
+
         if let Some(layout) = poi_layout {
             apply_poi_layout(&mut map, layout, &floor_id, &wall_id, &mut rng);
         }
