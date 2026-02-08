@@ -2,7 +2,7 @@
 
 > **Date**: 2026-02-08
 > **Goal**: Bring the game to a semi-playable state where a player can travel the world map, enter meaningfully populated tiles, and progress through quests.
-> **Status**: Planning — awaiting sub-agent execution
+> **Status**: Phase 1+2 complete — Phase 3+4 awaiting execution
 
 ---
 
@@ -39,15 +39,15 @@
 
 | # | Severity | Issue | Impact on Playability |
 |---|----------|-------|----------------------|
-| 1 | 🔴 Critical | Connectivity not enforced on generated tiles | Player may be trapped in disconnected map regions |
-| 2 | 🔴 Critical | Feature materializer broken after terrain-forge v0.7.0 | Zero features (lights, loot, NPCs) materialize from forge markers |
-| 3 | 🔴 Critical | `is_safe()` bug in `travel_to_tile_safe` | Player may spawn on walls after traveling |
-| 4 | 🟠 Major | No microstructures placed on travel tiles | Every tile after the first is barren |
-| 5 | 🟠 Major | No NPC spawning on travel tiles | Towns have zero merchants or dialogue NPCs |
+| 1 | 🔴 Critical | Connectivity not enforced on generated tiles | ✅ Fixed — `ensure_connectivity` wired in `terrain_forge_adapter.rs` |
+| 2 | 🔴 Critical | Feature materializer broken after terrain-forge v0.7.0 | ✅ Fixed — `map_features.json` updated with v0.7.0 marker IDs |
+| 3 | 🔴 Critical | `is_safe()` bug in `travel_to_tile_safe` | ✅ Fixed — now uses `tile.walkable()` |
+| 4 | 🟠 Major | No microstructures placed on travel tiles | ✅ Fixed — `place_microstructures` called in `travel_to_tile()` |
+| 5 | 🟠 Major | No NPC spawning on travel tiles | ✅ Fixed — biome NPC spawning added to `travel_to_tile()` |
 | 6 | 🟠 Major | Structure generators not integrated | DungeonGenerator/RuinsGenerator unused in gameplay |
 | 7 | 🟠 Major | `npc_spawn_config.json` is dead data | Detailed per-structure NPC rules never loaded |
 | 8 | 🟡 Minor | POI-specific markers lost in v0.7.0 | Towns/shrines/dungeons don't get specialized markers |
-| 9 | 🟡 Minor | 1 failing test | `feature_materializer::story_hook_materializes` |
+| 9 | 🟡 Minor | 1 failing test | ✅ Fixed — `story_hook_materializes` passes (tile was Wall) |
 | 10 | 🟡 Minor | World map determinism test ignored | Non-deterministic behavior needs investigation |
 
 ---
