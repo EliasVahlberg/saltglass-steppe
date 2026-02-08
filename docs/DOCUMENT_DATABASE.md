@@ -149,6 +149,7 @@ This file contains a comprehensive list of all project documentation with descri
 | [QUEST_SATISFACTION_CONSTRAINT_SYSTEM.md](development/QUEST_SATISFACTION_CONSTRAINT_SYSTEM.md)             | Constraint system for quest satisfaction                                           |
 | [TECHNICAL_FEATURES_NEEDED.md](development/TECHNICAL_FEATURES_NEEDED.md)                                   | List of required technical features                                                |
 | [VISUAL_VARIETY_SYSTEMS.md](development/VISUAL_VARIETY_SYSTEMS.md)                                         | Systems for visual variety                                                         |
+| [PLAYABILITY_IMPLEMENTATION_PLAN.md](development/PLAYABILITY_IMPLEMENTATION_PLAN.md)                       | Implementation plan for semi-playable state with findings, evidence, and task breakdown |
 
 ### Change Logs Subsection
 
