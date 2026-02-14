@@ -29,15 +29,15 @@ pub fn render_void_menu(frame: &mut Frame, area: Rect, state: &GameState, menu: 
         .split(inner);
 
     // Stats section
-    let exposure_level = format!("{:?}", state.void_system.exposure_level());
+    let exposure_level = format!("{:?}", state.player.void_system.exposure_level());
     let stats_text = format!(
         "Exposure: {} ({})\nEnergy: {}/{}{}",
-        state.void_system.void_exposure,
+        state.player.void_system.void_exposure,
         exposure_level,
-        state.void_system.void_energy,
-        state.void_system.max_void_energy,
-        if state.void_system.phase_walk_turns > 0 {
-            format!("\nPhase Walk: {} turns remaining", state.void_system.phase_walk_turns)
+        state.player.void_system.void_energy,
+        state.player.void_system.max_void_energy,
+        if state.player.void_system.phase_walk_turns > 0 {
+            format!("\nPhase Walk: {} turns remaining", state.player.void_system.phase_walk_turns)
         } else {
             String::new()
         }
@@ -46,11 +46,11 @@ pub fn render_void_menu(frame: &mut Frame, area: Rect, state: &GameState, menu: 
     frame.render_widget(stats, chunks[0]);
 
     // Ability list
-    if state.void_system.unlocked_abilities.is_empty() {
+    if state.player.void_system.unlocked_abilities.is_empty() {
         let no_abilities = Paragraph::new("No void abilities unlocked yet.");
         frame.render_widget(no_abilities, chunks[1]);
     } else {
-        let items: Vec<ListItem> = state.void_system.unlocked_abilities.iter().enumerate().map(|(i, ability)| {
+        let items: Vec<ListItem> = state.player.void_system.unlocked_abilities.iter().enumerate().map(|(i, ability)| {
             let name = match ability {
                 VoidAbility::VoidStep => "Void Step",
                 VoidAbility::RealityRend => "Reality Rend",
@@ -60,7 +60,7 @@ pub fn render_void_menu(frame: &mut Frame, area: Rect, state: &GameState, menu: 
             };
             let cost = ability.energy_cost();
             let text = format!("{} ({} energy)", name, cost);
-            let style = if state.void_system.void_energy >= cost {
+            let style = if state.player.void_system.void_energy >= cost {
                 Style::default().fg(Color::Green)
             } else {
                 Style::default().fg(Color::DarkGray)
@@ -79,5 +79,5 @@ pub fn render_void_menu(frame: &mut Frame, area: Rect, state: &GameState, menu: 
 }
 
 pub fn get_selected_ability(menu: &VoidMenu, state: &GameState) -> Option<VoidAbility> {
-    state.void_system.unlocked_abilities.get(menu.selected_index).copied()
+    state.player.void_system.unlocked_abilities.get(menu.selected_index).copied()
 }

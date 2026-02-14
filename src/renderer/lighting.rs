@@ -29,7 +29,7 @@ impl LightingRenderer {
     pub fn calculate_lighting(&mut self, state: &GameState) -> Vec<u8> {
         if !self.config.lighting.enabled {
             // Return full brightness if lighting is disabled
-            return vec![255; (state.map.width * state.map.height) as usize];
+            return vec![255; (state.world.map.width * state.world.map.height) as usize];
         }
 
         // Check if we need to recalculate
@@ -37,7 +37,7 @@ impl LightingRenderer {
             return self.light_map.clone();
         }
 
-        let map_size = (state.map.width * state.map.height) as usize;
+        let map_size = (state.world.map.width * state.world.map.height) as usize;
         let mut light_map = vec![self.config.lighting.ambient_level; map_size];
 
         // Collect all light sources
@@ -45,8 +45,8 @@ impl LightingRenderer {
 
         // Add player light if enabled (force for testing)
         light_sources.push(LightSource {
-            x: state.player_x,
-            y: state.player_y,
+            x: state.player_x(),
+            y: state.player_y(),
             radius: 16,     // Much larger radius
             intensity: 255, // Maximum intensity
         });
@@ -54,21 +54,21 @@ impl LightingRenderer {
         // Add equipment light sources if detection is enabled
         if self.config.lighting.equipment_light_detection {
             // Equipment is a struct, not a collection, so we need to check individual fields
-            if let Some(ref weapon) = state.equipment.weapon {
+            if let Some(ref weapon) = state.player.equipment.weapon {
                 if let Some(light_radius) = self.get_item_light_radius(weapon) {
                     light_sources.push(LightSource {
-                        x: state.player_x,
-                        y: state.player_y,
+                        x: state.player_x(),
+                        y: state.player_y(),
                         radius: light_radius,
                         intensity: 150, // Equipment light intensity
                     });
                 }
             }
-            if let Some(ref ranged_weapon) = state.equipment.ranged_weapon {
+            if let Some(ref ranged_weapon) = state.player.equipment.ranged_weapon {
                 if let Some(light_radius) = self.get_item_light_radius(ranged_weapon) {
                     light_sources.push(LightSource {
-                        x: state.player_x,
-                        y: state.player_y,
+                        x: state.player_x(),
+                        y: state.player_y(),
                         radius: light_radius,
                         intensity: 150, // Equipment light intensity
                     });
@@ -77,7 +77,7 @@ impl LightingRenderer {
         }
 
         // Add map light sources
-        for map_light in &state.map.lights {
+        for map_light in &state.world.map.lights {
             if let Some(light_def) = crate::get_light_def(&map_light.id) {
                 light_sources.push(LightSource {
                     x: map_light.x,
@@ -90,7 +90,7 @@ impl LightingRenderer {
 
         // Calculate lighting from all sources
         for source in &light_sources {
-            self.apply_light_source(&mut light_map, source, state.map.width, state.map.height);
+            self.apply_light_source(&mut light_map, source, state.world.map.width, state.world.map.height);
         }
 
         self.light_map = light_map.clone();

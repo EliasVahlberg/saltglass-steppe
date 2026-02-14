@@ -102,8 +102,8 @@ impl Renderer {
 
         // Update camera position
         self.camera.update(
-            state.player_x,
-            state.player_y,
+            state.player_x(),
+            state.player_y(),
             inner.width as i32,
             inner.height as i32,
         );
@@ -140,7 +140,7 @@ impl Renderer {
         let light_map = if self.config.lighting.enabled {
             self.lighting.calculate_lighting(state)
         } else {
-            vec![255; (state.map.width * state.map.height) as usize]
+            vec![255; (state.world.map.width * state.world.map.height) as usize]
         };
 
         // Render tiles first (background layer)

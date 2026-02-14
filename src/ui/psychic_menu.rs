@@ -36,8 +36,8 @@ impl PsychicMenu {
     }
 
     pub fn get_selected_ability(&self, state: &GameState) -> Option<String> {
-        if self.selected_index < state.psychic.unlocked_abilities.len() {
-            Some(state.psychic.unlocked_abilities[self.selected_index].clone())
+        if self.selected_index < state.player.psychic.unlocked_abilities.len() {
+            Some(state.player.psychic.unlocked_abilities[self.selected_index].clone())
         } else {
             None
         }
@@ -69,14 +69,15 @@ fn render_psychic_menu_internal(
 
     // Left side: ability list
     let abilities: Vec<ListItem> = state
+        .player
         .psychic
         .unlocked_abilities
         .iter()
         .enumerate()
         .map(|(i, id)| {
             let def = get_ability_def(id).unwrap();
-            let on_cooldown = state.psychic.cooldowns.get(id).unwrap_or(&0) > &0;
-            let can_afford = state.psychic.coherence >= def.coherence_cost;
+            let on_cooldown = state.player.psychic.cooldowns.get(id).unwrap_or(&0) > &0;
+            let can_afford = state.player.psychic.coherence >= def.coherence_cost;
 
             let style = if i == menu.selected_index {
                 Style::default().bg(Color::DarkGray).fg(Color::White)
@@ -89,7 +90,7 @@ fn render_psychic_menu_internal(
             };
 
             let cooldown_text = if on_cooldown {
-                format!(" ({})", state.psychic.cooldowns.get(id).unwrap())
+                format!(" ({})", state.player.psychic.cooldowns.get(id).unwrap())
             } else {
                 String::new()
             };
@@ -105,7 +106,7 @@ fn render_psychic_menu_internal(
     frame.render_widget(List::new(abilities), chunks[0]);
 
     // Right side: ability details
-    if let Some(selected_id) = state.psychic.unlocked_abilities.get(menu.selected_index) {
+    if let Some(selected_id) = state.player.psychic.unlocked_abilities.get(menu.selected_index) {
         if let Some(def) = get_ability_def(selected_id) {
             let category_color = match def.category {
                 PsychicCategory::Telepathy => Color::Magenta,

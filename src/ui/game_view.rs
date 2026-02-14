@@ -54,14 +54,14 @@ pub fn render_damage_numbers(frame: &mut Frame, area: Rect, state: &GameState) {
     );
     let view_w = inner.width as i32;
     let view_h = inner.height as i32;
-    let cam_x = (state.player_x - view_w / 2)
+    let cam_x = (state.player.x - view_w / 2)
         .max(0)
-        .min(state.map.width as i32 - view_w);
-    let cam_y = (state.player_y - view_h / 2)
+        .min(state.world.map.width as i32 - view_w);
+    let cam_y = (state.player.y - view_h / 2)
         .max(0)
-        .min(state.map.height as i32 - view_h);
+        .min(state.world.map.height as i32 - view_h);
 
-    for dn in &state.visual_effects.damage_numbers {
+    for dn in &state.world.visual_effects.damage_numbers {
         let rise = (12 - dn.frames) / 6;
         let screen_x = (dn.x - cam_x) as i32;
         let screen_y = (dn.y - cam_y) as i32 - rise as i32;
@@ -111,10 +111,10 @@ pub fn render_map(
     // Use smooth camera position, clamped to map bounds
     let cam_x = (camera.0 as i32 - half_w)
         .max(0)
-        .min(state.map.width as i32 - view_w);
+        .min(state.world.map.width as i32 - view_w);
     let cam_y = (camera.1 as i32 - half_h)
         .max(0)
-        .min(state.map.height as i32 - view_h);
+        .min(state.world.map.height as i32 - view_h);
 
     let mut lines: Vec<Line> = Vec::new();
     for vy in 0..view_h {
@@ -122,11 +122,11 @@ pub fn render_map(
         let y = (cam_y + vy) as usize;
         for vx in 0..view_w {
             let x = (cam_x + vx) as usize;
-            if x >= state.map.width || y >= state.map.height {
+            if x >= state.world.map.width || y >= state.world.map.height {
                 spans.push(Span::raw(" "));
                 continue;
             }
-            let idx = state.map.idx(x as i32, y as i32);
+            let idx = state.world.map.idx(x as i32, y as i32);
             let is_look_cursor = look_cursor
                 .map(|(lx, ly)| x as i32 == lx && y as i32 == ly)
                 .unwrap_or(false);
@@ -199,7 +199,7 @@ fn render_tile(
     let has_flash = state.has_hit_flash(x as i32, y as i32);
 
     // Player
-    if x as i32 == state.player_x && y as i32 == state.player_y {
+    if x as i32 == state.player.x && y as i32 == state.player.y {
         let mut style = Style::default().fg(Color::Yellow).bold();
 
         // Hit flash takes priority
@@ -208,7 +208,7 @@ fn render_tile(
         }
 
         // Apply status effect colors (priority: burn > poison > bleed)
-        for effect in &state.status_effects {
+        for effect in &state.player.status_effects {
             let status_color = match effect.id.as_str() {
                 "burn" => Some(t.status_burning),
                 "poison" => Some(t.status_poisoned),
@@ -281,7 +281,7 @@ fn render_tile(
 
     // Enemy
     if let Some(&ei) = state.enemy_positions.get(&(x as i32, y as i32)) {
-        let e = &state.enemies[ei];
+        let e = &state.world.enemies[ei];
         if visible {
             // Hit flash takes priority
             if has_flash && (frame_count % 2 == 0) {
@@ -344,7 +344,7 @@ fn render_tile(
             return (e.glyph(), style);
         } else if revealed {
             return (
-                state.map.tiles[idx].glyph(),
+                state.world.map.tiles[idx].glyph(),
                 Style::default().fg(Color::DarkGray),
             );
         }
@@ -353,7 +353,7 @@ fn render_tile(
 
     // NPC
     if let Some(&ni) = state.npc_positions.get(&(x as i32, y as i32)) {
-        let npc = &state.npcs[ni];
+        let npc = &state.world.npcs[ni];
         if visible {
             let light = state.get_light_level(x as i32, y as i32);
             return (
@@ -362,7 +362,7 @@ fn render_tile(
             );
         } else if revealed {
             return (
-                state.map.tiles[idx].glyph(),
+                state.world.map.tiles[idx].glyph(),
                 Style::default().fg(Color::DarkGray),
             );
         }
@@ -371,7 +371,7 @@ fn render_tile(
 
     // Item
     if let Some(items) = state.item_positions.get(&(x as i32, y as i32)) {
-        let item = &state.items[items[0]];
+        let item = &state.world.items[items[0]];
         if visible {
             let light = state.get_light_level(x as i32, y as i32);
             return (
@@ -380,7 +380,7 @@ fn render_tile(
             );
         } else if revealed {
             return (
-                state.map.tiles[idx].glyph(),
+                state.world.map.tiles[idx].glyph(),
                 Style::default().fg(Color::DarkGray),
             );
         }
@@ -389,7 +389,7 @@ fn render_tile(
 
     // Light source
     if let Some(ml) = state
-        .map
+        .map()
         .lights
         .iter()
         .find(|l| l.x == x as i32 && l.y == y as i32)
@@ -409,7 +409,7 @@ fn render_tile(
             return (glyph, Style::default().fg(color));
         } else if revealed {
             return (
-                state.map.tiles[idx].glyph(),
+                state.world.map.tiles[idx].glyph(),
                 Style::default().fg(Color::DarkGray),
             );
         }
@@ -418,19 +418,19 @@ fn render_tile(
 
     // Visible tile
     if visible {
-        let tile = &state.map.tiles[idx];
+        let tile = &state.world.map.tiles[idx];
         let light = state.get_light_level(x as i32, y as i32);
 
         // Check if this tile was changed by the last storm
-        let is_storm_changed = state.visual_effects.storm_changed_tiles.contains(&idx);
+        let is_storm_changed = state.world.visual_effects.storm_changed_tiles.contains(&idx);
 
         // Animated tiles based on animation_frame
         let (glyph, base_color) = match tile {
             Tile::Glass => {
                 // Glass shimmers between cyan shades with shimmer overlay
                 let phase =
-                    ((state.visual_effects.animation_frame / 4) + (x as u32 ^ y as u32)) % 3;
-                let shimmer_phase = ((state.visual_effects.animation_frame / 2)
+                    ((state.world.visual_effects.animation_frame / 4) + (x as u32 ^ y as u32)) % 3;
+                let shimmer_phase = ((state.world.visual_effects.animation_frame / 2)
                     + (x as u32 * 3 + y as u32 * 7))
                     % 6;
 
@@ -451,7 +451,7 @@ fn render_tile(
             Tile::Glare => {
                 // Glare tiles pulse with bright light
                 let pulse_phase =
-                    ((state.visual_effects.animation_frame / 3) + (x as u32 + y as u32)) % 4;
+                    ((state.world.visual_effects.animation_frame / 3) + (x as u32 + y as u32)) % 4;
                 let color = match pulse_phase {
                     0 => Color::White,
                     1 => Color::LightYellow,
@@ -480,7 +480,7 @@ fn render_tile(
     // Revealed but not visible
     if revealed {
         return (
-            state.map.tiles[idx].glyph(),
+            state.world.map.tiles[idx].glyph(),
             Style::default().fg(Color::DarkGray),
         );
     }
@@ -536,10 +536,10 @@ pub fn render_death_screen(frame: &mut Frame, state: &GameState) {
 
     // Stats summary
     let stats = [
-        format!("Level: {}", state.player_level),
+        format!("Level: {}", state.player.level),
         format!("Turns Survived: {}", state.turn),
-        format!("Refraction: {}", state.refraction),
-        format!("Adaptations: {}", state.adaptations.len()),
+        format!("Refraction: {}", state.player.refraction),
+        format!("Adaptations: {}", state.player.adaptations.len()),
     ];
     let stats_y = title_y + 3;
     for (i, stat) in stats.iter().enumerate() {

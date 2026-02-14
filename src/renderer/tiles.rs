@@ -41,15 +41,15 @@ impl TileRenderer {
             for vx in 0..view_width {
                 let x = cam_x + vx;
 
-                if x < 0 || y < 0 || x >= state.map.width as i32 || y >= state.map.height as i32 {
+                if x < 0 || y < 0 || x >= state.world.map.width as i32 || y >= state.world.map.height as i32 {
                     // Out of bounds - render empty space
                     row_spans.push(Span::raw(" "));
                     continue;
                 }
 
-                let idx = state.map.idx(x, y);
+                let idx = state.world.map.idx(x, y);
                 let light_level =
-                    self.get_light_level(x, y, light_map, state.map.width, state.map.height);
+                    self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
                 let visible = light_level > 80 || state.debug_god_view;
                 let revealed = state.revealed.contains(&idx) || state.debug_god_view;
 
@@ -79,15 +79,15 @@ impl TileRenderer {
         light_map: &[u8],
         frame_count: u64,
     ) -> Span<'_> {
-        let tile = &state.map.tiles[idx];
-        let light_level = self.get_light_level(x, y, light_map, state.map.width, state.map.height);
+        let tile = &state.world.map.tiles[idx];
+        let light_level = self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
 
         let (glyph, base_color) = self.get_tile_appearance(
             tile,
             x,
             y,
             frame_count,
-            state.visual_effects.animation_frame,
+            state.world.visual_effects.animation_frame,
         );
         let final_color = self.dim_color(base_color, light_level);
 
@@ -96,7 +96,7 @@ impl TileRenderer {
 
     /// Render a revealed but not visible tile
     fn render_revealed_tile(&self, _state: &GameState, _idx: usize) -> Span<'_> {
-        let tile = &_state.map.tiles[_idx];
+        let tile = &_state.map().tiles[_idx];
         let glyph = tile.glyph();
         let color = parse_color(&self.config.colors.ui.revealed_tile);
 

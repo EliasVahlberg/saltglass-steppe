@@ -54,7 +54,7 @@ pub fn render_crafting_menu(frame: &mut Frame, menu: &CraftingMenu, state: &Game
         .iter()
         .map(|id| {
             let recipe = get_recipe(id).unwrap();
-            let craftable = can_craft(recipe, &state.inventory);
+            let craftable = can_craft(recipe, &state.player.inventory);
             let style = if craftable {
                 Style::default().fg(Color::Green)
             } else {
@@ -82,7 +82,7 @@ pub fn render_crafting_menu(frame: &mut Frame, menu: &CraftingMenu, state: &Game
 
     if let Some(recipe_id) = menu.selected_recipe_id() {
         if let Some(recipe) = get_recipe(recipe_id) {
-            let craftable = can_craft(recipe, &state.inventory);
+            let craftable = can_craft(recipe, &state.player.inventory);
 
             let mut lines = vec![
                 Line::from(Span::styled(
@@ -96,7 +96,7 @@ pub fn render_crafting_menu(frame: &mut Frame, menu: &CraftingMenu, state: &Game
             ];
 
             for (item_id, &required) in &recipe.materials {
-                let have = state.inventory.iter().filter(|id| *id == item_id).count() as u32;
+                let have = state.player.inventory.iter().filter(|id| *id == item_id).count() as u32;
                 let item_name = get_item_def(item_id)
                     .map(|d| d.name.as_str())
                     .unwrap_or(item_id);

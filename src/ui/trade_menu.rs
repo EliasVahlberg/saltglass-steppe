@@ -118,7 +118,7 @@ pub fn render_trade_menu(f: &mut Frame, menu: &TradeMenu, state: &GameState) {
             ),
             Span::raw(" | "),
             Span::styled(
-                format!("Salt Scrip: {}", state.salt_scrip),
+                format!("Salt Scrip: {}", state.player.salt_scrip),
                 Style::default().fg(Color::Cyan),
             ),
         ]),
@@ -182,6 +182,7 @@ pub fn render_trade_menu(f: &mut Frame, menu: &TradeMenu, state: &GameState) {
         }
         TradeMode::Sell => {
             state
+                .player
                 .inventory
                 .iter()
                 .enumerate()

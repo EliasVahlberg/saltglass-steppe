@@ -34,10 +34,10 @@ pub fn render_crystal_menu(frame: &mut Frame, area: Rect, state: &GameState, men
     // Stats section
     let stats_text = format!(
         "Energy: {}/{}\nFormations: {} nearby crystals\nHarmonics: {} active",
-        state.crystal_system.resonance_energy,
-        state.crystal_system.max_resonance_energy,
-        state.crystal_system.crystal_formations.len(),
-        state.crystal_system.active_harmonics.len()
+        state.player.crystal_system.resonance_energy,
+        state.player.crystal_system.max_resonance_energy,
+        state.player.crystal_system.crystal_formations.len(),
+        state.player.crystal_system.active_harmonics.len()
     );
     let stats = Paragraph::new(stats_text);
     frame.render_widget(stats, chunks[0]);
@@ -48,7 +48,7 @@ pub fn render_crystal_menu(frame: &mut Frame, area: Rect, state: &GameState, men
     let colors = [Color::Blue, Color::Magenta, Color::Green, Color::Red, Color::Yellow];
     
     let items: Vec<ListItem> = frequencies.iter().enumerate().map(|(i, freq)| {
-        let level = state.crystal_system.frequency_attunement.get(freq).copied().unwrap_or(0);
+        let level = state.player.crystal_system.frequency_attunement.get(freq).copied().unwrap_or(0);
         let text = format!("{}: Level {} ({})", freq.name(), level, descriptions[i]);
         let mut style = Style::default().fg(colors[i]);
         if i == menu.selected_index {

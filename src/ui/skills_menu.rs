@@ -137,14 +137,14 @@ impl SkillsMenu {
     pub fn upgrade_skill(&self, game_state: &mut GameState) -> Result<(), String> {
         let skill_id = self.get_selected_skill().ok_or("No skill selected")?;
 
-        game_state.skills.upgrade_skill(&skill_id)
+        game_state.player.skills.upgrade_skill(&skill_id)
     }
 
     /// Use selected ability
     pub fn use_ability(&self, game_state: &mut GameState) -> Result<(), String> {
         let ability_id = self.get_selected_ability().ok_or("No ability selected")?;
 
-        match game_state.skills.use_ability(&ability_id) {
+        match game_state.player.skills.use_ability(&ability_id) {
             Ok(effect_id) => {
                 // Apply the effect
                 apply_ability_effect(game_state, &effect_id);
@@ -177,8 +177,8 @@ fn apply_ability_effect(game_state: &mut GameState, effect_id: &str) {
             ];
 
             for (dx, dy) in adjacent_positions {
-                let x = game_state.player_x + dx;
-                let y = game_state.player_y + dy;
+                let x = game_state.player.x + dx;
+                let y = game_state.player.y + dy;
                 if game_state.enemy_at(x, y).is_some() {
                     if game_state.attack_melee(x, y) {
                         hit_count += 1;
@@ -209,12 +209,12 @@ fn apply_ability_effect(game_state: &mut GameState, effect_id: &str) {
             game_state.log("You ready yourself to dodge!");
         }
         "field_medicine" => {
-            let heal = (game_state.player_max_hp / 4).max(5);
-            game_state.player_hp = (game_state.player_hp + heal).min(game_state.player_max_hp);
+            let heal = (game_state.player.max_hp / 4).max(5);
+            game_state.player.hp = (game_state.player.hp + heal).min(game_state.player.max_hp);
             game_state.log(format!("You quickly treat your wounds. (+{} HP)", heal));
         }
         "antidote" => {
-            game_state.status_effects.retain(|e| e.id != "poison");
+            game_state.player.status_effects.retain(|e| e.id != "poison");
             game_state.log("You cure harmful effects.");
         }
         "vanish" => {
@@ -306,10 +306,10 @@ fn render_skills_list(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu, 
     let items: Vec<ListItem> = skills
         .iter()
         .map(|def| {
-            let level = game_state.skills.get_skill_level(&def.id);
+            let level = game_state.player.skills.get_skill_level(&def.id);
             let cost = calculate_skill_cost(&def.id, level);
 
-            let color = if game_state.skills.skill_points >= cost && level < def.max_level {
+            let color = if game_state.player.skills.skill_points >= cost && level < def.max_level {
                 Color::Green
             } else if level >= def.max_level {
                 Color::Yellow
@@ -338,9 +338,9 @@ fn render_abilities_list(f: &mut Frame, game_state: &GameState, menu: &SkillsMen
     let items: Vec<ListItem> = abilities
         .iter()
         .map(|def| {
-            let unlocked = game_state.skills.unlocked_abilities.contains(&def.id);
-            let on_cooldown = game_state.skills.cooldowns.get(&def.id).unwrap_or(&0) > &0;
-            let can_afford = game_state.skills.stamina >= def.stamina_cost;
+            let unlocked = game_state.player.skills.unlocked_abilities.contains(&def.id);
+            let on_cooldown = game_state.player.skills.cooldowns.get(&def.id).unwrap_or(&0) > &0;
+            let can_afford = game_state.player.skills.stamina >= def.stamina_cost;
 
             let color = if !unlocked {
                 Color::DarkGray
@@ -378,7 +378,7 @@ fn render_skill_details(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu
     let skills = get_skills_by_category(&menu.selected_category);
 
     let content = if let Some(def) = skills.get(menu.selected_index) {
-        let level = game_state.skills.get_skill_level(&def.id);
+        let level = game_state.player.skills.get_skill_level(&def.id);
         let cost = calculate_skill_cost(&def.id, level);
 
         vec![
@@ -391,7 +391,7 @@ fn render_skill_details(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu
             Line::from(""),
             Line::from(format!("Current Level: {}/{}", level, def.max_level)),
             Line::from(format!("Upgrade Cost: {} SP", cost)),
-            Line::from(format!("Available SP: {}", game_state.skills.skill_points)),
+            Line::from(format!("Available SP: {}", game_state.player.skills.skill_points)),
         ]
     } else {
         vec![Line::from("No skill selected")]
@@ -408,9 +408,9 @@ fn render_ability_details(f: &mut Frame, game_state: &GameState, menu: &SkillsMe
     let abilities = get_abilities_by_category(&menu.selected_category);
 
     let content = if let Some(def) = abilities.get(menu.selected_index) {
-        let unlocked = game_state.skills.unlocked_abilities.contains(&def.id);
-        let cooldown = game_state.skills.cooldowns.get(&def.id).unwrap_or(&0);
-        let skill_level = game_state.skills.get_skill_level(&def.required_skill);
+        let unlocked = game_state.player.skills.unlocked_abilities.contains(&def.id);
+        let cooldown = game_state.player.skills.cooldowns.get(&def.id).unwrap_or(&0);
+        let skill_level = game_state.player.skills.get_skill_level(&def.required_skill);
 
         let mut lines = vec![
             Line::from(vec![Span::styled(

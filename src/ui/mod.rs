@@ -1,5 +1,6 @@
 //! UI components
 
+pub mod aria_interface;
 pub mod book_reader;
 pub mod chest_ui;
 pub mod crafting_menu;
@@ -11,6 +12,7 @@ pub mod hud;
 pub mod input;
 pub mod inventory_menu;
 pub mod issue_reporter;
+pub mod light_menu;
 pub mod menu;
 pub mod psychic_menu;
 pub mod quest_log;
@@ -22,6 +24,7 @@ pub mod void_menu;
 pub mod wiki;
 pub mod world_map;
 
+pub use aria_interface::AriaInterface;
 pub use book_reader::render_book_reader;
 pub use chest_ui::{ChestPanel, ChestUI, render_chest_ui};
 pub use crafting_menu::{CraftingMenu, render_crafting_menu};
@@ -36,6 +39,7 @@ pub use hud::{render_bottom_panel, render_inventory_bar, render_side_panel, rend
 pub use input::{Action, DebugConsole, DialogBox, LookMode, PauseMenu, UiState, handle_input};
 pub use inventory_menu::{InventoryMenu, MenuPanel, render_inventory_menu};
 pub use issue_reporter::{IssueReporter, render_issue_reporter};
+pub use light_menu::{LightMenu, render_light_menu};
 pub use menu::{
     MainMenuState, MenuAction, handle_menu_input, render_controls, render_menu, render_pause_menu,
 };

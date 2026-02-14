@@ -67,16 +67,16 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
 
     // Stats section with gradient bars
     let bar_width = 10;
-    let (hp_bar, hp_color) = render_bar(state.player_hp, state.player_max_hp, bar_width);
-    let (ap_bar, _) = render_bar(state.player_ap, state.player_max_ap, bar_width);
+    let (hp_bar, hp_color) = render_bar(state.player.hp, state.player.max_hp, bar_width);
+    let (ap_bar, _) = render_bar(state.player.ap, state.player.max_ap, bar_width);
     let (coherence_bar, _) = render_bar(
-        state.psychic.coherence as i32,
-        state.psychic.max_coherence as i32,
+        state.player.psychic.coherence as i32,
+        state.player.psychic.max_coherence as i32,
         bar_width,
     );
     let (stamina_bar, _) = render_bar(
-        state.skills.stamina as i32,
-        state.skills.max_stamina as i32,
+        state.player.skills.stamina as i32,
+        state.player.skills.max_stamina as i32,
         bar_width,
     );
 
@@ -85,7 +85,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::raw("HP "),
             Span::styled(hp_bar, Style::default().fg(hp_color)),
             Span::styled(
-                format!(" {}/{}", state.player_hp, state.player_max_hp),
+                format!(" {}/{}", state.player.hp, state.player.max_hp),
                 Style::default().fg(hp_color),
             ),
         ]),
@@ -93,7 +93,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::raw("AP "),
             Span::styled(ap_bar, Style::default().fg(Color::Cyan)),
             Span::styled(
-                format!(" {}/{}", state.player_ap, state.player_max_ap),
+                format!(" {}/{}", state.player.ap, state.player.max_ap),
                 Style::default().fg(Color::Cyan),
             ),
         ]),
@@ -103,7 +103,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::styled(
                 format!(
                     " {}/{}",
-                    state.psychic.coherence, state.psychic.max_coherence
+                    state.player.psychic.coherence, state.player.psychic.max_coherence
                 ),
                 Style::default().fg(Color::Magenta),
             ),
@@ -112,44 +112,44 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::raw("St "),
             Span::styled(stamina_bar, Style::default().fg(Color::Green)),
             Span::styled(
-                format!(" {}/{}", state.skills.stamina, state.skills.max_stamina),
+                format!(" {}/{}", state.player.skills.stamina, state.player.skills.max_stamina),
                 Style::default().fg(Color::Green),
             ),
         ]),
         Line::from(vec![
             Span::raw("Lvl: "),
             Span::styled(
-                format!("{}", state.player_level),
+                format!("{}", state.player.level),
                 Style::default().fg(Color::Yellow),
             ),
-            Span::raw(format!(" XP: {}", state.player_xp)),
+            Span::raw(format!(" XP: {}", state.player.xp)),
         ]),
         Line::from(vec![
             Span::raw("Ref: "),
             Span::styled(
-                format!("{}", state.refraction),
+                format!("{}", state.player.refraction),
                 Style::default().fg(Color::Magenta),
             ),
             Span::raw(" Arm: "),
             Span::styled(
-                format!("{}", state.player_armor),
+                format!("{}", state.player.armor),
                 Style::default().fg(Color::Blue),
             ),
         ]),
         Line::from(vec![
             Span::raw("Scrip: "),
             Span::styled(
-                format!("{}", state.salt_scrip),
+                format!("{}", state.player.salt_scrip),
                 Style::default().fg(Color::Yellow),
             ),
         ]),
         Line::from(vec![
             Span::raw("Time: "),
             Span::styled(
-                format!("{:02}:00", state.time_of_day),
+                format!("{:02}:00", state.world.time_of_day),
                 Style::default().fg(Color::White),
             ),
-            Span::raw(format!(" {:?}", state.weather)),
+            Span::raw(format!(" {:?}", state.world.weather)),
         ]),
     ];
     frame.render_widget(Paragraph::new(stats), chunks[0]);
@@ -159,13 +159,13 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         "─Status─",
         Style::default().fg(Color::DarkGray),
     ))];
-    if state.status_effects.is_empty() {
+    if state.player.status_effects.is_empty() {
         status_lines.push(Line::from(Span::styled(
             "None",
             Style::default().fg(Color::DarkGray),
         )));
     } else {
-        for effect in &state.status_effects {
+        for effect in &state.player.status_effects {
             status_lines.push(Line::from(vec![
                 Span::styled(format!("{} ", effect.name), Style::default().fg(Color::Red)),
                 Span::styled(
@@ -187,6 +187,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     ))];
     for slot in EquipSlot::all() {
         let item_name = state
+            .player
             .equipment
             .get(*slot)
             .and_then(|id| get_item_def(id))
@@ -205,13 +206,13 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
         "─Quests─",
         Style::default().fg(Color::DarkGray),
     ))];
-    if state.quest_log.active.is_empty() {
+    if state.player.quest_log.active.is_empty() {
         quest_lines.push(Line::from(Span::styled(
             "(none)",
             Style::default().fg(Color::DarkGray),
         )));
     } else {
-        for quest in state.quest_log.active.iter().take(3) {
+        for quest in state.player.quest_log.active.iter().take(3) {
             if let Some(def) = get_quest_def(&quest.quest_id) {
                 let progress: usize = quest.objectives.iter().filter(|o| o.completed).count();
                 let total = quest.objectives.len();
@@ -291,6 +292,7 @@ pub fn render_bottom_panel(frame: &mut Frame, area: Rect, state: &GameState) {
 /// Render inventory bar (compact view)
 pub fn render_inventory_bar(frame: &mut Frame, area: Rect, state: &GameState) {
     let items: Vec<Span> = state
+        .player
         .inventory
         .iter()
         .enumerate()
@@ -314,10 +316,10 @@ pub fn render_inventory_bar(frame: &mut Frame, area: Rect, state: &GameState) {
 
 /// Render target enemy HUD (bottom left overlay)
 pub fn render_target_hud(frame: &mut Frame, state: &GameState, target_idx: usize) {
-    if target_idx >= state.enemies.len() {
+    if target_idx >= state.world.enemies.len() {
         return;
     }
-    let enemy = &state.enemies[target_idx];
+    let enemy = &state.world.enemies[target_idx];
     if enemy.hp <= 0 {
         return;
     }

@@ -2,7 +2,7 @@
 
 use super::trade_menu::TradeMode;
 use super::{
-    CraftingMenu, CrystalMenu, DebugMenu, FactionMenu, InventoryMenu, IssueReporter, MenuPanel, PsychicMenu, QuestLogMenu,
+    CraftingMenu, CrystalMenu, DebugMenu, FactionMenu, InventoryMenu, IssueReporter, LightMenu, MenuPanel, PsychicMenu, QuestLogMenu,
     SkillsMenu, TradeMenu, VoidMenu, WikiMenu, WorldMapView,
 };
 use crate::GameState;
@@ -302,9 +302,11 @@ pub struct UiState {
     pub faction_menu: FactionMenu,
     pub void_menu: VoidMenu,
     pub crystal_menu: CrystalMenu,
+    pub light_menu: LightMenu,
     pub skills_menu: SkillsMenu,
     pub dialog_box: DialogBox,
     pub book_reader: BookReader,
+    pub aria_interface: super::aria_interface::AriaInterface,
     pub chest_ui: Option<super::ChestUI>,
     /// Active tutorial message (id, text) — overlay dismisses on any key
     pub tutorial_message: Option<(String, String)>,
@@ -386,9 +388,11 @@ impl UiState {
             faction_menu: FactionMenu::default(),
             void_menu: VoidMenu::default(),
             crystal_menu: CrystalMenu::default(),
+            light_menu: LightMenu::default(),
             skills_menu: SkillsMenu::default(),
             dialog_box: DialogBox::default(),
             book_reader: BookReader::default(),
+            aria_interface: super::aria_interface::AriaInterface::new(),
             chest_ui: None,
             tutorial_message: None,
             camera_x: 0.0,
@@ -432,6 +436,7 @@ pub enum Action {
     OpenFactionMenu,
     OpenVoidMenu,
     OpenCrystalMenu,
+    OpenLightMenu,
     UseVoidAbility,
     OpenSkillsMenu,
     UsePsychicAbility(String),
@@ -470,7 +475,7 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
         }
 
         // Death screen - only allow Esc to return to main menu
-        if state.player_hp <= 0 {
+        if state.player.hp <= 0 {
             match key.code {
                 KeyCode::Esc => return Ok(Action::ReturnToMainMenu),
                 _ => return Ok(Action::None),
@@ -485,7 +490,36 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
             return Ok(Action::None);
         }
 
-        // Dialog box input (highest priority when active)
+        // ARIA interface input
+    if ui.aria_interface.response_text.len() > 0 {
+        match key.code {
+            KeyCode::Esc => {
+                ui.aria_interface.response_text.clear();
+                ui.aria_interface.options.clear();
+                return Ok(Action::None);
+            }
+            KeyCode::Up => {
+                if ui.aria_interface.selected_option > 0 {
+                    ui.aria_interface.selected_option -= 1;
+                }
+                return Ok(Action::None);
+            }
+            KeyCode::Down => {
+                if ui.aria_interface.selected_option < ui.aria_interface.options.len().saturating_sub(1) {
+                    ui.aria_interface.selected_option += 1;
+                }
+                return Ok(Action::None);
+            }
+            KeyCode::Enter => {
+                ui.aria_interface.response_text.clear();
+                ui.aria_interface.options.clear();
+                return Ok(Action::None);
+            }
+            _ => return Ok(Action::None),
+        }
+    }
+
+    // Dialog box input (highest priority when active)
         if ui.dialog_box.active {
             match key.code {
                 KeyCode::Esc => ui.dialog_box.close(),
@@ -619,7 +653,7 @@ fn handle_wiki_input(ui: &mut UiState, _state: &mut GameState, code: KeyCode) ->
 }
 
 fn handle_quest_log_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
-    let total = state.quest_log.active.len() + state.quest_log.completed.len() + 3;
+    let total = state.player.quest_log.active.len() + state.player.quest_log.completed.len() + 3;
     match code {
         KeyCode::Esc | KeyCode::Char('q') => ui.quest_log.close(),
         KeyCode::Char('j') | KeyCode::Down => ui.quest_log.navigate(1, total),
@@ -643,21 +677,21 @@ fn handle_crafting_input(ui: &mut UiState, code: KeyCode) -> Action {
 fn handle_inventory_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
     match code {
         KeyCode::Esc | KeyCode::Char('i') => ui.inventory_menu.close(),
-        KeyCode::Char('j') | KeyCode::Down => ui.inventory_menu.navigate(1, state.inventory.len()),
-        KeyCode::Char('k') | KeyCode::Up => ui.inventory_menu.navigate(-1, state.inventory.len()),
+        KeyCode::Char('j') | KeyCode::Down => ui.inventory_menu.navigate(1, state.player.inventory.len()),
+        KeyCode::Char('k') | KeyCode::Up => ui.inventory_menu.navigate(-1, state.player.inventory.len()),
         KeyCode::Char('h') | KeyCode::Char('l') | KeyCode::Left | KeyCode::Right => {
             ui.inventory_menu.switch_panel()
         }
         KeyCode::Char('x') => ui
             .inventory_menu
-            .inspect(&state.inventory, &state.equipment),
+            .inspect(&state.player.inventory, &state.player.equipment),
         KeyCode::Char('u') => {
             // Use selected item from inventory
             if ui.inventory_menu.panel == MenuPanel::Inventory
                 && ui.inventory_menu.inspect_item.is_none()
             {
                 if let Some(idx) = ui.inventory_menu.selected_inv_index() {
-                    if idx < state.inventory.len() {
+                    if idx < state.player.inventory.len() {
                         return Action::UseItem(idx);
                     }
                 }
@@ -788,8 +822,8 @@ fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode
         KeyCode::Right | KeyCode::Char('l') => ui.world_map_view.move_cursor(1, 0),
         KeyCode::Char('c') => {
             // Center on player
-            ui.world_map_view.cursor_x = state.world_x;
-            ui.world_map_view.cursor_y = state.world_y;
+            ui.world_map_view.cursor_x = state.world.world_x;
+            ui.world_map_view.cursor_y = state.world.world_y;
         }
         KeyCode::Enter => {
             // Travel to cursor position
@@ -828,6 +862,7 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Char('F') => Action::OpenFactionMenu,
         KeyCode::Char('v') => Action::OpenVoidMenu,
         KeyCode::Char('V') => Action::OpenCrystalMenu,
+        KeyCode::Char('g') => Action::OpenLightMenu,
         KeyCode::Char('s') => Action::OpenSkillsMenu,
         KeyCode::Char('f') => Action::RangedAttackMode,
         KeyCode::Char('t') => Action::TargetMode,
@@ -879,7 +914,7 @@ fn handle_trade_input(ui: &mut UiState, state: &mut GameState, key: KeyCode) -> 
 
     let list_len = match ui.trade_menu.mode {
         TradeMode::Buy => interface.available_items.len(),
-        TradeMode::Sell => state.inventory.len(),
+        TradeMode::Sell => state.player.inventory.len(),
     };
 
     match key {
@@ -1014,12 +1049,12 @@ fn handle_psychic_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyC
         }
         KeyCode::Up | KeyCode::Char('k') => {
             ui.psychic_menu
-                .navigate(-1, state.psychic.unlocked_abilities.len());
+                .navigate(-1, state.player.psychic.unlocked_abilities.len());
             Action::None
         }
         KeyCode::Down | KeyCode::Char('j') => {
             ui.psychic_menu
-                .navigate(1, state.psychic.unlocked_abilities.len());
+                .navigate(1, state.player.psychic.unlocked_abilities.len());
             Action::None
         }
         KeyCode::Enter => {
@@ -1045,7 +1080,7 @@ fn handle_faction_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
 }
 
 fn handle_void_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
-    let count = state.void_system.unlocked_abilities.len();
+    let count = state.player.void_system.unlocked_abilities.len();
     match code {
         KeyCode::Esc | KeyCode::Char('v') => { ui.void_menu.close(); Action::None }
         KeyCode::Up | KeyCode::Char('k') => { ui.void_menu.navigate(-1, count); Action::None }

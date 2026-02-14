@@ -36,8 +36,8 @@ impl EntityRenderer {
 
         // Render player
         if let Some((screen_x, screen_y)) = self.world_to_screen(
-            state.player_x,
-            state.player_y,
+            state.player.x,
+            state.player.y,
             cam_x,
             cam_y,
             view_width,
@@ -88,7 +88,7 @@ impl EntityRenderer {
         }
 
         // Render light sources
-        for map_light in &state.map.lights {
+        for map_light in &state.world.map.lights {
             if let Some((screen_x, screen_y)) = self.world_to_screen(
                 map_light.x,
                 map_light.y,
@@ -106,7 +106,7 @@ impl EntityRenderer {
         }
 
         // Render projectiles
-        for projectile_trail in &state.visual_effects.projectile_trails {
+        for projectile_trail in &state.world.visual_effects.projectile_trails {
             if projectile_trail.current_idx < projectile_trail.path.len() {
                 let (px, py) = projectile_trail.path[projectile_trail.current_idx];
                 if let Some((screen_x, screen_y)) =
@@ -133,24 +133,24 @@ impl EntityRenderer {
     ) -> Option<Span<'_>> {
         let visible = state
             .visible
-            .contains(&state.map.idx(state.player_x, state.player_y))
+            .contains(&state.world.map.idx(state.player.x, state.player.y))
             || state.debug_god_view;
         if !visible {
             return None;
         }
 
         let light_level = self.get_light_level(
-            state.player_x,
-            state.player_y,
+            state.player.x,
+            state.player.y,
             light_map,
-            state.map.width,
-            state.map.height,
+            state.world.map.width,
+            state.world.map.height,
         );
         let base_color = parse_color(&self.config.colors.entities.player.base);
         let mut style = Style::default().fg(base_color).bold();
 
         // Apply hit flash
-        if state.has_hit_flash(state.player_x, state.player_y) && (frame_count % 2 == 0) {
+        if state.has_hit_flash(state.player.x, state.player.y) && (frame_count % 2 == 0) {
             return Some(Span::styled(
                 "@",
                 Style::default()
@@ -161,12 +161,12 @@ impl EntityRenderer {
         }
 
         // Apply adaptation visual effects
-        for adaptation in &state.adaptations {
+        for adaptation in &state.player.adaptations {
             match adaptation.name() {
                 "Prismhide" => {
                     // Crystalline shimmer effect
                     let shimmer_phase =
-                        ((frame_count / 6) + (state.player_x as u64 ^ state.player_y as u64)) % 3;
+                        ((frame_count / 6) + (state.player.x as u64 ^ state.player.y as u64)) % 3;
                     let color = match shimmer_phase {
                         0 => Color::Cyan,
                         1 => Color::LightCyan,
@@ -206,7 +206,7 @@ impl EntityRenderer {
                 "Phase Walking" => {
                     // Drifting translucent effect
                     let drift_phase = ((frame_count / 7)
-                        + (state.player_x as u64 * 3 + state.player_y as u64 * 7))
+                        + (state.player.x as u64 * 3 + state.player.y as u64 * 7))
                         % 10;
                     if drift_phase < 3 {
                         style = style.fg(Color::LightMagenta);
@@ -215,7 +215,7 @@ impl EntityRenderer {
                 "Storm Affinity" => {
                     // Storm-like wave effect
                     let wave_phase =
-                        ((frame_count / 3) + (state.player_x as u64 + state.player_y as u64)) % 6;
+                        ((frame_count / 3) + (state.player.x as u64 + state.player.y as u64)) % 6;
                     if wave_phase < 3 {
                         style = style.fg(Color::LightCyan);
                     }
@@ -242,7 +242,7 @@ impl EntityRenderer {
 
         // Apply status effect colors (priority order from config)
         for status_name in &self.config.rendering.status_effect_priority {
-            if state.status_effects.iter().any(|e| e.id == *status_name) {
+            if state.player.status_effects.iter().any(|e| e.id == *status_name) {
                 if let Some(color_name) = self
                     .config
                     .colors
@@ -277,13 +277,13 @@ impl EntityRenderer {
         light_map: &[u8],
         frame_count: u64,
     ) -> Option<Span<'_>> {
-        let visible = state.visible.contains(&state.map.idx(x, y)) || state.debug_god_view;
+        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug_god_view;
         if !visible {
             return None;
         }
 
-        let enemy = &state.enemies[enemy_idx];
-        let light_level = self.get_light_level(x, y, light_map, state.map.width, state.map.height);
+        let enemy = &state.world.enemies[enemy_idx];
+        let light_level = self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
 
         // Apply hit flash
         if state.has_hit_flash(x, y) && (frame_count % 2 == 0) {
@@ -330,13 +330,13 @@ impl EntityRenderer {
         light_map: &[u8],
         _frame_count: u64,
     ) -> Option<Span<'_>> {
-        let visible = state.visible.contains(&state.map.idx(x, y)) || state.debug_god_view;
+        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug_god_view;
         if !visible {
             return None;
         }
 
-        let npc = &state.npcs[npc_idx];
-        let light_level = self.get_light_level(x, y, light_map, state.map.width, state.map.height);
+        let npc = &state.world.npcs[npc_idx];
+        let light_level = self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
         let base_color = parse_color(&self.config.colors.entities.npcs.base);
         let style = Style::default()
             .fg(self.dim_color(base_color, light_level))
@@ -355,13 +355,13 @@ impl EntityRenderer {
         light_map: &[u8],
         _frame_count: u64,
     ) -> Option<Span<'_>> {
-        let visible = state.visible.contains(&state.map.idx(x, y)) || state.debug_god_view;
+        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug_god_view;
         if !visible {
             return None;
         }
 
-        let item = &state.items[item_idx];
-        let light_level = self.get_light_level(x, y, light_map, state.map.width, state.map.height);
+        let item = &state.world.items[item_idx];
+        let light_level = self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
         let base_color = parse_color(&self.config.colors.entities.items.base);
         let style = Style::default().fg(self.dim_color(base_color, light_level));
 

@@ -52,7 +52,7 @@ pub fn render_quest_log(frame: &mut Frame, menu: &QuestLogMenu, state: &GameStat
         "── Active ──",
         Style::default().fg(Color::Yellow).bold(),
     ))));
-    for quest in &state.quest_log.active {
+    for quest in &state.player.quest_log.active {
         if let Some(def) = get_quest_def(&quest.quest_id) {
             let progress: usize = quest.objectives.iter().filter(|o| o.completed).count();
             let total = quest.objectives.len();
@@ -64,13 +64,13 @@ pub fn render_quest_log(frame: &mut Frame, menu: &QuestLogMenu, state: &GameStat
     }
 
     // Completed quests
-    if !state.quest_log.completed.is_empty() {
+    if !state.player.quest_log.completed.is_empty() {
         items.push(ListItem::new(""));
         items.push(ListItem::new(Line::from(Span::styled(
             "── Completed ──",
             Style::default().fg(Color::Green).bold(),
         ))));
-        for quest_id in &state.quest_log.completed {
+        for quest_id in &state.player.quest_log.completed {
             if let Some(def) = get_quest_def(quest_id) {
                 items.push(ListItem::new(format!("  ✓ {}", def.name)));
             }
@@ -94,13 +94,13 @@ pub fn render_quest_log(frame: &mut Frame, menu: &QuestLogMenu, state: &GameStat
     frame.render_widget(detail_block, chunks[1]);
 
     // Find selected quest
-    let active_count = state.quest_log.active.len();
+    let active_count = state.player.quest_log.active.len();
     let header_offset = 1; // "── Active ──" header
 
     if menu.selected > 0 && menu.selected <= active_count {
         let quest_idx = menu.selected - header_offset;
-        if quest_idx < state.quest_log.active.len() {
-            let quest = &state.quest_log.active[quest_idx];
+        if quest_idx < state.player.quest_log.active.len() {
+            let quest = &state.player.quest_log.active[quest_idx];
             if let Some(def) = get_quest_def(&quest.quest_id) {
                 let mut lines = vec![
                     Line::from(Span::styled(

@@ -10,7 +10,7 @@ use crate::game::world_map::{Biome, POI, Terrain, WORLD_HEIGHT, WORLD_WIDTH, Wor
 
 /// Check if there's an active quest objective at the given world coordinates
 fn has_quest_objective_at(state: &GameState, world_x: usize, world_y: usize) -> bool {
-    state.quest_log.active.iter().any(|quest| {
+    state.player.quest_log.active.iter().any(|quest| {
         quest.objectives.iter().any(|obj| {
             !obj.completed &&
             quest.def().map_or(false, |def| {
