@@ -123,22 +123,22 @@ impl GameState {
         metrics.insert("ai_processing_time".to_string(), 0.0); // Placeholder
 
         let tile_seed = self
-            .world_map
+            .world_map()
             .as_ref()
-            .map(|wm| wm.tile_seed(self.world_x, self.world_y))
+            .map(|wm| wm.tile_seed(self.world_x(), self.world_y()))
             .unwrap_or(0);
 
         DebugInfo {
-            player_pos: (self.player_x, self.player_y),
-            player_hp: (self.player_hp, self.player_max_hp),
+            player_pos: (self.player_x(), self.player_y()),
+            player_hp: (self.player_hp(), self.player_max_hp()),
             turn: self.turn,
             seed: self.seed,
             tile_seed,
-            world_pos: (self.world_x, self.world_y),
-            enemies_count: self.enemies.len(),
-            items_count: self.items.len(),
-            storm_intensity: self.storm.intensity,
-            storm_turns: self.storm.turns_until,
+            world_pos: (self.world_x(), self.world_y()),
+            enemies_count: self.enemies().len(),
+            items_count: self.items().len(),
+            storm_intensity: self.storm().intensity,
+            storm_turns: self.storm().turns_until,
             memory_usage: format!("{}KB", std::mem::size_of_val(self) / 1024),
             performance_metrics: metrics,
         }

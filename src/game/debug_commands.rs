@@ -17,8 +17,8 @@ pub fn execute(state: &mut super::state::GameState, cmd: &str) {
             state.log("Debug: God view disabled");
         }
         Some("sturdy") => {
-            state.player_hp = 9999;
-            state.player_max_hp = 9999;
+            state.player.hp = 9999;
+            state.player.max_hp = 9999;
             state.log("Debug: HP set to 9999/9999");
         }
         Some("phase") => {
@@ -146,7 +146,7 @@ pub fn execute(state: &mut super::state::GameState, cmd: &str) {
 fn complete_quest_objectives(state: &mut super::state::GameState, quest_id: &str) {
     // Find and complete quest objectives
     let mut quest_found = false;
-    for quest in &mut state.quest_log.active {
+    for quest in &mut state.player.quest_log.active {
         if quest.quest_id == quest_id {
             quest_found = true;
             for objective in &mut quest.objectives {

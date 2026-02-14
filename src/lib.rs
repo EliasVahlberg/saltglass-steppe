@@ -29,21 +29,21 @@ mod lib_tests {
     #[test]
     fn player_spawns_on_floor() {
         let state = GameState::new(42);
-        let tile = state.map.get(state.player_x, state.player_y).unwrap();
+        let tile = state.world.map.get(state.player_x(), state.player_y()).unwrap();
         assert!(tile.walkable());
     }
 
     #[test]
     fn player_cannot_walk_through_walls() {
         let mut state = GameState::new(42);
-        let start_x = state.player_x;
+        let start_x = state.player_x();
         for _ in 0..100 {
             state.try_move(-1, 0);
         }
-        let tile = state.map.get(state.player_x - 1, state.player_y);
+        let tile = state.world.map.get(state.player_x() - 1, state.player_y());
         if let Some(t) = tile {
             if !t.walkable() {
-                assert!(state.player_x <= start_x);
+                assert!(state.player_x() <= start_x);
             }
         }
     }
@@ -58,8 +58,8 @@ mod lib_tests {
             .iter()
             .filter(|t| matches!(t, Tile::Wall { .. }))
             .count();
-        state.storm.turns_until = 0;
-        state.storm.intensity = 3;
+        state.storm().turns_until = 0;
+        state.storm().intensity = 3;
         StormSystem::apply_storm(&mut state);
         let walls_after: usize = state
             .map
@@ -73,15 +73,15 @@ mod lib_tests {
     #[test]
     fn fov_includes_player_position() {
         let state = GameState::new(42);
-        let player_idx = state.map.idx(state.player_x, state.player_y);
+        let player_idx = state.world.map.idx(state.player_x(), state.player_y());
         assert!(state.visible.contains(&player_idx));
     }
 
     #[test]
     fn enemies_spawn_in_rooms() {
         let state = GameState::new(42);
-        for enemy in &state.enemies {
-            let tile = state.map.get(enemy.x, enemy.y).unwrap();
+        for enemy in &state.world.enemies {
+            let tile = state.world.map.get(enemy.x, enemy.y).unwrap();
             assert!(tile.walkable());
         }
     }
@@ -90,23 +90,23 @@ mod lib_tests {
     fn combat_reduces_enemy_hp() {
         // Use seed 100 which produces a hit with fists (90% accuracy)
         let mut state = GameState::new(100);
-        if let Some(enemy) = state.enemies.first() {
+        if let Some(enemy) = state.world.enemies.first() {
             let ex = enemy.x;
             let ey = enemy.y;
             let initial_hp = enemy.hp;
-            state.player_x = ex - 1;
-            state.player_y = ey;
-            let idx = state.map.idx(ex - 1, ey);
-            state.map.tiles[idx] = Tile::default_floor();
+            state.player_x() = ex - 1;
+            state.player_y() = ey;
+            let idx = state.world.map.idx(ex - 1, ey);
+            state.world.map.tiles[idx] = Tile::default_floor();
             // Try attack multiple times to ensure at least one hit
             for _ in 0..5 {
-                state.player_ap = 4; // Reset AP
+                state.player_ap() = 4; // Reset AP
                 state.try_move(1, 0);
-                state.player_x = ex - 1; // Reset position for next attempt
+                state.player_x() = ex - 1; // Reset position for next attempt
             }
             // With 90% accuracy and 5 attempts, very unlikely to miss all
             assert!(
-                state.enemies[0].hp < initial_hp,
+                state.world.enemies[0].hp < initial_hp,
                 "Expected at least one hit in 5 attempts"
             );
         }
@@ -118,10 +118,10 @@ mod lib_tests {
         let path = "/tmp/test_save.ron";
         state.save(path).unwrap();
         let loaded = GameState::load(path).unwrap();
-        assert_eq!(state.player_x, loaded.player_x);
-        assert_eq!(state.player_y, loaded.player_y);
+        assert_eq!(state.player_x(), loaded.player_x);
+        assert_eq!(state.player_y(), loaded.player_y);
         assert_eq!(state.turn, loaded.turn);
-        assert_eq!(state.map.tiles, loaded.map.tiles);
+        assert_eq!(state.world.map.tiles, loaded.map.tiles);
         std::fs::remove_file(path).ok();
     }
 
@@ -129,17 +129,17 @@ mod lib_tests {
     fn glass_increases_refraction() {
         let mut state = GameState::new(42);
         // Clear enemies and NPCs to avoid collision
-        state.enemies.clear();
-        state.npcs.clear();
+        state.world.enemies.clear();
+        state.world.npcs.clear();
         state.rebuild_spatial_index(); // Rebuild indices after clearing
         // Make sure the tile is walkable first
-        let idx = state.map.idx(state.player_x + 1, state.player_y);
-        state.map.tiles[idx] = Tile::Glass;
-        let initial_refraction = state.refraction;
+        let idx = state.world.map.idx(state.player_x() + 1, state.player_y());
+        state.world.map.tiles[idx] = Tile::Glass;
+        let initial_refraction = state.player.refraction;
         let moved = state.try_move(1, 0);
         assert!(moved, "Player should be able to move onto glass tile");
         assert!(
-            state.refraction > initial_refraction,
+            state.player.refraction > initial_refraction,
             "Refraction should increase after walking on glass"
         );
     }
@@ -147,50 +147,50 @@ mod lib_tests {
     #[test]
     fn saltblood_prevents_glass_damage() {
         let mut state = GameState::new(42);
-        state.adaptations.push(Adaptation::Saltblood);
-        let idx = state.map.idx(state.player_x + 1, state.player_y);
-        state.map.tiles[idx] = Tile::Glass;
-        let initial_hp = state.player_hp;
+        state.player.adaptations.push(Adaptation::Saltblood);
+        let idx = state.world.map.idx(state.player_x() + 1, state.player_y());
+        state.world.map.tiles[idx] = Tile::Glass;
+        let initial_hp = state.player_hp();
         state.try_move(1, 0);
-        assert_eq!(state.player_hp, initial_hp);
+        assert_eq!(state.player_hp(), initial_hp);
     }
 
     #[test]
     fn items_spawn_in_map() {
         let state = GameState::new(42);
-        assert!(!state.items.is_empty());
-        assert!(state.items.iter().any(|i| i.id == "storm_glass"));
+        assert!(!state.world.items.is_empty());
+        assert!(state.world.items.iter().any(|i| i.id == "storm_glass"));
     }
 
     #[test]
     fn item_removed_after_walking_onto_it() {
         let mut state = GameState::new(42);
         // Clear entities to avoid collision
-        state.enemies.clear();
-        state.npcs.clear();
+        state.world.enemies.clear();
+        state.world.npcs.clear();
         // Place item one tile to the right
-        let item_x = state.player_x + 1;
-        let item_y = state.player_y;
+        let item_x = state.player_x() + 1;
+        let item_y = state.player_y();
         // Ensure tile is walkable
-        let idx = state.map.idx(item_x, item_y);
-        state.map.tiles[idx] = Tile::Floor {
+        let idx = state.world.map.idx(item_x, item_y);
+        state.world.map.tiles[idx] = Tile::Floor {
             id: "test_floor".to_string(),
         };
         // Clear existing items and add test item
-        state.items.clear();
-        state.items.push(Item::new(item_x, item_y, "brine_vial"));
+        state.world.items.clear();
+        state.world.items.push(Item::new(item_x, item_y, "brine_vial"));
         state.rebuild_spatial_index();
-        assert_eq!(state.items.len(), 1);
+        assert_eq!(state.world.items.len(), 1);
         // Move onto item
         let moved = state.try_move(1, 0);
         assert!(moved, "Player should be able to move onto the item tile");
         // Item should be removed from map
         assert_eq!(
-            state.items.len(),
+            state.world.items.len(),
             0,
             "Item should be removed after walking onto it"
         );
-        assert_eq!(state.inventory.len(), 1, "Inventory should have 1 item");
+        assert_eq!(state.player.inventory.len(), 1, "Inventory should have 1 item");
     }
 
     #[test]
@@ -198,21 +198,21 @@ mod lib_tests {
         let mut state = GameState::new(42);
         state
             .items
-            .push(Item::new(state.player_x, state.player_y, "brine_vial"));
+            .push(Item::new(state.player_x(), state.player_y(), "brine_vial"));
         state.rebuild_spatial_index();
-        let items_before = state.items.len();
+        let items_before = state.world.items.len();
         state.pickup_items();
-        assert_eq!(state.items.len(), items_before - 1);
-        assert!(state.inventory.contains(&"brine_vial".to_string()));
+        assert_eq!(state.world.items.len(), items_before - 1);
+        assert!(state.player.inventory.contains(&"brine_vial".to_string()));
     }
 
     #[test]
     fn brine_vial_heals() {
         let mut state = GameState::new(42);
-        state.player_hp = 10;
-        state.inventory.push("brine_vial".to_string());
+        state.player_hp() = 10;
+        state.player.inventory.push("brine_vial".to_string());
         state.use_item(0);
-        assert_eq!(state.player_hp, 15);
+        assert_eq!(state.player_hp(), 15);
     }
 
     #[test]
@@ -252,10 +252,10 @@ mod lib_tests {
 
         let mut state = GameState::new(100);
         // Place NPC adjacent to player
-        let npc_x = state.player_x + 1;
-        let npc_y = state.player_y;
+        let npc_x = state.player_x() + 1;
+        let npc_y = state.player_y();
 
-        state.npcs.push(Npc::new(npc_x, npc_y, "mirror_monk"));
+        state.world.npcs.push(Npc::new(npc_x, npc_y, "mirror_monk"));
         state.rebuild_spatial_index();
 
         // Get the index of our NPC
@@ -263,7 +263,7 @@ mod lib_tests {
             .npc_at(npc_x, npc_y)
             .expect("NPC should be in spatial index");
         assert!(
-            !state.npcs[npc_idx].talked,
+            !state.world.npcs[npc_idx].talked,
             "NPC should not be talked to initially"
         );
 
@@ -271,7 +271,7 @@ mod lib_tests {
         state.try_move(1, 0);
 
         assert!(
-            state.npcs[npc_idx].talked,
+            state.world.npcs[npc_idx].talked,
             "NPC should be talked to after bump"
         );
     }

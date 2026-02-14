@@ -142,11 +142,11 @@ impl DesTest {
                 if action.parameters.len() >= 2 {
                     let dx: i32 = action.parameters[0].parse()?;
                     let dy: i32 = action.parameters[1].parse()?;
-                    let old_pos = (state.player_x, state.player_y);
+                    let old_pos = (state.player_x(), state.player_y());
                     state.try_move(dx, dy);
                     Ok(format!(
                         "Moved from ({},{}) to ({},{})",
-                        old_pos.0, old_pos.1, state.player_x, state.player_y
+                        old_pos.0, old_pos.1, state.player_x(), state.player_y()
                     ))
                 } else {
                     Err("Move action requires dx and dy parameters".into())
@@ -155,8 +155,8 @@ impl DesTest {
             "use_item" => {
                 if action.parameters.len() >= 1 {
                     let idx: usize = action.parameters[0].parse()?;
-                    if idx < state.inventory.len() {
-                        let item_id = state.inventory[idx].clone();
+                    if idx < state.player.inventory.len() {
+                        let item_id = state.player.inventory[idx].clone();
                         state.use_item(idx);
                         Ok(format!("Used item: {}", item_id))
                     } else {
@@ -199,22 +199,22 @@ impl DesTest {
         match expectation.check_type.as_str() {
             "player_hp" => {
                 let expected: i32 = expectation.expected_value.parse()?;
-                Ok(state.player_hp == expected)
+                Ok(state.player_hp() == expected)
             }
             "player_position" => {
                 let coords: Vec<&str> = expectation.expected_value.split(',').collect();
                 if coords.len() == 2 {
                     let x: i32 = coords[0].parse()?;
                     let y: i32 = coords[1].parse()?;
-                    Ok(state.player_x == x && state.player_y == y)
+                    Ok(state.player_x() == x && state.player_y() == y)
                 } else {
                     Err("Position expectation must be in format 'x,y'".into())
                 }
             }
-            "inventory_contains" => Ok(state.inventory.contains(&expectation.expected_value)),
+            "inventory_contains" => Ok(state.player.inventory.contains(&expectation.expected_value)),
             "inventory_count" => {
                 let expected: usize = expectation.expected_value.parse()?;
-                Ok(state.inventory.len() == expected)
+                Ok(state.player.inventory.len() == expected)
             }
             "turn_number" => {
                 let expected: u32 = expectation.expected_value.parse()?;
@@ -222,7 +222,7 @@ impl DesTest {
             }
             "enemy_count" => {
                 let expected: usize = expectation.expected_value.parse()?;
-                Ok(state.enemies.len() == expected)
+                Ok(state.world.enemies.len() == expected)
             }
             _ => Err(format!("Unknown expectation type: {}", expectation.check_type).into()),
         }
