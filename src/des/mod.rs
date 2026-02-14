@@ -900,29 +900,29 @@ impl DesExecutor {
 
         // Apply player setup
         if let Some(x) = scenario.player.x {
-            state.player_x = x;
+            state.player.x = x;
         }
         if let Some(y) = scenario.player.y {
-            state.player_y = y;
+            state.player.y = y;
         }
         // Ensure player position and surrounding area is walkable (carve floor if needed)
         if scenario.player.x.is_some() || scenario.player.y.is_some() {
             // Carve a 9x9 area around player for movement tests
             for dy in -4..=4 {
                 for dx in -4..=4 {
-                    let nx = state.player_x + dx;
-                    let ny = state.player_y + dy;
+                    let nx = state.player.x + dx;
+                    let ny = state.player.y + dy;
                     if nx >= 0 && ny >= 0 {
-                        let nidx = ny as usize * state.map.width + nx as usize;
-                        if nidx < state.map.tiles.len() && !state.map.tiles[nidx].walkable() {
-                            state.map.tiles[nidx] = crate::game::map::Tile::default_floor();
+                        let nidx = ny as usize * state.world.map.width + nx as usize;
+                        if nidx < state.world.map.tiles.len() && !state.world.map.tiles[nidx].walkable() {
+                            state.map_mut().tiles[nidx] = crate::game::map::Tile::default_floor();
                         }
                     }
                 }
             }
             // Recompute FOV after carving
             state.visible =
-                crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
+                crate::game::map::compute_fov(&state.world.map, state.player.x, state.player.y);
             state.revealed.extend(&state.visible);
         }
 
@@ -937,39 +937,39 @@ impl DesExecutor {
         }
 
         if let Some(hp) = scenario.player.hp {
-            state.player_hp = hp;
+            state.player.hp = hp;
         }
         if let Some(max_hp) = scenario.player.max_hp {
-            state.player_max_hp = max_hp;
+            state.player.max_hp = max_hp;
         }
         if let Some(ap) = scenario.player.ap {
-            state.player_ap = ap;
+            state.player.ap = ap;
         }
         if let Some(max_ap) = scenario.player.max_ap {
-            state.player_max_ap = max_ap;
+            state.player.max_ap = max_ap;
         }
         if let Some(xp) = scenario.player.xp {
-            state.player_xp = xp;
+            state.player.xp = xp;
         }
         for item_id in &scenario.player.inventory {
-            state.inventory.push(item_id.clone());
+            state.player.inventory.push(item_id.clone());
         }
         // Wire adaptations
         for adaptation_id in &scenario.player.adaptations {
             if let Some(a) = parse_adaptation(adaptation_id) {
-                state.adaptations.push(a);
+                state.player.adaptations.push(a);
             }
         }
         // Wire equipped weapon (both legacy and new equipment system)
         if let Some(weapon_id) = &scenario.player.equipped_weapon {
-            state.equipped_weapon = Some(weapon_id.clone());
-            state.equipment.weapon = Some(weapon_id.clone());
+            state.player.equipped_weapon = Some(weapon_id.clone());
+            state.player.equipment.weapon = Some(weapon_id.clone());
         }
 
         // Clear generated enemies if scenario specifies its own entities
         // This ensures test scenarios have full control over enemy placement
         if !scenario.entities.is_empty() {
-            state.enemies.clear();
+            state.world.enemies.clear();
         }
 
         // Spawn entities
@@ -982,13 +982,13 @@ impl DesExecutor {
                     }
                     enemy.ai_disabled = spawn.ai_disabled;
                     enemy.inventory = spawn.inventory.clone();
-                    state.enemies.push(enemy);
+                    state.world.enemies.push(enemy);
                 }
                 EntityType::Npc => {
-                    state.npcs.push(Npc::new(spawn.x, spawn.y, &spawn.id));
+                    state.world.npcs.push(Npc::new(spawn.x, spawn.y, &spawn.id));
                 }
                 EntityType::Item => {
-                    state.items.push(Item::new(spawn.x, spawn.y, &spawn.id));
+                    state.world.items.push(Item::new(spawn.x, spawn.y, &spawn.id));
                 }
                 EntityType::Chest => {
                     let mut chest = Chest::new(spawn.x, spawn.y, &spawn.id);
@@ -998,11 +998,11 @@ impl DesExecutor {
                         .iter()
                         .map(|id| Item::new(spawn.x, spawn.y, id))
                         .collect();
-                    state.chests.push(chest);
+                    state.world.chests.push(chest);
                 }
                 EntityType::Interactable => {
                     state
-                        .interactables
+                        .world.interactables
                         .push(Interactable::new(spawn.id.clone(), spawn.x, spawn.y));
                 }
             }
@@ -1034,20 +1034,20 @@ impl DesExecutor {
 
         // Clear radius around player
         if let Some(radius) = setup.clear_radius {
-            let px = state.player_x;
-            let py = state.player_y;
+            let px = state.player.x;
+            let py = state.player.y;
             for dy in -radius..=radius {
                 for dx in -radius..=radius {
                     let nx = px + dx;
                     let ny = py + dy;
                     if nx >= 1
                         && ny >= 1
-                        && nx < (state.map.width - 1) as i32
-                        && ny < (state.map.height - 1) as i32
+                        && nx < (state.world.map.width - 1) as i32
+                        && ny < (state.world.map.height - 1) as i32
                     {
-                        let idx = ny as usize * state.map.width + nx as usize;
-                        if !state.map.tiles[idx].walkable() {
-                            state.map.tiles[idx] = Tile::default_floor();
+                        let idx = ny as usize * state.world.map.width + nx as usize;
+                        if !state.world.map.tiles[idx].walkable() {
+                            state.map_mut().tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -1060,12 +1060,12 @@ impl DesExecutor {
                 for x in area.x..(area.x + area.width) {
                     if x >= 1
                         && y >= 1
-                        && x < (state.map.width - 1) as i32
-                        && y < (state.map.height - 1) as i32
+                        && x < (state.world.map.width - 1) as i32
+                        && y < (state.world.map.height - 1) as i32
                     {
-                        let idx = y as usize * state.map.width + x as usize;
-                        if !state.map.tiles[idx].walkable() {
-                            state.map.tiles[idx] = Tile::default_floor();
+                        let idx = y as usize * state.world.map.width + x as usize;
+                        if !state.world.map.tiles[idx].walkable() {
+                            state.map_mut().tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -1083,7 +1083,7 @@ impl DesExecutor {
             || !setup.ensure_paths.is_empty()
         {
             state.visible =
-                crate::game::map::compute_fov(&state.map, state.player_x, state.player_y);
+                crate::game::map::compute_fov(&state.world.map, state.player.x, state.player.y);
             state.revealed.extend(&state.visible);
         }
     }
@@ -1109,12 +1109,12 @@ impl DesExecutor {
                     let ny = y + oy;
                     if nx >= 1
                         && ny >= 1
-                        && nx < (state.map.width - 1) as i32
-                        && ny < (state.map.height - 1) as i32
+                        && nx < (state.world.map.width - 1) as i32
+                        && ny < (state.world.map.height - 1) as i32
                     {
-                        let idx = ny as usize * state.map.width + nx as usize;
-                        if !state.map.tiles[idx].walkable() {
-                            state.map.tiles[idx] = Tile::default_floor();
+                        let idx = ny as usize * state.world.map.width + nx as usize;
+                        if !state.world.map.tiles[idx].walkable() {
+                            state.map_mut().tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -1165,11 +1165,11 @@ impl DesExecutor {
             self.snapshots.push(StateSnapshot {
                 action_index: self.action_index,
                 turn: self.state.turn,
-                player_x: self.state.player_x,
-                player_y: self.state.player_y,
-                player_hp: self.state.player_hp,
-                inventory_size: self.state.inventory.len(),
-                enemy_count: self.state.enemies.iter().filter(|e| e.hp > 0).count(),
+                player_x: self.state.player.x,
+                player_y: self.state.player.y,
+                player_hp: self.state.player.hp,
+                inventory_size: self.state.player.inventory.len(),
+                enemy_count: self.state.world.enemies.iter().filter(|e| e.hp > 0).count(),
             });
         }
     }
@@ -1181,7 +1181,7 @@ impl DesExecutor {
         // Initial snapshot
         self.capture_snapshot();
 
-        while current_turn <= max_turns && self.state.player_hp > 0 {
+        while current_turn <= max_turns && self.state.player.hp > 0 {
             // Execute actions scheduled for this turn
             for scheduled in &scenario.actions {
                 if scheduled.turn == current_turn {
@@ -1228,24 +1228,24 @@ impl DesExecutor {
 
     fn evaluate_check(&mut self, check: &AssertionCheck) -> bool {
         match check {
-            AssertionCheck::PlayerHp { op, value } => op.compare(self.state.player_hp, *value),
+            AssertionCheck::PlayerHp { op, value } => op.compare(self.state.player.hp, *value),
             AssertionCheck::PlayerPosition { x, y } => {
-                self.state.player_x == *x && self.state.player_y == *y
+                self.state.player.x == *x && self.state.player.y == *y
             }
-            AssertionCheck::PlayerAlive => self.state.player_hp > 0,
-            AssertionCheck::PlayerDead => self.state.player_hp <= 0,
-            AssertionCheck::InventoryContains { item } => self.state.inventory.contains(item),
+            AssertionCheck::PlayerAlive => self.state.player.hp > 0,
+            AssertionCheck::PlayerDead => self.state.player.hp <= 0,
+            AssertionCheck::InventoryContains { item } => self.state.player.inventory.contains(item),
             AssertionCheck::InventorySize { op, value } => {
-                op.compare(self.state.inventory.len() as i32, *value as i32)
+                op.compare(self.state.player.inventory.len() as i32, *value as i32)
             }
             AssertionCheck::EnemyAt { x, y, alive } => self
                 .state
                 .enemy_at(*x, *y)
                 .map(|i| {
                     if *alive {
-                        self.state.enemies[i].hp > 0
+                        self.state.world.enemies[i].hp > 0
                     } else {
-                        self.state.enemies[i].hp <= 0
+                        self.state.world.enemies[i].hp <= 0
                     }
                 })
                 .unwrap_or(false),
@@ -1254,26 +1254,26 @@ impl DesExecutor {
             // New assertions
             AssertionCheck::EnemyHp { id, op, value } => self
                 .state
-                .enemies
+                .world.enemies
                 .iter()
                 .find(|e| e.id() == id)
                 .map(|e| op.compare(e.hp, *value))
                 .unwrap_or(false),
             AssertionCheck::EnemyAlive { id } => {
-                self.state.enemies.iter().any(|e| e.id() == id && e.hp > 0)
+                self.state.world.enemies.iter().any(|e| e.id() == id && e.hp > 0)
             }
             AssertionCheck::EnemyDead { id } => {
-                self.state.enemies.iter().any(|e| e.id() == id && e.hp <= 0)
+                self.state.world.enemies.iter().any(|e| e.id() == id && e.hp <= 0)
             }
             AssertionCheck::PlayerHasAdaptation { adaptation } => parse_adaptation(adaptation)
-                .map(|a| self.state.adaptations.contains(&a))
+                .map(|a| self.state.player.adaptations.contains(&a))
                 .unwrap_or(false),
             AssertionCheck::AdaptationCount { op, value } => {
-                op.compare(self.state.adaptations.len() as i32, *value as i32)
+                op.compare(self.state.player.adaptations.len() as i32, *value as i32)
             }
             AssertionCheck::MapTileAt { x, y, tile } => self
                 .state
-                .map
+                .world.map
                 .get(*x, *y)
                 .map(|t| {
                     format!("{:?}", t)
@@ -1282,19 +1282,19 @@ impl DesExecutor {
                 })
                 .unwrap_or(false),
             AssertionCheck::Refraction { op, value } => {
-                op.compare(self.state.refraction as i32, *value as i32)
+                op.compare(self.state.player.refraction as i32, *value as i32)
             }
-            AssertionCheck::PlayerAp { op, value } => op.compare(self.state.player_ap, *value),
+            AssertionCheck::PlayerAp { op, value } => op.compare(self.state.player.ap, *value),
             AssertionCheck::HasStatusEffect { effect } => self
                 .state
-                .status_effects
+                .player.status_effects
                 .iter()
                 .any(|e| e.id.to_lowercase() == effect.to_lowercase()),
             AssertionCheck::StatusEffectCount { op, value } => {
-                op.compare(self.state.status_effects.len() as i32, *value as i32)
+                op.compare(self.state.player.status_effects.len() as i32, *value as i32)
             }
             AssertionCheck::TileExplored { x, y } => {
-                let idx = self.state.map.idx(*x, *y);
+                let idx = self.state.world.map.idx(*x, *y);
                 self.state.revealed.contains(&idx)
             }
             AssertionCheck::ExploredCount { op, value } => {
@@ -1303,29 +1303,29 @@ impl DesExecutor {
             AssertionCheck::EquippedInSlot { slot, item } => slot
                 .parse::<crate::game::equipment::EquipSlot>()
                 .ok()
-                .and_then(|s| self.state.equipment.get(s))
+                .and_then(|s| self.state.player.equipment.get(s))
                 .map(|e| Some(e) == item.as_ref())
                 .unwrap_or(item.is_none()),
             AssertionCheck::PlayerArmor { op, value } => {
-                op.compare(self.state.player_armor, *value)
+                op.compare(self.state.player.armor, *value)
             }
             AssertionCheck::EnemyProvoked { id, provoked } => self
                 .state
-                .enemies
+                .world.enemies
                 .iter()
                 .find(|e| e.id == *id)
                 .map(|e| e.provoked == *provoked)
                 .unwrap_or(false),
             AssertionCheck::EnemyHasItem { id, item } => self
                 .state
-                .enemies
+                .world.enemies
                 .iter()
                 .find(|e| e.id == *id)
                 .map(|e| e.inventory.contains(item))
                 .unwrap_or(false),
             AssertionCheck::EnemyHasStatus { id, effect } => self
                 .state
-                .enemies
+                .world.enemies
                 .iter()
                 .find(|e| e.id == *id)
                 .map(|e| e.has_status_effect(effect))
@@ -1342,39 +1342,39 @@ impl DesExecutor {
                 .unwrap_or(true),
             AssertionCheck::NpcTalked { id, talked } => self
                 .state
-                .npcs
+                .world.npcs
                 .iter()
                 .find(|n| n.id == *id)
                 .map(|n| n.talked == *talked)
                 .unwrap_or(false),
             AssertionCheck::PlayerXp { op, value } => {
-                op.compare(self.state.player_xp as i32, *value as i32)
+                op.compare(self.state.player.xp as i32, *value as i32)
             }
             AssertionCheck::PlayerLevel { op, value } => {
-                op.compare(self.state.player_level as i32, *value as i32)
+                op.compare(self.state.player.level as i32, *value as i32)
             }
             AssertionCheck::MessageContains { text } => {
                 self.state.messages.iter().any(|m| m.text.contains(text))
             }
             AssertionCheck::PendingStatPoints { op, value } => {
-                op.compare(self.state.pending_stat_points, *value)
+                op.compare(self.state.player.pending_stat_points, *value)
             }
             AssertionCheck::SaltScrip { op, value } => {
-                op.compare(self.state.salt_scrip as i32, *value as i32)
+                op.compare(self.state.player.salt_scrip as i32, *value as i32)
             }
             // Quest assertions
             AssertionCheck::QuestActive { quest_id } => self
                 .state
-                .quest_log
+                .player.quest_log
                 .active
                 .iter()
                 .any(|q| q.quest_id == *quest_id),
             AssertionCheck::QuestCompleted { quest_id } => {
-                self.state.quest_log.completed.contains(quest_id)
+                self.state.player.quest_log.completed.contains(quest_id)
             }
             AssertionCheck::QuestAvailable { quest_id } => self
                 .state
-                .quest_log
+                .player.quest_log
                 .is_quest_available(quest_id, &self.state),
             AssertionCheck::QuestObjectiveProgress {
                 quest_id,
@@ -1383,7 +1383,7 @@ impl DesExecutor {
                 value,
             } => self
                 .state
-                .quest_log
+                .player.quest_log
                 .get_active(quest_id)
                 .and_then(|q| {
                     q.objectives
@@ -1397,7 +1397,7 @@ impl DesExecutor {
                 objective_id,
             } => self
                 .state
-                .quest_log
+                .player.quest_log
                 .get_active(quest_id)
                 .and_then(|q| {
                     q.objectives
@@ -1408,25 +1408,25 @@ impl DesExecutor {
                 .unwrap_or(false),
             // Storm assertions
             AssertionCheck::StormTimer { op, value } => {
-                op.compare(self.state.storm.turns_until, *value)
+                op.compare(self.state.storm().turns_until, *value)
             }
             AssertionCheck::StormIntensity { op, value } => {
-                op.compare(self.state.storm.intensity as u32, *value as u32)
+                op.compare(self.state.storm().intensity as u32, *value as u32)
             }
             AssertionCheck::StormHasEditType { edit_type } => self
                 .state
-                .storm
+                .storm()
                 .edit_types
                 .iter()
                 .any(|et| et.display_name().to_lowercase() == edit_type.to_lowercase()),
             AssertionCheck::StormChangedTilesCount { op, value } => op.compare(
-                self.state.visual_effects.storm_changed_tiles.len() as u32,
+                self.state.world.visual_effects.storm_changed_tiles.len() as u32,
                 *value as u32,
             ),
             AssertionCheck::ItemExistsOnMap { item_id, min_count } => {
                 let count = self
                     .state
-                    .items
+                    .items()
                     .iter()
                     .filter(|item| item.id == *item_id)
                     .count();
@@ -1443,7 +1443,7 @@ impl DesExecutor {
             } => {
                 let count = self
                     .state
-                    .map
+                    .map()
                     .tiles
                     .iter()
                     .filter(|tile| match (tile_type.as_str(), tile) {
@@ -1508,15 +1508,15 @@ impl DesExecutor {
                 op.compare(count, *value)
             }
             // Crafting assertions
-            AssertionCheck::HasItem { item } => self.state.inventory.contains(item),
+            AssertionCheck::HasItem { item } => self.state.player.inventory.contains(item),
             AssertionCheck::ItemCount { item, op, value } => {
-                let count = self.state.inventory.iter().filter(|id| *id == item).count() as u32;
+                let count = self.state.player.inventory.iter().filter(|id| *id == item).count() as u32;
                 op.compare(count as i32, *value as i32)
             }
             AssertionCheck::CraftingSuccess { recipe, op, value } => {
                 if let Some(recipe_def) = crate::game::get_recipe(recipe) {
                     let success = crate::game::crafting_success_chance(
-                        self.state.player_level,
+                        self.state.player.level,
                         recipe_def.skill_required,
                     );
                     op.compare((success * 100.0) as i32, (*value * 100.0) as i32)
@@ -1527,10 +1527,10 @@ impl DesExecutor {
             AssertionCheck::AvailableRecipesCount { op, value } => {
                 let available_stations = vec!["crafting_table".to_string()]; // Mock stations for testing
                 let recipes = crate::game::available_recipes(
-                    &self.state.inventory,
-                    self.state.player_level,
+                    &self.state.player.inventory,
+                    self.state.player.level,
                     &available_stations,
-                    &self.state.faction_reputation,
+                    &self.state.player.faction_reputation,
                 );
                 op.compare(recipes.len(), *value)
             }
@@ -1571,33 +1571,33 @@ impl DesExecutor {
                 self.state.pending_trade.as_ref() == Some(trader_id)
             }
             AssertionCheck::AreaTier { op, value } => {
-                let tier = crate::game::trading::calculate_area_tier(&self.state.enemies);
+                let tier = crate::game::trading::calculate_area_tier(&self.state.world.enemies);
                 op.compare(tier as i32, *value as i32)
             }
             AssertionCheck::EnemyCount { op, value } => {
-                let count = self.state.enemies.iter().filter(|e| e.hp > 0).count();
+                let count = self.state.world.enemies.iter().filter(|e| e.hp > 0).count();
                 op.compare(count, *value)
             }
-            AssertionCheck::NpcCount { op, value } => op.compare(self.state.npcs.len(), *value),
-            AssertionCheck::ChestCount { op, value } => op.compare(self.state.chests.len(), *value),
+            AssertionCheck::NpcCount { op, value } => op.compare(self.state.world.npcs.len(), *value),
+            AssertionCheck::ChestCount { op, value } => op.compare(self.state.world.chests.len(), *value),
             AssertionCheck::PlayerOnWalkableTile => {
                 let tile = self
                     .state
-                    .map
-                    .get_tile(self.state.player_x, self.state.player_y);
+                    .map()
+                    .get_tile(self.state.player.x, self.state.player.y);
                 tile.walkable()
             }
             AssertionCheck::ConnectivityRatio { op, value } => {
                 let connectivity = crate::game::generation::connectivity::check_connectivity(
-                    &self.state.map,
-                    (self.state.player_x, self.state.player_y),
+                    &self.state.world.map,
+                    (self.state.player.x, self.state.player.y),
                 );
                 op.compare_f32(connectivity, *value)
             }
             AssertionCheck::MicrostructureCount { op, value } => {
                 let count = self
                     .state
-                    .map
+                    .map()
                     .features
                     .iter()
                     .filter(|f| f.feature_id.starts_with("microstructure_"))
@@ -1605,7 +1605,7 @@ impl DesExecutor {
                 op.compare(count, *value)
             }
             AssertionCheck::NpcExists { npc_id } => {
-                self.state.npcs.iter().any(|npc| npc.id == *npc_id)
+                self.state.world.npcs.iter().any(|npc| npc.id == *npc_id)
             }
             // Simplified implementations for other assertions
             _ => {
@@ -1637,28 +1637,28 @@ impl DesExecutor {
                         let nx = x + dx;
                         let ny = y + dy;
                         if nx >= 0 && ny >= 0 {
-                            let nidx = ny as usize * self.state.map.width + nx as usize;
-                            if nidx < self.state.map.tiles.len()
-                                && !self.state.map.tiles[nidx].walkable()
+                            let nidx = ny as usize * self.state.world.map.width + nx as usize;
+                            if nidx < self.state.world.map.tiles.len()
+                                && !self.state.world.map.tiles[nidx].walkable()
                             {
-                                self.state.map.tiles[nidx] =
+                                self.state.map_mut().tiles[nidx] =
                                     crate::game::map::Tile::default_floor();
                             }
                         }
                     }
                 }
-                self.state.player_x = *x;
-                self.state.player_y = *y;
+                self.state.player.x = *x;
+                self.state.player.y = *y;
                 // Update visibility after teleport
-                self.state.visible = crate::game::map::compute_fov(&self.state.map, *x, *y);
+                self.state.visible = crate::game::map::compute_fov(&self.state.world.map, *x, *y);
                 self.state.revealed.extend(&self.state.visible);
                 // Notify quest log of position change
-                self.state.quest_log.on_position_changed(*x, *y);
+                self.state.player.quest_log.on_position_changed(*x, *y);
                 self.log(format!("Player teleported to ({}, {})", x, y));
             }
             Action::Attack { target_x, target_y } => {
-                let dx = target_x - self.state.player_x;
-                let dy = target_y - self.state.player_y;
+                let dx = target_x - self.state.player.x;
+                let dy = target_y - self.state.player.y;
                 if dx.abs() <= 1 && dy.abs() <= 1 {
                     self.state.try_move(dx, dy);
                     self.log(format!("Player attacked ({}, {})", target_x, target_y));
@@ -1775,22 +1775,22 @@ impl DesExecutor {
             Action::TriggerStorm { intensity } => {
                 use crate::game::systems::StormSystem;
                 if let Some(intensity_val) = intensity {
-                    self.state.storm.intensity = *intensity_val;
+                    self.state.storm_mut().intensity = *intensity_val;
                 }
                 StormSystem::apply_storm(&mut self.state);
                 self.log(format!(
                     "Storm triggered with intensity {}",
-                    self.state.storm.intensity
+                    self.state.storm().intensity
                 ));
             }
             Action::SetRefraction { value } => {
-                self.state.refraction = *value;
+                self.state.player.refraction = *value;
                 self.state.check_adaptation_threshold();
                 self.log(format!("Refraction set to {}", value));
             }
 
             Action::SetLocationType { location_type } => {
-                // Store location type for ritual requirements (simplified)
+                // Store location type for quest requirements
                 self.current_location_type = Some(location_type.clone());
                 self.log(format!("Location type set to: {}", location_type));
             }
@@ -1857,7 +1857,7 @@ impl DesExecutor {
             }
             Action::SetFactionRep { faction, value } => {
                 self.state
-                    .faction_reputation
+                    .player.faction_reputation
                     .insert(faction.clone(), *value);
                 self.log(format!(
                     "Set faction reputation for '{}' to {}",
@@ -1865,11 +1865,11 @@ impl DesExecutor {
                 ));
             }
             Action::SetLevel { level } => {
-                self.state.player_level = *level;
+                self.state.player.level = *level;
                 self.log(format!("Set player level to {}", level));
             }
             Action::SetSaltScrip { amount } => {
-                self.state.salt_scrip = *amount;
+                self.state.player.salt_scrip = *amount;
                 self.log(format!("Set salt scrip to {}", amount));
             }
             Action::SetTile {
@@ -1878,8 +1878,8 @@ impl DesExecutor {
                 tile_type,
                 hp,
             } => {
-                let idx = *y as usize * self.state.map.width + *x as usize;
-                if idx < self.state.map.tiles.len() {
+                let idx = *y as usize * self.state.world.map.width + *x as usize;
+                if idx < self.state.world.map.tiles.len() {
                     let tile = match tile_type.as_str() {
                         "wall" => crate::game::map::Tile::Wall {
                             id: "sandstone".to_string(),
@@ -1889,14 +1889,14 @@ impl DesExecutor {
                         "glass" => crate::game::map::Tile::Glass,
                         _ => crate::game::map::Tile::default_floor(),
                     };
-                    self.state.map.tiles[idx] = tile;
+                    self.state.map_mut().tiles[idx] = tile;
                     self.log(format!("Set tile at ({}, {}) to {}", x, y, tile_type));
                 }
             }
             // Psychic actions
             Action::UnlockAbility { ability_id } => {
                 self.state
-                    .psychic
+                    .player.psychic
                     .unlocked_abilities
                     .push(ability_id.clone());
                 self.log(format!("Unlocked ability: {}", ability_id));
@@ -1911,7 +1911,7 @@ impl DesExecutor {
                 self.current_trade_interface = crate::game::trading::get_trade_interface(
                     trader_id,
                     area_tier,
-                    &self.state.faction_reputation,
+                    &self.state.player.faction_reputation,
                     None, // No player faction for now
                 );
                 self.log(format!(
@@ -1929,8 +1929,8 @@ impl DesExecutor {
                         interface,
                         item_id,
                         *quantity,
-                        &mut self.state.salt_scrip,
-                        &mut self.state.inventory,
+                        &mut self.state.player.salt_scrip,
+                        &mut self.state.player.inventory,
                     ) {
                         Ok(message) => {
                             self.last_trade_result = Some(message.clone());
@@ -1959,7 +1959,7 @@ impl DesExecutor {
             }
             Action::GiveAdaptation { adaptation_id } => {
                 if let Some(adaptation) = crate::game::Adaptation::from_id(adaptation_id) {
-                    self.state.adaptations.push(adaptation);
+                    self.state.player.adaptations.push(adaptation);
                     self.log(format!("Gave adaptation: {}", adaptation_id));
                 }
             }
@@ -1987,13 +1987,13 @@ impl DesExecutor {
     fn query_state(&self, query: &LogQuery) -> String {
         match query {
             LogQuery::PlayerHp => {
-                format!("HP: {}/{}", self.state.player_hp, self.state.player_max_hp)
+                format!("HP: {}/{}", self.state.player_hp(), self.state.player_max_hp())
             }
             LogQuery::PlayerPosition => format!(
                 "Position: ({}, {})",
-                self.state.player_x, self.state.player_y
+                self.state.player_x(), self.state.player_y()
             ),
-            LogQuery::Inventory => format!("Inventory: {:?}", self.state.inventory),
+            LogQuery::Inventory => format!("Inventory: {:?}", self.state.player.inventory),
             LogQuery::EntityAt { x, y } => self.state.describe_at(*x, *y),
             LogQuery::Turn => format!("Turn: {}", self.state.turn),
             LogQuery::Custom { message } => message.clone(),
@@ -2005,8 +2005,8 @@ impl DesExecutor {
         // Simple text representation of the game state
         let mut lines = Vec::new();
 
-        let start_x = self.state.player_x - (width as i32 / 2);
-        let start_y = self.state.player_y - (height as i32 / 2);
+        let start_x = self.state.player_x() - (width as i32 / 2);
+        let start_y = self.state.player_y() - (height as i32 / 2);
 
         for y in 0..height as i32 {
             let mut line = String::new();
@@ -2015,13 +2015,13 @@ impl DesExecutor {
                 let world_y = start_y + y;
 
                 // Check for player
-                if world_x == self.state.player_x && world_y == self.state.player_y {
+                if world_x == self.state.player_x() && world_y == self.state.player_y() {
                     line.push('@');
                 }
                 // Check for enemies
                 else if let Some(_) = self
                     .state
-                    .enemies
+                    .world.enemies
                     .iter()
                     .find(|e| e.x == world_x && e.y == world_y)
                 {
@@ -2030,7 +2030,7 @@ impl DesExecutor {
                 // Check for items
                 else if let Some(_) = self
                     .state
-                    .items
+                    .items()
                     .iter()
                     .find(|i| i.x == world_x && i.y == world_y)
                 {
@@ -2039,7 +2039,7 @@ impl DesExecutor {
                 // Check for NPCs
                 else if let Some(_) = self
                     .state
-                    .npcs
+                    .npcs()
                     .iter()
                     .find(|n| n.x == world_x && n.y == world_y)
                 {
@@ -2114,7 +2114,7 @@ where
     render_fn(&executor.state, None);
     std::thread::sleep(std::time::Duration::from_millis(frame_delay_ms));
 
-    while current_turn <= max_turns && executor.state.player_hp > 0 {
+    while current_turn <= max_turns && executor.state.player_hp() > 0 {
         for scheduled in &scenario.actions {
             if scheduled.turn == current_turn {
                 executor.execute_action(&scheduled.action, &scheduled.actor);
@@ -2147,7 +2147,7 @@ where
 
     let all_passed = executor.assertion_results.iter().all(|r| r.passed);
     ExecutionResult {
-        success: executor.state.player_hp > 0 && all_passed,
+        success: executor.state.player_hp() > 0 && all_passed,
         final_turn: executor.state.turn,
         logs: executor.logs,
         assertion_results: executor.assertion_results,
@@ -2266,7 +2266,7 @@ mod tests {
         let final_state = result.final_state.as_ref().unwrap();
         eprintln!(
             "Final turn: {}, AP: {}, pos: ({}, {})",
-            result.final_turn, final_state.player_ap, final_state.player_x, final_state.player_y
+            result.final_turn, final_state.player_ap(), final_state.player_x(), final_state.player_y()
         );
         eprintln!(
             "Logs: {:?}",
@@ -2312,7 +2312,7 @@ mod tests {
         let state = result.final_state.as_ref().unwrap();
         eprintln!("Mock hit setting: {:?}", state.mock_combat_hit);
         // Find enemy at target position
-        let enemy = state.enemies.iter().find(|e| e.x == 6 && e.y == 5);
+        let enemy = state.world.enemies.iter().find(|e| e.x == 6 && e.y == 5);
         eprintln!("Enemy at (6,5): {:?}", enemy.map(|e| (e.id.as_str(), e.hp)));
         eprintln!(
             "Logs: {:?}",
