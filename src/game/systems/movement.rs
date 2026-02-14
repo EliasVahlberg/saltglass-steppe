@@ -18,8 +18,8 @@ impl MovementSystem {
     /// Returns true if action was taken (even if blocked), false if invalid
     pub fn try_move(state: &mut GameState, dx: i32, dy: i32) -> bool {
         state.wait_counter = 0; // Reset auto-rest counter on movement
-        let new_x = state.player_x + dx;
-        let new_y = state.player_y + dy;
+        let new_x = state.player.x + dx;
+        let new_y = state.player.y + dy;
 
         // Check for NPC interaction first
         if Self::handle_npc_interaction(state, new_x, new_y) {
@@ -43,34 +43,51 @@ impl MovementSystem {
         };
 
         let cost = action_cost("interact");
-        if state.player_ap < cost {
+        if state.player.ap < cost {
             return false;
         }
-        state.player_ap -= cost;
+        state.player.ap -= cost;
 
         // Build dialogue context
-        let visible_adaptations: Vec<Adaptation> = if state.adaptations_hidden_turns > 0 {
+        let visible_adaptations: Vec<Adaptation> = if state.player.adaptations_hidden_turns > 0 {
             Vec::new()
         } else {
-            state.adaptations.clone()
+            state.player.adaptations.clone()
         };
-        let inventory_snapshot = state.inventory.clone();
+        let inventory_snapshot = state.player.inventory.clone();
         let ctx = DialogueContext {
             adaptations: &visible_adaptations,
             inventory: &inventory_snapshot,
-            salt_scrip: state.salt_scrip,
-            faction_reputation: &state.faction_reputation,
+            salt_scrip: state.player.salt_scrip,
+            faction_reputation: &state.player.faction_reputation,
         };
 
         // Get dialogue and actions
-        let dialogue = state.npcs[ni].dialogue(&ctx).to_string();
-        let name = state.npcs[ni].name().to_string();
-        let npc_id = state.npcs[ni].id.clone();
-        let actions: Vec<_> = state.npcs[ni]
+        let dialogue = state.world.npcs[ni].dialogue(&ctx).to_string();
+        let name = state.world.npcs[ni].name().to_string();
+        let npc_id = state.world.npcs[ni].id.clone();
+        let actions: Vec<_> = state.world.npcs[ni]
             .available_actions(&ctx)
             .into_iter()
             .cloned()
             .collect();
+
+        // Check if this NPC uses terminal interface
+        if let Some(tree) = crate::game::dialogue::get_dialogue_tree(&npc_id) {
+            if tree.uses_terminal_interface() {
+                if let Some(personality) = &tree.aria_personality {
+                    if let Some((aria_text, aria_options)) = crate::game::dialogue::start_aria_dialogue(&npc_id, personality, state) {
+                        // Set up ARIA interface instead of regular dialogue
+                        state.pending_aria_dialogue = Some((aria_text, aria_options));
+                        state.log_typed(
+                            format!("ARIA Terminal activated: {}", name),
+                            MsgType::System,
+                        );
+                        return true;
+                    }
+                }
+            }
+        }
 
         // Store pending dialogue for UI
         state.pending_dialogue = Some((name.clone(), dialogue.clone()));
@@ -85,7 +102,7 @@ impl MovementSystem {
         // Mark NPC as talked to (but allow re-talking for quest progression)
         let should_mark_talked = !Self::has_pending_quest_objectives(state, &npc_id);
         if should_mark_talked {
-            state.npcs[ni].talked = true;
+            state.world.npcs[ni].talked = true;
         }
 
         // Emit event — QuestSystem handles quest progression and completion
@@ -93,7 +110,7 @@ impl MovementSystem {
             npc_id: npc_id.clone(),
         });
 
-        state.meta.discover_npc(&state.npcs[ni].id);
+        state.meta.discover_npc(&state.world.npcs[ni].id);
         state.check_auto_end_turn();
 
         true
@@ -101,7 +118,7 @@ impl MovementSystem {
 
     /// Check if there are pending quest objectives for this NPC
     fn has_pending_quest_objectives(state: &GameState, npc_id: &str) -> bool {
-        for quest in &state.quest_log.active {
+        for quest in &state.player.quest_log.active {
             if let Some(def) = quest.def() {
                 for (i, obj) in def.objectives.iter().enumerate() {
                     if let crate::game::quest::ObjectiveType::TalkTo { npc_id: target } =
@@ -128,9 +145,9 @@ impl MovementSystem {
             if let (Some(gives), Some(consumes)) =
                 (&action.effect.gives_item, &action.effect.consumes)
             {
-                if let Some(idx) = state.inventory.iter().position(|id| id == consumes) {
-                    state.inventory.remove(idx);
-                    state.inventory.push(gives.clone());
+                if let Some(idx) = state.player.inventory.iter().position(|id| id == consumes) {
+                    state.player.inventory.remove(idx);
+                    state.player.inventory.push(gives.clone());
                     let gives_name = get_item_def(gives)
                         .map(|d| d.name.as_str())
                         .unwrap_or("item");
@@ -143,8 +160,8 @@ impl MovementSystem {
             }
             // Heal action
             if let Some(heal) = action.effect.heal {
-                let actual = heal.min(state.player_max_hp - state.player_hp);
-                state.player_hp += actual;
+                let actual = heal.min(state.player_max_hp() - state.player_hp());
+                state.player.hp += actual;
                 state.log_typed(format!("You rest. (+{} HP)", actual), MsgType::Status);
                 return;
             }
@@ -164,7 +181,7 @@ impl MovementSystem {
         }
 
         let cost = action_cost("attack_melee");
-        if state.player_ap < cost {
+        if state.player_ap() < cost {
             state.end_turn();
         }
         let hit = state.attack_melee(new_x, new_y);
@@ -176,7 +193,7 @@ impl MovementSystem {
 
     /// Handle actual movement to a tile
     fn handle_movement(state: &mut GameState, new_x: i32, new_y: i32) -> bool {
-        let tile = match state.map.get(new_x, new_y) {
+        let tile = match state.world.map.get(new_x, new_y) {
             Some(t) => t.clone(),
             None => return false,
         };
@@ -187,23 +204,23 @@ impl MovementSystem {
         }
 
         let cost = action_cost("move");
-        if state.player_ap < cost {
+        if state.player.ap < cost {
             return false;
         }
-        state.player_ap -= cost;
+        state.player.ap -= cost;
 
         // Handle pre-movement effects (Mirage Step)
         Self::handle_pre_movement(state);
 
         // Update position
-        let old_x = state.player_x;
-        let old_y = state.player_y;
-        state.player_x = new_x;
-        state.player_y = new_y;
+        let old_x = state.player.x;
+        let old_y = state.player.y;
+        state.player.x = new_x;
+        state.player.y = new_y;
 
         // Clear storm change highlighting
-        let player_idx = new_y as usize * state.map.width + new_x as usize;
-        state.visual_effects.storm_changed_tiles.remove(&player_idx);
+        let player_idx = new_y as usize * state.world.map.width + new_x as usize;
+        state.world.visual_effects.storm_changed_tiles.remove(&player_idx);
 
         // Emit movement event (QuestSystem handles position-based objectives)
         state.emit(GameEvent::PlayerMoved {
@@ -231,13 +248,13 @@ impl MovementSystem {
     /// Handle pre-movement effects like Mirage Step
     fn handle_pre_movement(state: &mut GameState) {
         if state
-            .adaptations
+            .player.adaptations
             .iter()
             .any(|a| a.has_ability("mirage_step"))
         {
             state.decoys.push(Decoy {
-                x: state.player_x,
-                y: state.player_y,
+                x: state.player.x,
+                y: state.player.y,
                 turns_remaining: 3,
             });
         }
@@ -247,17 +264,17 @@ impl MovementSystem {
     fn handle_tile_effects(state: &mut GameState, tile: &Tile, _x: i32, _y: i32) {
         match tile {
             Tile::Glass => {
-                if state.adaptations.iter().any(|a| a.has_immunity("glass")) {
+                if state.player.adaptations.iter().any(|a| a.has_immunity("glass")) {
                     state.log("Your saltblood protects you from the glass.");
                 } else {
-                    state.player_hp -= 1;
-                    state.refraction += 1;
+                    state.player.hp -= 1;
+                    state.player.refraction += 1;
                     state.log("Sharp glass cuts you! (-1 HP, +1 Refraction)");
                     state.check_adaptation_threshold();
                 }
             }
             Tile::Glare => {
-                state.player_ap = (state.player_ap - 1).max(0);
+                state.player.ap = (state.player.ap - 1).max(0);
                 state.log("Intense glare impairs your movement! (-1 AP)");
 
                 if state.rng.gen_range(0..100) < 30 {
@@ -270,34 +287,34 @@ impl MovementSystem {
 
     /// Handle world tile transitions at map edges
     fn handle_world_transition(state: &mut GameState, tile: &Tile, new_x: i32, new_y: i32) {
-        if *tile != Tile::WorldExit || state.layer != 0 {
+        if *tile != Tile::WorldExit || state.layer() != 0 {
             return;
         }
 
         let at_north = new_y == 0;
-        let at_south = new_y == state.map.height as i32 - 1;
+        let at_south = new_y == state.world.map.height as i32 - 1;
         let at_west = new_x == 0;
-        let at_east = new_x == state.map.width as i32 - 1;
+        let at_east = new_x == state.world.map.width as i32 - 1;
 
-        if at_north && state.world_y > 0 {
-            state.travel_to_tile(state.world_x, state.world_y - 1);
-            state.player_y = state.map.height as i32 - 2;
-        } else if at_south && state.world_y < crate::game::world_map::WORLD_HEIGHT - 1 {
-            state.travel_to_tile(state.world_x, state.world_y + 1);
-            state.player_y = 1;
-        } else if at_west && state.world_x > 0 {
-            state.travel_to_tile(state.world_x - 1, state.world_y);
-            state.player_x = state.map.width as i32 - 2;
-        } else if at_east && state.world_x < crate::game::world_map::WORLD_WIDTH - 1 {
-            state.travel_to_tile(state.world_x + 1, state.world_y);
-            state.player_x = 1;
+        if at_north && state.world.world_y > 0 {
+            state.travel_to_tile(state.world.world_x, state.world.world_y - 1);
+            state.player.y = state.world.map.height as i32 - 2;
+        } else if at_south && state.world.world_y < crate::game::world_map::WORLD_HEIGHT - 1 {
+            state.travel_to_tile(state.world.world_x, state.world.world_y + 1);
+            state.player.y = 1;
+        } else if at_west && state.world.world_x > 0 {
+            state.travel_to_tile(state.world.world_x - 1, state.world.world_y);
+            state.player.x = state.world.map.width as i32 - 2;
+        } else if at_east && state.world.world_x < crate::game::world_map::WORLD_WIDTH - 1 {
+            state.travel_to_tile(state.world.world_x + 1, state.world.world_y);
+            state.player.x = 1;
         }
     }
 
     /// Pickup items at player's current position
     pub fn pickup_items(state: &mut GameState) {
-        let px = state.player_x;
-        let py = state.player_y;
+        let px = state.player.x;
+        let py = state.player.y;
 
         let indices = match state.item_positions.remove(&(px, py)) {
             Some(v) => v,
@@ -308,11 +325,11 @@ impl MovementSystem {
 
         // Process in reverse order to maintain valid indices
         for &i in indices.iter().rev() {
-            if i >= state.items.len() {
+            if i >= state.world.items.len() {
                 continue;
             }
 
-            let id = state.items[i].id.clone();
+            let id = state.world.items[i].id.clone();
             let def = get_item_def(&id);
 
             // Skip non-pickup items (e.g., light sources)
@@ -331,7 +348,7 @@ impl MovementSystem {
                 }
             }
 
-            state.inventory.push(id.clone());
+            state.player.inventory.push(id.clone());
             state.emit(GameEvent::ItemPickedUp {
                 item_id: id.clone(),
             });
@@ -342,8 +359,8 @@ impl MovementSystem {
 
         // Remove picked up items (reverse order for valid indices)
         for &i in picked_up.iter().rev() {
-            if i < state.items.len() {
-                state.items.remove(i);
+            if i < state.world.items.len() {
+                state.world.items.remove(i);
             }
         }
 

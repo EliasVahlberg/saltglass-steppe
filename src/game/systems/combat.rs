@@ -29,15 +29,15 @@ impl CombatSystem {
         death_x: i32,
         death_y: i32,
     ) -> String {
-        let enemy_id = state.enemies[enemy_idx].id.clone();
-        let enemy_name = state.enemies[enemy_idx].name().to_string();
-        let enemy_x = state.enemies[enemy_idx].x;
-        let enemy_y = state.enemies[enemy_idx].y;
+        let enemy_id = state.world.enemies[enemy_idx].id.clone();
+        let enemy_name = state.world.enemies[enemy_idx].name().to_string();
+        let enemy_x = state.world.enemies[enemy_idx].x;
+        let enemy_y = state.world.enemies[enemy_idx].y;
 
         // Remove from spatial index
         state.enemy_positions.remove(&(death_x, death_y));
 
-        if let Some(def) = state.enemies[enemy_idx].def() {
+        if let Some(def) = state.world.enemies[enemy_idx].def() {
             // Trigger on_death visual effects
             for e in &def.effects {
                 if e.condition == "on_death" {
@@ -68,14 +68,14 @@ impl CombatSystem {
                                 let nx = enemy_x + dx;
                                 let ny = enemy_y + dy;
 
-                                if state.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+                                if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
                                     && state.enemy_at(nx, ny).is_none()
-                                    && !(nx == state.player_x && ny == state.player_y)
+                                    && !(nx == state.player_x() && ny == state.player_y())
                                 {
-                                    state.enemies.push(Enemy::new(nx, ny, child_id));
+                                    state.world.enemies.push(Enemy::new(nx, ny, child_id));
                                     state
                                         .enemy_positions
-                                        .insert((nx, ny), state.enemies.len() - 1);
+                                        .insert((nx, ny), state.world.enemies.len() - 1);
                                     spawned += 1;
                                 }
                             }
@@ -128,7 +128,7 @@ impl CombatSystem {
         range: i32,
     ) {
         let mut alerted_count = 0;
-        for enemy in &mut state.enemies {
+        for enemy in &mut state.world.enemies {
             if enemy.id == target_id && !enemy.provoked {
                 let dist = (enemy.x - center_x).abs() + (enemy.y - center_y).abs();
                 if dist <= range {
@@ -149,33 +149,33 @@ impl CombatSystem {
         };
 
         let cost = action_cost("attack_melee");
-        if state.player_ap < cost {
+        if state.player.ap < cost {
             return false;
         }
-        state.player_ap -= cost;
+        state.player.ap -= cost;
 
-        state.enemies[ei].provoked = true;
+        state.world.enemies[ei].provoked = true;
 
         // Swarm behavior
-        if state.enemies[ei].def().map(|d| d.swarm).unwrap_or(false) {
-            let id = state.enemies[ei].id.clone();
-            let x = state.enemies[ei].x;
-            let y = state.enemies[ei].y;
+        if state.world.enemies[ei].def().map(|d| d.swarm).unwrap_or(false) {
+            let id = state.world.enemies[ei].id.clone();
+            let x = state.world.enemies[ei].x;
+            let y = state.world.enemies[ei].y;
             Self::trigger_swarm_aggro(state, &id, x, y, 8);
         }
 
         let weapon = state
-            .equipped_weapon
+            .player.equipped_weapon
             .as_ref()
             .and_then(|id| get_weapon_def(id))
             .unwrap_or_else(default_weapon);
 
-        let enemy_reflex = state.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
-        let enemy_armor = state.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
+        let enemy_reflex = state.world.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
+        let enemy_armor = state.world.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
 
         let result = roll_attack(&mut state.rng, weapon, enemy_reflex, enemy_armor, 0);
         let result = Self::apply_combat_mocks(state, result);
-        let name = state.enemies[ei].name().to_string();
+        let name = state.world.enemies[ei].name().to_string();
         let dir = state.direction_from(target_x, target_y);
 
         if !result.hit {
@@ -185,14 +185,14 @@ impl CombatSystem {
 
         let mut dmg = result.damage;
         // Apply adaptation damage bonus
-        let adapt_mods = total_stat_modifiers(&state.adaptations);
+        let adapt_mods = total_stat_modifiers(&state.player.adaptations);
         dmg += adapt_mods.damage_bonus;
-        state.enemies[ei].hp -= dmg;
+        state.world.enemies[ei].hp -= dmg;
         state.emit(GameEvent::EnemyDamaged { enemy_idx: ei, amount: dmg });
         state.trigger_hit_flash(target_x, target_y);
         state.spawn_damage_number(target_x, target_y, dmg, false);
 
-        if let Some(def) = state.enemies[ei].def() {
+        if let Some(def) = state.world.enemies[ei].def() {
             for e in &def.effects {
                 if e.condition == "on_hit" {
                     state.trigger_effect(&e.effect, 2);
@@ -203,7 +203,7 @@ impl CombatSystem {
                     let percent = behavior.percent.unwrap_or(25);
                     let reflected = (dmg as u32 * percent / 100) as i32;
                     if reflected > 0 {
-                        state.player_hp -= reflected;
+                        state.player.hp -= reflected;
                         state.log_typed(
                             format!("The enemy reflects {} damage back at you!", reflected),
                             MsgType::Combat,
@@ -213,9 +213,9 @@ impl CombatSystem {
             }
         }
 
-        state.last_damage_dealt = dmg as u32;
+        state.player.last_damage_dealt = dmg as u32;
 
-        if state.enemies[ei].hp <= 0 {
+        if state.world.enemies[ei].hp <= 0 {
             let enemy_name = Self::process_enemy_death(state, ei, target_x, target_y);
             state.log_typed(
                 format!("You kill the {} {}!", enemy_name, dir),
@@ -236,7 +236,7 @@ impl CombatSystem {
 
     pub fn ranged_attack(state: &mut GameState, target_x: i32, target_y: i32) -> bool {
         let weapon = match state
-            .equipped_weapon
+            .player.equipped_weapon
             .as_ref()
             .and_then(|id| get_weapon_def(id))
         {
@@ -247,42 +247,42 @@ impl CombatSystem {
             }
         };
 
-        let dist = (target_x - state.player_x).abs() + (target_y - state.player_y).abs();
+        let dist = (target_x - state.player_x()).abs() + (target_y - state.player_y()).abs();
         if dist > weapon.range {
             state.log_typed("Target out of range.", MsgType::Combat);
             return false;
         }
 
-        let target_idx = state.map.idx(target_x, target_y);
+        let target_idx = state.world.map.idx(target_x, target_y);
         if !state.visible.contains(&target_idx) {
             state.log_typed("Can't see target.", MsgType::Combat);
             return false;
         }
 
         let cost = weapon.ap_cost;
-        if state.player_ap < cost {
+        if state.player.ap < cost {
             return false;
         }
 
         if let Some(ammo_type) = &weapon.ammo_type {
-            if !state.inventory.iter().any(|id| id == ammo_type) {
+            if !state.player.inventory.iter().any(|id| id == ammo_type) {
                 state.log_typed(
                     format!("Out of {}.", ammo_type.replace('_', " ")),
                     MsgType::Combat,
                 );
                 return false;
             }
-            if let Some(idx) = state.inventory.iter().position(|id| id == ammo_type) {
-                state.inventory.remove(idx);
+            if let Some(idx) = state.player.inventory.iter().position(|id| id == ammo_type) {
+                state.player.inventory.remove(idx);
             }
         }
 
-        state.player_ap -= cost;
+        state.player.ap -= cost;
 
         // Spawn projectile trail
         let proj_char = if weapon.range > 3 { '*' } else { '-' };
         state.spawn_projectile(
-            (state.player_x, state.player_y),
+            (state.player_x(), state.player_y()),
             (target_x, target_y),
             proj_char,
         );
@@ -296,21 +296,21 @@ impl CombatSystem {
             }
         };
 
-        state.enemies[ei].provoked = true;
+        state.world.enemies[ei].provoked = true;
 
         // Swarm behavior
-        if state.enemies[ei].def().map(|d| d.swarm).unwrap_or(false) {
-            let id = state.enemies[ei].id.clone();
-            let x = state.enemies[ei].x;
-            let y = state.enemies[ei].y;
+        if state.world.enemies[ei].def().map(|d| d.swarm).unwrap_or(false) {
+            let id = state.world.enemies[ei].id.clone();
+            let x = state.world.enemies[ei].x;
+            let y = state.world.enemies[ei].y;
             Self::trigger_swarm_aggro(state, &id, x, y, 8);
         }
 
-        let enemy_reflex = state.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
-        let enemy_armor = state.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
+        let enemy_reflex = state.world.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
+        let enemy_armor = state.world.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
         let result = roll_attack(&mut state.rng, weapon, enemy_reflex, enemy_armor, 0);
         let result = Self::apply_combat_mocks(state, result);
-        let name = state.enemies[ei].name().to_string();
+        let name = state.world.enemies[ei].name().to_string();
 
         if !result.hit {
             state.log_typed(format!("Your shot misses the {}.", name), MsgType::Combat);
@@ -319,12 +319,12 @@ impl CombatSystem {
         }
 
         let dmg = result.damage;
-        state.enemies[ei].hp -= dmg;
+        state.world.enemies[ei].hp -= dmg;
         state.emit(GameEvent::EnemyDamaged { enemy_idx: ei, amount: dmg });
         state.trigger_hit_flash(target_x, target_y);
         state.spawn_damage_number(target_x, target_y, dmg, false);
 
-        if state.enemies[ei].hp <= 0 {
+        if state.world.enemies[ei].hp <= 0 {
             let enemy_name = Self::process_enemy_death(state, ei, target_x, target_y);
             state.log_typed(
                 format!("You kill the {} with a ranged shot!", enemy_name),

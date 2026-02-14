@@ -31,18 +31,18 @@ impl StormSystem {
     pub fn apply_storm(state: &mut GameState) {
         state.log(format!(
             "⚡ GLASS STORM! Intensity {}",
-            state.storm.intensity
+            state.world.storm.intensity
         ));
 
-        let refraction_gain = state.storm.intensity as u32 * refraction_multiplier();
-        state.refraction += refraction_gain;
+        let refraction_gain = state.world.storm.intensity as u32 * refraction_multiplier();
+        state.player.refraction += refraction_gain;
         state.check_adaptation_threshold();
 
         // Clear previous storm changes
-        state.visual_effects.storm_changed_tiles.clear();
+        state.world.visual_effects.storm_changed_tiles.clear();
 
         // Apply each edit type
-        let edit_types = state.storm.edit_types.clone();
+        let edit_types = state.world.storm.edit_types.clone();
         for edit_type in &edit_types {
             match edit_type {
                 StormEditType::Glass => Self::apply_glass_edit(state),
@@ -59,30 +59,30 @@ impl StormSystem {
         Self::spawn_storm_enemies(state);
 
         // Emit event and forecast next storm
-        let intensity = state.storm.intensity;
+        let intensity = state.world.storm.intensity;
         state.emit(GameEvent::StormArrived { intensity });
-        state.storm = Storm::forecast(&mut state.rng);
+        state.world.storm = Storm::forecast(&mut state.rng);
         state.update_fov();
         state.update_lighting();
     }
 
     /// Spawn wraiths on glass tiles after storm
     fn spawn_storm_enemies(state: &mut GameState) {
-        let glass_tiles: Vec<(i32, i32)> = (0..state.map.tiles.len())
-            .filter(|&i| state.map.tiles[i] == Tile::Glass)
-            .map(|i| ((i % state.map.width) as i32, (i / state.map.width) as i32))
+        let glass_tiles: Vec<(i32, i32)> = (0..state.world.map.tiles.len())
+            .filter(|&i| state.world.map.tiles[i] == Tile::Glass)
+            .map(|i| ((i % state.world.map.width) as i32, (i / state.world.map.width) as i32))
             .filter(|&(x, y)| {
-                state.enemy_at(x, y).is_none() && !(x == state.player_x && y == state.player_y)
+                state.enemy_at(x, y).is_none() && !(x == state.player_x() && y == state.player_y())
             })
             .collect();
 
         if !glass_tiles.is_empty() {
-            let spawn_count = (state.storm.intensity as usize).min(wraith_spawn_max());
+            let spawn_count = (state.world.storm.intensity as usize).min(wraith_spawn_max());
             for _ in 0..spawn_count {
                 let idx = state.rng.gen_range(0..glass_tiles.len());
                 let (x, y) = glass_tiles[idx];
-                let enemy_idx = state.enemies.len();
-                state.enemies.push(Enemy::new(x, y, "refraction_wraith"));
+                let enemy_idx = state.world.enemies.len();
+                state.world.enemies.push(Enemy::new(x, y, "refraction_wraith"));
                 state.enemy_positions.insert((x, y), enemy_idx);
                 state.log("A wraith coalesces from the storm's edge.");
             }
@@ -91,25 +91,25 @@ impl StormSystem {
 
     /// Convert walls to glass and potentially drop storm_glass items
     fn apply_glass_edit(state: &mut GameState) {
-        let intensity = state.storm.intensity as usize;
+        let intensity = state.world.storm.intensity as usize;
         for _ in 0..(intensity * 5) {
-            let x = state.rng.gen_range(1..state.map.width - 1);
-            let y = state.rng.gen_range(1..state.map.height - 1);
-            let idx = y * state.map.width + x;
+            let x = state.rng.gen_range(1..state.world.map.width - 1);
+            let y = state.rng.gen_range(1..state.world.map.height - 1);
+            let idx = y * state.world.map.width + x;
 
-            if matches!(state.map.tiles[idx], Tile::Wall { .. }) {
-                state.map.tiles[idx] = Tile::Glass;
-                state.visual_effects.storm_changed_tiles.insert(idx);
+            if matches!(state.world.map.tiles[idx], Tile::Wall { .. }) {
+                state.world.map.tiles[idx] = Tile::Glass;
+                state.world.visual_effects.storm_changed_tiles.insert(idx);
 
                 // Chance to spawn storm_glass item
                 let roll: f32 = state.rng.gen_range(0.0..1.0);
                 if roll < storm_glass_drop_chance() {
                     if !state
-                        .items
+                        .world.items
                         .iter()
                         .any(|item| item.x == x as i32 && item.y == y as i32)
                     {
-                        state.items.push(crate::game::item::Item::new(
+                        state.world.items.push(crate::game::item::Item::new(
                             x as i32,
                             y as i32,
                             "storm_glass",
@@ -122,10 +122,10 @@ impl StormSystem {
 
     /// Rotate small 3x3 sections of the map
     fn apply_rotate_edit(state: &mut GameState) {
-        let intensity = state.storm.intensity as usize;
+        let intensity = state.world.storm.intensity as usize;
         for _ in 0..(intensity * 2) {
-            let center_x = state.rng.gen_range(2..state.map.width - 2);
-            let center_y = state.rng.gen_range(2..state.map.height - 2);
+            let center_x = state.rng.gen_range(2..state.world.map.width - 2);
+            let center_y = state.rng.gen_range(2..state.world.map.height - 2);
 
             // Extract 3x3 area
             let mut area = vec![vec![Tile::default_floor(); 3]; 3];
@@ -133,7 +133,7 @@ impl StormSystem {
                 for dx in 0..3 {
                     let x = center_x + dx - 1;
                     let y = center_y + dy - 1;
-                    area[dy][dx] = state.map.tiles[y * state.map.width + x].clone();
+                    area[dy][dx] = state.world.map.tiles[y * state.world.map.width + x].clone();
                 }
             }
 
@@ -150,10 +150,10 @@ impl StormSystem {
                 for dx in 0..3 {
                     let x = center_x + dx - 1;
                     let y = center_y + dy - 1;
-                    let idx = y * state.map.width + x;
-                    if state.map.tiles[idx] != rotated[dy][dx] {
-                        state.map.tiles[idx] = rotated[dy][dx].clone();
-                        state.visual_effects.storm_changed_tiles.insert(idx);
+                    let idx = y * state.world.map.width + x;
+                    if state.world.map.tiles[idx] != rotated[dy][dx] {
+                        state.world.map.tiles[idx] = rotated[dy][dx].clone();
+                        state.world.visual_effects.storm_changed_tiles.insert(idx);
                     }
                 }
             }
@@ -162,13 +162,13 @@ impl StormSystem {
 
     /// Swap terrain types in small areas
     fn apply_swap_edit(state: &mut GameState) {
-        let intensity = state.storm.intensity as usize;
+        let intensity = state.world.storm.intensity as usize;
         for _ in 0..(intensity * 3) {
-            let x = state.rng.gen_range(1..state.map.width - 1);
-            let y = state.rng.gen_range(1..state.map.height - 1);
-            let idx = y * state.map.width + x;
+            let x = state.rng.gen_range(1..state.world.map.width - 1);
+            let y = state.rng.gen_range(1..state.world.map.height - 1);
+            let idx = y * state.world.map.width + x;
 
-            let new_tile = match &state.map.tiles[idx] {
+            let new_tile = match &state.world.map.tiles[idx] {
                 Tile::Floor { .. } => {
                     let roll = state.rng.gen_range(0..100);
                     if roll < 20 {
@@ -190,54 +190,54 @@ impl StormSystem {
                     if state.rng.gen_bool(0.2) {
                         Tile::default_floor()
                     } else {
-                        state.map.tiles[idx].clone()
+                        state.world.map.tiles[idx].clone()
                     }
                 }
                 other => other.clone(),
             };
 
-            if state.map.tiles[idx] != new_tile {
-                state.map.tiles[idx] = new_tile;
-                state.visual_effects.storm_changed_tiles.insert(idx);
+            if state.world.map.tiles[idx] != new_tile {
+                state.world.map.tiles[idx] = new_tile;
+                state.world.visual_effects.storm_changed_tiles.insert(idx);
             }
         }
     }
 
     /// Mirror sections of the map horizontally or vertically
     fn apply_mirror_edit(state: &mut GameState) {
-        let intensity = state.storm.intensity as usize;
+        let intensity = state.world.storm.intensity as usize;
         for _ in 0..intensity {
             let size = state.rng.gen_range(3..8);
-            let x = state.rng.gen_range(1..state.map.width - size);
-            let y = state.rng.gen_range(1..state.map.height - size);
+            let x = state.rng.gen_range(1..state.world.map.width - size);
+            let y = state.rng.gen_range(1..state.world.map.height - size);
             let horizontal = state.rng.gen_bool(0.5);
 
             if horizontal {
                 for dy in 0..size {
                     for dx in 0..size / 2 {
-                        let left_idx = (y + dy) * state.map.width + (x + dx);
-                        let right_idx = (y + dy) * state.map.width + (x + size - 1 - dx);
+                        let left_idx = (y + dy) * state.world.map.width + (x + dx);
+                        let right_idx = (y + dy) * state.world.map.width + (x + size - 1 - dx);
 
-                        let left_tile = state.map.tiles[left_idx].clone();
-                        state.map.tiles[left_idx] = state.map.tiles[right_idx].clone();
-                        state.map.tiles[right_idx] = left_tile;
+                        let left_tile = state.world.map.tiles[left_idx].clone();
+                        state.world.map.tiles[left_idx] = state.world.map.tiles[right_idx].clone();
+                        state.world.map.tiles[right_idx] = left_tile;
 
-                        state.visual_effects.storm_changed_tiles.insert(left_idx);
-                        state.visual_effects.storm_changed_tiles.insert(right_idx);
+                        state.world.visual_effects.storm_changed_tiles.insert(left_idx);
+                        state.world.visual_effects.storm_changed_tiles.insert(right_idx);
                     }
                 }
             } else {
                 for dy in 0..size / 2 {
                     for dx in 0..size {
-                        let top_idx = (y + dy) * state.map.width + (x + dx);
-                        let bottom_idx = (y + size - 1 - dy) * state.map.width + (x + dx);
+                        let top_idx = (y + dy) * state.world.map.width + (x + dx);
+                        let bottom_idx = (y + size - 1 - dy) * state.world.map.width + (x + dx);
 
-                        let top_tile = state.map.tiles[top_idx].clone();
-                        state.map.tiles[top_idx] = state.map.tiles[bottom_idx].clone();
-                        state.map.tiles[bottom_idx] = top_tile;
+                        let top_tile = state.world.map.tiles[top_idx].clone();
+                        state.world.map.tiles[top_idx] = state.world.map.tiles[bottom_idx].clone();
+                        state.world.map.tiles[bottom_idx] = top_tile;
 
-                        state.visual_effects.storm_changed_tiles.insert(top_idx);
-                        state.visual_effects.storm_changed_tiles.insert(bottom_idx);
+                        state.world.visual_effects.storm_changed_tiles.insert(top_idx);
+                        state.world.visual_effects.storm_changed_tiles.insert(bottom_idx);
                     }
                 }
             }
@@ -246,10 +246,10 @@ impl StormSystem {
 
     /// Create glass seams/cracks through terrain
     fn apply_fracture_edit(state: &mut GameState) {
-        let intensity = state.storm.intensity as usize;
+        let intensity = state.world.storm.intensity as usize;
         for _ in 0..(intensity * 2) {
-            let start_x = state.rng.gen_range(1..state.map.width - 1);
-            let start_y = state.rng.gen_range(1..state.map.height - 1);
+            let start_x = state.rng.gen_range(1..state.world.map.width - 1);
+            let start_y = state.rng.gen_range(1..state.world.map.height - 1);
             let length = state.rng.gen_range(5..15);
             let angle = state.rng.gen_range(0..8);
 
@@ -269,14 +269,14 @@ impl StormSystem {
 
             for _ in 0..length {
                 if x >= 1
-                    && x < (state.map.width - 1) as i32
+                    && x < (state.world.map.width - 1) as i32
                     && y >= 1
-                    && y < (state.map.height - 1) as i32
+                    && y < (state.world.map.height - 1) as i32
                 {
-                    let idx = (y as usize) * state.map.width + (x as usize);
-                    if !matches!(state.map.tiles[idx], Tile::Glass) {
-                        state.map.tiles[idx] = Tile::Glass;
-                        state.visual_effects.storm_changed_tiles.insert(idx);
+                    let idx = (y as usize) * state.world.map.width + (x as usize);
+                    if !matches!(state.world.map.tiles[idx], Tile::Glass) {
+                        state.world.map.tiles[idx] = Tile::Glass;
+                        state.world.visual_effects.storm_changed_tiles.insert(idx);
                     }
                 }
                 x += dx;
@@ -287,10 +287,10 @@ impl StormSystem {
 
     /// Convert floor tiles to crystal formations (glare tiles)
     fn apply_crystallize_edit(state: &mut GameState) {
-        let intensity = state.storm.intensity as usize;
+        let intensity = state.world.storm.intensity as usize;
         for _ in 0..(intensity * 4) {
-            let center_x = state.rng.gen_range(2..state.map.width - 2);
-            let center_y = state.rng.gen_range(2..state.map.height - 2);
+            let center_x = state.rng.gen_range(2..state.world.map.width - 2);
+            let center_y = state.rng.gen_range(2..state.world.map.height - 2);
             let radius = state.rng.gen_range(1..4);
 
             for dy in -(radius as i32)..=(radius as i32) {
@@ -299,11 +299,11 @@ impl StormSystem {
                         let x = (center_x as i32 + dx) as usize;
                         let y = (center_y as i32 + dy) as usize;
 
-                        if x < state.map.width && y < state.map.height {
-                            let idx = y * state.map.width + x;
-                            if matches!(state.map.tiles[idx], Tile::Floor { .. }) {
-                                state.map.tiles[idx] = Tile::Glare;
-                                state.visual_effects.storm_changed_tiles.insert(idx);
+                        if x < state.world.map.width && y < state.world.map.height {
+                            let idx = y * state.world.map.width + x;
+                            if matches!(state.world.map.tiles[idx], Tile::Floor { .. }) {
+                                state.world.map.tiles[idx] = Tile::Glare;
+                                state.world.visual_effects.storm_changed_tiles.insert(idx);
                             }
                         }
                     }
@@ -314,10 +314,10 @@ impl StormSystem {
 
     /// Spiral rearrangement of map sections
     fn apply_vortex_edit(state: &mut GameState) {
-        let intensity = state.storm.intensity as usize;
+        let intensity = state.world.storm.intensity as usize;
         for _ in 0..intensity {
-            let center_x = state.rng.gen_range(3..state.map.width - 3);
-            let center_y = state.rng.gen_range(3..state.map.height - 3);
+            let center_x = state.rng.gen_range(3..state.world.map.width - 3);
+            let center_y = state.rng.gen_range(3..state.world.map.height - 3);
             let radius = 3;
 
             let mut tiles = Vec::new();
@@ -329,10 +329,10 @@ impl StormSystem {
                     let x = center_x as i32 + (r as f32 * theta.cos()) as i32;
                     let y = center_y as i32 + (r as f32 * theta.sin()) as i32;
 
-                    if x >= 0 && x < state.map.width as i32 && y >= 0 && y < state.map.height as i32
+                    if x >= 0 && x < state.world.map.width as i32 && y >= 0 && y < state.world.map.height as i32
                     {
-                        let idx = (y as usize) * state.map.width + (x as usize);
-                        tiles.push(state.map.tiles[idx].clone());
+                        let idx = (y as usize) * state.world.map.width + (x as usize);
+                        tiles.push(state.world.map.tiles[idx].clone());
                         positions.push((x as usize, y as usize));
                     }
                 }
@@ -348,10 +348,10 @@ impl StormSystem {
                 tiles[len - 1] = first_tile;
 
                 for (i, &(x, y)) in positions.iter().enumerate() {
-                    let idx = y * state.map.width + x;
-                    if state.map.tiles[idx] != tiles[i] {
-                        state.map.tiles[idx] = tiles[i].clone();
-                        state.visual_effects.storm_changed_tiles.insert(idx);
+                    let idx = y * state.world.map.width + x;
+                    if state.world.map.tiles[idx] != tiles[i] {
+                        state.world.map.tiles[idx] = tiles[i].clone();
+                        state.world.visual_effects.storm_changed_tiles.insert(idx);
                     }
                 }
             }

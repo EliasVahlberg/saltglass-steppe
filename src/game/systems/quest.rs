@@ -13,35 +13,35 @@ impl System for QuestSystem {
     fn on_event(&self, state: &mut GameState, event: &GameEvent) {
         let completed = match event {
             GameEvent::EnemyKilled { enemy_id, .. } => {
-                state.quest_log.on_enemy_killed(enemy_id);
-                state.quest_log.check_auto_complete()
+                state.player.quest_log.on_enemy_killed(enemy_id);
+                state.player.quest_log.check_auto_complete()
             }
             GameEvent::ItemPickedUp { item_id } => {
-                state.quest_log.on_item_collected(item_id);
-                state.quest_log.check_auto_complete()
+                state.player.quest_log.on_item_collected(item_id);
+                state.player.quest_log.check_auto_complete()
             }
             GameEvent::PlayerMoved { to_x, to_y, .. } => {
-                state.quest_log.on_position_changed(*to_x, *to_y);
-                state.quest_log.check_auto_complete()
+                state.player.quest_log.on_position_changed(*to_x, *to_y);
+                state.player.quest_log.check_auto_complete()
             }
             GameEvent::NpcTalkedTo { npc_id } => {
-                state.quest_log.on_npc_talked(npc_id)
+                state.player.quest_log.on_npc_talked(npc_id)
             }
             GameEvent::InteractableUsed { interactable_id } => {
-                state.quest_log.on_interact(interactable_id);
-                state.quest_log.check_auto_complete()
+                state.player.quest_log.on_interact(interactable_id);
+                state.player.quest_log.check_auto_complete()
             }
             GameEvent::InteractableExamined { interactable_id } => {
-                state.quest_log.on_examine(interactable_id);
-                state.quest_log.check_auto_complete()
+                state.player.quest_log.on_examine(interactable_id);
+                state.player.quest_log.check_auto_complete()
             }
             GameEvent::AriaInterfaced { item_id } => {
-                state.quest_log.on_aria_interfaced(item_id);
-                state.quest_log.check_auto_complete()
+                state.player.quest_log.on_aria_interfaced(item_id);
+                state.player.quest_log.check_auto_complete()
             }
             GameEvent::TurnEnded { .. } => {
-                state.quest_log.on_turn_passed();
-                state.quest_log.check_auto_complete()
+                state.player.quest_log.on_turn_passed();
+                state.player.quest_log.check_auto_complete()
             }
             _ => vec![],
         };

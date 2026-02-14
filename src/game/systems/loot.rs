@@ -51,7 +51,7 @@ impl LootSystem {
             cumulative += entry.weight;
             if roll < cumulative {
                 let item = Item::new(x, y, &entry.item);
-                state.items.push(item);
+                state.items_mut().push(item);
                 state.rebuild_spatial_index();
                 if let Some(def) = get_item_def(&entry.item) {
                     state.log_typed(format!("The enemy drops {}.", def.name), MsgType::Loot);

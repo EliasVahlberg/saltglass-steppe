@@ -27,7 +27,7 @@ impl StatusEffectSystem {
         let mut total_damage = 0;
         let mut messages = Vec::new();
 
-        for effect in &mut state.status_effects {
+        for effect in &mut state.player.status_effects {
             let dmg = effect.tick();
             if dmg > 0 {
                 total_damage += dmg;
@@ -40,14 +40,14 @@ impl StatusEffectSystem {
         }
 
         if total_damage > 0 {
-            state.player_hp -= total_damage;
+            state.player.hp -= total_damage;
         }
 
-        let expired: Vec<String> = state.status_effects.iter()
+        let expired: Vec<String> = state.player.status_effects.iter()
             .filter(|e| e.is_expired())
             .map(|e| e.id.clone())
             .collect();
-        state.status_effects.retain(|e| !e.is_expired());
+        state.player.status_effects.retain(|e| !e.is_expired());
         for effect_id in expired {
             state.emit(GameEvent::StatusEffectExpired { effect_id });
         }
@@ -57,7 +57,7 @@ impl StatusEffectSystem {
     fn tick_enemy_effects(state: &mut GameState) {
         let mut dead_enemies = Vec::new();
 
-        for (idx, enemy) in state.enemies.iter_mut().enumerate() {
+        for (idx, enemy) in state.world.enemies.iter_mut().enumerate() {
             if enemy.hp <= 0 {
                 continue;
             }
@@ -85,15 +85,15 @@ impl StatusEffectSystem {
 
         // Handle enemies killed by status effects
         for idx in dead_enemies.into_iter().rev() {
-            let enemy_id = state.enemies[idx].id.clone();
-            let x = state.enemies[idx].x;
-            let y = state.enemies[idx].y;
+            let enemy_id = state.world.enemies[idx].id.clone();
+            let x = state.world.enemies[idx].x;
+            let y = state.world.enemies[idx].y;
 
             state.enemy_positions.remove(&(x, y));
             state.log_typed(
                 format!(
                     "The {} succumbs to status effects!",
-                    state.enemies[idx].name()
+                    state.world.enemies[idx].name()
                 ),
                 MsgType::Combat,
             );
@@ -104,7 +104,7 @@ impl StatusEffectSystem {
 
     /// Check if player has a blocking healing effect
     pub fn player_healing_blocked(state: &GameState) -> bool {
-        state.status_effects.iter().any(|e| {
+        state.player.status_effects.iter().any(|e| {
             get_status_def(&e.id)
                 .map(|d| d.blocks_healing)
                 .unwrap_or(false)
@@ -114,7 +114,7 @@ impl StatusEffectSystem {
     /// Get player's accuracy penalty from status effects
     pub fn player_accuracy_penalty(state: &GameState) -> i32 {
         state
-            .status_effects
+            .player.status_effects
             .iter()
             .filter_map(|e| get_status_def(&e.id))
             .map(|d| d.reduces_accuracy)
@@ -124,7 +124,7 @@ impl StatusEffectSystem {
     /// Check if player is stunned
     pub fn player_is_stunned(state: &GameState) -> bool {
         state
-            .status_effects
+            .player.status_effects
             .iter()
             .any(|e| e.id == "stun" && e.duration > 0)
     }
