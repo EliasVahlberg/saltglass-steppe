@@ -1,0 +1,25 @@
+# NarrativeEngine serialization roundtrip test
+# Tests quest_log, tutorial_progress, world_history, triggered_effects survive save/load
+
+seed 42
+spawn player 10 10
+
+# Setup narrative state
+accept_quest pest_control
+complete_quest pest_control
+apply_status tutorial_movement_complete 1 1
+apply_status world_event_storm_witnessed 1 1
+
+# Verify initial state
+assert quest_completed pest_control
+assert has_status_effect tutorial_movement_complete
+assert has_status_effect world_event_storm_witnessed
+
+# Save/load cycle
+save_game test_narrative
+load_game test_narrative
+
+# Verify state preserved after load
+assert quest_completed pest_control
+assert has_status_effect tutorial_movement_complete
+assert has_status_effect world_event_storm_witnessed
