@@ -14,7 +14,7 @@ use saltglass_steppe::ui::{
     render_book_reader, render_bottom_panel, render_chest_ui, render_controls,
     render_crafting_menu, render_damage_numbers, render_death_screen, render_debug_console,
     render_debug_menu, render_dialog_box, render_crystal_menu, render_faction_menu, render_inventory_menu, render_issue_reporter,
-    render_menu, render_pause_menu, render_psychic_menu, render_quest_log, render_side_panel,
+    render_light_menu, render_menu, render_pause_menu, render_psychic_menu, render_quest_log, render_side_panel,
     render_skills_menu, render_target_hud, render_void_menu, render_wiki,
 };
 use saltglass_steppe::{GameState, Renderer, get_item_def};
@@ -30,11 +30,11 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenControls => ui.show_controls = true,
         Action::EnterLook => {
             ui.look_mode.active = true;
-            ui.look_mode.x = state.player_x;
-            ui.look_mode.y = state.player_y;
+            ui.look_mode.x = state.player.x;
+            ui.look_mode.y = state.player.y;
         }
         Action::BreakWall(x, y) => {
-            if state.player_hp > 0 {
+            if state.player.hp > 0 {
                 state.try_break_wall(x, y);
             }
         }
@@ -50,15 +50,15 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             Err(e) => state.log(format!("Load failed: {}", e)),
         },
         Action::UseItem(idx) => {
-            if state.player_hp > 0 {
+            if state.player.hp > 0 {
                 state.use_item(idx);
                 ui.inventory_menu.close();
             }
         }
         Action::Move(dx, dy) => {
-            if state.player_hp > 0 {
-                let new_x = state.player_x + dx;
-                let new_y = state.player_y + dy;
+            if state.player.hp > 0 {
+                let new_x = state.player.x + dx;
+                let new_y = state.player.y + dy;
                 if let Some(ei) = state.enemy_at(new_x, new_y) {
                     ui.target_enemy = Some(ei);
                 }
@@ -66,22 +66,22 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             }
         }
         Action::EndTurn => {
-            if state.player_hp > 0 {
+            if state.player.hp > 0 {
                 state.end_turn();
             }
         }
         Action::Wait => {
-            if state.player_hp > 0 {
+            if state.player.hp > 0 {
                 state.wait_turn();
             }
         }
         Action::AutoExplore => {
-            if state.player_hp > 0 {
+            if state.player.hp > 0 {
                 state.auto_explore();
             }
         }
         Action::RangedAttack(x, y) => {
-            if state.player_hp > 0 {
+            if state.player.hp > 0 {
                 // Auto-target enemy when attacking
                 if let Some(ei) = state.enemy_at(x, y) {
                     ui.target_enemy = Some(ei);
@@ -93,9 +93,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             ui.target_enemy = state.enemy_at(x, y);
         }
         Action::UseStairs => {
-            if state.player_hp > 0 {
+            if state.player.hp > 0 {
                 // Check what tile we're standing on
-                if let Some(tile) = state.map.get(state.player_x, state.player_y) {
+                if let Some(tile) = state.world.map.get(state.player.x, state.player.y) {
                     match tile {
                         saltglass_steppe::Tile::StairsDown => {
                             state.enter_subterranean();
@@ -124,8 +124,8 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                         interface,
                         &item.item_id.clone(),
                         1,
-                        &mut state.salt_scrip,
-                        &mut state.inventory,
+                        &mut state.player.salt_scrip,
+                        &mut state.player.inventory,
                     ) {
                         Ok(msg) => {
                             state.log_typed(msg, saltglass_steppe::MsgType::Social);
@@ -138,15 +138,15 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::TradeSell(idx) => {
             if let Some(interface) = &ui.trade_menu.interface {
-                if let Some(item_id) = state.inventory.get(idx) {
+                if let Some(item_id) = state.player.inventory.get(idx) {
                     let trader_id = interface.trader_id.clone();
                     use saltglass_steppe::trading::execute_sell;
                     match execute_sell(
                         interface,
                         &item_id.clone(),
                         1,
-                        &mut state.salt_scrip,
-                        &mut state.inventory,
+                        &mut state.player.salt_scrip,
+                        &mut state.player.inventory,
                     ) {
                         Ok(msg) => {
                             state.log_typed(msg, saltglass_steppe::MsgType::Social);
@@ -188,8 +188,8 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::EquipSelected => {
             if let Some(idx) = ui.inventory_menu.selected_inv_index() {
-                if idx < state.inventory.len() {
-                    if let Some(def) = get_item_def(&state.inventory[idx]) {
+                if idx < state.player.inventory.len() {
+                    if let Some(def) = get_item_def(&state.player.inventory[idx]) {
                         if let Some(slot_str) = &def.equip_slot {
                             if let Ok(slot) = slot_str.parse::<saltglass_steppe::EquipSlot>() {
                                 state.equip_item(idx, slot);
@@ -212,7 +212,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::OpenChest(_) => {
             // Check if player is standing on a chest
-            if let Some(&chest_idx) = state.chest_positions.get(&(state.player_x, state.player_y)) {
+            if let Some(&chest_idx) = state.chest_positions.get(&(state.player.x, state.player.y)) {
                 if state.open_chest(chest_idx) {
                     ui.chest_ui = Some(saltglass_steppe::ui::ChestUI::new(chest_idx));
                 }
@@ -234,13 +234,13 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             ui.chest_ui = None;
         }
         Action::Interact(_, _) => {
-            if state.player_hp > 0 {
-                state.interact_at(state.player_x, state.player_y);
+            if state.player.hp > 0 {
+                state.interact_at(state.player.x, state.player.y);
             }
         }
         Action::Examine(_, _) => {
-            if state.player_hp > 0 {
-                state.examine_at(state.player_x, state.player_y);
+            if state.player.hp > 0 {
+                state.examine_at(state.player.x, state.player.y);
             }
         }
         Action::OpenWiki => {
@@ -258,9 +258,12 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenCrystalMenu => {
             ui.crystal_menu.toggle();
         }
+        Action::OpenLightMenu => {
+            ui.light_menu.toggle();
+        }
         Action::UseVoidAbility => {
             if let Some(ability) = saltglass_steppe::ui::void_menu::get_selected_ability(&ui.void_menu, state) {
-                state.void_system.use_ability(ability);
+                state.player.void_system.use_ability(ability);
             }
         }
         Action::OpenSkillsMenu => {
@@ -276,10 +279,10 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             // TODO: Implement targeting mode
         }
         Action::OpenWorldMap => {
-            ui.world_map_view.toggle(state.world_x, state.world_y);
+            ui.world_map_view.toggle(state.world.world_x, state.world.world_y);
         }
         Action::WorldMapTravel(wx, wy) => {
-            if state.player_hp > 0 && state.layer == 0 {
+            if state.player.hp > 0 && state.player.layer == 0 {
                 state.travel_to_tile_safe(wx, wy);
             }
         }
@@ -295,6 +298,10 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
 
 fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut Renderer) {
     // Fullscreen menus
+    if ui.aria_interface.response_text.len() > 0 {
+        ui.aria_interface.render(frame, frame.area());
+        return;
+    }
     if ui.trade_menu.active {
         use saltglass_steppe::ui::render_trade_menu;
         render_trade_menu(frame, &ui.trade_menu, state);
@@ -304,18 +311,18 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
         render_inventory_menu(
             frame,
             &ui.inventory_menu,
-            &state.inventory,
-            &state.equipment,
+            &state.player.inventory,
+            &state.player.equipment,
         );
         return;
     }
     if let Some(ref mut chest_ui) = ui.chest_ui {
-        if chest_ui.chest_index < state.chests.len() {
+        if chest_ui.chest_index < state.world.chests.len() {
             render_chest_ui(
                 frame,
                 frame.area(),
-                &state.chests[chest_ui.chest_index],
-                &state.inventory,
+                &state.world.chests[chest_ui.chest_index],
+                &state.player.inventory,
                 chest_ui,
             );
         }
@@ -349,18 +356,22 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
         render_crystal_menu(frame, frame.area(), state, &ui.crystal_menu);
         return;
     }
+    if ui.light_menu.active {
+        render_light_menu(frame, frame.area(), state, &ui.light_menu);
+        return;
+    }
     if ui.skills_menu.active {
         render_skills_menu(frame, state, &ui.skills_menu);
         return;
     }
     if ui.world_map_view.open {
-        if let Some(ref world_map) = state.world_map {
+        if let Some(ref world_map) = state.world.world_map {
             saltglass_steppe::ui::render_world_map(
                 frame,
                 frame.area(),
                 world_map,
-                state.world_x,
-                state.world_y,
+                state.world.world_x,
+                state.world.world_y,
                 &ui.world_map_view,
                 state,
             );
@@ -369,7 +380,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
     }
 
     // Death screen
-    if state.player_hp <= 0 {
+    if state.player.hp <= 0 {
         render_death_screen(frame, state);
         return;
     }
@@ -378,7 +389,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
     let main_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
-            Constraint::Min(state.map.width as u16 + 2),
+            Constraint::Min(state.world.map.width as u16 + 2),
             Constraint::Min(22),
         ])
         .split(frame.area());
@@ -605,25 +616,32 @@ fn run_main_game() -> Result<()> {
         let mut state = GameState::new_with_class(seed, &class_id);
         let mut ui = UiState::new();
         // Initialize camera to player position
-        ui.camera_x = state.player_x as f32;
-        ui.camera_y = state.player_y as f32;
+        ui.camera_x = state.player.x as f32;
+        ui.camera_y = state.player.y as f32;
 
         loop {
             // Only tick animations and updates if debug console is not active
             if !ui.debug_console.active {
                 ui.tick_frame();
-                state.visual_effects.tick_hit_flash();
-                state.visual_effects.tick_damage_numbers();
-                state.visual_effects.tick_projectile_trails();
-                state.visual_effects.tick_light_beams();
-                state.visual_effects.tick_animation();
-                ui.update_camera(state.player_x, state.player_y);
+                state.world.visual_effects.tick_hit_flash();
+                state.world.visual_effects.tick_damage_numbers();
+                state.world.visual_effects.tick_projectile_trails();
+                state.world.visual_effects.tick_light_beams();
+                state.world.visual_effects.tick_animation();
+                ui.update_camera(state.player.x, state.player.y);
                 ui.dialog_box.tick(16); // ~60fps
             }
 
             // Check for pending dialogue from NPC interaction
             if let Some((speaker, text)) = state.pending_dialogue.take() {
                 ui.dialog_box.show(&speaker, &text);
+            }
+
+            // Check for pending ARIA dialogue
+            if let Some((text, options)) = state.pending_aria_dialogue.take() {
+                ui.aria_interface.response_text = text;
+                ui.aria_interface.options = options;
+                ui.aria_interface.selected_option = 0;
             }
 
             // Check for pending book open
@@ -638,11 +656,11 @@ fn run_main_game() -> Result<()> {
                     state.pending_trade = Some(trader_id);
                 } else {
                     use saltglass_steppe::trading::{calculate_area_tier, get_trade_interface};
-                    let area_tier = calculate_area_tier(&state.enemies);
+                    let area_tier = calculate_area_tier(&state.world.enemies);
                     if let Some(interface) = get_trade_interface(
                         &trader_id,
                         area_tier,
-                        &state.faction_reputation,
+                        &state.player.faction_reputation,
                         None, // Player faction not yet implemented
                     ) {
                         // Close other menus to ensure trade menu has focus
@@ -660,7 +678,7 @@ fn run_main_game() -> Result<()> {
 
             // Clear target if enemy is dead
             if let Some(ei) = ui.target_enemy {
-                if ei >= state.enemies.len() || state.enemies[ei].hp <= 0 {
+                if ei >= state.world.enemies.len() || state.world.enemies[ei].hp <= 0 {
                     ui.target_enemy = None;
                 }
             }
@@ -682,23 +700,24 @@ fn run_main_game() -> Result<()> {
                         // Check for tutorial messages after each action
                         if ui.tutorial_message.is_none() {
                             if let Some(msg) = state.get_next_tutorial_message() {
-                                ui.tutorial_message = Some((msg.trigger.clone(), msg.text.clone()));
+                                ui.tutorial_message = Some(("Tutorial".to_string(), msg));
                             }
                         }
 
                         // Send game state update to satellite terminals
                         let adaptations: Vec<String> = state
+                            .player
                             .adaptations
                             .iter()
                             .map(|a| a.name().to_string())
                             .collect();
 
                         let _ = ipc_server.send_message(IpcMessage::GameState {
-                            hp: state.player_hp,
-                            max_hp: state.player_max_hp,
-                            refraction: state.refraction as i32,
+                            hp: state.player.hp,
+                            max_hp: state.player.max_hp,
+                            refraction: state.player.refraction as i32,
                             turn: state.turn as u32,
-                            storm_countdown: state.storm.turns_until as i32,
+                            storm_countdown: state.world.storm.turns_until as i32,
                             adaptations,
                             god_view: state.debug_god_view,
                             phase_mode: state.debug_phase,
@@ -706,18 +725,18 @@ fn run_main_game() -> Result<()> {
 
                         // Send inventory update
                         let equipped_items: Vec<String> = [
-                            ("Weapon", &state.equipment.weapon),
-                            ("Ranged", &state.equipment.ranged_weapon),
-                            ("Head", &state.equipment.head),
-                            ("Jacket", &state.equipment.jacket),
-                            ("Pants", &state.equipment.pants),
-                            ("Boots", &state.equipment.boots),
-                            ("Gloves", &state.equipment.gloves),
-                            ("L.Wrist", &state.equipment.left_wrist),
-                            ("R.Wrist", &state.equipment.right_wrist),
-                            ("Necklace", &state.equipment.necklace),
-                            ("Accessory", &state.equipment.accessory),
-                            ("Backpack", &state.equipment.backpack),
+                            ("Weapon", &state.player.equipment.weapon),
+                            ("Ranged", &state.player.equipment.ranged_weapon),
+                            ("Head", &state.player.equipment.head),
+                            ("Jacket", &state.player.equipment.jacket),
+                            ("Pants", &state.player.equipment.pants),
+                            ("Boots", &state.player.equipment.boots),
+                            ("Gloves", &state.player.equipment.gloves),
+                            ("L.Wrist", &state.player.equipment.left_wrist),
+                            ("R.Wrist", &state.player.equipment.right_wrist),
+                            ("Necklace", &state.player.equipment.necklace),
+                            ("Accessory", &state.player.equipment.accessory),
+                            ("Backpack", &state.player.equipment.backpack),
                         ]
                         .iter()
                         .filter_map(|(slot, item)| {
@@ -726,7 +745,7 @@ fn run_main_game() -> Result<()> {
                         .collect();
 
                         let _ = ipc_server.send_message(IpcMessage::InventoryUpdate {
-                            items: state.inventory.clone(),
+                            items: state.player.inventory.clone(),
                             equipped: equipped_items,
                         });
 
@@ -744,18 +763,19 @@ fn run_main_game() -> Result<()> {
 
                         // Send debug info update
                         let tile_seed = state
+                            .world
                             .world_map
                             .as_ref()
-                            .map(|wm| wm.tile_seed(state.world_x, state.world_y))
+                            .map(|wm| wm.tile_seed(state.world.world_x, state.world.world_y))
                             .unwrap_or(0);
                         let _ = ipc_server.send_message(IpcMessage::DebugInfo {
-                            player_pos: (state.player_x, state.player_y),
-                            enemies_count: state.enemies.len(),
-                            items_count: state.inventory.len(),
-                            storm_intensity: state.storm.intensity as i32,
+                            player_pos: (state.player.x, state.player.y),
+                            enemies_count: state.world.enemies.len(),
+                            items_count: state.player.inventory.len(),
+                            storm_intensity: state.world.storm.intensity as i32,
                             seed: state.seed,
                             tile_seed,
-                            world_pos: (state.world_x, state.world_y),
+                            world_pos: (state.world.world_x, state.world.world_y),
                             god_view: state.debug_god_view,
                             phase_mode: state.debug_phase,
                         });
