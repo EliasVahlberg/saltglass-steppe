@@ -1,0 +1,52 @@
+{
+  "name": "dungeon_quest_accessibility_test",
+  "description": "Validate quest objectives spawn in reachable locations",
+  "seed": 789,
+  "world_x": 8,
+  "world_y": 8,
+  "poi_type": "dungeon",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10
+  },
+  "quests": ["the_broken_key"],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "connectivity_ratio",
+        "op": "ge",
+        "value": 0.8
+      },
+      "message": "Quest areas should be reachable"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "chest_count",
+        "op": "ge",
+        "value": 1
+      },
+      "message": "Quest objectives should spawn (chests/items)"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_on_walkable_tile"
+      },
+      "message": "Player should spawn on walkable tile"
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "name": "quest_npc_spawning",
+  "description": "Verify quest TalkTo NPCs spawn when quest is active",
+  "seed": 12345,
+  "world_x": 6,
+  "world_y": 6,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10
+  },
+  "quests": [
+    {
+      "id": "test_quest",
+      "status": "active",
+      "objectives": [
+        {
+          "type": "TalkTo",
+          "npc_id": "test_npc",
+          "completed": false
+        }
+      ]
+    }
+  ],
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "npc_exists",
+        "npc_id": "test_npc"
+      },
+      "message": "Quest TalkTo NPC should spawn"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should be alive"
+    }
+  ]
+}

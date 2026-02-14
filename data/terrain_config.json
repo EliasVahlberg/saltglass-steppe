@@ -131,24 +131,42 @@
   },
   "poi_layouts": {
     "town": {
-      "central_clearing_size": 15,
-      "structure_density": 0.3,
-      "special_features": ["market_square", "well", "watchtower"]
+      "central_clearing_size": 20,
+      "structure_density": 0.4,
+      "special_features": ["market_square", "well", "watchtower"],
+      "building_clusters": 6,
+      "building_size_min": 3,
+      "building_size_max": 6,
+      "road_width": 2,
+      "market_area_size": 8
     },
     "ruins": {
-      "central_clearing_size": 8,
-      "structure_density": 0.6,
-      "special_features": ["collapsed_dome", "archive_fragment", "memory_well"]
+      "central_clearing_size": 10,
+      "structure_density": 0.7,
+      "special_features": ["collapsed_dome", "archive_fragment", "memory_well"],
+      "building_clusters": 8,
+      "building_size_min": 4,
+      "building_size_max": 10,
+      "rubble_density": 0.3,
+      "partial_walls": true
     },
     "shrine": {
-      "central_clearing_size": 6,
-      "structure_density": 0.2,
-      "special_features": ["altar", "prayer_circle", "sacred_light"]
+      "central_clearing_size": 8,
+      "structure_density": 0.15,
+      "special_features": ["altar", "prayer_circle", "sacred_light"],
+      "meditation_paths": 4,
+      "path_width": 1,
+      "altar_platform_size": 3
     },
     "archive": {
-      "central_clearing_size": 12,
-      "structure_density": 0.8,
-      "special_features": ["data_core", "security_grid", "maintenance_shaft"]
+      "central_clearing_size": 6,
+      "structure_density": 0.85,
+      "special_features": ["data_core", "security_grid", "maintenance_shaft"],
+      "chamber_count": 5,
+      "chamber_size_min": 4,
+      "chamber_size_max": 8,
+      "corridor_width": 2,
+      "dead_ends": 3
     }
   }
 }

@@ -82,8 +82,13 @@ impl TileRenderer {
         let tile = &state.map.tiles[idx];
         let light_level = self.get_light_level(x, y, light_map, state.map.width, state.map.height);
 
-        let (glyph, base_color) =
-            self.get_tile_appearance(tile, x, y, frame_count, state.animation_frame);
+        let (glyph, base_color) = self.get_tile_appearance(
+            tile,
+            x,
+            y,
+            frame_count,
+            state.visual_effects.animation_frame,
+        );
         let final_color = self.dim_color(base_color, light_level);
 
         Span::styled(glyph.to_string(), Style::default().fg(final_color))

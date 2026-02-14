@@ -13,9 +13,9 @@ use saltglass_steppe::ui::{
     Action, MainMenuState, MenuAction, UiState, handle_input, handle_menu_input,
     render_book_reader, render_bottom_panel, render_chest_ui, render_controls,
     render_crafting_menu, render_damage_numbers, render_death_screen, render_debug_console,
-    render_debug_menu, render_dialog_box, render_inventory_menu, render_issue_reporter,
+    render_debug_menu, render_dialog_box, render_crystal_menu, render_faction_menu, render_inventory_menu, render_issue_reporter,
     render_menu, render_pause_menu, render_psychic_menu, render_quest_log, render_side_panel,
-    render_skills_menu, render_target_hud, render_wiki,
+    render_skills_menu, render_target_hud, render_void_menu, render_wiki,
 };
 use saltglass_steppe::{GameState, Renderer, get_item_def};
 use std::io::{Result, stdout};
@@ -118,6 +118,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::TradeBuy(idx) => {
             if let Some(interface) = &mut ui.trade_menu.interface {
                 if let Some(item) = interface.available_items.get(idx) {
+                    let trader_id = interface.trader_id.clone();
                     use saltglass_steppe::trading::execute_trade;
                     match execute_trade(
                         interface,
@@ -126,7 +127,10 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                         &mut state.salt_scrip,
                         &mut state.inventory,
                     ) {
-                        Ok(msg) => state.log_typed(msg, saltglass_steppe::MsgType::Social),
+                        Ok(msg) => {
+                            state.log_typed(msg, saltglass_steppe::MsgType::Social);
+                            state.emit(saltglass_steppe::event::GameEvent::TradeCompleted { npc_id: trader_id });
+                        }
                         Err(e) => state.log(e),
                     }
                 }
@@ -135,6 +139,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::TradeSell(idx) => {
             if let Some(interface) = &ui.trade_menu.interface {
                 if let Some(item_id) = state.inventory.get(idx) {
+                    let trader_id = interface.trader_id.clone();
                     use saltglass_steppe::trading::execute_sell;
                     match execute_sell(
                         interface,
@@ -143,7 +148,10 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                         &mut state.salt_scrip,
                         &mut state.inventory,
                     ) {
-                        Ok(msg) => state.log_typed(msg, saltglass_steppe::MsgType::Social),
+                        Ok(msg) => {
+                            state.log_typed(msg, saltglass_steppe::MsgType::Social);
+                            state.emit(saltglass_steppe::event::GameEvent::TradeCompleted { npc_id: trader_id });
+                        }
                         Err(e) => state.log(e),
                     }
                 }
@@ -241,6 +249,20 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenPsychicMenu => {
             ui.psychic_menu.toggle();
         }
+        Action::OpenFactionMenu => {
+            ui.faction_menu.toggle();
+        }
+        Action::OpenVoidMenu => {
+            ui.void_menu.toggle();
+        }
+        Action::OpenCrystalMenu => {
+            ui.crystal_menu.toggle();
+        }
+        Action::UseVoidAbility => {
+            if let Some(ability) = saltglass_steppe::ui::void_menu::get_selected_ability(&ui.void_menu, state) {
+                state.void_system.use_ability(ability);
+            }
+        }
         Action::OpenSkillsMenu => {
             ui.skills_menu.open();
         }
@@ -313,6 +335,18 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
     }
     if ui.psychic_menu.active {
         render_psychic_menu(frame, frame.area(), state, &ui.psychic_menu);
+        return;
+    }
+    if ui.faction_menu.active {
+        render_faction_menu(frame, frame.area(), state, &ui.faction_menu);
+        return;
+    }
+    if ui.void_menu.active {
+        render_void_menu(frame, frame.area(), state, &ui.void_menu);
+        return;
+    }
+    if ui.crystal_menu.active {
+        render_crystal_menu(frame, frame.area(), state, &ui.crystal_menu);
         return;
     }
     if ui.skills_menu.active {
@@ -419,6 +453,36 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
     // Issue reporter overlay
     if ui.issue_reporter.active {
         render_issue_reporter(frame, &ui.issue_reporter);
+    }
+
+    // Tutorial overlay
+    if let Some((_, ref text)) = ui.tutorial_message {
+        let area = frame.area();
+        let popup_width = (area.width.min(60)).max(20);
+        let lines: Vec<Line> = textwrap::wrap(text, (popup_width - 4) as usize)
+            .into_iter()
+            .map(|l| Line::from(l.into_owned()))
+            .collect();
+        let popup_height = (lines.len() as u16 + 4).min(area.height);
+        let x = area.x + (area.width.saturating_sub(popup_width)) / 2;
+        let y = area.y + (area.height.saturating_sub(popup_height)) / 2;
+        let popup_area = Rect::new(x, y, popup_width, popup_height);
+        frame.render_widget(ratatui::widgets::Clear, popup_area);
+        let block = Block::default()
+            .title(" Tutorial ")
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::Cyan))
+            .style(Style::default().bg(Color::Black));
+        let mut all_lines = lines;
+        all_lines.push(Line::from(""));
+        all_lines.push(Line::from(Span::styled(
+            "Press any key to dismiss",
+            Style::default().fg(Color::DarkGray),
+        )));
+        frame.render_widget(
+            Paragraph::new(all_lines).block(block),
+            popup_area,
+        );
     }
 
     // Dialog box overlay (highest priority)
@@ -548,11 +612,11 @@ fn run_main_game() -> Result<()> {
             // Only tick animations and updates if debug console is not active
             if !ui.debug_console.active {
                 ui.tick_frame();
-                state.tick_hit_flash();
-                state.tick_damage_numbers();
-                state.tick_projectile_trails();
-                state.tick_light_beams();
-                state.tick_animation();
+                state.visual_effects.tick_hit_flash();
+                state.visual_effects.tick_damage_numbers();
+                state.visual_effects.tick_projectile_trails();
+                state.visual_effects.tick_light_beams();
+                state.visual_effects.tick_animation();
                 ui.update_camera(state.player_x, state.player_y);
                 ui.dialog_box.tick(16); // ~60fps
             }
@@ -615,6 +679,13 @@ fn run_main_game() -> Result<()> {
                 let action = handle_input(&mut ui, &mut state)?;
                 match update(&mut state, action, &mut ui) {
                     Some(true) => {
+                        // Check for tutorial messages after each action
+                        if ui.tutorial_message.is_none() {
+                            if let Some(msg) = state.get_next_tutorial_message() {
+                                ui.tutorial_message = Some((msg.trigger.clone(), msg.text.clone()));
+                            }
+                        }
+
                         // Send game state update to satellite terminals
                         let adaptations: Vec<String> = state
                             .adaptations

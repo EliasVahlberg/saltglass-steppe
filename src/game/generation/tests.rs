@@ -3,9 +3,6 @@ mod generation_tests {
     use crate::game::generation::events::{EventContext, EventSystem};
     use crate::game::generation::grammar::{Grammar, GrammarContext, GrammarRule};
     use crate::game::generation::narrative::{NarrativeContext, NarrativeIntegration};
-    use crate::game::generation::pipeline::{
-        GenerationConfig, GenerationPass, GenerationPipeline, PassType,
-    };
     use crate::game::generation::templates::{
         ContentTemplate, TemplateContext, TemplateLibrary, TemplateVariant,
     };
@@ -53,59 +50,6 @@ mod generation_tests {
         assert!(table.select(&mut rng).is_none());
         assert!(table.is_empty());
         assert_eq!(table.total_weight(), 0.0);
-    }
-
-    #[test]
-    fn test_generation_pipeline_dependency_resolution() {
-        let config = GenerationConfig {
-            passes: vec![
-                GenerationPass {
-                    id: "terrain".to_string(),
-                    pass_type: PassType::Terrain,
-                    config: serde_json::Value::Null,
-                    dependencies: vec![],
-                },
-                GenerationPass {
-                    id: "features".to_string(),
-                    pass_type: PassType::Features,
-                    config: serde_json::Value::Null,
-                    dependencies: vec!["terrain".to_string()],
-                },
-            ],
-        };
-
-        let pipeline = GenerationPipeline::new(config);
-        let sorted = pipeline.sort_passes_by_dependencies().unwrap();
-
-        assert_eq!(sorted.len(), 2);
-        assert_eq!(sorted[0].id, "terrain");
-        assert_eq!(sorted[1].id, "features");
-    }
-
-    #[test]
-    fn test_generation_pipeline_circular_dependency() {
-        let config = GenerationConfig {
-            passes: vec![
-                GenerationPass {
-                    id: "a".to_string(),
-                    pass_type: PassType::Terrain,
-                    config: serde_json::Value::Null,
-                    dependencies: vec!["b".to_string()],
-                },
-                GenerationPass {
-                    id: "b".to_string(),
-                    pass_type: PassType::Features,
-                    config: serde_json::Value::Null,
-                    dependencies: vec!["a".to_string()],
-                },
-            ],
-        };
-
-        let pipeline = GenerationPipeline::new(config);
-        let result = pipeline.sort_passes_by_dependencies();
-
-        assert!(result.is_err());
-        assert!(result.unwrap_err().contains("Circular dependency"));
     }
 
     #[test]
@@ -822,7 +766,7 @@ mod generation_tests {
             "Should have active seeds after initialization"
         );
 
-        let fragments = system.generate_fragments(&context, &mut rng);
+        let _fragments = system.generate_fragments(&context, &mut rng);
 
         // Should generate some fragments (may be empty if placement rules don't match)
         // This is acceptable behavior - not all contexts will generate fragments

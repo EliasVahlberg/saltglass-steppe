@@ -43,7 +43,14 @@ impl StatusEffectSystem {
             state.player_hp -= total_damage;
         }
 
+        let expired: Vec<String> = state.status_effects.iter()
+            .filter(|e| e.is_expired())
+            .map(|e| e.id.clone())
+            .collect();
         state.status_effects.retain(|e| !e.is_expired());
+        for effect_id in expired {
+            state.emit(GameEvent::StatusEffectExpired { effect_id });
+        }
     }
 
     /// Tick all enemy status effects

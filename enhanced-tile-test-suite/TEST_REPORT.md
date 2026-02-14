@@ -1,16 +1,16 @@
 # Enhanced Tile Generation Test Report
 
-**Generated:** 2026-02-08 14:14:52 UTC
+**Generated:** 2026-02-14 16:35:03 UTC
 
 ## Test Results
 
 | Test | Status | Quality Score | Constraints | PNG | Evaluation |
 |------|--------|---------------|-------------|-----|------------|
-| saltflat_basic | ✅ PASS | 0.646 | 1/2 | ![saltflat_basic](pngs/2001_base_terrain.png) | [JSON](evaluations/2001_evaluation.json) |
-| desert_town | ✅ PASS | 0.643 | 1/2 | ![desert_town](pngs/2002_base_terrain.png) | [JSON](evaluations/2002_evaluation.json) |
-| ruins_landmark | ✅ PASS | 0.687 | 2/2 | ![ruins_landmark](pngs/2003_base_terrain.png) | [JSON](evaluations/2003_evaluation.json) |
-| oasis_shrine | ✅ PASS | 0.637 | 1/2 | ![oasis_shrine](pngs/2004_base_terrain.png) | [JSON](evaluations/2004_evaluation.json) |
-| scrubland_dungeon | ✅ PASS | 0.626 | 1/2 | ![scrubland_dungeon](pngs/2005_base_terrain.png) | [JSON](evaluations/2005_evaluation.json) |
+| saltflat_basic | ✅ PASS | 0.661 | 2/2 | ![saltflat_basic](pngs/2001_base_terrain.png) | [JSON](evaluations/2001_evaluation.json) |
+| desert_town | ✅ PASS | 0.658 | 2/2 | ![desert_town](pngs/2002_base_terrain.png) | [JSON](evaluations/2002_evaluation.json) |
+| ruins_landmark | ✅ PASS | 0.609 | 1/2 | ![ruins_landmark](pngs/2003_base_terrain.png) | [JSON](evaluations/2003_evaluation.json) |
+| oasis_shrine | ✅ PASS | 0.618 | 1/2 | ![oasis_shrine](pngs/2004_base_terrain.png) | [JSON](evaluations/2004_evaluation.json) |
+| scrubland_dungeon | ✅ PASS | 0.612 | 1/2 | ![scrubland_dungeon](pngs/2005_base_terrain.png) | [JSON](evaluations/2005_evaluation.json) |
 | high_glass_density | ✅ PASS | 0.599 | 1/2 | ![high_glass_density](pngs/2006_base_terrain.png) | [JSON](evaluations/2006_evaluation.json) |
 
 ## Pipeline Stages

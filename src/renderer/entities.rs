@@ -106,7 +106,7 @@ impl EntityRenderer {
         }
 
         // Render projectiles
-        for projectile_trail in &state.projectile_trails {
+        for projectile_trail in &state.visual_effects.projectile_trails {
             if projectile_trail.current_idx < projectile_trail.path.len() {
                 let (px, py) = projectile_trail.path[projectile_trail.current_idx];
                 if let Some((screen_x, screen_y)) =

@@ -1,18 +1,20 @@
 use once_cell::sync::Lazy;
 use rand::distributions::{Distribution, WeightedIndex};
+use rand::seq::SliceRandom;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde::Deserialize;
 use std::collections::HashMap;
-use terrain_forge::{
-    Grid, Rng as ForgeRng, SemanticExtractor, Tile as ForgeTile, ops,
-};
+use terrain_forge::{Grid, Rng as ForgeRng, SemanticExtractor, Tile as ForgeTile, ops};
 
 use crate::game::constants::{MAP_HEIGHT, MAP_WIDTH};
 use crate::game::map::{Map, MapFeature, Tile};
 use crate::game::world_map::{Biome, POI, Terrain};
 
+// These config structs are deserialized from terrain_config.json.
+// Some fields are parsed for forward-compatibility but not yet used in generation logic.
 #[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 struct TerrainConfig {
     wall_type: String,
     floor_type: String,
@@ -20,6 +22,7 @@ struct TerrainConfig {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 struct BiomeModifier {
     wall_type_override: Option<String>,
     floor_type_override: Option<String>,
@@ -28,10 +31,30 @@ struct BiomeModifier {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 struct POILayout {
     central_clearing_size: usize,
     structure_density: Option<f64>,
     special_features: Option<Vec<String>>,
+    // Town-specific
+    building_clusters: Option<usize>,
+    building_size_min: Option<usize>,
+    building_size_max: Option<usize>,
+    road_width: Option<usize>,
+    market_area_size: Option<usize>,
+    // Ruins-specific
+    rubble_density: Option<f64>,
+    partial_walls: Option<bool>,
+    // Shrine-specific
+    meditation_paths: Option<usize>,
+    path_width: Option<usize>,
+    altar_platform_size: Option<usize>,
+    // Archive/Dungeon-specific
+    chamber_count: Option<usize>,
+    chamber_size_min: Option<usize>,
+    chamber_size_max: Option<usize>,
+    corridor_width: Option<usize>,
+    dead_ends: Option<usize>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -74,6 +97,17 @@ impl TerrainForgeGenerator {
         _quest_ids: &[String],
     ) -> (Map, Vec<(i32, i32)>) {
         let mut rng = ChaCha8Rng::seed_from_u64(seed);
+
+        // Check if POI should use DungeonGenerator
+        if matches!(poi, POI::Dungeon | POI::Landmark | POI::Shrine) {
+            if let Some(map) = generate_with_dungeon_generator(poi, seed, biome, terrain, &mut rng)
+            {
+                let floor_positions = collect_floor_positions(&map);
+                return (map, floor_positions);
+            }
+            // Fall back to terrain-forge if DungeonGenerator fails
+        }
+
         let mut grid: Grid<ForgeTile> = Grid::new(MAP_WIDTH, MAP_HEIGHT);
 
         let algo_name = select_algorithm(
@@ -83,9 +117,13 @@ impl TerrainForgeGenerator {
             &mut rng,
         );
 
+        // Generate initial terrain
         if ops::generate(&algo_name, &mut grid, Some(seed), None).is_err() {
             ops::generate("cellular", &mut grid, Some(seed), None).ok();
         }
+
+        // Apply Glass Seam Bridging to ensure connectivity
+        ops::generate("glass_seam", &mut grid, Some(seed), None).ok();
 
         let biome_key = match biome {
             Biome::Saltflat => "saltflat",
@@ -141,14 +179,8 @@ impl TerrainForgeGenerator {
             }
         }
 
-        // Ensure map connectivity via Glass Seam Bridging
-        let spawn_center = (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2);
-        crate::game::generation::connectivity::ensure_connectivity(
-            &mut map,
-            spawn_center,
-            &crate::game::generation::connectivity::GSBParams::fast(),
-            &mut rng,
-        );
+        // Ensure map connectivity via Glass Seam Bridging (handled by terrain-forge during generation)
+        // No manual post-processing needed - terrain-forge's GSB algorithm ensures connectivity
 
         if let Some(layout) = poi_layout {
             apply_poi_layout(&mut map, layout, &floor_id, &wall_id, &mut rng);
@@ -179,8 +211,9 @@ impl TerrainForgeGenerator {
             "bsp" | "rooms" => SemanticExtractor::for_rooms(),
             "maze" => SemanticExtractor::for_mazes(),
             _ => SemanticExtractor::for_caves(), // cellular, drunkard, etc.
-        }.extract(&grid, &mut forge_rng);
-        
+        }
+        .extract(&grid, &mut forge_rng);
+
         // TODO: v0.7.0 SemanticExtractor doesn't support POI-specific marker configuration
         // (towns should get npc_slot/shop_slot, shrines should get altar, dungeons should get boss_core)
 
@@ -219,12 +252,18 @@ impl TerrainForgeGenerator {
                     terrain_forge::semantic::MarkerType::Custom(s) => s.clone(),
                     terrain_forge::semantic::MarkerType::Spawn => "Spawn".to_string(),
                     terrain_forge::semantic::MarkerType::Exit => "Exit".to_string(),
-                    terrain_forge::semantic::MarkerType::QuestObjective { priority } => format!("QuestObjective_{}", priority),
+                    terrain_forge::semantic::MarkerType::QuestObjective { priority } => {
+                        format!("QuestObjective_{}", priority)
+                    }
                     terrain_forge::semantic::MarkerType::QuestStart => "QuestStart".to_string(),
                     terrain_forge::semantic::MarkerType::QuestEnd => "QuestEnd".to_string(),
-                    terrain_forge::semantic::MarkerType::LootTier { tier } => format!("LootTier_{}", tier),
+                    terrain_forge::semantic::MarkerType::LootTier { tier } => {
+                        format!("LootTier_{}", tier)
+                    }
                     terrain_forge::semantic::MarkerType::Treasure => "Treasure".to_string(),
-                    terrain_forge::semantic::MarkerType::EncounterZone { difficulty } => format!("EncounterZone_{}", difficulty),
+                    terrain_forge::semantic::MarkerType::EncounterZone { difficulty } => {
+                        format!("EncounterZone_{}", difficulty)
+                    }
                     terrain_forge::semantic::MarkerType::BossRoom => "BossRoom".to_string(),
                     terrain_forge::semantic::MarkerType::SafeZone => "SafeZone".to_string(),
                 },
@@ -233,8 +272,100 @@ impl TerrainForgeGenerator {
             });
         }
 
+        // Inject POI-specific markers
+        inject_poi_markers(&mut map, poi, &floor_positions, &mut rng);
+
         (map, floor_positions)
     }
+}
+
+fn generate_with_dungeon_generator(
+    poi: POI,
+    seed: u64,
+    biome: Biome,
+    terrain: Terrain,
+    _rng: &mut ChaCha8Rng,
+) -> Option<Map> {
+    use terrain_forge::{Grid, Params, Tile as ForgeTile};
+
+    // Use BSP algorithm with different params based on POI type
+    let mut params = Params::new();
+    match poi {
+        POI::Dungeon => {
+            params.insert("min_room_size".to_string(), serde_json::json!(7));
+            params.insert("max_depth".to_string(), serde_json::json!(4));
+            params.insert("room_padding".to_string(), serde_json::json!(2));
+        }
+        POI::Landmark => {
+            params.insert("min_room_size".to_string(), serde_json::json!(8));
+            params.insert("max_depth".to_string(), serde_json::json!(5));
+            params.insert("room_padding".to_string(), serde_json::json!(3));
+        }
+        POI::Shrine => {
+            params.insert("min_room_size".to_string(), serde_json::json!(5));
+            params.insert("max_depth".to_string(), serde_json::json!(3));
+            params.insert("room_padding".to_string(), serde_json::json!(2));
+        }
+        _ => return None,
+    };
+
+    // Generate using terrain-forge BSP
+    let mut grid: Grid<ForgeTile> = Grid::new(MAP_WIDTH, MAP_HEIGHT);
+    terrain_forge::ops::generate("bsp", &mut grid, Some(seed), Some(&params)).ok()?;
+
+    // Get biome materials
+    let biome_key = match biome {
+        Biome::Saltflat => "saltflat",
+        Biome::Oasis => "oasis",
+        Biome::Ruins => "ruins",
+        Biome::Scrubland => "scrubland",
+        Biome::Desert => "desert",
+    };
+    let terrain_key = match terrain {
+        Terrain::Canyon => "canyon",
+        Terrain::Mesa => "mesa",
+        Terrain::Hills => "hills",
+        Terrain::Dunes => "dunes",
+        Terrain::Flat => "flat",
+    };
+
+    let base_cfg = TILE_CONFIG
+        .terrain_types
+        .get(terrain_key)
+        .or_else(|| TILE_CONFIG.terrain_types.get("desert"))?;
+    let modifier = TILE_CONFIG.biome_modifiers.get(biome_key);
+
+    let wall_id = modifier
+        .and_then(|m| m.wall_type_override.clone())
+        .unwrap_or_else(|| base_cfg.wall_type.clone());
+    let floor_id = modifier
+        .and_then(|m| m.floor_type_override.clone())
+        .unwrap_or_else(|| base_cfg.floor_type.clone());
+
+    // Convert to game map
+    let mut map = Map::new(MAP_WIDTH, MAP_HEIGHT);
+    for y in 0..MAP_HEIGHT {
+        for x in 0..MAP_WIDTH {
+            let idx = y * MAP_WIDTH + x;
+            map.tiles[idx] = match grid.get(x as i32, y as i32) {
+                Some(ForgeTile::Wall) => Tile::Wall {
+                    id: wall_id.clone(),
+                    hp: 100,
+                },
+                Some(ForgeTile::Floor) => Tile::Floor {
+                    id: floor_id.clone(),
+                },
+                _ => Tile::Wall {
+                    id: wall_id.clone(),
+                    hp: 100,
+                },
+            };
+        }
+    }
+
+    map.metadata
+        .insert("tilegen_algorithm".to_string(), "bsp".to_string());
+    Some(map)
 }
 
 fn select_algorithm(
@@ -292,6 +423,7 @@ fn apply_poi_layout(
     let center_y = MAP_HEIGHT / 2;
     let half = layout.central_clearing_size / 2;
 
+    // Create central clearing
     for y in center_y.saturating_sub(half)..=(center_y + half).min(MAP_HEIGHT - 1) {
         for x in center_x.saturating_sub(half)..=(center_x + half).min(MAP_WIDTH - 1) {
             map.tiles[y * MAP_WIDTH + x] = Tile::Floor {
@@ -300,7 +432,95 @@ fn apply_poi_layout(
         }
     }
 
-    if let Some(density) = layout.structure_density {
+    // Apply POI-specific patterns
+    if let Some(clusters) = layout.building_clusters {
+        // Town: Create building clusters with roads
+        let size_min = layout.building_size_min.unwrap_or(3);
+        let size_max = layout.building_size_max.unwrap_or(6);
+
+        for _ in 0..clusters {
+            let bldg_x = rng.gen_range(
+                center_x.saturating_sub(half + 5)
+                    ..=center_x
+                        .saturating_add(half + 5)
+                        .min(MAP_WIDTH.saturating_sub(1)),
+            );
+            let bldg_y = rng.gen_range(
+                center_y.saturating_sub(half + 5)
+                    ..=center_y
+                        .saturating_add(half + 5)
+                        .min(MAP_HEIGHT.saturating_sub(1)),
+            );
+            let bldg_w = rng.gen_range(size_min..=size_max);
+            let bldg_h = rng.gen_range(size_min..=size_max);
+
+            // Create building walls
+            for y in bldg_y..bldg_y + bldg_h {
+                for x in bldg_x..bldg_x + bldg_w {
+                    if x < MAP_WIDTH && y < MAP_HEIGHT {
+                        if x == bldg_x
+                            || x == bldg_x + bldg_w - 1
+                            || y == bldg_y
+                            || y == bldg_y + bldg_h - 1
+                        {
+                            map.tiles[y * MAP_WIDTH + x] = Tile::Wall {
+                                id: wall_id.to_string(),
+                                hp: 100,
+                            };
+                        }
+                    }
+                }
+            }
+        }
+    } else if let Some(chamber_count) = layout.chamber_count {
+        // Archive/Dungeon: Create chambers with corridors
+        let size_min = layout.chamber_size_min.unwrap_or(4);
+        let size_max = layout.chamber_size_max.unwrap_or(8);
+
+        for _ in 0..chamber_count {
+            let chamber_x = rng.gen_range(10..MAP_WIDTH.saturating_sub(10));
+            let chamber_y = rng.gen_range(10..MAP_HEIGHT.saturating_sub(10));
+            let chamber_w = rng.gen_range(size_min..=size_max);
+            let chamber_h = rng.gen_range(size_min..=size_max);
+
+            // Carve chamber
+            for y in chamber_y..chamber_y + chamber_h {
+                for x in chamber_x..chamber_x + chamber_w {
+                    if x < MAP_WIDTH && y < MAP_HEIGHT {
+                        map.tiles[y * MAP_WIDTH + x] = Tile::Floor {
+                            id: floor_id.to_string(),
+                        };
+                    }
+                }
+            }
+        }
+    } else if let Some(paths) = layout.meditation_paths {
+        // Shrine: Create meditation paths radiating from center
+        let path_width = layout.path_width.unwrap_or(1);
+
+        for i in 0..paths {
+            let angle = (i as f64 / paths as f64) * 2.0 * std::f64::consts::PI;
+            let dx = angle.cos();
+            let dy = angle.sin();
+
+            for dist in 0..20 {
+                let px = center_x as i32 + (dx * dist as f64) as i32;
+                let py = center_y as i32 + (dy * dist as f64) as i32;
+
+                for offset in -(path_width as i32 / 2)..=(path_width as i32 / 2) {
+                    let x = (px + offset).max(0).min(MAP_WIDTH as i32 - 1) as usize;
+                    let y = py.max(0).min(MAP_HEIGHT as i32 - 1) as usize;
+
+                    if x < MAP_WIDTH && y < MAP_HEIGHT {
+                        map.tiles[y * MAP_WIDTH + x] = Tile::Floor {
+                            id: floor_id.to_string(),
+                        };
+                    }
+                }
+            }
+        }
+    } else if let Some(density) = layout.structure_density {
+        // Generic: Random wall clusters (fallback)
         let clusters = (density * 10.0).ceil() as usize;
         for _ in 0..clusters {
             let start_x = rng.gen_range(
@@ -311,8 +531,9 @@ fn apply_poi_layout(
                 center_y.saturating_sub(6)
                     ..=center_y.saturating_add(6).min(MAP_HEIGHT.saturating_sub(1)),
             );
-            for y in start_y..start_y + 2 {
-                for x in start_x..start_x + 2 {
+            let cluster_size = rng.gen_range(2..=4);
+            for y in start_y..start_y + cluster_size {
+                for x in start_x..start_x + cluster_size {
                     if x < MAP_WIDTH && y < MAP_HEIGHT {
                         map.tiles[y * MAP_WIDTH + x] = Tile::Wall {
                             id: wall_id.to_string(),
@@ -339,9 +560,6 @@ fn collect_floor_positions(map: &Map) -> Vec<(i32, i32)> {
         })
         .collect()
 }
-
-
-
 
 fn take_random_position(
     positions: &mut Vec<(i32, i32)>,
@@ -372,5 +590,144 @@ fn place_special_features(
                 });
             }
         }
+    }
+}
+
+fn inject_poi_markers(
+    map: &mut Map,
+    poi: POI,
+    floor_positions: &[(i32, i32)],
+    rng: &mut ChaCha8Rng,
+) {
+    let center_x = MAP_WIDTH as i32 / 2;
+    let center_y = MAP_HEIGHT as i32 / 2;
+
+    match poi {
+        POI::Town => {
+            // Add shop_slot markers near center (2-3 merchants)
+            let center_positions: Vec<_> = floor_positions
+                .iter()
+                .filter(|(fx, fy)| {
+                    let dx = fx - center_x;
+                    let dy = fy - center_y;
+                    dx * dx + dy * dy < 100 // Within ~10 tiles of center
+                })
+                .collect();
+
+            for _ in 0..rng.gen_range(2..=3) {
+                if let Some(&&(x, y)) = center_positions.choose(rng) {
+                    map.features.push(MapFeature {
+                        x,
+                        y,
+                        feature_id: "shop_slot".to_string(),
+                        source: Some("poi_injection".to_string()),
+                        metadata: HashMap::new(),
+                    });
+                }
+            }
+
+            // Add npc_slot markers (3-5 town NPCs)
+            for _ in 0..rng.gen_range(3..=5) {
+                if let Some(&(x, y)) = floor_positions.choose(rng) {
+                    map.features.push(MapFeature {
+                        x,
+                        y,
+                        feature_id: "npc_slot".to_string(),
+                        source: Some("poi_injection".to_string()),
+                        metadata: HashMap::new(),
+                    });
+                }
+            }
+        }
+
+        POI::Shrine => {
+            // Add altar at center
+            if let Some(&(x, y)) = floor_positions.iter().min_by_key(|(fx, fy)| {
+                let dx = fx - center_x;
+                let dy = fy - center_y;
+                dx * dx + dy * dy
+            }) {
+                map.features.push(MapFeature {
+                    x,
+                    y,
+                    feature_id: "altar".to_string(),
+                    source: Some("poi_injection".to_string()),
+                    metadata: HashMap::new(),
+                });
+            }
+
+            // Add 1-2 npc_slot for shrine keepers
+            for _ in 0..rng.gen_range(1..=2) {
+                if let Some(&(x, y)) = floor_positions.choose(rng) {
+                    map.features.push(MapFeature {
+                        x,
+                        y,
+                        feature_id: "npc_slot".to_string(),
+                        source: Some("poi_injection".to_string()),
+                        metadata: HashMap::new(),
+                    });
+                }
+            }
+        }
+
+        POI::Dungeon => {
+            // Add boss_core marker in a far corner
+            if let Some(&(x, y)) = floor_positions.iter().max_by_key(|(fx, fy)| {
+                let dx = fx - center_x;
+                let dy = fy - center_y;
+                dx * dx + dy * dy
+            }) {
+                map.features.push(MapFeature {
+                    x,
+                    y,
+                    feature_id: "boss_core".to_string(),
+                    source: Some("poi_injection".to_string()),
+                    metadata: HashMap::new(),
+                });
+            }
+
+            // Add loot_slot markers (3-5 treasure spots)
+            for _ in 0..rng.gen_range(3..=5) {
+                if let Some(&(x, y)) = floor_positions.choose(rng) {
+                    map.features.push(MapFeature {
+                        x,
+                        y,
+                        feature_id: "loot_slot".to_string(),
+                        source: Some("poi_injection".to_string()),
+                        metadata: HashMap::new(),
+                    });
+                }
+            }
+        }
+
+        POI::Landmark => {
+            // Add story_hook markers (2-3 lore fragments)
+            for _ in 0..rng.gen_range(2..=3) {
+                if let Some(&(x, y)) = floor_positions.choose(rng) {
+                    map.features.push(MapFeature {
+                        x,
+                        y,
+                        feature_id: "story_hook".to_string(),
+                        source: Some("poi_injection".to_string()),
+                        metadata: HashMap::new(),
+                    });
+                }
+            }
+
+            // Add loot_slot (1-2 relics)
+            for _ in 0..rng.gen_range(1..=2) {
+                if let Some(&(x, y)) = floor_positions.choose(rng) {
+                    map.features.push(MapFeature {
+                        x,
+                        y,
+                        feature_id: "loot_slot".to_string(),
+                        source: Some("poi_injection".to_string()),
+                        metadata: HashMap::new(),
+                    });
+                }
+            }
+        }
+
+        _ => {} // No special markers for generic tiles
     }
 }

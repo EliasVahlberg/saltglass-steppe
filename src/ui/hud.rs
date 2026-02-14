@@ -57,11 +57,11 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
     let chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
-            Constraint::Length(10), // Stats (expanded for sanity)
-            Constraint::Length(5),  // Status Effects
-            Constraint::Length(7),  // Storm Forecast
-            Constraint::Length(9),  // Equipment
-            Constraint::Min(3),     // Quests
+            Constraint::Length(9), // Stats
+            Constraint::Length(5), // Status Effects
+            Constraint::Length(7), // Storm Forecast
+            Constraint::Length(9), // Equipment
+            Constraint::Min(3),    // Quests
         ])
         .split(inner);
 
@@ -114,22 +114,6 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::styled(
                 format!(" {}/{}", state.skills.stamina, state.skills.max_stamina),
                 Style::default().fg(Color::Green),
-            ),
-        ]),
-        Line::from(vec![
-            Span::raw("Sanity: "),
-            Span::styled(
-                format!(
-                    "{}/{}",
-                    state.sanity.current_sanity, state.sanity.max_sanity
-                ),
-                Style::default().fg(if state.sanity.current_sanity > 60 {
-                    Color::Green
-                } else if state.sanity.current_sanity > 30 {
-                    Color::Yellow
-                } else {
-                    Color::Red
-                }),
             ),
         ]),
         Line::from(vec![

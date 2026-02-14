@@ -188,6 +188,7 @@ impl CombatSystem {
         let adapt_mods = total_stat_modifiers(&state.adaptations);
         dmg += adapt_mods.damage_bonus;
         state.enemies[ei].hp -= dmg;
+        state.emit(GameEvent::EnemyDamaged { enemy_idx: ei, amount: dmg });
         state.trigger_hit_flash(target_x, target_y);
         state.spawn_damage_number(target_x, target_y, dmg, false);
 
@@ -319,6 +320,7 @@ impl CombatSystem {
 
         let dmg = result.damage;
         state.enemies[ei].hp -= dmg;
+        state.emit(GameEvent::EnemyDamaged { enemy_idx: ei, amount: dmg });
         state.trigger_hit_flash(target_x, target_y);
         state.spawn_damage_number(target_x, target_y, dmg, false);
 

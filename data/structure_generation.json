@@ -1,0 +1,50 @@
+{
+  "dungeon_presets": {
+    "small_dungeon": {
+      "room_count": 3,
+      "min_room_size": [4, 4],
+      "max_room_size": [8, 6],
+      "organic_blend": 0.2,
+      "ca_iterations": 3
+    },
+    "large_dungeon": {
+      "room_count": 8,
+      "min_room_size": [6, 6],
+      "max_room_size": [14, 10],
+      "organic_blend": 0.4,
+      "ca_iterations": 5
+    },
+    "organic_cave": {
+      "room_count": 5,
+      "min_room_size": [8, 8],
+      "max_room_size": [16, 12],
+      "organic_blend": 0.8,
+      "ca_iterations": 7
+    },
+    "structured_archive": {
+      "room_count": 6,
+      "min_room_size": [5, 5],
+      "max_room_size": [10, 8],
+      "organic_blend": 0.1,
+      "ca_iterations": 2
+    }
+  },
+  "poi_mappings": {
+    "Dungeon": {
+      "presets": [
+        {"name": "large_dungeon", "weight": 60},
+        {"name": "organic_cave", "weight": 40}
+      ]
+    },
+    "Landmark": {
+      "presets": [
+        {"name": "structured_archive", "weight": 100}
+      ]
+    },
+    "Shrine": {
+      "presets": [
+        {"name": "small_dungeon", "weight": 100}
+      ]
+    }
+  }
+}

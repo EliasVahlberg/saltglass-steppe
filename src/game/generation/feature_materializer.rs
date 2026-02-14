@@ -1,7 +1,7 @@
 use crate::game::generation::feature_registry::get_feature_def;
 use crate::game::generation::spawn::{get_biome_spawn_table, weighted_pick_by_level_and_tier};
 use crate::game::light_defs::{get_spawn_rule, pick_light_type};
-use crate::game::world_map::{Biome, Terrain, POI};
+use crate::game::world_map::{Biome, POI, Terrain};
 use crate::game::{Enemy, GameState, Interactable};
 use serde_json::Value;
 
@@ -57,11 +57,7 @@ pub fn materialize_features(
     }
 }
 
-fn place_light(
-    state: &mut GameState,
-    feature: &crate::game::map::MapFeature,
-    params: &Value,
-) {
+fn place_light(state: &mut GameState, feature: &crate::game::map::MapFeature, params: &Value) {
     let table_id = params
         .get("table")
         .and_then(|v| v.as_str())
@@ -80,11 +76,7 @@ fn place_light(
     }
 }
 
-fn place_loot(
-    state: &mut GameState,
-    feature: &crate::game::map::MapFeature,
-    _params: &Value,
-) {
+fn place_loot(state: &mut GameState, feature: &crate::game::map::MapFeature, _params: &Value) {
     // Simple: drop a chest item using existing loot generator by spawn table.
     let id = "generic_chest";
     state
@@ -100,7 +92,10 @@ fn place_enemy(
     level: u32,
     spawns: &[crate::game::generation::spawn::WeightedSpawn],
 ) {
-    let table_id = params.get("table").and_then(|v| v.as_str()).unwrap_or("default");
+    let table_id = params
+        .get("table")
+        .and_then(|v| v.as_str())
+        .unwrap_or("default");
     let use_boss = table_id == "boss";
     let picked = {
         let rng = &mut state.rng;
@@ -111,12 +106,11 @@ fn place_enemy(
     }
 }
 
-fn place_npc(
-    state: &mut GameState,
-    feature: &crate::game::map::MapFeature,
-    params: &Value,
-) {
-    let table_id = params.get("table").and_then(|v| v.as_str()).unwrap_or("default");
+fn place_npc(state: &mut GameState, feature: &crate::game::map::MapFeature, params: &Value) {
+    let table_id = params
+        .get("table")
+        .and_then(|v| v.as_str())
+        .unwrap_or("default");
     // For now, reuse interactables as stand-ins for NPC markers; real NPC table can be added later.
     let npc_id = match table_id {
         "merchant" => "merchant_stall",
@@ -133,16 +127,17 @@ fn place_interactable(
     params: &Value,
 ) {
     if let Some(id) = params.get("id").and_then(|v| v.as_str()) {
-        state.interactables.push(Interactable::new(id.to_string(), feature.x, feature.y));
+        state
+            .interactables
+            .push(Interactable::new(id.to_string(), feature.x, feature.y));
     }
 }
 
-fn emit_story_hook(
-    state: &mut GameState,
-    feature: &crate::game::map::MapFeature,
-    params: &Value,
-) {
-    let kind = params.get("kind").and_then(|v| v.as_str()).unwrap_or("environmental");
+fn emit_story_hook(state: &mut GameState, feature: &crate::game::map::MapFeature, params: &Value) {
+    let kind = params
+        .get("kind")
+        .and_then(|v| v.as_str())
+        .unwrap_or("environmental");
     state.emit(crate::game::event::GameEvent::StoryHook {
         kind: kind.to_string(),
         x: feature.x,
@@ -151,7 +146,6 @@ fn emit_story_hook(
     });
 }
 use std::collections::HashSet;
-
 
 #[cfg(test)]
 mod tests {
@@ -163,7 +157,13 @@ mod tests {
         let mut state = GameState::new(12345);
         state.map = Map::new(10, 10);
         // Set tile to floor so materializer doesn't skip it
-        state.map.set_tile(1, 1, Tile::Floor { id: "stone_floor".to_string() });
+        state.map.set_tile(
+            1,
+            1,
+            Tile::Floor {
+                id: "stone_floor".to_string(),
+            },
+        );
         state.map.features.push(MapFeature {
             x: 1,
             y: 1,
@@ -174,7 +174,10 @@ mod tests {
 
         materialize_features(&mut state, Biome::Desert, Terrain::Flat, POI::None, 1);
 
-        let hook = state.event_queue.iter().any(|e| matches!(e, crate::game::event::GameEvent::StoryHook { .. }));
+        let hook = state
+            .event_queue
+            .iter()
+            .any(|e| matches!(e, crate::game::event::GameEvent::StoryHook { .. }));
         assert!(hook, "story hook event should be enqueued");
     }
 }

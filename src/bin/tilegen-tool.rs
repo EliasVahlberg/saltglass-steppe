@@ -5,9 +5,25 @@ use saltglass_steppe::game::generation::{
     TerrainForgeGenerator,
     structures::{RuinsGenerator, StructureGenerator, StructureParams, StructureType},
 };
-use saltglass_steppe::game::map::Map;
+use saltglass_steppe::game::map::{Map, Tile};
 use saltglass_steppe::game::world_map::{Biome, POI, Terrain};
+use serde::Deserialize;
+use std::collections::HashMap;
 use std::env;
+
+#[derive(Debug, Clone, Deserialize)]
+struct DungeonPreset {
+    room_count: u32,
+    min_room_size: [u32; 2],
+    max_room_size: [u32; 2],
+    organic_blend: f64,
+    ca_iterations: u32,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+struct StructureConfig {
+    dungeon_presets: HashMap<String, DungeonPreset>,
+}
 
 #[deprecated(note = "Legacy tile generation CLI; will be superseded by terrain-forge tooling.")]
 fn main() {
@@ -35,6 +51,10 @@ fn main() {
             let scenario = args.get(3).map(|s| s.as_str()).unwrap_or("quest_location");
             generate_composite_scenario(seed, scenario);
         }
+        "dungeon" => {
+            let preset = args.get(3).map(|s| s.as_str()).unwrap_or("small_dungeon");
+            generate_dungeon(seed, preset);
+        }
         _ => print_usage(),
     }
 }
@@ -49,6 +69,7 @@ fn print_usage() {
     println!("  tile [seed] [poi] [biome]      - Generate tile with optional POI/biome");
     println!("  structure [seed] [type]        - Generate structure only");
     println!("  composite [seed] [scenario]    - Generate composite scenarios");
+    println!("  dungeon [seed] [preset]        - Generate dungeon with preset");
     println!();
     println!("POI TYPES:");
     println!("  town, shrine, landmark, dungeon");
@@ -59,6 +80,9 @@ fn print_usage() {
     println!("STRUCTURE TYPES:");
     println!("  ruins, dungeon, town, shrine");
     println!();
+    println!("DUNGEON PRESETS:");
+    println!("  small_dungeon, large_dungeon, organic_cave, structured_archive");
+    println!();
     println!("COMPOSITE SCENARIOS:");
     println!("  quest_location  - Quest-driven structure generation");
     println!("  biome_variety   - Different biome + structure combinations");
@@ -67,6 +91,155 @@ fn print_usage() {
     println!("  cargo run --bin tilegen-tool tile 123 landmark ruins");
     println!("  cargo run --bin tilegen-tool structure 456 ruins");
     println!("  cargo run --bin tilegen-tool composite 789 quest_location");
+    println!("  cargo run --bin tilegen-tool dungeon 42 large_dungeon");
+}
+
+fn generate_dungeon(seed: u64, preset_name: &str) {
+    println!(
+        "=== DUNGEON GENERATION (Seed: {}, Preset: {}) ===",
+        seed, preset_name
+    );
+
+    // Load structure config
+    let data = include_str!("../../data/structure_generation.json");
+    let config: StructureConfig =
+        serde_json::from_str(data).expect("Failed to parse structure_generation.json");
+
+    let preset = match config.dungeon_presets.get(preset_name) {
+        Some(p) => p,
+        None => {
+            println!("Unknown preset: {}", preset_name);
+            println!(
+                "Available presets: {:?}",
+                config.dungeon_presets.keys().collect::<Vec<_>>()
+            );
+            return;
+        }
+    };
+
+    println!("Preset parameters:");
+    println!("  Room count: {}", preset.room_count);
+    println!(
+        "  Room size: {}x{} to {}x{}",
+        preset.min_room_size[0],
+        preset.min_room_size[1],
+        preset.max_room_size[0],
+        preset.max_room_size[1]
+    );
+    println!("  Organic blend: {:.1}", preset.organic_blend);
+    println!("  CA iterations: {}", preset.ca_iterations);
+
+    // Use terrain-forge BSP algorithm
+    use terrain_forge::{Grid, Params, Tile as ForgeTile};
+
+    let mut grid: Grid<ForgeTile> = Grid::new(80, 40);
+    let mut params = Params::new();
+    params.insert("min_room_size".to_string(), serde_json::json!(5));
+    params.insert("max_depth".to_string(), serde_json::json!(4));
+    params.insert("room_padding".to_string(), serde_json::json!(2));
+
+    terrain_forge::ops::generate("bsp", &mut grid, Some(seed), Some(&params))
+        .expect("Failed to generate dungeon");
+
+    // Convert to Map
+    let mut map = Map::new(80, 40);
+    for y in 0..40 {
+        for x in 0..80 {
+            let idx = y * 80 + x;
+            map.tiles[idx] = match grid.get(x as i32, y as i32) {
+                Some(ForgeTile::Wall) => Tile::Wall {
+                    id: "stone".to_string(),
+                    hp: 100,
+                },
+                Some(ForgeTile::Floor) => Tile::Floor {
+                    id: "stone".to_string(),
+                },
+                _ => Tile::Wall {
+                    id: "stone".to_string(),
+                    hp: 100,
+                },
+            };
+        }
+    }
+
+    display_dungeon_map(&map);
+    display_dungeon_stats(&map);
+}
+
+fn display_dungeon_map(map: &Map) {
+    println!("\nDungeon Map ({}x{}):", map.width, map.height);
+
+    for y in 0..map.height.min(40) {
+        for x in 0..map.width.min(80) {
+            let idx = y * map.width + x;
+            if idx < map.tiles.len() {
+                let char = match &map.tiles[idx] {
+                    saltglass_steppe::game::map::Tile::Wall { .. } => '#',
+                    saltglass_steppe::game::map::Tile::Floor { .. } => '.',
+                    saltglass_steppe::game::map::Tile::Glass { .. } => '*',
+                    _ => ' ',
+                };
+                print!("{}", char);
+            } else {
+                print!(" ");
+            }
+        }
+        println!();
+    }
+
+    println!("\nLegend: # = Wall, . = Floor, * = Glass, (space) = Empty");
+}
+
+fn display_dungeon_stats(map: &Map) {
+    let mut wall_count = 0;
+    let mut floor_count = 0;
+    let mut glass_count = 0;
+    let mut other_count = 0;
+
+    for tile in &map.tiles {
+        match tile {
+            saltglass_steppe::game::map::Tile::Wall { .. } => wall_count += 1,
+            saltglass_steppe::game::map::Tile::Floor { .. } => floor_count += 1,
+            saltglass_steppe::game::map::Tile::Glass { .. } => glass_count += 1,
+            _ => other_count += 1,
+        }
+    }
+
+    let total_tiles = map.tiles.len();
+    let navigable_tiles = floor_count + glass_count;
+    let connectivity_ratio = if total_tiles > 0 {
+        navigable_tiles as f64 / total_tiles as f64
+    } else {
+        0.0
+    };
+
+    println!("\n=== DUNGEON STATS ===");
+    println!("Total tiles: {}", total_tiles);
+    println!(
+        "Walls: {} ({:.1}%)",
+        wall_count,
+        wall_count as f64 / total_tiles as f64 * 100.0
+    );
+    println!(
+        "Floors: {} ({:.1}%)",
+        floor_count,
+        floor_count as f64 / total_tiles as f64 * 100.0
+    );
+    println!(
+        "Glass: {} ({:.1}%)",
+        glass_count,
+        glass_count as f64 / total_tiles as f64 * 100.0
+    );
+    println!(
+        "Other: {} ({:.1}%)",
+        other_count,
+        other_count as f64 / total_tiles as f64 * 100.0
+    );
+    println!("Connectivity ratio: {:.2}", connectivity_ratio);
+
+    if let Some(desc) = &map.area_description {
+        println!("Description: {}", desc);
+    }
 }
 
 fn generate_tile_map(seed: u64, poi_type: Option<&str>, biome: Option<&str>) {

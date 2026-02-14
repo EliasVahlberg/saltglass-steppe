@@ -17,8 +17,7 @@ use super::{
     event::GameEvent,
     fov::FieldOfView,
     generation::{
-        BiomeSystem, ConstraintSystem, GenerationConfig, GenerationPipeline, Grammar,
-        GrammarContext, TemplateContext, TemplateLibrary,
+        BiomeSystem, ConstraintSystem, Grammar, GrammarContext, TemplateContext, TemplateLibrary,
         events::{EventContext, EventSystem},
         narrative::NarrativeIntegration,
     },
@@ -35,7 +34,6 @@ use super::{
     map_features::MapFeatures,
     npc::Npc,
     quest::QuestLog,
-    sanity::SanitySystem,
     storm::Storm,
     systems::movement::MovementSystem,
     tutorial::TutorialProgress,
@@ -171,8 +169,6 @@ pub struct GameState {
     pub last_damage_dealt: u32,
     /// Completed rituals
     #[serde(default)]
-    pub completed_rituals: Vec<super::ritual::CompletedRitual>,
-    #[serde(default)]
     pub equipped_weapon: Option<String>,
     #[serde(default)]
     pub equipment: Equipment,
@@ -223,14 +219,8 @@ pub struct GameState {
     spatial_dirty: bool,
     #[serde(skip)]
     pub event_queue: Vec<GameEvent>,
-    #[serde(skip)]
-    pub hit_flash_positions: Vec<(i32, i32, u32)>,
-    #[serde(skip)]
-    pub damage_numbers: Vec<DamageNumber>,
-    #[serde(skip)]
-    pub projectile_trails: Vec<ProjectileTrail>,
-    #[serde(skip)]
-    pub light_beams: Vec<LightBeam>,
+    #[serde(default)]
+    pub visual_effects: super::visual_effects::VisualEffects,
     #[serde(skip)]
     pub mock_combat_hit: Option<bool>,
     #[serde(skip)]
@@ -264,21 +254,13 @@ pub struct GameState {
     /// Advanced map features (hidden locations, safe routes, etc.)
     #[serde(default)]
     pub map_features: MapFeatures,
-    /// Sanity/Mental health system
-    #[serde(default)]
-    pub sanity: SanitySystem,
     /// Psychic/Quantum Consciousness system
     #[serde(default)]
     pub psychic: super::psychic::PsychicState,
     /// Pending trade interface (for UI)
     #[serde(skip)]
     pub pending_trade: Option<String>,
-    /// Animation frame counter for ambient tile animations
-    #[serde(skip)]
-    pub animation_frame: u32,
-    /// Tiles changed by the last storm (for diff highlighting)
-    #[serde(skip)]
-    pub storm_changed_tiles: HashSet<usize>,
+
     /// Pending dialogue to show in UI (speaker, text)
     #[serde(skip)]
     pub pending_dialogue: Option<(String, String)>,
@@ -325,9 +307,7 @@ pub struct GameState {
     /// Constraint system for map validation and generation rules
     #[serde(skip)]
     pub constraint_system: Option<ConstraintSystem>,
-    /// Generation pipeline to coordinate all procedural systems
-    #[serde(skip)]
-    pub generation_pipeline: Option<GenerationPipeline>,
+
     /// Light manipulation system for beam mechanics and refraction
     #[serde(default)]
     pub light_system: super::light::LightSystem,
@@ -337,46 +317,6 @@ pub struct GameState {
     /// Crystal resonance system for frequency tracking and harmonic effects
     #[serde(default)]
     pub crystal_system: super::crystal_resonance::CrystalSystem,
-}
-
-/// Floating damage number for visual feedback
-#[derive(Clone)]
-pub struct DamageNumber {
-    pub x: i32,
-    pub y: i32,
-    pub value: i32,
-    pub frames: u32,
-    pub is_heal: bool,
-}
-
-/// Projectile trail for ranged attack animation
-#[derive(Clone)]
-pub struct ProjectileTrail {
-    pub path: Vec<(i32, i32)>,
-    pub current_idx: usize,
-    pub frames_per_tile: u32,
-    pub frame_counter: u32,
-    pub char: char,
-}
-
-/// Light beam for tactical visualization
-#[derive(Clone)]
-pub struct LightBeam {
-    pub start_x: i32,
-    pub start_y: i32,
-    pub end_x: i32,
-    pub end_y: i32,
-    pub path: Vec<(i32, i32)>,
-    pub frames_remaining: u32,
-    pub beam_type: BeamType,
-}
-
-#[derive(Clone)]
-pub enum BeamType {
-    Laser,      // Red beam, damage
-    Light,      // Yellow beam, illumination
-    Reflection, // Cyan beam, mirror reflection
-    Arrow,      // Green beam, ranged attack
 }
 
 impl GameState {
@@ -680,7 +620,6 @@ impl GameState {
             // Faction reputation system (-100 to +100 per faction)
             faction_reputation: HashMap::new(),
             last_damage_dealt: 0,
-            completed_rituals: Vec::new(),
             equipment: Equipment::default(),
             status_effects: Vec::new(),
             map,
@@ -722,10 +661,7 @@ impl GameState {
             interactable_positions: HashMap::new(),
             spatial_dirty: true,
             event_queue: Vec::new(),
-            hit_flash_positions: Vec::new(),
-            damage_numbers: Vec::new(),
-            projectile_trails: Vec::new(),
-            light_beams: Vec::new(),
+            visual_effects: super::visual_effects::VisualEffects::default(),
             mock_combat_hit: None,
             mock_combat_damage: None,
             meta: super::meta::MetaProgress::load(),
@@ -738,11 +674,9 @@ impl GameState {
             wait_counter: 0,
             tutorial_progress: TutorialProgress::default(),
             map_features: MapFeatures::new(),
-            sanity: SanitySystem::new(),
             psychic: super::psychic::PsychicState::default(),
             pending_trade: None,
-            animation_frame: 0,
-            storm_changed_tiles: HashSet::new(),
+
             pending_dialogue: None,
             debug_god_view: false,
             debug_phase: false,
@@ -760,7 +694,7 @@ impl GameState {
             grammar_system: None,
             template_library: None,
             constraint_system: None,
-            generation_pipeline: None,
+
             light_system: super::light::LightSystem::default(),
             void_system: super::void_energy::VoidSystem::new(),
             crystal_system: super::crystal_resonance::CrystalSystem::new(),
@@ -825,13 +759,6 @@ impl GameState {
         let constraint_system = ConstraintSystem;
         state.constraint_system = Some(constraint_system);
 
-        // Initialize generation pipeline
-        let pipeline_config = GenerationConfig {
-            passes: vec![], // Minimal config for now
-        };
-        let generation_pipeline = GenerationPipeline::new(pipeline_config);
-        state.generation_pipeline = Some(generation_pipeline);
-
         // Initialize narrative generator and generate world history
         if let Ok(generator) = NarrativeGenerator::new() {
             let mut history_rng = ChaCha8Rng::seed_from_u64(seed + 2);
@@ -846,11 +773,7 @@ impl GameState {
 
         // Materialize terrain-forge markers into entities
         crate::game::generation::feature_materializer::materialize_features(
-            &mut state,
-            biome,
-            terrain,
-            poi,
-            level,
+            &mut state, biome, terrain, poi, level,
         );
 
         // Generate backstories for NPCs now that story model is available
@@ -1024,8 +947,10 @@ impl GameState {
             let table = get_biome_spawn_table(&biome);
             let enemy_count = match poi {
                 super::world_map::POI::Town => 0,
-                super::world_map::POI::Shrine => 1,
-                _ => 4, // Fixed number for now
+                super::world_map::POI::Shrine => 2, // Increased from 1 for challenge
+                super::world_map::POI::Landmark => 3, // Ruins have moderate enemies
+                super::world_map::POI::Dungeon => 5, // Increased from 4 for dungeons
+                super::world_map::POI::None => 3,   // Generic tiles
             };
 
             // Find walkable positions for enemy spawning (use pre-collected positions)
@@ -1148,12 +1073,13 @@ impl GameState {
 
         // Materialize terrain-forge markers into entities for the new map
         crate::game::generation::feature_materializer::materialize_features(
-            self,
-            biome,
-            terrain,
-            poi,
-            level,
+            self, biome, terrain, poi, level,
         );
+
+        // Spawn crafting stations in towns
+        if poi == super::world_map::POI::Town {
+            self.spawn_crafting_stations(&walkable_positions, &mut rng);
+        }
 
         // Spawn quest-required NPCs if needed
         self.spawn_quest_required_npcs();
@@ -1197,6 +1123,32 @@ impl GameState {
         self.generate_template_content("encounter", template_context);
 
         self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
+    }
+
+    /// Spawn crafting stations at random walkable positions
+    fn spawn_crafting_stations(
+        &mut self,
+        walkable: &[(i32, i32)],
+        rng: &mut rand_chacha::ChaCha8Rng,
+    ) {
+        use rand::seq::SliceRandom;
+        let station_ids = ["crafting_table", "glass_forge"];
+        let occupied: std::collections::HashSet<(i32, i32)> = self
+            .interactables
+            .iter()
+            .map(|i| (i.x, i.y))
+            .chain(self.npcs.iter().map(|n| (n.x, n.y)))
+            .collect();
+        let free: Vec<_> = walkable
+            .iter()
+            .filter(|p| !occupied.contains(p))
+            .collect();
+        for id in &station_ids {
+            if let Some(&&(x, y)) = free.choose(rng) {
+                self.interactables
+                    .push(super::interactable::Interactable::new(id.to_string(), x, y));
+            }
+        }
     }
 
     /// Spawn NPCs required for active quests
@@ -1887,8 +1839,8 @@ impl GameState {
         // Check for dynamic events
         self.check_dynamic_events();
 
-        // Notify quests of turn passing (for wait objectives)
-        self.quest_log.on_turn_passed();
+        // Emit TurnEnded — QuestSystem handles turn-based objectives
+        self.emit(GameEvent::TurnEnded { turn: self.turn });
 
         // Process queued events
         self.process_events();
@@ -2138,14 +2090,20 @@ impl GameState {
     fn process_events(&mut self) {
         use super::systems::{LootSystem, QuestSystem, System};
 
-        let events = self.drain_events();
-        for event in events {
-            // Dispatch to systems
-            LootSystem.on_event(self, &event);
-            QuestSystem.on_event(self, &event);
+        // Loop to handle cascading events (e.g. QuestCompleted emitted by QuestSystem)
+        let mut iterations = 0;
+        loop {
+            let events = self.drain_events();
+            if events.is_empty() || iterations >= 10 {
+                break;
+            }
+            iterations += 1;
 
-            // Internal logging/handling
-            self.handle_event(&event);
+            for event in events {
+                LootSystem.on_event(self, &event);
+                QuestSystem.on_event(self, &event);
+                self.handle_event(&event);
+            }
         }
     }
 
@@ -2179,17 +2137,36 @@ impl GameState {
                     MsgType::Warning,
                 );
             }
+            GameEvent::QuestCompleted { quest_id } => {
+                if let Some(def) = crate::game::quest::get_quest_def(quest_id) {
+                    self.log_typed(
+                        format!("Quest completed: {}", def.name),
+                        MsgType::System,
+                    );
+                    for unlock_id in &def.reward.unlocks_quests {
+                        if let Some(unlock_def) = crate::game::quest::get_quest_def(unlock_id) {
+                            self.log_typed(
+                                format!("New quest available: {}", unlock_def.name),
+                                MsgType::System,
+                            );
+                        }
+                    }
+                }
+            }
             _ => {}
         }
     }
 
     /// Apply a status effect to the player
     pub fn apply_status(&mut self, effect: super::status::StatusEffect) {
+        let effect_id = effect.id.clone();
+        let duration = effect.duration;
         self.log_typed(
             format!("You are {}! ({} turns)", effect.name, effect.duration),
             MsgType::System,
         );
         self.status_effects.push(effect);
+        self.emit(GameEvent::StatusEffectApplied { effect_id, duration });
     }
 
     /// Wait in place (costs 0 AP, ends turn). Auto-heals after 10 consecutive waits with no enemies nearby.
@@ -2315,8 +2292,10 @@ impl GameState {
                 if let Some(message) = interactable.interact() {
                     self.log(&message);
 
-                    // Check quest objectives for interaction
-                    self.quest_log.on_interact(&interactable_id);
+                    // Emit event — QuestSystem handles quest objectives
+                    self.emit(GameEvent::InteractableUsed {
+                        interactable_id,
+                    });
 
                     // Mark spatial index as dirty since interactable state changed
                     self.spatial_dirty = true;
@@ -2331,7 +2310,8 @@ impl GameState {
                 let npc_name = npc.name().to_string();
                 let npc_id = npc.id.clone();
                 self.log(&format!("You talk to {}.", npc_name));
-                self.quest_log.on_npc_talked(&npc_id);
+                self.emit(GameEvent::NpcTalkedTo { npc_id: npc_id.clone() });
+                self.emit(GameEvent::DialogueStarted { npc_id });
                 return;
             }
         }
@@ -2359,8 +2339,10 @@ impl GameState {
                 if let Some(message) = interactable.examine() {
                     self.log(&message);
 
-                    // Check quest objectives for examination
-                    self.quest_log.on_examine(&interactable_id);
+                    // Emit event — QuestSystem handles quest objectives
+                    self.emit(GameEvent::InteractableExamined {
+                        interactable_id,
+                    });
                     return;
                 }
             }
@@ -2423,991 +2405,65 @@ impl GameState {
 
     /// Execute a debug command
     pub fn debug_command(&mut self, cmd: &str) {
-        let parts: Vec<&str> = cmd.trim().split_whitespace().collect();
-        match parts.first().map(|s| *s) {
-            Some("show") if parts.get(1) == Some(&"tile") => {
-                self.debug_god_view = true;
-                self.log("Debug: God view enabled");
-            }
-            Some("hide") if parts.get(1) == Some(&"tile") => {
-                self.debug_god_view = false;
-                self.log("Debug: God view disabled");
-            }
-            Some("sturdy") => {
-                self.player_hp = 9999;
-                self.player_max_hp = 9999;
-                self.log("Debug: HP set to 9999/9999");
-            }
-            Some("phase") => {
-                self.debug_phase = !self.debug_phase;
-                self.log(format!(
-                    "Debug: Phase {}",
-                    if self.debug_phase {
-                        "enabled"
-                    } else {
-                        "disabled"
-                    }
-                ));
-            }
-            Some("save_debug") => {
-                let filename = if parts.len() > 1 {
-                    format!("{}.ron", parts[1])
-                } else {
-                    format!("debug_{}.ron", chrono::Utc::now().format("%Y%m%d_%H%M%S"))
-                };
-                match self.save_debug_state(&filename) {
-                    Ok(_) => self.log(format!("Debug state saved: {}", filename)),
-                    Err(e) => self.log(format!("Failed to save debug state: {}", e)),
-                }
-            }
-            Some("load_debug") => {
-                if let Some(filename) = parts.get(1) {
-                    match Self::load_debug_state(filename) {
-                        Ok(state) => {
-                            *self = state;
-                            self.log(format!("Debug state loaded: {}", filename));
-                        }
-                        Err(e) => self.log(format!("Failed to load debug state: {}", e)),
-                    }
-                } else {
-                    self.log("Usage: load_debug <filename>");
-                }
-            }
-            Some("list_debug") => match Self::list_debug_states() {
-                Ok(states) => {
-                    if states.is_empty() {
-                        self.log("No debug states found");
-                    } else {
-                        self.log("Debug states:");
-                        for state in states {
-                            self.log(format!("  {}", state));
-                        }
-                    }
-                }
-                Err(e) => self.log(format!("Failed to list debug states: {}", e)),
-            },
-            Some("debug_info") => {
-                let info = self.get_debug_info();
-                self.log(format!(
-                    "Turn: {} | Pos: ({},{}) | HP: {}/{}",
-                    info.turn,
-                    info.player_pos.0,
-                    info.player_pos.1,
-                    info.player_hp.0,
-                    info.player_hp.1
-                ));
-                self.log(format!(
-                    "Enemies: {} | Items: {} | Storm: {}/{}",
-                    info.enemies_count, info.items_count, info.storm_intensity, info.storm_turns
-                ));
-                self.log(format!(
-                    "Seed: {} | Memory: {}",
-                    info.seed, info.memory_usage
-                ));
-            }
-            Some("run_des") => {
-                if let Some(filename) = parts.get(1) {
-                    match super::des_testing::run_des_test_file(filename) {
-                        Ok(result) => {
-                            self.log(format!(
-                                "DES Test '{}': {}",
-                                result.test_name,
-                                if result.passed { "PASSED" } else { "FAILED" }
-                            ));
-                            for log_entry in result.execution_log {
-                                self.log(format!("  {}", log_entry));
-                            }
-                            if !result.failed_expectations.is_empty() {
-                                self.log("Failed expectations:");
-                                for failure in result.failed_expectations {
-                                    self.log(format!("  - {}", failure));
-                                }
-                            }
-                        }
-                        Err(e) => self.log(format!("DES test failed: {}", e)),
-                    }
-                } else {
-                    self.log("Usage: run_des <filename>");
-                }
-            }
-            Some("list_des") => match super::des_testing::list_des_tests() {
-                Ok(tests) => {
-                    if tests.is_empty() {
-                        self.log("No DES test files found");
-                    } else {
-                        self.log("Available DES tests:");
-                        for test in tests {
-                            self.log(format!("  {}", test));
-                        }
-                    }
-                }
-                Err(e) => self.log(format!("Failed to list DES tests: {}", e)),
-            },
-            Some("create_sample_des") => match super::des_testing::save_sample_des_test() {
-                Ok(()) => self.log("Sample DES test created: tests/sample_test.des"),
-                Err(e) => self.log(format!("Failed to create sample DES test: {}", e)),
-            },
-            Some("spawn") => {
-                if let Some(ui_type) = parts.get(1) {
-                    match ui_type {
-                        &"log" => match crate::terminal_spawn::spawn_terminal_window("log-ui") {
-                            Ok(()) => self.log("Spawned log terminal"),
-                            Err(e) => self.log(format!("Failed to spawn log terminal: {}", e)),
-                        },
-                        &"status" => {
-                            match crate::terminal_spawn::spawn_terminal_window("status-ui") {
-                                Ok(()) => self.log("Spawned status terminal"),
-                                Err(e) => {
-                                    self.log(format!("Failed to spawn status terminal: {}", e))
-                                }
-                            }
-                        }
-                        &"inventory" => {
-                            match crate::terminal_spawn::spawn_terminal_window("inventory-ui") {
-                                Ok(()) => self.log("Spawned inventory terminal"),
-                                Err(e) => {
-                                    self.log(format!("Failed to spawn inventory terminal: {}", e))
-                                }
-                            }
-                        }
-                        &"gamelog" => {
-                            match crate::terminal_spawn::spawn_terminal_window("game-log-ui") {
-                                Ok(()) => self.log("Spawned game log terminal"),
-                                Err(e) => {
-                                    self.log(format!("Failed to spawn game log terminal: {}", e))
-                                }
-                            }
-                        }
-                        &"debug" => {
-                            match crate::terminal_spawn::spawn_terminal_window("debug-ui") {
-                                Ok(()) => self.log("Spawned debug terminal"),
-                                Err(e) => {
-                                    self.log(format!("Failed to spawn debug terminal: {}", e))
-                                }
-                            }
-                        }
-                        _ => self.log("Usage: spawn <log|gamelog|status|inventory|debug>"),
-                    }
-                } else {
-                    self.log("Usage: spawn <log|gamelog|status|inventory|debug>");
-                }
-            }
-            Some("terminals") => {
-                let available = crate::terminal_spawn::get_available_terminals();
-                if available.is_empty() {
-                    self.log("No supported terminal emulators found");
-                } else {
-                    self.log(format!("Available terminals: {}", available.join(", ")));
-                }
-            }
-            Some("report_issue") => {
-                self.log("Issue reporting mode activated. Use UI to file report.");
-                // This will be handled by the UI
-            }
-            Some("add_adaptation") => {
-                if let Some(id) = parts.get(1) {
-                    if let Some(adaptation) = super::adaptation::Adaptation::from_id(id) {
-                        if !self.adaptations.contains(&adaptation) {
-                            self.adaptations.push(adaptation);
-                            self.log(format!("Added adaptation: {}", adaptation.name()));
-                        } else {
-                            self.log(format!("Already have adaptation: {}", adaptation.name()));
-                        }
-                    } else {
-                        self.log(format!("Unknown adaptation: {}", id));
-                    }
-                } else {
-                    self.log("Usage: add_adaptation <id>");
-                }
-            }
-            Some("list_adaptations") => {
-                self.log("Available adaptations:");
-                for id in super::adaptation::all_adaptation_ids() {
-                    if let Some(def) = super::adaptation::get_adaptation_def(id) {
-                        let has = self.adaptations.iter().any(|a| a.id() == id);
-                        self.log(format!(
-                            "  {} - {} {}",
-                            id,
-                            def.name,
-                            if has { "[HAVE]" } else { "" }
-                        ));
-                    }
-                }
-            }
-            Some("add_psychic") => {
-                if let Some(id) = parts.get(1) {
-                    if super::psychic::get_ability_def(id).is_some() {
-                        if !self.psychic.unlocked_abilities.contains(&id.to_string()) {
-                            self.psychic.unlocked_abilities.push(id.to_string());
-                            self.log(format!("Added psychic ability: {}", id));
-                        } else {
-                            self.log(format!("Already have psychic ability: {}", id));
-                        }
-                    } else {
-                        self.log(format!("Unknown psychic ability: {}", id));
-                    }
-                } else {
-                    self.log("Usage: add_psychic <id>");
-                }
-            }
-            Some("list_psychic") => {
-                self.log("Available psychic abilities:");
-                for id in super::psychic::all_ability_ids() {
-                    if let Some(def) = super::psychic::get_ability_def(id) {
-                        let has = self.psychic.unlocked_abilities.contains(&id.to_string());
-                        self.log(format!(
-                            "  {} - {} (Cost: {}) {}",
-                            id,
-                            def.name,
-                            def.coherence_cost,
-                            if has { "[HAVE]" } else { "" }
-                        ));
-                    }
-                }
-            }
-            Some("set_coherence") => {
-                if let Some(amount_str) = parts.get(1) {
-                    if let Ok(amount) = amount_str.parse::<u32>() {
-                        self.psychic.coherence = amount;
-                        self.psychic.max_coherence = amount.max(self.psychic.max_coherence);
-                        self.log(format!("Set coherence to: {}", amount));
-                    } else {
-                        self.log("Invalid amount. Use a number.");
-                    }
-                } else {
-                    self.log("Usage: set_coherence <amount>");
-                }
-            }
-            Some("add_skill_points") => {
-                if let Some(amount_str) = parts.get(1) {
-                    if let Ok(amount) = amount_str.parse::<u32>() {
-                        self.skills.skill_points += amount;
-                        self.log(format!(
-                            "Added {} skill points (total: {})",
-                            amount, self.skills.skill_points
-                        ));
-                    } else {
-                        self.log("Invalid amount. Use a number.");
-                    }
-                } else {
-                    self.skills.skill_points += 10;
-                    self.log(format!(
-                        "Added 10 skill points (total: {})",
-                        self.skills.skill_points
-                    ));
-                }
-            }
-            Some("set_stamina") => {
-                if let Some(amount_str) = parts.get(1) {
-                    if let Ok(amount) = amount_str.parse::<u32>() {
-                        self.skills.stamina = amount;
-                        self.skills.max_stamina = amount.max(self.skills.max_stamina);
-                        self.log(format!("Set stamina to: {}", amount));
-                    } else {
-                        self.log("Invalid amount. Use a number.");
-                    }
-                } else {
-                    self.log("Usage: set_stamina <amount>");
-                }
-            }
-            Some("unlock_skill") => {
-                if let Some(skill_id) = parts.get(1) {
-                    if super::skills::get_skill_def(skill_id).is_some() {
-                        self.skills.skills.insert(skill_id.to_string(), 1);
-                        self.skills.check_ability_unlocks();
-                        self.log(format!("Unlocked skill: {}", skill_id));
-                    } else {
-                        self.log(format!("Unknown skill: {}", skill_id));
-                    }
-                } else {
-                    self.log("Usage: unlock_skill <skill_id>");
-                }
-            }
-            Some("list_skills") => {
-                self.log("Available skills:");
-                for id in super::skills::all_skill_ids() {
-                    if let Some(def) = super::skills::get_skill_def(id) {
-                        let level = self.skills.get_skill_level(id);
-                        self.log(format!("  {} - {} (Lv.{})", id, def.name, level));
-                    }
-                }
-            }
-            Some("list_abilities") => {
-                self.log("Available abilities:");
-                for id in super::skills::all_ability_ids() {
-                    if let Some(def) = super::skills::get_ability_def(id) {
-                        let unlocked = self.skills.unlocked_abilities.contains(&id.to_string());
-                        self.log(format!(
-                            "  {} - {} {}",
-                            id,
-                            def.name,
-                            if unlocked { "[UNLOCKED]" } else { "" }
-                        ));
-                    }
-                }
-            }
-            Some("focus_beam") => {
-                if parts.len() >= 2 {
-                    let direction = match parts[1] {
-                        "n" | "north" => super::light::Direction::North,
-                        "s" | "south" => super::light::Direction::South,
-                        "e" | "east" => super::light::Direction::East,
-                        "w" | "west" => super::light::Direction::West,
-                        "ne" => super::light::Direction::NorthEast,
-                        "nw" => super::light::Direction::NorthWest,
-                        "se" => super::light::Direction::SouthEast,
-                        "sw" => super::light::Direction::SouthWest,
-                        _ => {
-                            self.log("Invalid direction. Use: n, s, e, w, ne, nw, se, sw");
-                            return;
-                        }
-                    };
-
-                    if self
-                        .light_system
-                        .focus_beam(self.player_x, self.player_y, direction, 10)
-                    {
-                        self.log("You focus a beam of light!");
-                    } else {
-                        self.log("Not enough light energy!");
-                    }
-                } else {
-                    self.log("Usage: focus_beam <direction>");
-                }
-            }
-            Some("create_prism") => {
-                if parts.len() >= 3 {
-                    if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
-                        if self.light_system.create_prism(x, y, 20) {
-                            self.log(format!("Created light prism at ({}, {})", x, y));
-                        } else {
-                            self.log("Not enough light energy!");
-                        }
-                    } else {
-                        self.log("Invalid coordinates");
-                    }
-                } else {
-                    self.log("Usage: create_prism <x> <y>");
-                }
-            }
-            Some("add_light_energy") => {
-                let amount = if parts.len() >= 2 {
-                    parts[1].parse::<u32>().unwrap_or(50)
-                } else {
-                    50
-                };
-                self.light_system.light_energy += amount;
-                self.log(format!(
-                    "Added {} light energy (total: {})",
-                    amount, self.light_system.light_energy
-                ));
-            }
-            Some("absorb_light") => {
-                let absorbed =
-                    self.light_system
-                        .absorb_light(self.player_x, self.player_y, &self.map);
-                if absorbed > 0 {
-                    self.log(format!("Absorbed {} light energy", absorbed));
-                } else {
-                    self.log("No light to absorb here");
-                }
-            }
-            Some("add_void_exposure") => {
-                let amount = if parts.len() >= 2 {
-                    parts[1].parse::<u32>().unwrap_or(10)
-                } else {
-                    10
-                };
-                let level_changed = self.void_system.add_exposure(amount);
-                self.log(format!(
-                    "Added {} void exposure (total: {})",
-                    amount, self.void_system.void_exposure
-                ));
-                if level_changed {
-                    self.log(format!(
-                        "Void exposure level: {:?}",
-                        self.void_system.exposure_level()
-                    ));
-                }
-            }
-            Some("add_void_energy") => {
-                let amount = if parts.len() >= 2 {
-                    parts[1].parse::<u32>().unwrap_or(25)
-                } else {
-                    25
-                };
-                self.void_system.gain_energy(amount);
-                self.log(format!(
-                    "Added {} void energy (total: {}/{})",
-                    amount, self.void_system.void_energy, self.void_system.max_void_energy
-                ));
-            }
-            Some("void_step") => {
-                if parts.len() >= 3 {
-                    if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
-                        if self
-                            .void_system
-                            .void_step(self.player_x, self.player_y, x, y)
-                        {
-                            self.player_x = x;
-                            self.player_y = y;
-                            self.log("You step through the void!");
-                        } else {
-                            self.log("Cannot void step (insufficient energy or too far)");
-                        }
-                    } else {
-                        self.log("Invalid coordinates");
-                    }
-                } else {
-                    self.log("Usage: void_step <x> <y>");
-                }
-            }
-            Some("reality_rend") => {
-                if parts.len() >= 3 {
-                    if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
-                        if let Some(damage) = self.void_system.reality_rend(x, y) {
-                            self.log(format!("Reality rend deals {} void damage!", damage));
-                        } else {
-                            self.log(
-                                "Cannot use reality rend (insufficient energy or not unlocked)",
-                            );
-                        }
-                    } else {
-                        self.log("Invalid coordinates");
-                    }
-                } else {
-                    self.log("Usage: reality_rend <x> <y>");
-                }
-            }
-            Some("create_crystal") => {
-                if parts.len() >= 4 {
-                    if let (Ok(x), Ok(y)) = (parts[1].parse::<i32>(), parts[2].parse::<i32>()) {
-                        let frequency = match parts[3] {
-                            "alpha" => super::crystal_resonance::CrystalFrequency::Alpha,
-                            "beta" => super::crystal_resonance::CrystalFrequency::Beta,
-                            "gamma" => super::crystal_resonance::CrystalFrequency::Gamma,
-                            "delta" => super::crystal_resonance::CrystalFrequency::Delta,
-                            "epsilon" => super::crystal_resonance::CrystalFrequency::Epsilon,
-                            _ => {
-                                self.log(
-                                    "Invalid frequency. Use: alpha, beta, gamma, delta, epsilon",
-                                );
-                                return;
-                            }
-                        };
-
-                        if self.crystal_system.create_crystal_seed(x, y, frequency, 20) {
-                            self.log(format!(
-                                "Created {} crystal at ({}, {})",
-                                frequency.name(),
-                                x,
-                                y
-                            ));
-                        } else {
-                            self.log("Not enough resonance energy!");
-                        }
-                    } else {
-                        self.log("Invalid coordinates");
-                    }
-                } else {
-                    self.log("Usage: create_crystal <x> <y> <frequency>");
-                }
-            }
-            Some("resonate") => {
-                let energy = self.crystal_system.resonate(self.player_x, self.player_y);
-                if energy > 0 {
-                    self.log(format!("Resonated with crystals, gained {} energy", energy));
-                } else {
-                    self.log("No crystals to resonate with here");
-                }
-            }
-            Some("add_resonance_energy") => {
-                let amount = if parts.len() >= 2 {
-                    parts[1].parse::<u32>().unwrap_or(30)
-                } else {
-                    30
-                };
-                self.crystal_system.resonance_energy = (self.crystal_system.resonance_energy
-                    + amount)
-                    .min(self.crystal_system.max_resonance_energy);
-                self.log(format!(
-                    "Added {} resonance energy (total: {}/{})",
-                    amount,
-                    self.crystal_system.resonance_energy,
-                    self.crystal_system.max_resonance_energy
-                ));
-            }
-            Some("harmonize") => {
-                if self
-                    .crystal_system
-                    .harmonize(self.player_x, self.player_y, 3, 40)
-                {
-                    self.log("Created harmonic resonance!");
-                } else {
-                    self.log("Cannot harmonize (insufficient energy or crystals)");
-                }
-            }
-            Some("spawn_enemy") => {
-                if let Some(id) = parts.get(1) {
-                    if super::enemy::get_enemy_def(id).is_some() {
-                        let x = parts
-                            .get(2)
-                            .and_then(|s| s.parse().ok())
-                            .unwrap_or(self.player_x + 1);
-                        let y = parts
-                            .get(3)
-                            .and_then(|s| s.parse().ok())
-                            .unwrap_or(self.player_y);
-
-                        if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
-                            let enemy = super::enemy::Enemy::new(x, y, id);
-                            self.enemies.push(enemy);
-                            self.log(format!("Spawned {} at ({}, {})", id, x, y));
-                        } else {
-                            self.log("Cannot spawn at that location (not walkable)");
-                        }
-                    } else {
-                        self.log(format!("Unknown enemy: {}", id));
-                    }
-                } else {
-                    self.log("Usage: spawn_enemy <id> [x] [y]");
-                }
-            }
-            Some("spawn_swarm") => {
-                if let Some(id) = parts.get(1) {
-                    if let Some(count_str) = parts.get(2) {
-                        if let Ok(count) = count_str.parse::<u32>() {
-                            if super::enemy::get_enemy_def(id).is_some() {
-                                let swarm_id = format!("swarm_{}", self.turn);
-                                let mut spawned = 0;
-
-                                for dx in -2..=2 {
-                                    for dy in -2..=2 {
-                                        if spawned >= count {
-                                            break;
-                                        }
-                                        let x = self.player_x + dx;
-                                        let y = self.player_y + dy;
-
-                                        if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false)
-                                        {
-                                            let enemy = super::enemy::Enemy::new_swarm_member(
-                                                x,
-                                                y,
-                                                id,
-                                                swarm_id.clone(),
-                                                spawned == 0,
-                                            );
-                                            self.enemies.push(enemy);
-                                            spawned += 1;
-                                        }
-                                    }
-                                    if spawned >= count {
-                                        break;
-                                    }
-                                }
-
-                                self.log(format!(
-                                    "Spawned swarm of {} {} (count: {})",
-                                    spawned, id, count
-                                ));
-                            } else {
-                                self.log(format!("Unknown enemy: {}", id));
-                            }
-                        } else {
-                            self.log("Invalid count. Use a number.");
-                        }
-                    } else {
-                        self.log("Usage: spawn_swarm <id> <count>");
-                    }
-                } else {
-                    self.log("Usage: spawn_swarm <id> <count>");
-                }
-            }
-            Some("spawn_npc") => {
-                if let Some(id) = parts.get(1) {
-                    if super::npc::get_npc_def(id).is_some() {
-                        let x = parts
-                            .get(2)
-                            .and_then(|s| s.parse().ok())
-                            .unwrap_or(self.player_x + 1);
-                        let y = parts
-                            .get(3)
-                            .and_then(|s| s.parse().ok())
-                            .unwrap_or(self.player_y);
-
-                        if self.map.get(x, y).map(|t| t.walkable()).unwrap_or(false) {
-                            let npc = super::npc::Npc::new(x, y, id);
-                            self.npcs.push(npc);
-                            self.spatial_dirty = true; // Mark spatial index as dirty
-                            self.log(format!(
-                                "Spawned NPC {} at ({}, {}) - Total NPCs: {}",
-                                id,
-                                x,
-                                y,
-                                self.npcs.len()
-                            ));
-                        } else {
-                            self.log("Cannot spawn at that location (not walkable)");
-                        }
-                    } else {
-                        self.log(format!("Unknown NPC: {}", id));
-                    }
-                } else {
-                    self.log("Usage: spawn_npc <id> [x] [y]");
-                }
-            }
-            Some("list_npcs") => {
-                self.log("Available NPCs:");
-                for id in super::npc::all_npc_ids() {
-                    if let Some(def) = super::npc::get_npc_def(id) {
-                        self.log(format!("  {} - {} ({})", id, def.name, def.glyph));
-                    }
-                }
-            }
-            Some("show_npcs") => {
-                if self.npcs.is_empty() {
-                    self.log("No NPCs currently spawned");
-                } else {
-                    let npc_info: Vec<String> = self
-                        .npcs
-                        .iter()
-                        .enumerate()
-                        .map(|(i, npc)| format!("  {}: {} at ({}, {})", i, npc.id, npc.x, npc.y))
-                        .collect();
-                    self.log(format!("Current NPCs ({}): ", self.npcs.len()));
-                    for info in npc_info {
-                        self.log(info);
-                    }
-                }
-            }
-            Some("give_item") => {
-                if let Some(id) = parts.get(1) {
-                    if super::item::get_item_def(id).is_some() {
-                        let count = parts.get(2).and_then(|s| s.parse().ok()).unwrap_or(1);
-                        for _ in 0..count {
-                            self.inventory.push(id.to_string());
-                        }
-                        self.log(format!("Added {} x{} to inventory", id, count));
-                    } else {
-                        self.log(format!("Unknown item: {}", id));
-                    }
-                } else {
-                    self.log("Usage: give_item <id> [count]");
-                }
-            }
-            Some("show_level") => {
-                let level = self.get_current_tile_level();
-                let threat_desc = match level {
-                    1 => "Safe",
-                    2..=3 => "Low Threat",
-                    4..=6 => "Medium Threat",
-                    7..=8 => "High Threat",
-                    9..=10 => "EXTREME THREAT",
-                    _ => "Unknown Threat",
-                };
-                self.log(format!("Current tile level: {} ({})", level, threat_desc));
-            }
-            Some("show_item_tiers") => {
-                self.log("Items by tier:");
-                for tier in 1..=5 {
-                    self.log(format!("Tier {} items:", tier));
-                    for id in super::item::all_item_ids() {
-                        if let Some(def) = super::item::get_item_def(id) {
-                            if def.tier == tier {
-                                self.log(format!("  {} - {} (value: {})", id, def.name, def.value));
-                            }
-                        }
-                    }
-                }
-            }
-            Some("complete_quest") => {
-                if let Some(quest_id) = parts.get(1) {
-                    self.debug_complete_quest_objectives(quest_id);
-                } else {
-                    self.log("Usage: complete_quest <quest_id>");
-                }
-            }
-            Some("list_quests") => {
-                let mut messages = Vec::new();
-
-                if self.quest_log.active.is_empty() {
-                    messages.push("No active quests".to_string());
-                } else {
-                    messages.push("Active quests:".to_string());
-                    for quest in &self.quest_log.active {
-                        if let Some(def) = quest.def() {
-                            let completed_objectives =
-                                quest.objectives.iter().filter(|o| o.completed).count();
-                            let total_objectives = quest.objectives.len();
-                            messages.push(format!(
-                                "  {} - {} ({}/{})",
-                                quest.quest_id, def.name, completed_objectives, total_objectives
-                            ));
-                        }
-                    }
-                }
-
-                if !self.quest_log.completed.is_empty() {
-                    messages.push("Completed quests:".to_string());
-                    for quest_id in &self.quest_log.completed {
-                        if let Some(def) = super::quest::get_quest_def(quest_id) {
-                            messages.push(format!("  {} - {}", quest_id, def.name));
-                        }
-                    }
-                }
-
-                // Log all messages
-                for message in messages {
-                    self.log(message);
-                }
-            }
-            Some("interact") => {
-                if let Some(target) = parts.get(1) {
-                    self.quest_log.on_interact(target);
-                    self.log(format!("Debug: Triggered interact with {}", target));
-                } else {
-                    self.log("Usage: interact <target>");
-                }
-            }
-            Some("examine") => {
-                if let Some(target) = parts.get(1) {
-                    self.quest_log.on_examine(target);
-                    self.log(format!("Debug: Triggered examine {}", target));
-                } else {
-                    self.log("Usage: examine <target>");
-                }
-            }
-            Some("collect_data") => {
-                self.quest_log.on_data_collected();
-                self.log("Debug: Triggered data collection");
-            }
-            Some("help") => {
-                self.log("Debug Commands:");
-                self.log("  show tile, hide tile - Toggle god view");
-                self.log("  sturdy - Set HP to 9999");
-                self.log("  phase - Toggle wall phasing");
-                self.log("  save_debug [name] - Save debug state");
-                self.log("  load_debug <name> - Load debug state");
-                self.log("  list_debug - List saved debug states");
-                self.log("  debug_info - Show debug information");
-                self.log("  report_issue - Open issue reporter");
-                self.log("  run_des <file> - Run DES test");
-                self.log("  list_des - List DES test files");
-                self.log("  create_sample_des - Create sample DES test");
-                self.log("  spawn <log|gamelog|status|inventory|debug> - Spawn satellite terminal");
-                self.log("  terminals - List available terminal emulators");
-                self.log("  add_adaptation <id> - Add adaptation");
-                self.log("  list_adaptations - List available adaptations");
-                self.log("  add_psychic <id> - Add psychic ability");
-                self.log("  list_psychic - List available psychic abilities");
-                self.log("  set_coherence <amount> - Set psychic coherence");
-                self.log("  add_skill_points [amount] - Add skill points");
-                self.log("  set_stamina <amount> - Set stamina");
-                self.log("  unlock_skill <id> - Unlock a skill");
-                self.log("  list_skills - List available skills");
-                self.log("  list_abilities - List available abilities");
-                self.log("  focus_beam <direction> - Create light beam (costs 10 energy)");
-                self.log("  create_prism <x> <y> - Create refraction surface (costs 20 energy)");
-                self.log("  add_light_energy [amount] - Add light energy");
-                self.log("  absorb_light - Absorb light from nearby sources");
-                self.log("  add_void_exposure [amount] - Add void exposure");
-                self.log("  add_void_energy [amount] - Add void energy");
-                self.log("  void_step <x> <y> - Teleport through void (costs 15 energy)");
-                self.log("  reality_rend <x> <y> - Void damage attack (costs 25 energy)");
-                self.log("  create_crystal <x> <y> <frequency> - Create crystal (costs 20 energy)");
-                self.log("  resonate - Resonate with nearby crystals");
-                self.log("  add_resonance_energy [amount] - Add resonance energy");
-                self.log("  harmonize - Create harmonic effect (costs 40 energy)");
-                self.log("  spawn_enemy <id> [x] [y] - Spawn enemy at position");
-                self.log("  spawn_swarm <id> <count> - Spawn enemy swarm");
-                self.log("  spawn_npc <id> [x] [y] - Spawn NPC at position");
-                self.log("  list_npcs - List available NPCs");
-                self.log("  show_npcs - Show currently spawned NPCs");
-                self.log("  give_item <id> [count] - Add item to inventory");
-                self.log("  show_level - Show current tile threat level");
-                self.log("  show_item_tiers - Show items organized by tier");
-                self.log("  complete_quest <quest_id> - Complete all objectives for a quest");
-                self.log("  list_quests - List active and completed quests");
-                self.log("  interact <target> - Trigger interact objective");
-                self.log("  examine <target> - Trigger examine objective");
-                self.log("  collect_data - Trigger data collection objective");
-                self.log("");
-                self.log("Console Controls:");
-                self.log("  ` - Toggle debug console");
-                self.log("  Up/Down - Navigate command history");
-                self.log("  Tab - Accept current suggestion");
-                self.log("  Left/Right - Navigate suggestions");
-                self.log("  Esc - Close console");
-            }
-            _ => self.log(format!(
-                "Unknown command: {}. Type 'help' for commands.",
-                cmd
-            )),
-        }
+        super::debug_commands::execute(self, cmd);
     }
 
-    /// Debug helper to complete quest objectives
-    fn debug_complete_quest_objectives(&mut self, quest_id: &str) {
-        // Find and complete quest objectives
-        let mut quest_found = false;
-        for quest in &mut self.quest_log.active {
-            if quest.quest_id == quest_id {
-                quest_found = true;
-                for objective in &mut quest.objectives {
-                    objective.current = objective.target;
-                    objective.completed = true;
-                }
-                break;
-            }
-        }
+    // === Visual Effects delegation ===
 
-        // Log result after the borrow is released
-        if quest_found {
-            self.log(format!(
-                "Debug: Completed quest objectives for {}",
-                quest_id
-            ));
-        } else {
-            self.log(format!("Quest not found: {}", quest_id));
-        }
-    }
-
-    /// Trigger a hit flash effect at position
     pub fn trigger_hit_flash(&mut self, x: i32, y: i32) {
-        self.hit_flash_positions.push((x, y, 6)); // 6 frames
+        self.visual_effects.trigger_hit_flash(x, y);
     }
 
-    /// Tick hit flash animations (call each frame)
-    pub fn tick_hit_flash(&mut self) {
-        self.hit_flash_positions.retain_mut(|(_, _, frames)| {
-            *frames = frames.saturating_sub(1);
-            *frames > 0
-        });
-    }
-
-    /// Check if position has active hit flash
     pub fn has_hit_flash(&self, x: i32, y: i32) -> bool {
-        self.hit_flash_positions
-            .iter()
-            .any(|(fx, fy, _)| *fx == x && *fy == y)
+        self.visual_effects.has_hit_flash(x, y)
     }
 
-    /// Spawn a floating damage number
     pub fn spawn_damage_number(&mut self, x: i32, y: i32, value: i32, is_heal: bool) {
-        self.damage_numbers.push(DamageNumber {
-            x,
-            y,
-            value,
-            frames: 12,
-            is_heal,
-        });
+        self.visual_effects
+            .spawn_damage_number(x, y, value, is_heal);
     }
 
-    /// Tick damage number animations
-    pub fn tick_damage_numbers(&mut self) {
-        self.damage_numbers.retain_mut(|dn| {
-            dn.frames = dn.frames.saturating_sub(1);
-            dn.frames > 0
-        });
-    }
-
-    /// Tick animation frame for ambient tile animations
-    pub fn tick_animation(&mut self) {
-        self.animation_frame = self.animation_frame.wrapping_add(1);
-    }
-
-    /// Spawn a projectile trail from source to target
     pub fn spawn_projectile(&mut self, from: (i32, i32), to: (i32, i32), ch: char) {
-        let path = line_path(from, to);
-        if path.len() > 1 {
-            self.projectile_trails.push(ProjectileTrail {
-                path,
-                current_idx: 0,
-                frames_per_tile: 2,
-                frame_counter: 0,
-                char: ch,
-            });
-        }
+        self.visual_effects.spawn_projectile(from, to, ch);
     }
 
-    /// Tick projectile trail animations
-    pub fn tick_projectile_trails(&mut self) {
-        self.projectile_trails.retain_mut(|pt| {
-            pt.frame_counter += 1;
-            if pt.frame_counter >= pt.frames_per_tile {
-                pt.frame_counter = 0;
-                pt.current_idx += 1;
-            }
-            pt.current_idx < pt.path.len()
-        });
-    }
-
-    /// Get current projectile position if any
     pub fn get_projectile_at(&self, x: i32, y: i32) -> Option<char> {
-        for pt in &self.projectile_trails {
-            if pt.current_idx < pt.path.len() {
-                let (px, py) = pt.path[pt.current_idx];
-                if px == x && py == y {
-                    return Some(pt.char);
-                }
-            }
-        }
-        None
+        self.visual_effects.get_projectile_at(x, y)
     }
 
-    /// Spawn a light beam from source to target
     pub fn spawn_beam(
         &mut self,
         from: (i32, i32),
         to: (i32, i32),
-        beam_type: BeamType,
+        beam_type: super::visual_effects::BeamType,
         duration: u32,
     ) {
-        let path = line_path(from, to);
-        if path.len() > 1 {
-            self.light_beams.push(LightBeam {
-                start_x: from.0,
-                start_y: from.1,
-                end_x: to.0,
-                end_y: to.1,
-                path,
-                frames_remaining: duration,
-                beam_type,
-            });
-        }
+        self.visual_effects
+            .spawn_beam(from, to, beam_type, duration);
     }
 
-    /// Tick light beam animations
+    pub fn get_beam_at(&self, x: i32, y: i32) -> Option<(char, super::visual_effects::BeamType)> {
+        self.visual_effects.get_beam_at(x, y)
+    }
+
+    pub fn tick_hit_flash(&mut self) {
+        self.visual_effects.tick_hit_flash();
+    }
+
+    pub fn tick_damage_numbers(&mut self) {
+        self.visual_effects.tick_damage_numbers();
+    }
+
+    pub fn tick_projectile_trails(&mut self) {
+        self.visual_effects.tick_projectile_trails();
+    }
+
     pub fn tick_light_beams(&mut self) {
-        self.light_beams.retain_mut(|beam| {
-            beam.frames_remaining = beam.frames_remaining.saturating_sub(1);
-            beam.frames_remaining > 0
-        });
+        self.visual_effects.tick_light_beams();
     }
 
-    /// Get beam character at position if any
-    pub fn get_beam_at(&self, x: i32, y: i32) -> Option<(char, BeamType)> {
-        for beam in &self.light_beams {
-            for &(bx, by) in &beam.path {
-                if bx == x && by == y {
-                    // Determine beam character based on direction
-                    let dx = beam.end_x - beam.start_x;
-                    let dy = beam.end_y - beam.start_y;
-                    let char = if dx.abs() > dy.abs() {
-                        '-' // Horizontal beam
-                    } else if dy.abs() > dx.abs() {
-                        '|' // Vertical beam
-                    } else if (dx > 0 && dy > 0) || (dx < 0 && dy < 0) {
-                        '\\' // Diagonal beam
-                    } else {
-                        '/' // Other diagonal
-                    };
-                    return Some((char, beam.beam_type.clone()));
-                }
-            }
-        }
-        None
+    pub fn tick_animation(&mut self) {
+        self.visual_effects.tick_animation();
     }
 
     /// Generate visual effects based on player adaptations
@@ -3905,7 +2961,9 @@ impl GameState {
         }
         if def.enables_aria_dialogue {
             self.log_typed("You interface with ARIA...", MsgType::System);
-            self.quest_log.on_aria_interfaced(&def.id);
+            self.emit(GameEvent::AriaInterfaced {
+                item_id: def.id.clone(),
+            });
             // Trigger ARIA dialogue if we have a pending dialogue system
             // For now, we just log it.
         }
@@ -3929,6 +2987,7 @@ impl GameState {
         }
         if def.void_exposure > 0 {
             let level_changed = self.void_system.add_exposure(def.void_exposure);
+            self.emit(GameEvent::VoidExposureChanged { level: self.void_system.void_exposure });
             self.log_typed(
                 format!(
                     "Void corruption seeps into you! (+{} Void Exposure)",
@@ -3982,6 +3041,7 @@ impl GameState {
             };
             self.crystal_system
                 .add_crystal(self.player_x, self.player_y, freq);
+            self.emit(GameEvent::CrystalResonanceChanged { frequency: frequency.clone() });
             self.log_typed(
                 format!("A {} crystal grows at your feet!", frequency),
                 MsgType::Loot,
@@ -4209,12 +3269,36 @@ impl GameState {
         }
     }
 
+    /// Get crafting stations adjacent to the player
+    pub fn available_stations(&self) -> Vec<String> {
+        let mut stations = Vec::new();
+        for dx in -1..=1 {
+            for dy in -1..=1 {
+                let pos = (self.player_x + dx, self.player_y + dy);
+                if let Some(&idx) = self.interactable_positions.get(&pos) {
+                    if let Some(inter) = self.interactables.get(idx) {
+                        stations.push(inter.id.clone());
+                    }
+                }
+            }
+        }
+        stations
+    }
+
     /// Craft an item using a recipe
     pub fn craft(&mut self, recipe_id: &str) -> bool {
         let recipe = match super::crafting::get_recipe(recipe_id) {
             Some(r) => r,
             None => return false,
         };
+
+        // Check station requirement
+        if let Some(ref station) = recipe.station_required {
+            if !self.available_stations().contains(station) {
+                self.log(format!("Requires a nearby {}.", station.replace('_', " ")));
+                return false;
+            }
+        }
 
         if !super::crafting::can_craft(recipe, &self.inventory) {
             return false;
@@ -4312,6 +3396,7 @@ impl GameState {
         self.faction_reputation.insert(faction.to_string(), new_rep);
 
         if delta != 0 {
+            self.emit(GameEvent::FactionReputationChanged { faction_id: faction.to_string(), delta });
             let change_desc = if delta > 0 { "improved" } else { "worsened" };
             self.log_typed(
                 format!("Your reputation with {} has {}.", faction, change_desc),
@@ -4368,6 +3453,7 @@ impl GameState {
                 .push(super::status::StatusEffect::new(effect_id, duration));
         }
 
+        self.emit(GameEvent::StatusEffectApplied { effect_id: effect_id.to_string(), duration });
         self.log_typed(
             format!("You are affected by {}.", effect_id),
             MsgType::Combat,
@@ -4505,34 +3591,6 @@ impl GameState {
         state.update_lighting(); // Recalculate lighting after loading
         Ok(state)
     }
-}
-
-/// Simple Bresenham line for projectile paths
-fn line_path(from: (i32, i32), to: (i32, i32)) -> Vec<(i32, i32)> {
-    let mut path = Vec::new();
-    let (mut x0, mut y0) = from;
-    let (x1, y1) = to;
-    let dx = (x1 - x0).abs();
-    let dy = -(y1 - y0).abs();
-    let sx = if x0 < x1 { 1 } else { -1 };
-    let sy = if y0 < y1 { 1 } else { -1 };
-    let mut err = dx + dy;
-    loop {
-        path.push((x0, y0));
-        if x0 == x1 && y0 == y1 {
-            break;
-        }
-        let e2 = 2 * err;
-        if e2 >= dy {
-            err += dy;
-            x0 += sx;
-        }
-        if e2 <= dx {
-            err += dx;
-            y0 += sy;
-        }
-    }
-    path
 }
 
 impl GameState {

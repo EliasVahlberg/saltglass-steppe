@@ -28,9 +28,9 @@
   },
   "evaluation": {
     "connectivity": {
-      "clearings_found": 7852,
+      "clearings_found": 8684,
       "connectivity_ratio": 1.0,
-      "total_floor_tiles": 7852
+      "total_floor_tiles": 8684
     },
     "constraints": [
       {
@@ -41,34 +41,34 @@
         "passed": true
       },
       {
-        "actual_value": 0.28552727272727274,
+        "actual_value": 0.31578181818181816,
         "constraint_type": "floor_density",
         "expected_value": 0.3,
-        "message": "Floor density 0.29 below minimum 0.30",
-        "passed": false
+        "message": "Floor density 0.32 meets minimum 0.30",
+        "passed": true
       }
     ],
     "distribution": {
       "counts": {
-        "floor": 7852,
+        "floor": 8684,
         "glass": 0,
         "other": 0,
-        "wall": 19648
+        "wall": 18816
       },
       "total": 27500
     },
-    "quality_score": 0.6427636363636364
+    "quality_score": 0.6578909090909091
   },
   "metrics": {
     "complexity": 0.0,
     "height": 110,
-    "openness": 0.28552727272727274,
+    "openness": 0.31578181818181816,
     "tile_counts": {
-      "floor": 7852,
-      "wall": 19648
+      "floor": 8684,
+      "wall": 18816
     },
     "total_tiles": 27500,
     "width": 250
   },
-  "timestamp": "2026-02-08T14:14:49.903847838+00:00"
+  "timestamp": "2026-02-14T16:35:00.846316735+00:00"
 }

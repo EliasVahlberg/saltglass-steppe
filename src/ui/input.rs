@@ -2,8 +2,8 @@
 
 use super::trade_menu::TradeMode;
 use super::{
-    CraftingMenu, DebugMenu, InventoryMenu, IssueReporter, MenuPanel, PsychicMenu, QuestLogMenu,
-    SkillsMenu, TradeMenu, WikiMenu, WorldMapView,
+    CraftingMenu, CrystalMenu, DebugMenu, FactionMenu, InventoryMenu, IssueReporter, MenuPanel, PsychicMenu, QuestLogMenu,
+    SkillsMenu, TradeMenu, VoidMenu, WikiMenu, WorldMapView,
 };
 use crate::GameState;
 use crate::all_recipe_ids;
@@ -299,10 +299,15 @@ pub struct UiState {
     pub debug_menu: DebugMenu,
     pub issue_reporter: IssueReporter,
     pub psychic_menu: PsychicMenu,
+    pub faction_menu: FactionMenu,
+    pub void_menu: VoidMenu,
+    pub crystal_menu: CrystalMenu,
     pub skills_menu: SkillsMenu,
     pub dialog_box: DialogBox,
     pub book_reader: BookReader,
     pub chest_ui: Option<super::ChestUI>,
+    /// Active tutorial message (id, text) — overlay dismisses on any key
+    pub tutorial_message: Option<(String, String)>,
     /// Smooth camera position (lerped toward player)
     pub camera_x: f32,
     pub camera_y: f32,
@@ -378,10 +383,14 @@ impl UiState {
             debug_menu: DebugMenu::default(),
             issue_reporter: IssueReporter::default(),
             psychic_menu: PsychicMenu::default(),
+            faction_menu: FactionMenu::default(),
+            void_menu: VoidMenu::default(),
+            crystal_menu: CrystalMenu::default(),
             skills_menu: SkillsMenu::default(),
             dialog_box: DialogBox::default(),
             book_reader: BookReader::default(),
             chest_ui: None,
+            tutorial_message: None,
             camera_x: 0.0,
             camera_y: 0.0,
         }
@@ -420,6 +429,10 @@ pub enum Action {
     OpenCrafting,
     OpenWiki,
     OpenPsychicMenu,
+    OpenFactionMenu,
+    OpenVoidMenu,
+    OpenCrystalMenu,
+    UseVoidAbility,
     OpenSkillsMenu,
     UsePsychicAbility(String),
     RangedAttackMode,
@@ -464,6 +477,14 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
             }
         }
 
+        // Tutorial overlay — any key dismisses
+        if let Some((ref id, _)) = ui.tutorial_message {
+            let id = id.clone();
+            state.dismiss_tutorial_message(&id);
+            ui.tutorial_message = None;
+            return Ok(Action::None);
+        }
+
         // Dialog box input (highest priority when active)
         if ui.dialog_box.active {
             match key.code {
@@ -489,6 +510,18 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
         // Psychic menu input
         if ui.psychic_menu.active {
             return Ok(handle_psychic_menu_input(ui, state, key.code));
+        }
+        // Faction menu input
+        if ui.faction_menu.active {
+            return Ok(handle_faction_menu_input(ui, key.code));
+        }
+        // Void menu input
+        if ui.void_menu.active {
+            return Ok(handle_void_menu_input(ui, state, key.code));
+        }
+        // Crystal menu input
+        if ui.crystal_menu.active {
+            return Ok(handle_crystal_menu_input(ui, key.code));
         }
         // Skills menu input
         if ui.skills_menu.active {
@@ -792,6 +825,9 @@ fn handle_game_input(ui: &mut UiState, code: KeyCode) -> Action {
         KeyCode::Char('C') => Action::OpenChest(0), // Placeholder, will be handled in main loop
         KeyCode::Char('w') => Action::OpenWiki,
         KeyCode::Char('p') => Action::OpenPsychicMenu,
+        KeyCode::Char('F') => Action::OpenFactionMenu,
+        KeyCode::Char('v') => Action::OpenVoidMenu,
+        KeyCode::Char('V') => Action::OpenCrystalMenu,
         KeyCode::Char('s') => Action::OpenSkillsMenu,
         KeyCode::Char('f') => Action::RangedAttackMode,
         KeyCode::Char('t') => Action::TargetMode,
@@ -994,6 +1030,43 @@ fn handle_psychic_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyC
                 Action::None
             }
         }
+        _ => Action::None,
+    }
+}
+
+fn handle_faction_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
+    let count = super::faction_menu::faction_count();
+    match code {
+        KeyCode::Esc | KeyCode::Char('F') => { ui.faction_menu.close(); Action::None }
+        KeyCode::Up | KeyCode::Char('k') => { ui.faction_menu.navigate(-1, count); Action::None }
+        KeyCode::Down | KeyCode::Char('j') => { ui.faction_menu.navigate(1, count); Action::None }
+        _ => Action::None,
+    }
+}
+
+fn handle_void_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
+    let count = state.void_system.unlocked_abilities.len();
+    match code {
+        KeyCode::Esc | KeyCode::Char('v') => { ui.void_menu.close(); Action::None }
+        KeyCode::Up | KeyCode::Char('k') => { ui.void_menu.navigate(-1, count); Action::None }
+        KeyCode::Down | KeyCode::Char('j') => { ui.void_menu.navigate(1, count); Action::None }
+        KeyCode::Enter => {
+            if super::void_menu::get_selected_ability(&ui.void_menu, state).is_some() {
+                ui.void_menu.close();
+                Action::UseVoidAbility
+            } else {
+                Action::None
+            }
+        }
+        _ => Action::None,
+    }
+}
+
+fn handle_crystal_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
+    match code {
+        KeyCode::Esc | KeyCode::Char('V') => { ui.crystal_menu.close(); Action::None }
+        KeyCode::Up | KeyCode::Char('k') => { ui.crystal_menu.navigate(-1, 5); Action::None }
+        KeyCode::Down | KeyCode::Char('j') => { ui.crystal_menu.navigate(1, 5); Action::None }
         _ => Action::None,
     }
 }

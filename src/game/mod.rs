@@ -8,6 +8,7 @@ pub mod combat_actions;
 pub mod constants;
 pub mod crafting;
 pub mod crystal_resonance;
+pub mod debug_commands;
 pub mod des_testing;
 pub mod dialogue;
 pub mod effect;
@@ -31,8 +32,7 @@ pub mod progression;
 pub mod psychic;
 pub mod qa_tools;
 pub mod quest;
-pub mod ritual;
-pub mod sanity;
+
 pub mod skills;
 pub mod state;
 pub mod status;
@@ -41,6 +41,7 @@ pub mod structure_templates;
 pub mod systems;
 pub mod trading;
 pub mod tutorial;
+pub mod visual_effects;
 pub mod void_energy;
 pub mod world_map;
 
@@ -66,7 +67,7 @@ pub use fov::FieldOfView;
 pub use generation::{
     AlgorithmContext,
     AlgorithmParameters,
-    AlgorithmRegistry,
+
     AtmosphericElement,
     BiomeGenerationContext,
     BiomeHazard,
@@ -85,11 +86,11 @@ pub use generation::{
     EventType,
     // New algorithm system
     GenerationAlgorithm,
-    GenerationConfig,
+
     GenerationConfiguration,
     GenerationError,
     GenerationLayer,
-    GenerationPipeline,
+
     GenerationResult,
     Grammar,
     GrammarContext,
@@ -118,7 +119,7 @@ pub use generation::{
     generate_loot,
     get_loot_table,
     get_microstructure_def,
-    load_generation_config,
+
     load_grammars_from_directory,
     narrative::{NarrativeContext, NarrativeIntegration, NarrativeState, StoryFragment},
     place_microstructures,
@@ -131,7 +132,8 @@ pub use map::{Map, Tile, compute_fov};
 pub use map_features::MapFeatures;
 
 pub use npc::{Npc, NpcDef, get_npc_def};
-pub use state::{DamageNumber, GameMessage, GameState, MsgType, ProjectileTrail, TriggeredEffect};
+pub use state::{GameMessage, GameState, MsgType, TriggeredEffect};
+pub use visual_effects::{BeamType, DamageNumber, LightBeam, ProjectileTrail, VisualEffects};
 
 pub use crafting::{
     Recipe, all_recipe_ids, available_recipes, can_craft, can_craft_advanced,
@@ -141,7 +143,7 @@ pub use light_defs::get_light_def;
 pub use lighting::{LightMap, LightSource, compute_lighting, is_lit};
 pub use map::MapLight;
 pub use quest::{ActiveQuest, QuestLog, QuestReward, get_quest_def};
-pub use sanity::{MentalEffect, MentalEffectType, SanitySystem};
+
 pub use skills::{
     SkillCategory, SkillsState, all_ability_ids, all_skill_ids, calculate_skill_cost,
     get_abilities_by_category, get_ability_def, get_skill_def, get_skills_by_category,

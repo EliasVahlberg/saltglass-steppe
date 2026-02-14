@@ -35,6 +35,30 @@
         "interact": "You flip the switch.",
         "examine": "An electrical switch. It is currently {state}."
       }
+    },
+    {
+      "id": "crafting_table",
+      "name": "Crafting Table",
+      "glyph": "T",
+      "description": "A sturdy workbench for assembling materials.",
+      "interaction_type": "press",
+      "states": ["idle", "in_use"],
+      "messages": {
+        "interact": "You set up at the crafting table. Press 'c' to craft.",
+        "examine": "A salt-stained workbench with tools and clamps."
+      }
+    },
+    {
+      "id": "glass_forge",
+      "name": "Glass Forge",
+      "glyph": "G",
+      "description": "A high-temperature forge for shaping glass.",
+      "interaction_type": "press",
+      "states": ["cold", "heated"],
+      "messages": {
+        "interact": "The forge hums with heat. Press 'c' to craft.",
+        "examine": "A forge lined with vitrified brick, still warm."
+      }
     }
   ]
 }

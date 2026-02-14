@@ -1,0 +1,42 @@
+{
+  "name": "dungeon_connectivity_test",
+  "description": "Validate dungeon connectivity - all rooms reachable from spawn",
+  "seed": 42,
+  "world_x": 8,
+  "world_y": 8,
+  "poi_type": "dungeon",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10
+  },
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "connectivity_ratio",
+        "op": "ge",
+        "value": 0.8
+      },
+      "message": "Dungeon should have ≥80% connectivity ratio"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_on_walkable_tile"
+      },
+      "message": "Player should spawn on walkable tile"
+    }
+  ]
+}

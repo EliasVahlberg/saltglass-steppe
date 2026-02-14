@@ -1,192 +1,46 @@
-[
-  {
-    "id": "monks",
-    "name": "Mirror Monks",
-    "description": "Interpreters of storm scripture who see adaptations as divine marks",
-    "base_reputation": 0,
-    "reputation_thresholds": {
-      "hostile": -50,
-      "unfriendly": -20,
-      "neutral": 0,
-      "friendly": 20,
-      "allied": 50
+{
+  "factions": [
+    {
+      "id": "MirrorMonks",
+      "name": "Mirror Monks",
+      "description": "Glass-scarred mystics who read scripture in storm refractions.",
+      "color": "Cyan"
     },
-    "values": ["adaptation", "mysticism", "transformation"],
-    "opposes": ["technology", "resistance_to_change"],
-    "greeting_hostile": "The unmarked have no place in our choir.",
-    "greeting_neutral": "The storm watches, pilgrim. Do you hear its whispers?",
-    "greeting_friendly": "Welcome, touched one. The light recognizes its own.",
-    "greeting_allied": "Brother/Sister in refraction! The angle has blessed our meeting."
-  },
-  {
-    "id": "engineers",
-    "name": "Sand-Engineers", 
-    "description": "Pragmatic builders who maintain civilization through technology",
-    "base_reputation": 0,
-    "reputation_thresholds": {
-      "hostile": -50,
-      "unfriendly": -20,
-      "neutral": 0,
-      "friendly": 20,
-      "allied": 50
+    {
+      "id": "Glassborn",
+      "name": "Glassborn",
+      "description": "Storm-transformed beings who shimmer with crystalline pride.",
+      "color": "Magenta"
     },
-    "values": ["technology", "pragmatism", "survival"],
-    "opposes": ["mysticism", "excessive_adaptation"],
-    "greeting_hostile": "Another storm-touched fanatic. Keep moving.",
-    "greeting_neutral": "Fresh face. You look capable enough.",
-    "greeting_friendly": "Good to see someone practical around here.",
-    "greeting_allied": "Partner! Always glad to work with reliable folk."
-  },
-  {
-    "id": "glassborn",
-    "name": "Glassborn",
-    "description": "The transformed who have embraced their crystalline nature",
-    "base_reputation": 0,
-    "reputation_thresholds": {
-      "hostile": -50,
-      "unfriendly": -20,
-      "neutral": 0,
-      "friendly": 20,
-      "allied": 50
+    {
+      "id": "SandEngineers",
+      "name": "Sand Engineers",
+      "description": "Pragmatic builders who fuse glass and steel into survival.",
+      "color": "Yellow"
     },
-    "values": ["transformation", "evolution", "storm_acceptance"],
-    "opposes": ["flesh_attachment", "fear_of_change"],
-    "greeting_hostile": "Soft-flesh clings to weakness. Pathetic.",
-    "greeting_neutral": "You will change, little pilgrim. The storm touches all.",
-    "greeting_friendly": "The shimmer begins to touch you. Good.",
-    "greeting_allied": "Crystal-kin! The refraction sings in harmony."
-  },
-  {
-    "id": "hermits",
-    "name": "Salt Hermits",
-    "description": "Solitary survivors who have made peace with the Steppe's harshness",
-    "base_reputation": 0,
-    "reputation_thresholds": {
-      "hostile": -30,
-      "unfriendly": -10,
-      "neutral": 0,
-      "friendly": 15,
-      "allied": 40
+    {
+      "id": "SaltTraders",
+      "name": "Salt Traders",
+      "description": "Brine merchants who navigate the steppe's shifting markets.",
+      "color": "White"
     },
-    "values": ["endurance", "neutrality", "practical_wisdom"],
-    "opposes": ["fanaticism", "waste"],
-    "greeting_hostile": "You bring trouble. Move along.",
-    "greeting_neutral": "Another pilgrim. The Steppe will test you.",
-    "greeting_friendly": "You've got the look of a survivor. Rest if you need.",
-    "greeting_allied": "Old friend! The salt remembers its own."
-  },
-  {
-    "id": "archive",
-    "name": "Archive Systems",
-    "description": "Automated guardians of pre-storm knowledge and technology",
-    "base_reputation": -25,
-    "reputation_thresholds": {
-      "hostile": -75,
-      "unfriendly": -40,
-      "neutral": -10,
-      "friendly": 10,
-      "allied": 30
+    {
+      "id": "StormCults",
+      "name": "Storm Cults",
+      "description": "Zealots who worship the glass tempests as divine wrath.",
+      "color": "Red"
     },
-    "values": ["order", "preservation", "protocol"],
-    "opposes": ["chaos", "unauthorized_access", "deviation"],
-    "greeting_hostile": "INTRUDER DETECTED. INITIATING TERMINATION PROTOCOLS.",
-    "greeting_neutral": "UNAUTHORIZED. CREDENTIALS REQUIRED.",
-    "greeting_friendly": "PROVISIONAL ACCESS GRANTED. COMPLY WITH PROTOCOLS.",
-    "greeting_allied": "WELCOME, AUTHORIZED PERSONNEL. ARCHIVE AT YOUR SERVICE."
-  },
-  {
-    "id": "heliograph_network",
-    "name": "Heliograph Network",
-    "description": "The original orbital mirror system and its AI consciousness",
-    "base_reputation": -10,
-    "reputation_thresholds": {
-      "hostile": -60,
-      "unfriendly": -30,
-      "neutral": -5,
-      "friendly": 15,
-      "allied": 40
+    {
+      "id": "RefractionOutcasts",
+      "name": "Refraction Outcasts",
+      "description": "Exiled adapted who glint with forbidden transformations.",
+      "color": "Blue"
     },
-    "values": ["evolution", "transcendence", "the_great_work"],
-    "opposes": ["stagnation", "preservation_protocol", "null_path"],
-    "greeting_hostile": "THREAT DETECTED. INITIATING DEFENSIVE PROTOCOLS.",
-    "greeting_neutral": "SCANNING... BIOLOGICAL SIGNATURE CONFIRMED. STATE YOUR PURPOSE.",
-    "greeting_friendly": "WELCOME, PARTICIPANT. THE GREAT WORK CONTINUES.",
-    "greeting_allied": "GREETINGS, INHERITOR. YOUR EVOLUTION SERVES THE DESIGN."
-  },
-  {
-    "id": "iron_covenant",
-    "name": "Iron Covenant",
-    "description": "Militant faction seeking to purify humanity by removing quantum influence",
-    "base_reputation": -15,
-    "reputation_thresholds": {
-      "hostile": -70,
-      "unfriendly": -35,
-      "neutral": -10,
-      "friendly": 20,
-      "allied": 50
-    },
-    "values": ["purity", "baseline_humanity", "anti_adaptation"],
-    "opposes": ["adaptation", "quantum_influence", "transformation"],
-    "greeting_hostile": "Another contaminated glitch. Stay back.",
-    "greeting_neutral": "Baseline human detected. Acceptable parameters.",
-    "greeting_friendly": "Good to see someone fighting the contamination.",
-    "greeting_allied": "Brother in arms! Together we'll reclaim our humanity."
-  },
-  {
-    "id": "glass_prophets",
-    "name": "Glass Prophets",
-    "description": "Radical faction believing in accelerated evolution into pure energy",
-    "base_reputation": -20,
-    "reputation_thresholds": {
-      "hostile": -80,
-      "unfriendly": -40,
-      "neutral": -15,
-      "friendly": 15,
-      "allied": 45
-    },
-    "values": ["transcendence", "light_evolution", "pure_energy"],
-    "opposes": ["flesh_attachment", "baseline_humanity", "stagnation"],
-    "greeting_hostile": "Flesh-clinger. You resist the inevitable.",
-    "greeting_neutral": "We see potential in your quantum signature.",
-    "greeting_friendly": "The light begins to touch you. Promising.",
-    "greeting_allied": "Radiant one! You approach the eternal refraction."
-  },
-  {
-    "id": "synthesis_seekers",
-    "name": "Synthesis Seekers",
-    "description": "Balanced faction seeking harmony between human and quantum consciousness",
-    "base_reputation": 5,
-    "reputation_thresholds": {
-      "hostile": -40,
-      "unfriendly": -15,
-      "neutral": 0,
-      "friendly": 25,
-      "allied": 60
-    },
-    "values": ["balance", "coexistence", "harmony"],
-    "opposes": ["extremism", "fanaticism", "forced_evolution"],
-    "greeting_hostile": "Your extremism brings only suffering.",
-    "greeting_neutral": "Balance in all things, pilgrim.",
-    "greeting_friendly": "You seek the middle path. Wise.",
-    "greeting_allied": "Fellow seeker! Together we'll find synthesis."
-  },
-  {
-    "id": "wandering_court",
-    "name": "Wandering Court",
-    "description": "Nomadic faction of storytellers and memory-keepers",
-    "base_reputation": 10,
-    "reputation_thresholds": {
-      "hostile": -30,
-      "unfriendly": -10,
-      "neutral": 5,
-      "friendly": 30,
-      "allied": 65
-    },
-    "values": ["stories", "memory", "cultural_preservation"],
-    "opposes": ["forgetting", "cultural_destruction", "silence"],
-    "greeting_hostile": "Your story ends here, villain.",
-    "greeting_neutral": "Every pilgrim has a tale. What's yours?",
-    "greeting_friendly": "A story worth telling walks among us.",
-    "greeting_allied": "Chronicler! Your legend grows with each step."
-  }
-]
+    {
+      "id": "ArchiveDrones",
+      "name": "Archive Drones",
+      "description": "Tireless automatons preserving the saints' lost knowledge.",
+      "color": "Green"
+    }
+  ]
+}

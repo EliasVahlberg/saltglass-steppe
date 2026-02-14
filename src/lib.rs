@@ -12,7 +12,7 @@ pub use game::*;
 pub use renderer::Renderer;
 
 #[cfg(test)]
-mod tests {
+mod lib_tests {
     use super::*;
     use rand::SeedableRng;
     use rand_chacha::ChaCha8Rng;

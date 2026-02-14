@@ -1,0 +1,40 @@
+{
+  "name": "microstructures_on_travel",
+  "description": "Verify tiles have microstructures placed",
+  "seed": 12345,
+  "world_x": 7,
+  "world_y": 7,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "microstructure_count",
+        "op": "ge",
+        "value": 1
+      },
+      "message": "Tiles should have at least 1 microstructure"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should be alive"
+    }
+  ]
+}

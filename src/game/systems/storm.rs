@@ -39,7 +39,7 @@ impl StormSystem {
         state.check_adaptation_threshold();
 
         // Clear previous storm changes
-        state.storm_changed_tiles.clear();
+        state.visual_effects.storm_changed_tiles.clear();
 
         // Apply each edit type
         let edit_types = state.storm.edit_types.clone();
@@ -99,7 +99,7 @@ impl StormSystem {
 
             if matches!(state.map.tiles[idx], Tile::Wall { .. }) {
                 state.map.tiles[idx] = Tile::Glass;
-                state.storm_changed_tiles.insert(idx);
+                state.visual_effects.storm_changed_tiles.insert(idx);
 
                 // Chance to spawn storm_glass item
                 let roll: f32 = state.rng.gen_range(0.0..1.0);
@@ -153,7 +153,7 @@ impl StormSystem {
                     let idx = y * state.map.width + x;
                     if state.map.tiles[idx] != rotated[dy][dx] {
                         state.map.tiles[idx] = rotated[dy][dx].clone();
-                        state.storm_changed_tiles.insert(idx);
+                        state.visual_effects.storm_changed_tiles.insert(idx);
                     }
                 }
             }
@@ -198,7 +198,7 @@ impl StormSystem {
 
             if state.map.tiles[idx] != new_tile {
                 state.map.tiles[idx] = new_tile;
-                state.storm_changed_tiles.insert(idx);
+                state.visual_effects.storm_changed_tiles.insert(idx);
             }
         }
     }
@@ -222,8 +222,8 @@ impl StormSystem {
                         state.map.tiles[left_idx] = state.map.tiles[right_idx].clone();
                         state.map.tiles[right_idx] = left_tile;
 
-                        state.storm_changed_tiles.insert(left_idx);
-                        state.storm_changed_tiles.insert(right_idx);
+                        state.visual_effects.storm_changed_tiles.insert(left_idx);
+                        state.visual_effects.storm_changed_tiles.insert(right_idx);
                     }
                 }
             } else {
@@ -236,8 +236,8 @@ impl StormSystem {
                         state.map.tiles[top_idx] = state.map.tiles[bottom_idx].clone();
                         state.map.tiles[bottom_idx] = top_tile;
 
-                        state.storm_changed_tiles.insert(top_idx);
-                        state.storm_changed_tiles.insert(bottom_idx);
+                        state.visual_effects.storm_changed_tiles.insert(top_idx);
+                        state.visual_effects.storm_changed_tiles.insert(bottom_idx);
                     }
                 }
             }
@@ -276,7 +276,7 @@ impl StormSystem {
                     let idx = (y as usize) * state.map.width + (x as usize);
                     if !matches!(state.map.tiles[idx], Tile::Glass) {
                         state.map.tiles[idx] = Tile::Glass;
-                        state.storm_changed_tiles.insert(idx);
+                        state.visual_effects.storm_changed_tiles.insert(idx);
                     }
                 }
                 x += dx;
@@ -303,7 +303,7 @@ impl StormSystem {
                             let idx = y * state.map.width + x;
                             if matches!(state.map.tiles[idx], Tile::Floor { .. }) {
                                 state.map.tiles[idx] = Tile::Glare;
-                                state.storm_changed_tiles.insert(idx);
+                                state.visual_effects.storm_changed_tiles.insert(idx);
                             }
                         }
                     }
@@ -351,7 +351,7 @@ impl StormSystem {
                     let idx = y * state.map.width + x;
                     if state.map.tiles[idx] != tiles[i] {
                         state.map.tiles[idx] = tiles[i].clone();
-                        state.storm_changed_tiles.insert(idx);
+                        state.visual_effects.storm_changed_tiles.insert(idx);
                     }
                 }
             }

@@ -369,7 +369,7 @@ impl AiBehavior for StandardMeleeBehavior {
             state.spawn_beam(
                 (ex, ey),
                 (state.player_x, state.player_y),
-                crate::game::state::BeamType::Arrow,
+                crate::game::visual_effects::BeamType::Arrow,
                 6,
             );
 
@@ -476,7 +476,7 @@ impl AiBehavior for StandardMeleeBehavior {
                 state.spawn_beam(
                     (ex, ey),
                     (state.player_x, state.player_y),
-                    crate::game::state::BeamType::Laser,
+                    crate::game::visual_effects::BeamType::Laser,
                     8,
                 );
 

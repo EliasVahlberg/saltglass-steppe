@@ -466,7 +466,7 @@ mod tests {
             "Should have active seeds after initialization"
         );
 
-        let fragments = system.generate_fragments(&context, &mut rng);
+        let _fragments = system.generate_fragments(&context, &mut rng);
 
         // Should generate some fragments (may be empty if placement rules don't match)
         // This is acceptable behavior - not all contexts will generate fragments

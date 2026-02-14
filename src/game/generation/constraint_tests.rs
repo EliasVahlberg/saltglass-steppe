@@ -781,8 +781,6 @@ fn print_constraint_results(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn test_constraint_maps() {
         super::test_constraint_maps();

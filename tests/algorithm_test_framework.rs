@@ -141,7 +141,7 @@ fn generate_algorithm_test_report(
     report.push_str("| Test | Status | Quality Score | Constraints | PNG | Evaluation |\n");
     report.push_str("|------|--------|---------------|-------------|-----|------------|\n");
 
-    for (config_name, success, quality, passed_constraints, total_constraints, output_dir) in
+    for (config_name, success, quality, passed_constraints, total_constraints, _output_dir) in
         results
     {
         let status = if *success { "✅ PASS" } else { "❌ FAIL" };

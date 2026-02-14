@@ -87,24 +87,12 @@ impl MovementSystem {
         if should_mark_talked {
             state.npcs[ni].talked = true;
         }
-        let completed_quests = state.quest_log.on_npc_talked(&state.npcs[ni].id);
 
-        // Provide feedback for completed quests
-        for quest_id in completed_quests {
-            if let Some(def) = crate::game::quest::get_quest_def(&quest_id) {
-                state.log_typed(format!("Quest completed: {}", def.name), MsgType::System);
+        // Emit event — QuestSystem handles quest progression and completion
+        state.emit(GameEvent::NpcTalkedTo {
+            npc_id: npc_id.clone(),
+        });
 
-                // Log unlocked quests
-                for unlock_id in &def.reward.unlocks_quests {
-                    if let Some(unlock_def) = crate::game::quest::get_quest_def(unlock_id) {
-                        state.log_typed(
-                            format!("New quest available: {}", unlock_def.name),
-                            MsgType::System,
-                        );
-                    }
-                }
-            }
-        }
         state.meta.discover_npc(&state.npcs[ni].id);
         state.check_auto_end_turn();
 
@@ -208,17 +196,22 @@ impl MovementSystem {
         Self::handle_pre_movement(state);
 
         // Update position
-        let _old_x = state.player_x;
-        let _old_y = state.player_y;
+        let old_x = state.player_x;
+        let old_y = state.player_y;
         state.player_x = new_x;
         state.player_y = new_y;
 
         // Clear storm change highlighting
         let player_idx = new_y as usize * state.map.width + new_x as usize;
-        state.storm_changed_tiles.remove(&player_idx);
+        state.visual_effects.storm_changed_tiles.remove(&player_idx);
 
-        // Notify systems
-        state.quest_log.on_position_changed(new_x, new_y);
+        // Emit movement event (QuestSystem handles position-based objectives)
+        state.emit(GameEvent::PlayerMoved {
+            from_x: old_x,
+            from_y: old_y,
+            to_x: new_x,
+            to_y: new_y,
+        });
         state.update_fov();
         state.update_lighting();
 
@@ -339,7 +332,6 @@ impl MovementSystem {
             }
 
             state.inventory.push(id.clone());
-            state.quest_log.on_item_collected(&id);
             state.emit(GameEvent::ItemPickedUp {
                 item_id: id.clone(),
             });

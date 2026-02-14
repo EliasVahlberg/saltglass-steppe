@@ -1,0 +1,61 @@
+{
+  "name": "archive_dungeon_test",
+  "description": "Validate large archive dungeon generation",
+  "seed": 999,
+  "world_x": 12,
+  "world_y": 12,
+  "poi_type": "dungeon",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10
+  },
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "connectivity_ratio",
+        "op": "ge",
+        "value": 0.8
+      },
+      "message": "Large dungeon should maintain connectivity"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "tile_type_count",
+        "tile_type": "floor",
+        "op": "ge",
+        "value": 100
+      },
+      "message": "Large dungeon should have substantial floor area"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "enemy_count",
+        "op": "ge",
+        "value": 2
+      },
+      "message": "Large dungeon should have multiple enemies"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_on_walkable_tile"
+      },
+      "message": "Player should spawn on walkable tile"
+    }
+  ]
+}

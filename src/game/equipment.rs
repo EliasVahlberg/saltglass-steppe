@@ -27,7 +27,7 @@ impl FromStr for EquipSlot {
             "weapon" => Ok(EquipSlot::Weapon),
             "ranged_weapon" | "ranged" => Ok(EquipSlot::RangedWeapon),
             "head" | "helmet" => Ok(EquipSlot::Head),
-            "jacket" | "chest" | "torso" => Ok(EquipSlot::Jacket),
+            "jacket" | "chest" | "torso" | "armor" => Ok(EquipSlot::Jacket),
             "pants" | "legs" => Ok(EquipSlot::Pants),
             "boots" | "feet" => Ok(EquipSlot::Boots),
             "gloves" | "hands" => Ok(EquipSlot::Gloves),

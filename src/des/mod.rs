@@ -295,13 +295,7 @@ pub enum AssertionCheck {
         op: CmpOp,
         value: usize,
     },
-    // Ritual assertions
-    RitualCompleted {
-        ritual_id: String,
-    },
-    RitualAvailable {
-        ritual_id: String,
-    },
+
     FactionReputation {
         faction: String,
         op: CmpOp,
@@ -366,33 +360,7 @@ pub enum AssertionCheck {
     PendingBookOpen {
         book_id: String,
     },
-    // Sanity assertions
-    SanityCurrent {
-        op: CmpOp,
-        value: u32,
-    },
-    SanityMax {
-        op: CmpOp,
-        value: u32,
-    },
-    MentalEffectsCount {
-        op: CmpOp,
-        value: usize,
-    },
-    HasMentalEffect {
-        effect: String,
-    },
-    AdaptationTolerance {
-        op: CmpOp,
-        value: u32,
-    },
-    DecisionPenalty {
-        op: CmpOp,
-        value: i32,
-    },
-    ShouldHallucinate {
-        should: bool,
-    },
+
     // Trading assertions
     TradeInterfaceAvailable {
         trader_id: String,
@@ -464,6 +432,19 @@ pub enum AssertionCheck {
         op: CmpOp,
         value: usize,
     },
+    // Playability validation assertions
+    PlayerOnWalkableTile,
+    ConnectivityRatio {
+        op: CmpOp,
+        value: f32,
+    },
+    MicrostructureCount {
+        op: CmpOp,
+        value: usize,
+    },
+    NpcExists {
+        npc_id: String,
+    },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -482,6 +463,17 @@ impl CmpOp {
         match self {
             CmpOp::Eq => a == b,
             CmpOp::Ne => a != b,
+            CmpOp::Lt => a < b,
+            CmpOp::Le => a <= b,
+            CmpOp::Gt => a > b,
+            CmpOp::Ge => a >= b,
+        }
+    }
+
+    fn compare_f32(&self, a: f32, b: f32) -> bool {
+        match self {
+            CmpOp::Eq => (a - b).abs() < f32::EPSILON,
+            CmpOp::Ne => (a - b).abs() >= f32::EPSILON,
             CmpOp::Lt => a < b,
             CmpOp::Le => a <= b,
             CmpOp::Gt => a > b,
@@ -644,10 +636,7 @@ pub enum Action {
     SetRefraction {
         value: u32,
     },
-    // Ritual actions
-    PerformRitual {
-        ritual_id: String,
-    },
+
     SetLocationType {
         location_type: String,
     },
@@ -700,27 +689,7 @@ pub enum Action {
         tile_type: String,
         hp: Option<i32>,
     },
-    // Sanity actions
-    LoseSanity {
-        amount: u32,
-        source: String,
-    },
-    RestoreSanity {
-        amount: u32,
-        source: String,
-    },
-    AddMentalEffect {
-        effect: String,
-        duration: u32,
-        intensity: u32,
-    },
-    TickMentalEffects,
-    AdaptationEffect {
-        adaptation: String,
-    },
-    RestRestoration,
-    SocialRestoration,
-    MeditationRestoration,
+
     // Trading actions
     GetTradeInterface {
         trader_id: String,
@@ -1450,9 +1419,10 @@ impl DesExecutor {
                 .edit_types
                 .iter()
                 .any(|et| et.display_name().to_lowercase() == edit_type.to_lowercase()),
-            AssertionCheck::StormChangedTilesCount { op, value } => {
-                op.compare(self.state.storm_changed_tiles.len() as u32, *value as u32)
-            }
+            AssertionCheck::StormChangedTilesCount { op, value } => op.compare(
+                self.state.visual_effects.storm_changed_tiles.len() as u32,
+                *value as u32,
+            ),
             AssertionCheck::ItemExistsOnMap { item_id, min_count } => {
                 let count = self
                     .state
@@ -1485,30 +1455,7 @@ impl DesExecutor {
                     .count();
                 op.compare(count, *value)
             }
-            AssertionCheck::RitualCompleted { ritual_id } => {
-                self.state.has_completed_ritual(ritual_id)
-            }
-            AssertionCheck::RitualAvailable { ritual_id } => {
-                // Simplified check - would need proper ritual definition loading
-                match ritual_id.as_str() {
-                    "storm_walk" => {
-                        self.state.inventory.contains(&"storm_glass".to_string())
-                            && self.state.adaptations.len() >= 1
-                            && self.current_location_type.as_deref() == Some("shrine")
-                    }
-                    "crucible_transformation" => {
-                        self.state.inventory.contains(&"saint_key".to_string())
-                            && self
-                                .state
-                                .inventory
-                                .contains(&"scripture_shard".to_string())
-                            && self.state.get_reputation("monks") >= 25
-                            && self.state.adaptations.len() >= 3
-                            && self.current_location_type.as_deref() == Some("archive")
-                    }
-                    _ => false,
-                }
-            }
+
             AssertionCheck::FactionReputation { faction, op, value } => {
                 let reputation = self.state.get_reputation(faction);
                 op.compare(reputation, *value)
@@ -1591,38 +1538,7 @@ impl DesExecutor {
             AssertionCheck::PendingBookOpen { book_id } => {
                 self.state.pending_book_open.as_ref() == Some(book_id)
             }
-            // Sanity assertions
-            AssertionCheck::SanityCurrent { op, value } => {
-                op.compare(self.state.sanity.current_sanity as i32, *value as i32)
-            }
-            AssertionCheck::SanityMax { op, value } => {
-                op.compare(self.state.sanity.max_sanity as i32, *value as i32)
-            }
-            AssertionCheck::MentalEffectsCount { op, value } => {
-                op.compare(self.state.sanity.mental_effects.len(), *value)
-            }
-            AssertionCheck::HasMentalEffect { effect } => {
-                use crate::game::sanity::MentalEffectType;
-                let effect_type = match effect.as_str() {
-                    "hallucinations" => MentalEffectType::Hallucinations,
-                    "paranoia" => MentalEffectType::Paranoia,
-                    "confusion" => MentalEffectType::Confusion,
-                    "despair" => MentalEffectType::Despair,
-                    "clarity" => MentalEffectType::Clarity,
-                    "determination" => MentalEffectType::Determination,
-                    _ => return false,
-                };
-                self.state.sanity.has_effect(effect_type)
-            }
-            AssertionCheck::AdaptationTolerance { op, value } => {
-                op.compare(self.state.sanity.adaptation_tolerance as i32, *value as i32)
-            }
-            AssertionCheck::DecisionPenalty { op, value } => {
-                op.compare(self.state.sanity.decision_penalty(), *value)
-            }
-            AssertionCheck::ShouldHallucinate { should } => {
-                self.state.sanity.should_hallucinate(&mut self.state.rng) == *should
-            }
+
             // Trading assertions
             AssertionCheck::TradeInterfaceAvailable { trader_id } => self
                 .current_trade_interface
@@ -1664,6 +1580,33 @@ impl DesExecutor {
             }
             AssertionCheck::NpcCount { op, value } => op.compare(self.state.npcs.len(), *value),
             AssertionCheck::ChestCount { op, value } => op.compare(self.state.chests.len(), *value),
+            AssertionCheck::PlayerOnWalkableTile => {
+                let tile = self
+                    .state
+                    .map
+                    .get_tile(self.state.player_x, self.state.player_y);
+                tile.walkable()
+            }
+            AssertionCheck::ConnectivityRatio { op, value } => {
+                let connectivity = crate::game::generation::connectivity::check_connectivity(
+                    &self.state.map,
+                    (self.state.player_x, self.state.player_y),
+                );
+                op.compare_f32(connectivity, *value)
+            }
+            AssertionCheck::MicrostructureCount { op, value } => {
+                let count = self
+                    .state
+                    .map
+                    .features
+                    .iter()
+                    .filter(|f| f.feature_id.starts_with("microstructure_"))
+                    .count();
+                op.compare(count, *value)
+            }
+            AssertionCheck::NpcExists { npc_id } => {
+                self.state.npcs.iter().any(|npc| npc.id == *npc_id)
+            }
             // Simplified implementations for other assertions
             _ => {
                 self.log(format!("Unimplemented assertion: {:?}", check));
@@ -1845,10 +1788,7 @@ impl DesExecutor {
                 self.state.check_adaptation_threshold();
                 self.log(format!("Refraction set to {}", value));
             }
-            Action::PerformRitual { ritual_id } => match self.state.perform_ritual(ritual_id) {
-                Ok(message) => self.log(format!("Ritual performed: {}", message)),
-                Err(error) => self.log(format!("Ritual failed: {}", error)),
-            },
+
             Action::SetLocationType { location_type } => {
                 // Store location type for ritual requirements (simplified)
                 self.current_location_type = Some(location_type.clone());
@@ -1964,67 +1904,7 @@ impl DesExecutor {
             Action::UseAbility { ability_id } => {
                 self.state.use_psychic_ability(ability_id);
             }
-            // Sanity actions
-            Action::LoseSanity { amount, source } => {
-                let messages = self.state.sanity.lose_sanity(*amount, source);
-                for msg in messages {
-                    self.log(msg);
-                }
-            }
-            Action::RestoreSanity { amount, source } => {
-                let message = self.state.sanity.restore_sanity(*amount, source);
-                self.log(message);
-            }
-            Action::AddMentalEffect {
-                effect,
-                duration,
-                intensity,
-            } => {
-                use crate::game::sanity::MentalEffectType;
-                let effect_type = match effect.as_str() {
-                    "hallucinations" => MentalEffectType::Hallucinations,
-                    "paranoia" => MentalEffectType::Paranoia,
-                    "confusion" => MentalEffectType::Confusion,
-                    "despair" => MentalEffectType::Despair,
-                    "clarity" => MentalEffectType::Clarity,
-                    "determination" => MentalEffectType::Determination,
-                    _ => {
-                        self.log(format!("Unknown mental effect: {}", effect));
-                        return;
-                    }
-                };
-                self.state
-                    .sanity
-                    .add_mental_effect(effect_type, *duration, *intensity);
-                self.log(format!(
-                    "Added mental effect '{}' for {} turns",
-                    effect, duration
-                ));
-            }
-            Action::TickMentalEffects => {
-                let messages = self.state.sanity.tick_effects();
-                for msg in messages {
-                    self.log(msg);
-                }
-            }
-            Action::AdaptationEffect { adaptation } => {
-                let messages = self.state.sanity.adaptation_effect(adaptation);
-                for msg in messages {
-                    self.log(msg);
-                }
-            }
-            Action::RestRestoration => {
-                let message = self.state.sanity.rest_restoration();
-                self.log(message);
-            }
-            Action::SocialRestoration => {
-                let message = self.state.sanity.social_restoration();
-                self.log(message);
-            }
-            Action::MeditationRestoration => {
-                let message = self.state.sanity.meditation_restoration();
-                self.log(message);
-            }
+
             // Trading actions
             Action::GetTradeInterface { trader_id, tier } => {
                 let area_tier = *tier;

@@ -61,7 +61,7 @@ pub fn render_damage_numbers(frame: &mut Frame, area: Rect, state: &GameState) {
         .max(0)
         .min(state.map.height as i32 - view_h);
 
-    for dn in &state.damage_numbers {
+    for dn in &state.visual_effects.damage_numbers {
         let rise = (12 - dn.frames) / 6;
         let screen_x = (dn.x - cam_x) as i32;
         let screen_y = (dn.y - cam_y) as i32 - rise as i32;
@@ -146,10 +146,10 @@ pub fn render_map(
             // Check for light beam at this position
             if let Some((beam_char, beam_type)) = state.get_beam_at(x as i32, y as i32) {
                 let beam_color = match beam_type {
-                    crate::game::state::BeamType::Laser => Color::Red,
-                    crate::game::state::BeamType::Light => Color::Yellow,
-                    crate::game::state::BeamType::Reflection => Color::Cyan,
-                    crate::game::state::BeamType::Arrow => Color::Green,
+                    crate::game::visual_effects::BeamType::Laser => Color::Red,
+                    crate::game::visual_effects::BeamType::Light => Color::Yellow,
+                    crate::game::visual_effects::BeamType::Reflection => Color::Cyan,
+                    crate::game::visual_effects::BeamType::Arrow => Color::Green,
                 };
                 let style = Style::default().fg(beam_color).bold();
                 let style = if is_look_cursor {
@@ -422,15 +422,17 @@ fn render_tile(
         let light = state.get_light_level(x as i32, y as i32);
 
         // Check if this tile was changed by the last storm
-        let is_storm_changed = state.storm_changed_tiles.contains(&idx);
+        let is_storm_changed = state.visual_effects.storm_changed_tiles.contains(&idx);
 
         // Animated tiles based on animation_frame
         let (glyph, base_color) = match tile {
             Tile::Glass => {
                 // Glass shimmers between cyan shades with shimmer overlay
-                let phase = ((state.animation_frame / 4) + (x as u32 ^ y as u32)) % 3;
-                let shimmer_phase =
-                    ((state.animation_frame / 2) + (x as u32 * 3 + y as u32 * 7)) % 6;
+                let phase =
+                    ((state.visual_effects.animation_frame / 4) + (x as u32 ^ y as u32)) % 3;
+                let shimmer_phase = ((state.visual_effects.animation_frame / 2)
+                    + (x as u32 * 3 + y as u32 * 7))
+                    % 6;
 
                 let (glyph, color) = if shimmer_phase < 2 {
                     // Show shimmer overlay
@@ -448,7 +450,8 @@ fn render_tile(
             }
             Tile::Glare => {
                 // Glare tiles pulse with bright light
-                let pulse_phase = ((state.animation_frame / 3) + (x as u32 + y as u32)) % 4;
+                let pulse_phase =
+                    ((state.visual_effects.animation_frame / 3) + (x as u32 + y as u32)) % 4;
                 let color = match pulse_phase {
                     0 => Color::White,
                     1 => Color::LightYellow,

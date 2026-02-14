@@ -1,0 +1,40 @@
+{
+  "name": "connectivity_validation",
+  "description": "Verify at least 80% of floor tiles are reachable from spawn",
+  "seed": 12345,
+  "world_x": 10,
+  "world_y": 10,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "connectivity_ratio",
+        "op": "ge",
+        "value": 0.8
+      },
+      "message": "At least 80% of floor tiles should be reachable from spawn"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should be alive"
+    }
+  ]
+}

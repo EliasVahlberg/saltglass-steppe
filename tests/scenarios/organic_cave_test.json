@@ -1,0 +1,52 @@
+{
+  "name": "organic_cave_test",
+  "description": "Validate organic cave generation with high organic_blend",
+  "seed": 777,
+  "world_x": 8,
+  "world_y": 8,
+  "poi_type": "landmark",
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10
+  },
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": {
+        "type": "connectivity_ratio",
+        "op": "ge",
+        "value": 0.7
+      },
+      "message": "Organic caves should maintain reasonable connectivity"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "tile_type_count",
+        "tile_type": "floor",
+        "op": "ge",
+        "value": 30
+      },
+      "message": "Organic caves should have walkable areas"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_on_walkable_tile"
+      },
+      "message": "Player should spawn on walkable tile"
+    }
+  ]
+}

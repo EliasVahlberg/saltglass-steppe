@@ -8,18 +8,18 @@ pub mod constraint_tests;
 pub mod constraints;
 pub mod events;
 pub mod grammar;
-pub mod layered_generation;
+
 pub mod loot;
 pub mod microstructures;
 pub mod narrative;
 pub mod narrative_templates;
-pub mod pipeline;
+
 pub mod quest_constraints;
-pub mod registry;
+
+pub mod feature_materializer;
+pub mod feature_registry;
 pub mod spatial;
 pub mod spawn;
-pub mod feature_registry;
-pub mod feature_materializer;
 pub mod story;
 pub mod structures;
 pub mod templates;
@@ -40,15 +40,14 @@ pub use config::{ConfigurationLoader, GenerationConfiguration, GenerationPassCon
 pub use connectivity::*;
 pub use constraints::*;
 pub use grammar::*;
-pub use layered_generation::*;
+
 pub use loot::*;
 pub use microstructures::*;
 pub use narrative::*;
 pub use narrative_templates::{
     HistoricalEvent, NarrativeContext, NarrativeGenerator, NarrativeTemplate,
 };
-pub use pipeline::*;
-pub use registry::*;
+
 pub use spatial::*;
 pub use spawn::*;
 pub use story::*;
