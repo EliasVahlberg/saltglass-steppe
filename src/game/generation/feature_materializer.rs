@@ -13,19 +13,19 @@ pub fn materialize_features(
     _poi: POI,
     level: u32,
 ) {
-    let features = state.map.features.clone();
+    let features = state.world.map.features.clone();
     let table = get_biome_spawn_table(&biome);
     let mut occupied: HashSet<(i32, i32)> = HashSet::new();
-    for e in &state.enemies {
+    for e in &state.world.enemies {
         occupied.insert((e.x, e.y));
     }
-    for n in &state.npcs {
+    for n in &state.world.npcs {
         occupied.insert((n.x, n.y));
     }
-    for i in &state.items {
+    for i in &state.world.items {
         occupied.insert((i.x, i.y));
     }
-    for i in &state.interactables {
+    for i in &state.world.interactables {
         occupied.insert((i.x, i.y));
     }
 
@@ -35,11 +35,11 @@ pub fn materialize_features(
         };
 
         // Require walkable tiles and avoid overlaps
-        let idx = match state.map.pos_to_idx(feature.x, feature.y) {
+        let idx = match state.world.map.pos_to_idx(feature.x, feature.y) {
             Some(i) => i,
             None => continue,
         };
-        if !state.map.tiles[idx].walkable() || occupied.contains(&(feature.x, feature.y)) {
+        if !state.world.map.tiles[idx].walkable() || occupied.contains(&(feature.x, feature.y)) {
             continue;
         }
 
@@ -68,7 +68,7 @@ fn place_light(state: &mut GameState, feature: &crate::game::map::MapFeature, pa
         pick_light_type(rule, rng)
     };
     if let Some(id) = id {
-        state.map.lights.push(crate::game::map::MapLight {
+        state.map_mut().lights.push(crate::game::map::MapLight {
             x: feature.x,
             y: feature.y,
             id,
@@ -80,7 +80,7 @@ fn place_loot(state: &mut GameState, feature: &crate::game::map::MapFeature, _pa
     // Simple: drop a chest item using existing loot generator by spawn table.
     let id = "generic_chest";
     state
-        .items
+        .items_mut()
         .push(crate::game::item::Item::new(feature.x, feature.y, id));
     // Future: hook loot tables here.
 }
@@ -102,7 +102,7 @@ fn place_enemy(
         weighted_pick_by_level_and_tier(spawns, level, rng, use_boss)
     };
     if let Some(id) = picked {
-        state.enemies.push(Enemy::new(feature.x, feature.y, id));
+        state.enemies_mut().push(Enemy::new(feature.x, feature.y, id));
     }
 }
 
@@ -117,7 +117,7 @@ fn place_npc(state: &mut GameState, feature: &crate::game::map::MapFeature, para
         _ => "settler",
     };
     state
-        .npcs
+        .npcs_mut()
         .push(crate::game::npc::Npc::new(feature.x, feature.y, npc_id));
 }
 
@@ -128,7 +128,7 @@ fn place_interactable(
 ) {
     if let Some(id) = params.get("id").and_then(|v| v.as_str()) {
         state
-            .interactables
+            .interactables_mut()
             .push(Interactable::new(id.to_string(), feature.x, feature.y));
     }
 }
@@ -155,16 +155,16 @@ mod tests {
     #[test]
     fn story_hook_materializes() {
         let mut state = GameState::new(12345);
-        state.map = Map::new(10, 10);
+        state.world.map = Map::new(10, 10);
         // Set tile to floor so materializer doesn't skip it
-        state.map.set_tile(
+        state.world.map.set_tile(
             1,
             1,
             Tile::Floor {
                 id: "stone_floor".to_string(),
             },
         );
-        state.map.features.push(MapFeature {
+        state.world.map.features.push(MapFeature {
             x: 1,
             y: 1,
             feature_id: "story_hook".to_string(),
