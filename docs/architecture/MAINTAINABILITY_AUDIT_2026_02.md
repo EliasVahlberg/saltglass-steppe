@@ -176,11 +176,23 @@ These JSON files exist in `data/` but are **never loaded by any Rust code**:
 - [x] Place crafting stations in world (crafting_table + glass_forge interactables, station proximity check in craft(), town spawning)
 - [ ] Either integrate ritual/sanity into end_turn() or remove them (deferred to Phase 5)
 
-### Phase 5: State.rs Deep Refactor (2-3 weeks)
-- [ ] Extract `NarrativeEngine` from state.rs
-- [ ] Extract `PlayerState` struct
-- [ ] Extract `WorldState` struct
-- [ ] Introduce `System` trait for consistent update pattern
+### Phase 5: State.rs Deep Refactor (2-3 weeks) ✅ PLANNED
+- [x] **Planning Complete** — See `docs/development/PHASE_5_IMPLEMENTATION_PLAN.md`
+- [x] Audit findings: Ritual/sanity systems should be REMOVED (only placeholders)
+- [x] Feature accessibility audit: Light manipulation inaccessible, crystal/void lack world integration
+- [x] Quest system audit: ARIA system missing, several NPCs/items missing, boss mechanics incomplete
+- [ ] Extract `PlayerState` struct (2-3 days)
+- [ ] Extract `WorldState` struct (2-3 days)
+- [ ] Extract `NarrativeEngine` struct (2 days)
+- [ ] Remove ritual/sanity placeholders (1 hour)
+- [ ] Implement Light Manipulation UI (2-3 days)
+- [ ] Integrate Crystal/Void with world generation (2-3 days)
+- [ ] Implement ARIA Interface System (2-3 days)
+- [ ] Add missing NPCs (the_architect, high_prism, custodian_iri_7, sable_of_the_seam) (2-3 days)
+- [ ] Add missing quest items and boss mechanics (2 days)
+
+**Total Estimated Effort**: 18-22 developer days  
+**Status**: Ready for implementation — detailed plan with task breakdown, dependencies, and testing strategy complete
 
 ---
 
