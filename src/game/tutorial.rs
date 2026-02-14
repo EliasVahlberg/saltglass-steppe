@@ -68,36 +68,36 @@ impl TutorialProgress {
             "game_start" => game_state.turn == 0 && !self.has_shown("game_start"),
             "first_enemy_visible" => {
                 !self.has_shown("first_enemy_visible")
-                    && !game_state.enemies.is_empty()
-                    && game_state.enemies.iter().any(|e| {
+                    && !game_state.enemies().is_empty()
+                    && game_state.enemies().iter().any(|e| {
                         e.hp > 0
                             && game_state
                                 .visible
-                                .contains(&(e.y as usize * game_state.map.width + e.x as usize))
+                                .contains(&(e.y as usize * game_state.map().width + e.x as usize))
                     })
             }
             "first_item_visible" => {
                 !self.has_shown("first_item_visible")
-                    && !game_state.items.is_empty()
-                    && game_state.items.iter().any(|item| {
+                    && !game_state.items().is_empty()
+                    && game_state.items().iter().any(|item| {
                         game_state
                             .visible
-                            .contains(&(item.y as usize * game_state.map.width + item.x as usize))
+                            .contains(&(item.y as usize * game_state.map().width + item.x as usize))
                     })
             }
             "low_hp" => {
-                !self.has_shown("low_hp") && game_state.player_hp < (game_state.player_max_hp / 3)
+                !self.has_shown("low_hp") && game_state.player_hp() < (game_state.player_max_hp() / 3)
             }
             "first_npc_visible" => {
                 !self.has_shown("first_npc_visible")
-                    && !game_state.npcs.is_empty()
-                    && game_state.npcs.iter().any(|npc| {
+                    && !game_state.npcs().is_empty()
+                    && game_state.npcs().iter().any(|npc| {
                         game_state
                             .visible
-                            .contains(&(npc.y as usize * game_state.map.width + npc.x as usize))
+                            .contains(&(npc.y as usize * game_state.map().width + npc.x as usize))
                     })
             }
-            "ap_depleted" => !self.has_shown("ap_depleted") && game_state.player_ap == 0,
+            "ap_depleted" => !self.has_shown("ap_depleted") && game_state.player_ap() == 0,
             _ => false,
         }
     }

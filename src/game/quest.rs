@@ -501,20 +501,20 @@ impl QuestLog {
 
         // Check refraction level requirements
         if let Some(min_refraction) = criteria.min_refraction {
-            if game_state.refraction < min_refraction {
+            if game_state.refraction() < min_refraction {
                 return false;
             }
         }
 
         if let Some(max_refraction) = criteria.max_refraction {
-            if game_state.refraction > max_refraction {
+            if game_state.refraction() > max_refraction {
                 return false;
             }
         }
 
         // Check adaptation requirements
         let player_adaptations: Vec<String> = game_state
-            .adaptations
+            .player.adaptations
             .iter()
             .map(|a| a.name().to_string())
             .collect();
@@ -533,14 +533,14 @@ impl QuestLog {
 
         // Check required items
         for required_item in &criteria.required_items {
-            if !game_state.inventory.contains(required_item) {
+            if !game_state.player.inventory.contains(required_item) {
                 return false;
             }
         }
 
         // Check minimum level (using player level directly)
         if let Some(min_level) = criteria.min_level {
-            if game_state.player_level < min_level {
+            if game_state.player_level() < min_level {
                 return false;
             }
         }
@@ -563,11 +563,11 @@ impl QuestLog {
     ) -> bool {
         match condition {
             "has_saint_key" => game_state
-                .inventory
+                .player.inventory
                 .iter()
                 .any(|item| item.contains("saint_key")),
-            "in_deep_archive" => game_state.layer < -2, // Deep underground
-            "storm_active" => game_state.storm.turns_until > 0,
+            "in_deep_archive" => game_state.layer() < -2, // Deep underground
+            "storm_active" => game_state.storm().turns_until > 0,
             "white_noon_discovered" => self.completed.contains(&"discover_white_noon".to_string()),
             "first_time_player" => self.completed.is_empty(), // No quests completed yet
             "has_faction_alignment" => self.faction_alignment.is_some(),

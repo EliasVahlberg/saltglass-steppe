@@ -60,6 +60,10 @@ pub struct DialogueTree {
     pub faction: String,
     pub root_node: String,
     pub nodes: Vec<DialogueNode>,
+    #[serde(default)]
+    pub interface_type: Option<String>,
+    #[serde(default)]
+    pub aria_personality: Option<String>,
 }
 
 #[derive(Deserialize)]
@@ -124,6 +128,25 @@ pub fn start_dialogue(npc_id: &str, game_state: &crate::game::GameState) -> Opti
     })
 }
 
+pub fn start_aria_dialogue(npc_id: &str, personality: &str, game_state: &crate::game::GameState) -> Option<(String, Vec<String>)> {
+    let data = include_str!("../../data/aria_dialogues.json");
+    let aria_data: serde_json::Value = serde_json::from_str(data).ok()?;
+    
+    let personality_data = aria_data.get("personalities")?.get(personality)?;
+    let greeting = personality_data.get("greeting")?;
+    
+    let mut text = greeting.get("text")?.as_str()?.to_string();
+    text = text.replace("{refraction_level}", &game_state.refraction().to_string());
+    
+    let options: Vec<String> = greeting.get("options")?
+        .as_array()?
+        .iter()
+        .filter_map(|opt| opt.get("text")?.as_str().map(|s| s.to_string()))
+        .collect();
+    
+    Some((text, options))
+}
+
 pub fn continue_dialogue(
     dialogue_state: &DialogueState,
     option_index: usize,
@@ -185,7 +208,7 @@ fn check_dialogue_condition(
 ) -> bool {
     // Check currency requirement
     if let Some(required_currency) = condition.has_currency {
-        if game_state.salt_scrip < required_currency {
+        if game_state.player.salt_scrip < required_currency {
             return false;
         }
     }
@@ -201,21 +224,21 @@ fn check_dialogue_condition(
 
     // Check item requirement
     if let Some(required_item) = &condition.has_item {
-        if !game_state.inventory.contains(required_item) {
+        if !game_state.player.inventory.contains(required_item) {
             return false;
         }
     }
 
     // Check level requirement
     if let Some(required_level) = condition.player_level {
-        if game_state.player_level < required_level {
+        if game_state.player_level() < required_level {
             return false;
         }
     }
 
     // Check completed quest
     if let Some(quest_id) = &condition.completed_quest {
-        if !game_state.quest_log.completed.contains(quest_id) {
+        if !game_state.player.quest_log.completed.contains(quest_id) {
             return false;
         }
     }
@@ -223,7 +246,7 @@ fn check_dialogue_condition(
     // Check adaptation
     if let Some(adaptation_id) = &condition.has_adaptation {
         if !game_state
-            .adaptations
+            .player.adaptations
             .iter()
             .any(|a| a.id() == *adaptation_id)
         {
@@ -233,7 +256,7 @@ fn check_dialogue_condition(
 
     // Check area tier
     if let Some(required_tier) = condition.area_tier {
-        let current_tier = crate::game::trading::calculate_area_tier(&game_state.enemies);
+        let current_tier = crate::game::trading::calculate_area_tier(&game_state.world.enemies);
         if current_tier < required_tier {
             return false;
         }
@@ -257,35 +280,41 @@ fn execute_dialogue_action(action: &DialogueAction, game_state: &mut crate::game
                 action.parameters.get("faction").and_then(|v| v.as_str()),
                 action.parameters.get("change").and_then(|v| v.as_i64()),
             ) {
-                let current = game_state.faction_reputation.get(faction).unwrap_or(&0);
+                let current = game_state.player.faction_reputation.get(faction).unwrap_or(&0);
                 game_state
-                    .faction_reputation
+                    .player.faction_reputation
                     .insert(faction.to_string(), current + change as i32);
             }
         }
         "give_item" => {
             if let Some(item_id) = action.parameters.get("item_id").and_then(|v| v.as_str()) {
-                game_state.inventory.push(item_id.to_string());
+                game_state.player.inventory.push(item_id.to_string());
             }
         }
         "take_item" => {
             if let Some(item_id) = action.parameters.get("item_id").and_then(|v| v.as_str()) {
-                if let Some(pos) = game_state.inventory.iter().position(|id| id == item_id) {
-                    game_state.inventory.remove(pos);
+                if let Some(pos) = game_state.player.inventory.iter().position(|id| id == item_id) {
+                    game_state.player.inventory.remove(pos);
                 }
             }
         }
         "give_currency" => {
             if let Some(amount) = action.parameters.get("amount").and_then(|v| v.as_u64()) {
-                game_state.salt_scrip += amount as u32;
+                game_state.player.salt_scrip += amount as u32;
             }
         }
         "take_currency" => {
             if let Some(amount) = action.parameters.get("amount").and_then(|v| v.as_u64()) {
-                game_state.salt_scrip = game_state.salt_scrip.saturating_sub(amount as u32);
+                game_state.player.salt_scrip = game_state.player.salt_scrip.saturating_sub(amount as u32);
             }
         }
         _ => {} // Unknown action type
+    }
+}
+
+impl DialogueTree {
+    pub fn uses_terminal_interface(&self) -> bool {
+        self.interface_type.as_deref() == Some("terminal")
     }
 }
 
@@ -294,7 +323,7 @@ impl crate::game::state::GameState {
     pub fn check_dialogue_condition(&self, condition: &DialogueCondition) -> bool {
         // Check currency requirement
         if let Some(required_currency) = condition.has_currency {
-            if self.salt_scrip < required_currency {
+            if self.player.salt_scrip < required_currency {
                 return false;
             }
         }
@@ -310,14 +339,14 @@ impl crate::game::state::GameState {
 
         // Check item requirement
         if let Some(required_item) = &condition.has_item {
-            if !self.inventory.contains(required_item) {
+            if !self.player.inventory.contains(required_item) {
                 return false;
             }
         }
 
         // Check player level requirement
         if let Some(required_level) = condition.player_level {
-            if self.player_level < required_level {
+            if self.player_level() < required_level {
                 return false;
             }
         }
