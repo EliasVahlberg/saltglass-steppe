@@ -59,6 +59,45 @@
         "interact": "The forge hums with heat. Press 'c' to craft.",
         "examine": "A forge lined with vitrified brick, still warm."
       }
+    },
+    {
+      "id": "archive_terminal_deep",
+      "name": "Deep Archive Terminal",
+      "glyph": "▣",
+      "description": "Archive interface terminal with crystalline display.",
+      "interaction_type": "aria_interface",
+      "required_item": "saint_key",
+      "aria_personality": "librarian",
+      "messages": {
+        "interact": "The terminal awakens. ARIA Librarian interface active.",
+        "examine": "A vitrified terminal humming with stored knowledge."
+      }
+    },
+    {
+      "id": "archive_terminal_guardian",
+      "name": "Guardian Archive Terminal",
+      "glyph": "▣",
+      "description": "Archive security terminal with scanning array.",
+      "interaction_type": "aria_interface",
+      "required_item": "saint_key",
+      "aria_personality": "guardian",
+      "messages": {
+        "interact": "Security protocols engaged. ARIA Guardian online.",
+        "examine": "A fortified terminal with active scanning beams."
+      }
+    },
+    {
+      "id": "archive_terminal_teacher",
+      "name": "Teaching Archive Terminal",
+      "glyph": "▣",
+      "description": "Archive learning terminal with adaptive interface.",
+      "interaction_type": "aria_interface",
+      "required_item": "saint_key",
+      "aria_personality": "teacher",
+      "messages": {
+        "interact": "Educational protocols initialized. ARIA Teacher ready.",
+        "examine": "A terminal with shifting displays and tutorial prompts."
+      }
     }
   ]
 }

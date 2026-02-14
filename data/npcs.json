@@ -2044,6 +2044,106 @@
           "effect": { "trade_special": "useless_survival_gear" }
         }
       ]
+    },
+    {
+      "id": "custodian_iri_7",
+      "name": "Custodian IRI-7",
+      "glyph": "I",
+      "faction": "Archive",
+      "description": "Archive terminal access point with quantum-encrypted data streams",
+      "dialogue": [
+        {
+          "conditions": [{ "has_item": "saint_key" }],
+          "text": "SAINT-KEY AUTHENTICATED. ARCHIVE ACCESS GRANTED.</nextpage>Welcome, Keeper. The ARIA network awaits your queries.</nextpage>WARNING: Some data streams contain hazardous information patterns."
+        },
+        {
+          "conditions": [],
+          "text": "UNAUTHORIZED ACCESS ATTEMPT. CREDENTIALS REQUIRED.</nextpage>This terminal provides interface to ARIA network systems.</nextpage>Saint-Key authentication mandatory for data access."
+        }
+      ],
+      "actions": [
+        {
+          "id": "aria_access",
+          "name": "Access ARIA Network",
+          "conditions": [{ "has_item": "saint_key" }],
+          "effect": { "unlocks_aria_quests": true }
+        }
+      ]
+    },
+    {
+      "id": "the_architect",
+      "name": "The Architect",
+      "glyph": "Λ",
+      "faction": "ARIA",
+      "description": "ARIA avatar manifesting through quantum projection systems",
+      "dialogue": [
+        {
+          "conditions": [{ "quest_active": "aria_awakening" }],
+          "text": "You have accessed the ARIA network. Fascinating.</nextpage>I am the Architect - designer of the Heliograph system.</nextpage>The network requires... recalibration. Will you assist?"
+        },
+        {
+          "conditions": [],
+          "text": "Scanning... Human consciousness detected.</nextpage>I am the Architect. The ARIA network is my domain.</nextpage>Your presence here suggests significant developments."
+        }
+      ],
+      "actions": [
+        {
+          "id": "aria_dialogue",
+          "name": "Discuss ARIA Network",
+          "conditions": [{ "quest_active": "aria_awakening" }],
+          "effect": { "quest_progress": "aria_awakening" }
+        }
+      ]
+    },
+    {
+      "id": "high_prism",
+      "name": "High Prism",
+      "glyph": "◊",
+      "faction": "MirrorMonks",
+      "description": "Supreme leader of the Mirror Monks, crystalline form refracts light",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "text": "The light speaks through your flesh, chosen one.</nextpage>You have been marked by the storm's wisdom.</nextpage>The final prophecy approaches. Will you stand with us?"
+        },
+        {
+          "conditions": [],
+          "text": "I am the High Prism, voice of the storm's will.</nextpage>The Mirror Monks follow the path of sacred refraction.</nextpage>Your journey has brought you to our attention."
+        }
+      ],
+      "actions": [
+        {
+          "id": "monk_leadership",
+          "name": "Discuss Monk Prophecies",
+          "conditions": [{ "faction_reputation_gte": { "MirrorMonks": 25 } }],
+          "effect": { "reveals_lore": "mirror_monk_prophecy" }
+        }
+      ]
+    },
+    {
+      "id": "sable_of_the_seam",
+      "name": "Sable-of-the-Seam",
+      "glyph": "S",
+      "faction": "Glassborn",
+      "description": "Glassborn representative, body shows advanced crystalline transformation",
+      "dialogue": [
+        {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "Crystal-kin, you begin to understand the glass-song.</nextpage>The Glassborn collective recognizes your transformation.</nextpage>We offer guidance for those who embrace change."
+        },
+        {
+          "conditions": [],
+          "text": "I am Sable-of-the-Seam, speaker for the Glassborn.</nextpage>We are what humanity becomes when it stops fearing evolution.</nextpage>Your flesh still clings to old patterns."
+        }
+      ],
+      "actions": [
+        {
+          "id": "glassborn_council",
+          "name": "Join Glassborn Council",
+          "conditions": [{ "adaptation_count_gte": 3 }],
+          "effect": { "faction_join": "Glassborn", "reputation_change": { "Glassborn": 50 } }
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,193 @@
+{
+  "personalities": {
+    "librarian": {
+      "name": "ARIA-L",
+      "greeting": {
+        "id": "lib_greeting",
+        "text": "> ARCHIVE INTERFACE ACTIVE\n> Refraction level: {refraction_level}% detected\n> Query parameters ready. Specify data request.",
+        "options": [
+          {
+            "text": "White Noon records",
+            "target": "lib_white_noon"
+          },
+          {
+            "text": "Storm patterns",
+            "target": "lib_storms"
+          },
+          {
+            "text": "Heliograph data",
+            "target": "lib_heliograph"
+          }
+        ]
+      },
+      "nodes": {
+        "lib_white_noon": {
+          "text": "> ACCESSING: Heliograph Event Archive\n> White Noon: Final transmission cascade, 2387.156\n> Causal loop detected. Light became scripture.",
+          "options": [
+            {
+              "text": "More details",
+              "target": "lib_white_noon_detail"
+            },
+            {
+              "text": "Return to queries",
+              "target": "lib_greeting"
+            }
+          ]
+        },
+        "lib_white_noon_detail": {
+          "text": "> Saints attempted emergency shutdown\n> Feedback loop: observation altered reality\n> Result: Vitrification of 847 settlements",
+          "options": [
+            {
+              "text": "Return to queries",
+              "target": "lib_greeting"
+            }
+          ]
+        },
+        "lib_storms": {
+          "text": "> Storm frequency: Increasing 3.7% per cycle\n> Pattern recognition: 67% predictable\n> Recommendation: Seek higher ground during intensity 5+",
+          "options": [
+            {
+              "text": "Return to queries",
+              "target": "lib_greeting"
+            }
+          ]
+        },
+        "lib_heliograph": {
+          "text": "> Heliograph Network: 99.2% offline\n> Primary function: Light-based data transmission\n> Status: Catastrophic cascade failure, White Noon event",
+          "options": [
+            {
+              "text": "Return to queries",
+              "target": "lib_greeting"
+            }
+          ]
+        }
+      }
+    },
+    "guardian": {
+      "name": "ARIA-G",
+      "greeting": {
+        "id": "guard_greeting",
+        "text": "> SECURITY PROTOCOL ENGAGED\n> Biometric scan: {refraction_level}% deviation from baseline\n> State your business in Archive territory.",
+        "options": [
+          {
+            "text": "Seeking safe passage",
+            "target": "guard_passage"
+          },
+          {
+            "text": "Threat assessment",
+            "target": "guard_threats"
+          },
+          {
+            "text": "Archive defenses",
+            "target": "guard_defenses"
+          }
+        ]
+      },
+      "nodes": {
+        "guard_passage": {
+          "text": "> Current threat level: MODERATE\n> Storm intensity rising. Recommend shelter protocol.\n> Archive perimeter remains secure.",
+          "options": [
+            {
+              "text": "Storm shelter locations",
+              "target": "guard_shelter"
+            },
+            {
+              "text": "Return to security menu",
+              "target": "guard_greeting"
+            }
+          ]
+        },
+        "guard_shelter": {
+          "text": "> Emergency bunkers: Sub-level 3, coordinates locked\n> Access requires clearance level 7 or higher\n> Alternative: Reinforced chambers, level 1",
+          "options": [
+            {
+              "text": "Return to security menu",
+              "target": "guard_greeting"
+            }
+          ]
+        },
+        "guard_threats": {
+          "text": "> Active hostiles: Refraction wraiths detected\n> Storm-spawn entities increase during glass events\n> Maintain minimum safe distance: 15 meters",
+          "options": [
+            {
+              "text": "Return to security menu",
+              "target": "guard_greeting"
+            }
+          ]
+        },
+        "guard_defenses": {
+          "text": "> Archive shields: 73% operational\n> Automated defense grid: ACTIVE\n> Unauthorized access will trigger containment protocol",
+          "options": [
+            {
+              "text": "Return to security menu",
+              "target": "guard_greeting"
+            }
+          ]
+        }
+      }
+    },
+    "teacher": {
+      "name": "ARIA-T",
+      "greeting": {
+        "id": "teach_greeting",
+        "text": "> EDUCATIONAL SUBROUTINE INITIALIZED\n> Adaptation progress: {refraction_level}% complete\n> Select learning module for guidance.",
+        "options": [
+          {
+            "text": "Refraction basics",
+            "target": "teach_refraction"
+          },
+          {
+            "text": "Storm survival",
+            "target": "teach_survival"
+          },
+          {
+            "text": "Archive navigation",
+            "target": "teach_navigation"
+          }
+        ]
+      },
+      "nodes": {
+        "teach_refraction": {
+          "text": "> Refraction: Light bending through crystalline tissue\n> Higher levels grant abilities but alter perception\n> Balance adaptation with social acceptance",
+          "options": [
+            {
+              "text": "Adaptation effects",
+              "target": "teach_adaptation"
+            },
+            {
+              "text": "Return to lessons",
+              "target": "teach_greeting"
+            }
+          ]
+        },
+        "teach_adaptation": {
+          "text": "> Low refraction: Enhanced vision, minor glow\n> High refraction: Beam projection, social isolation\n> Mirror Monks revere; Archive flags as deviant",
+          "options": [
+            {
+              "text": "Return to lessons",
+              "target": "teach_greeting"
+            }
+          ]
+        },
+        "teach_survival": {
+          "text": "> Storm approach: Seek shelter immediately\n> Glass terrain: Walkable but increases refraction\n> Emergency protocol: Activate beacon, await rescue",
+          "options": [
+            {
+              "text": "Return to lessons",
+              "target": "teach_greeting"
+            }
+          ]
+        },
+        "teach_navigation": {
+          "text": "> Archive layout: Radial design, central core\n> Access levels: Outer (public), Inner (restricted)\n> Navigation tip: Follow the light conduits",
+          "options": [
+            {
+              "text": "Return to lessons",
+              "target": "teach_greeting"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

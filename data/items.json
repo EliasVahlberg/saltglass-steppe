@@ -2540,6 +2540,90 @@
       "effects": [
         { "condition": "on_pickup", "effect": "B(@5 &LightMagenta)" }
       ]
+    },
+    {
+      "id": "broken_saint_key",
+      "name": "Broken Saint-Key",
+      "glyph": "⚷",
+      "description": "Shattered credential device, its authority fractured.\nStill pulses with faint recognition protocols.",
+      "value": 200,
+      "weight": 1,
+      "tier": 3,
+      "usable": false,
+      "quest_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@4 &DarkGray)" }
+      ]
+    },
+    {
+      "id": "sacred_angle_lens",
+      "name": "Sacred Angle Lens",
+      "glyph": "◎",
+      "description": "Mirror Monk relic that reveals the storm's true geometry.\nEach angle whispers of divine refraction.",
+      "value": 300,
+      "weight": 1,
+      "tier": 4,
+      "usable": false,
+      "quest_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@6 &LightCyan &White)" }
+      ]
+    },
+    {
+      "id": "forecast_instrument",
+      "name": "Forecast Instrument",
+      "glyph": "⊕",
+      "description": "Sand-Engineer device that reads storm probability matrices.\nPragmatic prophecy through calculated precision.",
+      "value": 250,
+      "weight": 2,
+      "tier": 3,
+      "usable": false,
+      "quest_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "B(@5 &Yellow)" }
+      ]
+    },
+    {
+      "id": "shard_of_clarity",
+      "name": "Shard of Clarity",
+      "glyph": "◎",
+      "description": "Mind aspect of the Prime Lens—pure understanding crystallized.\nThoughts become light; light becomes truth.",
+      "value": 5000,
+      "weight": 1,
+      "tier": 6,
+      "usable": false,
+      "quest_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@8 &LightBlue &White)" }
+      ]
+    },
+    {
+      "id": "shard_of_will",
+      "name": "Shard of Will",
+      "glyph": "◎",
+      "description": "Body aspect of the Prime Lens—endurance made manifest.\nFlesh becomes glass; glass becomes eternal.",
+      "value": 5000,
+      "weight": 1,
+      "tier": 6,
+      "usable": false,
+      "quest_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@8 &Red &White)" }
+      ]
+    },
+    {
+      "id": "shard_of_soul",
+      "name": "Shard of Soul",
+      "glyph": "◎",
+      "description": "Spirit aspect of the Prime Lens—resonance beyond measure.\nSoul becomes storm; storm becomes scripture.",
+      "value": 5000,
+      "weight": 1,
+      "tier": 6,
+      "usable": false,
+      "quest_item": true,
+      "effects": [
+        { "condition": "on_pickup", "effect": "S(@8 &Magenta &White)" }
+      ]
     }
   ]
 }
