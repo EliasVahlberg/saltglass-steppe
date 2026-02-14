@@ -27,7 +27,9 @@ pub mod lighting;
 pub mod map;
 pub mod map_features;
 pub mod meta;
+pub mod narrative_engine;
 pub mod npc;
+pub mod player_state;
 pub mod progression;
 pub mod psychic;
 pub mod qa_tools;
@@ -44,6 +46,7 @@ pub mod tutorial;
 pub mod visual_effects;
 pub mod void_energy;
 pub mod world_map;
+pub mod world_state;
 
 #[cfg(test)]
 pub mod tests;
@@ -155,7 +158,7 @@ pub use des_testing::{
     DesTest, DesTestResult, create_sample_des_test, list_des_tests, run_des_test_file,
     save_sample_des_test,
 };
-pub use dialogue::{DialogueState, continue_dialogue, get_dialogue_tree, start_dialogue};
+pub use dialogue::{DialogueState, continue_dialogue, get_dialogue_tree, start_dialogue, start_aria_dialogue};
 pub use meta::{ClassDef, MetaProgress, all_classes, get_class};
 pub use qa_tools::{DebugInfo, IssueCategory, IssueReport, IssueSeverity};
 pub use trading::{
