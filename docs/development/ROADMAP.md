@@ -119,6 +119,8 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - **Depends on**: Faction system (settlements belong to factions), overworld travel
 
 #### 5.5. Biome-Driven Tile Generation Profiles ✅
+
+> ⚠️ **READ TERRAIN-FORGE DOCUMENTATION TO SEE WHAT IS ALREADY IMPLEMENTED** before starting work on any procedural generation task. Many algorithms and features may already exist in the library.
 - **Status**: Implemented (2026-02-15)
 - Replaced random algorithm switching with data-driven biome+terrain profiles in `terrain_config.json`
 - Each biome defines weighted algorithm preferences (cellular, bsp, rooms) with per-terrain overrides
