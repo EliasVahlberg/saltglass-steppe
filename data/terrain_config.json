@@ -129,6 +129,48 @@
       "unique_features": ["light_maze", "mirage_oasis", "prism_field"]
     }
   },
+  "biome_algorithm_profiles": {
+    "desert": {
+      "default": { "cellular": 3.0, "bsp": 0.5, "rooms": 0.5 },
+      "terrain_overrides": {
+        "canyon": { "cellular": 4.0, "bsp": 0.2, "rooms": 0.1 },
+        "mesa":   { "cellular": 2.0, "bsp": 1.5, "rooms": 1.0 },
+        "dunes":  { "cellular": 4.0, "bsp": 0.1, "rooms": 0.1 }
+      }
+    },
+    "saltflat": {
+      "default": { "cellular": 4.0, "bsp": 0.2, "rooms": 0.2 },
+      "terrain_overrides": {
+        "flat": { "cellular": 5.0, "bsp": 0.1, "rooms": 0.1 }
+      }
+    },
+    "scrubland": {
+      "default": { "cellular": 2.5, "bsp": 0.8, "rooms": 1.0 },
+      "terrain_overrides": {
+        "hills": { "cellular": 3.0, "bsp": 0.5, "rooms": 0.5 },
+        "flat":  { "cellular": 2.0, "bsp": 0.8, "rooms": 1.5 }
+      }
+    },
+    "oasis": {
+      "default": { "cellular": 1.5, "bsp": 1.0, "rooms": 2.0 },
+      "terrain_overrides": {
+        "flat": { "cellular": 1.0, "bsp": 1.0, "rooms": 2.5 }
+      }
+    },
+    "ruins": {
+      "default": { "cellular": 0.5, "bsp": 2.5, "rooms": 2.0 },
+      "terrain_overrides": {
+        "canyon": { "cellular": 1.5, "bsp": 1.5, "rooms": 1.0 },
+        "mesa":   { "cellular": 0.3, "bsp": 3.0, "rooms": 2.0 }
+      }
+    }
+  },
+  "poi_algorithm_overrides": {
+    "town":    { "cellular": 0.3, "bsp": 1.0, "rooms": 3.0 },
+    "shrine":  { "cellular": 2.0, "bsp": 1.5, "rooms": 0.5 },
+    "dungeon": { "cellular": 0.5, "bsp": 3.0, "rooms": 1.0 },
+    "landmark":{ "cellular": 1.0, "bsp": 2.0, "rooms": 1.5 }
+  },
   "poi_layouts": {
     "town": {
       "central_clearing_size": 20,

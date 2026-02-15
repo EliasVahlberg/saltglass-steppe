@@ -58,10 +58,22 @@ struct POILayout {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+struct BiomeAlgorithmProfile {
+    default: HashMap<String, f64>,
+    #[serde(default)]
+    terrain_overrides: HashMap<String, HashMap<String, f64>>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+#[allow(dead_code)]
 struct TileGenConfig {
     terrain_types: HashMap<String, TerrainConfig>,
     biome_modifiers: HashMap<String, BiomeModifier>,
     poi_layouts: HashMap<String, POILayout>,
+    #[serde(default)]
+    biome_algorithm_profiles: HashMap<String, BiomeAlgorithmProfile>,
+    #[serde(default)]
+    poi_algorithm_overrides: HashMap<String, HashMap<String, f64>>,
     #[serde(default = "default_variation_intensity")]
     variation_intensity: f64,
     #[serde(default)]
@@ -112,8 +124,9 @@ impl TerrainForgeGenerator {
 
         let algo_name = select_algorithm(
             poi,
+            biome,
+            terrain,
             TILE_CONFIG.structure_algorithm.as_deref(),
-            TILE_CONFIG.variation_intensity,
             &mut rng,
         );
 
@@ -284,9 +297,12 @@ fn generate_with_dungeon_generator(
     seed: u64,
     biome: Biome,
     terrain: Terrain,
-    _rng: &mut ChaCha8Rng,
+    rng: &mut ChaCha8Rng,
 ) -> Option<Map> {
     use terrain_forge::{Grid, Params, Tile as ForgeTile};
+
+    // Use biome-aware algorithm selection for POI tiles
+    let algo = select_algorithm(poi, biome, terrain, None, rng);
 
     // Use BSP algorithm with different params based on POI type
     let mut params = Params::new();
@@ -309,9 +325,14 @@ fn generate_with_dungeon_generator(
         _ => return None,
     };
 
-    // Generate using terrain-forge BSP
+    // Generate using selected algorithm (params only apply to bsp/rooms)
     let mut grid: Grid<ForgeTile> = Grid::new(MAP_WIDTH, MAP_HEIGHT);
-    terrain_forge::ops::generate("bsp", &mut grid, Some(seed), Some(&params)).ok()?;
+    let params_ref = if algo == "bsp" || algo == "rooms" {
+        Some(&params)
+    } else {
+        None
+    };
+    terrain_forge::ops::generate(&algo, &mut grid, Some(seed), params_ref).ok()?;
 
     // Get biome materials
     let biome_key = match biome {
@@ -364,40 +385,63 @@ fn generate_with_dungeon_generator(
     }
 
     map.metadata
-        .insert("tilegen_algorithm".to_string(), "bsp".to_string());
+        .insert("tilegen_algorithm".to_string(), algo.clone());
     Some(map)
 }
 
 fn select_algorithm(
     poi: POI,
+    biome: Biome,
+    terrain: Terrain,
     override_name: Option<&str>,
-    variation_intensity: f64,
     rng: &mut ChaCha8Rng,
 ) -> String {
     if let Some(name) = override_name {
         return name.to_string();
     }
 
-    let base = match poi {
-        POI::Town => "rooms",
-        POI::Dungeon | POI::Landmark => "bsp",
-        _ => "cellular",
+    // POI overrides take highest priority
+    let poi_key = match poi {
+        POI::Town => Some("town"),
+        POI::Dungeon => Some("dungeon"),
+        POI::Landmark => Some("landmark"),
+        POI::Shrine => Some("shrine"),
+        POI::None => None,
+    };
+    if let Some(weights) = poi_key.and_then(|k| TILE_CONFIG.poi_algorithm_overrides.get(k)) {
+        return weighted_pick(weights, rng);
+    }
+
+    // Biome profile with optional terrain override
+    let biome_key = biome.as_str();
+    let terrain_key = match terrain {
+        Terrain::Canyon => "canyon",
+        Terrain::Mesa => "mesa",
+        Terrain::Hills => "hills",
+        Terrain::Dunes => "dunes",
+        Terrain::Flat => "flat",
     };
 
-    if variation_intensity <= 0.0 {
-        return base.to_string();
+    if let Some(profile) = TILE_CONFIG.biome_algorithm_profiles.get(biome_key) {
+        let weights = profile
+            .terrain_overrides
+            .get(terrain_key)
+            .unwrap_or(&profile.default);
+        return weighted_pick(weights, rng);
     }
 
-    let mut candidates = vec![(base.to_string(), 1.0 + variation_intensity)];
-    for alt in ["cellular", "bsp", "rooms"] {
-        if alt != base {
-            candidates.push((alt.to_string(), variation_intensity.max(0.1)));
-        }
-    }
+    // Fallback: cellular
+    "cellular".to_string()
+}
 
-    let dist = WeightedIndex::new(candidates.iter().map(|(_, w)| *w))
+fn weighted_pick(weights: &HashMap<String, f64>, rng: &mut ChaCha8Rng) -> String {
+    let entries: Vec<_> = weights.iter().collect();
+    if entries.is_empty() {
+        return "cellular".to_string();
+    }
+    let dist = WeightedIndex::new(entries.iter().map(|(_, w)| *w))
         .unwrap_or_else(|_| WeightedIndex::new([1.0]).unwrap());
-    candidates[dist.sample(rng)].0.clone()
+    entries[dist.sample(rng)].0.clone()
 }
 
 fn lookup_poi_layout(poi: POI) -> Option<&'static POILayout> {

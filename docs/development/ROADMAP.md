@@ -102,6 +102,15 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - Integration with world map POI system
 - **Depends on**: Faction system (settlements belong to factions), overworld travel
 
+#### 5.5. Biome-Driven Tile Generation Profiles ✅
+- **Status**: Implemented (2026-02-15)
+- Replaced random algorithm switching with data-driven biome+terrain profiles in `terrain_config.json`
+- Each biome defines weighted algorithm preferences (cellular, bsp, rooms) with per-terrain overrides
+- POI types (town, dungeon, shrine, landmark) have separate algorithm overrides that take priority
+- Natural biomes (desert, saltflat) favor cellular automata; structured biomes (ruins) favor BSP/rooms
+- `generate_with_dungeon_generator` now uses biome-aware selection instead of hardcoded BSP
+- All weights tunable in `data/terrain_config.json` without recompilation
+
 #### 6. Mob and Item Spawn Table Update
 - Biome-specific enemy rosters with level scaling
 - Elite and rare enemy variants with unique loot
