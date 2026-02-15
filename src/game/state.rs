@@ -199,6 +199,20 @@ impl GameState {
             Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
         let (px, py) = rooms[0];
 
+        // Clear 5x5 area around player spawn to ensure walkable space
+        for dy in -2..=2 {
+            for dx in -2..=2 {
+                let cx = px + dx;
+                let cy = py + dy;
+                if cx >= 1 && cy >= 1 && cx < map.width as i32 - 1 && cy < map.height as i32 - 1 {
+                    let idx = map.idx(cx, cy);
+                    if !map.tiles[idx].walkable() {
+                        map.tiles[idx] = Tile::default_floor();
+                    }
+                }
+            }
+        }
+
         // Add world exit to starting tile (near spawn point)
         let exit_x = (px + 1).min(map.width as i32 - 1) as usize;
         let exit_y = py as usize;
@@ -2492,12 +2506,18 @@ impl GameState {
 
     /// Check if we've interacted with an NPC (either talked or has quest progress)
     fn has_interacted_with_npc(&self, npc_id: &str) -> bool {
-        // Special case for dying pilgrim - check if first quest is active
-        if npc_id == "dying_pilgrim" {
-            return self.narrative.quest_log.active_quests.contains(&"pilgrims_last_angle".to_string());
+        // Check if any TalkTo objective for this NPC has been completed in active quests
+        for quest in &self.player.quest_log.active {
+            if let Some(def) = quest.def() {
+                for (i, obj) in def.objectives.iter().enumerate() {
+                    if let crate::game::quest::ObjectiveType::TalkTo { npc_id: target } = &obj.objective_type {
+                        if target == npc_id && quest.objectives[i].completed {
+                            return true;
+                        }
+                    }
+                }
+            }
         }
-
-        // For other NPCs, check if they've been talked to
         false
     }
 
