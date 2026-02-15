@@ -77,14 +77,20 @@ These are foundational systems that most other features depend on. They should b
 - Wired into `main.rs` action handlers
 - Future: migration functions between versions, integrity checks, auto-save, save slots
 
-#### 2. Proper Overworld Travel
-- Replace current instant tile-transition with actual overworld movement
-- Travel time based on distance, terrain, and encumbrance
+#### 2. Proper Overworld Travel (in progress)
+
+**Step 1 ✅ — Adjacent movement with terrain travel costs**
+- `src/game/travel.rs`: data-driven travel cost from `data/travel_config.json`
+- `is_adjacent()` restricts world map movement to cardinal neighbors
+- `travel_cost(terrain, biome)` = base terrain cost + biome modifier (min 1)
+- `travel_to_tile_safe` rejects non-adjacent, advances turns, logs travel
+
+**Remaining steps:**
 - Random encounters during travel (bandits, storms, wildlife)
 - Resource consumption (water, food) during travel
 - Visible travel path on world map with waypoints
 - Camp/rest mechanic during long journeys
-- **Depends on**: Save system (travel state must persist)
+- **Depends on**: Save system ✅
 
 #### 3. Actual Skill Catalog
 - Design and implement full skill tree with meaningful choices

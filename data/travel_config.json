@@ -1,0 +1,17 @@
+{
+  "default_cost": 2,
+  "terrain_costs": {
+    "flat": 2,
+    "hills": 3,
+    "dunes": 3,
+    "canyon": 4,
+    "mesa": 3
+  },
+  "biome_modifiers": {
+    "oasis": -1,
+    "ruins": 0,
+    "desert": 0,
+    "saltflat": 0,
+    "scrubland": 0
+  }
+}

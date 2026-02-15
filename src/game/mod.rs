@@ -42,6 +42,7 @@ pub mod storm;
 pub mod structure_templates;
 pub mod systems;
 pub mod trading;
+pub mod travel;
 pub mod tutorial;
 pub mod visual_effects;
 pub mod void_energy;

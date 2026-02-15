@@ -245,6 +245,7 @@ untracked_scripts/
 tile_test_output/
 custom_output/
 *_config.json
+!data/*_config.json
 test_output
 
 # Enhanced tile test suite outputs

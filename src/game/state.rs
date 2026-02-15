@@ -1015,6 +1015,29 @@ impl GameState {
 
     /// Travel to a world tile with safe spawn (not on wall/enemy/glass)
     pub fn travel_to_tile_safe(&mut self, new_wx: usize, new_wy: usize) {
+        use super::travel;
+
+        let from = (self.world.world_x, self.world.world_y);
+        let to = (new_wx, new_wy);
+
+        // Reject non-adjacent travel
+        if !travel::is_adjacent(from, to) {
+            self.log("Too far to travel in one step. Move to an adjacent tile.");
+            return;
+        }
+
+        // Calculate and apply travel cost before generating the tile
+        if let Some(wm) = &self.world.world_map {
+            let (biome, terrain, _elev, _poi, _res, _conn, _lvl) =
+                wm.get(new_wx, new_wy);
+            let cost = travel::travel_cost(terrain, biome);
+            self.turn += cost;
+            self.log(format!(
+                "Traveled to {:?} {:?} ({cost} turns).",
+                terrain, biome
+            ));
+        }
+
         self.travel_to_tile(new_wx, new_wy);
 
         // Find safe spawn position (not wall, glass, or enemy)
