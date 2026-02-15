@@ -43,6 +43,22 @@ A 30-minute play session is possible: character creation, movement, combat, ques
 | ~15 functions >100 lines in state.rs | Medium | Ongoing |
 | 12 disabled DES scenarios | Low | 1 day |
 | NarrativeEngine QuestLog is a stub duplicate of real quest_log | Medium | 1 day |
+| Orphaned/overlapping data files (see below) | Medium | 0.5 day |
+| Stale docs and lore files | Low | 1 day |
+
+### Data File Audit (Pending)
+
+Multiple generation-related JSON files were written for earlier systems and may be unused, partially used, or redundant with `terrain_config.json`. Known overlap:
+
+| File | Loaded By | Status |
+|------|-----------|--------|
+| `terrain_config.json` | `terrain_forge_adapter.rs` (TILE_CONFIG) | **Active** — current tile generation config |
+| `biome_profiles.json` | `generation/biomes.rs` (BiomeSystem) | **Suspect** — old biome system, may overlap with terrain_config biome_modifiers |
+| `structure_generation.json` | `tilegen-tool.rs` only | **Suspect** — only used by CLI test tool, not the game itself |
+
+A full audit should: identify all `data/*.json` files, trace which are `include_str!`'d into game code vs. only test tools, remove truly dead files, and consolidate overlapping configs into `terrain_config.json`.
+
+A follow-up pass should review `docs/` and `docs/narrative/` for stale or outdated documentation.
 
 ---
 
@@ -110,6 +126,14 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - Natural biomes (desert, saltflat) favor cellular automata; structured biomes (ruins) favor BSP/rooms
 - `generate_with_dungeon_generator` now uses biome-aware selection instead of hardcoded BSP
 - All weights tunable in `data/terrain_config.json` without recompilation
+
+#### 5.6. Algorithm Layering & Composition
+- Allow biome profiles to specify multiple algorithms as ordered layers (e.g. Perlin noise base → cellular detail pass → GSB connectivity)
+- Data-driven layer definitions in `terrain_config.json`: each layer specifies algorithm, params, and blend mode
+- Desert example: Perlin noise with large scale + low threshold as base, glass seam bridging as connectivity pass
+- Enable per-biome algorithm parameter overrides (noise scale, floor threshold, room sizes) in the profile
+- Testable via `tilegen-tool` with `--biome` and `--terrain` flags for visual comparison
+- **Depends on**: Biome-driven profiles (5.5), data file audit (tech debt)
 
 #### 6. Mob and Item Spawn Table Update
 - Biome-specific enemy rosters with level scaling
