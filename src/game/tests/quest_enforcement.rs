@@ -5,8 +5,8 @@ fn test_main_questline_initialization() {
     let state = GameState::new(12345);
 
     // Check that the first main quest is automatically added
-    assert_eq!(state.narrative.quest_log.active_quests.len(), 1);
-    assert_eq!(state.narrative.quest_log.active_quests[0], "pilgrims_last_angle");
+    assert_eq!(state.player.quest_log.active.len(), 1);
+    assert_eq!(state.player.quest_log.active[0].quest_id, "pilgrims_last_angle");
 
     // Check that the dying pilgrim is spawned
     assert!(state.world.npcs.iter().any(|npc| npc.id == "dying_pilgrim"));
@@ -52,24 +52,24 @@ fn test_quest_objective_progression() {
     let mut state = GameState::new(12345);
 
     // Simulate talking to the dying pilgrim (first objective)
-    state.narrative.quest_log.on_npc_talked("dying_pilgrim");
+    state.player.quest_log.on_npc_talked("dying_pilgrim");
 
     // Simulate collecting scripture shard
     state.player.inventory.push("scripture_shard".to_string());
-    state.narrative.quest_log.on_item_collected("scripture_shard");
+    state.player.quest_log.on_item_collected("scripture_shard");
 
     // Simulate talking to the dying pilgrim again (third objective)
-    let completed_quests = state.narrative.quest_log.on_npc_talked("dying_pilgrim");
+    let completed_quests = state.player.quest_log.on_npc_talked("dying_pilgrim");
 
     // Quest should now be auto-completed and moved to completed list
     assert_eq!(completed_quests.len(), 1);
     assert_eq!(completed_quests[0], "pilgrims_last_angle");
 
     // Quest should be moved to completed and next quest should be unlocked
-    assert_eq!(state.narrative.quest_log.active_quests.len(), 1); // Should have the next quest
-    assert_eq!(state.narrative.quest_log.completed_quests.len(), 1);
-    assert_eq!(state.narrative.quest_log.completed_quests[0], "pilgrims_last_angle");
-    assert_eq!(state.narrative.quest_log.active_quests[0], "the_broken_key"); // Next quest should be active
+    assert_eq!(state.player.quest_log.active.len(), 1); // Should have the next quest
+    assert_eq!(state.player.quest_log.completed.len(), 1);
+    assert_eq!(state.player.quest_log.completed[0], "pilgrims_last_angle");
+    assert_eq!(state.player.quest_log.active[0].quest_id, "the_broken_key"); // Next quest should be active
 }
 
 #[test]

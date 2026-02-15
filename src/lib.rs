@@ -53,16 +53,16 @@ mod lib_tests {
         use game::systems::StormSystem;
         let mut state = GameState::new(42);
         let walls_before: usize = state
-            .map
+            .world.map
             .tiles
             .iter()
             .filter(|t| matches!(t, Tile::Wall { .. }))
             .count();
-        state.storm().turns_until = 0;
-        state.storm().intensity = 3;
+        state.world.storm.turns_until = 0;
+        state.world.storm.intensity = 3;
         StormSystem::apply_storm(&mut state);
         let walls_after: usize = state
-            .map
+            .world.map
             .tiles
             .iter()
             .filter(|t| matches!(t, Tile::Wall { .. }))
@@ -94,15 +94,15 @@ mod lib_tests {
             let ex = enemy.x;
             let ey = enemy.y;
             let initial_hp = enemy.hp;
-            state.player_x() = ex - 1;
-            state.player_y() = ey;
+            state.player.x = ex - 1;
+            state.player.y = ey;
             let idx = state.world.map.idx(ex - 1, ey);
             state.world.map.tiles[idx] = Tile::default_floor();
             // Try attack multiple times to ensure at least one hit
             for _ in 0..5 {
-                state.player_ap() = 4; // Reset AP
+                state.player.ap = 4; // Reset AP
                 state.try_move(1, 0);
-                state.player_x() = ex - 1; // Reset position for next attempt
+                state.player.x = ex - 1; // Reset position for next attempt
             }
             // With 90% accuracy and 5 attempts, very unlikely to miss all
             assert!(
@@ -118,10 +118,10 @@ mod lib_tests {
         let path = "/tmp/test_save.ron";
         state.save(path).unwrap();
         let loaded = GameState::load(path).unwrap();
-        assert_eq!(state.player_x(), loaded.player_x);
-        assert_eq!(state.player_y(), loaded.player_y);
+        assert_eq!(state.player_x(), loaded.player_x());
+        assert_eq!(state.player_y(), loaded.player_y());
         assert_eq!(state.turn, loaded.turn);
-        assert_eq!(state.world.map.tiles, loaded.map.tiles);
+        assert_eq!(state.world.map.tiles, loaded.world.map.tiles);
         std::fs::remove_file(path).ok();
     }
 
@@ -197,7 +197,7 @@ mod lib_tests {
     fn pickup_adds_to_inventory() {
         let mut state = GameState::new(42);
         state
-            .items
+            .world.items
             .push(Item::new(state.player_x(), state.player_y(), "brine_vial"));
         state.rebuild_spatial_index();
         let items_before = state.world.items.len();
@@ -209,7 +209,7 @@ mod lib_tests {
     #[test]
     fn brine_vial_heals() {
         let mut state = GameState::new(42);
-        state.player_hp() = 10;
+        state.player.hp = 10;
         state.player.inventory.push("brine_vial".to_string());
         state.use_item(0);
         assert_eq!(state.player_hp(), 15);

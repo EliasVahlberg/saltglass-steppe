@@ -472,9 +472,6 @@ impl GameState {
         player.max_hp = 20;
         player.reflex = 5;
         player.salt_scrip = 50;
-        
-        // Initialize quest log with first main quest
-        let mut player = PlayerState::new();
         if let Some(first_quest) = super::quest::ActiveQuest::new("pilgrims_last_angle") {
             player.quest_log.active.push(first_quest);
         }

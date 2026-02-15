@@ -6,7 +6,10 @@
       "glyph": "L",
       "description": "A mechanical lever that can be pulled.",
       "interaction_type": "toggle",
-      "states": ["off", "on"],
+      "states": [
+        "off",
+        "on"
+      ],
       "messages": {
         "interact": "You pull the lever.",
         "examine": "A sturdy metal lever. It appears to be {state}."
@@ -18,7 +21,10 @@
       "glyph": "B",
       "description": "A button that can be pressed.",
       "interaction_type": "press",
-      "states": ["unpressed", "pressed"],
+      "states": [
+        "unpressed",
+        "pressed"
+      ],
       "messages": {
         "interact": "You press the button.",
         "examine": "A circular button. It is currently {state}."
@@ -30,7 +36,10 @@
       "glyph": "S",
       "description": "An electrical switch.",
       "interaction_type": "toggle",
-      "states": ["off", "on"],
+      "states": [
+        "off",
+        "on"
+      ],
       "messages": {
         "interact": "You flip the switch.",
         "examine": "An electrical switch. It is currently {state}."
@@ -42,7 +51,10 @@
       "glyph": "T",
       "description": "A sturdy workbench for assembling materials.",
       "interaction_type": "press",
-      "states": ["idle", "in_use"],
+      "states": [
+        "idle",
+        "in_use"
+      ],
       "messages": {
         "interact": "You set up at the crafting table. Press 'c' to craft.",
         "examine": "A salt-stained workbench with tools and clamps."
@@ -54,7 +66,10 @@
       "glyph": "G",
       "description": "A high-temperature forge for shaping glass.",
       "interaction_type": "press",
-      "states": ["cold", "heated"],
+      "states": [
+        "cold",
+        "heated"
+      ],
       "messages": {
         "interact": "The forge hums with heat. Press 'c' to craft.",
         "examine": "A forge lined with vitrified brick, still warm."
@@ -63,7 +78,7 @@
     {
       "id": "archive_terminal_deep",
       "name": "Deep Archive Terminal",
-      "glyph": "▣",
+      "glyph": "\u25a3",
       "description": "Archive interface terminal with crystalline display.",
       "interaction_type": "aria_interface",
       "required_item": "saint_key",
@@ -71,12 +86,16 @@
       "messages": {
         "interact": "The terminal awakens. ARIA Librarian interface active.",
         "examine": "A vitrified terminal humming with stored knowledge."
-      }
+      },
+      "states": [
+        "inactive",
+        "active"
+      ]
     },
     {
       "id": "archive_terminal_guardian",
       "name": "Guardian Archive Terminal",
-      "glyph": "▣",
+      "glyph": "\u25a3",
       "description": "Archive security terminal with scanning array.",
       "interaction_type": "aria_interface",
       "required_item": "saint_key",
@@ -84,12 +103,16 @@
       "messages": {
         "interact": "Security protocols engaged. ARIA Guardian online.",
         "examine": "A fortified terminal with active scanning beams."
-      }
+      },
+      "states": [
+        "inactive",
+        "active"
+      ]
     },
     {
       "id": "archive_terminal_teacher",
       "name": "Teaching Archive Terminal",
-      "glyph": "▣",
+      "glyph": "\u25a3",
       "description": "Archive learning terminal with adaptive interface.",
       "interaction_type": "aria_interface",
       "required_item": "saint_key",
@@ -97,7 +120,11 @@
       "messages": {
         "interact": "Educational protocols initialized. ARIA Teacher ready.",
         "examine": "A terminal with shifting displays and tutorial prompts."
-      }
+      },
+      "states": [
+        "inactive",
+        "active"
+      ]
     }
   ]
 }
