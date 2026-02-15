@@ -221,6 +221,11 @@ impl ActiveQuest {
         get_quest_def(&self.quest_id)
     }
 
+    /// Check that all objectives before index i are completed (sequential enforcement)
+    fn prior_objectives_complete(&self, i: usize) -> bool {
+        self.objectives[..i].iter().all(|o| o.completed)
+    }
+
     /// Update progress for kill objectives
     pub fn on_enemy_killed(&mut self, enemy_id: &str) {
         if let Some(def) = self.def() {
@@ -229,7 +234,9 @@ impl ActiveQuest {
                     enemy_id: target, ..
                 } = &obj.objective_type
                 {
-                    if target == enemy_id && !self.objectives[i].completed {
+                    if target == enemy_id && !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current += 1;
                         if self.objectives[i].current >= self.objectives[i].target {
                             self.objectives[i].completed = true;
@@ -248,7 +255,9 @@ impl ActiveQuest {
                     item_id: target, ..
                 } = &obj.objective_type
                 {
-                    if target == item_id && !self.objectives[i].completed {
+                    if target == item_id && !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current += 1;
                         if self.objectives[i].current >= self.objectives[i].target {
                             self.objectives[i].completed = true;
@@ -264,7 +273,9 @@ impl ActiveQuest {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::Reach { x: tx, y: ty } = &obj.objective_type {
-                    if x == *tx && y == *ty && !self.objectives[i].completed {
+                    if x == *tx && y == *ty && !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current = 1;
                         self.objectives[i].completed = true;
                     }
@@ -276,13 +287,14 @@ impl ActiveQuest {
     /// Update progress for talk objectives
     pub fn on_npc_talked(&mut self, npc_id: &str) {
         if let Some(def) = self.def() {
-            // Find the next uncompleted talk objective for this NPC
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::TalkTo { npc_id: target } = &obj.objective_type {
-                    if target == npc_id && !self.objectives[i].completed {
+                    if target == npc_id && !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current = 1;
                         self.objectives[i].completed = true;
-                        break; // Only complete one objective per interaction
+                        break;
                     }
                 }
             }
@@ -294,7 +306,9 @@ impl ActiveQuest {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::InterfaceWithAria { item_required } = &obj.objective_type {
-                    if item_required == item_used && !self.objectives[i].completed {
+                    if item_required == item_used && !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current = 1;
                         self.objectives[i].completed = true;
                     }
@@ -308,7 +322,9 @@ impl ActiveQuest {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::Interact { target: obj_target } = &obj.objective_type {
-                    if obj_target == target && !self.objectives[i].completed {
+                    if obj_target == target && !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current = 1;
                         self.objectives[i].completed = true;
                     }
@@ -322,7 +338,9 @@ impl ActiveQuest {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::Examine { target: obj_target } = &obj.objective_type {
-                    if obj_target == target && !self.objectives[i].completed {
+                    if obj_target == target && !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current = 1;
                         self.objectives[i].completed = true;
                     }
@@ -336,7 +354,9 @@ impl ActiveQuest {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::CollectData { .. } = &obj.objective_type {
-                    if !self.objectives[i].completed {
+                    if !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current += 1;
                         if self.objectives[i].current >= self.objectives[i].target {
                             self.objectives[i].completed = true;
@@ -352,7 +372,9 @@ impl ActiveQuest {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
                 if let ObjectiveType::Wait { .. } = &obj.objective_type {
-                    if !self.objectives[i].completed {
+                    if !self.objectives[i].completed
+                        && self.prior_objectives_complete(i)
+                    {
                         self.objectives[i].current += 1;
                         if self.objectives[i].current >= self.objectives[i].target {
                             self.objectives[i].completed = true;

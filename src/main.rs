@@ -619,6 +619,11 @@ fn run_main_game() -> Result<()> {
         ui.camera_x = state.player.x as f32;
         ui.camera_y = state.player.y as f32;
 
+        // Initial tutorial check (game_start trigger)
+        if let Some(msg) = state.get_next_tutorial_message() {
+            ui.tutorial_message = Some(msg);
+        }
+
         loop {
             // Only tick animations and updates if debug console is not active
             if !ui.debug_console.active {
@@ -700,7 +705,7 @@ fn run_main_game() -> Result<()> {
                         // Check for tutorial messages after each action
                         if ui.tutorial_message.is_none() {
                             if let Some(msg) = state.get_next_tutorial_message() {
-                                ui.tutorial_message = Some(("Tutorial".to_string(), msg));
+                                ui.tutorial_message = Some(msg);
                             }
                         }
 

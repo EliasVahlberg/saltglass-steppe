@@ -16,7 +16,6 @@ pub mod enemy;
 pub mod entity;
 pub mod equipment;
 pub mod event;
-pub mod fov;
 pub mod generation;
 pub mod inspect;
 pub mod interactable;
@@ -66,7 +65,6 @@ pub use effect::{
 pub use enemy::{Enemy, EnemyDef, all_enemy_ids, get_enemy_def};
 pub use entity::{Entity, EntityType};
 pub use equipment::{EquipSlot, Equipment};
-pub use fov::FieldOfView;
 pub use generation::{
     AlgorithmContext,
     AlgorithmParameters,

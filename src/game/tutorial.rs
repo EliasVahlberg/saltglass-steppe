@@ -59,16 +59,15 @@ impl TutorialProgress {
     }
 
     /// Check if a tutorial message should be shown based on trigger condition
-    pub fn check_trigger(&self, trigger: &str, game_state: &super::state::GameState) -> bool {
-        if self.tutorial_disabled {
+    pub fn check_trigger(&self, id: &str, trigger: &str, game_state: &super::state::GameState) -> bool {
+        if self.tutorial_disabled || self.has_shown(id) {
             return false;
         }
 
         match trigger {
-            "game_start" => game_state.turn == 0 && !self.has_shown("game_start"),
+            "game_start" => game_state.turn == 0,
             "first_enemy_visible" => {
-                !self.has_shown("first_enemy_visible")
-                    && !game_state.enemies().is_empty()
+                !game_state.enemies().is_empty()
                     && game_state.enemies().iter().any(|e| {
                         e.hp > 0
                             && game_state
@@ -77,8 +76,7 @@ impl TutorialProgress {
                     })
             }
             "first_item_visible" => {
-                !self.has_shown("first_item_visible")
-                    && !game_state.items().is_empty()
+                !game_state.items().is_empty()
                     && game_state.items().iter().any(|item| {
                         game_state
                             .visible
@@ -86,18 +84,17 @@ impl TutorialProgress {
                     })
             }
             "low_hp" => {
-                !self.has_shown("low_hp") && game_state.player_hp() < (game_state.player_max_hp() / 3)
+                game_state.player_hp() < (game_state.player_max_hp() / 3)
             }
             "first_npc_visible" => {
-                !self.has_shown("first_npc_visible")
-                    && !game_state.npcs().is_empty()
+                !game_state.npcs().is_empty()
                     && game_state.npcs().iter().any(|npc| {
                         game_state
                             .visible
                             .contains(&(npc.y as usize * game_state.map().width + npc.x as usize))
                     })
             }
-            "ap_depleted" => !self.has_shown("ap_depleted") && game_state.player_ap() == 0,
+            "ap_depleted" => game_state.player_ap() == 0,
             _ => false,
         }
     }
@@ -110,7 +107,7 @@ impl TutorialProgress {
         let data = get_tutorial_data();
 
         for message in &data.messages {
-            if self.check_trigger(&message.trigger, game_state) {
+            if self.check_trigger(&message.id, &message.trigger, game_state) {
                 return Some(message);
             }
         }

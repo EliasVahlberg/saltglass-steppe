@@ -18,7 +18,6 @@ use super::{
     entity::Entity,
     equipment::EquipSlot,
     event::GameEvent,
-    fov::FieldOfView,
     generation::{
         TerrainForgeGenerator,
         distribute_points_grid, generate_loot, get_biome_spawn_table,
@@ -92,14 +91,6 @@ pub struct TriggeredEffect {
     pub turns_remaining: u32,
 }
 
-fn default_ambient_light() -> u8 {
-    100
-}
-
-fn default_time_of_day() -> u8 {
-    8
-} // Start at 8 AM
-
 /// Decoy left by mirage_step adaptation
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Decoy {
@@ -114,8 +105,6 @@ pub struct GameState {
     pub world: WorldState,
     pub visible: HashSet<usize>,
     pub revealed: HashSet<usize>,
-    #[serde(skip)]
-    pub player_fov: FieldOfView,
     #[serde(skip)]
     pub light_map: LightMap,
     pub messages: Vec<GameMessage>,
@@ -198,6 +187,9 @@ impl GameState {
         let (mut map, rooms) =
             Map::generate_from_world_with_poi(&mut rng, biome, terrain, elevation, poi);
         let (px, py) = rooms[0];
+        // Clamp spawn point away from map edges to ensure full 5x5 clearing fits
+        let px = px.max(3).min(map.width as i32 - 4);
+        let py = py.max(3).min(map.height as i32 - 4);
 
         // Clear 5x5 area around player spawn to ensure walkable space
         for dy in -2..=2 {
@@ -218,17 +210,7 @@ impl GameState {
         let exit_y = py as usize;
         map.tiles[exit_y * map.width + exit_x] = Tile::WorldExit;
 
-        let visible = {
-            let mut fov = FieldOfView::new(super::constants::FOV_RANGE);
-            fov.calculate(&map, (px, py));
-            let mut vis = HashSet::new();
-            for &(x, y) in &fov.visible_tiles {
-                if let Some(idx) = map.pos_to_idx(x, y) {
-                    vis.insert(idx);
-                }
-            }
-            vis
-        };
+        let visible = crate::game::map::compute_fov(&map, px, py);
         let table = get_biome_spawn_table(&biome);
 
         // Spawn enemies (fewer on starting tile for hospitable start)
@@ -508,7 +490,6 @@ impl GameState {
             ambient_light: ambient,
             visual_effects: super::visual_effects::VisualEffects::default(),
             light_map: light_map.clone(),
-            player_fov: FieldOfView::new(super::constants::FOV_RANGE),
             enemy_positions: HashMap::new(),
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
@@ -521,7 +502,6 @@ impl GameState {
             world,
             visible: visible.clone(),
             revealed: visible,
-            player_fov: FieldOfView::new(super::constants::FOV_RANGE),
             light_map,
             messages: vec![
                 GameMessage::new("Welcome to the Saltglass Steppe.", MsgType::System, 0),
@@ -1216,19 +1196,7 @@ impl GameState {
 
     /// Update player field of view using shadow casting algorithm
     pub fn update_fov(&mut self) {
-        // Use bracket-lib's optimized FOV algorithm
         self.visible = crate::game::map::compute_fov(&self.world.map, self.player.x, self.player.y);
-
-        // Update player_fov for compatibility
-        self.player_fov.visible_tiles.clear();
-        for &idx in &self.visible {
-            if let Some((x, y)) = self.world.map.idx_to_pos(idx) {
-                self.player_fov.visible_tiles.insert((x, y));
-            }
-        }
-        self.player_fov.dirty = false;
-
-        // Update revealed tiles
         self.revealed.extend(&self.visible);
     }
 
@@ -1299,35 +1267,6 @@ impl GameState {
             let backstory = self.generate_npc_backstory(&npc_id, &story_model);
             self.world.npcs[index].backstory = backstory;
         }
-    }
-
-    /// Create narrative context from current game state
-    fn create_narrative_context(&self) -> Option<()> {
-        // TODO: Re-implement when NarrativeContext type is restored
-        /*
-        let biome = if let Some(ref world_map) = self.world.world_map {
-            let (biome, _, _, _, _, _, _) = world_map.get(self.world.world_x, self.world.world_y);
-            Some(format!("{:?}", biome))
-        } else {
-            None
-        };
-
-        let adaptations = self
-            .player.adaptations
-            .iter()
-            .map(|a| format!("{:?}", a).to_lowercase())
-            .collect();
-
-        NarrativeContext {
-            biome,
-            terrain: None,
-            adaptations,
-            faction_reputation: self.player.faction_reputation.clone(),
-            refraction_level: self.player.refraction,
-            location_type: None,
-        }
-        */
-        None
     }
 
     /// Get the generated world history
@@ -1574,118 +1513,12 @@ impl GameState {
 
     /// Generate narrative fragments for the current tile
     fn generate_narrative_fragments(&mut self, _biome: &str) {
-        // TODO: Re-implement when narrative_integration system is restored
-        /*
-        if let Some(ref mut narrative) = self.world.narrative_integration {
-            let context = super::generation::narrative::NarrativeContext {
-                player_x: self.player.x,
-                player_y: self.player.y,
-                current_biome: biome.to_string(),
-                turn: self.turn,
-                faction_standings: std::collections::HashMap::new(),
-                discovered_fragments: Vec::new(),
-                player_adaptations: self
-                    .player.adaptations
-                    .iter()
-                    .map(|a| a.name().to_string())
-                    .collect(),
-            };
-
-            let fragments = narrative.generate_fragments(&context, &mut self.rng);
-            let fragment_count = fragments.len();
-
-            if fragment_count > 0 {
-                // Track narrative momentum
-                narrative.track_narrative_event("fragments_generated", &context);
-            }
-
-            // Log after releasing the borrow
-            let _ = narrative;
-            if fragment_count > 0 {
-                self.log(format!(
-                    "You sense {} story fragments in this area.",
-                    fragment_count
-                ));
-            }
-        }
-        */
+        // Removed: generation systems not yet re-implemented
     }
 
     /// Generate biome-specific environmental content
     fn generate_biome_content(&mut self, _biome: &super::world_map::Biome, _level: u8) {
-        // TODO: Re-implement when biome_system and grammar_system are restored
-        /*
-        if let Some(ref _biome_system) = self.world.biome_system {
-            let context = super::generation::BiomeGenerationContext {
-                biome: *biome,
-                storm_intensity: self.world.storm.intensity,
-                time_of_day: "day".to_string(), // Could be enhanced with day/night cycle
-                weather_conditions: "clear".to_string(), // Could be enhanced with weather system
-                player_adaptations: self
-                    .player.adaptations
-                    .iter()
-                    .map(|a| a.name().to_string())
-                    .collect(),
-            };
-
-            // Generate environmental description using Grammar system
-            let description = if let Some(ref grammar) = self.world.grammar_system {
-                let grammar_context = GrammarContext {
-                    variables: std::collections::HashMap::new(),
-                };
-
-                match grammar.generate("description", &grammar_context, &mut self.rng) {
-                    Ok(generated_desc) => generated_desc,
-                    Err(_) => {
-                        // Fallback to BiomeSystem description
-                        super::generation::BiomeSystem::generate_environment_description(
-                            *biome,
-                            &context,
-                            &mut self.rng,
-                        )
-                    }
-                }
-            } else {
-                // Fallback to BiomeSystem description
-                super::generation::BiomeSystem::generate_environment_description(
-                    *biome,
-                    &context,
-                    &mut self.rng,
-                )
-            };
-
-            // Generate environmental features (1-3 features per tile)
-            let feature_count = self.rng.gen_range(1..=3);
-            let features = super::generation::BiomeSystem::generate_environmental_features(
-                *biome,
-                feature_count,
-                &mut self.rng,
-            );
-
-            // Check for hazards
-            let hazards =
-                super::generation::BiomeSystem::check_hazards(*biome, &context, &mut self.rng);
-
-            // Log environmental content
-            if !description.is_empty() {
-                self.log(description);
-            }
-
-            for feature in &features {
-                if self.rng.gen_range(0.0..1.0) < 0.3 {
-                    // 30% chance to notice each feature
-                    self.log(format!("You notice: {}", feature.description_template));
-                }
-            }
-
-            for hazard in &hazards {
-                if hazard.severity >= 5 {
-                    // Only log significant hazards
-                    self.log(format!("Warning: {}", hazard.description));
-                }
-            }
-        }
-        */
+        // Removed: generation systems not yet re-implemented
     }
 
     /// Generate procedural content using templates
@@ -1694,133 +1527,12 @@ impl GameState {
         _category: &str,
         _context_vars: std::collections::HashMap<String, serde_json::Value>,
     ) {
-        // TODO: Re-implement when template_library system is restored
-        /*
-        if let Some(ref template_library) = self.world.template_library {
-            let template_context = TemplateContext {
-                variables: context_vars,
-            };
-
-            // Find templates in the specified category by trying known template IDs
-            let template_candidates = match category {
-                "encounter" => vec!["encounter_basic", "storm_encounter"],
-                "room" => vec!["basic_room", "glass_room"],
-                _ => vec![],
-            };
-
-            for template_id in template_candidates {
-                if let Some(_template) = template_library.get_template(template_id) {
-                    match template_library.instantiate(
-                        template_id,
-                        &template_context,
-                        &mut self.rng,
-                    ) {
-                        Ok(result) => {
-                            // Log the generated content
-                            if let Some(description) = result.get("description") {
-                                if let Some(desc_str) = description.as_str() {
-                                    self.log(format!("Template content: {}", desc_str));
-                                }
-                            }
-                            break; // Only generate one template per category
-                        }
-                        Err(_) => {
-                            // Try next template
-                            continue;
-                        }
-                    }
-                }
-            }
-        }
-        */
+        // Removed: generation systems not yet re-implemented
     }
 
     /// Check for dynamic events based on current game state
     fn check_dynamic_events(&mut self) {
-        // TODO: Re-implement when event_system and narrative_integration are restored
-        /*
-        if let Some(ref mut event_system) = self.world.event_system {
-            let current_biome = if let Some(ref world_map) = self.world.world_map {
-                world_map
-                    .get(self.world.world_x, self.world.world_y)
-                    .0
-                    .as_str()
-                    .to_string()
-            } else {
-                "desert".to_string()
-            };
-
-            let context = EventContext {
-                player_hp: self.player.hp,
-                player_max_hp: self.player.max_hp,
-                player_x: self.player.x,
-                player_y: self.player.y,
-                turn: self.turn,
-                biome: current_biome.clone(),
-                storm_intensity: self.world.storm.intensity,
-                refraction_level: self.player.refraction,
-                variables: std::collections::HashMap::new(),
-            };
-
-            let triggered_events = event_system.check_triggers(&context, &mut self.rng);
-            let has_events = !triggered_events.is_empty();
-            let mut messages_to_log = Vec::new();
-
-            for event_id in triggered_events {
-                let mut event_context = context.clone();
-                let messages = event_system.apply_consequences(&event_id, &mut event_context);
-
-                // Apply consequences to game state
-                if let Some(damage) = event_context.variables.get("damage_taken") {
-                    if let Some(damage) = damage.as_i64() {
-                        self.player.hp = (self.player.hp - damage as i32).max(0);
-                    }
-                }
-
-                if let Some(healing) = event_context.variables.get("healing_received") {
-                    if let Some(healing) = healing.as_i64() {
-                        self.player.hp = (self.player.hp + healing as i32).min(self.player.max_hp);
-                    }
-                }
-
-                if let Some(refraction) = event_context.variables.get("refraction_gained") {
-                    if let Some(refraction) = refraction.as_u64() {
-                        self.player.refraction += refraction as u32;
-                    }
-                }
-
-                // Collect messages to log later
-                messages_to_log.extend(messages);
-            }
-
-            // Track narrative events
-            if has_events {
-                if let Some(ref mut narrative) = self.world.narrative_integration {
-                    narrative.track_narrative_event(
-                        "dynamic_event",
-                        &super::generation::narrative::NarrativeContext {
-                            player_x: self.player.x,
-                            player_y: self.player.y,
-                            current_biome: current_biome,
-                            turn: self.turn,
-                            faction_standings: std::collections::HashMap::new(),
-                            discovered_fragments: Vec::new(),
-                            player_adaptations: self
-                                .player.adaptations
-                                .iter()
-                                .map(|a| a.name().to_string())
-                                .collect(),
-                        },
-                    );
-                }
-            }
-
-            // Log messages after releasing borrows
-            for message in messages_to_log {
-                self.log(message);
-            }
-        }
-        */
+        // Removed: generation systems not yet re-implemented
     }
 
     /// Process all queued game events
@@ -2416,7 +2128,7 @@ impl GameState {
                     }
 
                     // Check if there's an NPC we've already talked to on this tile
-                    if self.has_talked_npc_at_idx(next_idx) {
+                    if self.has_talked_npc_at_idx(next_idx) || self.has_interacted_npc_at_idx(next_idx) {
                         continue;
                     }
 
@@ -2502,6 +2214,16 @@ impl GameState {
         self.world.npcs
             .iter()
             .any(|npc| npc.x == x && npc.y == y && npc.talked)
+    }
+
+    /// Check if there's an NPC at this tile that we've interacted with via quest objectives
+    fn has_interacted_npc_at_idx(&self, idx: usize) -> bool {
+        let x = (idx % self.world.map.width) as i32;
+        let y = (idx / self.world.map.width) as i32;
+
+        self.world.npcs
+            .iter()
+            .any(|npc| npc.x == x && npc.y == y && self.has_interacted_with_npc(&npc.id))
     }
 
     /// Check if we've interacted with an NPC (either talked or has quest progress)
@@ -3120,9 +2842,10 @@ impl GameState {
         Ok(())
     }
 
-    /// Get next tutorial message if conditions are met
-    pub fn get_next_tutorial_message(&self) -> Option<String> {
+    /// Get next tutorial message if conditions are met — returns (id, text)
+    pub fn get_next_tutorial_message(&self) -> Option<(String, String)> {
         self.narrative.tutorial_progress.get_next_message(self)
+            .map(|msg| (msg.id.clone(), msg.text.clone()))
     }
 
     /// Mark a tutorial message as shown
@@ -3377,8 +3100,8 @@ impl GameState {
     pub fn quest_log_mut(&mut self) -> &mut crate::game::narrative_engine::QuestLog { &mut self.narrative.quest_log }
     pub fn story_model(&self) -> &crate::game::narrative_engine::StoryModel { &self.narrative.story_model }
     pub fn story_model_mut(&mut self) -> &mut crate::game::narrative_engine::StoryModel { &mut self.narrative.story_model }
-    pub fn tutorial_progress(&self) -> &crate::game::narrative_engine::TutorialProgress { &self.narrative.tutorial_progress }
-    pub fn tutorial_progress_mut(&mut self) -> &mut crate::game::narrative_engine::TutorialProgress { &mut self.narrative.tutorial_progress }
+    pub fn tutorial_progress(&self) -> &crate::game::tutorial::TutorialProgress { &self.narrative.tutorial_progress }
+    pub fn tutorial_progress_mut(&mut self) -> &mut crate::game::tutorial::TutorialProgress { &mut self.narrative.tutorial_progress }
     pub fn world_history(&self) -> &crate::game::narrative_engine::WorldHistory { &self.narrative.world_history }
     pub fn world_history_mut(&mut self) -> &mut crate::game::narrative_engine::WorldHistory { &mut self.narrative.world_history }
 }

@@ -48,9 +48,7 @@ impl TileRenderer {
                 }
 
                 let idx = state.world.map.idx(x, y);
-                let light_level =
-                    self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
-                let visible = light_level > 80 || state.debug_god_view;
+                let visible = state.visible.contains(&idx) || state.debug_god_view;
                 let revealed = state.revealed.contains(&idx) || state.debug_god_view;
 
                 let span = if visible {

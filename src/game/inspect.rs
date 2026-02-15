@@ -102,6 +102,9 @@ impl GameState {
         if x == self.player_x() && y == self.player_y() {
             return "You".into();
         }
+
+        let mut descriptions = Vec::new();
+
         if let Some(ei) = self.enemy_at(x, y) {
             let e = &self.enemies()[ei];
             let desc = e
@@ -109,7 +112,7 @@ impl GameState {
                 .map(|d| d.description.as_str())
                 .unwrap_or("A creature");
             let demeanor = format!("{:?}", e.demeanor()).to_lowercase();
-            return format!("{} (HP: {}, {}) - {}", e.name(), e.hp, demeanor, desc);
+            descriptions.push(format!("{} (HP: {}, {}) - {}", e.name(), e.hp, demeanor, desc));
         }
         if let Some(ni) = self.npc_at(x, y) {
             let n = &self.npcs()[ni];
@@ -118,15 +121,12 @@ impl GameState {
                 .map(|d| d.description.as_str())
                 .unwrap_or("A person");
             let mut info = format!("{} - {}", n.name(), desc);
-
-            // Add backstory if available
             if let Some(backstory) = n.backstory() {
                 info.push_str(&format!(" ({})", backstory));
             }
-
-            return info;
+            descriptions.push(info);
         }
-        if let Some(item) = self.items().iter().find(|i| i.x == x && i.y == y) {
+        for item in self.items().iter().filter(|i| i.x == x && i.y == y) {
             if let Some(def) = get_item_def(&item.id) {
                 let item_type = if def.armor_value > 0 {
                     "armor"
@@ -135,27 +135,27 @@ impl GameState {
                 } else {
                     "item"
                 };
-                return format!("{} ({}) - {}", def.name, item_type, def.description);
-            }
-            if let Some(wdef) = get_weapon_def(&item.id) {
-                return format!("{} (weapon) - {}", wdef.name, wdef.description);
+                descriptions.push(format!("{} ({}) - {}", def.name, item_type, def.description));
+            } else if let Some(wdef) = get_weapon_def(&item.id) {
+                descriptions.push(format!("{} (weapon) - {}", wdef.name, wdef.description));
             }
         }
-        // Check for map lights (torches, braziers, etc.)
         if let Some(light) = self.map().lights.iter().find(|l| l.x == x && l.y == y) {
             if let Some(def) = get_light_def(&light.id) {
-                return format!("{} (light source)", def.name);
+                descriptions.push(format!("{} (light source)", def.name));
             }
         }
-
-        // Check for inscriptions at this position
         if let Some(inscription) = self.map().inscriptions.iter().find(|i| i.x == x && i.y == y) {
             let inscription_desc = match inscription.inscription_type.as_str() {
                 "shrine_text" => "Sacred text",
                 "graffiti" => "Graffiti",
                 _ => "Inscription",
             };
-            return format!("{}: \"{}\"", inscription_desc, inscription.text);
+            descriptions.push(format!("{}: \"{}\"", inscription_desc, inscription.text));
+        }
+
+        if !descriptions.is_empty() {
+            return descriptions.join(" | ");
         }
 
         if let Some(tile) = self.map().get(x, y) {

@@ -4,7 +4,6 @@ use std::collections::HashMap;
 use super::{
     chest::Chest,
     enemy::Enemy,
-    fov::FieldOfView,
     interactable::Interactable,
     item::Item,
     lighting::LightMap,
@@ -62,8 +61,6 @@ pub struct WorldState {
     pub visual_effects: VisualEffects,
     #[serde(skip)]
     pub light_map: LightMap,
-    #[serde(skip)]
-    pub player_fov: FieldOfView,
 
     // Spatial indexing (computed on load)
     #[serde(skip)]

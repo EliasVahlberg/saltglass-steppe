@@ -128,7 +128,7 @@ pub fn start_dialogue(npc_id: &str, game_state: &crate::game::GameState) -> Opti
     })
 }
 
-pub fn start_aria_dialogue(npc_id: &str, personality: &str, game_state: &crate::game::GameState) -> Option<(String, Vec<String>)> {
+pub fn start_aria_dialogue(_npc_id: &str, personality: &str, game_state: &crate::game::GameState) -> Option<(String, Vec<String>)> {
     let data = include_str!("../../data/aria_dialogues.json");
     let aria_data: serde_json::Value = serde_json::from_str(data).ok()?;
     
