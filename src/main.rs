@@ -18,6 +18,7 @@ use saltglass_steppe::ui::{
     render_skills_menu, render_target_hud, render_void_menu, render_wiki,
 };
 use saltglass_steppe::{GameState, Renderer, get_item_def};
+use saltglass_steppe::game::save;
 use std::io::{Result, stdout};
 
 const SAVE_FILE: &str = "savegame.ron";
@@ -38,11 +39,11 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 state.try_break_wall(x, y);
             }
         }
-        Action::Save => match state.save(SAVE_FILE) {
+        Action::Save => match save::save_game(state, SAVE_FILE) {
             Ok(_) => state.log("Game saved."),
             Err(e) => state.log(format!("Save failed: {}", e)),
         },
-        Action::Load => match GameState::load(SAVE_FILE) {
+        Action::Load => match save::load_game(SAVE_FILE) {
             Ok(loaded) => {
                 *state = loaded;
                 state.log("Game loaded.");

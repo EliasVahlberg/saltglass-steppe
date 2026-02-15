@@ -34,6 +34,7 @@ pub mod psychic;
 pub mod qa_tools;
 pub mod quest;
 
+pub mod save;
 pub mod skills;
 pub mod state;
 pub mod status;

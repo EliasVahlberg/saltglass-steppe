@@ -70,13 +70,12 @@ Features are grouped into tiers. Each tier builds on the previous one. Within a 
 
 These are foundational systems that most other features depend on. They should be tackled first.
 
-#### 1. Save/Load Game Library with Versioning
-- Replace current raw serde roundtrip with a versioned save format
-- Schema version header in save files; migration functions between versions
-- Backward compatibility: load saves from older versions, reject incompatible futures
-- Save file integrity check (checksum or hash)
-- Auto-save on world map travel and configurable save slots
-- **Why first**: Every subsequent feature changes GameState — versioned saves prevent breaking player progress
+#### 1. Save/Load Game Library with Versioning ✅
+- `src/game/save.rs`: `SaveFile` envelope with `SAVE_VERSION` (currently v1) + `GameState`
+- `save_game()` / `load_game()` replace raw `state.save()` / `GameState::load()`
+- Version mismatch returns descriptive error; corrupt saves caught at deserialization
+- Wired into `main.rs` action handlers
+- Future: migration functions between versions, integrity checks, auto-save, save slots
 
 #### 2. Proper Overworld Travel
 - Replace current instant tile-transition with actual overworld movement
