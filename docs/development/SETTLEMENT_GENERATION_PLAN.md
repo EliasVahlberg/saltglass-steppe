@@ -226,34 +226,49 @@ pub enum BuildingType {
 
 ### Phase 1: Core Infrastructure (4-5 hours)
 
+**CRITICAL PATH: Prefab Library System (Task 0)**
+
+The prefab library is the foundation for all building generation. Must be completed before building placement.
+
 **Tasks**:
-1. Create `src/game/generation/settlement/` module structure
-2. Define data structures (`SettlementConfig`, `Settlement`, `Building`)
-3. Create `data/settlement_config.json` with tier parameters
-4. Create `data/building_types.json` with building definitions
-5. Integrate terrain-forge BSP and Voronoi algorithms
-6. Write basic layout generation (no buildings yet)
+1. **Design and implement prefab library system** (CRITICAL - 2-3 hours)
+   - Define JSON schema for prefabs (pattern, legend, metadata)
+   - Implement `PrefabLibrary` struct to load/store prefabs
+   - Support rotation, mirroring, validation
+   - Create loader that reads from `data/prefabs/` directory
+2. Create `src/game/generation/settlement/` module structure
+3. Define data structures (`SettlementConfig`, `Settlement`, `Building`)
+4. Create `data/settlement_config.json` with tier parameters
+5. Create `data/building_types.json` with building definitions
+6. Integrate terrain-forge BSP and Voronoi algorithms
+7. Write basic layout generation (no buildings yet)
 
 **Deliverables**:
+- Working prefab library that loads JSON building templates
 - Empty settlement maps generated with correct size
 - BSP/Voronoi layout selection based on tier
 - Semantic markers extracted
 
 **Testing**:
+- Unit test: Load prefab from JSON, validate schema
 - CLI tool: `cargo run --bin mapgen-tool settlement <seed> <tier>`
 - DES scenario: Generate settlement and verify layout
 
 ### Phase 2: Building Placement (3-4 hours)
 
+**Prerequisites**: Prefab library complete (Task 0)
+
 **Tasks**:
-1. Implement building placement at semantic markers
-2. Create core building prefabs (town hall, store, inn, temple)
-3. Add residential building generation
-4. Implement building bounds and entrance detection
-5. Add roads/paths between buildings
-6. Ensure connectivity (all buildings accessible)
+1. Create core building prefabs (Task 1)
+   - town_hall (10×8), general_store (8×6), inn (12×10), temple (8×8)
+   - residential_small (6×6), residential_medium (8×8), residential_large (10×10)
+2. Implement building placement at semantic markers
+3. Add roads/paths between buildings
+4. Ensure connectivity (all buildings accessible)
+5. Add entrance markers for each building
 
 **Deliverables**:
+- 7 core building prefabs in JSON format
 - Settlements with placed buildings
 - Roads connecting buildings
 - Entrance markers for each building
@@ -264,14 +279,25 @@ pub enum BuildingType {
 
 ### Phase 3: Faction Integration (3-4 hours)
 
+**Prerequisites**: Core building prefabs complete (Task 1)
+
 **Tasks**:
-1. Query faction control from world map
-2. Implement faction-specific building selection
-3. Create faction building prefabs (7 factions × 3 buildings = 21 prefabs)
+1. Create faction-specific building prefabs (Task 2)
+   - 7 factions × 3 buildings = 21 prefabs
+   - MirrorMonks: light_temple, meditation_chamber, scripture_archive
+   - Glassborn: crystal_forge, transformation_clinic, shimmer_gallery
+   - SandEngineers: workshop, foundry, mechanical_lab
+   - SaltTraders: trading_post, caravan_station, brine_warehouse
+   - StormCults: storm_shrine, ritual_circle, tempest_observatory
+   - RefractionOutcasts: hidden_safehouse, mutation_clinic, underground_market
+   - ArchiveDrones: data_vault, preservation_chamber, knowledge_repository
+2. Query faction control from world map
+3. Implement faction-specific building selection
 4. Apply faction theming (colors, descriptions)
 5. Adjust building distribution based on faction control
 
 **Deliverables**:
+- 21 faction-specific building prefabs
 - Faction-specific buildings in settlements
 - Faction control affects building types
 - Faction theming applied
@@ -302,16 +328,31 @@ pub enum BuildingType {
 
 ### Phase 5: Polish & Integration (3-4 hours)
 
+**Prerequisites**: All core systems complete
+
 **Tasks**:
-1. Add decorative elements (gardens, fountains, statues)
-2. Implement building interiors (for key buildings)
-3. Add settlement-specific encounters
-4. Integrate with save/load system
-5. Write comprehensive documentation
-6. Create DES test scenarios
-7. Balance and tuning
+1. Add new wall tile types (Task 3)
+   - WoodWall, StoneWall, BrickWall, GlassWall, MetalWall
+   - Update `data/walls.json` and renderer
+   - Faction-specific walls (GlassWall for Glassborn, MetalWall for SandEngineers)
+2. Add furniture tile types (Task 4)
+   - Bed, Table, Chair, Counter, Shelf, Chest, Workbench, Altar, Throne
+   - Create `data/furniture.json` with blocking/interactable flags
+3. Add decoration tile types (Task 5)
+   - Fountain, Statue, Garden, Tree, Flower, Lamp, Banner, Sign
+   - Create `data/decorations.json` for settlement ambiance
+4. Add decorative elements to settlements
+   - Gardens, fountains, statues in open spaces
+   - Faction-specific decorations (Mirror Monk light sculptures, Storm Cult totems)
+5. Implement building interiors (for key buildings)
+6. Add settlement-specific encounters
+7. Integrate with save/load system
+8. Write comprehensive documentation
+9. Create DES test scenarios
+10. Balance and tuning
 
 **Deliverables**:
+- New tile types for settlements (walls, furniture, decorations)
 - Polished settlement generation
 - Building interiors for key buildings
 - Documentation in `docs/features/SETTLEMENT_GENERATION.md`
