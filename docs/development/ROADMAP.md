@@ -43,22 +43,19 @@ A 30-minute play session is possible: character creation, movement, combat, ques
 | ~15 functions >100 lines in state.rs | Medium | Ongoing |
 | 12 disabled DES scenarios | Low | 1 day |
 | NarrativeEngine QuestLog is a stub duplicate of real quest_log | Medium | 1 day |
-| Orphaned/overlapping data files (see below) | Medium | 0.5 day |
 | Stale docs and lore files | Low | 1 day |
 
-### Data File Audit (Pending)
+### Data File Audit ✅ **COMPLETED** (2026-02-21)
 
-Multiple generation-related JSON files were written for earlier systems and may be unused, partially used, or redundant with `terrain_config.json`. Known overlap:
+**Findings**:
+- Audited 54 JSON files in `data/` directory
+- Removed 6 dead files (11% reduction): `npc_spawn_config.json`, `quest_constraints.json`, `structure_spawn_config.json`, `grammars/*.json`, `templates/content_templates.json`
+- Identified 49 active files (91%)
+- `biome_profiles.json` unused but kept (valid future feature for environmental storytelling)
+- `structure_generation.json` confirmed test-only (tilegen-tool.rs)
+- No consolidation needed - `biome_profiles.json` and `terrain_config.json` serve different purposes
 
-| File | Loaded By | Status |
-|------|-----------|--------|
-| `terrain_config.json` | `terrain_forge_adapter.rs` (TILE_CONFIG) | **Active** — current tile generation config |
-| `biome_profiles.json` | `generation/biomes.rs` (BiomeSystem) | **Suspect** — old biome system, may overlap with terrain_config biome_modifiers |
-| `structure_generation.json` | `tilegen-tool.rs` only | **Suspect** — only used by CLI test tool, not the game itself |
-
-A full audit should: identify all `data/*.json` files, trace which are `include_str!`'d into game code vs. only test tools, remove truly dead files, and consolidate overlapping configs into `terrain_config.json`.
-
-A follow-up pass should review `docs/` and `docs/narrative/` for stale or outdated documentation.
+**Documentation**: `docs/development/DATA_FILE_AUDIT.md`
 
 ---
 
