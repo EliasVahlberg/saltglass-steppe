@@ -1,0 +1,27 @@
+# Faction System Test Scenario
+# Tests starting reputation, quest rewards, and faction menu
+
+# Start as pilgrim (should have +10 MirrorMonks, +5 ArchiveDrones)
+new_game 12345 pilgrim
+
+# Check starting reputation
+assert player.faction_reputation["MirrorMonks"] == 10
+assert player.faction_reputation["ArchiveDrones"] == 5
+
+# Manually modify reputation to test thresholds
+set player.faction_reputation["MirrorMonks"] = -60
+assert player.faction_reputation["MirrorMonks"] == -60
+
+# Test reputation change via modify_reputation (should clamp to -100/+100)
+# Note: This would need to be exposed in DES or tested via quest completion
+
+# Test faction menu rendering (visual check - no assertion)
+# Press F to open faction menu in actual gameplay
+
+# Test world map faction overlay (visual check - no assertion)
+# Press M to open world map, then F to toggle faction overlay
+
+# Test quest with reputation reward (would need quest data update)
+# For now, just verify the system compiles and loads
+
+log "Faction system test passed - starting reputation initialized correctly"

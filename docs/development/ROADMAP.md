@@ -109,14 +109,20 @@ These are foundational systems that most other features depend on. They should b
 - Skill point allocation UI already exists — needs real skill definitions
 - **Depends on**: Nothing (standalone system)
 
-#### 4. Proper Faction System
-- Load and use `factions.json` definitions (currently orphaned data)
-- Faction reputation affects: NPC dialogue, quest availability, shop prices, enemy aggression
-- Faction-specific quests and storylines
-- Faction alignment choices with mutually exclusive paths
-- Faction territory on world map influencing encounters and generation
-- Reputation decay/growth over time based on actions
-- **Depends on**: Overworld travel (faction territories), skill catalog (social skills)
+#### 4. Proper Faction System ✅ **COMPLETED** (2026-02-21)
+- ✅ Load and use `factions.json` definitions (7 factions)
+- ✅ Faction reputation system (-100 to +100 scale)
+- ✅ Starting reputation by character class
+- ✅ Faction territories on world map (Voronoi division, neutral center)
+- ✅ Faction overlay on world map (F key toggle)
+- ✅ Quest reputation rewards
+- ✅ Faction menu UI with exact numbers and color-coded standings
+- ✅ Save system migration (v1 → v2)
+- ✅ Reputation affects: NPC dialogue, quest availability, shop prices (existing integrations)
+- 🔲 Enemy faction tags (deferred - see TODO list)
+- 🔲 Faction-specific quests and storylines (future content)
+- 🔲 Reputation decay/growth over time (future enhancement)
+- **Documentation**: `docs/features/FACTION_SYSTEM.md`
 
 ### Tier 2 — Content & Generation
 

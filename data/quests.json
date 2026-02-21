@@ -64,7 +64,11 @@
         "xp": 40,
         "items": ["glasswright_token"],
         "salt_scrip": 75,
-        "unlocks_quests": ["craft_your_first_item"]
+        "unlocks_quests": ["craft_your_first_item"],
+        "reputation_rewards": {
+          "Glassborn": 15,
+          "SandEngineers": 5
+        }
       }
     },
     {
@@ -91,7 +95,11 @@
         "xp": 40,
         "items": ["nomad_token"],
         "salt_scrip": 75,
-        "unlocks_quests": ["learn_to_hunt"]
+        "unlocks_quests": ["learn_to_hunt"],
+        "reputation_rewards": {
+          "SaltTraders": 15,
+          "RefractionOutcasts": 5
+        }
       }
     },
     {
