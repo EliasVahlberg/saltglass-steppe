@@ -1,0 +1,145 @@
+{
+  "name": "skill_progression_test",
+  "description": "Test skill upgrade mechanics, prerequisites, passive bonuses, and wayfaring integration",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 4,
+    "max_ap": 4,
+    "xp": 500,
+    "inventory": ["salt_knife", "salt_vest"],
+    "equipped_weapon": "salt_knife"
+  },
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 5
+  },
+  "map_setup": {
+    "clear_radius": 10
+  },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "glass_crawler",
+      "x": 11,
+      "y": 10,
+      "hp": 10,
+      "ai_disabled": true
+    }
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "log",
+        "query": {
+          "type": "custom",
+          "message": "Starting skill progression test"
+        }
+      }
+    },
+    {
+      "turn": 1,
+      "action": {
+        "type": "attack",
+        "target_x": 11,
+        "target_y": 10
+      }
+    },
+    {
+      "turn": 2,
+      "action": {
+        "type": "move",
+        "dx": 0,
+        "dy": 1
+      }
+    },
+    {
+      "turn": 3,
+      "action": {
+        "type": "move",
+        "dx": 0,
+        "dy": 1
+      }
+    },
+    {
+      "turn": 4,
+      "action": {
+        "type": "move",
+        "dx": 0,
+        "dy": 1
+      }
+    },
+    {
+      "turn": 5,
+      "action": {
+        "type": "wait",
+        "turns": 3
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": {
+        "type": "player_alive"
+      },
+      "message": "Player should be alive at start"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "enemy_hp",
+        "id": "glass_crawler",
+        "op": "lt",
+        "value": 10
+      },
+      "message": "Enemy should take damage from attack"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "inventory_contains",
+        "item": "salt_knife"
+      },
+      "message": "Player should have salt_knife in inventory"
+    },
+    {
+      "after_turn": 1,
+      "check": {
+        "type": "equipped_in_slot",
+        "slot": "weapon",
+        "item": "salt_knife"
+      },
+      "message": "Salt knife should be equipped as weapon"
+    },
+    {
+      "after_turn": 5,
+      "check": {
+        "type": "player_position",
+        "x": 10,
+        "y": 13
+      },
+      "message": "Player should have moved north 3 times"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "player_alive"
+      },
+      "message": "Player should survive the test scenario"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "turn",
+        "op": "gte",
+        "value": 5
+      },
+      "message": "Test should complete after turn 5"
+    }
+  ]
+}

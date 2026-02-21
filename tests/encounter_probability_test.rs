@@ -3,7 +3,7 @@
 
 #[cfg(test)]
 mod encounter_probability_test {
-    use crate::game::encounter::should_trigger_encounter;
+    use saltglass_steppe::game::encounter::should_trigger_encounter;
     
     #[test]
     fn test_encounter_rates_seed_12345() {
@@ -32,6 +32,7 @@ mod encounter_probability_test {
                     danger_level,
                     0,  // last_encounter_turn
                     1000, // current_turn (well past cooldown)
+                    0,  // wayfaring_level (baseline test)
                 ) {
                     encounters_at_level += 1;
                     encounter_count += 1;

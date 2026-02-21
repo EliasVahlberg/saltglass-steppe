@@ -173,7 +173,13 @@ impl CombatSystem {
         let enemy_reflex = state.world.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
         let enemy_armor = state.world.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
 
-        let result = roll_attack(&mut state.rng, weapon, enemy_reflex, enemy_armor, 0);
+        // Get skill bonuses
+        let accuracy_bonus = state.player.skills.passive_bonuses.get("melee_accuracy_bonus").copied().unwrap_or(0.0);
+        let damage_bonus = state.player.skills.passive_bonuses.get("melee_damage_bonus").copied().unwrap_or(0.0);
+
+        // Apply accuracy bonus to hit chance
+        let cover_bonus = -(accuracy_bonus * 100.0) as i32;
+        let result = roll_attack(&mut state.rng, weapon, enemy_reflex, enemy_armor, cover_bonus);
         let result = Self::apply_combat_mocks(state, result);
         let name = state.world.enemies[ei].name().to_string();
         let dir = state.direction_from(target_x, target_y);
@@ -184,6 +190,8 @@ impl CombatSystem {
         }
 
         let mut dmg = result.damage;
+        // Apply skill damage bonus
+        dmg = (dmg as f32 * (1.0 + damage_bonus)) as i32;
         // Apply adaptation damage bonus
         let adapt_mods = total_stat_modifiers(&state.player.adaptations);
         dmg += adapt_mods.damage_bonus;
@@ -308,7 +316,14 @@ impl CombatSystem {
 
         let enemy_reflex = state.world.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
         let enemy_armor = state.world.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
-        let result = roll_attack(&mut state.rng, weapon, enemy_reflex, enemy_armor, 0);
+        
+        // Get skill bonuses
+        let accuracy_bonus = state.player.skills.passive_bonuses.get("ranged_accuracy_bonus").copied().unwrap_or(0.0);
+        let damage_bonus = state.player.skills.passive_bonuses.get("ranged_damage_bonus").copied().unwrap_or(0.0);
+
+        // Apply accuracy bonus to hit chance
+        let cover_bonus = -(accuracy_bonus * 100.0) as i32;
+        let result = roll_attack(&mut state.rng, weapon, enemy_reflex, enemy_armor, cover_bonus);
         let result = Self::apply_combat_mocks(state, result);
         let name = state.world.enemies[ei].name().to_string();
 
@@ -318,7 +333,9 @@ impl CombatSystem {
             return true;
         }
 
-        let dmg = result.damage;
+        let mut dmg = result.damage;
+        // Apply skill damage bonus
+        dmg = (dmg as f32 * (1.0 + damage_bonus)) as i32;
         state.world.enemies[ei].hp -= dmg;
         state.emit(GameEvent::EnemyDamaged { enemy_idx: ei, amount: dmg });
         state.trigger_hit_flash(target_x, target_y);

@@ -11,6 +11,21 @@ pub enum SkillCategory {
     Athletics,
     Survival,
     Crafting,
+    Social,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct SkillPrerequisite {
+    pub skill_id: String,
+    pub required_level: u32,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct PassiveEffect {
+    pub effect_type: String,
+    pub target: String,
+    pub value_per_level: f32,
+    pub max_value: Option<f32>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -21,6 +36,10 @@ pub struct SkillDef {
     pub description: String,
     pub max_level: u32,
     pub base_cost: u32, // XP cost for first level
+    #[serde(default)]
+    pub prerequisites: Vec<SkillPrerequisite>,
+    #[serde(default)]
+    pub passive_effects: Vec<PassiveEffect>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -44,6 +63,8 @@ pub struct SkillsState {
     pub unlocked_abilities: Vec<String>,
     pub cooldowns: HashMap<String, u32>,
     pub skill_points: u32,
+    #[serde(default)]
+    pub passive_bonuses: HashMap<String, f32>, // effect_type -> total_bonus
 }
 
 impl Default for SkillsState {
@@ -55,6 +76,7 @@ impl Default for SkillsState {
             unlocked_abilities: Vec::new(),
             cooldowns: HashMap::new(),
             skill_points: 5, // Start with 5 skill points
+            passive_bonuses: HashMap::new(),
         }
     }
 }
@@ -107,8 +129,8 @@ impl SkillsState {
         Ok(def.effect.clone())
     }
 
-    /// Upgrade a skill with skill points
-    pub fn upgrade_skill(&mut self, skill_id: &str) -> Result<(), String> {
+    /// Check if a skill can be upgraded (prerequisites and resources)
+    pub fn can_upgrade_skill(&self, skill_id: &str) -> Result<(), String> {
         let def = get_skill_def(skill_id).ok_or_else(|| format!("Unknown skill: {}", skill_id))?;
 
         let current_level = self.skills.get(skill_id).unwrap_or(&0);
@@ -116,15 +138,55 @@ impl SkillsState {
             return Err("Skill already at max level".to_string());
         }
 
+        // Check prerequisites
+        for prereq in &def.prerequisites {
+            let prereq_level = self.skills.get(&prereq.skill_id).unwrap_or(&0);
+            if *prereq_level < prereq.required_level {
+                return Err(format!("Requires {} level {}", prereq.skill_id, prereq.required_level));
+            }
+        }
+
         let cost = calculate_skill_cost(&def.id, *current_level);
         if self.skill_points < cost {
             return Err("Not enough skill points".to_string());
         }
 
+        Ok(())
+    }
+
+    /// Recalculate all passive bonuses from skills
+    pub fn recalculate_passive_bonuses(&mut self) {
+        self.passive_bonuses.clear();
+
+        for (skill_id, &level) in &self.skills {
+            if let Some(def) = get_skill_def(skill_id) {
+                for effect in &def.passive_effects {
+                    let bonus_value = effect.value_per_level * level as f32;
+                    let final_value = if let Some(max_val) = effect.max_value {
+                        bonus_value.min(max_val)
+                    } else {
+                        bonus_value
+                    };
+
+                    *self.passive_bonuses.entry(effect.effect_type.clone()).or_insert(0.0) += final_value;
+                }
+            }
+        }
+    }
+
+    /// Upgrade a skill with skill points
+    pub fn upgrade_skill(&mut self, skill_id: &str) -> Result<(), String> {
+        self.can_upgrade_skill(skill_id)?;
+
+        let def = get_skill_def(skill_id).unwrap();
+        let current_level = self.skills.get(skill_id).unwrap_or(&0);
+        let cost = calculate_skill_cost(&def.id, *current_level);
+
         self.skill_points -= cost;
         self.skills.insert(skill_id.to_string(), current_level + 1);
 
-        // Check for new abilities unlocked
+        // Recalculate passive bonuses and check for new abilities
+        self.recalculate_passive_bonuses();
         self.check_ability_unlocks();
 
         Ok(())

@@ -1,66 +1,217 @@
 [
   {
     "id": "melee_combat",
-    "name": "Melee Combat",
+    "name": "Blade Mastery",
     "category": "combat",
-    "description": "Proficiency with close-quarters weapons and unarmed combat",
+    "description": "Proficiency with close-quarters weapons. Each level increases damage and accuracy with melee attacks.",
     "max_level": 10,
-    "base_cost": 5
+    "base_cost": 5,
+    "prerequisites": [],
+    "passive_effects": [
+      {
+        "effect_type": "damage_bonus",
+        "target": "melee",
+        "value_per_level": 0.05,
+        "max_value": 0.5
+      },
+      {
+        "effect_type": "accuracy_bonus",
+        "target": "melee",
+        "value_per_level": 0.02,
+        "max_value": 0.2
+      }
+    ]
   },
   {
     "id": "ranged_combat",
-    "name": "Ranged Combat", 
+    "name": "Shard Casting",
     "category": "combat",
-    "description": "Accuracy and efficiency with ranged weapons",
+    "description": "Mastery of ranged weapons and glass projectiles. Each level increases damage and accuracy with ranged attacks.",
     "max_level": 10,
-    "base_cost": 5
+    "base_cost": 5,
+    "prerequisites": [],
+    "passive_effects": [
+      {
+        "effect_type": "damage_bonus",
+        "target": "ranged",
+        "value_per_level": 0.05,
+        "max_value": 0.5
+      },
+      {
+        "effect_type": "accuracy_bonus",
+        "target": "ranged",
+        "value_per_level": 0.02,
+        "max_value": 0.2
+      }
+    ]
   },
   {
     "id": "defense",
-    "name": "Defense",
-    "category": "combat", 
-    "description": "Armor usage, blocking, and damage mitigation",
+    "name": "Salt Ward",
+    "category": "combat",
+    "description": "Defensive techniques and armor usage. Each level grants additional armor protection.",
     "max_level": 10,
-    "base_cost": 6
-  },
-  {
-    "id": "athletics",
-    "name": "Athletics",
-    "category": "athletics",
-    "description": "Physical conditioning, movement, and endurance",
-    "max_level": 8,
-    "base_cost": 4
-  },
-  {
-    "id": "stealth",
-    "name": "Stealth", 
-    "category": "athletics",
-    "description": "Moving unseen and unheard through dangerous areas",
-    "max_level": 8,
-    "base_cost": 5
+    "base_cost": 6,
+    "prerequisites": [],
+    "passive_effects": [
+      {
+        "effect_type": "armor_bonus",
+        "target": "defense",
+        "value_per_level": 1.0,
+        "max_value": 10.0
+      }
+    ]
   },
   {
     "id": "survival",
-    "name": "Survival",
+    "name": "Desert Conditioning",
     "category": "survival",
-    "description": "Enduring harsh conditions and finding resources",
+    "description": "Enduring the harsh Saltglass environment. Reduces resource consumption and environmental damage.",
+    "max_level": 8,
+    "base_cost": 4,
+    "prerequisites": [],
+    "passive_effects": [
+      {
+        "effect_type": "resource_efficiency",
+        "target": "survival",
+        "value_per_level": 0.05,
+        "max_value": 0.4
+      }
+    ]
+  },
+  {
+    "id": "stealth",
+    "name": "Mirage Walking",
+    "category": "athletics",
+    "description": "Moving unseen through the desert. Reduces enemy detection range.",
+    "max_level": 8,
+    "base_cost": 5,
+    "prerequisites": [],
+    "passive_effects": [
+      {
+        "effect_type": "detection_reduction",
+        "target": "stealth",
+        "value_per_level": 0.1,
+        "max_value": 0.8
+      }
+    ]
+  },
+  {
+    "id": "wayfaring",
+    "name": "Wayfaring",
+    "category": "survival",
+    "description": "Expert navigation and travel through the Steppe. Reduces encounter rate and improves flee chance.",
+    "max_level": 10,
+    "base_cost": 6,
+    "prerequisites": [
+      {
+        "skill_id": "survival",
+        "required_level": 2
+      }
+    ],
+    "passive_effects": [
+      {
+        "effect_type": "encounter_reduction",
+        "target": "travel",
+        "value_per_level": 0.05,
+        "max_value": 0.5
+      },
+      {
+        "effect_type": "flee_bonus",
+        "target": "combat",
+        "value_per_level": 0.1,
+        "max_value": 1.0
+      }
+    ]
+  },
+  {
+    "id": "navigation",
+    "name": "Steppe Lore",
+    "category": "survival",
+    "description": "Knowledge of the Saltglass terrain and landmarks. Reveals points of interest on the world map.",
     "max_level": 6,
-    "base_cost": 4
+    "base_cost": 5,
+    "prerequisites": [
+      {
+        "skill_id": "survival",
+        "required_level": 1
+      }
+    ],
+    "passive_effects": [
+      {
+        "effect_type": "map_reveal",
+        "target": "navigation",
+        "value_per_level": 1.0,
+        "max_value": 6.0
+      }
+    ]
   },
   {
     "id": "medicine",
-    "name": "Medicine",
+    "name": "Flesh Mending",
     "category": "survival",
-    "description": "Healing wounds and treating ailments",
-    "max_level": 6,
-    "base_cost": 6
+    "description": "Healing wounds and treating ailments. Increases effectiveness of healing items and rest.",
+    "max_level": 8,
+    "base_cost": 6,
+    "prerequisites": [
+      {
+        "skill_id": "survival",
+        "required_level": 1
+      }
+    ],
+    "passive_effects": [
+      {
+        "effect_type": "healing_bonus",
+        "target": "medicine",
+        "value_per_level": 0.1,
+        "max_value": 0.8
+      }
+    ]
+  },
+  {
+    "id": "bartering",
+    "name": "Salt Trading",
+    "category": "social",
+    "description": "Commerce and negotiation skills. Improves buy and sell prices at shops.",
+    "max_level": 8,
+    "base_cost": 5,
+    "prerequisites": [],
+    "passive_effects": [
+      {
+        "effect_type": "buy_price_reduction",
+        "target": "trading",
+        "value_per_level": 0.05,
+        "max_value": 0.4
+      },
+      {
+        "effect_type": "sell_price_bonus",
+        "target": "trading",
+        "value_per_level": 0.05,
+        "max_value": 0.4
+      }
+    ]
   },
   {
     "id": "crafting",
-    "name": "Crafting",
+    "name": "Glass Shaping",
     "category": "crafting",
-    "description": "Creating and modifying equipment and tools",
+    "description": "Creating and modifying equipment. Improves crafting success rate and item quality.",
     "max_level": 8,
-    "base_cost": 5
+    "base_cost": 5,
+    "prerequisites": [],
+    "passive_effects": [
+      {
+        "effect_type": "craft_success",
+        "target": "crafting",
+        "value_per_level": 0.05,
+        "max_value": 0.4
+      },
+      {
+        "effect_type": "craft_quality",
+        "target": "crafting",
+        "value_per_level": 0.05,
+        "max_value": 0.4
+      }
+    ]
   }
 ]

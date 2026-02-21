@@ -95,7 +95,8 @@ impl SkillsMenu {
             SkillCategory::Combat => SkillCategory::Athletics,
             SkillCategory::Athletics => SkillCategory::Survival,
             SkillCategory::Survival => SkillCategory::Crafting,
-            SkillCategory::Crafting => SkillCategory::Combat,
+            SkillCategory::Crafting => SkillCategory::Social,
+            SkillCategory::Social => SkillCategory::Combat,
         };
         self.selected_index = 0;
         self.list_state.select(Some(0));
@@ -104,10 +105,11 @@ impl SkillsMenu {
     /// Switch to previous category
     pub fn prev_category(&mut self) {
         self.selected_category = match self.selected_category {
-            SkillCategory::Combat => SkillCategory::Crafting,
+            SkillCategory::Combat => SkillCategory::Social,
             SkillCategory::Athletics => SkillCategory::Combat,
             SkillCategory::Survival => SkillCategory::Athletics,
             SkillCategory::Crafting => SkillCategory::Survival,
+            SkillCategory::Social => SkillCategory::Crafting,
         };
         self.selected_index = 0;
         self.list_state.select(Some(0));
@@ -308,18 +310,19 @@ fn render_skills_list(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu, 
         .map(|def| {
             let level = game_state.player.skills.get_skill_level(&def.id);
             let cost = calculate_skill_cost(&def.id, level);
+            let can_upgrade = game_state.player.skills.can_upgrade_skill(&def.id).is_ok();
 
-            let color = if game_state.player.skills.skill_points >= cost && level < def.max_level {
-                Color::Green
-            } else if level >= def.max_level {
-                Color::Yellow
+            let (color, prefix) = if level >= def.max_level {
+                (Color::Yellow, "")
+            } else if can_upgrade {
+                (Color::Green, "")
             } else {
-                Color::Gray
+                (Color::DarkGray, "🔒 ")
             };
 
             let text = format!(
-                "{} (Lv.{}/{}) - {} SP",
-                def.name, level, def.max_level, cost
+                "{}{} (Lv.{}/{}) - {} SP",
+                prefix, def.name, level, def.max_level, cost
             );
             ListItem::new(text).style(Style::default().fg(color))
         })
@@ -380,8 +383,9 @@ fn render_skill_details(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu
     let content = if let Some(def) = skills.get(menu.selected_index) {
         let level = game_state.player.skills.get_skill_level(&def.id);
         let cost = calculate_skill_cost(&def.id, level);
+        let upgrade_result = game_state.player.skills.can_upgrade_skill(&def.id);
 
-        vec![
+        let mut lines = vec![
             Line::from(vec![Span::styled(
                 &def.name,
                 Style::default().fg(Color::Yellow),
@@ -392,7 +396,17 @@ fn render_skill_details(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu
             Line::from(format!("Current Level: {}/{}", level, def.max_level)),
             Line::from(format!("Upgrade Cost: {} SP", cost)),
             Line::from(format!("Available SP: {}", game_state.player.skills.skill_points)),
-        ]
+        ];
+
+        if let Err(requirement) = upgrade_result {
+            lines.push(Line::from(""));
+            lines.push(Line::from(vec![Span::styled(
+                format!("Requirement: {}", requirement),
+                Style::default().fg(Color::Red),
+            )]));
+        }
+
+        lines
     } else {
         vec![Line::from("No skill selected")]
     };

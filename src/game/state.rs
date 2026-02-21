@@ -1048,6 +1048,7 @@ impl GameState {
                 level,
                 last_encounter,
                 self.turn,
+                self.player.skills.get_skill_level("wayfaring"),
             ) {
                 // Generate encounter
                 let encounter = super::encounter::generate_encounter(
@@ -1124,6 +1125,7 @@ impl GameState {
                 level,
                 last_encounter,
                 self.turn,
+                self.player.skills.get_skill_level("wayfaring"),
             ) {
                 // Generate encounter before entering tile
                 let encounter = super::encounter::generate_encounter(
@@ -1376,6 +1378,7 @@ impl GameState {
             &self.world.enemies,
             &encounter.spawned_enemies,
             &mut self.rng,
+            self.player.skills.get_skill_level("wayfaring"),
         ) {
             Ok(()) => {
                 self.world.encounter_state = None;

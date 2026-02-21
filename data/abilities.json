@@ -1,156 +1,854 @@
-[
-  {
-    "id": "power_strike",
-    "name": "Power Strike",
-    "category": "combat",
-    "description": "A devastating melee attack that deals extra damage",
-    "stamina_cost": 15,
-    "cooldown": 3,
-    "required_skill": "melee_combat",
-    "required_level": 2,
-    "effect": "power_strike"
-  },
-  {
-    "id": "whirlwind",
-    "name": "Whirlwind",
-    "category": "combat", 
-    "description": "Attack all adjacent enemies in a spinning motion",
-    "stamina_cost": 25,
-    "cooldown": 5,
-    "required_skill": "melee_combat",
-    "required_level": 5,
-    "effect": "whirlwind_attack"
-  },
-  {
-    "id": "precise_shot",
-    "name": "Precise Shot",
-    "category": "combat",
-    "description": "A carefully aimed shot with increased accuracy and damage",
-    "stamina_cost": 12,
-    "cooldown": 2,
-    "required_skill": "ranged_combat", 
-    "required_level": 3,
-    "effect": "precise_shot"
-  },
-  {
-    "id": "rapid_fire",
-    "name": "Rapid Fire",
-    "category": "combat",
-    "description": "Fire multiple shots in quick succession",
-    "stamina_cost": 20,
-    "cooldown": 4,
-    "required_skill": "ranged_combat",
-    "required_level": 6,
-    "effect": "rapid_fire"
-  },
-  {
-    "id": "defensive_stance",
-    "name": "Defensive Stance",
-    "category": "combat",
-    "description": "Reduce incoming damage for several turns",
-    "stamina_cost": 10,
-    "cooldown": 6,
-    "required_skill": "defense",
-    "required_level": 2,
-    "effect": "defensive_stance"
-  },
-  {
-    "id": "shield_bash",
-    "name": "Shield Bash",
-    "category": "combat",
-    "description": "Stun an enemy with your shield or armor",
-    "stamina_cost": 8,
-    "cooldown": 3,
-    "required_skill": "defense",
-    "required_level": 4,
-    "effect": "shield_bash"
-  },
-  {
-    "id": "sprint",
-    "name": "Sprint",
-    "category": "athletics",
-    "description": "Move multiple tiles in one turn",
-    "stamina_cost": 15,
-    "cooldown": 4,
-    "required_skill": "athletics",
-    "required_level": 2,
-    "effect": "sprint"
-  },
-  {
-    "id": "dodge_roll",
-    "name": "Dodge Roll",
-    "category": "athletics",
-    "description": "Quickly evade attacks for the next turn",
-    "stamina_cost": 12,
-    "cooldown": 3,
-    "required_skill": "athletics",
-    "required_level": 4,
-    "effect": "dodge_roll"
-  },
-  {
-    "id": "sneak_attack",
-    "name": "Sneak Attack",
-    "category": "athletics",
-    "description": "Deal massive damage when attacking from stealth",
-    "stamina_cost": 18,
-    "cooldown": 5,
-    "required_skill": "stealth",
-    "required_level": 3,
-    "effect": "sneak_attack"
-  },
-  {
-    "id": "vanish",
-    "name": "Vanish",
-    "category": "athletics",
-    "description": "Become temporarily invisible to enemies",
-    "stamina_cost": 25,
-    "cooldown": 8,
-    "required_skill": "stealth",
-    "required_level": 6,
-    "effect": "vanish"
-  },
-  {
-    "id": "field_medicine",
-    "name": "Field Medicine",
-    "category": "survival",
-    "description": "Quickly heal yourself in combat",
-    "stamina_cost": 20,
-    "cooldown": 6,
-    "required_skill": "medicine",
-    "required_level": 2,
-    "effect": "field_medicine"
-  },
-  {
-    "id": "antidote",
-    "name": "Antidote",
-    "category": "survival",
-    "description": "Cure poison and other harmful effects",
-    "stamina_cost": 15,
-    "cooldown": 4,
-    "required_skill": "medicine",
-    "required_level": 4,
-    "effect": "antidote"
-  },
-  {
-    "id": "scavenge",
-    "name": "Scavenge",
-    "category": "survival",
-    "description": "Find useful items in the environment",
-    "stamina_cost": 10,
-    "cooldown": 10,
-    "required_skill": "survival",
-    "required_level": 2,
-    "effect": "scavenge"
-  },
-  {
-    "id": "quick_craft",
-    "name": "Quick Craft",
-    "category": "crafting",
-    "description": "Rapidly create basic items from materials",
-    "stamina_cost": 12,
-    "cooldown": 5,
-    "required_skill": "crafting",
-    "required_level": 3,
-    "effect": "quick_craft"
-  }
-]
+{
+  "abilities": [
+    {
+      "id": "blade_strike",
+      "name": "Blade Strike",
+      "category": "Combat",
+      "description": "Swift melee attack with increased accuracy",
+      "stamina_cost": 12,
+      "cooldown": 3,
+      "required_skill": "Combat",
+      "required_level": 1,
+      "effect_type": "Combat",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "damage",
+        "magnitude": 8,
+        "duration": 0
+      }
+    },
+    {
+      "id": "defensive_stance",
+      "name": "Defensive Stance",
+      "category": "Combat",
+      "description": "Reduce incoming damage for several turns",
+      "stamina_cost": 15,
+      "cooldown": 5,
+      "required_skill": "Combat",
+      "required_level": 3,
+      "effect_type": "Combat",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "damage_reduction",
+        "magnitude": 3,
+        "duration": 5
+      }
+    },
+    {
+      "id": "whirlwind_strike",
+      "name": "Whirlwind Strike",
+      "category": "Combat",
+      "description": "Attack all adjacent enemies with glass-edged fury",
+      "stamina_cost": 25,
+      "cooldown": 7,
+      "required_skill": "Combat",
+      "required_level": 5,
+      "effect_type": "Combat",
+      "target_type": "Adjacent",
+      "effect_data": {
+        "primary_effect": "damage",
+        "magnitude": 6,
+        "duration": 0
+      }
+    },
+    {
+      "id": "berserker_rage",
+      "name": "Berserker Rage",
+      "category": "Combat",
+      "description": "Channel storm fury for devastating attacks",
+      "stamina_cost": 30,
+      "cooldown": 10,
+      "required_skill": "Combat",
+      "required_level": 7,
+      "effect_type": "Combat",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "damage_boost",
+        "magnitude": 5,
+        "duration": 4
+      }
+    },
+    {
+      "id": "glass_shard_barrage",
+      "name": "Glass Shard Barrage",
+      "category": "Combat",
+      "description": "Hurl crystallized storm energy in a deadly line",
+      "stamina_cost": 28,
+      "cooldown": 8,
+      "required_skill": "Combat",
+      "required_level": 10,
+      "effect_type": "Combat",
+      "target_type": "Line",
+      "effect_data": {
+        "primary_effect": "damage",
+        "magnitude": 12,
+        "duration": 0
+      }
+    },
+    {
+      "id": "quick_step",
+      "name": "Quick Step",
+      "category": "Movement",
+      "description": "Swift movement across salt-crusted ground",
+      "stamina_cost": 8,
+      "cooldown": 3,
+      "required_skill": "Movement",
+      "required_level": 1,
+      "effect_type": "Movement",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "extra_move",
+        "magnitude": 1,
+        "duration": 1
+      }
+    },
+    {
+      "id": "shimmer_dash",
+      "name": "Shimmer Dash",
+      "category": "Movement",
+      "description": "Phase through glass terrain like a mirage",
+      "stamina_cost": 12,
+      "cooldown": 5,
+      "required_skill": "Movement",
+      "required_level": 3,
+      "effect_type": "Movement",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "phase_movement",
+        "magnitude": 3,
+        "duration": 1
+      }
+    },
+    {
+      "id": "salt_wind_leap",
+      "name": "Salt Wind Leap",
+      "category": "Movement",
+      "description": "Leap over obstacles on crystalline winds",
+      "stamina_cost": 15,
+      "cooldown": 6,
+      "required_skill": "Movement",
+      "required_level": 5,
+      "effect_type": "Movement",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "leap",
+        "magnitude": 4,
+        "duration": 0
+      }
+    },
+    {
+      "id": "storm_stride",
+      "name": "Storm Stride",
+      "category": "Movement",
+      "description": "Move with the fury of glass storms",
+      "stamina_cost": 18,
+      "cooldown": 7,
+      "required_skill": "Movement",
+      "required_level": 7,
+      "effect_type": "Movement",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "speed_boost",
+        "magnitude": 2,
+        "duration": 3
+      }
+    },
+    {
+      "id": "refraction_blink",
+      "name": "Refraction Blink",
+      "category": "Movement",
+      "description": "Bend light to teleport through the shimmer",
+      "stamina_cost": 25,
+      "cooldown": 10,
+      "required_skill": "Movement",
+      "required_level": 10,
+      "effect_type": "Movement",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "teleport",
+        "magnitude": 6,
+        "duration": 0
+      }
+    },
+    {
+      "id": "keen_eye",
+      "name": "Keen Eye",
+      "category": "Perception",
+      "description": "Sharpen vision to pierce the heat shimmer",
+      "stamina_cost": 10,
+      "cooldown": 4,
+      "required_skill": "Perception",
+      "required_level": 1,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "sight_range",
+        "magnitude": 2,
+        "duration": 8
+      }
+    },
+    {
+      "id": "glass_sense",
+      "name": "Glass Sense",
+      "category": "Perception",
+      "description": "Feel the resonance of storm glass nearby",
+      "stamina_cost": 12,
+      "cooldown": 5,
+      "required_skill": "Perception",
+      "required_level": 3,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "detect_items",
+        "magnitude": 5,
+        "duration": 10
+      }
+    },
+    {
+      "id": "storm_forecast",
+      "name": "Storm Forecast",
+      "category": "Perception",
+      "description": "Read the angles of approaching storms",
+      "stamina_cost": 15,
+      "cooldown": 8,
+      "required_skill": "Perception",
+      "required_level": 5,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "storm_warning",
+        "magnitude": 3,
+        "duration": 0
+      }
+    },
+    {
+      "id": "wraith_sight",
+      "name": "Wraith Sight",
+      "category": "Perception",
+      "description": "See through refraction wraith illusions",
+      "stamina_cost": 18,
+      "cooldown": 6,
+      "required_skill": "Perception",
+      "required_level": 7,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "true_sight",
+        "magnitude": 1,
+        "duration": 6
+      }
+    },
+    {
+      "id": "saint_vision",
+      "name": "Saint Vision",
+      "category": "Perception",
+      "description": "See with the clarity of machine-saints",
+      "stamina_cost": 22,
+      "cooldown": 10,
+      "required_skill": "Perception",
+      "required_level": 10,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "omnisight",
+        "magnitude": 8,
+        "duration": 5
+      }
+    },
+    {
+      "id": "salt_step",
+      "name": "Salt Step",
+      "category": "Stealth",
+      "description": "Move silently across crystalline ground",
+      "stamina_cost": 8,
+      "cooldown": 3,
+      "required_skill": "Stealth",
+      "required_level": 1,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "stealth",
+        "magnitude": 2,
+        "duration": 4
+      }
+    },
+    {
+      "id": "mirage_cloak",
+      "name": "Mirage Cloak",
+      "category": "Stealth",
+      "description": "Bend light to become nearly invisible",
+      "stamina_cost": 15,
+      "cooldown": 6,
+      "required_skill": "Stealth",
+      "required_level": 3,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "invisibility",
+        "magnitude": 1,
+        "duration": 5
+      }
+    },
+    {
+      "id": "dust_wraith_form",
+      "name": "Dust Wraith Form",
+      "category": "Stealth",
+      "description": "Become one with the swirling sands",
+      "stamina_cost": 20,
+      "cooldown": 8,
+      "required_skill": "Stealth",
+      "required_level": 5,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "phase_stealth",
+        "magnitude": 1,
+        "duration": 3
+      }
+    },
+    {
+      "id": "shadow_meld",
+      "name": "Shadow Meld",
+      "category": "Stealth",
+      "description": "Merge with the darkness between glass shards",
+      "stamina_cost": 18,
+      "cooldown": 7,
+      "required_skill": "Stealth",
+      "required_level": 7,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "perfect_stealth",
+        "magnitude": 1,
+        "duration": 4
+      }
+    },
+    {
+      "id": "refraction_veil",
+      "name": "Refraction Veil",
+      "category": "Stealth",
+      "description": "Hide adaptations from prying eyes",
+      "stamina_cost": 25,
+      "cooldown": 10,
+      "required_skill": "Stealth",
+      "required_level": 10,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "adaptation_mask",
+        "magnitude": 1,
+        "duration": 12
+      }
+    },
+    {
+      "id": "glass_working",
+      "name": "Glass Working",
+      "category": "Crafting",
+      "description": "Shape storm glass into useful tools",
+      "stamina_cost": 12,
+      "cooldown": 0,
+      "required_skill": "Crafting",
+      "required_level": 1,
+      "effect_type": "Crafting",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "craft_glass",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "salt_preservation",
+      "name": "Salt Preservation",
+      "category": "Crafting",
+      "description": "Preserve items with crystalline salt",
+      "stamina_cost": 10,
+      "cooldown": 0,
+      "required_skill": "Crafting",
+      "required_level": 3,
+      "effect_type": "Crafting",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "preserve_item",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "storm_forging",
+      "name": "Storm Forging",
+      "category": "Crafting",
+      "description": "Use storm energy to enhance equipment",
+      "stamina_cost": 20,
+      "cooldown": 0,
+      "required_skill": "Crafting",
+      "required_level": 5,
+      "effect_type": "Crafting",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "enhance_item",
+        "magnitude": 2,
+        "duration": 0
+      }
+    },
+    {
+      "id": "lens_grinding",
+      "name": "Lens Grinding",
+      "category": "Crafting",
+      "description": "Craft precise optical instruments",
+      "stamina_cost": 15,
+      "cooldown": 0,
+      "required_skill": "Crafting",
+      "required_level": 7,
+      "effect_type": "Crafting",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "craft_lens",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "saint_key_forging",
+      "name": "Saint-Key Forging",
+      "category": "Crafting",
+      "description": "Create Archive credentials from blessed materials",
+      "stamina_cost": 30,
+      "cooldown": 0,
+      "required_skill": "Crafting",
+      "required_level": 10,
+      "effect_type": "Crafting",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "craft_saint_key",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "pilgrim_words",
+      "name": "Pilgrim Words",
+      "category": "Social",
+      "description": "Speak the old courtesies of the road",
+      "stamina_cost": 8,
+      "cooldown": 4,
+      "required_skill": "Social",
+      "required_level": 1,
+      "effect_type": "Social",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "improve_disposition",
+        "magnitude": 2,
+        "duration": 0
+      }
+    },
+    {
+      "id": "mirror_monk_blessing",
+      "name": "Mirror Monk Blessing",
+      "category": "Social",
+      "description": "Invoke the angles of sacred geometry",
+      "stamina_cost": 12,
+      "cooldown": 6,
+      "required_skill": "Social",
+      "required_level": 3,
+      "effect_type": "Social",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "monk_favor",
+        "magnitude": 3,
+        "duration": 0
+      }
+    },
+    {
+      "id": "engineer_rapport",
+      "name": "Engineer Rapport",
+      "category": "Social",
+      "description": "Speak of practical matters and useful trades",
+      "stamina_cost": 10,
+      "cooldown": 5,
+      "required_skill": "Social",
+      "required_level": 5,
+      "effect_type": "Social",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "engineer_favor",
+        "magnitude": 2,
+        "duration": 0
+      }
+    },
+    {
+      "id": "glassborn_kinship",
+      "name": "Glassborn Kinship",
+      "category": "Social",
+      "description": "Acknowledge the bond of transformation",
+      "stamina_cost": 15,
+      "cooldown": 7,
+      "required_skill": "Social",
+      "required_level": 7,
+      "effect_type": "Social",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "glassborn_favor",
+        "magnitude": 4,
+        "duration": 0
+      }
+    },
+    {
+      "id": "saint_protocol",
+      "name": "Saint Protocol",
+      "category": "Social",
+      "description": "Invoke ancient machine-saint authority",
+      "stamina_cost": 20,
+      "cooldown": 10,
+      "required_skill": "Social",
+      "required_level": 10,
+      "effect_type": "Social",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "archive_access",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "first_aid",
+      "name": "First Aid",
+      "category": "Survival",
+      "description": "Bind wounds with salt and cloth",
+      "stamina_cost": 10,
+      "cooldown": 3,
+      "required_skill": "Survival",
+      "required_level": 1,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "heal",
+        "magnitude": 5,
+        "duration": 0
+      }
+    },
+    {
+      "id": "water_finding",
+      "name": "Water Finding",
+      "category": "Survival",
+      "description": "Locate hidden springs beneath the salt",
+      "stamina_cost": 15,
+      "cooldown": 8,
+      "required_skill": "Survival",
+      "required_level": 3,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "find_water",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "storm_shelter",
+      "name": "Storm Shelter",
+      "category": "Survival",
+      "description": "Create temporary refuge from glass storms",
+      "stamina_cost": 20,
+      "cooldown": 10,
+      "required_skill": "Survival",
+      "required_level": 5,
+      "effect_type": "Utility",
+      "target_type": "Area",
+      "effect_data": {
+        "primary_effect": "storm_protection",
+        "magnitude": 3,
+        "duration": 5
+      }
+    },
+    {
+      "id": "adaptation_control",
+      "name": "Adaptation Control",
+      "category": "Survival",
+      "description": "Slow the progress of refraction changes",
+      "stamina_cost": 18,
+      "cooldown": 6,
+      "required_skill": "Survival",
+      "required_level": 7,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "reduce_refraction",
+        "magnitude": 2,
+        "duration": 0
+      }
+    },
+    {
+      "id": "hermit_endurance",
+      "name": "Hermit Endurance",
+      "category": "Survival",
+      "description": "Endure the steppe's harshness like the salt hermits",
+      "stamina_cost": 25,
+      "cooldown": 8,
+      "required_skill": "Survival",
+      "required_level": 10,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "environmental_immunity",
+        "magnitude": 1,
+        "duration": 10
+      }
+    },
+    {
+      "id": "scripture_reading",
+      "name": "Scripture Reading",
+      "category": "Lore",
+      "description": "Decipher ancient texts and prophecies",
+      "stamina_cost": 12,
+      "cooldown": 0,
+      "required_skill": "Lore",
+      "required_level": 1,
+      "effect_type": "Utility",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "read_scripture",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "archive_query",
+      "name": "Archive Query",
+      "category": "Lore",
+      "description": "Access pre-storm databases for knowledge",
+      "stamina_cost": 15,
+      "cooldown": 5,
+      "required_skill": "Lore",
+      "required_level": 3,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "gain_knowledge",
+        "magnitude": 2,
+        "duration": 0
+      }
+    },
+    {
+      "id": "storm_interpretation",
+      "name": "Storm Interpretation",
+      "category": "Lore",
+      "description": "Read meaning in the patterns of glass storms",
+      "stamina_cost": 18,
+      "cooldown": 7,
+      "required_skill": "Lore",
+      "required_level": 5,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "predict_storm",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "heliograph_memory",
+      "name": "Heliograph Memory",
+      "category": "Lore",
+      "description": "Recall fragments of the orbital mirror's purpose",
+      "stamina_cost": 20,
+      "cooldown": 8,
+      "required_skill": "Lore",
+      "required_level": 7,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "ancient_knowledge",
+        "magnitude": 3,
+        "duration": 0
+      }
+    },
+    {
+      "id": "saint_communion",
+      "name": "Saint Communion",
+      "category": "Lore",
+      "description": "Channel the wisdom of the machine-saints",
+      "stamina_cost": 25,
+      "cooldown": 10,
+      "required_skill": "Lore",
+      "required_level": 10,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "divine_insight",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "light_beam",
+      "name": "Light Beam",
+      "category": "Refraction",
+      "description": "Focus sunlight into a searing ray",
+      "stamina_cost": 15,
+      "cooldown": 4,
+      "required_skill": "Refraction",
+      "required_level": 1,
+      "effect_type": "Combat",
+      "target_type": "Line",
+      "effect_data": {
+        "primary_effect": "light_damage",
+        "magnitude": 10,
+        "duration": 0
+      }
+    },
+    {
+      "id": "prism_shield",
+      "name": "Prism Shield",
+      "category": "Refraction",
+      "description": "Bend light to deflect attacks",
+      "stamina_cost": 18,
+      "cooldown": 6,
+      "required_skill": "Refraction",
+      "required_level": 3,
+      "effect_type": "Combat",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "reflect_damage",
+        "magnitude": 50,
+        "duration": 4
+      }
+    },
+    {
+      "id": "glare_burst",
+      "name": "Glare Burst",
+      "category": "Refraction",
+      "description": "Blind enemies with crystalline radiance",
+      "stamina_cost": 20,
+      "cooldown": 7,
+      "required_skill": "Refraction",
+      "required_level": 5,
+      "effect_type": "Combat",
+      "target_type": "Area",
+      "effect_data": {
+        "primary_effect": "blind",
+        "magnitude": 1,
+        "duration": 3
+      }
+    },
+    {
+      "id": "storm_channeling",
+      "name": "Storm Channeling",
+      "category": "Refraction",
+      "description": "Draw power from approaching glass storms",
+      "stamina_cost": 22,
+      "cooldown": 8,
+      "required_skill": "Refraction",
+      "required_level": 7,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "storm_power",
+        "magnitude": 3,
+        "duration": 6
+      }
+    },
+    {
+      "id": "saint_radiance",
+      "name": "Saint Radiance",
+      "category": "Refraction",
+      "description": "Emit the pure light of the machine-saints",
+      "stamina_cost": 30,
+      "cooldown": 10,
+      "required_skill": "Refraction",
+      "required_level": 10,
+      "effect_type": "Combat",
+      "target_type": "Area",
+      "effect_data": {
+        "primary_effect": "holy_damage",
+        "magnitude": 15,
+        "duration": 0
+      }
+    },
+    {
+      "id": "glass_pick_strike",
+      "name": "Glass Pick Strike",
+      "category": "Tools",
+      "description": "Break through vitrified barriers",
+      "stamina_cost": 14,
+      "cooldown": 4,
+      "required_skill": "Tools",
+      "required_level": 1,
+      "effect_type": "Utility",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "break_wall",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "compass_reading",
+      "name": "Compass Reading",
+      "category": "Tools",
+      "description": "Navigate using storm glass resonance",
+      "stamina_cost": 10,
+      "cooldown": 5,
+      "required_skill": "Tools",
+      "required_level": 3,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "reveal_direction",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "lens_focus",
+      "name": "Lens Focus",
+      "category": "Tools",
+      "description": "Use angle-split lens to reveal hidden paths",
+      "stamina_cost": 12,
+      "cooldown": 6,
+      "required_skill": "Tools",
+      "required_level": 5,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "reveal_secrets",
+        "magnitude": 3,
+        "duration": 8
+      }
+    },
+    {
+      "id": "saint_key_activation",
+      "name": "Saint-Key Activation",
+      "category": "Tools",
+      "description": "Unlock Archive systems with blessed credentials",
+      "stamina_cost": 15,
+      "cooldown": 8,
+      "required_skill": "Tools",
+      "required_level": 7,
+      "effect_type": "Utility",
+      "target_type": "Single",
+      "effect_data": {
+        "primary_effect": "unlock_archive",
+        "magnitude": 1,
+        "duration": 0
+      }
+    },
+    {
+      "id": "storm_glass_resonance",
+      "name": "Storm Glass Resonance",
+      "category": "Tools",
+      "description": "Attune to storm patterns through crystallized energy",
+      "stamina_cost": 20,
+      "cooldown": 10,
+      "required_skill": "Tools",
+      "required_level": 10,
+      "effect_type": "Utility",
+      "target_type": "Self",
+      "effect_data": {
+        "primary_effect": "storm_attunement",
+        "magnitude": 1,
+        "duration": 15
+      }
+    }
+  ]
+}

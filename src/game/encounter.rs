@@ -112,6 +112,7 @@ pub fn should_trigger_encounter(
     tile_danger: u32,
     last_encounter_turn: u32,
     current_turn: u32,
+    wayfaring_level: u32,
 ) -> bool {
     // Check cooldown
     if current_turn - last_encounter_turn < CONFIG.cooldown_turns as u32 {
@@ -128,7 +129,8 @@ pub fn should_trigger_encounter(
 
     // Calculate encounter probability
     let danger_mod = 1.0 + (tile_danger as f32 * CONFIG.danger_scaling);
-    let p = (CONFIG.base_encounter_rate * danger_mod).clamp(CONFIG.min_rate, CONFIG.max_rate);
+    let wayfaring_mod = 1.0 - (wayfaring_level as f32 * 0.05);
+    let p = (CONFIG.base_encounter_rate * danger_mod * wayfaring_mod).clamp(CONFIG.min_rate, CONFIG.max_rate);
 
     e < p
 }
@@ -210,6 +212,7 @@ pub fn attempt_flee(
     enemies: &[super::Enemy],
     spawned_enemy_indices: &[usize],
     rng: &mut ChaCha8Rng,
+    wayfaring_level: u32,
 ) -> Result<(), String> {
     // Check distance from all spawned enemies
     for &idx in spawned_enemy_indices {
@@ -227,7 +230,8 @@ pub fn attempt_flee(
     }
 
     // Roll for success
-    let success_chance = CONFIG.flee_base_chance; // TODO: Add skill/gear modifiers in Task 1
+    let wayfaring_bonus = wayfaring_level as f32 * 0.10;
+    let success_chance = (CONFIG.flee_base_chance + wayfaring_bonus).min(1.0);
     let roll = rng.gen_range(0.0..1.0);
     if roll < success_chance {
         Ok(())

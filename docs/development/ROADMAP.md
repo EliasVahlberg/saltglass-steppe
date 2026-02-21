@@ -77,7 +77,7 @@ These are foundational systems that most other features depend on. They should b
 - Wired into `main.rs` action handlers
 - Future: migration functions between versions, integrity checks, auto-save, save slots
 
-#### 2. Proper Overworld Travel (in progress)
+#### 2. Proper Overworld Travel ✅
 
 **Step 1 ✅ — Adjacent movement with terrain travel costs**
 - `src/game/travel.rs`: data-driven travel cost from `data/travel_config.json`
@@ -85,10 +85,19 @@ These are foundational systems that most other features depend on. They should b
 - `travel_cost(terrain, biome)` = base terrain cost + biome modifier (min 1)
 - `travel_to_tile_safe` rejects non-adjacent, advances turns, logs travel
 
+**Step 2 ✅ — Random encounters during travel**
+- `src/game/encounter.rs`: deterministic encounter generation using world seed
+- Three encounter types: Hostile (50%), Neutral (30%), Beneficial (20%)
+- Threat/boon point budget system for enemy/item spawning
+- Flee mechanic with cooldown and distance requirements
+- Encounter completion checking and XP rewards
+- Fast worldmap movement with deferred tile generation
+- Direct arrow key movement and inspect mode with pathfinding
+- Keyboard configuration system for worldmap controls
+- 25% base encounter rate, 50-turn cooldown per tile
+
 **Remaining steps:**
-- Random encounters during travel (bandits, storms, wildlife)
 - Resource consumption (water, food) during travel
-- Visible travel path on world map with waypoints
 - Camp/rest mechanic during long journeys
 - **Depends on**: Save system ✅
 
