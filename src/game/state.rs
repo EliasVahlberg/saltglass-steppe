@@ -570,6 +570,12 @@ impl GameState {
                 }
             }
 
+            // Add starting faction reputation
+            let starting_rep = super::faction::get_starting_reputation(class_id);
+            for (faction_id, rep) in starting_rep {
+                state.player.faction_reputation.insert(faction_id, rep);
+            }
+
             state.log(format!("You begin as a {}.", class.name));
         }
 

@@ -71,6 +71,8 @@ pub struct WorldMap {
     pub connected: Vec<Connected>,
     #[serde(default)]
     pub levels: Vec<u32>, // Threat level for each tile
+    #[serde(default)]
+    pub faction_territories: Vec<Option<String>>, // Faction ID controlling each tile (None = neutral)
 }
 
 impl WorldMap {
@@ -81,6 +83,8 @@ impl WorldMap {
         let (biomes, terrain, elevation, pois, resources, connected, levels) =
             generator.generate(seed);
 
+        let faction_territories = Self::generate_faction_territories(seed);
+
         Self {
             seed,
             biomes,
@@ -90,7 +94,73 @@ impl WorldMap {
             resources,
             connected,
             levels,
+            faction_territories,
         }
+    }
+
+    /// Generate faction territories using even division with neutral center
+    fn generate_faction_territories(seed: u64) -> Vec<Option<String>> {
+        use crate::game::faction::all_faction_ids;
+        use rand::SeedableRng;
+        use rand_chacha::ChaCha8Rng;
+
+        let _rng = ChaCha8Rng::seed_from_u64(seed.wrapping_add(999));
+        let mut territories = vec![None; WORLD_WIDTH * WORLD_HEIGHT];
+        
+        let faction_ids = all_faction_ids();
+        if faction_ids.is_empty() {
+            return territories;
+        }
+
+        // Place faction capitals evenly spaced around the map
+        let num_factions = faction_ids.len();
+        let mut capitals = Vec::new();
+        
+        for (i, faction_id) in faction_ids.iter().enumerate() {
+            let angle = (i as f64 / num_factions as f64) * 2.0 * std::f64::consts::PI;
+            let radius = WORLD_WIDTH.min(WORLD_HEIGHT) as f64 / 2.5;
+            let cx = (WORLD_WIDTH as f64 / 2.0 + radius * angle.cos()) as usize;
+            let cy = (WORLD_HEIGHT as f64 / 2.0 + radius * angle.sin()) as usize;
+            capitals.push((cx.min(WORLD_WIDTH - 1), cy.min(WORLD_HEIGHT - 1), faction_id.clone()));
+        }
+
+        // Assign each tile to nearest capital (Voronoi diagram)
+        let center_x = WORLD_WIDTH / 2;
+        let center_y = WORLD_HEIGHT / 2;
+        let neutral_radius = 8; // Neutral zone radius
+
+        for y in 0..WORLD_HEIGHT {
+            for x in 0..WORLD_WIDTH {
+                let idx = y * WORLD_WIDTH + x;
+                
+                // Check if in neutral center zone
+                let dx = (x as i32 - center_x as i32).abs();
+                let dy = (y as i32 - center_y as i32).abs();
+                if dx * dx + dy * dy < neutral_radius * neutral_radius {
+                    territories[idx] = None; // Neutral
+                    continue;
+                }
+
+                // Find nearest capital
+                let mut min_dist = f64::MAX;
+                let mut nearest_faction = None;
+
+                for (cx, cy, faction_id) in &capitals {
+                    let dx = x as f64 - *cx as f64;
+                    let dy = y as f64 - *cy as f64;
+                    let dist = (dx * dx + dy * dy).sqrt();
+                    
+                    if dist < min_dist {
+                        min_dist = dist;
+                        nearest_faction = Some(faction_id.clone());
+                    }
+                }
+
+                territories[idx] = nearest_faction;
+            }
+        }
+
+        territories
     }
 
     #[allow(dead_code)]
@@ -150,6 +220,13 @@ impl WorldMap {
             self.connected.get(idx).copied().unwrap_or_default(),
             self.levels.get(idx).copied().unwrap_or(1),
         )
+    }
+
+    pub fn get_faction_territory(&self, x: usize, y: usize) -> Option<&str> {
+        let idx = y * WORLD_WIDTH + x;
+        self.faction_territories
+            .get(idx)
+            .and_then(|opt| opt.as_deref())
     }
 
     pub fn tile_seed(&self, x: usize, y: usize) -> u64 {

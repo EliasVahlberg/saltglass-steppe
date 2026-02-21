@@ -17,6 +17,7 @@ pub mod enemy;
 pub mod entity;
 pub mod equipment;
 pub mod event;
+pub mod faction;
 pub mod generation;
 pub mod inspect;
 pub mod interactable;
