@@ -50,6 +50,9 @@ pub struct QuestReward {
     /// Currency reward (salt scrip)
     #[serde(default)]
     pub salt_scrip: u32,
+    /// Faction reputation changes (faction_id -> delta)
+    #[serde(default)]
+    pub reputation_rewards: std::collections::HashMap<String, i32>,
 }
 
 /// Quest definition loaded from data file

@@ -3146,6 +3146,10 @@ impl GameState {
             for item_id in &reward.items {
                 self.player.inventory.push(item_id.clone());
             }
+            // Apply reputation rewards
+            for (faction_id, delta) in &reward.reputation_rewards {
+                self.modify_reputation(faction_id, *delta);
+            }
             // Log unlocked quests
             if !reward.unlocks_quests.is_empty() {
                 for unlocked_id in &reward.unlocks_quests {

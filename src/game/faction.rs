@@ -58,14 +58,15 @@ pub fn get_standing(rep: i32) -> &'static str {
 }
 
 /// Get reputation standing color (for UI)
-pub fn get_standing_color(rep: i32) -> &'static str {
+pub fn get_standing_color(rep: i32) -> ratatui::style::Color {
+    use ratatui::style::Color;
     match rep {
-        i32::MIN..=-50 => "red",
-        -49..=-25 => "orange",
-        -24..=24 => "white",
-        25..=49 => "green",
-        50..=99 => "cyan",
-        100..=i32::MAX => "magenta",
+        i32::MIN..=-50 => Color::Red,
+        -49..=-25 => Color::LightRed,
+        -24..=24 => Color::White,
+        25..=49 => Color::Green,
+        50..=99 => Color::Cyan,
+        100..=i32::MAX => Color::Magenta,
     }
 }
 

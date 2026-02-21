@@ -84,6 +84,7 @@ impl QuestLog {
                 salt_scrip: 50,
                 items: Vec::new(),
                 unlocks_quests: Vec::new(),
+                reputation_rewards: std::collections::HashMap::new(),
             })
         } else {
             None

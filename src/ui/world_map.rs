@@ -31,6 +31,7 @@ pub struct WorldMapView {
     pub cursor_x: usize,
     pub cursor_y: usize,
     pub inspect_mode: bool,
+    pub show_faction_overlay: bool,
 }
 
 impl WorldMapView {
@@ -51,6 +52,10 @@ impl WorldMapView {
     pub fn toggle_inspect(&mut self) {
         self.inspect_mode = !self.inspect_mode;
     }
+
+    pub fn toggle_faction_overlay(&mut self) {
+        self.show_faction_overlay = !self.show_faction_overlay;
+    }
 }
 
 /// Get color for biome
@@ -61,6 +66,25 @@ fn biome_color(biome: Biome) -> Color {
         Biome::Scrubland => Color::Green,
         Biome::Oasis => Color::Cyan,
         Biome::Ruins => Color::Magenta,
+    }
+}
+
+/// Get color for faction
+fn faction_color(faction_id: &str) -> Color {
+    use crate::game::faction;
+    if let Some(faction) = faction::get_faction(faction_id) {
+        match faction.color.as_str() {
+            "Cyan" => Color::Cyan,
+            "Magenta" => Color::Magenta,
+            "Yellow" => Color::Yellow,
+            "White" => Color::White,
+            "Red" => Color::Red,
+            "Blue" => Color::Blue,
+            "Green" => Color::Green,
+            _ => Color::Gray,
+        }
+    } else {
+        Color::Gray
     }
 }
 
@@ -109,12 +133,13 @@ pub fn render_world_map(
     state: &GameState,
 ) {
     let mode_str = if view.inspect_mode { "INSPECT" } else { "TRAVEL" };
+    let faction_str = if view.show_faction_overlay { " [FACTION OVERLAY]" } else { "" };
     let title = if state.world.world_map_target.is_some() {
-        format!(" World Map [{}] [Target Set - O auto-move, T clear] ", mode_str)
+        format!(" World Map [{}]{} [Target Set - O auto-move, T clear, F factions] ", mode_str, faction_str)
     } else if view.inspect_mode {
-        " World Map [INSPECT] [X travel mode, T set target] ".to_string()
+        format!(" World Map [INSPECT]{} [X travel mode, T set target, F factions] ", faction_str)
     } else {
-        " World Map [TRAVEL] [X inspect mode, arrows move] ".to_string()
+        format!(" World Map [TRAVEL]{} [X inspect mode, arrows move, F factions] ", faction_str)
     };
     
     let block = Block::default()
@@ -149,7 +174,8 @@ pub fn render_world_map(
             let is_on_path = path_set.contains(&(world_x, world_y));
             let show_cursor = view.inspect_mode || state.world.world_map_target.is_some();
             
-            let (ch, fg) = if world_x == player_wx && world_y == player_wy {
+            // Get base character and color
+            let (ch, base_fg) = if world_x == player_wx && world_y == player_wy {
                 ('@', Color::White)
             } else if show_cursor && world_x == view.cursor_x && world_y == view.cursor_y {
                 ('X', Color::LightYellow)
@@ -175,10 +201,21 @@ pub fn render_world_map(
                 (terrain_glyph(terrain), biome_color(biome))
             };
 
+            // Override with faction color if overlay is active
+            let fg = if view.show_faction_overlay {
+                if let Some(faction_id) = world_map.get_faction_territory(world_x, world_y) {
+                    faction_color(faction_id)
+                } else {
+                    Color::DarkGray // Neutral territory
+                }
+            } else {
+                base_fg
+            };
+
             // Determine background color (path takes priority over threat level)
             let bg = if is_on_path {
                 Some(Color::DarkGray)
-            } else if level > 1 {
+            } else if level > 1 && !view.show_faction_overlay {
                 Some(level_color(level))
             } else {
                 None

@@ -885,6 +885,9 @@ fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode
             ui.world_map_view.cursor_x = state.world.world_x;
             ui.world_map_view.cursor_y = state.world.world_y;
         }
+        KeyCode::Char('f') | KeyCode::Char('F') => {
+            ui.world_map_view.toggle_faction_overlay();
+        }
         _ => {}
     }
     Action::None

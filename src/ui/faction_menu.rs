@@ -1,27 +1,7 @@
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph};
-use once_cell::sync::Lazy;
-use serde::Deserialize;
 use crate::game::state::GameState;
-
-#[derive(Clone, Debug, Deserialize)]
-struct FactionDef {
-    id: String,
-    name: String,
-    description: String,
-    #[allow(dead_code)]
-    color: String,
-}
-
-#[derive(Clone, Debug, Deserialize)]
-struct FactionsFile {
-    factions: Vec<FactionDef>,
-}
-
-static FACTIONS: Lazy<FactionsFile> = Lazy::new(|| {
-    let data = include_str!("../../data/factions.json");
-    serde_json::from_str(data).expect("Failed to parse factions.json")
-});
+use crate::game::faction;
 
 #[derive(Default)]
 pub struct FactionMenu {
@@ -51,7 +31,7 @@ impl FactionMenu {
 }
 
 pub fn faction_count() -> usize {
-    FACTIONS.factions.len()
+    faction::all_faction_ids().len()
 }
 
 pub fn render_faction_menu(frame: &mut Frame, area: Rect, state: &GameState, menu: &FactionMenu) {
@@ -67,17 +47,14 @@ pub fn render_faction_menu(frame: &mut Frame, area: Rect, state: &GameState, men
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
         .split(inner);
 
-    let faction_items: Vec<ListItem> = FACTIONS.factions.iter().enumerate().map(|(i, faction)| {
-        let reputation = state.get_reputation(&faction.id);
-        let (status, color) = match reputation {
-            r if r >= 50 => ("Allied", Color::Green),
-            r if r >= 25 => ("Friendly", Color::Cyan),
-            r if r >= -24 => ("Neutral", Color::White),
-            r if r >= -49 => ("Distrusted", Color::Yellow),
-            _ => ("Hostile", Color::Red),
-        };
+    let faction_ids = faction::all_faction_ids();
+    let faction_items: Vec<ListItem> = faction_ids.iter().enumerate().map(|(i, faction_id)| {
+        let faction_def = faction::get_faction(faction_id).expect("Faction not found");
+        let reputation = state.get_reputation(faction_id);
+        let standing = faction::get_standing(reputation);
+        let color = faction::get_standing_color(reputation);
         
-        let text = format!("{}: {} {}", faction.name, reputation, status);
+        let text = format!("{}: {} ({})", faction_def.name, reputation, standing);
         let style = if i == menu.selected_index {
             Style::default().bg(Color::DarkGray).fg(color)
         } else {
@@ -90,9 +67,11 @@ pub fn render_faction_menu(frame: &mut Frame, area: Rect, state: &GameState, men
     let list = List::new(faction_items);
     frame.render_widget(list, chunks[0]);
 
-    if let Some(selected_faction) = FACTIONS.factions.get(menu.selected_index) {
-        let description = Paragraph::new(selected_faction.description.as_str())
-            .wrap(ratatui::widgets::Wrap { trim: true });
-        frame.render_widget(description, chunks[1]);
+    if let Some(faction_id) = faction_ids.get(menu.selected_index) {
+        if let Some(faction_def) = faction::get_faction(faction_id) {
+            let description = Paragraph::new(faction_def.description.as_str())
+                .wrap(ratatui::widgets::Wrap { trim: true });
+            frame.render_widget(description, chunks[1]);
+        }
     }
 }

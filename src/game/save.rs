@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 use super::state::GameState;
 
 /// Current save schema version. Bump when `GameState` layout changes.
-pub const SAVE_VERSION: u32 = 1;
+pub const SAVE_VERSION: u32 = 2;
 
 /// Envelope for serialization (borrows state).
 #[derive(Serialize)]
@@ -40,17 +40,44 @@ pub fn save_game(state: &GameState, path: impl AsRef<Path>) -> Result<(), String
 pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
     let data = fs::read_to_string(&path).map_err(|e| e.to_string())?;
     let file: SaveFileOwned = ron::from_str(&data).map_err(|e| format!("Corrupt save: {e}"))?;
-    if file.version != SAVE_VERSION {
+    
+    // Handle version migrations
+    let mut state = if file.version < SAVE_VERSION {
+        eprintln!("Migrating save from v{} to v{}", file.version, SAVE_VERSION);
+        migrate_save(file.state, file.version)?
+    } else if file.version > SAVE_VERSION {
         return Err(format!(
-            "Save version mismatch: file is v{}, game expects v{}. \
-             This save is incompatible with the current version.",
+            "Save version too new: file is v{}, game expects v{}. \
+             Please update the game.",
             file.version, SAVE_VERSION
         ));
-    }
-    let mut state = file.state;
+    } else {
+        file.state
+    };
+    
     state.rebuild_spatial_index();
     state.update_lighting();
     Ok(state)
+}
+
+/// Migrate old save to current version
+fn migrate_save(mut state: GameState, from_version: u32) -> Result<GameState, String> {
+    match from_version {
+        1 => {
+            // v1 -> v2: Add faction territories to world map
+            if let Some(ref mut world_map) = state.world.world_map {
+                if world_map.faction_territories.is_empty() {
+                    eprintln!("Regenerating faction territories for existing world...");
+                    world_map.faction_territories = 
+                        super::world_map::WorldMap::generate_faction_territories(state.seed);
+                }
+            }
+            // Faction reputation already exists in PlayerState, just ensure it's initialized
+            // (empty HashMap is fine, will be populated as player interacts with factions)
+            Ok(state)
+        }
+        _ => Err(format!("Unknown save version: {}", from_version)),
+    }
 }
 
 #[cfg(test)]

@@ -99,7 +99,7 @@ impl WorldMap {
     }
 
     /// Generate faction territories using even division with neutral center
-    fn generate_faction_territories(seed: u64) -> Vec<Option<String>> {
+    pub fn generate_faction_territories(seed: u64) -> Vec<Option<String>> {
         use crate::game::faction::all_faction_ids;
         use rand::SeedableRng;
         use rand_chacha::ChaCha8Rng;
