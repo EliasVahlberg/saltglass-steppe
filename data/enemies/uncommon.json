@@ -1,0 +1,309 @@
+{
+  "schema": "enemies_v1",
+  "enemies": [
+    {
+      "id": "glass_beetle",
+      "name": "Glass Beetle",
+      "glyph": "b",
+      "max_hp": 12,
+      "damage_min": 3,
+      "damage_max": 5,
+      "sight_range": 5,
+      "level": 4,
+      "xp_value": 25,
+      "armor": 2,
+      "description": "Armored insect with refractive carapace that feeds on storm glass",
+      "faction": "glass_spirits",
+      "tags": ["glass", "insect", "armored"],
+      "behaviors": [
+        {
+          "type": "reflect_damage",
+          "percent": 30
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "glass_shard",
+          "weight": 6,
+          "min_count": 3,
+          "max_count": 5
+        },
+        {
+          "item": "beetle_carapace",
+          "weight": 2
+        },
+        {
+          "item": "storm_glass",
+          "weight": 1
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "S(@4 &Cyan &LightCyan)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "S(@3 &LightCyan &White)"
+        }
+      ]
+    },
+    {
+      "id": "salt_mummy",
+      "name": "Salt Mummy",
+      "glyph": "m",
+      "max_hp": 15,
+      "damage_min": 3,
+      "damage_max": 6,
+      "sight_range": 4,
+      "level": 5,
+      "xp_value": 30,
+      "description": "Desiccated pilgrim preserved and animated by salt",
+      "tags": ["salt", "undead", "pilgrim"],
+      "demeanor": "defensive",
+      "resistances": {
+        "poison": 0.0,
+        "cold": 0.5
+      },
+      "immunities": ["poison"],
+      "loot_table": [
+        {
+          "item": "salt_crystal",
+          "weight": 5,
+          "min_count": 2,
+          "max_count": 4
+        },
+        {
+          "item": "pilgrim_rags",
+          "weight": 3
+        },
+        {
+          "item": "scripture_shard",
+          "weight": 1
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "F(@15 &White)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "D(@10 &DarkGray)"
+        }
+      ]
+    },
+    {
+      "id": "refraction_wraith",
+      "name": "Refraction Wraith",
+      "glyph": "◊",
+      "max_hp": 8,
+      "damage_min": 4,
+      "damage_max": 7,
+      "sight_range": 8,
+      "level": 6,
+      "xp_value": 40,
+      "description": "Storm-born specter made of bent light and crystallized air",
+      "faction": "storm_cultists",
+      "tags": ["storm", "spirit", "light"],
+      "spawns_during_storm": true,
+      "resistances": {
+        "physical": 0.7
+      },
+      "behaviors": [
+        {
+          "type": "reflect_damage",
+          "percent": 50
+        },
+        {
+          "type": "teleport",
+          "range": 6,
+          "cooldown": 3
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "storm_glass",
+          "weight": 4
+        },
+        {
+          "item": "wraith_essence",
+          "weight": 2
+        },
+        {
+          "item": "light_fragment",
+          "weight": 1
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "W(@3 &LightCyan)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "W(@6 &White)"
+        }
+      ]
+    },
+    {
+      "id": "void_whisper",
+      "name": "Void Whisper",
+      "glyph": "v",
+      "max_hp": 10,
+      "damage_min": 2,
+      "damage_max": 8,
+      "sight_range": 10,
+      "level": 7,
+      "xp_value": 45,
+      "description": "Consciousness fragment from beyond reality's edge",
+      "faction": "void_touched",
+      "tags": ["void", "psychic", "spirit"],
+      "ranged_attack": true,
+      "attack_range": 6,
+      "behaviors": [
+        {
+          "type": "teleport",
+          "range": 8,
+          "cooldown": 2
+        }
+      ],
+      "resistances": {
+        "physical": 0.8
+      },
+      "vulnerabilities": {
+        "lightning": 2.0
+      },
+      "loot_table": [
+        {
+          "item": "void_essence",
+          "weight": 3
+        },
+        {
+          "item": "whisper_fragment",
+          "weight": 2
+        },
+        {
+          "item": "psychic_crystal",
+          "weight": 1
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "D(@4 &DarkGray)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "F(@8 &DarkGray)"
+        }
+      ]
+    },
+    {
+      "id": "archive_custodian",
+      "name": "Archive Custodian",
+      "glyph": "A",
+      "max_hp": 18,
+      "damage_min": 4,
+      "damage_max": 6,
+      "sight_range": 8,
+      "level": 8,
+      "xp_value": 50,
+      "armor": 3,
+      "description": "Pre-storm maintenance drone still following ancient protocols",
+      "faction": "archive_drones",
+      "tags": ["archive", "mechanical", "guardian"],
+      "demeanor": "neutral",
+      "behaviors": [
+        {
+          "type": "laser_beam",
+          "range": 6,
+          "damage": 8,
+          "cooldown": 4
+        }
+      ],
+      "resistances": {
+        "poison": 0.0,
+        "cold": 0.3
+      },
+      "immunities": ["poison"],
+      "loot_table": [
+        {
+          "item": "archive_component",
+          "weight": 3
+        },
+        {
+          "item": "data_crystal",
+          "weight": 2
+        },
+        {
+          "item": "maintenance_tool",
+          "weight": 2
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "S(@2 &Blue)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "S(@4 &LightBlue)"
+        }
+      ]
+    },
+    {
+      "id": "storm_herald",
+      "name": "Storm Herald",
+      "glyph": "H",
+      "max_hp": 20,
+      "damage_min": 5,
+      "damage_max": 8,
+      "sight_range": 10,
+      "level": 9,
+      "xp_value": 60,
+      "description": "Transformed pilgrim who speaks for the coming storms",
+      "faction": "storm_cultists",
+      "tags": ["storm", "pilgrim", "prophet"],
+      "ranged_attack": true,
+      "attack_range": 8,
+      "aoe_attack": true,
+      "aoe_radius": 2,
+      "aoe_warning_turns": 2,
+      "behaviors": [
+        {
+          "type": "summon",
+          "spawns": "dust_devil",
+          "count": 2,
+          "cooldown": 6
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "storm_glass",
+          "weight": 5,
+          "min_count": 2,
+          "max_count": 4
+        },
+        {
+          "item": "herald_staff",
+          "weight": 1
+        },
+        {
+          "item": "storm_prophecy",
+          "weight": 2
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "W(@5 &Yellow)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "W(@8 &LightYellow)"
+        }
+      ]
+    }
+  ]
+}

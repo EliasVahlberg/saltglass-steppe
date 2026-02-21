@@ -1,0 +1,422 @@
+{
+  "schema": "enemies_v1",
+  "enemies": [
+    {
+      "id": "crystal_widow",
+      "name": "Crystal Widow",
+      "glyph": "W",
+      "max_hp": 60,
+      "damage_min": 15,
+      "damage_max": 25,
+      "sight_range": 10,
+      "level": 22,
+      "xp_value": 250,
+      "armor": 4,
+      "description": "Massive spider queen that weaves webs of crystallized light",
+      "faction": "glass_spirits",
+      "tags": ["glass", "spider", "queen"],
+      "is_spawner": true,
+      "spawn_rate": 3,
+      "max_spawns": 8,
+      "spawn_types": ["shard_spider"],
+      "ranged_attack": true,
+      "attack_range": 8,
+      "behaviors": [
+        {
+          "type": "web_trap",
+          "range": 8,
+          "duration": 6,
+          "cooldown": 4
+        },
+        {
+          "type": "summon",
+          "spawns": "shard_spider",
+          "count": 4,
+          "cooldown": 5
+        }
+      ],
+      "resistances": {
+        "poison": 0.0,
+        "physical": 0.3
+      },
+      "immunities": ["poison"],
+      "loot_table": [
+        {
+          "item": "crystal_web",
+          "weight": 2
+        },
+        {
+          "item": "widow_venom",
+          "weight": 3
+        },
+        {
+          "item": "spider_queen_crown",
+          "weight": 1
+        },
+        {
+          "item": "glass_shard",
+          "weight": 20,
+          "min_count": 15,
+          "max_count": 25
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "S(@6 &LightCyan &White)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "S(@8 &Cyan &LightCyan)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "S(@15 &LightCyan &White)"
+        }
+      ]
+    },
+    {
+      "id": "void_sovereign",
+      "name": "Void Sovereign",
+      "glyph": "V",
+      "max_hp": 80,
+      "damage_min": 20,
+      "damage_max": 35,
+      "sight_range": 15,
+      "level": 28,
+      "xp_value": 400,
+      "description": "Apex void entity that commands reality through pure negation",
+      "faction": "void_touched",
+      "tags": ["void", "sovereign", "reality"],
+      "ranged_attack": true,
+      "attack_range": 12,
+      "aoe_attack": true,
+      "aoe_radius": 6,
+      "aoe_warning_turns": 4,
+      "is_spawner": true,
+      "spawn_rate": 6,
+      "max_spawns": 4,
+      "spawn_types": ["void_whisper"],
+      "behaviors": [
+        {
+          "type": "teleport",
+          "range": 20,
+          "cooldown": 1
+        },
+        {
+          "type": "summon",
+          "spawns": "void_whisper",
+          "count": 2,
+          "cooldown": 7
+        }
+      ],
+      "resistances": {
+        "physical": 0.8,
+        "fire": 0.5,
+        "cold": 0.5,
+        "poison": 0.0
+      },
+      "vulnerabilities": {
+        "lightning": 3.0
+      },
+      "immunities": ["poison"],
+      "loot_table": [
+        {
+          "item": "void_crown",
+          "weight": 1
+        },
+        {
+          "item": "sovereign_essence",
+          "weight": 2
+        },
+        {
+          "item": "reality_shard",
+          "weight": 1
+        },
+        {
+          "item": "void_essence",
+          "weight": 15,
+          "min_count": 10,
+          "max_count": 20
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "F(@30 &DarkGray)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "D(@10 &DarkGray)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "F(@25 &DarkGray)"
+        }
+      ]
+    },
+    {
+      "id": "archive_sentinel",
+      "name": "Archive Sentinel",
+      "glyph": "Δ",
+      "max_hp": 70,
+      "damage_min": 18,
+      "damage_max": 28,
+      "sight_range": 12,
+      "level": 25,
+      "xp_value": 320,
+      "armor": 6,
+      "description": "Elite guardian drone with adaptive combat protocols",
+      "faction": "archive_drones",
+      "tags": ["archive", "sentinel", "adaptive"],
+      "ranged_attack": true,
+      "attack_range": 10,
+      "behaviors": [
+        {
+          "type": "laser_beam",
+          "range": 12,
+          "damage": 25,
+          "cooldown": 3
+        },
+        {
+          "type": "enrage",
+          "condition": "hp_below_30",
+          "damage": 10,
+          "duration": 15
+        }
+      ],
+      "resistances": {
+        "poison": 0.0,
+        "cold": 0.2,
+        "fire": 0.2,
+        "physical": 0.4
+      },
+      "immunities": ["poison"],
+      "loot_table": [
+        {
+          "item": "sentinel_core",
+          "weight": 1
+        },
+        {
+          "item": "adaptive_matrix",
+          "weight": 2
+        },
+        {
+          "item": "archive_component",
+          "weight": 8,
+          "min_count": 5,
+          "max_count": 10
+        },
+        {
+          "item": "data_crystal",
+          "weight": 5,
+          "min_count": 3,
+          "max_count": 6
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "S(@5 &Blue &LightBlue)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "S(@12 &LightBlue &White)"
+        }
+      ]
+    },
+    {
+      "id": "refraction_beast",
+      "name": "Refraction Beast",
+      "glyph": "R",
+      "max_hp": 55,
+      "damage_min": 12,
+      "damage_max": 22,
+      "sight_range": 8,
+      "level": 20,
+      "xp_value": 280,
+      "description": "Massive predator evolved from countless storm exposures",
+      "faction": "glass_spirits",
+      "tags": ["glass", "beast", "evolved"],
+      "behaviors": [
+        {
+          "type": "reflect_damage",
+          "percent": 40
+        },
+        {
+          "type": "pack_coordination",
+          "range": 10
+        },
+        {
+          "type": "enrage",
+          "condition": "hp_below_40",
+          "damage": 8,
+          "duration": 12
+        }
+      ],
+      "resistances": {
+        "fire": 0.3,
+        "cold": 0.3,
+        "physical": 0.2
+      },
+      "loot_table": [
+        {
+          "item": "beast_hide",
+          "weight": 3
+        },
+        {
+          "item": "refraction_claw",
+          "weight": 2
+        },
+        {
+          "item": "storm_glass",
+          "weight": 12,
+          "min_count": 8,
+          "max_count": 15
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "W(@6 &LightYellow &Yellow)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "W(@12 &Yellow &LightYellow)"
+        }
+      ]
+    },
+    {
+      "id": "storm_caller",
+      "name": "Storm Caller",
+      "glyph": "C",
+      "max_hp": 45,
+      "damage_min": 14,
+      "damage_max": 24,
+      "sight_range": 12,
+      "level": 24,
+      "xp_value": 300,
+      "description": "Transformed prophet who channels the fury of glass storms",
+      "faction": "storm_cultists",
+      "tags": ["storm", "caller", "prophet"],
+      "ranged_attack": true,
+      "attack_range": 10,
+      "aoe_attack": true,
+      "aoe_radius": 5,
+      "aoe_warning_turns": 3,
+      "is_spawner": true,
+      "spawn_rate": 5,
+      "max_spawns": 6,
+      "spawn_types": ["storm_herald"],
+      "behaviors": [
+        {
+          "type": "summon",
+          "spawns": "storm_herald",
+          "count": 2,
+          "cooldown": 8
+        }
+      ],
+      "resistances": {
+        "lightning": 0.1,
+        "fire": 0.4
+      },
+      "vulnerabilities": {
+        "cold": 1.5
+      },
+      "loot_table": [
+        {
+          "item": "storm_staff",
+          "weight": 1
+        },
+        {
+          "item": "caller_robes",
+          "weight": 2
+        },
+        {
+          "item": "storm_glass",
+          "weight": 15,
+          "min_count": 12,
+          "max_count": 20
+        },
+        {
+          "item": "storm_prophecy",
+          "weight": 4,
+          "min_count": 2,
+          "max_count": 4
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "W(@20 &Yellow)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "W(@8 &LightYellow)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "W(@18 &Yellow &LightYellow)"
+        }
+      ]
+    },
+    {
+      "id": "dune_stalker",
+      "name": "Dune Stalker",
+      "glyph": "D",
+      "max_hp": 50,
+      "damage_min": 16,
+      "damage_max": 26,
+      "sight_range": 14,
+      "level": 26,
+      "xp_value": 350,
+      "description": "Apex predator that hunts across the endless salt flats",
+      "faction": "salt_traders",
+      "tags": ["salt", "stalker", "apex"],
+      "behaviors": [
+        {
+          "type": "pack_coordination",
+          "range": 15
+        },
+        {
+          "type": "heat_vision",
+          "range": 20
+        }
+      ],
+      "resistances": {
+        "fire": 0.6,
+        "poison": 0.3
+      },
+      "loot_table": [
+        {
+          "item": "stalker_hide",
+          "weight": 2
+        },
+        {
+          "item": "apex_fang",
+          "weight": 1
+        },
+        {
+          "item": "salt_crystal",
+          "weight": 10,
+          "min_count": 8,
+          "max_count": 15
+        },
+        {
+          "item": "dune_essence",
+          "weight": 3
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "D(@8 &Yellow &LightYellow)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "D(@15 &Yellow)"
+        }
+      ]
+    }
+  ]
+}

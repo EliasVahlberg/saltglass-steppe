@@ -1,0 +1,242 @@
+{
+  "schema": "enemies_v1",
+  "enemies": [
+    {
+      "id": "shard_spider",
+      "name": "Shard Spider",
+      "glyph": "s",
+      "max_hp": 4,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 4,
+      "level": 1,
+      "xp_value": 8,
+      "description": "Skitters on glass legs, feeds on blood to increase refraction",
+      "faction": "glass_spirits",
+      "tags": ["glass", "swarm", "small"],
+      "swarm": true,
+      "behaviors": [
+        {
+          "type": "poison_sting",
+          "damage": 1,
+          "duration": 3
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "glass_shard",
+          "weight": 4,
+          "min_count": 1,
+          "max_count": 2
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "S(@2 &Cyan)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "S(@1 &LightCyan)"
+        }
+      ]
+    },
+    {
+      "id": "mirage_hound",
+      "name": "Mirage Hound",
+      "glyph": "h",
+      "max_hp": 6,
+      "damage_min": 2,
+      "damage_max": 3,
+      "sight_range": 6,
+      "level": 2,
+      "xp_value": 12,
+      "description": "Shimmering predator that hunts by heat signature",
+      "faction": "glass_spirits",
+      "tags": ["glass", "predator", "heat"],
+      "behaviors": [
+        {
+          "type": "heat_vision",
+          "range": 8
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "salted_meat",
+          "weight": 3
+        },
+        {
+          "item": "brine_vial",
+          "weight": 1
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "W(@4 &LightYellow)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "D(@6 &Yellow)"
+        }
+      ]
+    },
+    {
+      "id": "salt_wraith",
+      "name": "Salt Wraith",
+      "glyph": "w",
+      "max_hp": 5,
+      "damage_min": 1,
+      "damage_max": 3,
+      "sight_range": 5,
+      "level": 1,
+      "xp_value": 10,
+      "description": "Desiccated spirit bound to salt deposits",
+      "tags": ["salt", "undead", "spirit"],
+      "demeanor": "defensive",
+      "resistances": {
+        "physical": 0.5
+      },
+      "vulnerabilities": {
+        "fire": 1.5
+      },
+      "loot_table": [
+        {
+          "item": "salt_crystal",
+          "weight": 4
+        },
+        {
+          "item": "veil_tincture",
+          "weight": 1
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "D(@4 &White)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "D(@8 &DarkGray)"
+        }
+      ]
+    },
+    {
+      "id": "glass_crawler",
+      "name": "Glass Crawler",
+      "glyph": "c",
+      "max_hp": 8,
+      "damage_min": 2,
+      "damage_max": 4,
+      "sight_range": 4,
+      "level": 3,
+      "xp_value": 15,
+      "description": "Insectoid scavenger with crystalline carapace",
+      "faction": "glass_spirits",
+      "tags": ["glass", "insect", "scavenger"],
+      "armor": 1,
+      "behaviors": [
+        {
+          "type": "reflect_damage",
+          "percent": 25
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "glass_shard",
+          "weight": 5,
+          "min_count": 2,
+          "max_count": 4
+        },
+        {
+          "item": "carapace_fragment",
+          "weight": 2
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "S(@3 &Cyan &LightCyan)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "S(@2 &LightCyan &White)"
+        }
+      ]
+    },
+    {
+      "id": "brine_leech",
+      "name": "Brine Leech",
+      "glyph": "l",
+      "max_hp": 3,
+      "damage_min": 1,
+      "damage_max": 2,
+      "sight_range": 3,
+      "level": 1,
+      "xp_value": 6,
+      "description": "Parasitic worm that feeds on salt and moisture",
+      "tags": ["salt", "parasite", "small"],
+      "swarm": true,
+      "behaviors": [
+        {
+          "type": "poison_sting",
+          "damage": 0,
+          "duration": 5
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "salt_crystal",
+          "weight": 2
+        },
+        {
+          "item": "brine_vial",
+          "weight": 3
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "W(@2 &White)"
+        }
+      ]
+    },
+    {
+      "id": "dust_devil",
+      "name": "Dust Devil",
+      "glyph": "d",
+      "max_hp": 7,
+      "damage_min": 2,
+      "damage_max": 3,
+      "sight_range": 6,
+      "level": 2,
+      "xp_value": 14,
+      "description": "Miniature whirlwind animated by storm residue",
+      "faction": "storm_cultists",
+      "tags": ["storm", "wind", "elemental"],
+      "resistances": {
+        "physical": 0.3
+      },
+      "loot_table": [
+        {
+          "item": "storm_glass",
+          "weight": 2
+        },
+        {
+          "item": "compressed_sand",
+          "weight": 3
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_hit",
+          "effect": "D(@3 &Yellow)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "D(@6 &DarkGray)"
+        }
+      ]
+    }
+  ]
+}

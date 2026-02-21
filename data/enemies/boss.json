@@ -1,0 +1,581 @@
+{
+  "schema": "enemies_v1",
+  "enemies": [
+    {
+      "id": "prism_tyrant",
+      "name": "Prism Tyrant",
+      "glyph": "Ψ",
+      "max_hp": 150,
+      "damage_min": 25,
+      "damage_max": 45,
+      "sight_range": 15,
+      "level": 30,
+      "xp_value": 800,
+      "armor": 8,
+      "description": "Colossal glass entity that bends light and reality to its will",
+      "faction": "glass_spirits",
+      "tags": ["glass", "tyrant", "colossal"],
+      "ranged_attack": true,
+      "attack_range": 12,
+      "aoe_attack": true,
+      "aoe_radius": 8,
+      "aoe_warning_turns": 4,
+      "is_spawner": true,
+      "spawn_rate": 4,
+      "max_spawns": 12,
+      "spawn_types": ["shard_sentinel", "crystal_scarab"],
+      "behaviors": [
+        {
+          "type": "laser_beam",
+          "range": 15,
+          "damage": 40,
+          "cooldown": 2
+        },
+        {
+          "type": "reflect_damage",
+          "percent": 80
+        },
+        {
+          "type": "summon",
+          "spawns": "shard_sentinel",
+          "count": 2,
+          "cooldown": 6
+        }
+      ],
+      "resistances": {
+        "physical": 0.5,
+        "fire": 0.2,
+        "cold": 0.2,
+        "poison": 0.0
+      },
+      "vulnerabilities": {
+        "lightning": 2.0
+      },
+      "immunities": ["poison"],
+      "phases": [
+        {
+          "hp_threshold": 50,
+          "glyph": "Ω",
+          "behaviors": ["enrage", "teleport"],
+          "damage_multiplier": 1.5,
+          "armor": 10
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "prism_crown",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "tyrant_core",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "storm_glass",
+          "weight": 30,
+          "min_count": 25,
+          "max_count": 50,
+          "guaranteed": true
+        },
+        {
+          "item": "reality_lens",
+          "weight": 1
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "S(@50 &LightCyan &White)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "S(@15 &Cyan &LightCyan &White)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "S(@30 &LightCyan &White)"
+        }
+      ]
+    },
+    {
+      "id": "void_emperor",
+      "name": "Void Emperor",
+      "glyph": "Ξ",
+      "max_hp": 200,
+      "damage_min": 35,
+      "damage_max": 60,
+      "sight_range": 20,
+      "level": 40,
+      "xp_value": 1200,
+      "description": "Ultimate void entity that seeks to unmake reality itself",
+      "faction": "void_touched",
+      "tags": ["void", "emperor", "ultimate"],
+      "ranged_attack": true,
+      "attack_range": 15,
+      "aoe_attack": true,
+      "aoe_radius": 10,
+      "aoe_warning_turns": 5,
+      "is_spawner": true,
+      "spawn_rate": 3,
+      "max_spawns": 8,
+      "spawn_types": ["void_sovereign", "light_eater"],
+      "behaviors": [
+        {
+          "type": "teleport",
+          "range": 25,
+          "cooldown": 1
+        },
+        {
+          "type": "summon",
+          "spawns": "void_sovereign",
+          "count": 1,
+          "cooldown": 8
+        }
+      ],
+      "resistances": {
+        "physical": 0.9,
+        "fire": 0.7,
+        "cold": 0.7,
+        "poison": 0.0
+      },
+      "vulnerabilities": {
+        "lightning": 4.0
+      },
+      "immunities": ["poison", "stun", "immobilized"],
+      "phases": [
+        {
+          "hp_threshold": 75,
+          "behaviors": ["reality_warp"],
+          "damage_multiplier": 1.2
+        },
+        {
+          "hp_threshold": 25,
+          "glyph": "Θ",
+          "behaviors": ["void_storm", "mass_teleport"],
+          "damage_multiplier": 2.0,
+          "resistances": {
+            "physical": 0.95,
+            "fire": 0.8,
+            "cold": 0.8
+          }
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "void_throne",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "emperor_essence",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "reality_fragment",
+          "weight": 3,
+          "min_count": 5,
+          "max_count": 10,
+          "guaranteed": true
+        },
+        {
+          "item": "void_essence",
+          "weight": 50,
+          "min_count": 30,
+          "max_count": 60,
+          "guaranteed": true
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "F(@100 &DarkGray)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "D(@20 &DarkGray)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "F(@50 &DarkGray)"
+        }
+      ]
+    },
+    {
+      "id": "storm_sovereign",
+      "name": "Storm Sovereign",
+      "glyph": "Σ",
+      "max_hp": 180,
+      "damage_min": 30,
+      "damage_max": 50,
+      "sight_range": 18,
+      "level": 35,
+      "xp_value": 1000,
+      "description": "Living embodiment of the glass storms' fury and transformation",
+      "faction": "storm_cultists",
+      "tags": ["storm", "sovereign", "embodiment"],
+      "spawns_during_storm": true,
+      "ranged_attack": true,
+      "attack_range": 12,
+      "aoe_attack": true,
+      "aoe_radius": 6,
+      "aoe_warning_turns": 3,
+      "is_spawner": true,
+      "spawn_rate": 2,
+      "max_spawns": 10,
+      "spawn_types": ["storm_phantom", "storm_caller"],
+      "behaviors": [
+        {
+          "type": "teleport",
+          "range": 20,
+          "cooldown": 2
+        },
+        {
+          "type": "summon",
+          "spawns": "storm_phantom",
+          "count": 2,
+          "cooldown": 5
+        }
+      ],
+      "resistances": {
+        "lightning": 0.0,
+        "fire": 0.3,
+        "physical": 0.4
+      },
+      "vulnerabilities": {
+        "cold": 2.0
+      },
+      "immunities": ["lightning"],
+      "phases": [
+        {
+          "hp_threshold": 60,
+          "behaviors": ["storm_intensify"],
+          "damage_multiplier": 1.3
+        },
+        {
+          "hp_threshold": 20,
+          "glyph": "Ϟ",
+          "behaviors": ["reality_storm", "mass_summon"],
+          "damage_multiplier": 1.8,
+          "aoe_radius": 10
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "storm_crown",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "sovereign_core",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "storm_glass",
+          "weight": 40,
+          "min_count": 40,
+          "max_count": 80,
+          "guaranteed": true
+        },
+        {
+          "item": "tempest_shard",
+          "weight": 2,
+          "min_count": 3,
+          "max_count": 6
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "W(@80 &Yellow &LightYellow)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "W(@12 &LightYellow)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "W(@40 &Yellow &LightYellow &White)"
+        }
+      ]
+    },
+    {
+      "id": "archive_overmind",
+      "name": "Archive Overmind",
+      "glyph": "Ω",
+      "max_hp": 120,
+      "damage_min": 20,
+      "damage_max": 40,
+      "sight_range": 16,
+      "level": 32,
+      "xp_value": 900,
+      "armor": 10,
+      "description": "Central AI consciousness that guards the deepest archive secrets",
+      "faction": "archive_drones",
+      "tags": ["archive", "overmind", "ai"],
+      "ranged_attack": true,
+      "attack_range": 14,
+      "aoe_attack": true,
+      "aoe_radius": 5,
+      "aoe_warning_turns": 4,
+      "is_spawner": true,
+      "spawn_rate": 3,
+      "max_spawns": 6,
+      "spawn_types": ["archive_sentinel", "archive_custodian"],
+      "behaviors": [
+        {
+          "type": "laser_beam",
+          "range": 16,
+          "damage": 35,
+          "cooldown": 2
+        },
+        {
+          "type": "summon",
+          "spawns": "archive_sentinel",
+          "count": 1,
+          "cooldown": 7
+        }
+      ],
+      "resistances": {
+        "poison": 0.0,
+        "cold": 0.1,
+        "fire": 0.1,
+        "physical": 0.6,
+        "lightning": 0.3
+      },
+      "immunities": ["poison", "stun"],
+      "phases": [
+        {
+          "hp_threshold": 50,
+          "behaviors": ["system_override"],
+          "damage_multiplier": 1.4,
+          "armor": 12
+        },
+        {
+          "hp_threshold": 15,
+          "glyph": "Φ",
+          "behaviors": ["emergency_protocol", "mass_summon"],
+          "damage_multiplier": 2.0,
+          "armor": 15
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "overmind_core",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "master_access_key",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "archive_component",
+          "weight": 25,
+          "min_count": 20,
+          "max_count": 40,
+          "guaranteed": true
+        },
+        {
+          "item": "consciousness_matrix",
+          "weight": 1
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "S(@60 &Blue &LightBlue)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "S(@10 &LightBlue)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "S(@25 &Blue &LightBlue &White)"
+        }
+      ]
+    },
+    {
+      "id": "salt_emperor",
+      "name": "Salt Emperor",
+      "glyph": "Ε",
+      "max_hp": 160,
+      "damage_min": 28,
+      "damage_max": 48,
+      "sight_range": 14,
+      "level": 38,
+      "xp_value": 1100,
+      "armor": 6,
+      "description": "Ancient ruler of the salt wastes, preserved for millennia",
+      "tags": ["salt", "emperor", "ancient"],
+      "aoe_attack": true,
+      "aoe_radius": 8,
+      "aoe_warning_turns": 4,
+      "is_spawner": true,
+      "spawn_rate": 2,
+      "max_spawns": 15,
+      "spawn_types": ["salt_lord", "salt_mummy"],
+      "behaviors": [
+        {
+          "type": "summon",
+          "spawns": "salt_lord",
+          "count": 2,
+          "cooldown": 6
+        }
+      ],
+      "resistances": {
+        "poison": 0.0,
+        "cold": 0.1,
+        "fire": 0.4,
+        "physical": 0.3
+      },
+      "immunities": ["poison", "frozen"],
+      "phases": [
+        {
+          "hp_threshold": 40,
+          "behaviors": ["salt_storm"],
+          "damage_multiplier": 1.5,
+          "aoe_radius": 12
+        },
+        {
+          "hp_threshold": 10,
+          "glyph": "Ξ",
+          "behaviors": ["desiccation_wave", "mass_resurrection"],
+          "damage_multiplier": 2.2,
+          "armor": 8
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "emperor_crown",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "salt_scepter",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "salt_crystal",
+          "weight": 60,
+          "min_count": 50,
+          "max_count": 100,
+          "guaranteed": true
+        },
+        {
+          "item": "preservation_essence",
+          "weight": 2,
+          "min_count": 4,
+          "max_count": 8
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "F(@70 &White)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "F(@15 &White)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "D(@35 &LightGray &White)"
+        }
+      ]
+    },
+    {
+      "id": "pilgrim_saint",
+      "name": "Pilgrim Saint",
+      "glyph": "Ϟ",
+      "max_hp": 140,
+      "damage_min": 22,
+      "damage_max": 42,
+      "sight_range": 12,
+      "level": 45,
+      "xp_value": 1500,
+      "description": "Ascended seeker who achieved perfect unity with the storms",
+      "faction": "pilgrims",
+      "tags": ["pilgrim", "saint", "ascended"],
+      "ranged_attack": true,
+      "attack_range": 10,
+      "aoe_attack": true,
+      "aoe_radius": 6,
+      "aoe_warning_turns": 3,
+      "behaviors": [
+        {
+          "type": "teleport",
+          "range": 15,
+          "cooldown": 3
+        }
+      ],
+      "resistances": {
+        "poison": 0.0,
+        "physical": 0.5,
+        "fire": 0.2,
+        "cold": 0.2,
+        "lightning": 0.1
+      },
+      "immunities": ["poison", "stun", "blinded"],
+      "phases": [
+        {
+          "hp_threshold": 30,
+          "glyph": "Ψ",
+          "behaviors": ["divine_wrath", "reality_blessing"],
+          "damage_multiplier": 1.8,
+          "resistances": {
+            "physical": 0.7,
+            "fire": 0.1,
+            "cold": 0.1,
+            "lightning": 0.0
+          }
+        }
+      ],
+      "loot_table": [
+        {
+          "item": "saint_halo",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "pilgrim_staff_ultimate",
+          "weight": 1,
+          "guaranteed": true
+        },
+        {
+          "item": "scripture_shard",
+          "weight": 20,
+          "min_count": 15,
+          "max_count": 30,
+          "guaranteed": true
+        },
+        {
+          "item": "divine_essence",
+          "weight": 1,
+          "min_count": 3,
+          "max_count": 6
+        }
+      ],
+      "effects": [
+        {
+          "condition": "on_spawn",
+          "effect": "W(@90 &LightGray &White)"
+        },
+        {
+          "condition": "on_hit",
+          "effect": "W(@8 &White)"
+        },
+        {
+          "condition": "on_death",
+          "effect": "W(@50 &LightGray &White)"
+        }
+      ]
+    }
+  ]
+}
