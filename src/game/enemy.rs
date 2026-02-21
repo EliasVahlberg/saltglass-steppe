@@ -114,16 +114,41 @@ fn default_level() -> u32 {
 
 #[derive(Deserialize)]
 struct EnemiesFile {
+    schema: String,
     enemies: Vec<EnemyDef>,
 }
 
 static ENEMY_DEFS: Lazy<HashMap<String, EnemyDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/enemies.json");
-    let file: EnemiesFile = serde_json::from_str(data).expect("Failed to parse enemies.json");
-    file.enemies
-        .into_iter()
-        .map(|d| (d.id.clone(), d))
-        .collect()
+    let mut all_enemies = HashMap::new();
+    
+    // Load all enemy files from data/enemies/ directory
+    let enemy_files = [
+        ("common", include_str!("../../data/enemies/common.json")),
+        ("uncommon", include_str!("../../data/enemies/uncommon.json")),
+        ("rare", include_str!("../../data/enemies/rare.json")),
+        ("elite", include_str!("../../data/enemies/elite.json")),
+        ("boss", include_str!("../../data/enemies/boss.json")),
+    ];
+    
+    for (tier, data) in enemy_files {
+        let file: EnemiesFile = serde_json::from_str(data)
+            .unwrap_or_else(|e| panic!("Failed to parse enemies/{}.json: {}", tier, e));
+        
+        // Validate schema version
+        if file.schema != "enemies_v1" {
+            panic!("Invalid schema version in enemies/{}.json: expected 'enemies_v1', got '{}'", tier, file.schema);
+        }
+        
+        // Check for duplicate IDs
+        for enemy in file.enemies {
+            if all_enemies.contains_key(&enemy.id) {
+                panic!("Duplicate enemy ID '{}' found in enemies/{}.json", enemy.id, tier);
+            }
+            all_enemies.insert(enemy.id.clone(), enemy);
+        }
+    }
+    
+    all_enemies
 });
 
 pub fn get_enemy_def(id: &str) -> Option<&'static EnemyDef> {
