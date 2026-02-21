@@ -30,6 +30,7 @@ pub struct WorldMapView {
     pub open: bool,
     pub cursor_x: usize,
     pub cursor_y: usize,
+    pub inspect_mode: bool,
 }
 
 impl WorldMapView {
@@ -38,12 +39,17 @@ impl WorldMapView {
         if self.open {
             self.cursor_x = player_wx;
             self.cursor_y = player_wy;
+            self.inspect_mode = false;
         }
     }
 
     pub fn move_cursor(&mut self, dx: i32, dy: i32) {
         self.cursor_x = (self.cursor_x as i32 + dx).clamp(0, WORLD_WIDTH as i32 - 1) as usize;
         self.cursor_y = (self.cursor_y as i32 + dy).clamp(0, WORLD_HEIGHT as i32 - 1) as usize;
+    }
+
+    pub fn toggle_inspect(&mut self) {
+        self.inspect_mode = !self.inspect_mode;
     }
 }
 
@@ -102,8 +108,17 @@ pub fn render_world_map(
     view: &WorldMapView,
     state: &GameState,
 ) {
+    let mode_str = if view.inspect_mode { "INSPECT" } else { "TRAVEL" };
+    let title = if state.world.world_map_target.is_some() {
+        format!(" World Map [{}] [Target Set - O auto-move, T clear] ", mode_str)
+    } else if view.inspect_mode {
+        " World Map [INSPECT] [X travel mode, T set target] ".to_string()
+    } else {
+        " World Map [TRAVEL] [X inspect mode, arrows move] ".to_string()
+    };
+    
     let block = Block::default()
-        .title(" World Map [M close, arrows move, Enter travel, C center] ")
+        .title(title)
         .borders(Borders::ALL)
         .border_style(Style::default().fg(Color::Cyan));
 
@@ -112,7 +127,7 @@ pub fn render_world_map(
 
     // Calculate viewport (center on cursor)
     let view_width = inner.width as usize;
-    let view_height = inner.height.saturating_sub(2) as usize; // Leave room for info
+    let view_height = inner.height.saturating_sub(2) as usize; // Leave room for 2 info lines
 
     let half_w = view_width / 2;
     let half_h = view_height / 2;
@@ -123,14 +138,20 @@ pub fn render_world_map(
     let end_y = (start_y + view_height).min(WORLD_HEIGHT);
 
     // Render map tiles
+    let path_set: std::collections::HashSet<(usize, usize)> = 
+        state.world.world_map_path.iter().copied().collect();
+    
     for (screen_y, world_y) in (start_y..end_y).enumerate() {
         for (screen_x, world_x) in (start_x..end_x).enumerate() {
             let (biome, terrain, _elev, poi, resources, connected, level) =
                 world_map.get(world_x, world_y);
 
+            let is_on_path = path_set.contains(&(world_x, world_y));
+            let show_cursor = view.inspect_mode || state.world.world_map_target.is_some();
+            
             let (ch, fg) = if world_x == player_wx && world_y == player_wy {
                 ('@', Color::White)
-            } else if world_x == view.cursor_x && world_y == view.cursor_y {
+            } else if show_cursor && world_x == view.cursor_x && world_y == view.cursor_y {
                 ('X', Color::LightYellow)
             } else if has_quest_objective_at(state, world_x, world_y) {
                 // Highlight tiles with quest objectives
@@ -154,8 +175,10 @@ pub fn render_world_map(
                 (terrain_glyph(terrain), biome_color(biome))
             };
 
-            // Use level for background color to show threat zones
-            let bg = if level > 1 {
+            // Determine background color (path takes priority over threat level)
+            let bg = if is_on_path {
+                Some(Color::DarkGray)
+            } else if level > 1 {
                 Some(level_color(level))
             } else {
                 None
@@ -177,32 +200,59 @@ pub fn render_world_map(
         }
     }
 
-    // Render info bar at bottom
+    // Render info bar at bottom (2 lines)
+    // Determine which position to show info for
+    let (info_x, info_y_coord) = if view.inspect_mode {
+        (view.cursor_x, view.cursor_y)
+    } else {
+        (player_wx, player_wy)
+    };
+    
     let (biome, terrain, _elev, poi, resources, _connected, level) =
-        world_map.get(view.cursor_x, view.cursor_y);
+        world_map.get(info_x, info_y_coord);
     let poi_str = match poi {
         POI::None => "",
-        POI::Town => " [Town]",
-        POI::Dungeon => " [Dungeon]",
-        POI::Landmark => " [Landmark]",
-        POI::Shrine => " [Shrine]",
+        POI::Town => " Town",
+        POI::Dungeon => " Dungeon",
+        POI::Landmark => " Landmark",
+        POI::Shrine => " Shrine",
     };
     let res_str = if resources.water { " Water" } else { "" };
-    let level_str = match level {
-        1 => " [Safe]",
-        2..=3 => " [Low Threat]",
-        4..=6 => " [Medium Threat]",
-        7..=8 => " [High Threat]",
-        9..=10 => " [EXTREME THREAT]",
-        _ => " [UNKNOWN THREAT]",
+    let threat_str = match level {
+        1 => "Safe",
+        2..=3 => "Low Threat",
+        4..=6 => "Medium Threat",
+        7..=8 => "High Threat",
+        9..=10 => "EXTREME THREAT",
+        _ => "Unknown Threat",
     };
-    let info = format!(
-        "({},{}) {:?} {:?}{}{}{} | @ = You, X = Cursor | Level {}",
-        view.cursor_x, view.cursor_y, biome, terrain, poi_str, res_str, level_str, level
+    
+    // Line 1: Legend and tile info
+    let legend = if view.inspect_mode || state.world.world_map_target.is_some() {
+        "@ = You, X = Cursor"
+    } else {
+        "@ = You"
+    };
+    let tile_info = format!(
+        "({},{}) {:?} {:?}{}{} [{}] Level {}",
+        info_x, info_y_coord, biome, terrain, poi_str, res_str, threat_str, level
     );
-    let info_y = inner.y + inner.height.saturating_sub(1);
+    let info_line = format!("{} | {}", legend, tile_info);
+    let info_y = inner.y + inner.height.saturating_sub(2);
     frame.render_widget(
-        Paragraph::new(info).style(Style::default().fg(Color::Gray)),
+        Paragraph::new(info_line).style(Style::default().fg(Color::Gray)),
         Rect::new(inner.x, info_y, inner.width, 1),
+    );
+    
+    // Line 2: Turn counter and recent log message
+    let turn_info = format!("Turn: {} | ", state.turn);
+    let recent_log = state.messages.last()
+        .map(|msg| msg.text.as_str())
+        .unwrap_or("");
+    let status_line = format!("{}{}", turn_info, recent_log);
+    let status_y = inner.y + inner.height.saturating_sub(1);
+    frame.render_widget(
+        Paragraph::new(status_line).style(Style::default().fg(Color::White)),
+        Rect::new(inner.x, status_y, inner.width, 1),
     );
 }

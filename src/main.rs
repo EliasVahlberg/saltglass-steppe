@@ -284,7 +284,45 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::WorldMapTravel(wx, wy) => {
             if state.player.hp > 0 && state.player.layer == 0 {
-                state.travel_to_tile_safe(wx, wy);
+                // Block travel during encounters
+                if state.world.encounter_state.is_some() {
+                    state.log("You cannot travel while in an encounter!");
+                } else {
+                    state.travel_to_tile_safe(wx, wy);
+                }
+            }
+        }
+        Action::WorldMapMove(dx, dy) => {
+            if state.player.hp > 0 && state.player.layer == 0 {
+                let new_wx = (state.world.world_x as i32 + dx).clamp(0, 191) as usize;
+                let new_wy = (state.world.world_y as i32 + dy).clamp(0, 63) as usize;
+                
+                if new_wx != state.world.world_x || new_wy != state.world.world_y {
+                    // Clear path on manual movement
+                    state.world.world_map_path.clear();
+                    state.world.world_map_target = None;
+                    
+                    // Use fast worldmap movement
+                    if let Some(encounter_msg) = state.move_on_world_map(new_wx, new_wy) {
+                        // Encounter triggered - show popup and close worldmap
+                        ui.dialog_box.show("Encounter!", &encounter_msg);
+                        ui.world_map_view.open = false;
+                    }
+                }
+            }
+        }
+        Action::WorldMapAutoMove => {
+            if state.player.hp > 0 && state.player.layer == 0 {
+                match state.move_along_path() {
+                    Ok(true) => {
+                        // Check if encounter triggered during auto-move
+                        if state.world.encounter_state.is_some() {
+                            ui.world_map_view.open = false;
+                        }
+                    }
+                    Ok(false) => state.log("No path set."),
+                    Err(msg) => state.log(&msg),
+                }
             }
         }
         Action::Craft => {

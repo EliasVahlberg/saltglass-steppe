@@ -62,6 +62,19 @@ pub struct WorldState {
     #[serde(skip)]
     pub light_map: LightMap,
 
+    // Encounter system
+    pub encounter_state: Option<super::encounter::EncounterState>,
+    #[serde(default)]
+    pub encounter_history: HashMap<(usize, usize), u32>,
+    #[serde(default)]
+    pub total_tiles_traveled: u64,
+
+    // World map pathfinding
+    #[serde(default)]
+    pub world_map_target: Option<(usize, usize)>,
+    #[serde(default)]
+    pub world_map_path: Vec<(usize, usize)>,
+
     // Spatial indexing (computed on load)
     #[serde(skip)]
     pub enemy_positions: HashMap<(i32, i32), usize>,

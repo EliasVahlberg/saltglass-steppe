@@ -54,6 +54,8 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
             return Ok(MenuAction::None);
         }
 
+        // TODO(keyboard-config): Migrate hardcoded KeyCode matches to keyboard_config.json
+        // See docs/development/KEYBOARD_CONFIG_MIGRATION.md for full migration plan
         if state.seed_input {
             // Seed input mode
             return Ok(match key.code {

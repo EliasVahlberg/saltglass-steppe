@@ -1,5 +1,5 @@
 use bracket_pathfinding::prelude::*;
-use rand::{Rng, SeedableRng};
+use rand::{Rng, SeedableRng, seq::SliceRandom};
 use rand_chacha::ChaCha8Rng;
 use ratatui::style::Color;
 use serde::{Deserialize, Serialize};
@@ -490,6 +490,11 @@ impl GameState {
             ambient_light: ambient,
             visual_effects: super::visual_effects::VisualEffects::default(),
             light_map: light_map.clone(),
+            encounter_state: None,
+            encounter_history: HashMap::new(),
+            total_tiles_traveled: 0,
+            world_map_target: None,
+            world_map_path: Vec::new(),
             enemy_positions: HashMap::new(),
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),
@@ -1014,6 +1019,81 @@ impl GameState {
     }
 
     /// Travel to a world tile with safe spawn (not on wall/enemy/glass)
+    /// Move on world map without generating tile (for fast worldmap travel)
+    pub fn move_on_world_map(&mut self, new_wx: usize, new_wy: usize) -> Option<String> {
+        use super::travel;
+
+        let from = (self.world.world_x, self.world.world_y);
+        let to = (new_wx, new_wy);
+
+        // Reject non-adjacent travel
+        if !travel::is_adjacent(from, to) {
+            return Some("Too far to travel in one step. Move to an adjacent tile.".to_string());
+        }
+
+        // Calculate and apply travel cost
+        if let Some(wm) = &self.world.world_map {
+            let (biome, terrain, _elev, _poi, _res, _conn, level) = wm.get(new_wx, new_wy);
+            let cost = travel::travel_cost(terrain, biome);
+            self.turn += cost;
+            self.world.total_tiles_traveled += 1;
+            
+            // Check for encounter
+            let last_encounter = self.world.encounter_history.get(&(new_wx, new_wy)).copied().unwrap_or(0);
+            if super::encounter::should_trigger_encounter(
+                self.seed,
+                new_wx,
+                new_wy,
+                self.world.total_tiles_traveled,
+                level,
+                last_encounter,
+                self.turn,
+            ) {
+                // Generate encounter
+                let encounter = super::encounter::generate_encounter(
+                    self.seed,
+                    new_wx,
+                    new_wy,
+                    self.world.total_tiles_traveled,
+                    level,
+                    biome.as_str(),
+                );
+                
+                // Create encounter message for popup
+                let encounter_msg = match &encounter.encounter_type {
+                    super::encounter::EncounterType::Hostile { threat_points } => {
+                        format!("⚔ Hostile encounter! (Threat: {})", threat_points)
+                    }
+                    super::encounter::EncounterType::Neutral { description, .. } => {
+                        description.clone()
+                    }
+                    super::encounter::EncounterType::Beneficial { boon_points } => {
+                        format!("✨ You discover something! (Value: {})", boon_points)
+                    }
+                };
+                
+                self.world.encounter_state = Some(encounter);
+                self.world.encounter_history.insert((new_wx, new_wy), self.turn);
+                
+                // Update world position
+                self.world.world_x = new_wx;
+                self.world.world_y = new_wy;
+                
+                // Generate tile for encounter
+                self.travel_to_tile(new_wx, new_wy);
+                self.spawn_encounter_entities();
+                
+                return Some(encounter_msg);
+            }
+            
+            // No encounter - just update position without generating tile
+            self.world.world_x = new_wx;
+            self.world.world_y = new_wy;
+        }
+
+        None
+    }
+
     pub fn travel_to_tile_safe(&mut self, new_wx: usize, new_wy: usize) {
         use super::travel;
 
@@ -1028,10 +1108,56 @@ impl GameState {
 
         // Calculate and apply travel cost before generating the tile
         if let Some(wm) = &self.world.world_map {
-            let (biome, terrain, _elev, _poi, _res, _conn, _lvl) =
+            let (biome, terrain, _elev, _poi, _res, _conn, level) =
                 wm.get(new_wx, new_wy);
             let cost = travel::travel_cost(terrain, biome);
             self.turn += cost;
+            self.world.total_tiles_traveled += 1;
+            
+            // Check for encounter
+            let last_encounter = self.world.encounter_history.get(&(new_wx, new_wy)).copied().unwrap_or(0);
+            if super::encounter::should_trigger_encounter(
+                self.seed,
+                new_wx,
+                new_wy,
+                self.world.total_tiles_traveled,
+                level,
+                last_encounter,
+                self.turn,
+            ) {
+                // Generate encounter before entering tile
+                let encounter = super::encounter::generate_encounter(
+                    self.seed,
+                    new_wx,
+                    new_wy,
+                    self.world.total_tiles_traveled,
+                    level,
+                    biome.as_str(),
+                );
+                
+                // Log encounter message
+                match &encounter.encounter_type {
+                    super::encounter::EncounterType::Hostile { threat_points } => {
+                        self.log_typed(
+                            format!("⚔ Hostile encounter! (Threat: {})", threat_points),
+                            MsgType::Warning,
+                        );
+                    }
+                    super::encounter::EncounterType::Neutral { description, .. } => {
+                        self.log_typed(description.clone(), MsgType::System);
+                    }
+                    super::encounter::EncounterType::Beneficial { boon_points } => {
+                        self.log_typed(
+                            format!("✨ You discover something! (Value: {})", boon_points),
+                            MsgType::Loot,
+                        );
+                    }
+                }
+                
+                self.world.encounter_state = Some(encounter);
+                self.world.encounter_history.insert((new_wx, new_wy), self.turn);
+            }
+            
             self.log(format!(
                 "Traveled to {:?} {:?} ({cost} turns).",
                 terrain, biome
@@ -1039,6 +1165,11 @@ impl GameState {
         }
 
         self.travel_to_tile(new_wx, new_wy);
+
+        // Spawn encounter entities if needed
+        if self.world.encounter_state.is_some() {
+            self.spawn_encounter_entities();
+        }
 
         // Find safe spawn position (not wall, glass, or enemy)
         let (mut px, mut py) = (self.player.x, self.player.y);
@@ -1076,6 +1207,189 @@ impl GameState {
         self.player.y = py;
         self.update_fov();
         self.update_lighting();
+    }
+
+    /// Spawn entities for the current encounter
+    fn spawn_encounter_entities(&mut self) {
+        use super::generation::spawn::{get_biome_spawn_table, weighted_pick_by_level_and_tier};
+        
+        let encounter = match &self.world.encounter_state {
+            Some(e) => e.clone(),
+            None => return,
+        };
+
+        let (biome, _, _, _, _, _, level) = match &self.world.world_map {
+            Some(wm) => wm.get(encounter.world_x, encounter.world_y),
+            None => return,
+        };
+
+        match &encounter.encounter_type {
+            super::encounter::EncounterType::Hostile { threat_points } => {
+                // Spawn enemies based on threat budget
+                let table = get_biome_spawn_table(&biome);
+                let mut remaining_threat = *threat_points;
+                let mut spawned_indices = Vec::new();
+
+                // Find spawn positions away from player
+                let spawn_positions: Vec<(i32, i32)> = self.world.map.tiles
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(idx, tile)| {
+                        if tile.walkable() {
+                            let x = (idx % self.world.map.width) as i32;
+                            let y = (idx / self.world.map.width) as i32;
+                            let dist = (x - self.player.x).abs() + (y - self.player.y).abs();
+                            if dist >= 15 { Some((x, y)) } else { None }
+                        } else {
+                            None
+                        }
+                    })
+                    .collect();
+
+                let mut spawn_idx = 0;
+                let mut spawned_count = 0;
+                while remaining_threat > 0 && spawn_idx < spawn_positions.len() {
+                    if let Some(enemy_id) = weighted_pick_by_level_and_tier(
+                        &table.enemies,
+                        level,
+                        &mut self.rng,
+                        false,
+                    ) {
+                        // Estimate enemy threat (rough heuristic: level * 2)
+                        let enemy_threat = (level * 2).min(remaining_threat);
+                        remaining_threat = remaining_threat.saturating_sub(enemy_threat);
+
+                        let (x, y) = spawn_positions[spawn_idx];
+                        let enemy_index = self.world.enemies.len();
+                        self.world.enemies.push(Enemy::new(x, y, enemy_id));
+                        spawned_indices.push(enemy_index);
+                        spawned_count += 1;
+                        spawn_idx += 1;
+                    } else {
+                        break;
+                    }
+                }
+                
+                self.log(format!("Encounter spawned {} enemies (threat: {})", spawned_count, threat_points));
+
+                // Update encounter state with spawned enemy indices
+                if let Some(enc) = &mut self.world.encounter_state {
+                    enc.spawned_enemies = spawned_indices;
+                }
+                self.rebuild_spatial_index();
+            }
+            super::encounter::EncounterType::Neutral { event_id, .. } => {
+                match event_id.as_str() {
+                    "trade_caravan" => {
+                        // Spawn 1-2 trader NPCs
+                        let trader_count = self.rng.gen_range(1..=2);
+                        for _ in 0..trader_count {
+                            if let Some((x, y)) = self.find_safe_spawn_position() {
+                                self.world.npcs.push(Npc::new(x, y, "traveling_merchant"));
+                            }
+                        }
+                        self.rebuild_spatial_index();
+                    }
+                    "animal_herd" => {
+                        // Spawn 3-5 non-hostile animals
+                        let animal_count = self.rng.gen_range(3..=5);
+                        for _ in 0..animal_count {
+                            if let Some((_x, _y)) = self.find_safe_spawn_position() {
+                                // TODO: Add non-hostile animal enemy type in future
+                                // For now, just log it
+                            }
+                        }
+                        self.log("A herd of creatures grazes peacefully nearby.");
+                    }
+                    _ => {}
+                }
+            }
+            super::encounter::EncounterType::Beneficial { boon_points } => {
+                // Spawn items based on boon budget
+                let table = get_biome_spawn_table(&biome);
+                let mut remaining_boon = *boon_points;
+                let mut spawned_indices = Vec::new();
+
+                while remaining_boon > 0 && !table.items.is_empty() {
+                    if let Some(item_spawn) = table.items.choose(&mut self.rng) {
+                        if let Some(item_def) = super::item::get_item_def(&item_spawn.id) {
+                            let item_value = item_def.value.min(remaining_boon);
+                            remaining_boon = remaining_boon.saturating_sub(item_value);
+
+                            if let Some((x, y)) = self.find_safe_spawn_position() {
+                                let item_index = self.world.items.len();
+                                self.world.items.push(Item::new(x, y, &item_spawn.id));
+                                spawned_indices.push(item_index);
+                            }
+                        }
+                    } else {
+                        break;
+                    }
+                }
+
+                // Update encounter state with spawned item indices
+                if let Some(enc) = &mut self.world.encounter_state {
+                    enc.spawned_items = spawned_indices;
+                }
+                self.rebuild_spatial_index();
+            }
+        }
+    }
+
+    /// Check if current encounter is complete and clear it
+    pub fn check_encounter_completion(&mut self) {
+        if let Some(encounter) = &self.world.encounter_state {
+            if encounter.is_complete(&self.world.enemies) {
+                // Grant XP for hostile encounters
+                if let super::encounter::EncounterType::Hostile { threat_points } = encounter.encounter_type {
+                    let xp = threat_points * 2; // 2 XP per threat point
+                    self.gain_xp(xp);
+                    self.log_typed(
+                        format!("Encounter complete! +{} XP", xp),
+                        MsgType::Status,
+                    );
+                }
+                
+                self.world.encounter_state = None;
+                self.log("You are free to travel again.");
+            }
+        }
+    }
+
+    /// Attempt to flee from current encounter
+    pub fn attempt_flee_encounter(&mut self) -> Result<(), String> {
+        let encounter = match &self.world.encounter_state {
+            Some(e) => e.clone(),
+            None => return Err("No active encounter.".to_string()),
+        };
+
+        // Check if flee is on cooldown
+        let difficulty_mod = 1.0; // TODO: Calculate from tile danger
+        if !encounter.can_flee(self.turn, difficulty_mod) {
+            return Err("You cannot flee yet!".to_string());
+        }
+
+        // Attempt flee
+        match super::encounter::attempt_flee(
+            self.player.x,
+            self.player.y,
+            &self.world.enemies,
+            &encounter.spawned_enemies,
+            &mut self.rng,
+        ) {
+            Ok(()) => {
+                self.world.encounter_state = None;
+                self.log_typed("You successfully flee the encounter!", MsgType::Status);
+                Ok(())
+            }
+            Err(e) => {
+                // Update last flee attempt
+                if let Some(enc) = &mut self.world.encounter_state {
+                    enc.last_flee_attempt = self.turn;
+                }
+                Err(e)
+            }
+        }
     }
 
     /// Enter subterranean layer (go down stairs)
@@ -1162,6 +1476,80 @@ impl GameState {
             self.log(format!("You ascend to level {}.", -self.world.layer));
         }
         true
+    }
+
+    /// Calculate world map path using A* with danger-based costs
+    pub fn calculate_world_path(&mut self, target: (usize, usize)) -> bool {
+        if self.world.world_map.is_none() {
+            return false;
+        }
+
+        let start = (self.world.world_x, self.world.world_y);
+        
+        // Simple Manhattan distance pathfinding - just move towards target
+        let mut path = Vec::new();
+        let mut current = start;
+        
+        // Prevent infinite loops
+        let max_steps = 500;
+        let mut steps = 0;
+        
+        while current != target && steps < max_steps {
+            let (cx, cy) = current;
+            let (tx, ty) = target;
+            
+            // Move horizontally first, then vertically
+            let next = if cx < tx {
+                (cx + 1, cy)
+            } else if cx > tx {
+                (cx - 1, cy)
+            } else if cy < ty {
+                (cx, cy + 1)
+            } else if cy > ty {
+                (cx, cy - 1)
+            } else {
+                break;
+            };
+            
+            path.push(next);
+            current = next;
+            steps += 1;
+        }
+        
+        if !path.is_empty() {
+            self.world.world_map_target = Some(target);
+            self.world.world_map_path = path;
+            true
+        } else {
+            false
+        }
+    }
+
+    /// Move along the calculated world path
+    pub fn move_along_path(&mut self) -> Result<bool, String> {
+        if self.world.world_map_path.is_empty() {
+            return Ok(false);
+        }
+
+        let next_pos = self.world.world_map_path.remove(0);
+        
+        // Use fast worldmap movement
+        if let Some(_encounter_msg) = self.move_on_world_map(next_pos.0, next_pos.1) {
+            // Encounter triggered - clear path
+            self.world.world_map_path.clear();
+            self.world.world_map_target = None;
+            return Ok(true);
+        }
+        
+        // Check if we reached the target
+        if let Some(target) = self.world.world_map_target {
+            if (self.world.world_x, self.world.world_y) == target {
+                self.world.world_map_target = None;
+                self.world.world_map_path.clear();
+            }
+        }
+
+        Ok(true)
     }
 
     pub fn update_lighting(&mut self) {
@@ -1523,6 +1911,14 @@ impl GameState {
         self.tick_time();
         self.update_lighting();
         self.update_fov();
+
+        // Check encounter completion
+        self.check_encounter_completion();
+
+        // Tick encounter timer
+        if let Some(encounter) = &mut self.world.encounter_state {
+            encounter.turns_in_encounter += 1;
+        }
 
         // Check for dynamic events
         self.check_dynamic_events();

@@ -444,6 +444,8 @@ pub enum Action {
     TargetMode,
     OpenWorldMap,
     WorldMapTravel(usize, usize),
+    WorldMapMove(i32, i32),
+    WorldMapAutoMove,
     Craft,
     TradeBuy(usize),
     TradeSell(usize),
@@ -475,6 +477,8 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
         }
 
         // Death screen - only allow Esc to return to main menu
+        // TODO(keyboard-config): Migrate hardcoded KeyCode matches to keyboard_config.json
+        // See docs/development/KEYBOARD_CONFIG_MIGRATION.md for full migration plan
         if state.player.hp <= 0 {
             match key.code {
                 KeyCode::Esc => return Ok(Action::ReturnToMainMenu),
@@ -812,24 +816,74 @@ fn handle_debug_console_input(ui: &mut UiState, code: KeyCode) -> Action {
 }
 
 fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
+    use crate::game::keyboard_config::CONFIG;
+    
     match code {
-        KeyCode::Esc | KeyCode::Char('m') | KeyCode::Char('M') => {
+        KeyCode::Esc | KeyCode::Char('m') | KeyCode::Char('M') | KeyCode::Enter => {
             ui.world_map_view.open = false;
+            // Always generate tile at current world position when exiting worldmap
+            state.travel_to_tile(state.world.world_x, state.world.world_y);
         }
-        KeyCode::Up | KeyCode::Char('k') => ui.world_map_view.move_cursor(0, -1),
-        KeyCode::Down | KeyCode::Char('j') => ui.world_map_view.move_cursor(0, 1),
-        KeyCode::Left | KeyCode::Char('h') => ui.world_map_view.move_cursor(-1, 0),
-        KeyCode::Right | KeyCode::Char('l') => ui.world_map_view.move_cursor(1, 0),
+        code if CONFIG.matches_worldmap(code, "inspect_toggle") => {
+            // When entering inspect mode, set cursor to target if set, otherwise player position
+            if !ui.world_map_view.inspect_mode {
+                if let Some((tx, ty)) = state.world.world_map_target {
+                    ui.world_map_view.cursor_x = tx;
+                    ui.world_map_view.cursor_y = ty;
+                } else {
+                    ui.world_map_view.cursor_x = state.world.world_x;
+                    ui.world_map_view.cursor_y = state.world.world_y;
+                }
+            }
+            ui.world_map_view.toggle_inspect();
+        }
+        code if CONFIG.matches_worldmap(code, "set_target") => {
+            if ui.world_map_view.inspect_mode {
+                let target = (ui.world_map_view.cursor_x, ui.world_map_view.cursor_y);
+                if state.world.world_map_target == Some(target) {
+                    state.world.world_map_target = None;
+                    state.world.world_map_path.clear();
+                } else {
+                    state.calculate_world_path(target);
+                }
+            }
+        }
+        code if CONFIG.matches_worldmap(code, "auto_move") => {
+            if !ui.world_map_view.inspect_mode && !state.world.world_map_path.is_empty() {
+                return Action::WorldMapAutoMove;
+            }
+        }
+        KeyCode::Up | KeyCode::Char('k') | KeyCode::Char('w') => {
+            if ui.world_map_view.inspect_mode {
+                ui.world_map_view.move_cursor(0, -1);
+            } else {
+                return Action::WorldMapMove(0, -1);
+            }
+        }
+        KeyCode::Down | KeyCode::Char('j') | KeyCode::Char('s') => {
+            if ui.world_map_view.inspect_mode {
+                ui.world_map_view.move_cursor(0, 1);
+            } else {
+                return Action::WorldMapMove(0, 1);
+            }
+        }
+        KeyCode::Left | KeyCode::Char('h') | KeyCode::Char('a') => {
+            if ui.world_map_view.inspect_mode {
+                ui.world_map_view.move_cursor(-1, 0);
+            } else {
+                return Action::WorldMapMove(-1, 0);
+            }
+        }
+        KeyCode::Right | KeyCode::Char('l') | KeyCode::Char('d') => {
+            if ui.world_map_view.inspect_mode {
+                ui.world_map_view.move_cursor(1, 0);
+            } else {
+                return Action::WorldMapMove(1, 0);
+            }
+        }
         KeyCode::Char('c') => {
-            // Center on player
             ui.world_map_view.cursor_x = state.world.world_x;
             ui.world_map_view.cursor_y = state.world.world_y;
-        }
-        KeyCode::Enter => {
-            // Travel to cursor position
-            let (wx, wy) = (ui.world_map_view.cursor_x, ui.world_map_view.cursor_y);
-            ui.world_map_view.open = false;
-            return Action::WorldMapTravel(wx, wy);
         }
         _ => {}
     }

@@ -116,11 +116,18 @@ pub fn execute(state: &mut super::state::GameState, cmd: &str) {
                 state.log("Usage: complete_quest <quest_id>");
             }
         }
+        Some("flee") => {
+            match state.attempt_flee_encounter() {
+                Ok(()) => {}, // Message already logged
+                Err(e) => state.log(e),
+            }
+        }
         Some("help") => {
             state.log("Debug Commands:");
             state.log("  show tile, hide tile - Toggle god view");
             state.log("  sturdy - Set HP to 9999");
             state.log("  phase - Toggle wall phasing");
+            state.log("  flee - Attempt to flee current encounter");
             state.log("  save_debug [name] - Save debug state");
             state.log("  load_debug <name> - Load debug state");
             state.log("  list_debug - List saved debug states");

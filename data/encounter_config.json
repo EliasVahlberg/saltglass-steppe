@@ -1,0 +1,59 @@
+{
+  "base_encounter_rate": 0.25,
+  "danger_scaling": 0.03,
+  "min_rate": 0.10,
+  "max_rate": 0.50,
+  "cooldown_turns": 50,
+  "flee_base_cooldown": 100,
+  "flee_distance_required": 8,
+  "flee_base_chance": 0.7,
+  
+  "encounter_types": {
+    "hostile": {
+      "weight": 50,
+      "threat_range": [10, 25]
+    },
+    "neutral": {
+      "weight": 30,
+      "events": [
+        {
+          "id": "trade_caravan",
+          "weight": 50,
+          "description": "A trade caravan passes through."
+        },
+        {
+          "id": "animal_herd",
+          "weight": 50,
+          "description": "A herd of desert creatures grazes nearby."
+        }
+      ]
+    },
+    "beneficial": {
+      "weight": 20,
+      "boon_range": [5, 15]
+    }
+  },
+  
+  "biome_modifiers": {
+    "saltflat": {
+      "danger_mult": 1.0,
+      "richness_mult": 0.8
+    },
+    "desert": {
+      "danger_mult": 1.2,
+      "richness_mult": 0.9
+    },
+    "ruins": {
+      "danger_mult": 1.5,
+      "richness_mult": 1.3
+    },
+    "oasis": {
+      "danger_mult": 0.7,
+      "richness_mult": 1.5
+    },
+    "scrubland": {
+      "danger_mult": 1.1,
+      "richness_mult": 1.0
+    }
+  }
+}
