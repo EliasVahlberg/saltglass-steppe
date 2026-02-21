@@ -1,5 +1,8 @@
 # Enemy JSON Schema Reference (v1)
 
+> **JSON Schema**: `schemas/enemies_v1.json`  
+> This document provides human-readable documentation for the schema.
+
 ## Schema Version
 
 All enemy JSON files MUST include a schema version field:
