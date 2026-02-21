@@ -550,6 +550,12 @@ impl WorldGenerator {
                     POI::None => 0,
                 };
 
+                // Force starting tile to level 1
+                if x == start_x && y == start_y {
+                    levels[idx] = 1;
+                    continue;
+                }
+
                 let total_level = base_level
                     .saturating_add(terrain_mod as u32)
                     .saturating_add(biome_mod as u32);
