@@ -47,25 +47,25 @@
       {"id": "glass_beetle", "weight": 3, "min_level": 2, "max_level": 4},
       {"id": "salt_mummy", "weight": 3, "min_level": 2, "max_level": 5},
       {"id": "shard_spider", "weight": 3, "min_level": 1, "max_level": 3},
-      {"id": "dust_wraith", "weight": 2, "min_level": 2, "max_level": 4},
-      {"id": "crystal_spider", "weight": 2, "min_level": 2, "max_level": 5},
-      {"id": "storm_hawk", "weight": 1, "min_level": 3, "max_level": 7},
-      {"id": "void_swimmer", "weight": 1, "min_level": 4, "max_level": 8},
-      {"id": "glass_golem", "weight": 1, "min_level": 5, "max_level": 10},
-      {"id": "shard_nest", "weight": 1, "min_level": 3, "max_level": 6},
-      {"id": "storm_archer", "weight": 2, "min_level": 3, "max_level": 6},
-      {"id": "glass_bomber", "weight": 1, "min_level": 4, "max_level": 7},
-      {"id": "psychic_wraith", "weight": 1, "min_level": 5, "max_level": 8},
-      {"id": "alpha_mirage_hound", "weight": 1, "min_level": 4, "max_level": 7},
-      {"id": "crystal_scarab", "weight": 1, "min_level": 6, "max_level": 9},
-      {"id": "crystal_widow", "weight": 1, "min_level": 7, "max_level": 10},
-      {"id": "storm_marksman", "weight": 1, "min_level": 8, "max_level": 10},
-      {"id": "adaptation_horror", "weight": 1, "min_level": 6, "max_level": 9},
-      {"id": "salt_lord", "weight": 1, "min_level": 8, "max_level": 10},
-      {"id": "storm_phantom", "weight": 1, "min_level": 9, "max_level": 10},
-      {"id": "crystal_devastator", "weight": 1, "min_level": 10, "max_level": 10},
-      {"id": "mind_sovereign", "weight": 1, "min_level": 10, "max_level": 10},
-      {"id": "sandstorm_elemental", "weight": 1, "min_level": 9, "max_level": 10}
+      {"id": "salt_wraith", "weight": 2, "min_level": 1, "max_level": 4},
+      {"id": "glass_crawler", "weight": 2, "min_level": 2, "max_level": 5},
+      {"id": "storm_herald", "weight": 2, "min_level": 3, "max_level": 7},
+      {"id": "void_whisper", "weight": 1, "min_level": 4, "max_level": 8},
+      {"id": "shard_sentinel", "weight": 1, "min_level": 5, "max_level": 10},
+      {"id": "brine_leech", "weight": 2, "min_level": 1, "max_level": 3},
+      {"id": "dust_devil", "weight": 2, "min_level": 2, "max_level": 4},
+      {"id": "archive_custodian", "weight": 1, "min_level": 4, "max_level": 8},
+      {"id": "refraction_wraith", "weight": 1, "min_level": 5, "max_level": 8},
+      {"id": "pilgrim_hollow", "weight": 1, "min_level": 6, "max_level": 9},
+      {"id": "crystal_scarab", "weight": 1, "min_level": 8, "max_level": 12},
+      {"id": "crystal_widow", "weight": 1, "min_level": 10, "max_level": 15},
+      {"id": "storm_caller", "weight": 1, "min_level": 12, "max_level": 18},
+      {"id": "refraction_beast", "weight": 1, "min_level": 10, "max_level": 15},
+      {"id": "salt_lord", "weight": 1, "min_level": 12, "max_level": 20},
+      {"id": "storm_phantom", "weight": 1, "min_level": 12, "max_level": 18},
+      {"id": "prism_tyrant", "weight": 1, "min_level": 18, "max_level": 25},
+      {"id": "void_sovereign", "weight": 1, "min_level": 18, "max_level": 25},
+      {"id": "storm_sovereign", "weight": 1, "min_level": 20, "max_level": 30}
     ],
     "npcs": [
       {"id": "mirror_monk", "weight": 1, "min_level": 1, "max_level": 10, "room": "late"},
@@ -95,9 +95,10 @@
     "enemies": [
       {"id": "salt_mummy", "weight": 5, "min_level": 2, "max_level": 6},
       {"id": "mirage_hound", "weight": 3, "min_level": 1, "max_level": 4},
-      {"id": "dust_wraith", "weight": 4, "min_level": 2, "max_level": 5},
-      {"id": "salt_lord", "weight": 1, "min_level": 8, "max_level": 10},
-      {"id": "sandstorm_elemental", "weight": 1, "min_level": 9, "max_level": 10}
+      {"id": "salt_wraith", "weight": 4, "min_level": 1, "max_level": 5},
+      {"id": "dust_devil", "weight": 3, "min_level": 2, "max_level": 5},
+      {"id": "salt_lord", "weight": 1, "min_level": 12, "max_level": 20},
+      {"id": "salt_emperor", "weight": 1, "min_level": 25, "max_level": 40}
     ],
     "npcs": [
       {"id": "salt_hermit", "weight": 3, "min_level": 1, "max_level": 8},
@@ -114,7 +115,8 @@
     "enemies": [
       {"id": "glass_beetle", "weight": 3, "min_level": 2, "max_level": 5},
       {"id": "mirage_hound", "weight": 2, "min_level": 1, "max_level": 4},
-      {"id": "crystal_scarab", "weight": 1, "min_level": 6, "max_level": 9}
+      {"id": "glass_crawler", "weight": 2, "min_level": 2, "max_level": 5},
+      {"id": "crystal_scarab", "weight": 1, "min_level": 8, "max_level": 15}
     ],
     "npcs": [
       {"id": "oasis_guardian", "weight": 2, "min_level": 3, "max_level": 8},
@@ -131,11 +133,12 @@
       {"id": "archive_data", "weight": 2, "min_level": 5, "max_level": 10}
     ],
     "enemies": [
-      {"id": "refraction_wraith", "weight": 4, "min_level": 3, "max_level": 7},
-      {"id": "psychic_wraith", "weight": 3, "min_level": 5, "max_level": 8},
-      {"id": "adaptation_horror", "weight": 2, "min_level": 6, "max_level": 9},
-      {"id": "storm_phantom", "weight": 1, "min_level": 9, "max_level": 10},
-      {"id": "mind_sovereign", "weight": 1, "min_level": 10, "max_level": 10}
+      {"id": "refraction_wraith", "weight": 4, "min_level": 3, "max_level": 10},
+      {"id": "pilgrim_hollow", "weight": 3, "min_level": 6, "max_level": 15},
+      {"id": "refraction_beast", "weight": 2, "min_level": 10, "max_level": 20},
+      {"id": "archive_custodian", "weight": 2, "min_level": 5, "max_level": 12},
+      {"id": "storm_phantom", "weight": 1, "min_level": 12, "max_level": 20},
+      {"id": "void_sovereign", "weight": 1, "min_level": 18, "max_level": 30}
     ],
     "npcs": [
       {"id": "archive_scholar", "weight": 2, "min_level": 4, "max_level": 9},
@@ -152,10 +155,10 @@
     ],
     "enemies": [
       {"id": "shard_spider", "weight": 4, "min_level": 1, "max_level": 4},
-      {"id": "glass_bomber", "weight": 2, "min_level": 4, "max_level": 7},
-      {"id": "storm_archer", "weight": 3, "min_level": 3, "max_level": 6},
-      {"id": "crystal_widow", "weight": 1, "min_level": 7, "max_level": 10},
-      {"id": "storm_marksman", "weight": 1, "min_level": 8, "max_level": 10}
+      {"id": "brine_leech", "weight": 3, "min_level": 1, "max_level": 3},
+      {"id": "storm_herald", "weight": 3, "min_level": 5, "max_level": 10},
+      {"id": "crystal_widow", "weight": 1, "min_level": 12, "max_level": 25},
+      {"id": "storm_caller", "weight": 1, "min_level": 15, "max_level": 25}
     ],
     "npcs": [
       {"id": "scrub_ranger", "weight": 3, "min_level": 2, "max_level": 7},
@@ -173,11 +176,11 @@
       {"id": "practice_crystal", "weight": 3, "min_level": 1, "max_level": 5}
     ],
     "enemies": [
-      {"id": "crystal_spider", "weight": 5, "min_level": 2, "max_level": 6},
-      {"id": "prism_guardian", "weight": 3, "min_level": 3, "max_level": 7},
-      {"id": "crystal_bloom", "weight": 2, "min_level": 4, "max_level": 8},
-      {"id": "glass_weaver", "weight": 2, "min_level": 3, "max_level": 7},
-      {"id": "refraction_wisp", "weight": 3, "min_level": 2, "max_level": 6}
+      {"id": "glass_crawler", "weight": 5, "min_level": 2, "max_level": 6},
+      {"id": "shard_sentinel", "weight": 3, "min_level": 8, "max_level": 15},
+      {"id": "crystal_scarab", "weight": 2, "min_level": 10, "max_level": 18},
+      {"id": "refraction_wraith", "weight": 2, "min_level": 4, "max_level": 10},
+      {"id": "light_eater", "weight": 3, "min_level": 8, "max_level": 16}
     ],
     "npcs": [
       {"id": "glass_prophet_herald", "weight": 3, "min_level": 4, "max_level": 9},
@@ -196,11 +199,12 @@
       {"id": "restoration_detector", "weight": 2, "min_level": 3, "max_level": 7}
     ],
     "enemies": [
-      {"id": "void_swimmer", "weight": 4, "min_level": 4, "max_level": 8},
-      {"id": "void_stalker", "weight": 3, "min_level": 3, "max_level": 7},
-      {"id": "glass_golem", "weight": 2, "min_level": 5, "max_level": 10},
-      {"id": "archive_drone", "weight": 3, "min_level": 4, "max_level": 8},
-      {"id": "refraction_wraith", "weight": 3, "min_level": 3, "max_level": 7}
+      {"id": "void_whisper", "weight": 4, "min_level": 4, "max_level": 10},
+      {"id": "archive_custodian", "weight": 3, "min_level": 5, "max_level": 12},
+      {"id": "shard_sentinel", "weight": 2, "min_level": 8, "max_level": 15},
+      {"id": "archive_sentinel", "weight": 2, "min_level": 15, "max_level": 28},
+      {"id": "refraction_wraith", "weight": 3, "min_level": 4, "max_level": 10},
+      {"id": "archive_overmind", "weight": 1, "min_level": 25, "max_level": 35}
     ],
     "npcs": [
       {"id": "iron_covenant_recruiter", "weight": 3, "min_level": 3, "max_level": 8},
@@ -219,10 +223,11 @@
       {"id": "adaptation_journal", "weight": 3, "min_level": 2, "max_level": 6}
     ],
     "enemies": [
-      {"id": "salt_harvester", "weight": 4, "min_level": 2, "max_level": 6},
       {"id": "salt_mummy", "weight": 4, "min_level": 2, "max_level": 6},
-      {"id": "brine_symbiont", "weight": 3, "min_level": 3, "max_level": 7},
-      {"id": "dust_wraith", "weight": 3, "min_level": 2, "max_level": 5}
+      {"id": "salt_wraith", "weight": 4, "min_level": 1, "max_level": 5},
+      {"id": "brine_leech", "weight": 3, "min_level": 1, "max_level": 4},
+      {"id": "dust_devil", "weight": 3, "min_level": 2, "max_level": 5},
+      {"id": "salt_lord", "weight": 1, "min_level": 12, "max_level": 20}
     ],
     "npcs": [
       {"id": "wandering_court_sage", "weight": 3, "min_level": 3, "max_level": 8},
@@ -241,10 +246,12 @@
       {"id": "heliograph_shard", "weight": 1, "min_level": 5, "max_level": 10, "room": "late"}
     ],
     "enemies": [
-      {"id": "storm_hawk", "weight": 5, "min_level": 3, "max_level": 7},
-      {"id": "storm_echo", "weight": 4, "min_level": 3, "max_level": 7},
-      {"id": "refraction_wraith", "weight": 3, "min_level": 3, "max_level": 7},
-      {"id": "storm_phantom", "weight": 2, "min_level": 6, "max_level": 10}
+      {"id": "storm_herald", "weight": 5, "min_level": 5, "max_level": 12},
+      {"id": "dust_devil", "weight": 4, "min_level": 2, "max_level": 6},
+      {"id": "refraction_wraith", "weight": 3, "min_level": 4, "max_level": 10},
+      {"id": "storm_phantom", "weight": 2, "min_level": 12, "max_level": 20},
+      {"id": "storm_caller", "weight": 1, "min_level": 15, "max_level": 25},
+      {"id": "storm_sovereign", "weight": 1, "min_level": 25, "max_level": 35}
     ],
     "npcs": [
       {"id": "captain_vasquez_ghost", "weight": 2, "min_level": 6, "max_level": 10},
@@ -263,10 +270,12 @@
       {"id": "quantum_resonator", "weight": 1, "min_level": 5, "max_level": 10, "room": "late"}
     ],
     "enemies": [
-      {"id": "void_swimmer", "weight": 4, "min_level": 4, "max_level": 8},
-      {"id": "refraction_wisp", "weight": 4, "min_level": 2, "max_level": 6},
-      {"id": "glass_weaver", "weight": 3, "min_level": 3, "max_level": 7},
-      {"id": "crystal_spider", "weight": 3, "min_level": 2, "max_level": 6}
+      {"id": "void_whisper", "weight": 4, "min_level": 4, "max_level": 10},
+      {"id": "light_eater", "weight": 4, "min_level": 8, "max_level": 16},
+      {"id": "refraction_wraith", "weight": 3, "min_level": 4, "max_level": 10},
+      {"id": "glass_crawler", "weight": 3, "min_level": 2, "max_level": 6},
+      {"id": "void_sovereign", "weight": 1, "min_level": 20, "max_level": 30},
+      {"id": "void_emperor", "weight": 1, "min_level": 30, "max_level": 45}
     ],
     "npcs": [
       {"id": "cosmic_watcher", "weight": 2, "min_level": 8, "max_level": 10},
