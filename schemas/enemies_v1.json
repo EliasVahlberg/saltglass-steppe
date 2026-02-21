@@ -1,0 +1,430 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://saltglass-steppe.game/schemas/enemies_v1.json",
+  "title": "Enemy Definition Schema",
+  "description": "Schema for enemy definitions in Saltglass Steppe (v1)",
+  "type": "object",
+  "required": ["schema", "enemies"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "enemies_v1",
+      "description": "Schema version identifier"
+    },
+    "enemies": {
+      "type": "array",
+      "description": "Array of enemy definitions",
+      "items": {
+        "$ref": "#/$defs/enemy"
+      }
+    }
+  },
+  "$defs": {
+    "enemy": {
+      "type": "object",
+      "required": ["id", "name", "glyph", "max_hp", "damage_min", "damage_max"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier (snake_case)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name"
+        },
+        "glyph": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1,
+          "description": "Single character for rendering"
+        },
+        "max_hp": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000,
+          "description": "Maximum hit points"
+        },
+        "damage_min": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Minimum damage"
+        },
+        "damage_max": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Maximum damage (must be >= damage_min)"
+        },
+        "sight_range": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 6,
+          "description": "Vision range in tiles"
+        },
+        "reflex": {
+          "type": "integer",
+          "default": 0,
+          "description": "Dodge chance modifier"
+        },
+        "armor": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Damage reduction"
+        },
+        "accuracy": {
+          "type": "integer",
+          "default": 0,
+          "description": "Hit chance modifier"
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 1,
+          "description": "Enemy level for scaling"
+        },
+        "xp_value": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000,
+          "default": 0,
+          "description": "XP granted on death"
+        },
+        "description": {
+          "type": "string",
+          "default": "",
+          "description": "Lore description"
+        },
+        "demeanor": {
+          "type": "string",
+          "enum": ["aggressive", "defensive", "neutral", "friendly", "pacifist"],
+          "default": "aggressive",
+          "description": "AI behavior pattern"
+        },
+        "faction": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Faction identifier"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "default": [],
+          "description": "Categorization tags"
+        },
+        "hostile_to": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["player"],
+          "description": "Faction IDs this enemy attacks"
+        },
+        "allied_with": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Faction IDs this enemy helps"
+        },
+        "ranged_attack": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can attack at range"
+        },
+        "attack_range": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Max attack distance (if ranged)"
+        },
+        "aoe_attack": {
+          "type": "boolean",
+          "default": false,
+          "description": "Has area-of-effect attack"
+        },
+        "aoe_radius": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "AOE attack radius"
+        },
+        "aoe_warning_turns": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Turns before AOE triggers"
+        },
+        "resistances": {
+          "type": "object",
+          "properties": {
+            "fire": { "type": "number", "minimum": 0, "maximum": 1 },
+            "cold": { "type": "number", "minimum": 0, "maximum": 1 },
+            "poison": { "type": "number", "minimum": 0, "maximum": 1 },
+            "physical": { "type": "number", "minimum": 0, "maximum": 1 },
+            "lightning": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "additionalProperties": false,
+          "description": "Damage type multipliers (0.0 = immune, 0.5 = 50% damage)"
+        },
+        "vulnerabilities": {
+          "type": "object",
+          "properties": {
+            "fire": { "type": "number", "minimum": 1 },
+            "cold": { "type": "number", "minimum": 1 },
+            "poison": { "type": "number", "minimum": 1 },
+            "physical": { "type": "number", "minimum": 1 },
+            "lightning": { "type": "number", "minimum": 1 }
+          },
+          "additionalProperties": false,
+          "description": "Damage type multipliers (2.0 = 200% damage)"
+        },
+        "immunities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["poison", "stun", "blinded", "immobilized", "burning", "frozen", "bleeding"]
+          },
+          "default": [],
+          "description": "Status effect IDs enemy is immune to"
+        },
+        "is_spawner": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can spawn other enemies"
+        },
+        "spawn_rate": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Turns between spawns"
+        },
+        "max_spawns": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Max total spawns"
+        },
+        "spawn_types": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Enemy IDs to spawn"
+        },
+        "swarm": {
+          "type": "boolean",
+          "default": false,
+          "description": "Part of swarm mechanics"
+        },
+        "spawns_during_storm": {
+          "type": "boolean",
+          "default": false,
+          "description": "Only spawns during storms"
+        },
+        "loot_table": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/loot_entry"
+          },
+          "default": [],
+          "description": "Loot drop table"
+        },
+        "behaviors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/behavior"
+          },
+          "default": [],
+          "description": "Special behaviors"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/effect"
+          },
+          "default": [],
+          "description": "Visual effects"
+        },
+        "phases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/phase"
+          },
+          "description": "Phase transitions at HP thresholds"
+        }
+      }
+    },
+    "loot_entry": {
+      "type": "object",
+      "required": ["item", "weight"],
+      "properties": {
+        "item": {
+          "type": "string",
+          "description": "Item ID to drop"
+        },
+        "weight": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Drop weight (higher = more common)"
+        },
+        "guaranteed": {
+          "type": "boolean",
+          "default": false,
+          "description": "Always drops"
+        },
+        "min_count": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Minimum drop count"
+        },
+        "max_count": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 1,
+          "description": "Maximum drop count"
+        },
+        "quality_tier": {
+          "type": "string",
+          "enum": ["common", "uncommon", "rare", "epic", "legendary"],
+          "description": "Loot tier override"
+        }
+      }
+    },
+    "behavior": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "reflect_damage",
+            "poison_sting",
+            "web_trap",
+            "teleport",
+            "split_on_death",
+            "laser_beam",
+            "summon",
+            "enrage",
+            "pack_coordination",
+            "heat_vision"
+          ],
+          "description": "Behavior type"
+        },
+        "condition": {
+          "type": "string",
+          "pattern": "^(hp_below_|hp_above_|turn_multiple_|distance_less_|distance_more_|ally_count_less_|player_adaptations >= |player_has_item:)",
+          "description": "Trigger condition"
+        },
+        "percent": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Percentage value"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Generic value parameter"
+        },
+        "range": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Range parameter"
+        },
+        "damage": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Damage parameter"
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Duration parameter"
+        },
+        "spawns": {
+          "type": "string",
+          "description": "Enemy ID to spawn"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Count parameter"
+        },
+        "cooldown": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Turns between uses"
+        }
+      }
+    },
+    "effect": {
+      "type": "object",
+      "required": ["condition", "effect"],
+      "properties": {
+        "condition": {
+          "type": "string",
+          "enum": ["on_hit", "on_death", "on_spawn"],
+          "description": "When effect triggers"
+        },
+        "effect": {
+          "type": "string",
+          "pattern": "^[WDS]\\(@\\d+ &[A-Za-z]+(?: &[A-Za-z]+)?\\)$",
+          "description": "Effect code (e.g., 'W(@4 &LightYellow)')"
+        }
+      }
+    },
+    "phase": {
+      "type": "object",
+      "required": ["hp_threshold"],
+      "properties": {
+        "hp_threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "HP percentage to trigger phase"
+        },
+        "glyph": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1,
+          "description": "New glyph for this phase"
+        },
+        "behaviors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Behaviors active in this phase"
+        },
+        "armor": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Armor override for this phase"
+        },
+        "damage_multiplier": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Damage multiplier for this phase"
+        },
+        "resistances": {
+          "$ref": "#/$defs/enemy/properties/resistances"
+        },
+        "vulnerabilities": {
+          "$ref": "#/$defs/enemy/properties/vulnerabilities"
+        }
+      }
+    }
+  }
+}
