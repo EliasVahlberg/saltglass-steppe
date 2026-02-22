@@ -74,40 +74,147 @@ tests/
 - **Deterministic**: Uses `ChaCha8Rng` for all randomness
 - **Central Hub**: All systems read from and write to `GameState`
 
-### Key Fields
+### Decomposed Structure
+
+GameState has been decomposed into three major sub-structs for better organization:
 
 ```rust
 pub struct GameState {
-    // Player state
-    pub player_x: i32, pub player_y: i32,
-    pub player_hp: i32, pub player_max_hp: i32,
-    pub inventory: Vec<Item>,
-    pub equipment: Equipment,
-    pub adaptations: Vec<Adaptation>,
+    // Decomposed state
+    pub player: PlayerState,
+    pub world: WorldState,
+    pub narrative: NarrativeEngine,
     
-    // World state
-    pub map: Map,
-    pub enemies: Vec<Enemy>,
-    pub npcs: Vec<Npc>,
-    pub items: Vec<Item>,  // Ground items
-    pub storm: Storm,
-    
-    // Progression
-    pub quest_log: QuestLog,
-    pub turn: u32,
-    pub xp: u32, pub level: u32,
-    
-    // Events & Messages
-    pub events: Vec<GameEvent>,
+    // Core game state
+    pub visible: HashSet<usize>,
+    pub revealed: HashSet<usize>,
+    pub light_map: LightMap,  // Skipped in serialization
     pub messages: Vec<GameMessage>,
-    
-    // Procedural Generation Systems
-    pub event_system: Option<EventSystem>,
-    pub narrative_integration: Option<NarrativeIntegration>,
+    pub turn: u32,
     
     // Seeded RNG (critical for determinism)
     #[serde(with = "rng_serde")]
     pub rng: ChaCha8Rng,
+    
+    // Effects & Events
+    pub triggered_effects: Vec<TriggeredEffect>,
+    pub decoys: Vec<Decoy>,
+    pub event_queue: Vec<GameEvent>,  // Skipped in serialization
+    
+    // Meta
+    pub seed: u64,
+    pub meta: MetaProgress,
+}
+```
+
+### PlayerState Fields
+
+```rust
+pub struct PlayerState {
+    // Position
+    pub x: i32, pub y: i32, pub layer: u8,
+    
+    // Core Stats
+    pub hp: i32, pub max_hp: i32,
+    pub ap: i32, pub max_ap: i32,
+    pub reflex: i32, pub armor: i32,
+    
+    // Progression
+    pub xp: u32, pub level: u32,
+    pub pending_stat_points: u32,
+    pub salt_scrip: i32,
+    
+    // Inventory & Equipment
+    pub inventory: Vec<String>,
+    pub equipped_weapon: Option<String>,
+    pub equipment: Equipment,
+    
+    // Mutations & Adaptations
+    pub refraction: i32,
+    pub adaptations: Vec<Adaptation>,
+    pub adaptations_hidden_turns: u32,
+    
+    // Status & Social
+    pub status_effects: Vec<StatusEffect>,
+    pub faction_reputation: HashMap<String, i32>,
+    
+    // Quests
+    pub quest_log: QuestLog,
+    
+    // Specialized Systems
+    pub psychic: PsychicState,
+    pub skills: SkillState,
+    pub light_system: LightSystem,
+    pub void_system: VoidSystem,
+    pub crystal_system: CrystalSystem,
+    
+    // Combat
+    pub last_damage_dealt: i32,
+}
+```
+
+### WorldState Fields
+
+```rust
+pub struct WorldState {
+    // Navigation
+    pub world_map: WorldMap,
+    pub world_x: usize, pub world_y: usize,
+    pub layer: u8,
+    
+    // Current Tile
+    pub map: Map,
+    pub enemies: Vec<Enemy>,
+    pub npcs: Vec<Npc>,
+    pub items: Vec<Item>,
+    pub chests: Vec<Chest>,
+    pub interactables: Vec<Interactable>,
+    pub microstructures: Vec<Microstructure>,
+    
+    // Environment
+    pub storm: Storm,
+    pub time_of_day: TimeOfDay,
+    pub weather: Weather,
+    pub ambient_light: u8,
+    
+    // Visual
+    pub visual_effects: Vec<VisualEffect>,
+    pub light_map: LightMap,
+    
+    // Encounters
+    pub encounter_state: EncounterState,
+    pub encounter_history: Vec<EncounterRecord>,
+    pub total_tiles_traveled: u32,
+    
+    // Pathfinding
+    pub world_map_target: Option<(usize, usize)>,
+    pub world_map_path: Vec<(usize, usize)>,
+    
+    // Spatial Index (computed on load)
+    pub enemy_positions: HashMap<(i32, i32), usize>,
+    pub npc_positions: HashMap<(i32, i32), usize>,
+    pub item_positions: HashMap<(i32, i32), Vec<usize>>,
+}
+```
+
+### NarrativeEngine Fields
+
+```rust
+pub struct NarrativeEngine {
+    // Quests
+    pub quest_log: QuestLog,
+    
+    // Story
+    pub story_model: StoryModel,
+    
+    // Tutorial
+    pub tutorial_progress: TutorialProgress,
+    
+    // History
+    pub world_history: WorldHistory,
+    
+    // Effects
+    pub triggered_effects: TriggeredEffects,
 }
 ```
 
@@ -272,62 +379,74 @@ pub fn all_item_ids() -> Vec<&'static str> {
 }
 ```
 
-### Data Files
+### Data Files (51 Total)
 
-| File                     | Rust Module     | Contains                        |
-| ------------------------ | --------------- | ------------------------------- |
-| `items.json`             | `item.rs`       | Items, equipment, consumables   |
-| `enemies.json`           | `enemy.rs`      | Enemy stats, behaviors, loot    |
-| `npcs.json`              | `npc.rs`        | NPCs, merchants, dialogue refs, faction leaders  |
-| `quests.json`            | `quest.rs`      | Quest definitions, objectives   |
-| `main_questline.json`    | `quest.rs`      | Main story quest definitions |
-| `factions.json`          | `faction.rs`    | Faction definitions, reputation systems |
-| `adaptations.json`       | `adaptation.rs` | Player mutations/upgrades       |
-| `dialogues.json`         | `dialogue.rs`   | Conversation trees              |
-| `recipes.json`           | `crafting.rs`   | Crafting recipes                |
-| `storm_config.json`      | `storm.rs`      | Storm timing and effects        |
-| `loot_tables.json`       | `generation/loot.rs`       | Weighted loot distributions     |
-| `biome_spawn_tables.json`| `generation/spawn.rs`      | Per-biome entity spawns         |
-| `status_effects.json`    | `status.rs`     | Status effect definitions       |
-| `dynamic_events.json`    | `generation/events.rs`     | Dynamic events and triggers     |
-| `narrative_integration.json` | `generation/narrative.rs` | Story seeds, fragments, factions |
-| `grammars/descriptions.json` | `generation/grammar.rs` | Grammar rules for dynamic text generation |
-| `templates/content_templates.json` | `generation/templates.rs` | Content templates with inheritance and variants |
-| `biome_profiles.json`    | `generation/biomes.rs` | Biome-specific content and features |
-| `terrain_config.json`    | `generation/tile_gen.rs` | Terrain generation parameters |
-| `microstructures.json`   | `generation/microstructures.rs` | Mini-structure definitions |
-| `constraint_rules.json`  | `generation/constraints.rs` | Constraint validation rules |
-| `quest_constraints.json` | `generation/quest_constraints.rs` | Quest-driven generation constraints |
-| `auto_explore_config.json` | `ui/auto_explore.rs` | Auto-exploration system settings |
-| `interactables.json`     | `interactable.rs` | Interactive objects and quest triggers |
-| `structure_templates.json` | `structure_templates.rs` | Procedural structure definitions |
-| `structure_spawn_config.json` | `generation/microstructures.rs` | Structure spawning configuration |
-| `npc_spawn_config.json`  | `generation/spawn.rs` | NPC spawning configuration |
-| `world_generation_integration.json` | `generation/world_gen.rs` | World generation integration settings |
-| `walls.json`             | `map.rs`        | Wall type definitions |
-| `floors.json`            | `map.rs`        | Floor type definitions |
-| `traders.json`           | `npc.rs`        | Trader NPCs and their inventories |
-| `chests.json`            | `item.rs`       | Chest and container definitions |
-| `books.json`             | `item.rs`       | Readable books and lore texts |
-| `abilities.json`         | `abilities.rs`  | Player abilities and skills |
-| `skills.json`            | `skills.rs`     | Skill definitions and progression |
-| `psychic_abilities.json` | `psychic.rs`    | Psychic powers and mental abilities |
-| `narrative_templates.json` | `generation/narrative_templates.rs` | Narrative generation templates |
-| `effects_config.json`    | `effects.rs`    | Visual effects configuration |
-| `themes.json`            | `ui/themes.rs`  | UI theme and color definitions |
-| `render_config.json`     | `renderer/config.rs` | Rendering system configuration |
-| `generation_config.json` | `generation/pipeline.rs` | Procedural generation settings |
-| `lore_based_quests.json` | `quest.rs`      | Lore-driven exploration quests |
-| `lore_database.json`     | `book.rs`       | Comprehensive lore database |
-| `expanded_spawn_tables.json` | `generation/spawn.rs` | Extended entity spawn tables |
-| `expanded_quests.json`   | `quest.rs`      | Extended quest definitions |
-| `weapons.json`           | `item.rs`       | Weapon definitions and stats |
-| `tutorial.json`          | `tutorial.rs`   | Tutorial system configuration |
-| `classes.json`           | `progression.rs` | Character class definitions |
-| `progression.json`       | `progression.rs` | Character progression settings |
-| `lights.json`            | `light.rs`      | Light source definitions |
-| `actions.json`           | `action.rs`     | Action definitions and costs |
-| `tiles.json`             | `map.rs`        | Tile type definitions |
+**Core Game Content (10 files)**:
+- `items.json` - Items, equipment, consumables
+- `weapons.json` - Weapon definitions and stats
+- `abilities.json` - Player abilities and skills
+- `skills.json` - Skill definitions and progression
+- `classes.json` - Character class definitions
+- `progression.json` - Character progression settings
+- `adaptations.json` - Player mutations/upgrades
+- `psychic_abilities.json` - Psychic powers and mental abilities
+- `status_effects.json` - Status effect definitions
+- `effects.json` - Effect definitions
+
+**Enemies & Combat (8 files)**:
+- `enemies/common.json` - Common enemy types
+- `enemies/uncommon.json` - Uncommon enemy types
+- `enemies/rare.json` - Rare enemy types
+- `enemies/elite.json` - Elite enemy types
+- `enemies/boss.json` - Boss enemy types
+- `factions.json` - Faction definitions, reputation systems
+- `loot_tables.json` - Weighted loot distributions
+- `biome_spawn_tables.json` - Per-biome entity spawns
+
+**World Generation (9 files)**:
+- `terrain_config.json` - Terrain generation parameters (active)
+- `biome_profiles.json` - Biome-specific content and features
+- `structure_templates.json` - Procedural structure definitions
+- `structure_generation.json` - Structure generation config
+- `microstructures.json` - Mini-structure definitions
+- `map_features.json` - Map feature definitions
+- `walls.json` - Wall type definitions
+- `floors.json` - Floor type definitions
+- `lights.json` - Light source definitions
+
+**Environmental Systems (5 files)**:
+- `storm_config.json` - Storm timing and effects
+- `encounter_config.json` - Encounter system configuration
+- `dynamic_events.json` - Dynamic events and triggers
+- `travel_config.json` - Travel system configuration
+- `auto_explore_config.json` - Auto-exploration system settings
+
+**NPCs & Narrative (7 files)**:
+- `npcs.json` - NPCs, merchants, dialogue refs, faction leaders
+- `dialogues.json` - Conversation trees
+- `aria_dialogues.json` - ARIA-specific dialogues
+- `traders.json` - Trader NPCs and their inventories
+- `books.json` - Readable books and lore texts
+- `narrative_templates.json` - Narrative generation templates
+- `narrative_integration.json` - Story seeds, fragments, factions
+
+**Quests & Progression (4 files)**:
+- `quests.json` - Quest definitions, objectives
+- `main_questline.json` - Main story quest definitions
+- `tutorial.json` - Tutorial system configuration
+- `recipes.json` - Crafting recipes
+
+**World Objects (4 files)**:
+- `chests.json` - Chest and container definitions
+- `interactables.json` - Interactive objects and quest triggers
+- `actions.json` - Action definitions and costs
+- `constraint_rules.json` - Constraint validation rules
+
+**UI & Rendering (4 files)**:
+- `render_config.json` - Rendering system configuration
+- `themes.json` - UI theme and color definitions
+- `effects_config.json` - Visual effects configuration
+- `keyboard_config.json` - Keyboard configuration
 
 ---
 
