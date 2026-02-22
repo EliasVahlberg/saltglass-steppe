@@ -125,6 +125,138 @@
         "inactive",
         "active"
       ]
+    },
+    {
+      "id": "table",
+      "name": "Table",
+      "glyph": "T",
+      "description": "A sturdy table, scarred by use.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A weathered table. Salt crystals have formed in the wood grain."
+      }
+    },
+    {
+      "id": "chair",
+      "name": "Chair",
+      "glyph": "C",
+      "description": "A simple chair.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A worn chair. The seat is polished smooth from countless sittings."
+      }
+    },
+    {
+      "id": "bed",
+      "name": "Bed",
+      "glyph": "b",
+      "description": "A sleeping pallet.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A simple bed with salt-stained linens. It looks uncomfortable but functional."
+      }
+    },
+    {
+      "id": "counter",
+      "name": "Counter",
+      "glyph": "c",
+      "description": "A merchant's counter.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A sturdy counter worn smooth by countless transactions."
+      }
+    },
+    {
+      "id": "shelf",
+      "name": "Shelf",
+      "glyph": "s",
+      "description": "Storage shelves.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "Wooden shelves holding various goods and supplies."
+      }
+    },
+    {
+      "id": "workbench",
+      "name": "Workbench",
+      "glyph": "k",
+      "description": "A craftsman's workbench.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A scarred workbench with tools and materials scattered across its surface."
+      }
+    },
+    {
+      "id": "altar",
+      "name": "Altar",
+      "glyph": "A",
+      "description": "A sacred altar.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A stone altar bearing offerings of salt and glass. Light refracts strangely around it."
+      }
+    },
+    {
+      "id": "throne",
+      "name": "Throne",
+      "glyph": "H",
+      "description": "A seat of authority.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "An imposing throne carved from storm-glass. It bears the scars of three dynasties."
+      }
+    },
+    {
+      "id": "fountain",
+      "name": "Fountain",
+      "glyph": "F",
+      "description": "A decorative fountain.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A fountain filled with brine. Glass shards float on its surface, catching the light."
+      }
+    },
+    {
+      "id": "statue",
+      "name": "Statue",
+      "glyph": "*",
+      "description": "A carved statue.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A statue worn smooth by wind and salt. Its original form is barely recognizable."
+      }
+    },
+    {
+      "id": "lamp",
+      "name": "Lamp",
+      "glyph": "L",
+      "description": "A light source.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A lamp filled with luminescent brine. It casts a pale, steady glow."
+      }
+    },
+    {
+      "id": "banner",
+      "name": "Banner",
+      "glyph": "B",
+      "description": "A hanging banner.",
+      "interaction_type": "examine",
+      "states": [],
+      "messages": {
+        "examine": "A tattered banner bearing faded symbols. The fabric is stiff with salt."
+      }
     }
   ]
 }
