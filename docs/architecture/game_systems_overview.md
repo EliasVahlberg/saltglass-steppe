@@ -354,44 +354,72 @@ fn kill_enemy(state: &mut GameState, idx: usize) {
 
 ---
 
-## Data Loading Pattern
+## Data Loading System
 
-All game content is defined in JSON and loaded via `once_cell::Lazy` statics.
+All game content is defined in JSON and loaded via the unified `DataLoader<T>` system.
 
-### Standard Pattern
+### Unified Data Loader
+
+**Location**: `src/game/data_loader.rs`
+
+Generic loader with JSON schema validation:
 
 ```rust
-// src/game/item.rs
-use once_cell::sync::Lazy;
+use crate::game::data_loader::DataLoader;
 
-static ITEMS: Lazy<HashMap<String, ItemDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/items.json");
-    let file: ItemsFile = serde_json::from_str(data).expect("Failed to parse");
-    file.items.into_iter().map(|i| (i.id.clone(), i)).collect()
+// Single file loading
+static ITEMS: Lazy<DataLoader<ItemDef>> = Lazy::new(|| {
+    DataLoader::load_single(
+        include_str!("../../data/items.json"),
+        "items_v1",
+        "items.json"
+    ).expect("Failed to load items")
 });
 
+// Multiple file loading (e.g., enemies)
+static ENEMIES: Lazy<DataLoader<EnemyDef>> = Lazy::new(|| {
+    DataLoader::load_multiple(&[
+        ("common", include_str!("../../data/enemies/common.json")),
+        ("uncommon", include_str!("../../data/enemies/uncommon.json")),
+        ("rare", include_str!("../../data/enemies/rare.json")),
+        ("elite", include_str!("../../data/enemies/elite.json")),
+        ("boss", include_str!("../../data/enemies/boss.json")),
+    ], "enemies_v1", "enemies").expect("Failed to load enemies")
+});
+
+// Access data
 pub fn get_item_def(id: &str) -> Option<&'static ItemDef> {
     ITEMS.get(id)
 }
 
 pub fn all_item_ids() -> Vec<&'static str> {
-    ITEMS.keys().map(|s| s.as_str()).collect()
+    ITEMS.all_ids()
 }
 ```
 
-### Data Files (51 Total)
+**Features**:
+- ✅ Automatic schema version validation
+- ✅ Consistent error messages with file context
+- ✅ Duplicate ID detection
+- ✅ Type-safe generic implementation
+- ✅ Single and multiple file loading
 
-**Core Game Content (10 files)**:
+### Data Files (45 Total)
+
+**Consolidated from 52 files** (7 files merged):
+- `dialogues.json` ← merged `aria_dialogues.json`
+- `effects.json` ← merged `status_effects.json`, `effects_config.json`
+- `abilities.json` ← merged `skills.json`, `psychic_abilities.json`
+- `map_elements.json` ← merged `floors.json`, `walls.json`, `lights.json`
+
+**Core Game Content (7 files)**:
 - `items.json` - Items, equipment, consumables
 - `weapons.json` - Weapon definitions and stats
-- `abilities.json` - Player abilities and skills
-- `skills.json` - Skill definitions and progression
+- `abilities.json` - Player abilities, skills, psychic powers (consolidated)
 - `classes.json` - Character class definitions
 - `progression.json` - Character progression settings
 - `adaptations.json` - Player mutations/upgrades
-- `psychic_abilities.json` - Psychic powers and mental abilities
-- `status_effects.json` - Status effect definitions
-- `effects.json` - Effect definitions
+- `effects.json` - Effects, status effects, config (consolidated)
 
 **Enemies & Combat (8 files)**:
 - `enemies/common.json` - Common enemy types
@@ -403,16 +431,14 @@ pub fn all_item_ids() -> Vec<&'static str> {
 - `loot_tables.json` - Weighted loot distributions
 - `biome_spawn_tables.json` - Per-biome entity spawns
 
-**World Generation (9 files)**:
+**World Generation (6 files)**:
 - `terrain_config.json` - Terrain generation parameters (active)
 - `biome_profiles.json` - Biome-specific content and features
 - `structure_templates.json` - Procedural structure definitions
 - `structure_generation.json` - Structure generation config
 - `microstructures.json` - Mini-structure definitions
 - `map_features.json` - Map feature definitions
-- `walls.json` - Wall type definitions
-- `floors.json` - Floor type definitions
-- `lights.json` - Light source definitions
+- `map_elements.json` - Walls, floors, lights (consolidated)
 
 **Environmental Systems (5 files)**:
 - `storm_config.json` - Storm timing and effects
@@ -425,6 +451,10 @@ pub fn all_item_ids() -> Vec<&'static str> {
 - `npcs.json` - NPCs, merchants, dialogue refs, faction leaders
 - `dialogues.json` - Conversation trees
 - `aria_dialogues.json` - ARIA-specific dialogues
+- `traders.json` - Trader NPCs and their inventories
+**NPCs & Narrative (5 files)**:
+- `npcs.json` - NPCs, merchants, dialogue refs, faction leaders
+- `dialogues.json` - Conversation trees, ARIA personalities (consolidated)
 - `traders.json` - Trader NPCs and their inventories
 - `books.json` - Readable books and lore texts
 - `narrative_templates.json` - Narrative generation templates
@@ -442,11 +472,22 @@ pub fn all_item_ids() -> Vec<&'static str> {
 - `actions.json` - Action definitions and costs
 - `constraint_rules.json` - Constraint validation rules
 
-**UI & Rendering (4 files)**:
+**UI & Rendering (3 files)**:
 - `render_config.json` - Rendering system configuration
 - `themes.json` - UI theme and color definitions
-- `effects_config.json` - Visual effects configuration
 - `keyboard_config.json` - Keyboard configuration
+
+### JSON Schema Validation
+
+**All 45 data files** have corresponding JSON schemas in `schemas/`:
+- Schema version validation on load
+- Automatic duplicate ID detection
+- Type-safe data structures
+- IDE autocomplete support (with `.vscode/settings.json` configuration)
+
+**Schema generation tool**: `cargo run --bin schema-gen`
+
+**Documentation**: `docs/features/*_JSON_SCHEMA_V1.md` for each schema
 
 ---
 
