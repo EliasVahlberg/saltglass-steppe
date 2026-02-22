@@ -18,6 +18,7 @@ pub mod quest_constraints;
 
 pub mod feature_materializer;
 pub mod feature_registry;
+pub mod settlement;
 pub mod spatial;
 pub mod spawn;
 pub mod story;
