@@ -1,0 +1,791 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/adaptations_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "adaptations"
+  ],
+  "properties": {
+    "adaptations": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Effect type identifier."
+                    },
+                    "value": {
+                      "type": "integer",
+                      "description": "Effect magnitude."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "psychic_stage": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Psychic stage required for this adaptation."
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "armor": {
+                    "type": "integer",
+                    "description": "Integer field `armor`."
+                  },
+                  "stealth": {
+                    "type": "integer",
+                    "description": "Integer field `stealth`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Effect type identifier."
+                    },
+                    "value": {
+                      "type": "integer",
+                      "description": "Effect magnitude."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "psychic_stage": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Psychic stage required for this adaptation."
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "damage_bonus": {
+                    "type": "integer",
+                    "description": "Integer field `damage_bonus`."
+                  },
+                  "energy_damage": {
+                    "type": "integer",
+                    "description": "Integer field `energy_damage`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "ability": {
+                          "type": "string",
+                          "description": "String field `ability`."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        },
+                        "value": {
+                          "type": "integer",
+                          "description": "Integer field `value`."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        },
+                        "value": {
+                          "type": "integer",
+                          "description": "Integer field `value`."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "psychic_stage": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Psychic stage required for this adaptation."
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "luck": {
+                    "type": "integer",
+                    "description": "Integer field `luck`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "damage_source": {
+                          "type": "string",
+                          "description": "String field `damage_source`."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        },
+                        "value": {
+                          "type": "integer",
+                          "description": "Integer field `value`."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "poison_resistance": {
+                    "type": "integer",
+                    "description": "Integer field `poison_resistance`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "range": {
+                          "type": "integer",
+                          "description": "Integer field `range`."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        },
+                        "value": {
+                          "type": "integer",
+                          "description": "Integer field `value`."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "psychic_stage": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Psychic stage required for this adaptation."
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "psychic_power": {
+                    "type": "integer",
+                    "description": "Integer field `psychic_power`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "duration": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Effect duration in turns."
+                    },
+                    "type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Effect type identifier."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "energy_cost": {
+                "type": "string",
+                "description": "String field `energy_cost`."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "psychic_stage": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Psychic stage required for this adaptation."
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "movement_abilities": {
+                    "type": "integer",
+                    "description": "Integer field `movement_abilities`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "range": {
+                          "type": "integer",
+                          "description": "Integer field `range`."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        },
+                        "value": {
+                          "type": "integer",
+                          "description": "Integer field `value`."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "environmental_bonus": {
+                "type": "string",
+                "description": "String field `environmental_bonus`."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "storm_prediction": {
+                    "type": "integer",
+                    "description": "Integer field `storm_prediction`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "duration": {
+                          "type": "integer",
+                          "description": "Integer field `duration`."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        },
+                        "value": {
+                          "type": "integer",
+                          "description": "Integer field `value`."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "psychic_stage": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Psychic stage required for this adaptation."
+              },
+              "social_consequences": {
+                "type": "string",
+                "description": "String field `social_consequences`."
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "shared_knowledge": {
+                    "type": "boolean",
+                    "description": "Boolean field `shared_knowledge`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        },
+                        "value": {
+                          "type": "integer",
+                          "description": "Integer field `value`."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "range": {
+                          "type": "integer",
+                          "description": "Integer field `range`."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "faction_bonus": {
+                "type": "string",
+                "description": "String field `faction_bonus`."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "archive_access": {
+                    "type": "integer",
+                    "description": "Integer field `archive_access`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              }
+            },
+            "required": ["id","name","description","threshold","effects","stat_modifiers"],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Lore or UI description.",
+                "minLength": 1
+              },
+              "effects": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "range": {
+                          "type": "integer",
+                          "description": "Integer field `range`."
+                        },
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "type": {
+                          "type": "string",
+                          "description": "String field `type`."
+                        },
+                        "value": {
+                          "type": "integer",
+                          "description": "Integer field `value`."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `effects` items."
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "psychic_stage": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Psychic stage required for this adaptation."
+              },
+              "stat_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "psychic_power": {
+                    "type": "integer",
+                    "description": "Integer field `psychic_power`."
+                  },
+                  "reality_influence": {
+                    "type": "integer",
+                    "description": "Integer field `reality_influence`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `stat_modifiers`."
+              },
+              "threshold": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Adaptation threshold value."
+              },
+              "transformation_level": {
+                "type": "string",
+                "description": "String field `transformation_level`."
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array",
+      "description": "Array of `adaptations` items."
+    }
+  },
+  "title": "Adaptations Schema",
+  "type": "object",
+  "description": "Schema for player adaptations and effects."
+}

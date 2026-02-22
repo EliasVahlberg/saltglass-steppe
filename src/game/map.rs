@@ -6,60 +6,21 @@ use rand::{Rng, RngCore};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashSet;
 
 use super::constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
 use super::generation::TerrainForgeGenerator;
 use super::light_defs::{get_spawn_rule, pick_light_type};
+use super::map_elements::{get_floor_def as get_floor_def_from_loader};
+use super::map_elements::{get_wall_def as get_wall_def_from_loader, FloorDef, WallDef};
 use super::world_map::{Biome, POI, Terrain};
 
-#[derive(Debug, Clone, Deserialize)]
-pub struct WallDef {
-    pub id: String,
-    pub name: String,
-    pub glyph: String,
-    pub color: String,
-    pub hp: i32,
-    pub description: String,
-}
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct FloorDef {
-    pub id: String,
-    pub name: String,
-    pub glyph: String,
-    pub color: String,
-    pub description: String,
-}
-
-#[derive(Deserialize)]
-struct WallsFile {
-    walls: Vec<WallDef>,
-}
-
-#[derive(Deserialize)]
-struct FloorsFile {
-    floors: Vec<FloorDef>,
-}
-
-static WALL_DEFS: Lazy<HashMap<String, WallDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/walls.json");
-    let file: WallsFile = serde_json::from_str(data).expect("Failed to parse walls.json");
-    file.walls.into_iter().map(|d| (d.id.clone(), d)).collect()
-});
-
-static FLOOR_DEFS: Lazy<HashMap<String, FloorDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/floors.json");
-    let file: FloorsFile = serde_json::from_str(data).expect("Failed to parse floors.json");
-    file.floors.into_iter().map(|d| (d.id.clone(), d)).collect()
-});
-
 pub fn get_wall_def(id: &str) -> Option<&'static WallDef> {
-    WALL_DEFS.get(id)
+    get_wall_def_from_loader(id)
 }
 
 pub fn get_floor_def(id: &str) -> Option<&'static FloorDef> {
-    FLOOR_DEFS.get(id)
+    get_floor_def_from_loader(id)
 }
 
 fn random_wall_type(rng: &mut ChaCha8Rng) -> String {

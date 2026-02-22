@@ -55,22 +55,18 @@ impl Default for PsychicState {
 
 #[derive(Deserialize)]
 struct AbilitiesFile {
-    abilities: Vec<PsychicAbilityDef>,
+    #[serde(default)]
+    psychic_abilities: Vec<PsychicAbilityDef>,
 }
 
 static ABILITIES: Lazy<HashMap<String, PsychicAbilityDef>> = Lazy::new(|| {
-    // We'll use a default empty list if file doesn't exist yet
-    // But ideally we should create the file
-    match include_str!("../../data/psychic_abilities.json") {
-        data => {
-            let file: AbilitiesFile =
-                serde_json::from_str(data).expect("Failed to parse psychic_abilities.json");
-            file.abilities
-                .into_iter()
-                .map(|a| (a.id.clone(), a))
-                .collect()
-        }
-    }
+    let data = include_str!("../../data/abilities.json");
+    let file: AbilitiesFile =
+        serde_json::from_str(data).expect("Failed to parse abilities.json (psychic)");
+    file.psychic_abilities
+        .into_iter()
+        .map(|a| (a.id.clone(), a))
+        .collect()
 });
 
 pub fn get_ability_def(id: &str) -> Option<&'static PsychicAbilityDef> {

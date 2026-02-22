@@ -47,7 +47,7 @@ pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
         migrate_save(file.state, file.version)?
     } else if file.version > SAVE_VERSION {
         return Err(format!(
-            "Save version too new: file is v{}, game expects v{}. \
+            "Save version mismatch (too new): file is v{}, game expects v{}. \
              Please update the game.",
             file.version, SAVE_VERSION
         ));

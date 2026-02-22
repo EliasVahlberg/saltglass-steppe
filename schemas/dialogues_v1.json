@@ -1,0 +1,1475 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/dialogues_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dialogues Schema",
+  "x-consolidates": ["aria_dialogues_v1.json"],
+  "additionalProperties": false,
+  "required": [
+    "dialogues"
+  ],
+  "properties": {
+    "dialogues": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Faction id associated with this dialogue."
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "nodes": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "trader_id": {
+                                            "type": "string",
+                                            "description": "Unique identifier (snake_case).",
+                                            "minLength": 1,
+                                            "pattern": "^[a-z][a-z0-9_]*$"
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "ends_conversation": {
+                                    "type": "boolean",
+                                    "description": "Boolean field `ends_conversation`."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "condition": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "faction_reputation": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "saltborn_collective": {
+                                            "type": "integer",
+                                            "description": "Integer field `saltborn_collective`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `faction_reputation`."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `condition`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "ends_conversation": {
+                                    "type": "boolean",
+                                    "description": "Boolean field `ends_conversation`."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "item_id": {
+                                            "type": "string",
+                                            "description": "Unique identifier (snake_case).",
+                                            "minLength": 1,
+                                            "pattern": "^[a-z][a-z0-9_]*$"
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `nodes` items."
+              },
+              "npc_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "root_node": {
+                "type": "string",
+                "description": "String field `root_node`."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Faction id associated with this dialogue."
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "nodes": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "trader_id": {
+                                            "type": "string",
+                                            "description": "Unique identifier (snake_case).",
+                                            "minLength": 1,
+                                            "pattern": "^[a-z][a-z0-9_]*$"
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "ends_conversation": {
+                                    "type": "boolean",
+                                    "description": "Boolean field `ends_conversation`."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "condition": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "faction_reputation": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "glasswright_guild": {
+                                            "type": "integer",
+                                            "description": "Integer field `glasswright_guild`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `faction_reputation`."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `condition`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "ends_conversation": {
+                                    "type": "boolean",
+                                    "description": "Boolean field `ends_conversation`."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "change": {
+                                            "type": "integer",
+                                            "description": "Integer field `change`."
+                                          },
+                                          "faction": {
+                                            "type": "string",
+                                            "description": "String field `faction`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "change": {
+                                            "type": "integer",
+                                            "description": "Integer field `change`."
+                                          },
+                                          "faction": {
+                                            "type": "string",
+                                            "description": "String field `faction`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "ends_conversation": {
+                                    "type": "boolean",
+                                    "description": "Boolean field `ends_conversation`."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "item_id": {
+                                            "type": "string",
+                                            "description": "Unique identifier (snake_case).",
+                                            "minLength": 1,
+                                            "pattern": "^[a-z][a-z0-9_]*$"
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "condition": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "faction_reputation": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "glasswright_guild": {
+                                            "type": "integer",
+                                            "description": "Integer field `glasswright_guild`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `faction_reputation`."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `condition`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "change": {
+                                            "type": "integer",
+                                            "description": "Integer field `change`."
+                                          },
+                                          "faction": {
+                                            "type": "string",
+                                            "description": "String field `faction`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `nodes` items."
+              },
+              "npc_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "root_node": {
+                "type": "string",
+                "description": "String field `root_node`."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Faction id associated with this dialogue."
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "nodes": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "trader_id": {
+                                            "type": "string",
+                                            "description": "Unique identifier (snake_case).",
+                                            "minLength": 1,
+                                            "pattern": "^[a-z][a-z0-9_]*$"
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "ends_conversation": {
+                                    "type": "boolean",
+                                    "description": "Boolean field `ends_conversation`."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "change": {
+                                            "type": "integer",
+                                            "description": "Integer field `change`."
+                                          },
+                                          "faction": {
+                                            "type": "string",
+                                            "description": "String field `faction`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "ends_conversation": {
+                                    "type": "boolean",
+                                    "description": "Boolean field `ends_conversation`."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "condition": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "has_adaptation": {
+                                        "type": "string",
+                                        "description": "String field `has_adaptation`."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `condition`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "item_id": {
+                                            "type": "string",
+                                            "description": "Unique identifier (snake_case).",
+                                            "minLength": 1,
+                                            "pattern": "^[a-z][a-z0-9_]*$"
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "change": {
+                                            "type": "integer",
+                                            "description": "Integer field `change`."
+                                          },
+                                          "faction": {
+                                            "type": "string",
+                                            "description": "String field `faction`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "item_id": {
+                                            "type": "string",
+                                            "description": "Unique identifier (snake_case).",
+                                            "minLength": 1,
+                                            "pattern": "^[a-z][a-z0-9_]*$"
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "condition": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "faction_reputation": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "storm_prophets": {
+                                            "type": "integer",
+                                            "description": "Integer field `storm_prophets`."
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `faction_reputation`."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `condition`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `nodes` items."
+              },
+              "npc_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "root_node": {
+                "type": "string",
+                "description": "String field `root_node`."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Faction id associated with this dialogue."
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name.",
+                "minLength": 1
+              },
+              "nodes": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "additionalProperties": false,
+                            "properties": {
+                              "leads_to": {
+                                "type": "string",
+                                "description": "String field `leads_to`."
+                              },
+                              "response": {
+                                "type": "string",
+                                "description": "String field `response`."
+                              },
+                              "text": {
+                                "type": "string",
+                                "description": "String field `text`."
+                              }
+                            },
+                            "type": "object"
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "Unique identifier (snake_case).",
+                          "minLength": 1,
+                          "pattern": "^[a-z][a-z0-9_]*$"
+                        },
+                        "options": {
+                          "minItems": 1,
+                          "items": {
+                            "oneOf": [
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              },
+                              {
+                                "additionalProperties": false,
+                                "properties": {
+                                  "action": {
+                                    "additionalProperties": false,
+                                    "properties": {
+                                      "parameters": {
+                                        "additionalProperties": false,
+                                        "properties": {
+                                          "item_id": {
+                                            "type": "string",
+                                            "description": "Unique identifier (snake_case).",
+                                            "minLength": 1,
+                                            "pattern": "^[a-z][a-z0-9_]*$"
+                                          }
+                                        },
+                                        "type": "object",
+                                        "description": "Object for `parameters`."
+                                      },
+                                      "type": {
+                                        "type": "string",
+                                        "minLength": 1,
+                                        "description": "Action type identifier."
+                                      }
+                                    },
+                                    "type": "object",
+                                    "description": "Object for `action`."
+                                  },
+                                  "leads_to": {
+                                    "type": "string",
+                                    "minLength": 1,
+                                    "description": "Target node id."
+                                  },
+                                  "response": {
+                                    "type": "string",
+                                    "description": "String field `response`."
+                                  },
+                                  "text": {
+                                    "type": "string",
+                                    "description": "String field `text`."
+                                  }
+                                },
+                                "type": "object"
+                              }
+                            ]
+                          },
+                          "type": "array",
+                          "description": "Array of `options` items."
+                        },
+                        "speaker": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Speaker name for this node."
+                        },
+                        "text": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player option text."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `nodes` items."
+              },
+              "npc_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "root_node": {
+                "type": "string",
+                "description": "String field `root_node`."
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array",
+      "description": "Array of `dialogues` items."
+    }
+    ,
+    "aria_personalities": {
+      "type": "object",
+      "description": "Optional ARIA personality dialogue data merged from aria_dialogues.json.",
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "greeting", "nodes"],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Display name for the ARIA personality."
+            },
+            "greeting": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["id", "text", "options"],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Unique greeting node id."
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Greeting text shown to the player."
+                },
+                "options": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["text", "target"],
+                    "properties": {
+                      "text": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Player response option."
+                      },
+                      "target": {
+                        "type": "string",
+                        "minLength": 1,
+                        "description": "Target node id to continue the ARIA dialogue."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "nodes": {
+              "type": "object",
+              "description": "ARIA dialogue nodes keyed by node id.",
+              "patternProperties": {
+                "^[a-z][a-z0-9_]*$": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["text", "options"],
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "ARIA dialogue node text."
+                    },
+                    "options": {
+                      "type": "array",
+                      "minItems": 1,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": ["text", "target"],
+                        "properties": {
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Player response option."
+                          },
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id to continue the ARIA dialogue."
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "title": "Dialogues Schema",
+  "type": "object",
+  "description": "Dialogue trees for NPCs and faction conversations."
+}

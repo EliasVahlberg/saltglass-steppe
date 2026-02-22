@@ -1,0 +1,679 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/effects_config_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Effects Config Schema",
+  "deprecated": true,
+  "x-deprecated-by": "effects_v1.json",
+  "x-deprecation-note": "Pending consolidation into effects_v1.json (config section).",
+  "type": "object",
+  "description": "Configuration for particles, animations, themes, and procedural visual effects.",
+  "additionalProperties": false,
+  "required": ["particles", "animations", "themes", "procedural", "global"],
+  "properties": {
+    "animations": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Animation presets used by the renderer.",
+      "required": ["blink", "glow", "screen_shake"],
+      "properties": {
+        "blink": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Blink animation settings.",
+          "required": ["duration_ms", "on_color", "off_color"],
+          "properties": {
+            "duration_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Duration of the blink in milliseconds."
+            },
+            "off_color": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Color when the blink is off."
+            },
+            "on_color": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Color when the blink is on."
+            }
+          }
+        },
+        "glow": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Glow animation settings.",
+          "required": ["cycle_duration_ms", "base_color", "glow_color", "intensity_steps"],
+          "properties": {
+            "base_color": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Base glow color."
+            },
+            "cycle_duration_ms": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Full glow cycle duration in milliseconds."
+            },
+            "glow_color": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Peak glow color."
+            },
+            "intensity_steps": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of intensity steps per glow cycle."
+            }
+          }
+        },
+        "screen_shake": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Screen shake animation settings.",
+          "required": ["duration_ms", "intensity", "frequency_hz"],
+          "properties": {
+            "duration_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Duration of the shake in milliseconds."
+            },
+            "frequency_hz": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Shake frequency in Hertz."
+            },
+            "intensity": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Shake intensity in pixels."
+            }
+          }
+        }
+      }
+    },
+    "global": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Global effect toggles and performance bounds.",
+      "required": ["enabled", "performance_mode", "quality_level", "max_effects"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Master switch for all visual effects."
+        },
+        "max_effects": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Hard cap on concurrent effects."
+        },
+        "performance_mode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Performance mode preset name."
+        },
+        "quality_level": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Quality preset name."
+        }
+      }
+    },
+    "particles": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Particle system configuration.",
+      "required": ["sparkles", "glow", "float", "drift", "pulse", "shimmer"],
+      "properties": {
+        "drift": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Wind-driven drift particles.",
+          "required": ["enabled", "wind_strength", "turbulence", "fade_rate"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether drift particles are enabled."
+            },
+            "fade_rate": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Rate at which particles fade out."
+            },
+            "turbulence": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Amount of random motion applied."
+            },
+            "wind_strength": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Strength of directional movement."
+            }
+          }
+        },
+        "float": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Floating particle effects.",
+          "required": ["enabled", "velocity_range", "lifetime", "gravity", "characters"],
+          "properties": {
+            "characters": {
+              "type": "array",
+              "minItems": 1,
+              "description": "Glyphs used for float particles.",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether float particles are enabled."
+            },
+            "gravity": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Gravity applied to float particles."
+            },
+            "lifetime": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Lifetime of particles in seconds."
+            },
+            "velocity_range": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "description": "Minimum and maximum velocity values.",
+              "items": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "glow": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Particle glow settings.",
+          "required": ["enabled", "pulse_speed", "min_brightness", "max_brightness", "colors"],
+          "properties": {
+            "colors": {
+              "type": "array",
+              "minItems": 1,
+              "description": "Colors used for glow particles.",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether glow particles are enabled."
+            },
+            "max_brightness": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Maximum brightness for glow particles."
+            },
+            "min_brightness": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Minimum brightness for glow particles."
+            },
+            "pulse_speed": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Speed of the glow pulse."
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Pulse wave particle settings.",
+          "required": ["enabled", "frequency", "amplitude", "wave_type"],
+          "properties": {
+            "amplitude": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Pulse amplitude."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether pulse particles are enabled."
+            },
+            "frequency": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Pulse frequency."
+            },
+            "wave_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Waveform used by the pulse effect."
+            }
+          }
+        },
+        "shimmer": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Shimmer particle settings.",
+          "required": ["enabled", "speed", "color_cycle", "intensity_variation"],
+          "properties": {
+            "color_cycle": {
+              "type": "array",
+              "minItems": 1,
+              "description": "Colors cycled through for shimmer effects.",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether shimmer particles are enabled."
+            },
+            "intensity_variation": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Variation applied to shimmer intensity."
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Cycle speed for shimmer particles."
+            }
+          }
+        },
+        "sparkles": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Sparkle particle settings.",
+          "required": ["enabled", "spawn_rate", "lifetime", "colors", "characters", "intensity"],
+          "properties": {
+            "characters": {
+              "type": "array",
+              "minItems": 1,
+              "description": "Glyphs used for sparkles.",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "colors": {
+              "type": "array",
+              "minItems": 1,
+              "description": "Colors used for sparkles.",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether sparkles are enabled."
+            },
+            "intensity": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Intensity multiplier for sparkles."
+            },
+            "lifetime": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Lifetime of sparkle particles in seconds."
+            },
+            "spawn_rate": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Particles spawned per second."
+            }
+          }
+        }
+      }
+    },
+    "procedural": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Procedural environmental effects.",
+      "required": ["weather", "ambient_lighting", "atmospheric"],
+      "properties": {
+        "ambient_lighting": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Ambient lighting variation settings.",
+          "required": ["enabled", "variation_speed", "variation_intensity", "base_level"],
+          "properties": {
+            "base_level": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Base ambient light level."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether ambient lighting is enabled."
+            },
+            "variation_intensity": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Amount of ambient light variation."
+            },
+            "variation_speed": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Speed of ambient light variation."
+            }
+          }
+        },
+        "atmospheric": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Atmospheric effects toggles.",
+          "required": ["heat_shimmer", "dust_motes", "light_rays"],
+          "properties": {
+            "dust_motes": {
+              "type": "boolean",
+              "description": "Whether dust motes are rendered."
+            },
+            "heat_shimmer": {
+              "type": "boolean",
+              "description": "Whether heat shimmer is rendered."
+            },
+            "light_rays": {
+              "type": "boolean",
+              "description": "Whether light rays are rendered."
+            }
+          }
+        },
+        "weather": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Weather particle settings.",
+          "required": ["rain", "snow", "dust"],
+          "properties": {
+            "dust": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Dust storm settings.",
+              "required": ["enabled", "intensity", "speed", "characters", "colors"],
+              "properties": {
+                "characters": {
+                  "type": "array",
+                  "minItems": 1,
+                  "description": "Glyphs used for dust particles.",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "colors": {
+                  "type": "array",
+                  "minItems": 1,
+                  "description": "Colors used for dust particles.",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Whether dust weather is enabled."
+                },
+                "intensity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Dust particle density."
+                },
+                "speed": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Dust particle speed."
+                }
+              }
+            },
+            "rain": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Rain settings.",
+              "required": ["enabled", "intensity", "speed", "characters", "colors"],
+              "properties": {
+                "characters": {
+                  "type": "array",
+                  "minItems": 1,
+                  "description": "Glyphs used for rain particles.",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "colors": {
+                  "type": "array",
+                  "minItems": 1,
+                  "description": "Colors used for rain particles.",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Whether rain is enabled."
+                },
+                "intensity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Rain particle density."
+                },
+                "speed": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Rain particle speed."
+                }
+              }
+            },
+            "snow": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Snow settings.",
+              "required": ["enabled", "intensity", "speed", "characters", "colors"],
+              "properties": {
+                "characters": {
+                  "type": "array",
+                  "minItems": 1,
+                  "description": "Glyphs used for snow particles.",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "colors": {
+                  "type": "array",
+                  "minItems": 1,
+                  "description": "Colors used for snow particles.",
+                  "items": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Whether snow is enabled."
+                },
+                "intensity": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Snow particle density."
+                },
+                "speed": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Snow particle speed."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "themes": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Color theme definitions.",
+      "required": ["themes", "active_theme"],
+      "properties": {
+        "active_theme": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Key for the currently active theme."
+        },
+        "themes": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Theme registry keyed by name.",
+          "required": ["classic"],
+          "properties": {
+            "classic": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Classic roguelike palette.",
+              "required": ["name", "description", "colors"],
+              "properties": {
+                "colors": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "Color assignments by category.",
+                  "required": ["entities", "tiles", "lighting", "ui"],
+                  "properties": {
+                    "entities": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "description": "Entity color mapping.",
+                      "required": ["player", "enemies", "npcs", "items"],
+                      "properties": {
+                        "enemies": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Enemy color."
+                        },
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Item color."
+                        },
+                        "npcs": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "NPC color."
+                        },
+                        "player": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Player color."
+                        }
+                      }
+                    },
+                    "lighting": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "description": "Lighting color mapping.",
+                      "required": ["torch", "ambient"],
+                      "properties": {
+                        "ambient": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient light color."
+                        },
+                        "torch": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Torch light color."
+                        }
+                      }
+                    },
+                    "tiles": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "description": "Tile color mapping.",
+                      "required": ["floor", "wall", "glass", "stairs", "world_exit"],
+                      "properties": {
+                        "floor": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Floor color."
+                        },
+                        "glass": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Glass tile color."
+                        },
+                        "stairs": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Stairs color."
+                        },
+                        "wall": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Wall color."
+                        },
+                        "world_exit": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "World exit color."
+                        }
+                      }
+                    },
+                    "ui": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "description": "UI color mapping.",
+                      "required": ["revealed_tile", "look_cursor_bg", "look_cursor_fg", "hit_flash_bg", "hit_flash_fg"],
+                      "properties": {
+                        "hit_flash_bg": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Background color for hit flashes."
+                        },
+                        "hit_flash_fg": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Foreground color for hit flashes."
+                        },
+                        "look_cursor_bg": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Look cursor background color."
+                        },
+                        "look_cursor_fg": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Look cursor foreground color."
+                        },
+                        "revealed_tile": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Color for revealed tiles."
+                        }
+                      }
+                    }
+                  }
+                },
+                "description": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Theme description for the settings UI."
+                },
+                "name": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Theme display name."
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

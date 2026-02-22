@@ -9,6 +9,12 @@ This directory contains JSON Schema definitions for validating game data files.
 ## Existing Schemas
 
 - `enemies_v1.json` - Enemy definitions (covers `data/enemies/*.json`)
+- `items_v1.json` - Item definitions (covers `data/items.json`)
+- `weapons_v1.json` - Weapon definitions (covers `data/weapons.json`)
+- `quests_v1.json` - Quest definitions (covers `data/quests.json`, `data/main_questline.json`)
+- `npcs_v1.json` - NPC and trader definitions (covers `data/npcs.json`, `data/traders.json`)
+- Draft schema: `map_elements_v1.json` (planned unified tiles + lights schema; not yet used by data files)
+  - Legacy schemas `walls_v1.json`, `floors_v1.json`, `lights_v1.json` are deprecated in favor of `map_elements_v1.json` once migration completes.
 
 ## Creating a New Schema
 
@@ -218,6 +224,32 @@ For each schema, create a corresponding documentation file in `docs/features/`:
 - Common mistakes to avoid
 - Tier/category guidelines
 - Validation rules
+
+---
+
+## Programmatic Generation (Hybrid)
+
+We support a hybrid approach to reduce manual errors:
+
+### A) Generate from Rust Types (schemars)
+Best for data that already has Rust structs.
+
+Example:
+```
+cargo run --bin schema-gen -- types --target items --output schemas/items_v1.json --schema-id https://saltglass-steppe.game/schemas/items_v1.json --title "Item Definition Schema"
+```
+
+Targets supported: `items`, `weapons`, `enemies`, `quests`, `main_questline`, `npcs`, `traders`.
+
+### B) Infer from JSON Data
+Good for files without Rust structs (fast baseline).
+
+Example:
+```
+cargo run --bin schema-gen -- infer --input data/biome_spawn_tables.json --output schemas/spawn_tables_v1.json --schema-id https://saltglass-steppe.game/schemas/spawn_tables_v1.json --title "Spawn Tables Schema"
+```
+
+Use `--no-required` to avoid over‑constraining required fields.
 
 See `docs/features/ENEMY_JSON_SCHEMA_V1.md` for a complete example.
 

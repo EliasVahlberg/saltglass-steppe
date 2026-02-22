@@ -35,9 +35,9 @@ struct StatusEffectsFile {
 }
 
 static STATUS_EFFECT_DEFS: Lazy<HashMap<String, StatusEffectDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/status_effects.json");
+    let data = include_str!("../../data/effects.json");
     let file: StatusEffectsFile =
-        serde_json::from_str(data).expect("Failed to parse status_effects.json");
+        serde_json::from_str(data).expect("Failed to parse effects.json (status_effects)");
     file.status_effects
         .into_iter()
         .map(|d| (d.id.clone(), d))

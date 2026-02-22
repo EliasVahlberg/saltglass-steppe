@@ -1,0 +1,573 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/aria_dialogues_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Aria Dialogues Schema",
+  "deprecated": true,
+  "x-deprecated-by": "dialogues_v1.json",
+  "x-deprecation-note": "Pending consolidation into dialogues_v1.json (keep data separate until loaders are merged).",
+  "additionalProperties": false,
+  "required": [
+    "personalities"
+  ],
+  "properties": {
+    "personalities": {
+      "additionalProperties": false,
+      "properties": {
+        "guardian": {
+          "additionalProperties": false,
+          "properties": {
+            "greeting": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique identifier (snake_case).",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "options": {
+                  "minItems": 1,
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "target": {
+                        "type": "string",
+                        "description": "String field `target`."
+                      },
+                      "text": {
+                        "type": "string",
+                        "description": "String field `text`."
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "description": "Array of `options` items."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "String field `text`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `greeting`."
+            },
+            "name": {
+              "type": "string",
+              "description": "Display name.",
+              "minLength": 1
+            },
+            "nodes": {
+              "additionalProperties": false,
+              "properties": {
+                "guard_defenses": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `guard_defenses`."
+                },
+                "guard_passage": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `guard_passage`."
+                },
+                "guard_shelter": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `guard_shelter`."
+                },
+                "guard_threats": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `guard_threats`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `nodes`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `guardian`."
+        },
+        "librarian": {
+          "additionalProperties": false,
+          "properties": {
+            "greeting": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique identifier (snake_case).",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "options": {
+                  "minItems": 1,
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "target": {
+                        "type": "string",
+                        "description": "String field `target`."
+                      },
+                      "text": {
+                        "type": "string",
+                        "description": "String field `text`."
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "description": "Array of `options` items."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "String field `text`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `greeting`."
+            },
+            "name": {
+              "type": "string",
+              "description": "Display name.",
+              "minLength": 1
+            },
+            "nodes": {
+              "additionalProperties": false,
+              "properties": {
+                "lib_heliograph": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `lib_heliograph`."
+                },
+                "lib_storms": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `lib_storms`."
+                },
+                "lib_white_noon": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `lib_white_noon`."
+                },
+                "lib_white_noon_detail": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `lib_white_noon_detail`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `nodes`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `librarian`."
+        },
+        "teacher": {
+          "additionalProperties": false,
+          "properties": {
+            "greeting": {
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "description": "Unique identifier (snake_case).",
+                  "minLength": 1,
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "options": {
+                  "minItems": 1,
+                  "items": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "target": {
+                        "type": "string",
+                        "description": "String field `target`."
+                      },
+                      "text": {
+                        "type": "string",
+                        "description": "String field `text`."
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array",
+                  "description": "Array of `options` items."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "String field `text`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `greeting`."
+            },
+            "name": {
+              "type": "string",
+              "description": "Display name.",
+              "minLength": 1
+            },
+            "nodes": {
+              "additionalProperties": false,
+              "properties": {
+                "teach_adaptation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `teach_adaptation`."
+                },
+                "teach_navigation": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `teach_navigation`."
+                },
+                "teach_refraction": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `teach_refraction`."
+                },
+                "teach_survival": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "options": {
+                      "items": {
+                        "additionalProperties": false,
+                        "properties": {
+                          "target": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Target node id."
+                          },
+                          "text": {
+                            "type": "string",
+                            "minLength": 1,
+                            "description": "Option text."
+                          }
+                        },
+                        "type": "object"
+                      },
+                      "type": "array",
+                      "description": "Array of `options` items."
+                    },
+                    "text": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Dialogue text for the node."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `teach_survival`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `nodes`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `teacher`."
+        }
+      },
+      "type": "object",
+      "description": "Object for `personalities`."
+    }
+  },
+  "title": "Aria Dialogues Schema",
+  "type": "object",
+  "description": "ARIA terminal dialogue definitions."
+}

@@ -1,0 +1,276 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/abilities_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Abilities Schema",
+  "description": "Combined schema for skills, active abilities, and psychic abilities.",
+  "x-consolidates": ["skills_v1.json", "psychic_abilities_v1.json"],
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "skills", "abilities", "psychic_abilities"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "abilities_v1",
+      "description": "Schema version identifier."
+    },
+    "skills": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Passive skill definitions that drive progression and bonuses.",
+      "items": { "$ref": "#/$defs/skill" }
+    },
+    "abilities": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Active stamina-based abilities unlocked by skills.",
+      "items": { "$ref": "#/$defs/ability" }
+    },
+    "psychic_abilities": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Psychic abilities gated by adaptation level and coherence cost.",
+      "items": { "$ref": "#/$defs/psychic_ability" }
+    }
+  },
+  "$defs": {
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "category",
+        "description",
+        "max_level",
+        "base_cost",
+        "prerequisites",
+        "passive_effects"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique skill identifier (snake_case)."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["combat", "athletics", "survival", "crafting", "social"],
+          "description": "Skill category for UI grouping."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Player-facing description of the skill."
+        },
+        "max_level": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum attainable level."
+        },
+        "base_cost": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Base skill point cost for the first level."
+        },
+        "prerequisites": {
+          "type": "array",
+          "description": "Required skills and levels before unlocking.",
+          "items": { "$ref": "#/$defs/skill_prerequisite" }
+        },
+        "passive_effects": {
+          "type": "array",
+          "description": "Passive effects granted per level.",
+          "items": { "$ref": "#/$defs/passive_effect" }
+        }
+      }
+    },
+    "skill_prerequisite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["skill_id", "required_level"],
+      "properties": {
+        "skill_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Prerequisite skill id."
+        },
+        "required_level": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum level required in the prerequisite skill."
+        }
+      }
+    },
+    "passive_effect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effect_type", "target", "value_per_level"],
+      "properties": {
+        "effect_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Effect identifier (e.g., damage_bonus)."
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Target category for the bonus."
+        },
+        "value_per_level": {
+          "type": "number",
+          "description": "Bonus applied per skill level."
+        },
+        "max_value": {
+          "type": "number",
+          "description": "Optional cap on total bonus."
+        }
+      }
+    },
+    "ability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "category",
+        "description",
+        "stamina_cost",
+        "cooldown",
+        "required_skill",
+        "required_level",
+        "effect_type",
+        "target_type",
+        "effect_data"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique ability identifier (snake_case)."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name."
+        },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Combat",
+            "Crafting",
+            "Lore",
+            "Movement",
+            "Perception",
+            "Refraction",
+            "Social",
+            "Stealth",
+            "Survival",
+            "Tools"
+          ],
+          "description": "Ability category for UI grouping."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Player-facing description of the ability."
+        },
+        "stamina_cost": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Stamina cost to use the ability."
+        },
+        "cooldown": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Cooldown duration in turns."
+        },
+        "required_skill": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Skill category or id required for unlock."
+        },
+        "required_level": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum skill level required."
+        },
+        "effect_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Primary effect type."
+        },
+        "target_type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Targeting mode (e.g., Self, Single, Adjacent)."
+        },
+        "effect_data": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Effect payload data."
+        }
+      }
+    },
+    "psychic_ability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "category",
+        "description",
+        "coherence_cost",
+        "cooldown",
+        "min_adaptation_level",
+        "effect"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique psychic ability identifier (snake_case)."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name."
+        },
+        "category": {
+          "type": "string",
+          "enum": ["telepathy", "probability", "energy", "phasing", "temporal"],
+          "description": "Psychic ability category."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Player-facing description of the psychic ability."
+        },
+        "coherence_cost": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Coherence cost to activate."
+        },
+        "cooldown": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Cooldown duration in turns."
+        },
+        "min_adaptation_level": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum adaptation level required."
+        },
+        "effect": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Effect id or script hook."
+        }
+      }
+    }
+  }
+}

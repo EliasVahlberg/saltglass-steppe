@@ -1,19 +1,76 @@
 # JSON Schema Creation TODO
 
-**Status**: 1/51 schemas complete (2%)  
+**Status**: 45/52 schemas complete (86%)  
 **Priority**: Medium (improves data validation and IDE support)
 
 ---
 
 ## Current State
 
-### ✅ Completed (1 schema)
+### Baseline Schemas Generated
+Baseline schemas have been generated for all existing `data/*.json` files using `schema-gen` (inference mode with `--no-required`). These are functional but require the planned description/tightening pass.
+
+### Remaining Missing Schemas (8)
+- `expanded_spawn_tables_v1.json` (no data file present)
+- `generation_config_v1.json` (no data file present)
+- `grammars_v1.json` (no `data/grammars/` directory)
+- `npc_spawn_config_v1.json` (no data file present)
+- `quest_constraints_v1.json` (no data file present)
+- `structure_spawn_config_v1.json` (no data file present)
+- `templates_v1.json` (no `data/templates/` directory)
+- `world_generation_integration_v1.json` (no data file present)
+
+These map to files listed as dead/unused in `docs/development/DATA_FILE_AUDIT.md`. Unless new data files are created, treat these as **deprecated/removed** rather than schema TODOs.
+
+### Extra Generated Schema
+- `aria_dialogues_v1.json` was generated from `data/aria_dialogues.json` but is not in the original list. It has been merged into `data/dialogues.json` under `aria_personalities`.
+
+### Consolidation / Deprecation (Pending)
+Completed:
+- `aria_dialogues_v1.json` -> merged into `data/dialogues.json` under `aria_personalities`
+- `effects_config_v1.json` + `status_effects_v1.json` -> merged into `data/effects.json` (now includes `config` and `status_effects`)
+- `skills_v1.json` + `psychic_abilities_v1.json` -> merged into `data/abilities.json` (now includes `skills` and `psychic_abilities`)
+
+### Coverage Notes
+- `data/main_questline.json` is covered by `schemas/quests_v1.json`.
+- `data/traders.json` is covered by `schemas/npcs_v1.json`.
+- `data/biome_spawn_tables.json` is covered by `schemas/spawn_tables_v1.json`.
+- `data/structure_generation.json` is test-tool only (tilegen CLI), but still covered by `schemas/structure_generation_v1.json`.
+
+### Programmatic Generation (Hybrid)
+We now support a hybrid approach:
+- Generate from Rust types using `schema-gen` (schemars).
+- Infer from JSON files for data-only schemas, then tighten manually.
+
+See `schemas/README.md` for command examples.
+
+### Draft Schemas (Not Yet Used in Data Files)
+- `map_elements_v1.json` (active unified tiles + lights schema; see `docs/development/MAP_ELEMENTS_UNIFICATION_PLAN.md`)
+  - Legacy split files (`data/walls.json`, `data/floors.json`, `data/lights.json`) have been removed after migration.
+
+### ✅ Completed (5 schemas)
 
 - [x] **enemies_v1.json** - Enemy definitions
   - Covers: `data/enemies/*.json` (5 files)
   - Documentation: `docs/features/ENEMY_JSON_SCHEMA_V1.md`
   - Schema validation: Implemented in loader
   - Status: Complete with comprehensive validation
+- [x] **items_v1.json** - Item definitions
+  - Covers: `data/items.json`
+  - Documentation: `docs/features/ITEMS_JSON_SCHEMA_V1.md`
+  - Schema validation: Implemented in loader
+- [x] **weapons_v1.json** - Weapon definitions
+  - Covers: `data/weapons.json`
+  - Documentation: `docs/features/WEAPONS_JSON_SCHEMA_V1.md`
+  - Schema validation: Implemented in loader
+- [x] **quests_v1.json** - Quest definitions
+  - Covers: `data/quests.json`, `data/main_questline.json`
+  - Documentation: `docs/features/QUESTS_JSON_SCHEMA_V1.md`
+  - Schema validation: Implemented in loader
+- [x] **npcs_v1.json** - NPC and trader definitions
+  - Covers: `data/npcs.json`, `data/traders.json`
+  - Documentation: `docs/features/NPCS_JSON_SCHEMA_V1.md`
+  - Schema validation: Implemented in loader
 
 ### 📋 Current JSON Loading Pattern
 
@@ -43,14 +100,14 @@ pub fn get_item_def(id: &str) -> Option<&'static ItemDef> {
 - `src/game/item.rs` - items.json
 - `src/game/enemy.rs` - enemies/*.json (with schema validation)
 - `src/game/quest.rs` - quests.json, main_questline.json
-- `src/game/dialogue.rs` - dialogues.json, aria_dialogues.json
+- `src/game/dialogue.rs` - dialogues.json (includes aria personalities)
 - `src/game/npc.rs` - npcs.json
 - `src/game/faction.rs` - factions.json
 - `src/game/adaptation.rs` - adaptations.json
-- `src/game/skills.rs` - skills.json, abilities.json
+- `src/game/skills.rs` - abilities.json (includes skills + abilities)
 - `src/game/combat.rs` - weapons.json
-- `src/game/map.rs` - walls.json, floors.json
-- `src/game/light_defs.rs` - lights.json
+- `src/game/map.rs` - map_elements.json (or legacy walls/floors fallback)
+- `src/game/light_defs.rs` - map_elements.json (or legacy lights fallback)
 - `src/game/interactable.rs` - interactables.json
 - `src/game/encounter.rs` - encounter_config.json
 - `src/game/auto_explore.rs` - auto_explore_config.json
@@ -64,113 +121,120 @@ pub fn get_item_def(id: &str) -> Option<&'static ItemDef> {
 
 ---
 
-## Phase 1: High Priority Schemas (8 schemas)
+## Phase 1: High Priority Schemas (9 schemas)
 
 ### 1. items_v1.json
-- **Files**: `data/items.json`, `data/weapons.json`
-- **Complexity**: High (equipment, consumables, quest items, weapons)
-- **Loader**: `src/game/item.rs`, `src/game/combat.rs`
+- **Files**: `data/items.json`
+- **Complexity**: High (equipment, consumables, quest items)
+- **Loader**: `src/game/item.rs`
 - **Estimated Time**: 3-4 hours
 - **Fields**: id, name, glyph, description, value, item_type, usable, equippable, equipment_slot, stats, effects, requirements
 
-### 2. quests_v1.json
+### 2. weapons_v1.json
+- **Files**: `data/weapons.json`
+- **Complexity**: Low (simple weapon stats)
+- **Loader**: `src/game/combat.rs`
+- **Estimated Time**: 1 hour
+- **Fields**: id, name, glyph, damage_min, damage_max, accuracy, range, ap_cost, ammo_type, description
+
+### 3. quests_v1.json
 - **Files**: `data/quests.json`, `data/main_questline.json`
 - **Complexity**: High (objectives, conditions, rewards, branching)
 - **Loader**: `src/game/quest.rs`
 - **Estimated Time**: 3-4 hours
 - **Fields**: id, name, description, category, objectives, prerequisites, rewards, faction_effects, unlock_conditions
 
-### 3. npcs_v1.json
+### 4. npcs_v1.json
 - **Files**: `data/npcs.json`, `data/traders.json`
 - **Complexity**: Medium (dialogue refs, trading, factions)
 - **Loader**: `src/game/npc.rs`
 - **Estimated Time**: 2-3 hours
 - **Fields**: id, name, glyph, description, faction, dialogue_id, trader, quest_giver, location
 
-### 4. dialogues_v1.json
+### 5. dialogues_v1.json
 - **Files**: `data/dialogues.json`, `data/aria_dialogues.json`
 - **Complexity**: Medium (conversation trees, choices, conditions)
 - **Loader**: `src/game/dialogue.rs`
 - **Estimated Time**: 2-3 hours
 - **Fields**: id, speaker, text, choices, conditions, effects, next_dialogue
 
-### 5. factions_v1.json
+### 6. factions_v1.json
 - **Files**: `data/factions.json`
 - **Complexity**: Medium (reputation, relationships, buildings)
 - **Loader**: `src/game/faction.rs`
 - **Estimated Time**: 2 hours
 - **Fields**: id, name, description, color, reputation_tiers, relationships, buildings
 
-### 6. adaptations_v1.json
+### 7. adaptations_v1.json
 - **Files**: `data/adaptations.json`
 - **Complexity**: Medium (mutation trees, costs, effects)
 - **Loader**: `src/game/adaptation.rs`
 - **Estimated Time**: 2 hours
 - **Fields**: id, name, description, tier, cost, prerequisites, effects, social_penalty
 
-### 7. spawn_tables_v1.json
+### 8. spawn_tables_v1.json
 - **Files**: `data/biome_spawn_tables.json`
 - **Complexity**: Medium (weighted spawning, biome-specific)
 - **Loader**: `src/game/generation/spawn.rs`
 - **Estimated Time**: 2 hours
 - **Fields**: biome, enemies, npcs, items, weights, level_ranges
 
-### 8. loot_tables_v1.json
+### 9. loot_tables_v1.json
 - **Files**: `data/loot_tables.json`
 - **Complexity**: Medium (weighted drops, quality tiers)
 - **Loader**: `src/game/generation/loot.rs`
 - **Estimated Time**: 2 hours
 - **Fields**: table_id, items, weights, quality_tiers, guaranteed_drops
 
-**Phase 1 Total**: 18-22 hours
+**Phase 1 Total**: 19-23 hours
 
 ---
 
 ## Phase 2: Medium Priority Schemas (8 schemas)
 
-### 9. terrain_config_v1.json
+### 10. terrain_config_v1.json
 - **Files**: `data/terrain_config.json`
 - **Complexity**: High (biome algorithms, POI layouts, materials)
 - **Loader**: `src/game/generation/terrain_forge_adapter.rs`
 - **Estimated Time**: 3 hours
 
-### 10. biome_profiles_v1.json
+### 11. biome_profiles_v1.json
 - **Files**: `data/biome_profiles.json`
 - **Complexity**: Medium (environmental content, features)
 - **Loader**: `src/game/generation/biomes.rs`
 - **Estimated Time**: 2 hours
 
-### 11. storm_config_v1.json
+### 12. storm_config_v1.json
 - **Files**: `data/storm_config.json`
 - **Complexity**: Medium (timing, effects, transformations)
 - **Loader**: `src/game/storm.rs`
 - **Estimated Time**: 2 hours
 
-### 12. encounter_config_v1.json
+### 13. encounter_config_v1.json
 - **Files**: `data/encounter_config.json`
 - **Complexity**: Medium (encounter types, triggers)
 - **Loader**: `src/game/encounter.rs`
 - **Estimated Time**: 2 hours
 
-### 13. dynamic_events_v1.json
+### 14. dynamic_events_v1.json
 - **Files**: `data/dynamic_events.json`
 - **Complexity**: Medium (triggers, consequences)
 - **Loader**: `src/game/generation/events.rs`
 - **Estimated Time**: 2 hours
 
-### 14. narrative_integration_v1.json
+### 15. narrative_integration_v1.json
 - **Files**: `data/narrative_integration.json`
 - **Complexity**: Medium (story fragments, placement rules)
 - **Loader**: `src/game/generation/narrative.rs`
 - **Estimated Time**: 2 hours
 
-### 15. microstructures_v1.json
+### 16. microstructures_v1.json
 - **Files**: `data/microstructures.json`
 - **Complexity**: Medium (structure definitions, placement)
 - **Loader**: `src/game/generation/microstructures.rs`
 - **Estimated Time**: 2 hours
 
-### 16. interactables_v1.json
+### 17. interactables_v1.json
 - **Files**: `data/interactables.json`
 - **Complexity**: Medium (interactive objects, quest triggers)
 - **Loader**: `src/game/interactable.rs`
@@ -183,14 +247,14 @@ pub fn get_item_def(id: &str) -> Option<&'static ItemDef> {
 ## Phase 3: Lower Priority Schemas (34 schemas)
 
 ### Abilities & Skills (3 schemas)
-- [ ] abilities_v1.json - `data/abilities.json`
-- [ ] skills_v1.json - `data/skills.json`
-- [ ] psychic_abilities_v1.json - `data/psychic_abilities.json`
+- [ ] abilities_v1.json - `data/abilities.json` (includes `skills` + `psychic_abilities`)
+- [ ] skills_v1.json - deprecated (merged into abilities_v1)
+- [ ] psychic_abilities_v1.json - deprecated (merged into abilities_v1)
 
 ### Status & Effects (3 schemas)
-- [ ] status_effects_v1.json - `data/status_effects.json`
-- [ ] effects_v1.json - `data/effects.json`
-- [ ] effects_config_v1.json - `data/effects_config.json`
+- [ ] effects_v1.json - `data/effects.json` (includes `status_effects` + `config`)
+- [ ] status_effects_v1.json - deprecated (merged into effects_v1)
+- [ ] effects_config_v1.json - deprecated (merged into effects_v1)
 
 ### World Objects (3 schemas)
 - [ ] chests_v1.json - `data/chests.json`
@@ -198,9 +262,10 @@ pub fn get_item_def(id: &str) -> Option<&'static ItemDef> {
 - [ ] structure_templates_v1.json - `data/structure_templates.json`
 
 ### Map Elements (3 schemas)
-- [ ] walls_v1.json - `data/walls.json`
-- [ ] floors_v1.json - `data/floors.json`
-- [ ] lights_v1.json - `data/lights.json`
+- [ ] map_elements_v1.json - `data/map_elements.json`
+- [ ] walls_v1.json - deprecated (legacy split schema)
+- [ ] floors_v1.json - deprecated (legacy split schema)
+- [ ] lights_v1.json - deprecated (legacy split schema)
 
 ### Progression (3 schemas)
 - [ ] classes_v1.json - `data/classes.json`
@@ -240,7 +305,7 @@ pub fn get_item_def(id: &str) -> Option<&'static ItemDef> {
 
 ---
 
-## Unified JSON Loading Module (Future Enhancement)
+## Unified JSON Loading Module (In Progress)
 
 ### Current Issues
 - **Duplication**: Each module has identical loading boilerplate
@@ -255,17 +320,30 @@ use once_cell::sync::Lazy;
 use serde::de::DeserializeOwned;
 use std::collections::HashMap;
 
+pub struct DataSource<'a> {
+    pub label: &'a str,
+    pub data: &'a str,
+}
+
+pub trait HasId {
+    fn id(&self) -> &str;
+}
+
 pub struct DataLoader<T> {
     data: HashMap<String, T>,
 }
 
-impl<T: DeserializeOwned + Clone> DataLoader<T> {
-    pub fn load_single(path: &str, expected_schema: &str) -> Self {
-        // Load single JSON file with schema validation
+impl<T: DeserializeOwned + HasId> DataLoader<T> {
+    pub fn load_single(source: DataSource<'_>, list_key: &str, expected_schema: &str) -> Self {
+        // Load single JSON source with schema validation
     }
-    
-    pub fn load_multiple(paths: &[(&str, &str)], expected_schema: &str) -> Self {
-        // Load multiple JSON files and merge
+
+    pub fn load_multiple(
+        sources: &[DataSource<'_>],
+        list_key: &str,
+        expected_schema: &str,
+    ) -> Self {
+        // Load multiple JSON sources and merge
     }
     
     pub fn get(&self, id: &str) -> Option<&T> {
@@ -279,15 +357,23 @@ impl<T: DeserializeOwned + Clone> DataLoader<T> {
 
 // Usage:
 static ITEMS: Lazy<DataLoader<ItemDef>> = Lazy::new(|| {
-    DataLoader::load_single("../../data/items.json", "items_v1")
+    DataLoader::load_single(
+        DataSource::new("data/items.json", include_str!("../../data/items.json")),
+        "items",
+        "items_v1",
+    )
 });
 
 static ENEMIES: Lazy<DataLoader<EnemyDef>> = Lazy::new(|| {
-    DataLoader::load_multiple(&[
-        ("common", "../../data/enemies/common.json"),
-        ("uncommon", "../../data/enemies/uncommon.json"),
-        // ...
-    ], "enemies_v1")
+    DataLoader::load_multiple(
+        &[
+            DataSource::new("data/enemies/common.json", include_str!("../../data/enemies/common.json")),
+            DataSource::new("data/enemies/uncommon.json", include_str!("../../data/enemies/uncommon.json")),
+            // ...
+        ],
+        "enemies",
+        "enemies_v1",
+    )
 });
 ```
 
@@ -299,11 +385,11 @@ static ENEMIES: Lazy<DataLoader<EnemyDef>> = Lazy::new(|| {
 - **Future-proof**: Easy to add hot-reload, caching, etc.
 
 ### Implementation Plan
-1. Create `src/game/data_loader.rs` module
-2. Implement `DataLoader<T>` with schema validation
-3. Migrate one module (e.g., `item.rs`) as proof of concept
+1. Create `src/game/data_loader.rs` module (done)
+2. Implement `DataLoader<T>` with schema version validation (done)
+3. Migrate initial modules (items, weapons, enemies) (done)
 4. Gradually migrate other modules
-5. Add optional JSON Schema validation (using `jsonschema` crate)
+5. Add JSON Schema validation (using `jsonschema` crate) (done)
 
 **Estimated Time**: 4-6 hours for initial implementation + migration
 
@@ -311,12 +397,12 @@ static ENEMIES: Lazy<DataLoader<EnemyDef>> = Lazy::new(|| {
 
 ## Total Effort Estimate
 
-- **Phase 1** (High Priority): 18-22 hours
+- **Phase 1** (High Priority): 19-23 hours
 - **Phase 2** (Medium Priority): 17 hours
 - **Phase 3** (Lower Priority): 34 hours
 - **Unified Loader**: 4-6 hours
 
-**Total**: 73-79 hours (~2 weeks of focused work)
+**Total**: 74-80 hours (~2 weeks of focused work)
 
 ---
 

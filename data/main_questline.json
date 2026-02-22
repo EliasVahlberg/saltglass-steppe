@@ -1,4 +1,5 @@
 {
+  "schema": "quests_v1",
   "main_questline": [
     {
       "id": "pilgrims_last_angle",

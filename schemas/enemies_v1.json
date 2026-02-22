@@ -4,7 +4,10 @@
   "title": "Enemy Definition Schema",
   "description": "Schema for enemy definitions in Saltglass Steppe (v1)",
   "type": "object",
-  "required": ["schema", "enemies"],
+  "required": [
+    "schema",
+    "enemies"
+  ],
   "properties": {
     "schema": {
       "type": "string",
@@ -22,7 +25,14 @@
   "$defs": {
     "enemy": {
       "type": "object",
-      "required": ["id", "name", "glyph", "max_hp", "damage_min", "damage_max"],
+      "required": [
+        "id",
+        "name",
+        "glyph",
+        "max_hp",
+        "damage_min",
+        "damage_max"
+      ],
       "properties": {
         "id": {
           "type": "string",
@@ -102,7 +112,13 @@
         },
         "demeanor": {
           "type": "string",
-          "enum": ["aggressive", "defensive", "neutral", "friendly", "pacifist"],
+          "enum": [
+            "aggressive",
+            "defensive",
+            "neutral",
+            "friendly",
+            "pacifist"
+          ],
           "default": "aggressive",
           "description": "AI behavior pattern"
         },
@@ -125,7 +141,9 @@
           "items": {
             "type": "string"
           },
-          "default": ["player"],
+          "default": [
+            "player"
+          ],
           "description": "Faction IDs this enemy attacks"
         },
         "allied_with": {
@@ -167,11 +185,36 @@
         "resistances": {
           "type": "object",
           "properties": {
-            "fire": { "type": "number", "minimum": 0, "maximum": 1 },
-            "cold": { "type": "number", "minimum": 0, "maximum": 1 },
-            "poison": { "type": "number", "minimum": 0, "maximum": 1 },
-            "physical": { "type": "number", "minimum": 0, "maximum": 1 },
-            "lightning": { "type": "number", "minimum": 0, "maximum": 1 }
+            "fire": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Number field `fire`."
+            },
+            "cold": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Number field `cold`."
+            },
+            "poison": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Number field `poison`."
+            },
+            "physical": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Number field `physical`."
+            },
+            "lightning": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Number field `lightning`."
+            }
           },
           "additionalProperties": false,
           "description": "Damage type multipliers (0.0 = immune, 0.5 = 50% damage)"
@@ -179,11 +222,31 @@
         "vulnerabilities": {
           "type": "object",
           "properties": {
-            "fire": { "type": "number", "minimum": 1 },
-            "cold": { "type": "number", "minimum": 1 },
-            "poison": { "type": "number", "minimum": 1 },
-            "physical": { "type": "number", "minimum": 1 },
-            "lightning": { "type": "number", "minimum": 1 }
+            "fire": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Number field `fire`."
+            },
+            "cold": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Number field `cold`."
+            },
+            "poison": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Number field `poison`."
+            },
+            "physical": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Number field `physical`."
+            },
+            "lightning": {
+              "type": "number",
+              "minimum": 1,
+              "description": "Number field `lightning`."
+            }
           },
           "additionalProperties": false,
           "description": "Damage type multipliers (2.0 = 200% damage)"
@@ -192,7 +255,17 @@
           "type": "array",
           "items": {
             "type": "string",
-            "enum": ["poison", "stun", "blinded", "immobilized", "burning", "frozen", "bleeding"]
+            "enum": [
+              "bleed",
+              "blinded",
+              "burn",
+              "frozen",
+              "immobilized",
+              "lightning",
+              "poison",
+              "slow",
+              "stun"
+            ]
           },
           "default": [],
           "description": "Status effect IDs enemy is immune to"
@@ -267,7 +340,10 @@
     },
     "loot_entry": {
       "type": "object",
-      "required": ["item", "weight"],
+      "required": [
+        "item",
+        "weight"
+      ],
       "properties": {
         "item": {
           "type": "string",
@@ -297,14 +373,22 @@
         },
         "quality_tier": {
           "type": "string",
-          "enum": ["common", "uncommon", "rare", "epic", "legendary"],
+          "enum": [
+            "common",
+            "uncommon",
+            "rare",
+            "epic",
+            "legendary"
+          ],
           "description": "Loot tier override"
         }
       }
     },
     "behavior": {
       "type": "object",
-      "required": ["type"],
+      "required": [
+        "type"
+      ],
       "properties": {
         "type": {
           "type": "string",
@@ -371,23 +455,32 @@
     },
     "effect": {
       "type": "object",
-      "required": ["condition", "effect"],
+      "required": [
+        "condition",
+        "effect"
+      ],
       "properties": {
         "condition": {
           "type": "string",
-          "enum": ["on_hit", "on_death", "on_spawn"],
+          "enum": [
+            "on_hit",
+            "on_death",
+            "on_spawn"
+          ],
           "description": "When effect triggers"
         },
         "effect": {
           "type": "string",
-          "pattern": "^[WDS]\\(@\\d+ &[A-Za-z]+(?: &[A-Za-z]+)?\\)$",
+          "pattern": "^[BDFGPRSW]\\(@\\d+(?: &[A-Za-z]+)+\\)$",
           "description": "Effect code (e.g., 'W(@4 &LightYellow)')"
         }
       }
     },
     "phase": {
       "type": "object",
-      "required": ["hp_threshold"],
+      "required": [
+        "hp_threshold"
+      ],
       "properties": {
         "hp_threshold": {
           "type": "integer",
@@ -419,10 +512,12 @@
           "description": "Damage multiplier for this phase"
         },
         "resistances": {
-          "$ref": "#/$defs/enemy/properties/resistances"
+          "$ref": "#/$defs/enemy/properties/resistances",
+          "description": "Field `resistances`."
         },
         "vulnerabilities": {
-          "$ref": "#/$defs/enemy/properties/vulnerabilities"
+          "$ref": "#/$defs/enemy/properties/vulnerabilities",
+          "description": "Field `vulnerabilities`."
         }
       }
     }

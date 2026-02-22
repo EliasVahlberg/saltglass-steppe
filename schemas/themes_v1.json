@@ -1,0 +1,351 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/themes_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Themes Schema",
+  "description": "Schema for themes.json (theme palette definitions and active theme selector).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["themes", "active_theme"],
+  "definitions": {
+    "color_string": {
+      "type": "string",
+      "pattern": "^(?:Black|Red|Green|Yellow|Blue|Magenta|Cyan|Gray|DarkGray|LightRed|LightGreen|LightYellow|LightBlue|LightMagenta|LightCyan|White|Rgb\\(\\s*(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\s*,\\s*(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\s*,\\s*(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\s*\\)\\))$",
+      "description": "Named console color (e.g. Red, LightCyan) or Rgb(r, g, b) with 0-255 channels."
+    }
+  },
+  "properties": {
+    "active_theme": {
+      "type": "string",
+      "enum": ["classic", "dark", "high_contrast", "neon"],
+      "description": "Theme key to apply at startup."
+    },
+    "themes": {
+      "type": "object",
+      "description": "Theme palettes keyed by theme name.",
+      "additionalProperties": false,
+      "required": ["classic", "dark", "high_contrast", "neon"],
+      "properties": {
+        "classic": {
+          "type": "object",
+          "description": "Classic theme palette.",
+          "additionalProperties": false,
+          "required": ["colors", "description", "name"],
+          "properties": {
+            "colors": {
+              "type": "object",
+              "description": "Color overrides for the theme.",
+              "additionalProperties": false,
+              "required": ["entities", "lighting", "tiles", "ui"],
+              "properties": {
+                "entities": {
+                  "type": "object",
+                  "description": "Entity colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["enemies", "items", "npcs", "player"],
+                  "properties": {
+                    "enemies": { "$ref": "#/definitions/color_string" },
+                    "items": { "$ref": "#/definitions/color_string" },
+                    "npcs": { "$ref": "#/definitions/color_string" },
+                    "player": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "lighting": {
+                  "type": "object",
+                  "description": "Lighting colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["ambient", "torch"],
+                  "properties": {
+                    "ambient": { "$ref": "#/definitions/color_string" },
+                    "torch": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "tiles": {
+                  "type": "object",
+                  "description": "Tile colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["floor", "glass", "stairs", "wall", "world_exit"],
+                  "properties": {
+                    "floor": { "$ref": "#/definitions/color_string" },
+                    "glass": { "$ref": "#/definitions/color_string" },
+                    "stairs": { "$ref": "#/definitions/color_string" },
+                    "wall": { "$ref": "#/definitions/color_string" },
+                    "world_exit": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "ui": {
+                  "type": "object",
+                  "description": "UI colors for this theme.",
+                  "additionalProperties": false,
+                  "required": [
+                    "hit_flash_bg",
+                    "hit_flash_fg",
+                    "look_cursor_bg",
+                    "look_cursor_fg",
+                    "revealed_tile"
+                  ],
+                  "properties": {
+                    "hit_flash_bg": { "$ref": "#/definitions/color_string" },
+                    "hit_flash_fg": { "$ref": "#/definitions/color_string" },
+                    "look_cursor_bg": { "$ref": "#/definitions/color_string" },
+                    "look_cursor_fg": { "$ref": "#/definitions/color_string" },
+                    "revealed_tile": { "$ref": "#/definitions/color_string" }
+                  }
+                }
+              }
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable description of the theme."
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Display name for the theme."
+            }
+          }
+        },
+        "dark": {
+          "type": "object",
+          "description": "Dark theme palette.",
+          "additionalProperties": false,
+          "required": ["colors", "description", "name"],
+          "properties": {
+            "colors": {
+              "type": "object",
+              "description": "Color overrides for the theme.",
+              "additionalProperties": false,
+              "required": ["entities", "lighting", "tiles", "ui"],
+              "properties": {
+                "entities": {
+                  "type": "object",
+                  "description": "Entity colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["enemies", "items", "npcs", "player"],
+                  "properties": {
+                    "enemies": { "$ref": "#/definitions/color_string" },
+                    "items": { "$ref": "#/definitions/color_string" },
+                    "npcs": { "$ref": "#/definitions/color_string" },
+                    "player": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "lighting": {
+                  "type": "object",
+                  "description": "Lighting colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["ambient", "torch"],
+                  "properties": {
+                    "ambient": { "$ref": "#/definitions/color_string" },
+                    "torch": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "tiles": {
+                  "type": "object",
+                  "description": "Tile colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["floor", "glass", "stairs", "wall", "world_exit"],
+                  "properties": {
+                    "floor": { "$ref": "#/definitions/color_string" },
+                    "glass": { "$ref": "#/definitions/color_string" },
+                    "stairs": { "$ref": "#/definitions/color_string" },
+                    "wall": { "$ref": "#/definitions/color_string" },
+                    "world_exit": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "ui": {
+                  "type": "object",
+                  "description": "UI colors for this theme.",
+                  "additionalProperties": false,
+                  "required": [
+                    "hit_flash_bg",
+                    "hit_flash_fg",
+                    "look_cursor_bg",
+                    "look_cursor_fg",
+                    "revealed_tile"
+                  ],
+                  "properties": {
+                    "hit_flash_bg": { "$ref": "#/definitions/color_string" },
+                    "hit_flash_fg": { "$ref": "#/definitions/color_string" },
+                    "look_cursor_bg": { "$ref": "#/definitions/color_string" },
+                    "look_cursor_fg": { "$ref": "#/definitions/color_string" },
+                    "revealed_tile": { "$ref": "#/definitions/color_string" }
+                  }
+                }
+              }
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable description of the theme."
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Display name for the theme."
+            }
+          }
+        },
+        "high_contrast": {
+          "type": "object",
+          "description": "High-contrast accessibility theme.",
+          "additionalProperties": false,
+          "required": ["colors", "description", "name"],
+          "properties": {
+            "colors": {
+              "type": "object",
+              "description": "Color overrides for the theme.",
+              "additionalProperties": false,
+              "required": ["entities", "lighting", "tiles", "ui"],
+              "properties": {
+                "entities": {
+                  "type": "object",
+                  "description": "Entity colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["enemies", "items", "npcs", "player"],
+                  "properties": {
+                    "enemies": { "$ref": "#/definitions/color_string" },
+                    "items": { "$ref": "#/definitions/color_string" },
+                    "npcs": { "$ref": "#/definitions/color_string" },
+                    "player": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "lighting": {
+                  "type": "object",
+                  "description": "Lighting colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["ambient", "torch"],
+                  "properties": {
+                    "ambient": { "$ref": "#/definitions/color_string" },
+                    "torch": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "tiles": {
+                  "type": "object",
+                  "description": "Tile colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["floor", "glass", "stairs", "wall", "world_exit"],
+                  "properties": {
+                    "floor": { "$ref": "#/definitions/color_string" },
+                    "glass": { "$ref": "#/definitions/color_string" },
+                    "stairs": { "$ref": "#/definitions/color_string" },
+                    "wall": { "$ref": "#/definitions/color_string" },
+                    "world_exit": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "ui": {
+                  "type": "object",
+                  "description": "UI colors for this theme.",
+                  "additionalProperties": false,
+                  "required": [
+                    "hit_flash_bg",
+                    "hit_flash_fg",
+                    "look_cursor_bg",
+                    "look_cursor_fg",
+                    "revealed_tile"
+                  ],
+                  "properties": {
+                    "hit_flash_bg": { "$ref": "#/definitions/color_string" },
+                    "hit_flash_fg": { "$ref": "#/definitions/color_string" },
+                    "look_cursor_bg": { "$ref": "#/definitions/color_string" },
+                    "look_cursor_fg": { "$ref": "#/definitions/color_string" },
+                    "revealed_tile": { "$ref": "#/definitions/color_string" }
+                  }
+                }
+              }
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable description of the theme."
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Display name for the theme."
+            }
+          }
+        },
+        "neon": {
+          "type": "object",
+          "description": "Neon theme palette.",
+          "additionalProperties": false,
+          "required": ["colors", "description", "name"],
+          "properties": {
+            "colors": {
+              "type": "object",
+              "description": "Color overrides for the theme.",
+              "additionalProperties": false,
+              "required": ["entities", "lighting", "tiles", "ui"],
+              "properties": {
+                "entities": {
+                  "type": "object",
+                  "description": "Entity colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["enemies", "items", "npcs", "player"],
+                  "properties": {
+                    "enemies": { "$ref": "#/definitions/color_string" },
+                    "items": { "$ref": "#/definitions/color_string" },
+                    "npcs": { "$ref": "#/definitions/color_string" },
+                    "player": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "lighting": {
+                  "type": "object",
+                  "description": "Lighting colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["ambient", "torch"],
+                  "properties": {
+                    "ambient": { "$ref": "#/definitions/color_string" },
+                    "torch": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "tiles": {
+                  "type": "object",
+                  "description": "Tile colors for this theme.",
+                  "additionalProperties": false,
+                  "required": ["floor", "glass", "stairs", "wall", "world_exit"],
+                  "properties": {
+                    "floor": { "$ref": "#/definitions/color_string" },
+                    "glass": { "$ref": "#/definitions/color_string" },
+                    "stairs": { "$ref": "#/definitions/color_string" },
+                    "wall": { "$ref": "#/definitions/color_string" },
+                    "world_exit": { "$ref": "#/definitions/color_string" }
+                  }
+                },
+                "ui": {
+                  "type": "object",
+                  "description": "UI colors for this theme.",
+                  "additionalProperties": false,
+                  "required": [
+                    "hit_flash_bg",
+                    "hit_flash_fg",
+                    "look_cursor_bg",
+                    "look_cursor_fg",
+                    "revealed_tile"
+                  ],
+                  "properties": {
+                    "hit_flash_bg": { "$ref": "#/definitions/color_string" },
+                    "hit_flash_fg": { "$ref": "#/definitions/color_string" },
+                    "look_cursor_bg": { "$ref": "#/definitions/color_string" },
+                    "look_cursor_fg": { "$ref": "#/definitions/color_string" },
+                    "revealed_tile": { "$ref": "#/definitions/color_string" }
+                  }
+                }
+              }
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Human-readable description of the theme."
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Display name for the theme."
+            }
+          }
+        }
+      }
+    }
+  }
+}

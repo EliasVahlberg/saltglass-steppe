@@ -1,0 +1,1442 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/dynamic_events_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "chains": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "chain_id": {
+            "type": "string",
+            "description": "Chain identifier referenced by events.",
+            "minLength": 1,
+            "pattern": "^[a-z0-9_]+$"
+          },
+          "delay_turns": {
+            "items": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Delay in turns before triggering the chained event."
+            },
+            "type": "array",
+            "description": "Delay (turns) before each chained event.",
+            "minItems": 1
+          },
+          "events": {
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[a-z0-9_]+$",
+              "description": "Event id in this chain."
+            },
+            "type": "array",
+            "description": "Event ids triggered in order.",
+            "minItems": 1
+          }
+        },
+        "type": "object",
+        "required": [
+          "chain_id",
+          "events",
+          "delay_turns"
+        ]
+      },
+      "type": "array",
+      "description": "Optional ordered chains of events with delays.",
+      "minItems": 0
+    },
+    "events": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "string",
+                "description": "Optional chain id to enqueue after this event.",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "consequences": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "consequence_type": {
+                          "type": "string",
+                          "description": "Consequence handler id.",
+                          "minLength": 1
+                        },
+                        "parameters": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "amount": {
+                              "type": "integer",
+                              "description": "Magnitude of the consequence.",
+                              "minimum": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `parameters`."
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "consequence_type",
+                        "parameters"
+                      ]
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "consequence_type": {
+                          "type": "string",
+                          "description": "Consequence handler id.",
+                          "minLength": 1
+                        },
+                        "parameters": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "description": "Message shown to the player.",
+                              "minLength": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `parameters`."
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "consequence_type",
+                        "parameters"
+                      ]
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "min_intensity": {
+                          "type": "integer",
+                          "description": "Minimum storm intensity for the trigger.",
+                          "minimum": 0
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "min_intensity"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "null",
+                "description": "Field `chains_to`."
+              },
+              "consequences": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "consequence_type": {
+                      "type": "string",
+                      "description": "Consequence handler id.",
+                      "minLength": 1
+                    },
+                    "parameters": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Message shown to the player.",
+                          "minLength": 1
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `parameters`."
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "consequence_type",
+                    "parameters"
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "conditions": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "biome": {
+                              "type": "string",
+                              "description": "Biome id required for the trigger.",
+                              "minLength": 1,
+                              "pattern": "^[a-z0-9_]+$"
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `conditions`.",
+                          "required": [
+                            "biome"
+                          ]
+                        },
+                        "probability": {
+                          "type": "number",
+                          "description": "Chance for the trigger to fire (0-1).",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "trigger_type": {
+                          "type": "string",
+                          "description": "Trigger type id.",
+                          "minLength": 1
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "trigger_type",
+                        "conditions",
+                        "probability"
+                      ]
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "conditions": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "multiple": {
+                              "type": "integer",
+                              "description": "Turn multiple required to trigger.",
+                              "minimum": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `conditions`.",
+                          "required": [
+                            "multiple"
+                          ]
+                        },
+                        "probability": {
+                          "type": "number",
+                          "description": "Chance for the trigger to fire (0-1).",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "trigger_type": {
+                          "type": "string",
+                          "description": "Trigger type id.",
+                          "minLength": 1
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "trigger_type",
+                        "conditions",
+                        "probability"
+                      ]
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "null",
+                "description": "Field `chains_to`."
+              },
+              "consequences": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "consequence_type": {
+                      "type": "string",
+                      "description": "Consequence handler id.",
+                      "minLength": 1
+                    },
+                    "parameters": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Message shown to the player.",
+                          "minLength": 1
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `parameters`."
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "consequence_type",
+                    "parameters"
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "biome": {
+                          "type": "string",
+                          "description": "Biome id required for the trigger.",
+                          "minLength": 1,
+                          "pattern": "^[a-z0-9_]+$"
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "biome"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "null",
+                "description": "Field `chains_to`."
+              },
+              "consequences": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "consequence_type": {
+                      "type": "string",
+                      "description": "Consequence handler id.",
+                      "minLength": 1
+                    },
+                    "parameters": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Message shown to the player.",
+                          "minLength": 1
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `parameters`."
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "consequence_type",
+                    "parameters"
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "threshold": {
+                          "type": "number",
+                          "description": "Threshold fraction for the trigger (0-1).",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "threshold"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "string",
+                "description": "Optional chain id to enqueue after this event.",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "consequences": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "consequence_type": {
+                          "type": "string",
+                          "description": "Consequence handler id.",
+                          "minLength": 1
+                        },
+                        "parameters": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "description": "Message shown to the player.",
+                              "minLength": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `parameters`."
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "consequence_type",
+                        "parameters"
+                      ]
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "consequence_type": {
+                          "type": "string",
+                          "description": "Consequence handler id.",
+                          "minLength": 1
+                        },
+                        "parameters": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "amount": {
+                              "type": "integer",
+                              "description": "Magnitude of the consequence.",
+                              "minimum": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `parameters`."
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "consequence_type",
+                        "parameters"
+                      ]
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "min_level": {
+                          "type": "integer",
+                          "description": "Minimum refraction level required.",
+                          "minimum": 0
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "min_level"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "null",
+                "description": "Field `chains_to`."
+              },
+              "consequences": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "consequence_type": {
+                          "type": "string",
+                          "description": "Consequence handler id.",
+                          "minLength": 1
+                        },
+                        "parameters": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "amount": {
+                              "type": "integer",
+                              "description": "Magnitude of the consequence.",
+                              "minimum": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `parameters`."
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "consequence_type",
+                        "parameters"
+                      ]
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "consequence_type": {
+                          "type": "string",
+                          "description": "Consequence handler id.",
+                          "minLength": 1
+                        },
+                        "parameters": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "description": "Message shown to the player.",
+                              "minLength": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `parameters`."
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "consequence_type",
+                        "parameters"
+                      ]
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "biome": {
+                          "type": "string",
+                          "description": "Biome id required for the trigger.",
+                          "minLength": 1,
+                          "pattern": "^[a-z0-9_]+$"
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "biome"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "string",
+                "description": "Optional chain id to enqueue after this event.",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "consequences": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "consequence_type": {
+                      "type": "string",
+                      "description": "Consequence handler id.",
+                      "minLength": 1
+                    },
+                    "parameters": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Message shown to the player.",
+                          "minLength": 1
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `parameters`."
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "consequence_type",
+                    "parameters"
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "biome": {
+                          "type": "string",
+                          "description": "Biome id required for the trigger.",
+                          "minLength": 1,
+                          "pattern": "^[a-z0-9_]+$"
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "biome"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "null",
+                "description": "Field `chains_to`."
+              },
+              "consequences": {
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "consequence_type": {
+                          "type": "string",
+                          "description": "Consequence handler id.",
+                          "minLength": 1
+                        },
+                        "parameters": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "message": {
+                              "type": "string",
+                              "description": "Message shown to the player.",
+                              "minLength": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `parameters`."
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "consequence_type",
+                        "parameters"
+                      ]
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "consequence_type": {
+                          "type": "string",
+                          "description": "Consequence handler id.",
+                          "minLength": 1
+                        },
+                        "parameters": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "amount": {
+                              "type": "integer",
+                              "description": "Magnitude of the consequence.",
+                              "minimum": 1
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `parameters`."
+                        }
+                      },
+                      "type": "object",
+                      "required": [
+                        "consequence_type",
+                        "parameters"
+                      ]
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "biome": {
+                          "type": "string",
+                          "description": "Biome id required for the trigger.",
+                          "minLength": 1,
+                          "pattern": "^[a-z0-9_]+$"
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "biome"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "null",
+                "description": "Field `chains_to`."
+              },
+              "consequences": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "consequence_type": {
+                      "type": "string",
+                      "description": "Consequence handler id.",
+                      "minLength": 1
+                    },
+                    "parameters": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Message shown to the player.",
+                          "minLength": 1
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `parameters`."
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "consequence_type",
+                    "parameters"
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "interacted_with_archive": {
+                          "type": "boolean",
+                          "description": "Require an archive interaction to have occurred."
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "interacted_with_archive"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "chains_to": {
+                "type": "null",
+                "description": "Field `chains_to`."
+              },
+              "consequences": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "consequence_type": {
+                      "type": "string",
+                      "description": "Consequence handler id.",
+                      "minLength": 1
+                    },
+                    "parameters": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "message": {
+                          "type": "string",
+                          "description": "Message shown to the player.",
+                          "minLength": 1
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `parameters`."
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "consequence_type",
+                    "parameters"
+                  ]
+                },
+                "type": "array",
+                "description": "Effects applied when the event triggers.",
+                "minItems": 1
+              },
+              "cooldown_turns": {
+                "type": "integer",
+                "description": "Turns before the event can trigger again.",
+                "minimum": 0
+              },
+              "description": {
+                "type": "string",
+                "description": "Narrative description of the event.",
+                "minLength": 1
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique event id (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z0-9_]+$"
+              },
+              "name": {
+                "type": "string",
+                "description": "Display name for the event.",
+                "minLength": 1
+              },
+              "triggers": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "conditions": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "storm_intensity_gte": {
+                          "type": "integer",
+                          "description": "Minimum storm intensity for aftermath triggers.",
+                          "minimum": 0
+                        }
+                      },
+                      "type": "object",
+                      "description": "Object for `conditions`.",
+                      "required": [
+                        "storm_intensity_gte"
+                      ]
+                    },
+                    "probability": {
+                      "type": "number",
+                      "description": "Chance for the trigger to fire (0-1).",
+                      "minimum": 0,
+                      "maximum": 1
+                    },
+                    "trigger_type": {
+                      "type": "string",
+                      "description": "Trigger type id.",
+                      "minLength": 1
+                    }
+                  },
+                  "type": "object",
+                  "required": [
+                    "trigger_type",
+                    "conditions",
+                    "probability"
+                  ]
+                },
+                "type": "array",
+                "description": "Trigger rules that enable this event.",
+                "minItems": 1
+              },
+              "weight": {
+                "type": "number",
+                "description": "Relative weight among eligible events.",
+                "minimum": 0
+              }
+            },
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "description",
+              "triggers",
+              "consequences",
+              "chains_to",
+              "weight",
+              "cooldown_turns"
+            ]
+          }
+        ]
+      },
+      "type": "array",
+      "description": "Dynamic events with triggers and consequences.",
+      "minItems": 1
+    }
+  },
+  "title": "Dynamic Events Schema",
+  "type": "object",
+  "description": "Dynamic world event definitions with triggers, consequences, and chains.",
+  "required": [
+    "events",
+    "chains"
+  ]
+}

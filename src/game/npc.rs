@@ -2,9 +2,11 @@ use super::adaptation::Adaptation;
 use super::entity::Entity;
 use super::status::StatusEffect;
 use once_cell::sync::Lazy;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::game::data_loader::{DataLoader, DataSource, HasId};
 /// Context for evaluating dialogue conditions
 pub struct DialogueContext<'a> {
     pub adaptations: &'a [Adaptation],
@@ -13,7 +15,7 @@ pub struct DialogueContext<'a> {
     pub faction_reputation: &'a HashMap<String, i32>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct DialogueCondition {
     #[serde(default)]
     pub has_adaptation: Option<String>,
@@ -61,14 +63,14 @@ impl DialogueCondition {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct DialogueEntry {
     #[serde(default)]
     pub conditions: Vec<DialogueCondition>,
     pub text: String,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct ActionEffect {
     #[serde(default)]
     pub heal: Option<i32>,
@@ -80,7 +82,7 @@ pub struct ActionEffect {
     pub consumes: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct NpcAction {
     pub id: String,
     pub name: String,
@@ -89,7 +91,7 @@ pub struct NpcAction {
     pub effect: ActionEffect,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct NpcDef {
     pub id: String,
     pub name: String,
@@ -105,15 +107,18 @@ pub struct NpcDef {
     pub shop_inventory: Vec<String>,
 }
 
-#[derive(Deserialize)]
-struct NpcsFile {
-    npcs: Vec<NpcDef>,
+impl HasId for NpcDef {
+    fn id(&self) -> &str {
+        &self.id
+    }
 }
 
-static NPC_DEFS: Lazy<HashMap<String, NpcDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/npcs.json");
-    let file: NpcsFile = serde_json::from_str(data).expect("Failed to parse npcs.json");
-    file.npcs.into_iter().map(|d| (d.id.clone(), d)).collect()
+static NPC_DEFS: Lazy<DataLoader<NpcDef>> = Lazy::new(|| {
+    DataLoader::load_single(
+        DataSource::new("data/npcs.json", include_str!("../../data/npcs.json")),
+        "npcs",
+        "npcs_v1",
+    )
 });
 
 pub fn get_npc_def(id: &str) -> Option<&'static NpcDef> {
@@ -121,7 +126,7 @@ pub fn get_npc_def(id: &str) -> Option<&'static NpcDef> {
 }
 
 pub fn all_npc_ids() -> Vec<&'static str> {
-    NPC_DEFS.keys().map(|s| s.as_str()).collect()
+    NPC_DEFS.ids()
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

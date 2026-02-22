@@ -1,0 +1,731 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/render_config_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Render Config Schema",
+  "description": "Schema for render_config.json (renderer visuals, colors, effects, and performance tuning).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "colors",
+    "lighting",
+    "effects",
+    "animations",
+    "visual_animations",
+    "rendering",
+    "performance",
+    "particles"
+  ],
+  "definitions": {
+    "color_string": {
+      "type": "string",
+      "pattern": "^(?:Black|Red|Green|Yellow|Blue|Magenta|Cyan|Gray|DarkGray|LightRed|LightGreen|LightYellow|LightBlue|LightMagenta|LightCyan|White|Rgb\\(\\s*(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\s*,\\s*(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\s*,\\s*(?:25[0-5]|2[0-4]\\d|1?\\d?\\d)\\s*\\)\\))$",
+      "description": "Named console color (e.g. Red, LightCyan) or Rgb(r, g, b) with 0-255 channels."
+    },
+    "color_array": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/color_string"
+      }
+    },
+    "nonempty_color_array": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/color_string"
+      }
+    },
+    "status_effect_name": {
+      "type": "string",
+      "enum": ["burn", "poison", "bleed", "stun"]
+    },
+    "effect_name": {
+      "type": "string",
+      "enum": [
+        "HitFlash",
+        "Blink",
+        "Pulse",
+        "Glow",
+        "Wave",
+        "Shimmer",
+        "Rainbow",
+        "Fade",
+        "Drift"
+      ]
+    },
+    "id_string": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    }
+  },
+  "properties": {
+    "animations": {
+      "type": "object",
+      "description": "Toggle and tune tile/entity animation behaviors.",
+      "additionalProperties": false,
+      "required": ["glass_shimmer", "tile_animations", "entity_animations"],
+      "properties": {
+        "entity_animations": {
+          "type": "boolean",
+          "description": "Enable per-entity animation effects."
+        },
+        "glass_shimmer": {
+          "type": "object",
+          "description": "Configuration for animated glass tile shimmer.",
+          "additionalProperties": false,
+          "required": ["enabled", "speed", "colors"],
+          "properties": {
+            "colors": {
+              "allOf": [{ "$ref": "#/definitions/nonempty_color_array" }],
+              "description": "Color cycle used for glass shimmer (must be non-empty)."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether glass shimmer is animated."
+            },
+            "speed": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Animation speed divisor; higher is slower."
+            }
+          }
+        },
+        "tile_animations": {
+          "type": "boolean",
+          "description": "Enable animated tile rendering (e.g., floors)."
+        }
+      }
+    },
+    "colors": {
+      "type": "object",
+      "description": "Color palette for entities, tiles, lighting, and UI.",
+      "additionalProperties": false,
+      "required": ["entities", "tiles", "lighting", "ui"],
+      "properties": {
+        "entities": {
+          "type": "object",
+          "description": "Entity color mappings.",
+          "additionalProperties": false,
+          "required": ["player", "enemies", "npcs", "items"],
+          "properties": {
+            "enemies": {
+              "type": "object",
+              "description": "Per-enemy colors; must include a default.",
+              "additionalProperties": false,
+              "required": ["default"],
+              "patternProperties": {
+                "^[a-z0-9_]+$": {
+                  "$ref": "#/definitions/color_string"
+                }
+              },
+              "properties": {
+                "default": {
+                  "$ref": "#/definitions/color_string"
+                }
+              }
+            },
+            "items": {
+              "type": "object",
+              "description": "Item color mapping.",
+              "additionalProperties": false,
+              "required": ["base"],
+              "properties": {
+                "base": {
+                  "$ref": "#/definitions/color_string",
+                  "description": "Default item color."
+                }
+              }
+            },
+            "npcs": {
+              "type": "object",
+              "description": "NPC color mapping.",
+              "additionalProperties": false,
+              "required": ["base"],
+              "properties": {
+                "base": {
+                  "$ref": "#/definitions/color_string",
+                  "description": "Default NPC color."
+                }
+              }
+            },
+            "player": {
+              "type": "object",
+              "description": "Player base color and status effect overrides.",
+              "additionalProperties": false,
+              "required": ["base", "status_effects"],
+              "properties": {
+                "base": {
+                  "$ref": "#/definitions/color_string",
+                  "description": "Base player color."
+                },
+                "status_effects": {
+                  "type": "object",
+                  "description": "Overrides for status effect colors applied to the player.",
+                  "additionalProperties": false,
+                  "required": ["bleed", "burn", "poison", "stun"],
+                  "properties": {
+                    "bleed": { "$ref": "#/definitions/color_string" },
+                    "burn": { "$ref": "#/definitions/color_string" },
+                    "poison": { "$ref": "#/definitions/color_string" },
+                    "stun": { "$ref": "#/definitions/color_string" }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "lighting": {
+          "type": "object",
+          "description": "Lighting color ramp and thresholds.",
+          "additionalProperties": false,
+          "required": ["ambient", "sources", "visibility_threshold"],
+          "properties": {
+            "ambient": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "Ambient light level (0-255)."
+            },
+            "sources": {
+              "type": "object",
+              "description": "Color overrides for light sources; must include default.",
+              "additionalProperties": false,
+              "required": ["default"],
+              "patternProperties": {
+                "^[a-z0-9_]+$": {
+                  "$ref": "#/definitions/color_string"
+                }
+              },
+              "properties": {
+                "default": {
+                  "$ref": "#/definitions/color_string"
+                }
+              }
+            },
+            "visibility_threshold": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "Light level threshold for tile visibility (0-255)."
+            }
+          }
+        },
+        "tiles": {
+          "type": "object",
+          "description": "Tile palette for floors, walls, glass, and transitions.",
+          "additionalProperties": false,
+          "required": [
+            "floor",
+            "wall",
+            "glass",
+            "stairs_down",
+            "stairs_up",
+            "world_exit"
+          ],
+          "properties": {
+            "floor": {
+              "$ref": "#/definitions/color_string",
+              "description": "Default floor tile color."
+            },
+            "glass": {
+              "type": "object",
+              "description": "Glass tile color configuration.",
+              "additionalProperties": false,
+              "required": ["base", "shimmer"],
+              "properties": {
+                "base": {
+                  "$ref": "#/definitions/color_string",
+                  "description": "Base glass color when shimmer is disabled."
+                },
+                "shimmer": {
+                  "allOf": [{ "$ref": "#/definitions/nonempty_color_array" }],
+                  "description": "Shimmer palette used when glass animations are enabled."
+                }
+              }
+            },
+            "stairs_down": {
+              "$ref": "#/definitions/color_string",
+              "description": "Down-stairs glyph color."
+            },
+            "stairs_up": {
+              "$ref": "#/definitions/color_string",
+              "description": "Up-stairs glyph color."
+            },
+            "wall": {
+              "$ref": "#/definitions/color_string",
+              "description": "Default wall tile color."
+            },
+            "world_exit": {
+              "$ref": "#/definitions/color_string",
+              "description": "World exit tile color."
+            }
+          }
+        },
+        "ui": {
+          "type": "object",
+          "description": "UI highlight and cursor colors.",
+          "additionalProperties": false,
+          "required": ["hit_flash", "look_cursor", "revealed_tile"],
+          "properties": {
+            "hit_flash": {
+              "type": "object",
+              "description": "Hit flash overlay colors.",
+              "additionalProperties": false,
+              "required": ["bg", "fg"],
+              "properties": {
+                "bg": { "$ref": "#/definitions/color_string" },
+                "fg": { "$ref": "#/definitions/color_string" }
+              }
+            },
+            "look_cursor": {
+              "type": "object",
+              "description": "Look-mode cursor colors.",
+              "additionalProperties": false,
+              "required": ["bg", "fg"],
+              "properties": {
+                "bg": { "$ref": "#/definitions/color_string" },
+                "fg": { "$ref": "#/definitions/color_string" }
+              }
+            },
+            "revealed_tile": {
+              "$ref": "#/definitions/color_string",
+              "description": "Color used for remembered (out-of-FOV) tiles."
+            }
+          }
+        }
+      }
+    },
+    "effects": {
+      "type": "object",
+      "description": "General visual effect settings for entities and UI.",
+      "additionalProperties": false,
+      "required": ["enabled", "frame_rate", "max_effects_per_entity", "priority_order"],
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable effect rendering."
+        },
+        "frame_rate": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Effect update rate in frames per second."
+        },
+        "max_effects_per_entity": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum concurrent effects per entity."
+        },
+        "priority_order": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/effect_name" },
+          "uniqueItems": true,
+          "description": "Effect priority order, first has highest priority."
+        }
+      }
+    },
+    "lighting": {
+      "type": "object",
+      "description": "Lighting system configuration.",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "ambient_level",
+        "visibility_threshold",
+        "glare_threshold",
+        "player_light",
+        "equipment_light_detection",
+        "smooth_falloff",
+        "recalculate_on_turn"
+      ],
+      "properties": {
+        "ambient_level": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Global ambient light level (0-255)."
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable dynamic lighting."
+        },
+        "equipment_light_detection": {
+          "type": "boolean",
+          "description": "Include equipment-provided light sources."
+        },
+        "glare_threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Light level that triggers glare effects (0-255)."
+        },
+        "player_light": {
+          "type": "object",
+          "description": "Player-carried light source parameters.",
+          "additionalProperties": false,
+          "required": ["enabled", "intensity", "radius"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether the player emits light."
+            },
+            "intensity": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 255,
+              "description": "Light intensity (0-255)."
+            },
+            "radius": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Light radius in tiles."
+            }
+          }
+        },
+        "recalculate_on_turn": {
+          "type": "boolean",
+          "description": "Recompute lighting after each turn."
+        },
+        "smooth_falloff": {
+          "type": "boolean",
+          "description": "Enable smooth light falloff."
+        },
+        "visibility_threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Minimum light for tiles to be visible (0-255)."
+        }
+      }
+    },
+    "particles": {
+      "type": "object",
+      "description": "Particle effect system configuration.",
+      "additionalProperties": false,
+      "required": ["sparkles", "glow", "float", "drift", "pulse", "shimmer"],
+      "properties": {
+        "drift": {
+          "type": "object",
+          "description": "Wind-driven drift particles.",
+          "additionalProperties": false,
+          "required": ["enabled", "fade_rate", "turbulence", "wind_strength"],
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable drift particles."
+            },
+            "fade_rate": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Per-second brightness decay (0-1)."
+            },
+            "turbulence": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Random velocity jitter amount."
+            },
+            "wind_strength": {
+              "type": "number",
+              "description": "Wind force applied to drifting particles."
+            }
+          }
+        },
+        "float": {
+          "type": "object",
+          "description": "Floating dust particles.",
+          "additionalProperties": false,
+          "required": ["characters", "enabled", "gravity", "lifetime", "velocity_range"],
+          "properties": {
+            "characters": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1
+              },
+              "description": "Glyphs used for floating particles (single characters)."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable float particles."
+            },
+            "gravity": {
+              "type": "number",
+              "description": "Gravity applied per second."
+            },
+            "lifetime": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Particle lifetime in seconds."
+            },
+            "velocity_range": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": { "type": "number" },
+              "description": "Min/max initial velocity for float particles."
+            }
+          }
+        },
+        "glow": {
+          "type": "object",
+          "description": "Glowing particle pulse configuration.",
+          "additionalProperties": false,
+          "required": ["colors", "enabled", "max_brightness", "min_brightness", "pulse_speed"],
+          "properties": {
+            "colors": {
+              "allOf": [{ "$ref": "#/definitions/nonempty_color_array" }],
+              "description": "Glow color palette (non-empty)."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable glow particles."
+            },
+            "max_brightness": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Maximum glow brightness (0-1)."
+            },
+            "min_brightness": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Minimum glow brightness (0-1)."
+            },
+            "pulse_speed": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Pulse speed multiplier."
+            }
+          }
+        },
+        "pulse": {
+          "type": "object",
+          "description": "Pulsing size modulation configuration.",
+          "additionalProperties": false,
+          "required": ["amplitude", "enabled", "frequency", "wave_type"],
+          "properties": {
+            "amplitude": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Pulse amplitude."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable pulse particles."
+            },
+            "frequency": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Pulse frequency."
+            },
+            "wave_type": {
+              "type": "string",
+              "enum": ["sine", "square", "triangle"],
+              "description": "Waveform used for pulse modulation."
+            }
+          }
+        },
+        "shimmer": {
+          "type": "object",
+          "description": "Shimmering color cycle for particles.",
+          "additionalProperties": false,
+          "required": ["color_cycle", "enabled", "intensity_variation", "speed"],
+          "properties": {
+            "color_cycle": {
+              "allOf": [{ "$ref": "#/definitions/nonempty_color_array" }],
+              "description": "Color cycle for shimmer particles (non-empty)."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable shimmer particles."
+            },
+            "intensity_variation": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Brightness variation amount (0-1)."
+            },
+            "speed": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Shimmer cycle speed."
+            }
+          }
+        },
+        "sparkles": {
+          "type": "object",
+          "description": "Sparkle particle configuration.",
+          "additionalProperties": false,
+          "required": ["characters", "colors", "enabled", "intensity", "lifetime", "spawn_rate"],
+          "properties": {
+            "characters": {
+              "type": "array",
+              "minItems": 1,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1
+              },
+              "description": "Glyphs used for sparkle particles (single characters)."
+            },
+            "colors": {
+              "allOf": [{ "$ref": "#/definitions/nonempty_color_array" }],
+              "description": "Sparkle color palette (non-empty)."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable sparkle particles."
+            },
+            "intensity": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Base brightness for sparkles."
+            },
+            "lifetime": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Sparkle lifetime in seconds."
+            },
+            "spawn_rate": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "description": "Sparkle spawns per second."
+            }
+          }
+        }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "description": "Performance tuning options for rendering.",
+      "additionalProperties": false,
+      "required": ["frame_limiting", "optimization_level", "target_fps", "viewport_culling"],
+      "properties": {
+        "frame_limiting": {
+          "type": "boolean",
+          "description": "Limit frame rate to target_fps."
+        },
+        "optimization_level": {
+          "type": "string",
+          "pattern": "^[a-z][a-z_]*$",
+          "description": "Optimization profile name (e.g., balanced)."
+        },
+        "target_fps": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 240,
+          "description": "Target frames per second when frame limiting is enabled."
+        },
+        "viewport_culling": {
+          "type": "boolean",
+          "description": "Only render tiles inside the viewport."
+        }
+      }
+    },
+    "rendering": {
+      "type": "object",
+      "description": "High-level rendering toggles and priorities.",
+      "additionalProperties": false,
+      "required": [
+        "damage_numbers",
+        "god_view_override",
+        "hit_flash_duration",
+        "smooth_camera",
+        "status_effect_priority"
+      ],
+      "properties": {
+        "damage_numbers": {
+          "type": "boolean",
+          "description": "Render floating damage numbers."
+        },
+        "god_view_override": {
+          "type": "boolean",
+          "description": "Override FOV and render all tiles (debug/cheat)."
+        },
+        "hit_flash_duration": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Hit flash duration in frames."
+        },
+        "smooth_camera": {
+          "type": "boolean",
+          "description": "Enable smooth camera panning."
+        },
+        "status_effect_priority": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/status_effect_name" },
+          "uniqueItems": true,
+          "description": "Priority order for status effect color overrides."
+        }
+      }
+    },
+    "visual_animations": {
+      "type": "object",
+      "description": "Config for simple screen-space visual animations.",
+      "additionalProperties": false,
+      "required": ["blink", "glow", "screen_shake"],
+      "properties": {
+        "blink": {
+          "type": "object",
+          "description": "Blink animation settings.",
+          "additionalProperties": false,
+          "required": ["duration_ms", "off_color", "on_color"],
+          "properties": {
+            "duration_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Blink duration in milliseconds."
+            },
+            "off_color": { "$ref": "#/definitions/color_string" },
+            "on_color": { "$ref": "#/definitions/color_string" }
+          }
+        },
+        "glow": {
+          "type": "object",
+          "description": "Glow animation settings.",
+          "additionalProperties": false,
+          "required": ["base_color", "cycle_duration_ms", "glow_color", "intensity_steps"],
+          "properties": {
+            "base_color": { "$ref": "#/definitions/color_string" },
+            "cycle_duration_ms": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Full glow cycle duration in milliseconds."
+            },
+            "glow_color": { "$ref": "#/definitions/color_string" },
+            "intensity_steps": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Number of discrete intensity steps."
+            }
+          }
+        },
+        "screen_shake": {
+          "type": "object",
+          "description": "Screen shake animation settings.",
+          "additionalProperties": false,
+          "required": ["duration_ms", "frequency_hz", "intensity"],
+          "properties": {
+            "duration_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Shake duration in milliseconds."
+            },
+            "frequency_hz": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Shake frequency in Hz."
+            },
+            "intensity": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Shake intensity in tiles."
+            }
+          }
+        }
+      }
+    }
+  }
+}

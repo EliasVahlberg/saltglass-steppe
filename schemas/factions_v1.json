@@ -1,0 +1,45 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/factions_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "factions"
+  ],
+  "properties": {
+    "factions": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "color": {
+            "type": "string",
+            "minLength": 1,
+            "description": "UI color name or token."
+          },
+          "description": {
+            "type": "string",
+            "description": "Lore or UI description.",
+            "minLength": 1
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique faction identifier (CamelCase or snake_case).",
+            "minLength": 1,
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name.",
+            "minLength": 1
+          }
+        },
+        "required": ["id","name","description","color"],
+        "type": "object"
+      },
+      "type": "array",
+      "description": "Array of `factions` items."
+    }
+  },
+  "title": "Factions Schema",
+  "type": "object",
+  "description": "Schema for faction definitions."
+}

@@ -1,9 +1,11 @@
 use once_cell::sync::Lazy;
+use schemars::JsonSchema;
 use serde::Deserialize;
 use std::collections::HashMap;
 
+use crate::game::data_loader::{DataLoader, DataSource, HasId};
 /// Trading system with faction, tier, and relationship-based availability
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct TraderTable {
     pub trader_id: String,
     pub name: String,
@@ -14,7 +16,13 @@ pub struct TraderTable {
     pub reputation_modifiers: HashMap<String, ReputationModifier>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+impl HasId for TraderTable {
+    fn id(&self) -> &str {
+        &self.trader_id
+    }
+}
+
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct TradeItem {
     pub item_id: String,
     pub base_price: u32,
@@ -29,7 +37,7 @@ pub struct TradeItem {
     pub faction_exclusive: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct ReputationModifier {
     pub price_multiplier: f32,
     pub stock_bonus: i32,
@@ -37,18 +45,12 @@ pub struct ReputationModifier {
     pub exclusive_items: Vec<String>,
 }
 
-#[derive(Deserialize)]
-struct TradersFile {
-    traders: Vec<TraderTable>,
-}
-
-static TRADERS: Lazy<HashMap<String, TraderTable>> = Lazy::new(|| {
-    let data = include_str!("../../data/traders.json");
-    let file: TradersFile = serde_json::from_str(data).expect("Failed to parse traders.json");
-    file.traders
-        .into_iter()
-        .map(|t| (t.trader_id.clone(), t))
-        .collect()
+static TRADERS: Lazy<DataLoader<TraderTable>> = Lazy::new(|| {
+    DataLoader::load_single(
+        DataSource::new("data/traders.json", include_str!("../../data/traders.json")),
+        "traders",
+        "npcs_v1",
+    )
 });
 
 /// Available trade item with calculated price and stock
@@ -75,7 +77,7 @@ pub fn get_trader(trader_id: &str) -> Option<&'static TraderTable> {
 }
 
 pub fn all_trader_ids() -> Vec<&'static str> {
-    TRADERS.keys().map(|s| s.as_str()).collect()
+    TRADERS.ids()
 }
 
 /// Calculate current area tier based on enemy difficulty

@@ -1,0 +1,546 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/effects_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Effects Schema",
+  "x-consolidates": ["status_effects_v1.json", "effects_config_v1.json"],
+  "type": "object",
+  "description": "Conditional visual or gameplay effects triggered by runtime state.",
+  "additionalProperties": false,
+  "required": ["schema", "effects", "status_effects", "config"],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "effects_v1",
+      "description": "Schema version identifier."
+    },
+    "effects": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of conditional effects.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["low_hp"],
+                "properties": {
+                  "low_hp": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "HP threshold at or below which the effect triggers."
+                  }
+                },
+                "description": "Condition based on current hit points."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["storm_near"],
+                "properties": {
+                  "storm_near": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Distance threshold to the nearest storm."
+                  }
+                },
+                "description": "Condition based on nearby storm distance."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["has_adaptation"],
+                "properties": {
+                  "has_adaptation": {
+                    "type": "boolean",
+                    "description": "Whether the player currently has any adaptation."
+                  }
+                },
+                "description": "Condition based on adaptation presence."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["on_tile"],
+                "properties": {
+                  "on_tile": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Tile name the entity must be standing on."
+                  }
+                },
+                "description": "Condition based on the current tile type."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["adaptations_hidden"],
+                "properties": {
+                  "adaptations_hidden": {
+                    "type": "boolean",
+                    "description": "Whether adaptations are currently suppressed/hidden."
+                  }
+                },
+                "description": "Condition based on adaptation suppression."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["enemy_type"],
+                "properties": {
+                  "enemy_type": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Enemy id that triggers the effect."
+                  }
+                },
+                "description": "Condition based on enemy type."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["has_adaptation", "on_tile"],
+                "properties": {
+                  "has_adaptation": {
+                    "type": "boolean",
+                    "description": "Whether the player currently has any adaptation."
+                  },
+                  "on_tile": {
+                    "type": "string",
+                    "minLength": 1,
+                    "description": "Tile name the entity must be standing on."
+                  }
+                },
+                "description": "Condition based on adaptation plus tile type."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["adaptation_count_gte"],
+                "properties": {
+                  "adaptation_count_gte": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Minimum number of adaptations required."
+                  }
+                },
+                "description": "Condition based on adaptation count."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["in_storm_eye"],
+                "properties": {
+                  "in_storm_eye": {
+                    "type": "boolean",
+                    "description": "Whether the entity is inside the storm eye."
+                  }
+                },
+                "description": "Condition based on storm eye presence."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["on_fragile_glass"],
+                "properties": {
+                  "on_fragile_glass": {
+                    "type": "boolean",
+                    "description": "Whether the entity is standing on fragile glass."
+                  }
+                },
+                "description": "Condition based on fragile glass tiles."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["psychic_active"],
+                "properties": {
+                  "psychic_active": {
+                    "type": "boolean",
+                    "description": "Whether a psychic ability is currently active."
+                  }
+                },
+                "description": "Condition based on psychic ability usage."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["high_salt_exposure"],
+                "properties": {
+                  "high_salt_exposure": {
+                    "type": "boolean",
+                    "description": "Whether salt exposure is above the danger threshold."
+                  }
+                },
+                "description": "Condition based on salt exposure."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "condition", "target", "effect"],
+            "properties": {
+              "condition": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["void_exposure"],
+                "properties": {
+                  "void_exposure": {
+                    "type": "boolean",
+                    "description": "Whether void exposure is active."
+                  }
+                },
+                "description": "Condition based on void exposure."
+              },
+              "effect": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Effect opcode/animation string."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the effect entry."
+              },
+              "target": {
+                "type": "string",
+                "enum": ["player", "ui", "enemy", "environment", "tile"],
+                "description": "Target layer to apply the effect."
+              }
+            }
+          }
+        ]
+      }
+    },
+    "status_effects": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Status effect definitions applied to entities.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "description",
+          "max_stacks",
+          "tick_damage",
+          "blocks_healing",
+          "reduces_accuracy",
+          "reduces_damage",
+          "grants_invisibility"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Stable snake_case identifier for the status effect."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Display name shown to the player."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Player-facing description of the status effect."
+          },
+          "max_stacks": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of stacks allowed."
+          },
+          "tick_damage": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Damage dealt per tick while the effect is active."
+          },
+          "blocks_healing": {
+            "type": "boolean",
+            "description": "Whether healing is prevented while the effect is active."
+          },
+          "reduces_accuracy": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Flat accuracy penalty applied while active."
+          },
+          "reduces_damage": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Flat damage penalty applied while active."
+          },
+          "grants_invisibility": {
+            "type": "boolean",
+            "description": "Whether the effect grants invisibility."
+          }
+        }
+      }
+    },
+    "config": {
+      "$ref": "https://saltglass-steppe.game/schemas/effects_config_v1.json"
+    }
+  }
+}

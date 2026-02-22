@@ -1,0 +1,71 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/walls_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Walls Schema",
+  "deprecated": true,
+  "x-deprecated-by": "map_elements_v1.json",
+  "x-deprecation-note": "Legacy split schema. Use map_elements_v1.json after migration.",
+  "description": "Schema for wall tile definitions (v1).",
+  "type": "object",
+  "required": [
+    "walls"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "walls": {
+      "type": "array",
+      "description": "Wall tile definitions.",
+      "items": {
+        "$ref": "#/$defs/wall"
+      }
+    }
+  },
+  "$defs": {
+    "wall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "glyph",
+        "color",
+        "hp",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique wall identifier (snake_case)."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name."
+        },
+        "glyph": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1,
+          "description": "Single character used for rendering."
+        },
+        "color": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Color token used by the renderer."
+        },
+        "hp": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Hit points required to break the wall."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Lore description shown in UI."
+        }
+      }
+    }
+  }
+}

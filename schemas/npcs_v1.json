@@ -1,0 +1,347 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://saltglass-steppe.game/schemas/npcs_v1.json",
+  "title": "NPC and Trader Definition Schema",
+  "description": "Schema for NPC and trader definitions in Saltglass Steppe (v1)",
+  "type": "object",
+  "required": [
+    "schema"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "npcs_v1",
+      "description": "Schema version identifier"
+    },
+    "npcs": {
+      "type": "array",
+      "description": "Array of NPC definitions",
+      "items": {
+        "$ref": "#/$defs/npc"
+      }
+    },
+    "traders": {
+      "type": "array",
+      "description": "Array of trader definitions",
+      "items": {
+        "$ref": "#/$defs/trader"
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "npcs"
+      ]
+    },
+    {
+      "required": [
+        "traders"
+      ]
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "npc": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "glyph",
+        "faction",
+        "dialogue"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier (snake_case)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "String field `name`."
+        },
+        "glyph": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1,
+          "description": "String field `glyph`."
+        },
+        "faction": {
+          "type": "string",
+          "minLength": 1,
+          "description": "String field `faction`."
+        },
+        "description": {
+          "type": "string",
+          "description": "String field `description`."
+        },
+        "dialogue": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dialogue_entry"
+          },
+          "description": "Array of `dialogue` items."
+        },
+        "actions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/npc_action"
+          },
+          "description": "Array of `actions` items."
+        },
+        "shop_inventory": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of `shop_inventory` items."
+        }
+      },
+      "additionalProperties": true
+    },
+    "dialogue_entry": {
+      "type": "object",
+      "required": [
+        "text"
+      ],
+      "properties": {
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dialogue_condition"
+          },
+          "description": "Array of `conditions` items."
+        },
+        "text": {
+          "type": "string",
+          "description": "String field `text`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "dialogue_condition": {
+      "type": "object",
+      "properties": {
+        "has_adaptation": {
+          "type": "string",
+          "description": "String field `has_adaptation`."
+        },
+        "adaptation_count_gte": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `adaptation_count_gte`."
+        },
+        "has_item": {
+          "type": "string",
+          "description": "String field `has_item`."
+        },
+        "min_salt_scrip": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `min_salt_scrip`."
+        },
+        "min_reputation": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Object for `min_reputation`."
+        }
+      },
+      "additionalProperties": true
+    },
+    "npc_action": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "effect"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "String field `id`."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "String field `name`."
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/dialogue_condition"
+          },
+          "description": "Array of `conditions` items."
+        },
+        "effect": {
+          "$ref": "#/$defs/action_effect",
+          "description": "Field `effect`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "action_effect": {
+      "type": "object",
+      "properties": {
+        "heal": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `heal`."
+        },
+        "pays": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Currency reward granted by the action."
+        },
+        "trade": {
+          "type": "boolean",
+          "description": "Boolean field `trade`."
+        },
+        "gives_item": {
+          "type": "string",
+          "description": "String field `gives_item`."
+        },
+        "consumes": {
+          "type": "string",
+          "description": "String field `consumes`."
+        },
+        "starts_quest": {
+          "type": "string",
+          "description": "Quest id to start."
+        },
+        "triggers_ritual": {
+          "type": "string",
+          "description": "Ritual id to trigger."
+        },
+        "reveals_hidden_paths": {
+          "type": "boolean",
+          "description": "Whether the action reveals hidden paths."
+        },
+        "removes_fatigue": {
+          "type": "boolean",
+          "description": "Whether the action removes fatigue."
+        }
+      },
+      "additionalProperties": true
+    },
+    "trader": {
+      "type": "object",
+      "required": [
+        "trader_id",
+        "name",
+        "faction",
+        "base_tier",
+        "items"
+      ],
+      "properties": {
+        "trader_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier (snake_case)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "String field `name`."
+        },
+        "faction": {
+          "type": "string",
+          "minLength": 1,
+          "description": "String field `faction`."
+        },
+        "base_tier": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Integer field `base_tier`."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trade_item"
+          },
+          "description": "Array of `items` items."
+        },
+        "reputation_modifiers": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/reputation_modifier"
+          },
+          "description": "Object for `reputation_modifiers`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "trade_item": {
+      "type": "object",
+      "required": [
+        "item_id",
+        "base_price",
+        "stock"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string",
+          "description": "String field `item_id`."
+        },
+        "base_price": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `base_price`."
+        },
+        "stock": {
+          "type": "integer",
+          "description": "Integer field `stock`."
+        },
+        "min_tier": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `min_tier`."
+        },
+        "max_tier": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `max_tier`."
+        },
+        "required_reputation": {
+          "type": "integer",
+          "description": "Integer field `required_reputation`."
+        },
+        "faction_exclusive": {
+          "type": "string",
+          "description": "String field `faction_exclusive`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "reputation_modifier": {
+      "type": "object",
+      "required": [
+        "price_multiplier",
+        "stock_bonus"
+      ],
+      "properties": {
+        "price_multiplier": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `price_multiplier`."
+        },
+        "stock_bonus": {
+          "type": "integer",
+          "description": "Integer field `stock_bonus`."
+        },
+        "exclusive_items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of `exclusive_items` items."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

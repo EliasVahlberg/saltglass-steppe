@@ -1,0 +1,95 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://saltglass-steppe.game/schemas/weapons_v1.json",
+  "title": "Weapon Definition Schema",
+  "description": "Schema for weapon definitions in Saltglass Steppe (v1)",
+  "type": "object",
+  "required": [
+    "schema",
+    "weapons"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "weapons_v1",
+      "description": "Schema version identifier"
+    },
+    "weapons": {
+      "type": "array",
+      "description": "Array of weapon definitions",
+      "items": {
+        "$ref": "#/$defs/weapon"
+      }
+    }
+  },
+  "$defs": {
+    "weapon": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "glyph",
+        "damage_min",
+        "damage_max",
+        "accuracy",
+        "range"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier (snake_case)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name"
+        },
+        "glyph": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1,
+          "description": "Single character for rendering"
+        },
+        "damage_min": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum damage"
+        },
+        "damage_max": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Maximum damage"
+        },
+        "accuracy": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100,
+          "description": "Base hit chance"
+        },
+        "range": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Attack range"
+        },
+        "ap_cost": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 2,
+          "description": "Action point cost"
+        },
+        "ammo_type": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Ammo item ID"
+        },
+        "description": {
+          "type": "string",
+          "default": "",
+          "description": "Lore description"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

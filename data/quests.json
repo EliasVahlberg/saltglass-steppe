@@ -1,4 +1,5 @@
 {
+  "schema": "quests_v1",
   "quests": [
     {
       "id": "first_steps",

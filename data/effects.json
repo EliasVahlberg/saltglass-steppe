@@ -1,136 +1,433 @@
 {
+  "schema": "effects_v1",
   "effects": [
     {
       "id": "low_hp_warning",
-      "condition": {"low_hp": 5},
+      "condition": {
+        "low_hp": 5
+      },
       "target": "player",
       "effect": "B(@4 &Red)"
     },
     {
       "id": "critical_hp",
-      "condition": {"low_hp": 3},
+      "condition": {
+        "low_hp": 3
+      },
       "target": "player",
       "effect": "P(@2 &LightRed)"
     },
     {
       "id": "storm_imminent",
-      "condition": {"storm_near": 3},
+      "condition": {
+        "storm_near": 3
+      },
       "target": "ui",
       "effect": "W(@6 &Red)"
     },
     {
       "id": "storm_approaching",
-      "condition": {"storm_near": 5},
+      "condition": {
+        "storm_near": 5
+      },
       "target": "ui",
       "effect": "B(@12 &Yellow)"
     },
     {
       "id": "adaptation_glow",
-      "condition": {"has_adaptation": true},
+      "condition": {
+        "has_adaptation": true
+      },
       "target": "player",
       "effect": "R(@8 &Magenta &LightMagenta)"
     },
     {
       "id": "glass_shimmer",
-      "condition": {"on_tile": "Glass"},
+      "condition": {
+        "on_tile": "Glass"
+      },
       "target": "player",
       "effect": "S(@4 &Cyan &LightCyan &White)"
     },
     {
       "id": "suppression_active",
-      "condition": {"adaptations_hidden": true},
+      "condition": {
+        "adaptations_hidden": true
+      },
       "target": "player",
       "effect": "F(@16 &DarkGray)"
     },
     {
       "id": "refraction_wraith_phase",
-      "condition": {"enemy_type": "refraction_wraith"},
+      "condition": {
+        "enemy_type": "refraction_wraith"
+      },
       "target": "enemy",
       "effect": "P(@3 &White)"
     },
     {
       "id": "mirage_hound_shimmer",
-      "condition": {"enemy_type": "mirage_hound"},
+      "condition": {
+        "enemy_type": "mirage_hound"
+      },
       "target": "enemy",
       "effect": "W(@5 &LightYellow)"
     },
     {
       "id": "glass_beetle_glint",
-      "condition": {"enemy_type": "glass_beetle"},
+      "condition": {
+        "enemy_type": "glass_beetle"
+      },
       "target": "enemy",
       "effect": "S(@8 &Cyan &LightCyan)"
     },
     {
       "id": "dust_wraith_swirl",
-      "condition": {"enemy_type": "dust_wraith"},
+      "condition": {
+        "enemy_type": "dust_wraith"
+      },
       "target": "enemy",
       "effect": "W(@4 &Yellow)"
     },
     {
       "id": "shard_spider_glitter",
-      "condition": {"enemy_type": "shard_spider"},
+      "condition": {
+        "enemy_type": "shard_spider"
+      },
       "target": "enemy",
       "effect": "S(@6 &LightCyan &White)"
     },
     {
       "id": "archive_drone_scan",
-      "condition": {"enemy_type": "archive_drone"},
+      "condition": {
+        "enemy_type": "archive_drone"
+      },
       "target": "enemy",
       "effect": "P(@10 &LightBlue)"
     },
     {
       "id": "salt_mummy_pale",
-      "condition": {"enemy_type": "salt_mummy"},
+      "condition": {
+        "enemy_type": "salt_mummy"
+      },
       "target": "enemy",
       "effect": "F(@20 &White)"
     },
     {
       "id": "storm_particle_drift",
-      "condition": {"storm_near": 8},
+      "condition": {
+        "storm_near": 8
+      },
       "target": "environment",
       "effect": "D(@15 &DarkGray)"
     },
     {
       "id": "glass_resonance",
-      "condition": {"on_tile": "Glass", "has_adaptation": true},
+      "condition": {
+        "on_tile": "Glass",
+        "has_adaptation": true
+      },
       "target": "environment",
       "effect": "R(@12 &Cyan &LightCyan &White)"
     },
     {
       "id": "adaptation_surge",
-      "condition": {"adaptation_count_gte": 3},
+      "condition": {
+        "adaptation_count_gte": 3
+      },
       "target": "player",
       "effect": "P(@3 &Magenta)"
     },
     {
       "id": "storm_eye_calm",
-      "condition": {"in_storm_eye": true},
+      "condition": {
+        "in_storm_eye": true
+      },
       "target": "environment",
       "effect": "F(@30 &LightBlue)"
     },
     {
       "id": "glass_fracture_warning",
-      "condition": {"on_fragile_glass": true},
+      "condition": {
+        "on_fragile_glass": true
+      },
       "target": "tile",
       "effect": "B(@8 &Red)"
     },
     {
       "id": "psychic_resonance",
-      "condition": {"psychic_active": true},
+      "condition": {
+        "psychic_active": true
+      },
       "target": "player",
       "effect": "W(@6 &LightMagenta)"
     },
     {
       "id": "salt_crystallization",
-      "condition": {"high_salt_exposure": true},
+      "condition": {
+        "high_salt_exposure": true
+      },
       "target": "player",
       "effect": "S(@10 &White &LightGray)"
     },
     {
       "id": "void_touched",
-      "condition": {"void_exposure": true},
+      "condition": {
+        "void_exposure": true
+      },
       "target": "player",
       "effect": "F(@8 &DarkGray)"
     }
-  ]
+  ],
+  "status_effects": [
+    {
+      "id": "poison",
+      "name": "Poison",
+      "description": "Toxins damage you over time",
+      "max_stacks": 3,
+      "tick_damage": 2,
+      "blocks_healing": false,
+      "reduces_accuracy": 0,
+      "reduces_damage": 0,
+      "grants_invisibility": false
+    },
+    {
+      "id": "burn",
+      "name": "Burn",
+      "description": "Fire damages you over time",
+      "max_stacks": 1,
+      "tick_damage": 3,
+      "blocks_healing": false,
+      "reduces_accuracy": 0,
+      "reduces_damage": 0,
+      "grants_invisibility": false
+    },
+    {
+      "id": "stun",
+      "name": "Stun",
+      "description": "Cannot act",
+      "max_stacks": 1,
+      "tick_damage": 0,
+      "blocks_healing": false,
+      "reduces_accuracy": 0,
+      "reduces_damage": 0,
+      "grants_invisibility": false
+    },
+    {
+      "id": "bleed",
+      "name": "Bleed",
+      "description": "Losing blood",
+      "max_stacks": 3,
+      "tick_damage": 1,
+      "blocks_healing": true,
+      "reduces_accuracy": 0,
+      "reduces_damage": 0,
+      "grants_invisibility": false
+    },
+    {
+      "id": "slow",
+      "name": "Slow",
+      "description": "Movement is impeded",
+      "max_stacks": 1,
+      "tick_damage": 0,
+      "blocks_healing": false,
+      "reduces_accuracy": 0,
+      "reduces_damage": 0,
+      "grants_invisibility": false
+    },
+    {
+      "id": "blinded",
+      "name": "Blinded",
+      "description": "Vision is severely impaired",
+      "max_stacks": 1,
+      "tick_damage": 0,
+      "blocks_healing": false,
+      "reduces_accuracy": 50,
+      "reduces_damage": 0,
+      "grants_invisibility": false
+    }
+  ],
+  "config": {
+    "particles": {
+      "sparkles": {
+        "enabled": true,
+        "spawn_rate": 2.0,
+        "lifetime": 1.0,
+        "colors": [
+          "White",
+          "Yellow",
+          "Cyan"
+        ],
+        "characters": [
+          "*",
+          "\u2726",
+          "\u2727",
+          "\u25c6"
+        ],
+        "intensity": 1.0
+      },
+      "glow": {
+        "enabled": true,
+        "pulse_speed": 0.1,
+        "min_brightness": 0.3,
+        "max_brightness": 1.0,
+        "colors": [
+          "Yellow",
+          "White"
+        ]
+      },
+      "float": {
+        "enabled": true,
+        "velocity_range": [
+          0.5,
+          2.0
+        ],
+        "lifetime": 3.0,
+        "gravity": 0.1,
+        "characters": [
+          "\u00b0",
+          "\u00b7",
+          "\u02da"
+        ]
+      },
+      "drift": {
+        "enabled": true,
+        "wind_strength": 0.5,
+        "turbulence": 0.1,
+        "fade_rate": 0.2
+      },
+      "pulse": {
+        "enabled": true,
+        "frequency": 0.2,
+        "amplitude": 0.3,
+        "wave_type": "sine"
+      },
+      "shimmer": {
+        "enabled": true,
+        "speed": 0.05,
+        "color_cycle": [
+          "Cyan",
+          "LightCyan",
+          "White"
+        ],
+        "intensity_variation": 0.2
+      }
+    },
+    "animations": {
+      "blink": {
+        "duration_ms": 500,
+        "on_color": "White",
+        "off_color": "DarkGray"
+      },
+      "glow": {
+        "cycle_duration_ms": 1000,
+        "base_color": "Yellow",
+        "glow_color": "LightYellow",
+        "intensity_steps": 5
+      },
+      "screen_shake": {
+        "duration_ms": 200,
+        "intensity": 2,
+        "frequency_hz": 20.0
+      }
+    },
+    "themes": {
+      "themes": {
+        "classic": {
+          "name": "Classic",
+          "description": "Traditional roguelike colors",
+          "colors": {
+            "entities": {
+              "player": "Yellow",
+              "enemies": "Red",
+              "npcs": "Green",
+              "items": "LightMagenta"
+            },
+            "tiles": {
+              "floor": "DarkGray",
+              "wall": "Gray",
+              "glass": "Cyan",
+              "stairs": "Yellow",
+              "world_exit": "Green"
+            },
+            "lighting": {
+              "torch": "Yellow",
+              "ambient": "DarkGray"
+            },
+            "ui": {
+              "revealed_tile": "DarkGray",
+              "look_cursor_bg": "White",
+              "look_cursor_fg": "Black",
+              "hit_flash_bg": "Red",
+              "hit_flash_fg": "White"
+            }
+          }
+        }
+      },
+      "active_theme": "classic"
+    },
+    "procedural": {
+      "weather": {
+        "rain": {
+          "enabled": false,
+          "intensity": 0.3,
+          "speed": 2.0,
+          "characters": [
+            "|",
+            "\\",
+            "/"
+          ],
+          "colors": [
+            "Blue",
+            "LightBlue"
+          ]
+        },
+        "snow": {
+          "enabled": false,
+          "intensity": 0.2,
+          "speed": 1.0,
+          "characters": [
+            "*",
+            "\u00b7",
+            "\u00b0"
+          ],
+          "colors": [
+            "White",
+            "LightGray"
+          ]
+        },
+        "dust": {
+          "enabled": true,
+          "intensity": 0.1,
+          "speed": 0.5,
+          "characters": [
+            "\u00b7",
+            "\u02da",
+            "\u00b0"
+          ],
+          "colors": [
+            "DarkGray",
+            "Gray"
+          ]
+        }
+      },
+      "ambient_lighting": {
+        "enabled": true,
+        "variation_speed": 0.02,
+        "variation_intensity": 0.15,
+        "base_level": 20
+      },
+      "atmospheric": {
+        "heat_shimmer": true,
+        "dust_motes": true,
+        "light_rays": false
+      }
+    },
+    "global": {
+      "enabled": true,
+      "performance_mode": "Balanced",
+      "quality_level": "Standard",
+      "max_effects": 100
+    }
+  }
 }

@@ -1,10 +1,11 @@
 use crate::game::entity::Entity;
 use crate::game::status::StatusEffect;
+use crate::game::data_loader::{DataLoader, DataSource, HasId};
 use once_cell::sync::Lazy;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum AIDemeanor {
     #[default]
@@ -15,19 +16,19 @@ pub enum AIDemeanor {
     Pacifist,  // Flees when threatened
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct EntityEffect {
     pub condition: String,
     pub effect: String,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct LootEntry {
     pub item: String,
     pub weight: u32,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct Behavior {
     #[serde(rename = "type")]
     pub behavior_type: String,
@@ -49,7 +50,7 @@ pub struct Behavior {
     pub count: Option<u32>,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct EnemyDef {
     pub id: String,
     pub name: String,
@@ -105,6 +106,12 @@ pub struct EnemyDef {
     pub level: u32,
 }
 
+impl HasId for EnemyDef {
+    fn id(&self) -> &str {
+        &self.id
+    }
+}
+
 fn default_sight() -> i32 {
     6
 }
@@ -112,43 +119,16 @@ fn default_level() -> u32 {
     1
 }
 
-#[derive(Deserialize)]
-struct EnemiesFile {
-    schema: String,
-    enemies: Vec<EnemyDef>,
-}
-
-static ENEMY_DEFS: Lazy<HashMap<String, EnemyDef>> = Lazy::new(|| {
-    let mut all_enemies = HashMap::new();
-    
-    // Load all enemy files from data/enemies/ directory
-    let enemy_files = [
-        ("common", include_str!("../../data/enemies/common.json")),
-        ("uncommon", include_str!("../../data/enemies/uncommon.json")),
-        ("rare", include_str!("../../data/enemies/rare.json")),
-        ("elite", include_str!("../../data/enemies/elite.json")),
-        ("boss", include_str!("../../data/enemies/boss.json")),
+static ENEMY_DEFS: Lazy<DataLoader<EnemyDef>> = Lazy::new(|| {
+    let sources = [
+        DataSource::new("data/enemies/common.json", include_str!("../../data/enemies/common.json")),
+        DataSource::new("data/enemies/uncommon.json", include_str!("../../data/enemies/uncommon.json")),
+        DataSource::new("data/enemies/rare.json", include_str!("../../data/enemies/rare.json")),
+        DataSource::new("data/enemies/elite.json", include_str!("../../data/enemies/elite.json")),
+        DataSource::new("data/enemies/boss.json", include_str!("../../data/enemies/boss.json")),
     ];
-    
-    for (tier, data) in enemy_files {
-        let file: EnemiesFile = serde_json::from_str(data)
-            .unwrap_or_else(|e| panic!("Failed to parse enemies/{}.json: {}", tier, e));
-        
-        // Validate schema version
-        if file.schema != "enemies_v1" {
-            panic!("Invalid schema version in enemies/{}.json: expected 'enemies_v1', got '{}'", tier, file.schema);
-        }
-        
-        // Check for duplicate IDs
-        for enemy in file.enemies {
-            if all_enemies.contains_key(&enemy.id) {
-                panic!("Duplicate enemy ID '{}' found in enemies/{}.json", enemy.id, tier);
-            }
-            all_enemies.insert(enemy.id.clone(), enemy);
-        }
-    }
-    
-    all_enemies
+
+    DataLoader::load_multiple(&sources, "enemies", "enemies_v1")
 });
 
 pub fn get_enemy_def(id: &str) -> Option<&'static EnemyDef> {
@@ -156,7 +136,7 @@ pub fn get_enemy_def(id: &str) -> Option<&'static EnemyDef> {
 }
 
 pub fn all_enemy_ids() -> Vec<&'static str> {
-    ENEMY_DEFS.keys().map(|s| s.as_str()).collect()
+    ENEMY_DEFS.ids()
 }
 
 /// Context for evaluating behavior conditions

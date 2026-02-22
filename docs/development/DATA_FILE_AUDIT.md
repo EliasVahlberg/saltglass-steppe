@@ -29,8 +29,7 @@
 | `enemies/elite.json` | `game/enemy.rs` | Elite tier enemies |
 | `enemies/boss.json` | `game/enemy.rs` | Boss tier enemies |
 | `weapons.json` | `game/combat.rs` | Weapon definitions |
-| `status_effects.json` | `game/status.rs` | Status effect definitions |
-| `effects.json` | `game/effect.rs` | Visual/gameplay effects |
+| `effects.json` | `game/effect.rs` | Visual/gameplay effects (includes status_effects + config) |
 
 ### Items & Inventory
 | File | Loaded By | Purpose |
@@ -48,18 +47,16 @@
 ### Skills & Abilities
 | File | Loaded By | Purpose |
 |------|-----------|---------|
-| `skills.json` | `game/skills.rs` | Skill tree definitions |
-| `abilities.json` | `game/skills.rs` | Active ability definitions |
+| `abilities.json` | `game/skills.rs` | Skills + active abilities (combined) |
 | `adaptations.json` | `game/adaptation.rs` | Mutation/adaptation definitions |
-| `psychic_abilities.json` | `game/psychic.rs` | Psychic power definitions |
+| `abilities.json` | `game/psychic.rs` | Psychic power definitions (combined) |
 
 ### Quests & Dialogue
 | File | Loaded By | Purpose |
 |------|-----------|---------|
 | `quests.json` | `game/quest.rs` | Side quest definitions |
 | `main_questline.json` | `game/quest.rs` | Main story quest chain |
-| `dialogues.json` | `game/dialogue.rs` | NPC dialogue trees |
-| `aria_dialogues.json` | `game/dialogue.rs` | ARIA interface dialogues |
+| `dialogues.json` | `game/dialogue.rs` | NPC dialogue trees + ARIA personalities |
 | `npcs.json` | `game/npc.rs` | NPC definitions |
 
 ### World & Generation
@@ -78,9 +75,7 @@
 ### Map & Rendering
 | File | Loaded By | Purpose |
 |------|-----------|---------|
-| `walls.json` | `game/map.rs` | Wall tile definitions |
-| `floors.json` | `game/map.rs` | Floor tile definitions |
-| `lights.json` | `game/light_defs.rs` | Light source definitions |
+| `map_elements.json` | `game/map.rs`, `game/light_defs.rs` | Unified walls/floors/lights |
 | `interactables.json` | `game/interactable.rs` | Interactable object definitions |
 
 ### Travel & Encounters
@@ -140,7 +135,7 @@ These files ARE loaded but not via `include_str!`:
 | File | Loaded By | Purpose |
 |------|-----------|---------|
 | `books.json` | `game/book.rs` | Book content data |
-| `effects_config.json` | `renderer/mod.rs` | Effects management config |
+| `effects.json` | `renderer/mod.rs` | Effects management config (merged) |
 | `narrative_templates.json` | `game/generation/narrative_templates.rs` | Narrative generation templates |
 | `render_config.json` | `renderer/mod.rs` | Renderer configuration |
 | `themes.json` | `renderer/mod.rs` | Visual theme definitions |

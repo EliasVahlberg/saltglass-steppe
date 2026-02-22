@@ -71,8 +71,14 @@ impl EffectsManager {
 
     pub fn load_from_file(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
         let content = std::fs::read_to_string(path)?;
-        let config: EffectsConfig = serde_json::from_str(&content)?;
-        Ok(Self { config })
+        let value: serde_json::Value = serde_json::from_str(&content)?;
+        if value.get("config").is_some() {
+            let file: EffectsConfigFile = serde_json::from_value(value)?;
+            Ok(Self { config: file.config })
+        } else {
+            let config: EffectsConfig = serde_json::from_value(value)?;
+            Ok(Self { config })
+        }
     }
 
     pub fn save_to_file(&self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -136,4 +142,9 @@ impl EffectsManager {
             }
         }
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct EffectsConfigFile {
+    pub config: EffectsConfig,
 }

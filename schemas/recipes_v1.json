@@ -1,0 +1,472 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/recipes_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Recipes Schema",
+  "type": "object",
+  "description": "Crafting recipe definitions with material inputs and gating rules.",
+  "additionalProperties": false,
+  "required": ["recipes"],
+  "properties": {
+    "recipes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of craftable recipes.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "materials",
+              "output",
+              "output_count",
+              "skill_required",
+              "station_required",
+              "faction_required"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing description of the recipe."
+              },
+              "faction_required": {
+                "type": "null",
+                "description": "No faction requirement."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the recipe."
+              },
+              "materials": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Material requirements for the recipe.",
+                "required": ["cloth_scrap", "oil_vial"],
+                "properties": {
+                  "cloth_scrap": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Cloth scrap quantity required."
+                  },
+                  "oil_vial": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Oil vial quantity required."
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "output": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Item id produced by the recipe."
+              },
+              "output_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of items produced."
+              },
+              "skill_required": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Required crafting skill level."
+              },
+              "station_required": {
+                "type": "null",
+                "description": "No crafting station requirement."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "materials",
+              "output",
+              "output_count",
+              "skill_required",
+              "station_required",
+              "faction_required"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing description of the recipe."
+              },
+              "faction_required": {
+                "type": "null",
+                "description": "No faction requirement."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the recipe."
+              },
+              "materials": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Material requirements for the recipe.",
+                "required": ["cloth_scrap", "glass_shard"],
+                "properties": {
+                  "cloth_scrap": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Cloth scrap quantity required."
+                  },
+                  "glass_shard": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Glass shard quantity required."
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "output": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Item id produced by the recipe."
+              },
+              "output_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of items produced."
+              },
+              "skill_required": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Required crafting skill level."
+              },
+              "station_required": {
+                "type": "null",
+                "description": "No crafting station requirement."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "materials",
+              "output",
+              "output_count",
+              "skill_required",
+              "station_required",
+              "faction_required"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing description of the recipe."
+              },
+              "faction_required": {
+                "type": "null",
+                "description": "No faction requirement."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the recipe."
+              },
+              "materials": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Material requirements for the recipe.",
+                "required": ["raw_meat", "salt_crystal"],
+                "properties": {
+                  "raw_meat": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Raw meat quantity required."
+                  },
+                  "salt_crystal": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Salt crystal quantity required."
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "output": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Item id produced by the recipe."
+              },
+              "output_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of items produced."
+              },
+              "skill_required": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Required crafting skill level."
+              },
+              "station_required": {
+                "type": "null",
+                "description": "No crafting station requirement."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "materials",
+              "output",
+              "output_count",
+              "skill_required",
+              "station_required",
+              "faction_required"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing description of the recipe."
+              },
+              "faction_required": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Faction id required to craft this recipe."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the recipe."
+              },
+              "materials": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Material requirements for the recipe.",
+                "required": ["cloth_scrap", "dye_powder", "metal_wire"],
+                "properties": {
+                  "cloth_scrap": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Cloth scrap quantity required."
+                  },
+                  "dye_powder": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Dye powder quantity required."
+                  },
+                  "metal_wire": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Metal wire quantity required."
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "output": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Item id produced by the recipe."
+              },
+              "output_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of items produced."
+              },
+              "skill_required": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Required crafting skill level."
+              },
+              "station_required": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Crafting station id required for this recipe."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "materials",
+              "output",
+              "output_count",
+              "skill_required",
+              "station_required",
+              "faction_required"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing description of the recipe."
+              },
+              "faction_required": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Faction id required to craft this recipe."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the recipe."
+              },
+              "materials": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Material requirements for the recipe.",
+                "required": ["pure_glass", "metal_frame", "precision_tools"],
+                "properties": {
+                  "metal_frame": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Metal frame quantity required."
+                  },
+                  "precision_tools": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Precision tools quantity required."
+                  },
+                  "pure_glass": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Pure glass quantity required."
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "output": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Item id produced by the recipe."
+              },
+              "output_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of items produced."
+              },
+              "skill_required": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Required crafting skill level."
+              },
+              "station_required": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Crafting station id required for this recipe."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "materials",
+              "output",
+              "output_count",
+              "skill_required",
+              "station_required",
+              "faction_required"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing description of the recipe."
+              },
+              "faction_required": {
+                "type": "null",
+                "description": "No faction requirement."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the recipe."
+              },
+              "materials": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Material requirements for the recipe.",
+                "required": ["salt_crystal", "brine_vial"],
+                "properties": {
+                  "brine_vial": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Brine vial quantity required."
+                  },
+                  "salt_crystal": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "Salt crystal quantity required."
+                  }
+                }
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "output": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Item id produced by the recipe."
+              },
+              "output_count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of items produced."
+              },
+              "skill_required": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Required crafting skill level."
+              },
+              "station_required": {
+                "type": "null",
+                "description": "No crafting station requirement."
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

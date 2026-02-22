@@ -1,42 +1,52 @@
 {
+  "schema": "items_v1",
   "items": [
     {
       "id": "storm_glass",
       "name": "Storm Glass",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Crystallized storm energy, valuable for trade",
       "value": 25,
       "weight": 1,
       "tier": 1,
       "usable": false,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@3 &Cyan &LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@3 &Cyan &LightCyan)"
+        }
       ]
     },
     {
       "id": "pristine_storm_glass",
       "name": "Pristine Storm Glass",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Flawless crystallized storm energy, extremely valuable",
       "value": 100,
       "weight": 1,
       "tier": 3,
       "usable": false,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@5 &LightCyan &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@5 &LightCyan &White)"
+        }
       ]
     },
     {
       "id": "storm_core",
       "name": "Storm Core",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Concentrated essence of a storm's heart, priceless",
       "value": 500,
       "weight": 1,
       "tier": 5,
       "usable": false,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@8 &White &LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@8 &White &LightCyan)"
+        }
       ]
     },
     {
@@ -50,8 +60,14 @@
       "usable": true,
       "heal": 5,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &Blue)" },
-        { "condition": "on_use", "effect": "P(@3 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &Blue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "P(@3 &LightBlue)"
+        }
       ]
     },
     {
@@ -65,14 +81,20 @@
       "usable": true,
       "heal": 12,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" },
-        { "condition": "on_use", "effect": "P(@6 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &LightBlue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "P(@6 &White)"
+        }
       ]
     },
     {
       "id": "saints_tear",
       "name": "Saint's Tear",
-      "glyph": "○",
+      "glyph": "\u25cb",
       "description": "Vitrified droplet from a machine-saint's eye",
       "value": 75,
       "weight": 0,
@@ -81,8 +103,14 @@
       "heal": 15,
       "reduces_refraction": 10,
       "effects": [
-        { "condition": "on_pickup", "effect": "P(@8 &White)" },
-        { "condition": "on_use", "effect": "F(@20 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "P(@8 &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@20 &White)"
+        }
       ]
     },
     {
@@ -95,10 +123,18 @@
       "tier": 1,
       "usable": true,
       "reveals_map": true,
-      "hidden_properties": ["value"],
+      "hidden_properties": [
+        "value"
+      ],
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@3 &Magenta &LightMagenta)" },
-        { "condition": "on_use", "effect": "W(@4 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@3 &Magenta &LightMagenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@4 &White)"
+        }
       ]
     },
     {
@@ -113,53 +149,79 @@
       "reveals_map": true,
       "reveals_locations": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@6 &Yellow &White)" },
-        { "condition": "on_use", "effect": "W(@8 &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@6 &Yellow &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@8 &LightYellow)"
+        }
       ]
     },
     {
       "id": "saint_key",
       "name": "Saint-Key",
-      "glyph": "⚷",
+      "glyph": "\u26b7",
       "description": "Pre-storm credential that grants Archive access",
       "value": 100,
       "weight": 1,
       "tier": 2,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@4 &Yellow)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Yellow)"
+        }
+      ]
     },
     {
       "id": "master_saint_key",
       "name": "Master Saint-Key",
-      "glyph": "⚷",
+      "glyph": "\u26b7",
       "description": "Highest-level Archive credential with unlimited access",
       "value": 400,
       "weight": 1,
       "tier": 5,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &LightYellow)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@8 &LightYellow)"
+        }
+      ]
     },
     {
       "id": "angle_lens",
       "name": "Angle-Split Lens",
-      "glyph": "◎",
+      "glyph": "\u25ce",
       "description": "Refracts light into precise geometric patterns",
       "value": 80,
       "weight": 1,
       "tier": 2,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "P(@4 &LightCyan)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "P(@4 &LightCyan)"
+        }
+      ]
     },
     {
       "id": "perfect_lens",
       "name": "Perfect Lens",
-      "glyph": "◎",
+      "glyph": "\u25ce",
       "description": "Flawless optical element that bends reality itself",
       "value": 300,
       "weight": 1,
       "tier": 4,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "P(@8 &White)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "P(@8 &White)"
+        }
+      ]
     },
     {
       "id": "salt_knife",
@@ -171,7 +233,12 @@
       "tier": 1,
       "usable": false,
       "equip_slot": "weapon",
-      "effects": [{ "condition": "on_pickup", "effect": "S(@2 &White)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@2 &White)"
+        }
+      ]
     },
     {
       "id": "glass_blade",
@@ -183,7 +250,12 @@
       "tier": 3,
       "usable": false,
       "equip_slot": "weapon",
-      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &LightCyan)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &LightCyan)"
+        }
+      ]
     },
     {
       "id": "saint_blade",
@@ -195,7 +267,12 @@
       "tier": 5,
       "usable": false,
       "equip_slot": "weapon",
-      "effects": [{ "condition": "on_pickup", "effect": "S(@8 &LightYellow)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@8 &LightYellow)"
+        }
+      ]
     },
     {
       "id": "glass_shard",
@@ -206,7 +283,12 @@
       "weight": 1,
       "tier": 1,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@1 &Cyan)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@1 &Cyan)"
+        }
+      ]
     },
     {
       "id": "refined_glass_shard",
@@ -217,7 +299,12 @@
       "weight": 1,
       "tier": 2,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@3 &LightCyan)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@3 &LightCyan)"
+        }
+      ]
     },
     {
       "id": "salt_vest",
@@ -230,7 +317,12 @@
       "armor_value": 2,
       "equip_slot": "armor",
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &White)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &White)"
+        }
+      ]
     },
     {
       "id": "glass_mail",
@@ -243,7 +335,12 @@
       "armor_value": 5,
       "equip_slot": "armor",
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@5 &LightCyan)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@5 &LightCyan)"
+        }
+      ]
     },
     {
       "id": "saint_aegis",
@@ -256,7 +353,12 @@
       "armor_value": 10,
       "equip_slot": "armor",
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &LightYellow)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@8 &LightYellow)"
+        }
+      ]
     },
     {
       "id": "leather_jacket",
@@ -269,7 +371,12 @@
       "armor_value": 1,
       "equip_slot": "armor",
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@2 &DarkGray)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@2 &DarkGray)"
+        }
+      ]
     },
     {
       "id": "reinforced_jacket",
@@ -282,7 +389,12 @@
       "armor_value": 3,
       "equip_slot": "armor",
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Gray)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &Gray)"
+        }
+      ]
     },
     {
       "id": "glass_pick",
@@ -294,7 +406,12 @@
       "tier": 1,
       "usable": true,
       "breaks_walls": true,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@4 &Cyan &White)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &Cyan &White)"
+        }
+      ]
     },
     {
       "id": "master_glass_pick",
@@ -307,13 +424,16 @@
       "usable": true,
       "breaks_walls": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@6 &White &LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@6 &White &LightCyan)"
+        }
       ]
     },
     {
       "id": "storm_compass",
       "name": "Storm Compass",
-      "glyph": "⊕",
+      "glyph": "\u2295",
       "description": "Needle trembles toward the next storm's origin",
       "value": 60,
       "weight": 1,
@@ -321,14 +441,20 @@
       "usable": true,
       "reveals_storm_path": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &Yellow)" },
-        { "condition": "on_use", "effect": "W(@6 &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &Yellow)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@6 &LightYellow)"
+        }
       ]
     },
     {
       "id": "storm_oracle",
       "name": "Storm Oracle",
-      "glyph": "⊕",
+      "glyph": "\u2295",
       "description": "Advanced device that predicts storm patterns perfectly",
       "value": 300,
       "weight": 2,
@@ -337,23 +463,35 @@
       "reveals_storm_path": true,
       "reveals_storm_timing": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@6 &LightYellow)" },
-        { "condition": "on_use", "effect": "W(@10 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &LightYellow)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@10 &White)"
+        }
       ]
     },
     {
       "id": "veil_tincture",
       "name": "Veil Tincture",
       "glyph": "!",
-      "description": "Dulls refraction glow—adaptations hidden briefly",
+      "description": "Dulls refraction glow\u2014adaptations hidden briefly",
       "value": 40,
       "weight": 1,
       "tier": 2,
       "usable": true,
       "suppresses_adaptations": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &DarkGray)" },
-        { "condition": "on_use", "effect": "F(@12 &DarkGray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &DarkGray)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@12 &DarkGray)"
+        }
       ]
     },
     {
@@ -368,8 +506,14 @@
       "suppresses_adaptations": true,
       "grants_invisibility": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@6 &DarkGray)" },
-        { "condition": "on_use", "effect": "F(@20 &Black)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &DarkGray)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@20 &Black)"
+        }
       ]
     },
     {
@@ -383,8 +527,14 @@
       "usable": true,
       "heal": 8,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Green)" },
-        { "condition": "on_use", "effect": "P(@4 &LightGreen)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Green)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "P(@4 &LightGreen)"
+        }
       ]
     },
     {
@@ -399,8 +549,14 @@
       "heal": 25,
       "reduces_refraction": 5,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@8 &LightGreen)" },
-        { "condition": "on_use", "effect": "P(@10 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@8 &LightGreen)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "P(@10 &White)"
+        }
       ]
     },
     {
@@ -413,8 +569,16 @@
       "tier": 1,
       "usable": false,
       "equip_slot": "light",
-      "light_source": { "radius": 4, "intensity": 100 },
-      "effects": [{ "condition": "on_pickup", "effect": "F(@3 &Yellow)" }]
+      "light_source": {
+        "radius": 4,
+        "intensity": 100
+      },
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "F(@3 &Yellow)"
+        }
+      ]
     },
     {
       "id": "storm_lantern",
@@ -426,8 +590,16 @@
       "tier": 3,
       "usable": false,
       "equip_slot": "light",
-      "light_source": { "radius": 8, "intensity": 150 },
-      "effects": [{ "condition": "on_pickup", "effect": "F(@6 &LightCyan)" }]
+      "light_source": {
+        "radius": 8,
+        "intensity": 150
+      },
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "F(@6 &LightCyan)"
+        }
+      ]
     },
     {
       "id": "saint_beacon",
@@ -439,8 +611,16 @@
       "tier": 5,
       "usable": false,
       "equip_slot": "light",
-      "light_source": { "radius": 15, "intensity": 200 },
-      "effects": [{ "condition": "on_pickup", "effect": "F(@10 &White)" }]
+      "light_source": {
+        "radius": 15,
+        "intensity": 200
+      },
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "F(@10 &White)"
+        }
+      ]
     },
     {
       "id": "salt_crystal",
@@ -451,7 +631,12 @@
       "weight": 1,
       "tier": 1,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@2 &White)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@2 &White)"
+        }
+      ]
     },
     {
       "id": "perfect_salt_crystal",
@@ -462,7 +647,12 @@
       "weight": 1,
       "tier": 3,
       "usable": false,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@5 &LightGray)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@5 &LightGray)"
+        }
+      ]
     },
     {
       "id": "old_world_boots",
@@ -476,26 +666,37 @@
       "equip_slot": "boots",
       "grants_sprint": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &Gray)" },
-        { "condition": "on_equip", "effect": "P(@5 &LightGreen)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &Gray)"
+        },
+        {
+          "condition": "on_equip",
+          "effect": "P(@5 &LightGreen)"
+        }
       ]
     },
     {
       "id": "void_glass_shard",
       "name": "Void Glass Shard",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Black glass that absorbs light and heat",
       "value": 200,
       "weight": 1,
       "tier": 4,
       "usable": false,
       "absorbs_light": true,
-      "effects": [{ "condition": "on_pickup", "effect": "F(@6 &Black)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "F(@6 &Black)"
+        }
+      ]
     },
     {
       "id": "singing_glass",
       "name": "Singing Glass",
-      "glyph": "♪",
+      "glyph": "\u266a",
       "description": "Resonant glass that hums with stored vibrations",
       "value": 45,
       "weight": 1,
@@ -503,14 +704,20 @@
       "usable": true,
       "sonic_weapon": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@4 &Cyan)" },
-        { "condition": "on_use", "effect": "W(@8 &LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@8 &LightCyan)"
+        }
       ]
     },
     {
       "id": "prism_core",
       "name": "Prism Core",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "Perfect geometric glass that focuses light into beams",
       "value": 300,
       "weight": 2,
@@ -518,26 +725,37 @@
       "usable": true,
       "laser_weapon": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "P(@8 &White)" },
-        { "condition": "on_use", "effect": "F(@12 &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "P(@8 &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@12 &LightYellow)"
+        }
       ]
     },
     {
       "id": "verdant_glass",
       "name": "Verdant Glass",
-      "glyph": "♠",
+      "glyph": "\u2660",
       "description": "Green bio-glass that slowly regenerates",
       "value": 80,
       "weight": 1,
       "tier": 3,
       "usable": false,
       "self_repairing": true,
-      "effects": [{ "condition": "on_pickup", "effect": "S(@5 &Green)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "S(@5 &Green)"
+        }
+      ]
     },
     {
       "id": "sanguine_glass",
       "name": "Sanguine Glass",
-      "glyph": "♥",
+      "glyph": "\u2665",
       "description": "Crimson glass warm with trapped memories",
       "value": 400,
       "weight": 1,
@@ -546,14 +764,20 @@
       "contains_memories": true,
       "bonds_with_flesh": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "P(@8 &Red)" },
-        { "condition": "on_use", "effect": "F(@15 &LightRed)" }
+        {
+          "condition": "on_pickup",
+          "effect": "P(@8 &Red)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@15 &LightRed)"
+        }
       ]
     },
     {
       "id": "mirror_slate",
       "name": "Mirror Slate",
-      "glyph": "□",
+      "glyph": "\u25a1",
       "description": "Perfectly reflective sheet used for signaling",
       "value": 60,
       "weight": 3,
@@ -561,21 +785,32 @@
       "usable": true,
       "reflects_beams": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@4 &White)" },
-        { "condition": "on_use", "effect": "W(@10 &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "F(@4 &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@10 &LightYellow)"
+        }
       ]
     },
     {
       "id": "aero_glass",
       "name": "Aero Glass",
-      "glyph": "○",
+      "glyph": "\u25cb",
       "description": "Frothy lightweight glass that floats on water",
       "value": 25,
       "weight": 0,
       "tier": 2,
       "usable": false,
       "floats": true,
-      "effects": [{ "condition": "on_pickup", "effect": "F(@3 &LightCyan)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "F(@3 &LightCyan)"
+        }
+      ]
     },
     {
       "id": "fulgurite_rod",
@@ -590,8 +825,14 @@
       "shock_weapon": true,
       "explosive": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@6 &LightBlue)" },
-        { "condition": "on_use", "effect": "F(@10 &Yellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@6 &LightBlue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@10 &Yellow)"
+        }
       ]
     },
     {
@@ -606,12 +847,17 @@
       "equip_slot": "cloak",
       "blocks_scanning": true,
       "stealth_bonus": true,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@6 &Black)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &Black)"
+        }
+      ]
     },
     {
       "id": "neural_crown",
       "name": "Neural Interface Crown",
-      "glyph": "♔",
+      "glyph": "\u2654",
       "description": "Archive technology for consciousness interfacing",
       "value": 800,
       "weight": 3,
@@ -621,14 +867,20 @@
       "archive_interface": true,
       "consciousness_link": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "P(@10 &LightMagenta)" },
-        { "condition": "on_equip", "effect": "F(@20 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "P(@10 &LightMagenta)"
+        },
+        {
+          "condition": "on_equip",
+          "effect": "F(@20 &White)"
+        }
       ]
     },
     {
       "id": "quantum_buffer",
       "name": "Quantum Buffer Array",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Prevents information overload during data transfer",
       "value": 250,
       "weight": 2,
@@ -636,14 +888,20 @@
       "usable": true,
       "prevents_overload": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@6 &Magenta)" },
-        { "condition": "on_use", "effect": "P(@12 &LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "P(@12 &LightMagenta)"
+        }
       ]
     },
     {
       "id": "storm_battery",
       "name": "Storm Battery",
-      "glyph": "⚡",
+      "glyph": "\u26a1",
       "description": "Capacitive fulgurite that stores electrical charge",
       "value": 90,
       "weight": 3,
@@ -652,29 +910,20 @@
       "powers_devices": true,
       "explosive": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@5 &Yellow)" },
-        { "condition": "on_use", "effect": "F(@8 &LightYellow)" }
-      ]
-    },
-    {
-      "id": "resonance_tuner",
-      "name": "Resonance Tuner",
-      "glyph": "♫",
-      "description": "Device that calibrates singing glass frequencies",
-      "value": 180,
-      "weight": 2,
-      "tier": 4,
-      "usable": true,
-      "tunes_frequencies": true,
-      "effects": [
-        { "condition": "on_pickup", "effect": "S(@6 &Cyan)" },
-        { "condition": "on_use", "effect": "W(@10 &LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@5 &Yellow)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@8 &LightYellow)"
+        }
       ]
     },
     {
       "id": "void_containment_box",
       "name": "Void Containment Box",
-      "glyph": "■",
+      "glyph": "\u25a0",
       "description": "Lead-lined container for dangerous artifacts",
       "value": 200,
       "weight": 8,
@@ -682,12 +931,17 @@
       "usable": true,
       "contains_danger": true,
       "radiation_shield": true,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@8 &DarkGray)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@8 &DarkGray)"
+        }
+      ]
     },
     {
       "id": "glassborn_prosthetic",
       "name": "Glassborn Prosthetic",
-      "glyph": "⚕",
+      "glyph": "\u2695",
       "description": "Sanguine glass limb that bonds with flesh",
       "value": 600,
       "weight": 5,
@@ -697,14 +951,20 @@
       "bonds_with_flesh": true,
       "enhanced_strength": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "P(@10 &Red)" },
-        { "condition": "on_equip", "effect": "F(@15 &LightRed)" }
+        {
+          "condition": "on_pickup",
+          "effect": "P(@10 &Red)"
+        },
+        {
+          "condition": "on_equip",
+          "effect": "F(@15 &LightRed)"
+        }
       ]
     },
     {
       "id": "echo_detector",
       "name": "Echo Detector",
-      "glyph": "◐",
+      "glyph": "\u25d0",
       "description": "Senses consciousness bleed from transformed beings",
       "value": 120,
       "weight": 2,
@@ -712,14 +972,20 @@
       "usable": true,
       "detects_consciousness": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@5 &Magenta)" },
-        { "condition": "on_use", "effect": "W(@8 &LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@5 &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@8 &LightMagenta)"
+        }
       ]
     },
     {
       "id": "reality_anchor",
       "name": "Reality Anchor",
-      "glyph": "⚓",
+      "glyph": "\u2693",
       "description": "Stabilizes local physics in flux zones",
       "value": 400,
       "weight": 10,
@@ -727,14 +993,20 @@
       "usable": true,
       "stabilizes_reality": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@8 &White)" },
-        { "condition": "on_use", "effect": "F(@20 &LightGray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@8 &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@20 &LightGray)"
+        }
       ]
     },
     {
       "id": "monk_prayer_beads",
       "name": "Monk Prayer Beads",
-      "glyph": "○",
+      "glyph": "\u25cb",
       "description": "Geometric glass beads that focus meditation",
       "value": 40,
       "weight": 1,
@@ -742,14 +1014,20 @@
       "usable": true,
       "enhances_meditation": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "P(@3 &Cyan)" },
-        { "condition": "on_use", "effect": "F(@8 &LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "P(@3 &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@8 &LightCyan)"
+        }
       ]
     },
     {
       "id": "engineer_multitool",
       "name": "Engineer Multitool",
-      "glyph": "⚒",
+      "glyph": "\u2692",
       "description": "Precision instrument for technical work",
       "value": 80,
       "weight": 2,
@@ -758,14 +1036,20 @@
       "repairs_devices": true,
       "breaks_walls": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@4 &Gray)" },
-        { "condition": "on_use", "effect": "B(@6 &LightGray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &Gray)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "B(@6 &LightGray)"
+        }
       ]
     },
     {
       "id": "wanderer_compass",
       "name": "Wanderer's Compass",
-      "glyph": "⊗",
+      "glyph": "\u2297",
       "description": "Points toward safe passage through flux zones",
       "value": 100,
       "weight": 1,
@@ -773,14 +1057,20 @@
       "usable": true,
       "finds_safe_paths": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Green)" },
-        { "condition": "on_use", "effect": "W(@8 &LightGreen)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Green)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@8 &LightGreen)"
+        }
       ]
     },
     {
       "id": "adaptation_suppressor",
       "name": "Adaptation Suppressor",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "Archive device that masks transformation signatures",
       "value": 300,
       "weight": 3,
@@ -789,14 +1079,20 @@
       "suppresses_adaptations": true,
       "archive_tech": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@6 &DarkGray)" },
-        { "condition": "on_use", "effect": "F(@15 &Black)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &DarkGray)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@15 &Black)"
+        }
       ]
     },
     {
       "id": "storm_caller",
       "name": "Storm Caller",
-      "glyph": "☈",
+      "glyph": "\u2608",
       "description": "Forbidden device that can trigger localized storms",
       "value": 1000,
       "weight": 5,
@@ -805,23 +1101,14 @@
       "calls_storms": true,
       "extremely_dangerous": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@15 &Red)" },
-        { "condition": "on_use", "effect": "W(@25 &LightRed)" }
-      ]
-    },
-    {
-      "id": "memory_crystal",
-      "name": "Memory Crystal",
-      "glyph": "◈",
-      "description": "Stores consciousness fragments and experiences",
-      "value": 150,
-      "weight": 1,
-      "tier": 3,
-      "usable": true,
-      "stores_memories": true,
-      "effects": [
-        { "condition": "on_pickup", "effect": "P(@5 &Magenta)" },
-        { "condition": "on_use", "effect": "F(@10 &LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "F(@15 &Red)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@25 &LightRed)"
+        }
       ]
     },
     {
@@ -836,14 +1123,20 @@
       "equip_slot": "cloak",
       "grants_phasing": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@8 &DarkGray)" },
-        { "condition": "on_equip", "effect": "P(@12 &Black)" }
+        {
+          "condition": "on_pickup",
+          "effect": "F(@8 &DarkGray)"
+        },
+        {
+          "condition": "on_equip",
+          "effect": "P(@12 &Black)"
+        }
       ]
     },
     {
       "id": "salt_miner_helmet",
       "name": "Salt Miner's Helmet",
-      "glyph": "⌐",
+      "glyph": "\u2310",
       "description": "Protective headgear with built-in light",
       "value": 45,
       "weight": 3,
@@ -851,13 +1144,21 @@
       "usable": false,
       "equip_slot": "head",
       "armor_value": 1,
-      "light_source": { "radius": 3, "intensity": 80 },
-      "effects": [{ "condition": "on_pickup", "effect": "B(@3 &Yellow)" }]
+      "light_source": {
+        "radius": 3,
+        "intensity": 80
+      },
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &Yellow)"
+        }
+      ]
     },
     {
       "id": "glass_weaver_gloves",
       "name": "Glass Weaver's Gloves",
-      "glyph": "≈",
+      "glyph": "\u2248",
       "description": "Allows safe handling of dangerous glass types",
       "value": 70,
       "weight": 1,
@@ -865,12 +1166,17 @@
       "usable": false,
       "equip_slot": "gloves",
       "safe_glass_handling": true,
-      "effects": [{ "condition": "on_pickup", "effect": "B(@4 &Cyan)" }]
+      "effects": [
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Cyan)"
+        }
+      ]
     },
     {
       "id": "storm_prophet_staff",
       "name": "Storm Prophet's Staff",
-      "glyph": "♦",
+      "glyph": "\u2666",
       "description": "Monk artifact that channels storm energy",
       "value": 350,
       "weight": 4,
@@ -880,24 +1186,14 @@
       "channels_storms": true,
       "monk_artifact": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "P(@8 &LightCyan)" },
-        { "condition": "on_use", "effect": "F(@15 &White)" }
-      ]
-    },
-    {
-      "id": "archive_scanner",
-      "name": "Archive Scanner",
-      "glyph": "◎",
-      "description": "Identifies and catalogs unknown artifacts",
-      "value": 200,
-      "weight": 2,
-      "tier": 4,
-      "usable": true,
-      "identifies_items": true,
-      "archive_tech": true,
-      "effects": [
-        { "condition": "on_pickup", "effect": "B(@6 &LightBlue)" },
-        { "condition": "on_use", "effect": "W(@10 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "P(@8 &LightCyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@15 &White)"
+        }
       ]
     },
     {
@@ -1381,13 +1677,16 @@
       "usable": false,
       "consumable": false,
       "effects": [
-        { "condition": "on_pickup", "effect": "W(@6 &Yellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "W(@6 &Yellow)"
+        }
       ]
     },
     {
       "id": "quantum_core",
       "name": "Quantum Core",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Crystallized quantum consciousness from a Storm Hawk",
       "value": 200,
       "tier": 4,
@@ -1395,14 +1694,20 @@
       "consumable": true,
       "psychic_boost": 10,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@4 &Yellow &LightYellow)" },
-        { "condition": "on_use", "effect": "G(&LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@4 &Yellow &LightYellow)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&LightYellow)"
+        }
       ]
     },
     {
       "id": "void_essence",
       "name": "Void Essence",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "Dimensional matter that exists between realities",
       "value": 150,
       "tier": 4,
@@ -1410,21 +1715,30 @@
       "consumable": true,
       "phase_walk": 3,
       "effects": [
-        { "condition": "on_pickup", "effect": "D(@4 &Magenta)" },
-        { "condition": "on_use", "effect": "F(@8 &DarkGray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "D(@4 &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@8 &DarkGray)"
+        }
       ]
     },
     {
       "id": "dimensional_shard",
       "name": "Dimensional Shard",
-      "glyph": "◈",
+      "glyph": "\u25c8",
       "description": "Fragment of crystallized space-time from a Void Swimmer",
       "value": 300,
       "tier": 5,
       "usable": false,
       "consumable": false,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@2 &Magenta &LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@2 &Magenta &LightMagenta)"
+        }
       ]
     },
     {
@@ -1437,7 +1751,10 @@
       "usable": false,
       "consumable": false,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@4 &Cyan &LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &Cyan &LightCyan)"
+        }
       ]
     },
     {
@@ -1451,27 +1768,36 @@
       "consumable": true,
       "refraction_boost": 5,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Cyan)" },
-        { "condition": "on_use", "effect": "G(&LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&LightCyan)"
+        }
       ]
     },
     {
       "id": "archive_component",
       "name": "Archive Component",
-      "glyph": "□",
+      "glyph": "\u25a1",
       "description": "Quantum processing unit from a Glass Golem",
       "value": 120,
       "tier": 3,
       "usable": false,
       "consumable": false,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &LightBlue)"
+        }
       ]
     },
     {
       "id": "quantum_crystal",
       "name": "Quantum Crystal",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Pure crystallized quantum energy from Archive systems",
       "value": 250,
       "tier": 4,
@@ -1479,14 +1805,20 @@
       "consumable": true,
       "adaptation_catalyst": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@6 &Blue &LightBlue &White)" },
-        { "condition": "on_use", "effect": "G(&White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@6 &Blue &LightBlue &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&White)"
+        }
       ]
     },
     {
       "id": "construction_blueprint",
       "name": "Construction Blueprint",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Archive construction plans for quantum structures",
       "value": 180,
       "tier": 3,
@@ -1494,14 +1826,20 @@
       "consumable": false,
       "reveals_structures": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" },
-        { "condition": "on_use", "effect": "W(@8 &Blue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &LightBlue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@8 &Blue)"
+        }
       ]
     },
     {
       "id": "null_field_generator",
       "name": "Null Field Generator",
-      "glyph": "◘",
+      "glyph": "\u25d8",
       "description": "Iron Covenant device that disrupts quantum coherence",
       "value": 400,
       "tier": 4,
@@ -1509,14 +1847,20 @@
       "consumable": false,
       "anti_quantum": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@6 &DarkGray)" },
-        { "condition": "on_use", "effect": "F(@4 &DarkGray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &DarkGray)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@4 &DarkGray)"
+        }
       ]
     },
     {
       "id": "anti_quantum_armor",
       "name": "Anti-Quantum Armor",
-      "glyph": "▓",
+      "glyph": "\u2593",
       "description": "Lead-lined armor that blocks quantum field effects",
       "value": 600,
       "tier": 4,
@@ -1524,13 +1868,16 @@
       "consumable": false,
       "quantum_resistance": 50,
       "effects": [
-        { "condition": "on_pickup", "effect": "G(&DarkGray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "G(&DarkGray)"
+        }
       ]
     },
     {
       "id": "purity_scanner",
       "name": "Purity Scanner",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Device that detects quantum contamination levels",
       "value": 200,
       "tier": 3,
@@ -1538,14 +1885,20 @@
       "consumable": false,
       "reveals_adaptations": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Red)" },
-        { "condition": "on_use", "effect": "W(@6 &Red)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Red)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@6 &Red)"
+        }
       ]
     },
     {
       "id": "covenant_manifesto",
       "name": "Covenant Manifesto",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Iron Covenant doctrine on human purity and quantum corruption",
       "value": 50,
       "tier": 2,
@@ -1553,13 +1906,16 @@
       "consumable": false,
       "reveals_lore": "iron_covenant_ideology",
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Red)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Red)"
+        }
       ]
     },
     {
       "id": "storm_catalyst",
       "name": "Storm Catalyst",
-      "glyph": "⚡",
+      "glyph": "\u26a1",
       "description": "Glass Prophet device that attracts and amplifies storm energy",
       "value": 350,
       "tier": 4,
@@ -1567,14 +1923,20 @@
       "consumable": true,
       "storm_attraction": 3,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@4 &Yellow &LightYellow &White)" },
-        { "condition": "on_use", "effect": "W(@2 &Yellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@4 &Yellow &LightYellow &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@2 &Yellow)"
+        }
       ]
     },
     {
       "id": "light_prism",
       "name": "Light Prism",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "Crystalline focus that channels and amplifies light-based abilities",
       "value": 250,
       "tier": 3,
@@ -1582,14 +1944,20 @@
       "consumable": false,
       "light_amplification": 25,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@3 &White &LightYellow &Cyan)" },
-        { "condition": "on_use", "effect": "G(&White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@3 &White &LightYellow &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&White)"
+        }
       ]
     },
     {
       "id": "ascension_manual",
       "name": "Ascension Manual",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Glass Prophet guide to accelerated transformation",
       "value": 150,
       "tier": 3,
@@ -1598,7 +1966,10 @@
       "reveals_lore": "glass_prophet_doctrine",
       "adaptation_guide": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@6 &Cyan &LightCyan &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@6 &Cyan &LightCyan &White)"
+        }
       ]
     },
     {
@@ -1612,13 +1983,16 @@
       "consumable": false,
       "light_refraction": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@4 &Cyan &LightCyan &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &Cyan &LightCyan &White)"
+        }
       ]
     },
     {
       "id": "memory_crystal",
       "name": "Memory Crystal",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Wandering Court artifact containing preserved cultural memories",
       "value": 180,
       "tier": 3,
@@ -1626,14 +2000,30 @@
       "consumable": false,
       "reveals_lore": "pre_storm_memories",
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@8 &LightBlue)" },
-        { "condition": "on_use", "effect": "S(@6 &Blue &LightBlue &White)" }
-      ]
+        {
+          "condition": "on_pickup",
+          "effect": "F(@8 &LightBlue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "S(@6 &Blue &LightBlue &White)"
+        },
+        {
+          "condition": "on_pickup",
+          "effect": "P(@5 &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@10 &LightMagenta)"
+        }
+      ],
+      "weight": 1,
+      "stores_memories": true
     },
     {
       "id": "balance_guide",
       "name": "Balance Guide",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Wandering Court manual on controlling adaptations",
       "value": 120,
       "tier": 2,
@@ -1641,13 +2031,16 @@
       "consumable": false,
       "adaptation_control": 15,
       "effects": [
-        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "G(&LightBlue)"
+        }
       ]
     },
     {
       "id": "cultural_artifact",
       "name": "Cultural Artifact",
-      "glyph": "♦",
+      "glyph": "\u2666",
       "description": "Pre-storm relic preserved by the Wandering Court",
       "value": 200,
       "tier": 3,
@@ -1655,13 +2048,16 @@
       "consumable": false,
       "cultural_value": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@10 &Yellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "F(@10 &Yellow)"
+        }
       ]
     },
     {
       "id": "adaptation_journal",
       "name": "Adaptation Journal",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Personal account of controlled transformation",
       "value": 80,
       "tier": 2,
@@ -1669,13 +2065,16 @@
       "consumable": false,
       "reveals_lore": "adaptation_experiences",
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@6 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &LightBlue)"
+        }
       ]
     },
     {
       "id": "focusing_crystal",
       "name": "Focusing Crystal",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "Precision-cut crystal for amplifying lens arrays",
       "value": 180,
       "tier": 3,
@@ -1683,14 +2082,20 @@
       "consumable": false,
       "lens_amplification": 20,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@4 &White &LightYellow)" },
-        { "condition": "on_use", "effect": "G(&White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &White &LightYellow)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&White)"
+        }
       ]
     },
     {
       "id": "lens_manual",
       "name": "Lens Operation Manual",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Mirror Monk guide to operating the Great Lens",
       "value": 120,
       "tier": 2,
@@ -1698,13 +2103,16 @@
       "consumable": false,
       "reveals_lore": "great_lens_operation",
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &LightYellow)"
+        }
       ]
     },
     {
       "id": "light_amplifier",
       "name": "Light Amplifier",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Device that enhances natural light-based abilities",
       "value": 250,
       "tier": 3,
@@ -1712,14 +2120,20 @@
       "consumable": false,
       "light_boost": 25,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@6 &Yellow &LightYellow &White)" },
-        { "condition": "on_use", "effect": "G(&LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@6 &Yellow &LightYellow &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&LightYellow)"
+        }
       ]
     },
     {
       "id": "vision_journal",
       "name": "Vision Journal",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Record of prophetic visions seen through the Great Lens",
       "value": 150,
       "tier": 3,
@@ -1727,7 +2141,10 @@
       "consumable": false,
       "reveals_lore": "prophetic_visions",
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@8 &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "F(@8 &LightYellow)"
+        }
       ]
     },
     {
@@ -1741,13 +2158,16 @@
       "consumable": false,
       "meditation_bonus": 5,
       "effects": [
-        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "G(&LightBlue)"
+        }
       ]
     },
     {
       "id": "study_notes",
       "name": "Study Notes",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Novice's handwritten notes on storm patterns and adaptations",
       "value": 40,
       "tier": 1,
@@ -1755,7 +2175,10 @@
       "consumable": false,
       "reveals_lore": "novice_observations",
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@6 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &LightBlue)"
+        }
       ]
     },
     {
@@ -1769,14 +2192,20 @@
       "consumable": false,
       "training_aid": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Cyan)" },
-        { "condition": "on_use", "effect": "G(&LightCyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&LightCyan)"
+        }
       ]
     },
     {
       "id": "meditation_guide",
       "name": "Meditation Guide",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Instructions for focusing the mind during transformation",
       "value": 70,
       "tier": 2,
@@ -1784,13 +2213,16 @@
       "consumable": false,
       "meditation_bonus": 10,
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@10 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "F(@10 &LightBlue)"
+        }
       ]
     },
     {
       "id": "engineering_tools",
       "name": "Engineering Tools",
-      "glyph": "⚒",
+      "glyph": "\u2692",
       "description": "Precision instruments for Archive technology maintenance",
       "value": 200,
       "tier": 3,
@@ -1798,13 +2230,16 @@
       "consumable": false,
       "repair_bonus": 25,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Gray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Gray)"
+        }
       ]
     },
     {
       "id": "archive_scanner",
       "name": "Archive Scanner",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Device for analyzing Archive technology and quantum signatures",
       "value": 300,
       "tier": 4,
@@ -1812,14 +2247,31 @@
       "consumable": false,
       "reveals_hidden": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &LightBlue)" },
-        { "condition": "on_use", "effect": "W(@6 &Blue)" }
-      ]
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &LightBlue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@6 &Blue)"
+        },
+        {
+          "condition": "on_pickup",
+          "effect": "B(@6 &LightBlue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@10 &White)"
+        }
+      ],
+      "weight": 2,
+      "identifies_items": true,
+      "archive_tech": true
     },
     {
       "id": "technical_manual",
       "name": "Technical Manual",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Sand-Engineer documentation of Archive system operations",
       "value": 150,
       "tier": 3,
@@ -1827,13 +2279,16 @@
       "consumable": false,
       "reveals_lore": "archive_operations",
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Blue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Blue)"
+        }
       ]
     },
     {
       "id": "power_cell",
       "name": "Power Cell",
-      "glyph": "⚡",
+      "glyph": "\u26a1",
       "description": "High-capacity energy storage for Archive systems",
       "value": 180,
       "tier": 3,
@@ -1841,14 +2296,20 @@
       "consumable": true,
       "energy_boost": 50,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Yellow)" },
-        { "condition": "on_use", "effect": "G(&LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Yellow)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&LightYellow)"
+        }
       ]
     },
     {
       "id": "quantum_analyzer",
       "name": "Quantum Analyzer",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Dr. Chen's specialized equipment for studying quantum phenomena",
       "value": 400,
       "tier": 4,
@@ -1856,14 +2317,20 @@
       "consumable": false,
       "quantum_analysis": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@4 &Blue &LightBlue &White)" },
-        { "condition": "on_use", "effect": "W(@8 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@4 &Blue &LightBlue &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@8 &LightBlue)"
+        }
       ]
     },
     {
       "id": "archive_interface",
       "name": "Archive Interface",
-      "glyph": "□",
+      "glyph": "\u25a1",
       "description": "Cybernetic device for direct Archive system communication",
       "value": 500,
       "tier": 5,
@@ -1871,14 +2338,20 @@
       "consumable": false,
       "archive_access": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &LightBlue)" },
-        { "condition": "on_use", "effect": "G(&Blue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &LightBlue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&Blue)"
+        }
       ]
     },
     {
       "id": "research_data",
       "name": "Research Data",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Compiled Archive technology research findings",
       "value": 250,
       "tier": 3,
@@ -1886,13 +2359,16 @@
       "consumable": false,
       "reveals_lore": "archive_research",
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &LightBlue)"
+        }
       ]
     },
     {
       "id": "cybernetic_parts",
       "name": "Cybernetic Parts",
-      "glyph": "⚙",
+      "glyph": "\u2699",
       "description": "Components for human-Archive system integration",
       "value": 350,
       "tier": 4,
@@ -1900,13 +2376,16 @@
       "consumable": false,
       "cybernetic_upgrade": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Gray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Gray)"
+        }
       ]
     },
     {
       "id": "prototype_gear",
       "name": "Prototype Gear",
-      "glyph": "⚙",
+      "glyph": "\u2699",
       "description": "Zara's experimental quantum-adapted equipment",
       "value": 300,
       "tier": 4,
@@ -1914,14 +2393,20 @@
       "consumable": false,
       "experimental_bonus": 20,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@6 &Yellow &LightYellow &White)" },
-        { "condition": "on_use", "effect": "S(@4 &Yellow &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@6 &Yellow &LightYellow &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "S(@4 &Yellow &LightYellow)"
+        }
       ]
     },
     {
       "id": "quantum_tools",
       "name": "Quantum Tools",
-      "glyph": "⚒",
+      "glyph": "\u2692",
       "description": "Specialized instruments for quantum field manipulation",
       "value": 280,
       "tier": 3,
@@ -1929,14 +2414,20 @@
       "consumable": false,
       "quantum_manipulation": 15,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@4 &Cyan &LightCyan)" },
-        { "condition": "on_use", "effect": "G(&Cyan)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &Cyan &LightCyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&Cyan)"
+        }
       ]
     },
     {
       "id": "field_generator",
       "name": "Field Generator",
-      "glyph": "◘",
+      "glyph": "\u25d8",
       "description": "Device for creating localized quantum field effects",
       "value": 450,
       "tier": 4,
@@ -1944,14 +2435,20 @@
       "consumable": false,
       "field_control": 30,
       "effects": [
-        { "condition": "on_pickup", "effect": "W(@6 &Cyan)" },
-        { "condition": "on_use", "effect": "R(@4 &Cyan &LightCyan &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "W(@6 &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "R(@4 &Cyan &LightCyan &White)"
+        }
       ]
     },
     {
       "id": "stabilizer_core",
       "name": "Stabilizer Core",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Core component for quantum field stabilization systems",
       "value": 400,
       "tier": 4,
@@ -1959,13 +2456,16 @@
       "consumable": false,
       "stability_bonus": 25,
       "effects": [
-        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "G(&LightBlue)"
+        }
       ]
     },
     {
       "id": "telepathy_amplifier",
       "name": "Telepathy Amplifier",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Quantum-coherent device that enhances telepathic abilities",
       "value": 350,
       "tier": 4,
@@ -1973,14 +2473,20 @@
       "consumable": false,
       "telepathy_range": 50,
       "effects": [
-        { "condition": "on_pickup", "effect": "W(@6 &Magenta)" },
-        { "condition": "on_use", "effect": "R(@4 &Magenta &LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "W(@6 &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "R(@4 &Magenta &LightMagenta)"
+        }
       ]
     },
     {
       "id": "probability_dice",
       "name": "Probability Dice",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "Quantum dice that respond to probability manipulation abilities",
       "value": 200,
       "tier": 3,
@@ -1988,14 +2494,20 @@
       "consumable": false,
       "luck_bonus": 15,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@8 &Yellow &LightYellow &White)" },
-        { "condition": "on_use", "effect": "S(@4 &Yellow &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@8 &Yellow &LightYellow &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "S(@4 &Yellow &LightYellow)"
+        }
       ]
     },
     {
       "id": "phase_anchor",
       "name": "Phase Anchor",
-      "glyph": "⚓",
+      "glyph": "\u2693",
       "description": "Device that prevents quantum tunneling accidents",
       "value": 400,
       "tier": 4,
@@ -2003,14 +2515,20 @@
       "consumable": false,
       "phase_safety": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "G(&DarkGray)" },
-        { "condition": "on_use", "effect": "F(@6 &Gray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "G(&DarkGray)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@6 &Gray)"
+        }
       ]
     },
     {
       "id": "temporal_lens",
       "name": "Temporal Lens",
-      "glyph": "◎",
+      "glyph": "\u25ce",
       "description": "Crystal lens that enhances precognitive abilities",
       "value": 450,
       "tier": 4,
@@ -2018,14 +2536,20 @@
       "consumable": false,
       "precognition_boost": 25,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@3 &White &LightYellow &Cyan)" },
-        { "condition": "on_use", "effect": "W(@8 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@3 &White &LightYellow &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@8 &White)"
+        }
       ]
     },
     {
       "id": "quantum_focus",
       "name": "Quantum Focus",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Crystalline meditation aid for psychic development",
       "value": 250,
       "tier": 3,
@@ -2033,14 +2557,20 @@
       "consumable": false,
       "psychic_training": 20,
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@10 &Magenta)" },
-        { "condition": "on_use", "effect": "G(&LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "F(@10 &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&LightMagenta)"
+        }
       ]
     },
     {
       "id": "mind_shield",
       "name": "Mind Shield",
-      "glyph": "◘",
+      "glyph": "\u25d8",
       "description": "Psychic protection device that blocks mental intrusion",
       "value": 300,
       "tier": 3,
@@ -2048,14 +2578,20 @@
       "consumable": false,
       "telepathy_defense": 30,
       "effects": [
-        { "condition": "on_pickup", "effect": "G(&DarkGray)" },
-        { "condition": "on_use", "effect": "B(@4 &Gray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "G(&DarkGray)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "B(@4 &Gray)"
+        }
       ]
     },
     {
       "id": "energy_conduit",
       "name": "Energy Conduit",
-      "glyph": "⚡",
+      "glyph": "\u26a1",
       "description": "Crystalline rod that channels electromagnetic abilities",
       "value": 320,
       "tier": 4,
@@ -2063,14 +2599,20 @@
       "consumable": false,
       "energy_projection": 25,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@3 &Yellow)" },
-        { "condition": "on_use", "effect": "W(@4 &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@3 &Yellow)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@4 &LightYellow)"
+        }
       ]
     },
     {
       "id": "psychic_codex",
       "name": "Psychic Codex",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Synthesis Seeker manual on quantum consciousness development",
       "value": 180,
       "tier": 3,
@@ -2079,13 +2621,16 @@
       "reveals_lore": "psychic_abilities",
       "psychic_training": 15,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@6 &Magenta &LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@6 &Magenta &LightMagenta)"
+        }
       ]
     },
     {
       "id": "consciousness_crystal",
       "name": "Consciousness Crystal",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Crystal containing stored psychic experiences and memories",
       "value": 400,
       "tier": 4,
@@ -2093,14 +2638,20 @@
       "consumable": true,
       "memory_transfer": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@4 &Magenta &LightMagenta &White)" },
-        { "condition": "on_use", "effect": "R(@8 &Magenta &LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@4 &Magenta &LightMagenta &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "R(@8 &Magenta &LightMagenta)"
+        }
       ]
     },
     {
       "id": "quantum_resonator",
       "name": "Quantum Resonator",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Device that synchronizes quantum consciousness with others",
       "value": 500,
       "tier": 5,
@@ -2108,14 +2659,20 @@
       "consumable": false,
       "collective_consciousness": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "W(@6 &Magenta)" },
-        { "condition": "on_use", "effect": "R(@4 &Magenta &LightMagenta &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "W(@6 &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "R(@4 &Magenta &LightMagenta &White)"
+        }
       ]
     },
     {
       "id": "quantum_communicator",
       "name": "Quantum Communicator",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "Heliograph device for coordinating storm patterns",
       "value": 800,
       "tier": 5,
@@ -2123,14 +2680,20 @@
       "consumable": false,
       "storm_control": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@4 &White &LightYellow &Cyan)" },
-        { "condition": "on_use", "effect": "W(@8 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@4 &White &LightYellow &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@8 &White)"
+        }
       ]
     },
     {
       "id": "adaptation_accelerator",
       "name": "Adaptation Accelerator",
-      "glyph": "⚡",
+      "glyph": "\u26a1",
       "description": "Architect's device for guiding transformation process",
       "value": 600,
       "tier": 5,
@@ -2138,14 +2701,20 @@
       "consumable": true,
       "forced_adaptation": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@3 &Magenta &LightMagenta &White)" },
-        { "condition": "on_use", "effect": "G(&White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@3 &Magenta &LightMagenta &White)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&White)"
+        }
       ]
     },
     {
       "id": "cosmic_beacon",
       "name": "Cosmic Beacon",
-      "glyph": "⚹",
+      "glyph": "\u26b9",
       "description": "Device that signals to the Quantum Collective",
       "value": 1000,
       "tier": 6,
@@ -2153,14 +2722,20 @@
       "consumable": false,
       "cosmic_contact": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@2 &White &LightYellow &Cyan &Magenta)" },
-        { "condition": "on_use", "effect": "W(@4 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@2 &White &LightYellow &Cyan &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@4 &White)"
+        }
       ]
     },
     {
       "id": "preservation_nullifier",
       "name": "Preservation Nullifier",
-      "glyph": "◘",
+      "glyph": "\u25d8",
       "description": "Iron Covenant device for the Restoration Event",
       "value": 750,
       "tier": 5,
@@ -2168,14 +2743,20 @@
       "consumable": true,
       "mass_null_field": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@2 &Red)" },
-        { "condition": "on_use", "effect": "F(@4 &DarkGray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@2 &Red)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@4 &DarkGray)"
+        }
       ]
     },
     {
       "id": "vasquez_journal",
       "name": "Captain Vasquez's Journal",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Personal account of the Heliograph Expedition",
       "value": 400,
       "tier": 4,
@@ -2183,13 +2764,16 @@
       "consumable": false,
       "reveals_lore": "heliograph_expedition",
       "effects": [
-        { "condition": "on_pickup", "effect": "F(@8 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "F(@8 &LightBlue)"
+        }
       ]
     },
     {
       "id": "architect_interface",
       "name": "Architect Interface",
-      "glyph": "◎",
+      "glyph": "\u25ce",
       "description": "Direct communication link to the orbital consciousness",
       "value": 900,
       "tier": 6,
@@ -2197,14 +2781,20 @@
       "consumable": false,
       "architect_contact": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@3 &White &LightYellow &Cyan)" },
-        { "condition": "on_use", "effect": "R(@6 &White &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@3 &White &LightYellow &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "R(@6 &White &LightYellow)"
+        }
       ]
     },
     {
       "id": "transformation_protocol",
       "name": "Transformation Protocol",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Heliograph Accords guidelines for safe adaptation",
       "value": 300,
       "tier": 4,
@@ -2213,13 +2803,16 @@
       "reveals_lore": "heliograph_accords",
       "adaptation_safety": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "G(&LightBlue)"
+        }
       ]
     },
     {
       "id": "cosmic_watch_badge",
       "name": "Cosmic Watch Badge",
-      "glyph": "⚹",
+      "glyph": "\u26b9",
       "description": "Identification for the joint monitoring organization",
       "value": 200,
       "tier": 3,
@@ -2227,13 +2820,16 @@
       "consumable": false,
       "faction_access": "CosmicWatch",
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &LightYellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &LightYellow)"
+        }
       ]
     },
     {
       "id": "quantum_collective_artifact",
       "name": "Quantum Collective Artifact",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "Alien device left by cosmic observers",
       "value": 1200,
       "tier": 6,
@@ -2241,14 +2837,20 @@
       "consumable": false,
       "alien_technology": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@1 &White &LightYellow &Cyan &Magenta &LightMagenta)" },
-        { "condition": "on_use", "effect": "W(@2 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@1 &White &LightYellow &Cyan &Magenta &LightMagenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@2 &White)"
+        }
       ]
     },
     {
       "id": "evolution_catalyst",
       "name": "Evolution Catalyst",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Crystallized essence of conscious evolution",
       "value": 800,
       "tier": 5,
@@ -2256,14 +2858,20 @@
       "consumable": true,
       "species_evolution": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@4 &White &LightYellow &Cyan)" },
-        { "condition": "on_use", "effect": "G(&White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@4 &White &LightYellow &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "G(&White)"
+        }
       ]
     },
     {
       "id": "expedition_data",
       "name": "Expedition Data",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Classified records from the Heliograph Expedition",
       "value": 350,
       "tier": 4,
@@ -2271,13 +2879,16 @@
       "consumable": false,
       "reveals_lore": "expedition_classified",
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &LightBlue)"
+        }
       ]
     },
     {
       "id": "integration_manual",
       "name": "Integration Manual",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Guide to Archive consciousness integration",
       "value": 400,
       "tier": 4,
@@ -2286,13 +2897,16 @@
       "reveals_lore": "archive_integration",
       "consciousness_preparation": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &LightBlue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &LightBlue)"
+        }
       ]
     },
     {
       "id": "consciousness_backup",
       "name": "Consciousness Backup",
-      "glyph": "◆",
+      "glyph": "\u25c6",
       "description": "Quantum storage device for preserving consciousness",
       "value": 600,
       "tier": 5,
@@ -2300,14 +2914,20 @@
       "consumable": false,
       "consciousness_safety": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "G(&LightBlue)" },
-        { "condition": "on_use", "effect": "F(@8 &Blue)" }
+        {
+          "condition": "on_pickup",
+          "effect": "G(&LightBlue)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "F(@8 &Blue)"
+        }
       ]
     },
     {
       "id": "dimensional_key",
       "name": "Dimensional Key",
-      "glyph": "⚷",
+      "glyph": "\u26b7",
       "description": "Quantum Collective device for accessing parallel dimensions",
       "value": 1000,
       "tier": 6,
@@ -2315,14 +2935,20 @@
       "consumable": false,
       "dimensional_access": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "R(@2 &White &Cyan &Magenta)" },
-        { "condition": "on_use", "effect": "W(@4 &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "R(@2 &White &Cyan &Magenta)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@4 &White)"
+        }
       ]
     },
     {
       "id": "light_crystal",
       "name": "Light Crystal",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "A crystalline shard that stores and amplifies light energy",
       "value": 80,
       "weight": 1,
@@ -2331,13 +2957,16 @@
       "consumable": true,
       "light_energy": 25,
       "effects": [
-        { "condition": "on_use", "effect": "G(&Yellow)" }
+        {
+          "condition": "on_use",
+          "effect": "G(&Yellow)"
+        }
       ]
     },
     {
       "id": "prism_lens",
       "name": "Prism Lens",
-      "glyph": "◎",
+      "glyph": "\u25ce",
       "description": "A carefully crafted lens that can bend and focus light beams",
       "value": 150,
       "weight": 1,
@@ -2346,13 +2975,16 @@
       "consumable": false,
       "teaches_light_manipulation": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@2 &Cyan &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@2 &Cyan &White)"
+        }
       ]
     },
     {
       "id": "void_shard",
       "name": "Void Shard",
-      "glyph": "▲",
+      "glyph": "\u25b2",
       "description": "A fragment of crystallized void energy that whispers of unreality",
       "value": 120,
       "weight": 1,
@@ -2362,13 +2994,16 @@
       "void_exposure": 15,
       "void_energy": 20,
       "effects": [
-        { "condition": "on_use", "effect": "P(@3 &DarkGray)" }
+        {
+          "condition": "on_use",
+          "effect": "P(@3 &DarkGray)"
+        }
       ]
     },
     {
       "id": "resonance_tuner",
       "name": "Resonance Tuner",
-      "glyph": "♪",
+      "glyph": "\u266a",
       "description": "A device that can detect and harmonize with crystal frequencies",
       "value": 200,
       "weight": 2,
@@ -2378,13 +3013,25 @@
       "teaches_crystal_resonance": true,
       "resonance_energy": 30,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@2 &Magenta)" }
-      ]
+        {
+          "condition": "on_pickup",
+          "effect": "B(@2 &Magenta)"
+        },
+        {
+          "condition": "on_pickup",
+          "effect": "S(@6 &Cyan)"
+        },
+        {
+          "condition": "on_use",
+          "effect": "W(@10 &LightCyan)"
+        }
+      ],
+      "tunes_frequencies": true
     },
     {
       "id": "alpha_crystal_seed",
       "name": "Alpha Crystal Seed",
-      "glyph": "α",
+      "glyph": "\u03b1",
       "description": "A dormant crystal seed attuned to Alpha frequency (1-3 Hz)",
       "value": 100,
       "weight": 1,
@@ -2393,13 +3040,16 @@
       "consumable": true,
       "crystal_frequency": "alpha",
       "effects": [
-        { "condition": "on_use", "effect": "G(&Blue)" }
+        {
+          "condition": "on_use",
+          "effect": "G(&Blue)"
+        }
       ]
     },
     {
       "id": "gamma_crystal_seed",
       "name": "Gamma Crystal Seed",
-      "glyph": "γ",
+      "glyph": "\u03b3",
       "description": "A dormant crystal seed attuned to Gamma frequency (8-12 Hz)",
       "value": 100,
       "weight": 1,
@@ -2408,13 +3058,16 @@
       "consumable": true,
       "crystal_frequency": "gamma",
       "effects": [
-        { "condition": "on_use", "effect": "G(&Green)" }
+        {
+          "condition": "on_use",
+          "effect": "G(&Green)"
+        }
       ]
     },
     {
       "id": "prime_lens_shard",
       "name": "Prime Lens Shard",
-      "glyph": "◎",
+      "glyph": "\u25ce",
       "description": "A fragment of the legendary Prime Lens, humming with quantum energy",
       "value": 1000,
       "weight": 1,
@@ -2422,58 +3075,16 @@
       "usable": false,
       "quest_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@5 &White &LightCyan)" }
-      ]
-    },
-    {
-      "id": "shard_of_clarity",
-      "name": "Shard of Clarity",
-      "glyph": "◎",
-      "description": "The Mind aspect of the Prime Lens - pure information and understanding",
-      "value": 5000,
-      "weight": 1,
-      "tier": 6,
-      "usable": false,
-      "quest_item": true,
-      "lens_aspect": "mind",
-      "effects": [
-        { "condition": "on_pickup", "effect": "G(&LightBlue)" }
-      ]
-    },
-    {
-      "id": "shard_of_will",
-      "name": "Shard of Will",
-      "glyph": "◎",
-      "description": "The Body aspect of the Prime Lens - pure energy and endurance",
-      "value": 5000,
-      "weight": 1,
-      "tier": 6,
-      "usable": false,
-      "quest_item": true,
-      "lens_aspect": "body",
-      "effects": [
-        { "condition": "on_pickup", "effect": "G(&Red)" }
-      ]
-    },
-    {
-      "id": "shard_of_soul",
-      "name": "Shard of Soul",
-      "glyph": "◎",
-      "description": "The Spirit aspect of the Prime Lens - pure resonance and command",
-      "value": 5000,
-      "weight": 1,
-      "tier": 6,
-      "usable": false,
-      "quest_item": true,
-      "lens_aspect": "spirit",
-      "effects": [
-        { "condition": "on_pickup", "effect": "G(&Magenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@5 &White &LightCyan)"
+        }
       ]
     },
     {
       "id": "prime_lens_complete",
       "name": "Prime Lens Complete",
-      "glyph": "◉",
+      "glyph": "\u25c9",
       "description": "The reconstructed Prime Lens - a master key to the Heliograph Network",
       "value": 50000,
       "weight": 2,
@@ -2482,13 +3093,16 @@
       "quest_item": true,
       "heliograph_control": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@10 &White &LightCyan &Magenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@10 &White &LightCyan &Magenta)"
+        }
       ]
     },
     {
       "id": "documentation_badge",
       "name": "Official Documentation Badge",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "description": "A badge certifying your ability to count things and measure stuff. Cornelius is very proud of it.",
       "value": 5,
       "weight": 0,
@@ -2496,13 +3110,16 @@
       "usable": false,
       "quest_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &Yellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &Yellow)"
+        }
       ]
     },
     {
       "id": "detailed_notes",
       "name": "Extremely Detailed Notes",
-      "glyph": "≡",
+      "glyph": "\u2261",
       "description": "Notes so detailed they include the exact number of dust particles observed during documentation. Somehow useful.",
       "value": 15,
       "weight": 1,
@@ -2510,13 +3127,16 @@
       "usable": true,
       "reveals_secrets": true,
       "effects": [
-        { "condition": "on_use", "effect": "G(&LightYellow)" }
+        {
+          "condition": "on_use",
+          "effect": "G(&LightYellow)"
+        }
       ]
     },
     {
       "id": "basic_repair_kit",
       "name": "Basic Repair Kit",
-      "glyph": "⚒",
+      "glyph": "\u2692",
       "description": "Contains the revolutionary repair tool known as 'checking if it's plugged in.' Surprisingly effective.",
       "value": 25,
       "weight": 2,
@@ -2524,7 +3144,10 @@
       "usable": true,
       "repair_tool": true,
       "effects": [
-        { "condition": "on_use", "effect": "B(@3 &Green)" }
+        {
+          "condition": "on_use",
+          "effect": "B(@3 &Green)"
+        }
       ]
     },
     {
@@ -2538,13 +3161,16 @@
       "usable": true,
       "lore_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@5 &LightMagenta)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@5 &LightMagenta)"
+        }
       ]
     },
     {
       "id": "broken_saint_key",
       "name": "Broken Saint-Key",
-      "glyph": "⚷",
+      "glyph": "\u26b7",
       "description": "Shattered credential device, its authority fractured.\nStill pulses with faint recognition protocols.",
       "value": 200,
       "weight": 1,
@@ -2552,13 +3178,16 @@
       "usable": false,
       "quest_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@4 &DarkGray)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@4 &DarkGray)"
+        }
       ]
     },
     {
       "id": "sacred_angle_lens",
       "name": "Sacred Angle Lens",
-      "glyph": "◎",
+      "glyph": "\u25ce",
       "description": "Mirror Monk relic that reveals the storm's true geometry.\nEach angle whispers of divine refraction.",
       "value": 300,
       "weight": 1,
@@ -2566,13 +3195,16 @@
       "usable": false,
       "quest_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@6 &LightCyan &White)" }
+        {
+          "condition": "on_pickup",
+          "effect": "S(@6 &LightCyan &White)"
+        }
       ]
     },
     {
       "id": "forecast_instrument",
       "name": "Forecast Instrument",
-      "glyph": "⊕",
+      "glyph": "\u2295",
       "description": "Sand-Engineer device that reads storm probability matrices.\nPragmatic prophecy through calculated precision.",
       "value": 250,
       "weight": 2,
@@ -2580,50 +3212,77 @@
       "usable": false,
       "quest_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "B(@5 &Yellow)" }
+        {
+          "condition": "on_pickup",
+          "effect": "B(@5 &Yellow)"
+        }
       ]
     },
     {
       "id": "shard_of_clarity",
       "name": "Shard of Clarity",
-      "glyph": "◎",
-      "description": "Mind aspect of the Prime Lens—pure understanding crystallized.\nThoughts become light; light becomes truth.",
+      "glyph": "\u25ce",
+      "description": "Mind aspect of the Prime Lens\u2014pure understanding crystallized.\nThoughts become light; light becomes truth.",
       "value": 5000,
       "weight": 1,
       "tier": 6,
       "usable": false,
       "quest_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@8 &LightBlue &White)" }
-      ]
+        {
+          "condition": "on_pickup",
+          "effect": "S(@8 &LightBlue &White)"
+        },
+        {
+          "condition": "on_pickup",
+          "effect": "G(&LightBlue)"
+        }
+      ],
+      "lens_aspect": "mind"
     },
     {
       "id": "shard_of_will",
       "name": "Shard of Will",
-      "glyph": "◎",
-      "description": "Body aspect of the Prime Lens—endurance made manifest.\nFlesh becomes glass; glass becomes eternal.",
+      "glyph": "\u25ce",
+      "description": "Body aspect of the Prime Lens\u2014endurance made manifest.\nFlesh becomes glass; glass becomes eternal.",
       "value": 5000,
       "weight": 1,
       "tier": 6,
       "usable": false,
       "quest_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@8 &Red &White)" }
-      ]
+        {
+          "condition": "on_pickup",
+          "effect": "S(@8 &Red &White)"
+        },
+        {
+          "condition": "on_pickup",
+          "effect": "G(&Red)"
+        }
+      ],
+      "lens_aspect": "body"
     },
     {
       "id": "shard_of_soul",
       "name": "Shard of Soul",
-      "glyph": "◎",
-      "description": "Spirit aspect of the Prime Lens—resonance beyond measure.\nSoul becomes storm; storm becomes scripture.",
+      "glyph": "\u25ce",
+      "description": "Spirit aspect of the Prime Lens\u2014resonance beyond measure.\nSoul becomes storm; storm becomes scripture.",
       "value": 5000,
       "weight": 1,
       "tier": 6,
       "usable": false,
       "quest_item": true,
       "effects": [
-        { "condition": "on_pickup", "effect": "S(@8 &Magenta &White)" }
-      ]
+        {
+          "condition": "on_pickup",
+          "effect": "S(@8 &Magenta &White)"
+        },
+        {
+          "condition": "on_pickup",
+          "effect": "G(&Magenta)"
+        }
+      ],
+      "lens_aspect": "spirit"
     }
   ]
 }

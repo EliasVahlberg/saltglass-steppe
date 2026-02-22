@@ -1,0 +1,412 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/microstructures_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Microstructures Schema",
+  "description": "Microstructure placement definitions.",
+  "type": "array",
+  "items": {
+    "oneOf": [
+      {
+        "additionalProperties": false,
+        "properties": {
+          "biome_weights": {
+            "additionalProperties": false,
+            "properties": {
+              "oasis": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in oasis."
+              },
+              "ruins": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in ruins."
+              },
+              "saltflat": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in saltflat."
+              },
+              "scrubland": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in scrubland."
+              }
+            },
+            "type": "object",
+            "description": "Object for `biome_weights`."
+          },
+          "description": {
+            "type": "string",
+            "description": "Lore or UI description.",
+            "minLength": 1
+          },
+          "height": {
+            "type": "integer",
+            "description": "Integer field `height`."
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identifier (snake_case).",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "min_distance_between": {
+            "type": "integer",
+            "description": "Integer field `min_distance_between`."
+          },
+          "min_distance_from_player": {
+            "type": "integer",
+            "description": "Integer field `min_distance_from_player`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name.",
+            "minLength": 1
+          },
+          "spawns": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "chance": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Spawn chance (0-1)."
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Referenced entity id for the spawn.",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "spawn_type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Spawn type (npc, item, chest, etc.)."
+                },
+                "x": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile X position."
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile Y position."
+                }
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "description": "Array of `spawns` items."
+          },
+          "tiles": {
+            "minItems": 1,
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "tile_type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Tile type identifier for this tile."
+                },
+                "x": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile X position."
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile Y position."
+                }
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "description": "Array of `tiles` items."
+          },
+          "width": {
+            "type": "integer",
+            "description": "Integer field `width`."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "width",
+          "height",
+          "tiles",
+          "spawns",
+          "biome_weights",
+          "min_distance_from_player",
+          "min_distance_between"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "biome_weights": {
+            "additionalProperties": false,
+            "properties": {
+              "ruins": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in ruins."
+              },
+              "saltflat": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in saltflat."
+              },
+              "scrubland": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in scrubland."
+              }
+            },
+            "type": "object",
+            "description": "Object for `biome_weights`."
+          },
+          "description": {
+            "type": "string",
+            "description": "Lore or UI description.",
+            "minLength": 1
+          },
+          "height": {
+            "type": "integer",
+            "description": "Integer field `height`."
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identifier (snake_case).",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "min_distance_between": {
+            "type": "integer",
+            "description": "Integer field `min_distance_between`."
+          },
+          "min_distance_from_player": {
+            "type": "integer",
+            "description": "Integer field `min_distance_from_player`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name.",
+            "minLength": 1
+          },
+          "spawns": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "chance": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Spawn chance (0-1)."
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Referenced entity id for the spawn.",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "spawn_type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Spawn type (npc, item, chest, etc.)."
+                },
+                "x": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile X position."
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile Y position."
+                }
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "description": "Array of `spawns` items."
+          },
+          "tiles": {
+            "minItems": 1,
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "tile_type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Tile type identifier for this tile."
+                },
+                "x": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile X position."
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile Y position."
+                }
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "description": "Array of `tiles` items."
+          },
+          "width": {
+            "type": "integer",
+            "description": "Integer field `width`."
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "width",
+          "height",
+          "tiles",
+          "spawns",
+          "biome_weights",
+          "min_distance_from_player",
+          "min_distance_between"
+        ],
+        "type": "object"
+      },
+      {
+        "additionalProperties": false,
+        "properties": {
+          "biome_weights": {
+            "additionalProperties": false,
+            "properties": {
+              "oasis": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in oasis."
+              },
+              "saltflat": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in saltflat."
+              },
+              "scrubland": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Placement weight in scrubland."
+              }
+            },
+            "type": "object",
+            "description": "Object for `biome_weights`."
+          },
+          "description": {
+            "type": "string",
+            "description": "Lore or UI description.",
+            "minLength": 1
+          },
+          "height": {
+            "type": "integer",
+            "description": "Integer field `height`."
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identifier (snake_case).",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "min_distance_between": {
+            "type": "integer",
+            "description": "Integer field `min_distance_between`."
+          },
+          "min_distance_from_player": {
+            "type": "integer",
+            "description": "Integer field `min_distance_from_player`."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name.",
+            "minLength": 1
+          },
+          "spawns": {
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "chance": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 1,
+                  "description": "Spawn chance (0-1)."
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Referenced entity id for the spawn.",
+                  "pattern": "^[a-z][a-z0-9_]*$"
+                },
+                "spawn_type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Spawn type (npc, item, chest, etc.)."
+                },
+                "x": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile X position."
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile Y position."
+                }
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "description": "Array of `spawns` items."
+          },
+          "tiles": {
+            "minItems": 1,
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "tile_type": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Tile type identifier for this tile."
+                },
+                "x": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile X position."
+                },
+                "y": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Tile Y position."
+                }
+              },
+              "type": "object"
+            },
+            "type": "array",
+            "description": "Array of `tiles` items."
+          },
+          "width": {
+            "type": "integer",
+            "description": "Integer field `width`."
+          }
+        },
+        "type": "object"
+      }
+    ]
+  },
+  "title": "Microstructures Schema",
+  "type": "array",
+  "description": "Microstructure placement definitions."
+}

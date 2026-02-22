@@ -1,0 +1,93 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/travel_config_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Travel Config Schema",
+  "description": "Tuning for overland travel costs by terrain and biome.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "biome_modifiers": {
+      "additionalProperties": false,
+      "properties": {
+        "desert": {
+          "type": "integer",
+          "description": "Additive cost modifier applied in desert biomes."
+        },
+        "oasis": {
+          "type": "integer",
+          "description": "Additive cost modifier applied in oasis biomes."
+        },
+        "ruins": {
+          "type": "integer",
+          "description": "Additive cost modifier applied in ruins biomes."
+        },
+        "saltflat": {
+          "type": "integer",
+          "description": "Additive cost modifier applied in saltflat biomes."
+        },
+        "scrubland": {
+          "type": "integer",
+          "description": "Additive cost modifier applied in scrubland biomes."
+        }
+      },
+      "type": "object",
+      "description": "Per-biome additive travel cost adjustments.",
+      "required": [
+        "desert",
+        "oasis",
+        "ruins",
+        "saltflat",
+        "scrubland"
+      ]
+    },
+    "default_cost": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Fallback travel cost when terrain or biome does not define an override."
+    },
+    "terrain_costs": {
+      "additionalProperties": false,
+      "properties": {
+        "canyon": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Travel cost for canyon terrain."
+        },
+        "dunes": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Travel cost for dunes terrain."
+        },
+        "flat": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Travel cost for flat terrain."
+        },
+        "hills": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Travel cost for hills terrain."
+        },
+        "mesa": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Travel cost for mesa terrain."
+        }
+      },
+      "type": "object",
+      "description": "Per-terrain base travel costs.",
+      "required": [
+        "canyon",
+        "dunes",
+        "flat",
+        "hills",
+        "mesa"
+      ]
+    }
+  },
+  "required": [
+    "default_cost",
+    "terrain_costs",
+    "biome_modifiers"
+  ]
+}

@@ -1,0 +1,1144 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/narrative_templates_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "contextual_descriptions",
+    "historical_events"
+  ],
+  "properties": {
+    "contextual_descriptions": {
+      "additionalProperties": false,
+      "properties": {
+        "adaptation_aware": {
+          "additionalProperties": false,
+          "properties": {
+            "prismhide": {
+              "additionalProperties": false,
+              "properties": {
+                "template": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Template string with placeholders."
+                },
+                "variables": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "reaction": {
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "description": "Variable pool entries."
+                    },
+                    "subject": {
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "description": "Variable pool entries."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `variables`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `prismhide`."
+            },
+            "storm_sense": {
+              "additionalProperties": false,
+              "properties": {
+                "template": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Template string with placeholders."
+                },
+                "variables": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "detail": {
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "description": "Variable pool entries."
+                    },
+                    "perception": {
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "description": "Variable pool entries."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `variables`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `storm_sense`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `adaptation_aware`."
+        },
+        "biome_specific": {
+          "additionalProperties": false,
+          "properties": {
+            "Dunes": {
+              "additionalProperties": false,
+              "properties": {
+                "template": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Template string with placeholders."
+                },
+                "variables": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "atmosphere": {
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "description": "Variable pool entries."
+                    },
+                    "dunes": {
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "description": "Variable pool entries."
+                    },
+                    "movement": {
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "description": "Variable pool entries."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `variables`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `Dunes`."
+            },
+            "Saltflats": {
+              "additionalProperties": false,
+              "properties": {
+                "template": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Template string with placeholders."
+                },
+                "variables": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "detail": {
+                      "items": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "description": "Variable pool entries."
+                    },
+                    "feature": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `feature` items."
+                    },
+                    "surface": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `surface` items."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `variables`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `Saltflats`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `biome_specific`."
+        },
+        "faction_influenced": {
+          "additionalProperties": false,
+          "properties": {
+            "Mirror Monks": {
+              "additionalProperties": false,
+              "properties": {
+                "template": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Template string with placeholders."
+                },
+                "variables": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "interpretation": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `interpretation` items."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `variables`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `Mirror Monks`."
+            },
+            "Sand-Engineers": {
+              "additionalProperties": false,
+              "properties": {
+                "template": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Template string with placeholders."
+                },
+                "variables": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "technical_insight": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `technical_insight` items."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `variables`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `Sand-Engineers`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `faction_influenced`."
+        }
+      },
+      "type": "object",
+      "description": "Object for `contextual_descriptions`."
+    },
+    "environmental_storytelling": {
+      "additionalProperties": false,
+      "properties": {
+        "graffiti": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "template": {
+                "type": "string",
+                "description": "String field `template`."
+              },
+              "variables": {
+                "additionalProperties": false,
+                "properties": {
+                  "urgent_message": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `urgent_message` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `variables`."
+              }
+            },
+            "type": "object"
+          },
+          "type": "array",
+          "description": "Array of `graffiti` items."
+        },
+        "inscriptions": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "template": {
+                "type": "string",
+                "description": "String field `template`."
+              },
+              "variables": {
+                "additionalProperties": false,
+                "properties": {
+                  "message": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `message` items."
+                  },
+                  "surface": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `surface` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `variables`."
+              }
+            },
+            "type": "object"
+          },
+          "type": "array",
+          "description": "Array of `inscriptions` items."
+        }
+      },
+      "type": "object",
+      "description": "Object for `environmental_storytelling`."
+    },
+    "folktales": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "template": {
+            "type": "string",
+            "description": "String field `template`."
+          },
+          "title": {
+            "type": "string",
+            "description": "String field `title`."
+          },
+          "variables": {
+            "additionalProperties": false,
+            "properties": {
+              "customer": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Array of `customer` items."
+              },
+              "fate": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Array of `fate` items."
+              },
+              "name": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Display name."
+              },
+              "payment": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Array of `payment` items."
+              },
+              "trade": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Array of `trade` items."
+              }
+            },
+            "type": "object",
+            "description": "Object for `variables`."
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "Array of `folktales` items."
+    },
+    "historical_events": {
+      "additionalProperties": false,
+      "properties": {
+        "faction_events": {
+          "items": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "String field `type`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "faction1": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `faction1` items."
+                      },
+                      "faction2": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `faction2` items."
+                      },
+                      "location": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `location` items."
+                      },
+                      "outcome": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `outcome` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "String field `type`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "faction1": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `faction1` items."
+                      },
+                      "faction2": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `faction2` items."
+                      },
+                      "location": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `location` items."
+                      },
+                      "terms": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `terms` items."
+                      },
+                      "treaty_name": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `treaty_name` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              }
+            ]
+          },
+          "type": "array",
+          "description": "Array of `faction_events` items."
+        },
+        "storm_events": {
+          "items": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "String field `type`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "action": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `action` items."
+                      },
+                      "consequence": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `consequence` items."
+                      },
+                      "location": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `location` items."
+                      },
+                      "storm_name": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `storm_name` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "String field `type`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "artifact": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `artifact` items."
+                      },
+                      "discoverer": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `discoverer` items."
+                      },
+                      "location": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `location` items."
+                      },
+                      "revelation": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `revelation` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "String field `type`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "anomaly": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `anomaly` items."
+                      },
+                      "effect": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `effect` items."
+                      },
+                      "location": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `location` items."
+                      },
+                      "year": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `year` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "String field `type`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "fate": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `fate` items."
+                      },
+                      "remnant": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `remnant` items."
+                      },
+                      "structure": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `structure` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              }
+            ]
+          },
+          "type": "array",
+          "description": "Array of `storm_events` items."
+        }
+      },
+      "type": "object",
+      "description": "Object for `historical_events`."
+    },
+    "item_lore": {
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "items": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "current_state": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `current_state` items."
+                      },
+                      "item_type": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `item_type` items."
+                      },
+                      "origin_story": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `origin_story` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "item_type": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `item_type` items."
+                      },
+                      "legend": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `legend` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "era": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `era` items."
+                      },
+                      "property": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `property` items."
+                      },
+                      "relic": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `relic` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "function": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `function` items."
+                      },
+                      "item_name": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `item_name` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "food": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `food` items."
+                      },
+                      "taste": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `taste` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              }
+            ]
+          },
+          "type": "array",
+          "description": "Array of `artifacts` items."
+        },
+        "contextual_artifacts": {
+          "additionalProperties": false,
+          "properties": {
+            "high_refraction": {
+              "additionalProperties": false,
+              "properties": {
+                "template": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Template string with placeholders."
+                },
+                "variables": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "effect": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `effect` items."
+                    },
+                    "item_type": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `item_type` items."
+                    },
+                    "resonance": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `resonance` items."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `variables`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `high_refraction`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `contextual_artifacts`."
+        }
+      },
+      "type": "object",
+      "description": "Object for `item_lore`."
+    },
+    "location_descriptions": {
+      "additionalProperties": false,
+      "properties": {
+        "natural": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "template": {
+                "type": "string",
+                "description": "String field `template`."
+              },
+              "variables": {
+                "additionalProperties": false,
+                "properties": {
+                  "atmosphere": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `atmosphere` items."
+                  },
+                  "description": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Lore or UI description."
+                  },
+                  "feature": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `feature` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `variables`."
+              }
+            },
+            "type": "object"
+          },
+          "type": "array",
+          "description": "Array of `natural` items."
+        },
+        "ruins": {
+          "items": {
+            "oneOf": [
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "adjective": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `adjective` items."
+                      },
+                      "detail": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `detail` items."
+                      },
+                      "name": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Display name."
+                      },
+                      "state": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `state` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              },
+              {
+                "additionalProperties": false,
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "description": "String field `template`."
+                  },
+                  "variables": {
+                    "additionalProperties": false,
+                    "properties": {
+                      "condition": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `condition` items."
+                      },
+                      "type": {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array",
+                        "description": "Array of `type` items."
+                      }
+                    },
+                    "type": "object",
+                    "description": "Object for `variables`."
+                  }
+                },
+                "type": "object"
+              }
+            ]
+          },
+          "type": "array",
+          "description": "Array of `ruins` items."
+        }
+      },
+      "type": "object",
+      "description": "Object for `location_descriptions`."
+    },
+    "markov_corpus": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "Array of `markov_corpus` items."
+    },
+    "rumors": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "template": {
+                "type": "string",
+                "description": "String field `template`."
+              },
+              "variables": {
+                "additionalProperties": false,
+                "properties": {
+                  "rumor": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `rumor` items."
+                  },
+                  "subject": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `subject` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `variables`."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "template": {
+                "type": "string",
+                "description": "String field `template`."
+              },
+              "variables": {
+                "additionalProperties": false,
+                "properties": {
+                  "reason": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `reason` items."
+                  },
+                  "thing": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `thing` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `variables`."
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array",
+      "description": "Array of `rumors` items."
+    }
+  },
+  "title": "Narrative Templates Schema",
+  "type": "object",
+  "description": "Narrative templates and variable pools for procedural text."
+}

@@ -1,0 +1,213 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/map_features_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Map Features Schema",
+  "description": "Schema for map feature definitions and handler mappings (v1).",
+  "type": "object",
+  "required": [
+    "features"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "//": {
+      "type": "string",
+      "description": "Optional comment field."
+    },
+    "features": {
+      "type": "array",
+      "description": "Map marker feature definitions.",
+      "items": {
+        "$ref": "#/$defs/feature"
+      }
+    }
+  },
+  "$defs": {
+    "feature_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+      "description": "Marker tag identifier used by map generation."
+    },
+    "table_param": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "table"
+      ],
+      "properties": {
+        "table": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Spawn table identifier."
+        }
+      }
+    },
+    "feature": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "handler",
+            "params"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/feature_id"
+            },
+            "handler": {
+              "const": "enemy",
+              "description": "Spawns an enemy based on the configured table."
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "table"
+              ],
+              "properties": {
+                "table": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Enemy spawn table identifier."
+                },
+                "max_distance_from_player": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Optional clamp on spawn distance from player."
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "handler",
+            "params"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/feature_id"
+            },
+            "handler": {
+              "const": "loot",
+              "description": "Places loot at the marker location."
+            },
+            "params": {
+              "$ref": "#/$defs/table_param"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "handler",
+            "params"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/feature_id"
+            },
+            "handler": {
+              "const": "light",
+              "description": "Spawns a light source at the marker location."
+            },
+            "params": {
+              "$ref": "#/$defs/table_param"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "handler",
+            "params"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/feature_id"
+            },
+            "handler": {
+              "const": "npc",
+              "description": "Spawns an NPC based on the configured table."
+            },
+            "params": {
+              "$ref": "#/$defs/table_param"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "handler",
+            "params"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/feature_id"
+            },
+            "handler": {
+              "const": "interactable",
+              "description": "Places an interactable by ID."
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*$",
+                  "description": "Interactable definition ID (snake_case)."
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "handler",
+            "params"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/feature_id"
+            },
+            "handler": {
+              "const": "story",
+              "description": "Emits a story hook event."
+            },
+            "params": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind"
+              ],
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Story hook kind identifier."
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

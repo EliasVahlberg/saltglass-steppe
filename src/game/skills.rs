@@ -46,13 +46,20 @@ pub struct SkillDef {
 pub struct AbilityDef {
     pub id: String,
     pub name: String,
-    pub category: SkillCategory,
+    pub category: String,
     pub description: String,
     pub stamina_cost: u32,
     pub cooldown: u32,
     pub required_skill: String,
     pub required_level: u32,
-    pub effect: String,
+    #[serde(default)]
+    pub effect: Option<String>,
+    #[serde(default)]
+    pub effect_type: Option<String>,
+    #[serde(default)]
+    pub target_type: Option<String>,
+    #[serde(default)]
+    pub effect_data: Option<serde_json::Value>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -126,7 +133,12 @@ impl SkillsState {
         self.stamina -= def.stamina_cost;
         self.cooldowns.insert(ability_id.to_string(), def.cooldown);
 
-        Ok(def.effect.clone())
+        let effect = def
+            .effect
+            .clone()
+            .or_else(|| def.effect_type.clone())
+            .unwrap_or_else(|| "unknown".to_string());
+        Ok(effect)
     }
 
     /// Check if a skill can be upgraded (prerequisites and resources)
@@ -225,17 +237,17 @@ pub fn calculate_skill_cost(skill_id: &str, current_level: u32) -> u32 {
 
 // Data loading
 static SKILLS: Lazy<HashMap<String, SkillDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/skills.json");
-    match serde_json::from_str::<Vec<SkillDef>>(data) {
-        Ok(skills_vec) => {
+    let data = include_str!("../../data/abilities.json");
+    match serde_json::from_str::<AbilitiesFile>(data) {
+        Ok(file) => {
             let mut skills_map = HashMap::new();
-            for skill in skills_vec {
+            for skill in file.skills {
                 skills_map.insert(skill.id.clone(), skill);
             }
             skills_map
         }
         Err(e) => {
-            eprintln!("Failed to parse skills.json: {}", e);
+            eprintln!("Failed to parse abilities.json (skills): {}", e);
             HashMap::new()
         }
     }
@@ -243,16 +255,16 @@ static SKILLS: Lazy<HashMap<String, SkillDef>> = Lazy::new(|| {
 
 static ABILITIES: Lazy<HashMap<String, AbilityDef>> = Lazy::new(|| {
     let data = include_str!("../../data/abilities.json");
-    match serde_json::from_str::<Vec<AbilityDef>>(data) {
-        Ok(abilities_vec) => {
+    match serde_json::from_str::<AbilitiesFile>(data) {
+        Ok(file) => {
             let mut abilities_map = HashMap::new();
-            for ability in abilities_vec {
+            for ability in file.abilities {
                 abilities_map.insert(ability.id.clone(), ability);
             }
             abilities_map
         }
         Err(e) => {
-            eprintln!("Failed to parse abilities.json: {}", e);
+            eprintln!("Failed to parse abilities.json (abilities): {}", e);
             HashMap::new()
         }
     }
@@ -282,8 +294,17 @@ pub fn get_skills_by_category(category: &SkillCategory) -> Vec<&SkillDef> {
 }
 
 pub fn get_abilities_by_category(category: &SkillCategory) -> Vec<&AbilityDef> {
+    let wanted = format!("{:?}", category).to_lowercase();
     ABILITIES
         .values()
-        .filter(|def| &def.category == category)
+        .filter(|def| def.category.to_lowercase() == wanted)
         .collect()
+}
+
+#[derive(Deserialize)]
+struct AbilitiesFile {
+    #[serde(default)]
+    skills: Vec<SkillDef>,
+    #[serde(default)]
+    abilities: Vec<AbilityDef>,
 }

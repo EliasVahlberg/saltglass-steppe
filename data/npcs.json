@@ -1,4 +1,5 @@
 {
+  "schema": "npcs_v1",
   "npcs": [
     {
       "id": "merchant_test",
@@ -318,56 +319,6 @@
           "conditions": [{ "adaptation_count_gte": 1 }],
           "effect": { "triggers_ritual": "storm_walk" }
         }
-      ]
-    },
-    {
-      "id": "forewoman_ressa",
-      "name": "Forewoman Ressa Vane",
-      "glyph": "E",
-      "faction": "SandEngineers",
-      "description": "Grizzled engineer with cybernetic arm and storm-scarred face",
-      "dialogue": [
-        {
-          "conditions": [{ "has_item": "saint_key" }],
-          "text": "A saint-key! Haven't seen one of those in years. That's Archive-level access right there.</nextpage>I'll pay good scrip for that key. The Archive holds technical manuals we desperately need.</nextpage>Or... if you're feeling generous, we could share what we learn. Your choice."
-        },
-        {
-          "conditions": [{ "adaptation_count_gte": 2 }],
-          "text": "You're adapting fast. Good—means you can handle the dangerous salvage runs.</nextpage>I've got work for someone with your... modifications. The glass fields need mapping.</nextpage>Pay's triple hazard rate. Interested?"
-        },
-        {
-          "conditions": [{ "player_broke_equipment": true }],
-          "text": "You broke the storm predictor. Congratulations, you've achieved what three glass storms couldn't: making our equipment completely useless.</nextpage>That was our only working predictor. Now we're back to the old method: stick your head outside and see if it hurts.</nextpage>Next time, maybe don't press all the buttons at once?"
-        },
-        {
-          "conditions": [{ "storm_just_passed": true }],
-          "text": "Well, the storm moved the entire east wing to the west side. But hey, at least now the cafeteria has a better view.</nextpage>Silver linings, right? Though I'm not sure how we're going to explain this to the safety inspector.</nextpage>Assuming we can find the safety inspector. He might be in the west wing now. Or possibly in orbit."
-        },
-        {
-          "conditions": [],
-          "text": "New face. Good—we need fresh blood for the reclamation projects.</nextpage>Name's Ressa. I keep the water flowing and the lights on in this forsaken place.</nextpage>You look capable. Got any engineering experience? We always need skilled hands."
-        }
-      ],
-      "actions": [
-        {
-          "id": "trade",
-          "name": "Trade",
-          "conditions": [],
-          "effect": { "trade": true }
-        },
-        {
-          "id": "salvage_job",
-          "name": "Accept Salvage Job",
-          "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "starts_quest": "glass_field_mapping" }
-        }
-      ],
-      "shop_inventory": [
-        "repair_kit",
-        "engineer_blueprint",
-        "engineer_goggles",
-        "storm_compass",
-        "refraction_detector"
       ]
     },
     {
@@ -721,95 +672,6 @@
           "conditions": [{ "has_item": "quantum_resonator" }],
           "effect": { "enhances_item": "quantum_resonator" }
         }
-      ]
-    },
-    {
-      "id": "saint_matthias",
-      "name": "Saint Matthias",
-      "glyph": "M",
-      "faction": "SynthesisSeekers",
-      "description": "Transformed monk who leads the Synthesis Seekers, half-crystallized",
-      "dialogue": [
-        {
-          "conditions": [{ "adaptation_count_gte": 4 }],
-          "text": "You have walked far along the path of transformation, yet retain your essential humanity.</nextpage>This is the way—evolution without abandonment, growth without loss of self.</nextpage>The Synthesis Seekers could learn much from your journey. Will you share your wisdom?"
-        },
-        {
-          "conditions": [{ "has_item": "synthesis_manual" }],
-          "text": "You carry my manual. Good—the knowledge within has helped many find balance.</nextpage>Transformation need not be traumatic. With proper guidance, we can become more than human while remaining human.</nextpage>Have you found the exercises helpful in controlling your adaptations?"
-        },
-        {
-          "conditions": [],
-          "text": "Welcome, seeker. I am Matthias, once a monk, now something between flesh and light.</nextpage>The Archive showed me truth—that science and spirit are one. The storms are not divine punishment but cosmic invitation.</nextpage>We can evolve without losing ourselves. This is the synthesis we seek."
-        }
-      ],
-      "actions": [
-        {
-          "id": "synthesis_training",
-          "name": "Learn Synthesis Techniques",
-          "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": {
-            "grants_adaptation_control": true,
-            "prevents_quantum_psychosis": true
-          }
-        },
-        {
-          "id": "trade",
-          "name": "Trade",
-          "conditions": [],
-          "effect": { "trade": true }
-        }
-      ],
-      "shop_inventory": [
-        "synthesis_manual",
-        "quantum_stabilizer",
-        "meditation_crystal",
-        "probability_anchor"
-      ]
-    },
-    {
-      "id": "forge_master_durgan",
-      "name": "Forge-Master Kaine Durgan",
-      "glyph": "F",
-      "faction": "IronCovenant",
-      "description": "Militant leader of the Iron Covenant, encased in null-field armor",
-      "dialogue": [
-        {
-          "conditions": [{ "adaptation_count_gte": 2 }],
-          "text": "Another contaminated soul. The quantum plague spreads faster each day.</nextpage>You were human once. With our technology, you could be human again.</nextpage>The null-field treatment is painful, but it purges the alien influence. Consider it—before it's too late."
-        },
-        {
-          "conditions": [{ "has_item": "null_field_generator" }],
-          "text": "You carry one of our purification devices. Wise choice.</nextpage>The quantum contamination can be reversed, but only with proper equipment and determination.</nextpage>We are humanity's immune system, fighting off this cosmic infection."
-        },
-        {
-          "conditions": [],
-          "text": "Pure human detected. Excellent—you haven't been contaminated by the quantum plague.</nextpage>I am Durgan, defender of true humanity against the alien transformation.</nextpage>Join us. Help us preserve what it means to be human before it's lost forever."
-        }
-      ],
-      "actions": [
-        {
-          "id": "purification_treatment",
-          "name": "Undergo Purification",
-          "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": {
-            "removes_adaptations": true,
-            "damages_player": 20,
-            "faction_reputation": { "IronCovenant": 30 }
-          }
-        },
-        {
-          "id": "trade",
-          "name": "Trade",
-          "conditions": [{ "adaptation_count_lte": 1 }],
-          "effect": { "trade": true }
-        }
-      ],
-      "shop_inventory": [
-        "null_field_generator",
-        "iron_gauntlets",
-        "chain_vest",
-        "repair_kit"
       ]
     },
     {
@@ -1496,6 +1358,14 @@
           "text": "You're heavily adapted, but you still think clearly. That's rare.</nextpage>Most people either reject the changes completely or lose themselves to them.</nextpage>We could use that perspective in our adaptation research. Interested in some consulting work?"
         },
         {
+          "conditions": [{ "player_broke_equipment": true }],
+          "text": "You broke the storm predictor. Congratulations, you've achieved what three glass storms couldn't: making our equipment completely useless.</nextpage>That was our only working predictor. Now we're back to the old method: stick your head outside and see if it hurts.</nextpage>Next time, maybe don't press all the buttons at once?"
+        },
+        {
+          "conditions": [{ "storm_just_passed": true }],
+          "text": "Well, the storm moved the entire east wing to the west side. But hey, at least now the cafeteria has a better view.</nextpage>Silver linings, right? Though I'm not sure how we're going to explain this to the safety inspector.</nextpage>Assuming we can find the safety inspector. He might be in the west wing now. Or possibly in orbit."
+        },
+        {
           "conditions": [{ "has_item": "saint_key" }],
           "text": "A Saint-Key! Those are worth their weight in storm glass to us.</nextpage>With that, we could access Archive terminals that have been locked for decades.</nextpage>I'll trade you our best equipment for it, or we could partner on an expedition."
         },
@@ -1505,6 +1375,18 @@
         }
       ],
       "actions": [
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [],
+          "effect": { "trade": true }
+        },
+        {
+          "id": "salvage_job",
+          "name": "Accept Salvage Job",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": { "starts_quest": "glass_field_mapping" }
+        },
         {
           "id": "engineering_contract",
           "name": "Accept Engineering Contract",
@@ -1519,6 +1401,11 @@
         }
       ],
       "shop_inventory": [
+        "repair_kit",
+        "engineer_blueprint",
+        "engineer_goggles",
+        "storm_compass",
+        "refraction_detector",
         "engineering_tools",
         "archive_scanner",
         "technical_manual",
@@ -1751,7 +1638,7 @@
       ]
     },
     {
-      "id": "the_architect",
+      "id": "aria_architect",
       "name": "The Architect",
       "glyph": "Λ",
       "faction": "HeliographNetwork",
@@ -1819,6 +1706,14 @@
       "description": "Half-man, half-tank with hydraulic treads and a pneumatic hammer arm",
       "dialogue": [
         {
+          "conditions": [{ "adaptation_count_gte": 2 }],
+          "text": "Another contaminated soul. The quantum plague spreads faster each day.</nextpage>You were human once. With our technology, you could be human again.</nextpage>The null-field treatment is painful, but it purges the alien influence. Consider it—before it's too late."
+        },
+        {
+          "conditions": [{ "has_item": "null_field_generator" }],
+          "text": "You carry one of our purification devices. Wise choice.</nextpage>The quantum contamination can be reversed, but only with proper equipment and determination.</nextpage>We are humanity's immune system, fighting off this cosmic infection."
+        },
+        {
           "conditions": [{ "adaptation_count_gte": 3 }],
           "text": "Another glitch. Look at you—more silicate than flesh.</nextpage>We can fix this. Strip away the contamination. Return you to baseline human.</nextpage>The process isn't pleasant. But purity never is."
         },
@@ -1841,6 +1736,12 @@
       ],
       "actions": [
         {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [{ "adaptation_count_lte": 1 }],
+          "effect": { "trade": true }
+        },
+        {
           "id": "purification_offer",
           "name": "Accept Purification Treatment",
           "conditions": [{ "adaptation_count_gte": 1 }],
@@ -1852,10 +1753,16 @@
           "conditions": [{ "quest_active": "vector_choice" }],
           "effect": { "quest_progress": "vector_choice", "ending_path": "restoration", "reputation_change": { "IronCovenant": 100 } }
         }
+      ],
+      "shop_inventory": [
+        "null_field_generator",
+        "iron_gauntlets",
+        "chain_vest",
+        "repair_kit"
       ]
     },
     {
-      "id": "high_prism",
+      "id": "mirror_high_prism",
       "name": "The High Prism",
       "glyph": "◊",
       "faction": "GlassProphets",
@@ -1905,6 +1812,14 @@
       "description": "An old man with one arm made of living crystal, carrying a staff of Data-Tree branch",
       "dialogue": [
         {
+          "conditions": [{ "adaptation_count_gte": 4 }],
+          "text": "You have walked far along the path of transformation, yet retain your essential humanity.</nextpage>This is the way—evolution without abandonment, growth without loss of self.</nextpage>The Synthesis Seekers could learn much from your journey. Will you share your wisdom?"
+        },
+        {
+          "conditions": [{ "has_item": "synthesis_manual" }],
+          "text": "You carry my manual. Good—the knowledge within has helped many find balance.</nextpage>Transformation need not be traumatic. With proper guidance, we can become more than human while remaining human.</nextpage>Have you found the exercises helpful in controlling your adaptations?"
+        },
+        {
           "conditions": [{ "adaptation_count_gte": 2, "adaptation_count_lte": 4 }],
           "text": "Look at this flower. It is glass, yes. But it blooms. It adapts.</nextpage>You walk the middle path—changed, but not consumed. This gives me hope.</nextpage>We must be like the flower, not the hammer. Growth, not destruction."
         },
@@ -1927,6 +1842,15 @@
       ],
       "actions": [
         {
+          "id": "synthesis_training",
+          "name": "Learn Synthesis Techniques",
+          "conditions": [{ "adaptation_count_gte": 1 }],
+          "effect": {
+            "grants_adaptation_control": true,
+            "prevents_quantum_psychosis": true
+          }
+        },
+        {
           "id": "synthesis_guidance",
           "name": "Seek Synthesis Guidance",
           "conditions": [{ "quest_active": "vector_choice" }],
@@ -1937,7 +1861,19 @@
           "name": "Learn Balance Techniques",
           "conditions": [{ "adaptation_count_gte": 1 }],
           "effect": { "adaptation_stability": 25, "reputation_change": { "SynthesisSeekers": 25 } }
+        },
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [],
+          "effect": { "trade": true }
         }
+      ],
+      "shop_inventory": [
+        "synthesis_manual",
+        "quantum_stabilizer",
+        "meditation_crystal",
+        "probability_anchor"
       ]
     },
     {

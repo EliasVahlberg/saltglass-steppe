@@ -1,0 +1,271 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/constraint_rules_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "rules"
+  ],
+  "properties": {
+    "rules": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "constraint_type": {
+                "type": "string",
+                "enum": [
+                  "tactical",
+                  "safe_zone",
+                  "escape_route",
+                  "objective_accessibility"
+                ],
+                "description": "Constraint category used by validators."
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Boolean toggle."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Constraint rule id (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the rule."
+              },
+              "parameters": {
+                "additionalProperties": false,
+                "properties": {
+                  "max_open_ratio": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Maximum allowed open area ratio (0-1)."
+                  },
+                  "min_chokepoints": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Minimum required chokepoints."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `parameters`."
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "warning",
+                  "critical"
+                ],
+                "description": "Severity level when the constraint fails."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "constraint_type",
+              "parameters",
+              "severity",
+              "enabled"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "constraint_type": {
+                "type": "string",
+                "enum": [
+                  "tactical",
+                  "safe_zone",
+                  "escape_route",
+                  "objective_accessibility"
+                ],
+                "description": "Constraint category used by validators."
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Boolean toggle."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Constraint rule id (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the rule."
+              },
+              "parameters": {
+                "additionalProperties": false,
+                "properties": {
+                  "min_safe_distance": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Minimum safe distance from hazards."
+                  },
+                  "safe_zone_coverage": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Fraction of tiles that must be safe zones."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `parameters`."
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "warning",
+                  "critical"
+                ],
+                "description": "Severity level when the constraint fails."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "constraint_type",
+              "parameters",
+              "severity",
+              "enabled"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "constraint_type": {
+                "type": "string",
+                "enum": [
+                  "tactical",
+                  "safe_zone",
+                  "escape_route",
+                  "objective_accessibility"
+                ],
+                "description": "Constraint category used by validators."
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Boolean toggle."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Constraint rule id (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the rule."
+              },
+              "parameters": {
+                "additionalProperties": false,
+                "properties": {
+                  "max_dead_end_depth": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Maximum allowed dead-end depth."
+                  },
+                  "min_exit_routes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Minimum required exit routes."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `parameters`."
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "warning",
+                  "critical"
+                ],
+                "description": "Severity level when the constraint fails."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "constraint_type",
+              "parameters",
+              "severity",
+              "enabled"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "constraint_type": {
+                "type": "string",
+                "enum": [
+                  "tactical",
+                  "safe_zone",
+                  "escape_route",
+                  "objective_accessibility"
+                ],
+                "description": "Constraint category used by validators."
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Boolean toggle."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Constraint rule id (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the rule."
+              },
+              "parameters": {
+                "additionalProperties": false,
+                "properties": {
+                  "max_path_complexity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Maximum allowed path complexity score."
+                  },
+                  "min_path_complexity": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Minimum required path complexity score."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `parameters`."
+              },
+              "severity": {
+                "type": "string",
+                "enum": [
+                  "warning",
+                  "critical"
+                ],
+                "description": "Severity level when the constraint fails."
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array",
+      "description": "Array of `rules` items."
+    }
+  },
+  "title": "Constraint Rules Schema",
+  "type": "object",
+  "description": "Schema for procedural generation constraint rules."
+}

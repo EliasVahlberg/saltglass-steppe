@@ -1,4 +1,5 @@
 {
+  "schema": "npcs_v1",
   "traders": [
     {
       "trader_id": "merchant_keth",

@@ -1,11 +1,14 @@
 //! Data-driven quest system with objectives and rewards
 
 use once_cell::sync::Lazy;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+use crate::game::data_loader::{DataLoader, DataSource, HasId};
+
 /// Quest objective types
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum ObjectiveType {
     /// Kill N enemies of a specific type
@@ -29,7 +32,7 @@ pub enum ObjectiveType {
 }
 
 /// A single quest objective
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct Objective {
     pub id: String,
     pub description: String,
@@ -38,7 +41,7 @@ pub struct Objective {
 }
 
 /// Quest rewards
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 pub struct QuestReward {
     #[serde(default)]
     pub xp: u32,
@@ -56,7 +59,7 @@ pub struct QuestReward {
 }
 
 /// Quest definition loaded from data file
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, JsonSchema)]
 pub struct QuestDef {
     pub id: String,
     pub name: String,
@@ -74,7 +77,13 @@ pub struct QuestDef {
     #[serde(default)]
     pub act: Option<u32>,
 }
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+
+impl HasId for QuestDef {
+    fn id(&self) -> &str {
+        &self.id
+    }
+}
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
 pub struct QuestCriteria {
     /// Quest IDs that must be completed before this quest becomes available
     #[serde(default)]
@@ -108,30 +117,32 @@ pub struct QuestCriteria {
     pub custom_conditions: Vec<String>,
 }
 
-#[derive(Deserialize)]
-struct QuestsFile {
-    quests: Vec<QuestDef>,
-}
+static QUEST_DEFS: Lazy<DataLoader<QuestDef>> = Lazy::new(|| {
+    let mut quests = DataLoader::load_single(
+        DataSource::new("data/quests.json", include_str!("../../data/quests.json")),
+        "quests",
+        "quests_v1",
+    )
+    .into_map();
 
-static QUEST_DEFS: Lazy<HashMap<String, QuestDef>> = Lazy::new(|| {
-    let mut quests = HashMap::new();
+    let main_quests = DataLoader::load_single(
+        DataSource::new(
+            "data/main_questline.json",
+            include_str!("../../data/main_questline.json"),
+        ),
+        "main_questline",
+        "quests_v1",
+    )
+    .into_map();
 
-    // Load regular quests
-    let data = include_str!("../../data/quests.json");
-    let file: QuestsFile = serde_json::from_str(data).expect("Failed to parse quests.json");
-    for quest in file.quests {
-        quests.insert(quest.id.clone(), quest);
+    for (id, quest) in main_quests {
+        if quests.contains_key(&id) {
+            panic!("Duplicate quest ID '{}' found in main_questline.json", id);
+        }
+        quests.insert(id, quest);
     }
 
-    // Load main questline
-    let main_data = include_str!("../../data/main_questline.json");
-    let main_file: MainQuestlineFile =
-        serde_json::from_str(main_data).expect("Failed to parse main_questline.json");
-    for quest in main_file.main_questline {
-        quests.insert(quest.id.clone(), quest);
-    }
-
-    quests
+    DataLoader::from_map(quests)
 });
 
 static QUEST_CONTENT_INJECTIONS: Lazy<Vec<QuestContentInjection>> = Lazy::new(|| {
@@ -152,7 +163,7 @@ pub fn get_quest_def(id: &str) -> Option<&'static QuestDef> {
 }
 
 pub fn all_quest_ids() -> Vec<&'static str> {
-    QUEST_DEFS.keys().map(|s| s.as_str()).collect()
+    QUEST_DEFS.ids()
 }
 
 /// Get quest content injections for a specific quest
@@ -390,7 +401,7 @@ impl ActiveQuest {
 }
 
 /// Quest content that needs to be injected after procgen
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct QuestContentInjection {
     /// Quest ID this content belongs to
     pub quest_id: String,
@@ -405,7 +416,7 @@ pub struct QuestContentInjection {
     pub map_modifications: Vec<QuestMapModification>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct QuestNpcPlacement {
     pub npc_id: String,
     pub placement_strategy: PlacementStrategy,
@@ -413,14 +424,14 @@ pub struct QuestNpcPlacement {
     pub condition: PlacementCondition,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct QuestItemPlacement {
     pub item_id: String,
     pub placement_strategy: PlacementStrategy,
     pub condition: PlacementCondition,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 pub struct QuestMapModification {
     pub modification_type: String, // "door", "special_tile", "inscription"
     pub placement_strategy: PlacementStrategy,
@@ -428,7 +439,7 @@ pub struct QuestMapModification {
     pub data: HashMap<String, String>, // Additional data for the modification
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum PlacementStrategy {
     /// Place at specific world coordinates
@@ -445,7 +456,7 @@ pub enum PlacementStrategy {
     CurrentTile,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum PlacementCondition {
     /// Always place

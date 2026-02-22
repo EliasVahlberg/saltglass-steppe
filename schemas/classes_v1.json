@@ -1,0 +1,201 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/classes_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Classes Schema",
+  "type": "object",
+  "description": "Player class definitions including starting stats and unlock conditions.",
+  "additionalProperties": false,
+  "required": ["classes"],
+  "properties": {
+    "classes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of playable classes.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "unlocked_by_default",
+              "starting_hp",
+              "starting_ap",
+              "starting_items"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing class description."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the class."
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "starting_ap": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Starting action points."
+              },
+              "starting_hp": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Starting hit points."
+              },
+              "starting_items": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Item ids granted at character creation.",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "unlocked_by_default": {
+                "type": "boolean",
+                "description": "Whether the class is available without unlock requirements."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "unlocked_by_default",
+              "unlock_condition",
+              "starting_hp",
+              "starting_ap",
+              "starting_items"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing class description."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the class."
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "starting_ap": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Starting action points."
+              },
+              "starting_hp": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Starting hit points."
+              },
+              "starting_items": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Item ids granted at character creation.",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "unlock_condition": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Unlock condition identifier."
+              },
+              "unlocked_by_default": {
+                "type": "boolean",
+                "description": "Whether the class is available without unlock requirements."
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "name",
+              "description",
+              "unlocked_by_default",
+              "unlock_condition",
+              "starting_hp",
+              "starting_ap",
+              "starting_items",
+              "starting_adaptations"
+            ],
+            "properties": {
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Player-facing class description."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Stable snake_case identifier for the class."
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name shown to the player."
+              },
+              "starting_adaptations": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Adaptation ids granted at character creation.",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "starting_ap": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Starting action points."
+              },
+              "starting_hp": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Starting hit points."
+              },
+              "starting_items": {
+                "type": "array",
+                "minItems": 1,
+                "description": "Item ids granted at character creation.",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "unlock_condition": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Unlock condition identifier."
+              },
+              "unlocked_by_default": {
+                "type": "boolean",
+                "description": "Whether the class is available without unlock requirements."
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

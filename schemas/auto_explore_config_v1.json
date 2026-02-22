@@ -1,0 +1,93 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/auto_explore_config_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Auto Explore Config Schema",
+  "description": "Schema for auto_explore_config.json (auto-explore behavior).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["auto_explore"],
+  "definitions": {
+    "id_string": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    }
+  },
+  "properties": {
+    "auto_explore": {
+      "type": "object",
+      "description": "Auto-explore settings and safety rules.",
+      "additionalProperties": false,
+      "required": [
+        "avoid_dangers",
+        "danger_types",
+        "enemy_detection_range",
+        "ignore_weak_enemies",
+        "item_filters",
+        "pickup_items",
+        "stop_on_enemies",
+        "weak_enemy_threshold"
+      ],
+      "properties": {
+        "avoid_dangers": {
+          "type": "boolean",
+          "description": "Avoid tiles flagged as dangerous when possible."
+        },
+        "danger_types": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["glass", "glare", "storm_tile", "hot_light"]
+          },
+          "uniqueItems": true,
+          "description": "Danger categories to avoid during auto-explore."
+        },
+        "enemy_detection_range": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Distance in tiles to stop when enemies are detected."
+        },
+        "ignore_weak_enemies": {
+          "type": "boolean",
+          "description": "Ignore enemies below the weak_enemy_threshold."
+        },
+        "item_filters": {
+          "type": "object",
+          "description": "Item pickup allow/deny lists.",
+          "additionalProperties": false,
+          "required": ["blacklist", "enabled", "whitelist"],
+          "properties": {
+            "blacklist": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/id_string" },
+              "uniqueItems": true,
+              "description": "Item IDs to skip when item filters are enabled."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Enable whitelist/blacklist filtering for pickups."
+            },
+            "whitelist": {
+              "type": "array",
+              "items": { "$ref": "#/definitions/id_string" },
+              "uniqueItems": true,
+              "description": "Item IDs that are allowed when a whitelist is present."
+            }
+          }
+        },
+        "pickup_items": {
+          "type": "boolean",
+          "description": "Pick up items encountered during auto-explore."
+        },
+        "stop_on_enemies": {
+          "type": "boolean",
+          "description": "Stop auto-explore when enemies are detected in range."
+        },
+        "weak_enemy_threshold": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Enemies at or below this HP are considered weak."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,190 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/keyboard_config_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Keyboard Config Schema",
+  "description": "Schema for keyboard_config.json (key bindings for gameplay, menus, and debug).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["debug", "gameplay", "menus", "worldmap"],
+  "definitions": {
+    "key_binding": {
+      "type": "string",
+      "description": "Key binding string: a single character, a named key, or an F-key.",
+      "anyOf": [
+        {
+          "minLength": 1,
+          "maxLength": 1
+        },
+        {
+          "enum": [
+            "Up",
+            "Down",
+            "Left",
+            "Right",
+            "Enter",
+            "Esc",
+            "Tab",
+            "BackTab",
+            "Backspace"
+          ]
+        },
+        {
+          "pattern": "^F([1-9]|1[0-9]|2[0-4])$"
+        }
+      ]
+    }
+  },
+  "properties": {
+    "debug": {
+      "type": "object",
+      "description": "Debug and developer key bindings.",
+      "additionalProperties": false,
+      "required": ["console_toggle", "debug_menu"],
+      "properties": {
+        "console_toggle": {
+          "allOf": [{ "$ref": "#/definitions/key_binding" }],
+          "description": "Toggle debug console."
+        },
+        "debug_menu": {
+          "allOf": [{ "$ref": "#/definitions/key_binding" }],
+          "description": "Open debug menu."
+        }
+      }
+    },
+    "gameplay": {
+      "type": "object",
+      "description": "Key bindings used during normal gameplay.",
+      "additionalProperties": false,
+      "required": [
+        "auto_explore",
+        "crafting",
+        "crystal_menu",
+        "examine",
+        "faction_menu",
+        "interact",
+        "inventory",
+        "light_menu",
+        "load",
+        "look",
+        "move_down",
+        "move_down_arrow",
+        "move_left",
+        "move_left_arrow",
+        "move_right",
+        "move_right_arrow",
+        "move_up",
+        "move_up_arrow",
+        "pause_menu",
+        "psychic_menu",
+        "quest_log",
+        "ranged_attack",
+        "save",
+        "skills_menu",
+        "target_mode",
+        "use_item_1",
+        "use_item_2",
+        "use_item_3",
+        "use_stairs",
+        "void_menu",
+        "wait",
+        "wiki"
+      ],
+      "properties": {
+        "auto_explore": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Start auto-explore." },
+        "crafting": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open crafting menu." },
+        "crystal_menu": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open crystal menu." },
+        "examine": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Examine tile/entity." },
+        "faction_menu": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open faction menu." },
+        "interact": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Interact with a nearby object." },
+        "inventory": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open inventory." },
+        "light_menu": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open light menu." },
+        "load": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Load game." },
+        "look": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Enter look mode." },
+        "move_down": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move down." },
+        "move_down_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move down (arrow key)." },
+        "move_left": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move left." },
+        "move_left_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move left (arrow key)." },
+        "move_right": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move right." },
+        "move_right_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move right (arrow key)." },
+        "move_up": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move up." },
+        "move_up_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move up (arrow key)." },
+        "pause_menu": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open pause menu." },
+        "psychic_menu": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open psychic menu." },
+        "quest_log": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open quest log." },
+        "ranged_attack": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Enter ranged attack mode." },
+        "save": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Save game." },
+        "skills_menu": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open skills menu." },
+        "target_mode": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Enter target mode." },
+        "use_item_1": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Use item slot 1." },
+        "use_item_2": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Use item slot 2." },
+        "use_item_3": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Use item slot 3." },
+        "use_stairs": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Use stairs at current location." },
+        "void_menu": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open void menu." },
+        "wait": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Wait a turn." },
+        "wiki": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Open in-game wiki." }
+      }
+    },
+    "menus": {
+      "type": "object",
+      "description": "Key bindings used in menus.",
+      "additionalProperties": false,
+      "required": [
+        "close",
+        "navigate_down",
+        "navigate_down_arrow",
+        "navigate_up",
+        "navigate_up_arrow",
+        "select",
+        "tab_next",
+        "tab_prev"
+      ],
+      "properties": {
+        "close": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Close the current menu." },
+        "navigate_down": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Navigate down." },
+        "navigate_down_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Navigate down (arrow key)." },
+        "navigate_up": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Navigate up." },
+        "navigate_up_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Navigate up (arrow key)." },
+        "select": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Select the highlighted option." },
+        "tab_next": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Next tab." },
+        "tab_prev": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Previous tab." }
+      }
+    },
+    "worldmap": {
+      "type": "object",
+      "description": "Key bindings used on the world map.",
+      "additionalProperties": false,
+      "required": [
+        "auto_move",
+        "center_on_player",
+        "close",
+        "inspect_toggle",
+        "move_down",
+        "move_down_arrow",
+        "move_left",
+        "move_left_arrow",
+        "move_right",
+        "move_right_arrow",
+        "move_up",
+        "move_up_arrow",
+        "set_target",
+        "travel"
+      ],
+      "properties": {
+        "auto_move": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Auto-move toward target." },
+        "center_on_player": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Center map on player position." },
+        "close": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Close world map." },
+        "inspect_toggle": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Toggle inspection mode." },
+        "move_down": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move map cursor down." },
+        "move_down_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move map cursor down (arrow key)." },
+        "move_left": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move map cursor left." },
+        "move_left_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move map cursor left (arrow key)." },
+        "move_right": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move map cursor right." },
+        "move_right_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move map cursor right (arrow key)." },
+        "move_up": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move map cursor up." },
+        "move_up_arrow": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Move map cursor up (arrow key)." },
+        "set_target": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Set map travel target." },
+        "travel": { "allOf": [{ "$ref": "#/definitions/key_binding" }], "description": "Travel to selected target." }
+      }
+    }
+  }
+}

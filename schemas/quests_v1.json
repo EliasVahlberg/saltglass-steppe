@@ -1,0 +1,550 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://saltglass-steppe.game/schemas/quests_v1.json",
+  "title": "Quest Definition Schema",
+  "description": "Schema for quest definitions and questline content.",
+  "type": "object",
+  "required": [
+    "schema"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "quests_v1",
+      "description": "Schema version identifier"
+    },
+    "quests": {
+      "type": "array",
+      "description": "Array of quest definitions",
+      "items": {
+        "$ref": "#/$defs/quest"
+      }
+    },
+    "main_questline": {
+      "type": "array",
+      "description": "Array of main questline definitions",
+      "items": {
+        "$ref": "#/$defs/quest"
+      }
+    },
+    "quest_content_injections": {
+      "type": "array",
+      "description": "Content injected for quests in world generation",
+      "items": {
+        "$ref": "#/$defs/quest_content_injection"
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "quests"
+      ]
+    },
+    {
+      "required": [
+        "main_questline"
+      ]
+    }
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "quest": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "description",
+        "objectives"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier (snake_case)",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Lore or UI description."
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Quest category label."
+        },
+        "act": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Story act or chapter index."
+        },
+        "objectives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/objective"
+          },
+          "description": "Array of `objectives` items."
+        },
+        "reward": {
+          "$ref": "#/$defs/reward",
+          "description": "Rewards granted on completion."
+        },
+        "criteria": {
+          "$ref": "#/$defs/criteria",
+          "description": "Field `criteria`."
+        },
+        "requires_quests_completed": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": "Quest ids that must be completed before this quest."
+        },
+        "comedic_moments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/comedic_moment"
+          },
+          "description": "Array of `comedic_moments` items."
+        },
+        "comedic_resolution": {
+          "type": "string",
+          "description": "String field `comedic_resolution`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "objective": {
+      "type": "object",
+      "required": [
+        "id",
+        "description",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier (snake_case).",
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Lore or UI description."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "kill",
+            "collect",
+            "reach",
+            "talk_to",
+            "interface_with_aria",
+            "interact",
+            "collect_data",
+            "wait",
+            "examine"
+          ],
+          "description": "String field `type`."
+        },
+        "enemy_id": {
+          "type": "string",
+          "description": "Unique identifier (snake_case).",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "item_id": {
+          "type": "string",
+          "description": "Unique identifier (snake_case).",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Count value."
+        },
+        "x": {
+          "type": "integer",
+          "description": "Coordinate value."
+        },
+        "y": {
+          "type": "integer",
+          "description": "Coordinate value."
+        },
+        "npc_id": {
+          "type": "string",
+          "description": "Unique identifier (snake_case).",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "item_required": {
+          "type": "string",
+          "description": "String field `item_required`."
+        },
+        "target": {
+          "type": "string",
+          "description": "String field `target`."
+        },
+        "data_points": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Integer field `data_points`."
+        },
+        "duration": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Integer field `duration`."
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "const": "kill",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "enemy_id",
+            "count"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "collect",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "item_id",
+            "count"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "reach",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "x",
+            "y"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "talk_to",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "npc_id"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "interface_with_aria",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "item_required"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "interact",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "target"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "collect_data",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "data_points"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "wait",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "duration"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "const": "examine",
+              "description": "Field `type`."
+            }
+          },
+          "required": [
+            "target"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    },
+    "reward": {
+      "type": "object",
+      "properties": {
+        "xp": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Integer field `xp`."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": "Item ids granted as rewards."
+        },
+        "unlocks_quests": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": "Quest ids unlocked after completion."
+        },
+        "salt_scrip": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Integer field `salt_scrip`."
+        },
+        "reputation_rewards": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Object for `reputation_rewards`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "criteria": {
+      "type": "object",
+      "properties": {
+        "requires_quests_completed": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "description": "Quest ids that must be completed before this quest."
+        },
+        "min_faction_reputation": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Object for `min_faction_reputation`."
+        },
+        "max_faction_reputation": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Object for `max_faction_reputation`."
+        },
+        "min_refraction": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `min_refraction`."
+        },
+        "max_refraction": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `max_refraction`."
+        },
+        "required_adaptations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of `required_adaptations` items."
+        },
+        "forbidden_adaptations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of `forbidden_adaptations` items."
+        },
+        "required_items": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of `required_items` items."
+        },
+        "min_level": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Tier/level value."
+        },
+        "custom_conditions": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Array of `custom_conditions` items."
+        }
+      },
+      "additionalProperties": false
+    },
+    "comedic_moment": {
+      "type": "object",
+      "required": [
+        "trigger",
+        "text"
+      ],
+      "properties": {
+        "trigger": {
+          "type": "string",
+          "description": "String field `trigger`."
+        },
+        "text": {
+          "type": "string",
+          "description": "String field `text`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "quest_content_injection": {
+      "type": "object",
+      "required": [
+        "quest_id"
+      ],
+      "properties": {
+        "quest_id": {
+          "type": "string",
+          "description": "Unique identifier (snake_case).",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "npcs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/npc_injection"
+          },
+          "description": "Array of `npcs` items."
+        },
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item_injection"
+          },
+          "description": "Array of `items` items."
+        }
+      },
+      "additionalProperties": false
+    },
+    "npc_injection": {
+      "type": "object",
+      "required": [
+        "npc_id",
+        "placement_strategy",
+        "condition"
+      ],
+      "properties": {
+        "npc_id": {
+          "type": "string",
+          "description": "Unique identifier (snake_case).",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "placement_strategy": {
+          "$ref": "#/$defs/strategy",
+          "description": "Field `placement_strategy`."
+        },
+        "condition": {
+          "$ref": "#/$defs/condition",
+          "description": "Field `condition`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "item_injection": {
+      "type": "object",
+      "required": [
+        "item_id",
+        "placement_strategy",
+        "condition"
+      ],
+      "properties": {
+        "item_id": {
+          "type": "string",
+          "description": "Unique identifier (snake_case).",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*$"
+        },
+        "placement_strategy": {
+          "$ref": "#/$defs/strategy",
+          "description": "Field `placement_strategy`."
+        },
+        "condition": {
+          "$ref": "#/$defs/condition",
+          "description": "Field `condition`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "strategy": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "String field `type`."
+        }
+      },
+      "additionalProperties": true
+    },
+    "condition": {
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "String field `type`."
+        }
+      },
+      "additionalProperties": true
+    }
+  }
+}

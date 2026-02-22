@@ -1,20 +1,22 @@
 use once_cell::sync::Lazy;
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
 
-#[derive(Clone, Debug, Deserialize)]
+use crate::game::data_loader::{DataLoader, DataSource, HasId};
+
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct EntityEffect {
     pub condition: String,
     pub effect: String,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct LightSource {
     pub radius: i32,
     pub intensity: u8,
 }
 
-#[derive(Clone, Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct ItemDef {
     pub id: String,
     pub name: String,
@@ -156,6 +158,12 @@ pub struct ItemDef {
     pub crystal_frequency: Option<String>,
 }
 
+impl HasId for ItemDef {
+    fn id(&self) -> &str {
+        &self.id
+    }
+}
+
 fn default_pickup() -> bool {
     true
 }
@@ -166,15 +174,12 @@ fn default_tier() -> u32 {
     1
 }
 
-#[derive(Deserialize)]
-struct ItemsFile {
-    items: Vec<ItemDef>,
-}
-
-static ITEM_DEFS: Lazy<HashMap<String, ItemDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/items.json");
-    let file: ItemsFile = serde_json::from_str(data).expect("Failed to parse items.json");
-    file.items.into_iter().map(|d| (d.id.clone(), d)).collect()
+static ITEM_DEFS: Lazy<DataLoader<ItemDef>> = Lazy::new(|| {
+    DataLoader::load_single(
+        DataSource::new("data/items.json", include_str!("../../data/items.json")),
+        "items",
+        "items_v1",
+    )
 });
 
 pub fn get_item_def(id: &str) -> Option<&'static ItemDef> {
@@ -182,7 +187,7 @@ pub fn get_item_def(id: &str) -> Option<&'static ItemDef> {
 }
 
 pub fn all_item_ids() -> Vec<&'static str> {
-    ITEM_DEFS.keys().map(|s| s.as_str()).collect()
+    ITEM_DEFS.ids()
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

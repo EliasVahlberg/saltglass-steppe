@@ -1,0 +1,79 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/status_effects_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Status Effects Schema",
+  "deprecated": true,
+  "x-deprecated-by": "effects_v1.json",
+  "x-deprecation-note": "Pending consolidation into effects_v1.json (status_effects section).",
+  "type": "object",
+  "description": "Status effect definitions applied to entities during combat or exploration.",
+  "additionalProperties": false,
+  "required": ["status_effects"],
+  "properties": {
+    "status_effects": {
+      "type": "array",
+      "minItems": 1,
+      "description": "List of status effects with mechanical impacts.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name",
+          "description",
+          "max_stacks",
+          "tick_damage",
+          "blocks_healing",
+          "reduces_accuracy",
+          "reduces_damage",
+          "grants_invisibility"
+        ],
+        "properties": {
+          "blocks_healing": {
+            "type": "boolean",
+            "description": "Whether healing is prevented while the effect is active."
+          },
+          "description": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Player-facing description of the status effect."
+          },
+          "grants_invisibility": {
+            "type": "boolean",
+            "description": "Whether the effect grants invisibility."
+          },
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Stable snake_case identifier for the status effect."
+          },
+          "max_stacks": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum number of stacks allowed."
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Display name shown to the player."
+          },
+          "reduces_accuracy": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Flat accuracy penalty applied while active."
+          },
+          "reduces_damage": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Flat damage penalty applied while active."
+          },
+          "tick_damage": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Damage dealt per tick while the effect is active."
+          }
+        }
+      }
+    }
+  }
+}

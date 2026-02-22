@@ -1,0 +1,115 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/lights_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Lights Schema",
+  "deprecated": true,
+  "x-deprecated-by": "map_elements_v1.json",
+  "x-deprecation-note": "Legacy split schema. Use map_elements_v1.json after migration.",
+  "description": "Schema for light definitions and spawn rules (v1).",
+  "type": "object",
+  "required": [
+    "lights",
+    "spawn_rules"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "lights": {
+      "type": "array",
+      "description": "Light source definitions.",
+      "items": {
+        "$ref": "#/$defs/light_def"
+      }
+    },
+    "spawn_rules": {
+      "type": "object",
+      "description": "Biome-specific light spawn rules.",
+      "required": [
+        "default"
+      ],
+      "patternProperties": {
+        "^[a-z][a-z0-9_]*$": {
+          "$ref": "#/$defs/spawn_rule"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "$defs": {
+    "light_def": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "glyph",
+        "radius",
+        "intensity",
+        "color"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique light identifier (snake_case)."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name."
+        },
+        "glyph": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1,
+          "description": "Single character used for rendering."
+        },
+        "radius": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Light radius in tiles."
+        },
+        "intensity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Light intensity (0-255)."
+        },
+        "color": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Color token used by the renderer."
+        }
+      }
+    },
+    "spawn_rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "lights_per_room",
+        "weights"
+      ],
+      "properties": {
+        "lights_per_room": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "[min, max] lights to place in a room."
+        },
+        "weights": {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "Weighted light IDs for random selection."
+        }
+      }
+    }
+  }
+}

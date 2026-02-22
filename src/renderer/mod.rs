@@ -63,7 +63,7 @@ impl Renderer {
             .unwrap_or_else(|_| ThemeManager::new());
 
         // Load effects manager
-        let effects_manager = EffectsManager::load_from_file("data/effects_config.json")
+        let effects_manager = EffectsManager::load_from_file("data/effects.json")
             .unwrap_or_else(|_| EffectsManager::new());
 
         Ok(Self {
@@ -425,7 +425,7 @@ impl Renderer {
     /// Save effects configuration to file
     pub fn save_effects_config(&self) -> Result<(), Box<dyn std::error::Error>> {
         self.effects_manager
-            .save_to_file("data/effects_config.json")
+            .save_to_file("data/effects.json")
     }
 
     /// Apply theme colors to the render config

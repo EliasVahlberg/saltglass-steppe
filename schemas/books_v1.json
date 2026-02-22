@@ -1,0 +1,71 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/books_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "books"
+  ],
+  "properties": {
+    "books": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "author": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Author name or attribution."
+          },
+          "id": {
+            "type": "string",
+            "description": "Unique identifier (snake_case).",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "pages": {
+            "minItems": 1,
+            "items": {
+              "additionalProperties": false,
+              "properties": {
+                "illustration": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Optional illustration identifier or caption."
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "description": "Page text content."
+                }
+              },
+              "required": ["text"],
+              "type": "object"
+            },
+            "type": "array",
+            "description": "Array of `pages` items."
+          },
+          "tags": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "uniqueItems": true,
+            "description": "Tag list for filtering and search."
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Book title."
+          }
+        },
+        "required": ["id","title","author","pages"],
+        "type": "object"
+      },
+      "type": "array",
+      "description": "Array of `books` items."
+    }
+  },
+  "title": "Books Schema",
+  "type": "object",
+  "description": "Schema for lore books and readable pages."
+}

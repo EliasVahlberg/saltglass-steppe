@@ -1,0 +1,299 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/encounter_config_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "base_encounter_rate": {
+      "type": "number",
+      "description": "Base encounter probability per check (0-1).",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "biome_modifiers": {
+      "additionalProperties": false,
+      "properties": {
+        "desert": {
+          "additionalProperties": false,
+          "properties": {
+            "danger_mult": {
+              "type": "number",
+              "description": "Multiplier applied to encounter danger.",
+              "minimum": 0
+            },
+            "richness_mult": {
+              "type": "number",
+              "description": "Multiplier applied to loot/event richness.",
+              "minimum": 0
+            }
+          },
+          "type": "object",
+          "description": "Multipliers for desert encounters.",
+          "required": [
+            "danger_mult",
+            "richness_mult"
+          ]
+        },
+        "oasis": {
+          "additionalProperties": false,
+          "properties": {
+            "danger_mult": {
+              "type": "number",
+              "description": "Multiplier applied to encounter danger.",
+              "minimum": 0
+            },
+            "richness_mult": {
+              "type": "number",
+              "description": "Multiplier applied to loot/event richness.",
+              "minimum": 0
+            }
+          },
+          "type": "object",
+          "description": "Multipliers for oasis encounters.",
+          "required": [
+            "danger_mult",
+            "richness_mult"
+          ]
+        },
+        "ruins": {
+          "additionalProperties": false,
+          "properties": {
+            "danger_mult": {
+              "type": "number",
+              "description": "Multiplier applied to encounter danger.",
+              "minimum": 0
+            },
+            "richness_mult": {
+              "type": "number",
+              "description": "Multiplier applied to loot/event richness.",
+              "minimum": 0
+            }
+          },
+          "type": "object",
+          "description": "Multipliers for ruins encounters.",
+          "required": [
+            "danger_mult",
+            "richness_mult"
+          ]
+        },
+        "saltflat": {
+          "additionalProperties": false,
+          "properties": {
+            "danger_mult": {
+              "type": "number",
+              "description": "Multiplier applied to encounter danger.",
+              "minimum": 0
+            },
+            "richness_mult": {
+              "type": "number",
+              "description": "Multiplier applied to loot/event richness.",
+              "minimum": 0
+            }
+          },
+          "type": "object",
+          "description": "Multipliers for saltflat encounters.",
+          "required": [
+            "danger_mult",
+            "richness_mult"
+          ]
+        },
+        "scrubland": {
+          "additionalProperties": false,
+          "properties": {
+            "danger_mult": {
+              "type": "number",
+              "description": "Multiplier applied to encounter danger.",
+              "minimum": 0
+            },
+            "richness_mult": {
+              "type": "number",
+              "description": "Multiplier applied to loot/event richness.",
+              "minimum": 0
+            }
+          },
+          "type": "object",
+          "description": "Multipliers for scrubland encounters.",
+          "required": [
+            "danger_mult",
+            "richness_mult"
+          ]
+        }
+      },
+      "type": "object",
+      "description": "Per-biome multipliers applied to danger and richness.",
+      "required": [
+        "desert",
+        "oasis",
+        "ruins",
+        "saltflat",
+        "scrubland"
+      ]
+    },
+    "cooldown_turns": {
+      "type": "integer",
+      "description": "Turns after an encounter before new checks resume.",
+      "minimum": 0
+    },
+    "danger_scaling": {
+      "type": "number",
+      "description": "Additional encounter rate per danger unit.",
+      "minimum": 0
+    },
+    "encounter_types": {
+      "additionalProperties": false,
+      "properties": {
+        "beneficial": {
+          "additionalProperties": false,
+          "properties": {
+            "boon_range": {
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Boon value bound."
+              },
+              "type": "array",
+              "description": "Inclusive min/max boon range for beneficial encounters.",
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "weight": {
+              "type": "integer",
+              "description": "Relative weight for beneficial encounters.",
+              "minimum": 0
+            }
+          },
+          "type": "object",
+          "description": "Beneficial encounter configuration.",
+          "required": [
+            "weight",
+            "boon_range"
+          ]
+        },
+        "hostile": {
+          "additionalProperties": false,
+          "properties": {
+            "threat_range": {
+              "items": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Threat value bound."
+              },
+              "type": "array",
+              "description": "Inclusive min/max threat range for hostile encounters.",
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "weight": {
+              "type": "integer",
+              "description": "Relative weight for hostile encounters.",
+              "minimum": 0
+            }
+          },
+          "type": "object",
+          "description": "Hostile encounter configuration.",
+          "required": [
+            "weight",
+            "threat_range"
+          ]
+        },
+        "neutral": {
+          "additionalProperties": false,
+          "properties": {
+            "events": {
+              "items": {
+                "additionalProperties": false,
+                "properties": {
+                  "description": {
+                    "type": "string",
+                    "description": "Short description shown when the event triggers.",
+                    "minLength": 1
+                  },
+                  "id": {
+                    "type": "string",
+                    "description": "Neutral event id.",
+                    "minLength": 1,
+                    "pattern": "^[a-z0-9_]+$"
+                  },
+                  "weight": {
+                    "type": "integer",
+                    "description": "Relative weight for this neutral event.",
+                    "minimum": 0
+                  }
+                },
+                "type": "object",
+                "required": [
+                  "id",
+                  "weight",
+                  "description"
+                ]
+              },
+              "type": "array",
+              "description": "Weighted neutral events.",
+              "minItems": 1
+            },
+            "weight": {
+              "type": "integer",
+              "description": "Relative weight for neutral encounters.",
+              "minimum": 0
+            }
+          },
+          "type": "object",
+          "description": "Neutral encounter configuration.",
+          "required": [
+            "weight",
+            "events"
+          ]
+        }
+      },
+      "type": "object",
+      "description": "Relative weights and tuning for encounter categories.",
+      "required": [
+        "hostile",
+        "neutral",
+        "beneficial"
+      ]
+    },
+    "flee_base_chance": {
+      "type": "number",
+      "description": "Base flee success chance (0-1).",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "flee_base_cooldown": {
+      "type": "integer",
+      "description": "Base cooldown before flee is offered again.",
+      "minimum": 0
+    },
+    "flee_distance_required": {
+      "type": "integer",
+      "description": "Minimum tiles to clear before flee succeeds.",
+      "minimum": 0
+    },
+    "max_rate": {
+      "type": "number",
+      "description": "Upper clamp for computed encounter rate.",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "min_rate": {
+      "type": "number",
+      "description": "Lower clamp for computed encounter rate.",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "title": "Encounter Config Schema",
+  "type": "object",
+  "description": "Configuration for encounter rates, encounter mix, and biome modifiers.",
+  "required": [
+    "base_encounter_rate",
+    "danger_scaling",
+    "min_rate",
+    "max_rate",
+    "cooldown_turns",
+    "flee_base_cooldown",
+    "flee_distance_required",
+    "flee_base_chance",
+    "encounter_types",
+    "biome_modifiers"
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/actions_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Actions Schema",
+  "type": "object",
+  "description": "Action point costs and default AP budgets.",
+  "additionalProperties": false,
+  "required": ["actions", "default_player_ap", "default_enemy_ap"],
+  "properties": {
+    "actions": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "AP costs per action.",
+      "required": [
+        "move",
+        "attack_melee",
+        "attack_ranged",
+        "use_item",
+        "wait",
+        "interact",
+        "break_wall"
+      ],
+      "properties": {
+        "attack_melee": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "AP cost for a melee attack."
+        },
+        "attack_ranged": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "AP cost for a ranged attack."
+        },
+        "break_wall": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "AP cost for breaking a wall."
+        },
+        "interact": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "AP cost for interaction actions."
+        },
+        "move": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "AP cost for movement."
+        },
+        "use_item": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "AP cost for using an item."
+        },
+        "wait": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "AP cost for waiting or ending turn."
+        }
+      }
+    },
+    "default_enemy_ap": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Default action points for enemies."
+    },
+    "default_player_ap": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Default action points for the player."
+    }
+  }
+}

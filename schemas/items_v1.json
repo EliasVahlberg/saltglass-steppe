@@ -1,0 +1,720 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://saltglass-steppe.game/schemas/items_v1.json",
+  "title": "Item Definition Schema",
+  "description": "Schema for item definitions in Saltglass Steppe (v1)",
+  "type": "object",
+  "required": [
+    "schema",
+    "items"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "const": "items_v1",
+      "description": "Schema version identifier"
+    },
+    "items": {
+      "type": "array",
+      "description": "Array of item definitions",
+      "items": {
+        "$ref": "#/$defs/item"
+      }
+    }
+  },
+  "$defs": {
+    "item": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "glyph",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique identifier (snake_case)"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name"
+        },
+        "glyph": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1,
+          "description": "Single character for rendering"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Lore description"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Trade value"
+        },
+        "weight": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Carry weight"
+        },
+        "usable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can be used/activated"
+        },
+        "heal": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "HP restored on use"
+        },
+        "reveals_map": {
+          "type": "boolean",
+          "default": false,
+          "description": "Reveals local map"
+        },
+        "suppresses_adaptations": {
+          "type": "boolean",
+          "default": false,
+          "description": "Disables adaptation effects"
+        },
+        "breaks_walls": {
+          "type": "boolean",
+          "default": false,
+          "description": "Can break walls"
+        },
+        "reveals_storm_path": {
+          "type": "boolean",
+          "default": false,
+          "description": "Shows storm path"
+        },
+        "reduces_refraction": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Refraction reduction value"
+        },
+        "grants_invisibility": {
+          "type": "boolean",
+          "default": false,
+          "description": "Grants invisibility"
+        },
+        "reveals_storm_timing": {
+          "type": "boolean",
+          "default": false,
+          "description": "Shows storm timing"
+        },
+        "reveals_locations": {
+          "type": "boolean",
+          "default": false,
+          "description": "Reveals points of interest"
+        },
+        "stackable": {
+          "type": "boolean",
+          "default": false,
+          "description": "Stacks in inventory"
+        },
+        "grows_over_time": {
+          "type": "boolean",
+          "default": false,
+          "description": "Upgrades/grows over time"
+        },
+        "book_id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Associated book ID"
+        },
+        "armor_value": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Armor provided when equipped"
+        },
+        "equip_slot": {
+          "type": "string",
+          "description": "Equipment slot name"
+        },
+        "effects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity_effect"
+          },
+          "default": [],
+          "description": "Visual/audio effects"
+        },
+        "hidden_properties": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Properties hidden from UI"
+        },
+        "pickup": {
+          "type": "boolean",
+          "default": true,
+          "description": "Can be picked up"
+        },
+        "light_source": {
+          "$ref": "#/$defs/light_source",
+          "description": "Field `light_source`."
+        },
+        "enables_aria_dialogue": {
+          "type": "boolean",
+          "default": false,
+          "description": "Unlocks Aria dialogue"
+        },
+        "consumable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Consumed on use"
+        },
+        "tier": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 1,
+          "description": "Power/rarity tier"
+        },
+        "grants_sprint": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `grants_sprint`."
+        },
+        "absorbs_light": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `absorbs_light`."
+        },
+        "sonic_weapon": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `sonic_weapon`."
+        },
+        "laser_weapon": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `laser_weapon`."
+        },
+        "self_repairing": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `self_repairing`."
+        },
+        "contains_memories": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `contains_memories`."
+        },
+        "bonds_with_flesh": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `bonds_with_flesh`."
+        },
+        "reflects_beams": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `reflects_beams`."
+        },
+        "floats": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `floats`."
+        },
+        "shock_weapon": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `shock_weapon`."
+        },
+        "explosive": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `explosive`."
+        },
+        "blocks_scanning": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `blocks_scanning`."
+        },
+        "stealth_bonus": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `stealth_bonus`."
+        },
+        "archive_interface": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `archive_interface`."
+        },
+        "consciousness_link": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `consciousness_link`."
+        },
+        "prevents_overload": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `prevents_overload`."
+        },
+        "powers_devices": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `powers_devices`."
+        },
+        "tunes_frequencies": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `tunes_frequencies`."
+        },
+        "contains_danger": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `contains_danger`."
+        },
+        "radiation_shield": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `radiation_shield`."
+        },
+        "enhanced_strength": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `enhanced_strength`."
+        },
+        "detects_consciousness": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `detects_consciousness`."
+        },
+        "stabilizes_reality": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `stabilizes_reality`."
+        },
+        "enhances_meditation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `enhances_meditation`."
+        },
+        "repairs_devices": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `repairs_devices`."
+        },
+        "finds_safe_paths": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `finds_safe_paths`."
+        },
+        "archive_tech": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `archive_tech`."
+        },
+        "calls_storms": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `calls_storms`."
+        },
+        "extremely_dangerous": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `extremely_dangerous`."
+        },
+        "stores_memories": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `stores_memories`."
+        },
+        "grants_phasing": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `grants_phasing`."
+        },
+        "safe_glass_handling": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `safe_glass_handling`."
+        },
+        "channels_storms": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `channels_storms`."
+        },
+        "monk_artifact": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `monk_artifact`."
+        },
+        "identifies_items": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `identifies_items`."
+        },
+        "light_energy": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Integer field `light_energy`."
+        },
+        "teaches_light_manipulation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `teaches_light_manipulation`."
+        },
+        "void_exposure": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Integer field `void_exposure`."
+        },
+        "void_energy": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Integer field `void_energy`."
+        },
+        "teaches_crystal_resonance": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `teaches_crystal_resonance`."
+        },
+        "resonance_energy": {
+          "type": "integer",
+          "minimum": 0,
+          "default": 0,
+          "description": "Integer field `resonance_energy`."
+        },
+        "crystal_frequency": {
+          "type": "string",
+          "description": "String field `crystal_frequency`."
+        },
+        "reveals_adaptations": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `reveals_adaptations`."
+        },
+        "reveals_hidden": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `reveals_hidden`."
+        },
+        "reveals_lore": {
+          "type": "string",
+          "description": "String field `reveals_lore`."
+        },
+        "reveals_secrets": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `reveals_secrets`."
+        },
+        "reveals_structures": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `reveals_structures`."
+        },
+        "lore_item": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `lore_item`."
+        },
+        "quest_item": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `quest_item`."
+        },
+        "adaptation_catalyst": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `adaptation_catalyst`."
+        },
+        "adaptation_guide": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `adaptation_guide`."
+        },
+        "adaptation_safety": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `adaptation_safety`."
+        },
+        "adaptation_control": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `adaptation_control`."
+        },
+        "forced_adaptation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `forced_adaptation`."
+        },
+        "archive_access": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `archive_access`."
+        },
+        "faction_access": {
+          "type": "string",
+          "description": "String field `faction_access`."
+        },
+        "light_boost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `light_boost`."
+        },
+        "light_amplification": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `light_amplification`."
+        },
+        "lens_amplification": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `lens_amplification`."
+        },
+        "lens_aspect": {
+          "type": "string",
+          "description": "String field `lens_aspect`."
+        },
+        "light_refraction": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `light_refraction`."
+        },
+        "refraction_boost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `refraction_boost`."
+        },
+        "meditation_bonus": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `meditation_bonus`."
+        },
+        "psychic_boost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `psychic_boost`."
+        },
+        "psychic_training": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `psychic_training`."
+        },
+        "telepathy_range": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `telepathy_range`."
+        },
+        "telepathy_defense": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `telepathy_defense`."
+        },
+        "energy_boost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `energy_boost`."
+        },
+        "energy_projection": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `energy_projection`."
+        },
+        "field_control": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `field_control`."
+        },
+        "repair_bonus": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `repair_bonus`."
+        },
+        "repair_tool": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `repair_tool`."
+        },
+        "experimental_bonus": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `experimental_bonus`."
+        },
+        "luck_bonus": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `luck_bonus`."
+        },
+        "training_aid": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `training_aid`."
+        },
+        "cultural_value": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `cultural_value`."
+        },
+        "alien_technology": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `alien_technology`."
+        },
+        "cosmic_contact": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `cosmic_contact`."
+        },
+        "architect_contact": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `architect_contact`."
+        },
+        "collective_consciousness": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `collective_consciousness`."
+        },
+        "consciousness_preparation": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `consciousness_preparation`."
+        },
+        "consciousness_safety": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `consciousness_safety`."
+        },
+        "mass_null_field": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `mass_null_field`."
+        },
+        "phase_safety": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `phase_safety`."
+        },
+        "phase_walk": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `phase_walk`."
+        },
+        "stability_bonus": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `stability_bonus`."
+        },
+        "storm_control": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `storm_control`."
+        },
+        "storm_attraction": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `storm_attraction`."
+        },
+        "quantum_resistance": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `quantum_resistance`."
+        },
+        "quantum_analysis": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `quantum_analysis`."
+        },
+        "quantum_manipulation": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `quantum_manipulation`."
+        },
+        "anti_quantum": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `anti_quantum`."
+        },
+        "dimensional_access": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `dimensional_access`."
+        },
+        "species_evolution": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `species_evolution`."
+        },
+        "heliograph_control": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `heliograph_control`."
+        },
+        "precognition_boost": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Number field `precognition_boost`."
+        },
+        "memory_transfer": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `memory_transfer`."
+        },
+        "cybernetic_upgrade": {
+          "type": "boolean",
+          "default": false,
+          "description": "Boolean field `cybernetic_upgrade`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "entity_effect": {
+      "type": "object",
+      "required": [
+        "condition",
+        "effect"
+      ],
+      "properties": {
+        "condition": {
+          "type": "string",
+          "description": "String field `condition`."
+        },
+        "effect": {
+          "type": "string",
+          "description": "String field `effect`."
+        }
+      },
+      "additionalProperties": false
+    },
+    "light_source": {
+      "type": "object",
+      "required": [
+        "radius",
+        "intensity"
+      ],
+      "properties": {
+        "radius": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Integer field `radius`."
+        },
+        "intensity": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255,
+          "description": "Integer field `intensity`."
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

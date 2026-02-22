@@ -1,0 +1,65 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/floors_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Floors Schema",
+  "deprecated": true,
+  "x-deprecated-by": "map_elements_v1.json",
+  "x-deprecation-note": "Legacy split schema. Use map_elements_v1.json after migration.",
+  "description": "Schema for floor tile definitions (v1).",
+  "type": "object",
+  "required": [
+    "floors"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "floors": {
+      "type": "array",
+      "description": "Floor tile definitions.",
+      "items": {
+        "$ref": "#/$defs/floor"
+      }
+    }
+  },
+  "$defs": {
+    "floor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "glyph",
+        "color",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "description": "Unique floor identifier (snake_case)."
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Display name."
+        },
+        "glyph": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1,
+          "description": "Single character used for rendering."
+        },
+        "color": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Color token used by the renderer."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Lore description shown in UI."
+        }
+      }
+    }
+  }
+}

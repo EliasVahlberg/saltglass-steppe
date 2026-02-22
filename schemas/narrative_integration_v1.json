@@ -1,0 +1,947 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/narrative_integration_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "narrative_seeds",
+    "story_fragments",
+    "faction_influences"
+  ],
+  "properties": {
+    "faction_influences": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Faction identifier (snake_case).",
+                "minLength": 1
+              },
+              "influence_level": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Faction influence weight (0-1)."
+              },
+              "narrative_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "ancient_knowledge": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for ancient knowledge."
+                  },
+                  "mysticism": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for mysticism."
+                  },
+                  "prophecy": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for prophecy."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `narrative_modifiers`."
+              },
+              "preferred_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative theme ids preferred by the faction."
+              },
+              "story_fragments": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Story fragment ids associated with the faction."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Faction identifier (snake_case).",
+                "minLength": 1
+              },
+              "influence_level": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Faction influence weight (0-1)."
+              },
+              "narrative_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "conflict": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for conflict."
+                  },
+                  "pragmatism": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for pragmatism."
+                  },
+                  "technology": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for technology."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `narrative_modifiers`."
+              },
+              "preferred_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative theme ids preferred by the faction."
+              },
+              "story_fragments": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Story fragment ids associated with the faction."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Faction identifier (snake_case).",
+                "minLength": 1
+              },
+              "influence_level": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Faction influence weight (0-1)."
+              },
+              "narrative_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "adaptation": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for adaptation."
+                  },
+                  "otherness": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for otherness."
+                  },
+                  "transformation": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for transformation."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `narrative_modifiers`."
+              },
+              "preferred_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative theme ids preferred by the faction."
+              },
+              "story_fragments": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Story fragment ids associated with the faction."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Faction identifier (snake_case).",
+                "minLength": 1
+              },
+              "influence_level": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Faction influence weight (0-1)."
+              },
+              "narrative_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "acceptance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for acceptance."
+                  },
+                  "solitude": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for solitude."
+                  },
+                  "wisdom": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for wisdom."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `narrative_modifiers`."
+              },
+              "preferred_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative theme ids preferred by the faction."
+              },
+              "story_fragments": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Story fragment ids associated with the faction."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "faction_id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Faction identifier (snake_case).",
+                "minLength": 1
+              },
+              "influence_level": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Faction influence weight (0-1)."
+              },
+              "narrative_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "cold_logic": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for cold logic."
+                  },
+                  "data_preservation": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for data preservation."
+                  },
+                  "systematic_analysis": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Narrative modifier weight for systematic analysis."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `narrative_modifiers`."
+              },
+              "preferred_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative theme ids preferred by the faction."
+              },
+              "story_fragments": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Story fragment ids associated with the faction."
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array",
+      "description": "Array of `faction_influences` items."
+    },
+    "narrative_seeds": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "factions": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "Faction ids referenced by this seed."
+          },
+          "key_elements": {
+            "items": {
+              "type": "string",
+              "minLength": 1
+            },
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "description": "Key narrative elements for the seed."
+          },
+          "mood": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Overall narrative mood label."
+          },
+          "seed_id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Seed identifier (snake_case).",
+            "minLength": 1
+          },
+          "theme": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Narrative theme identifier."
+          },
+          "weight": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Selection weight for the narrative seed (0-1)."
+          }
+        },
+        "type": "object"
+      },
+      "type": "array",
+      "description": "Array of `narrative_seeds` items."
+    },
+    "story_fragments": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "String field `content`."
+              },
+              "faction_influence": {
+                "additionalProperties": false,
+                "properties": {
+                  "archive_drones": {
+                    "type": "number",
+                    "description": "Number field `archive_drones`."
+                  },
+                  "mirror_monks": {
+                    "type": "number",
+                    "description": "Number field `mirror_monks`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `faction_influence`."
+              },
+              "fragment_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "fragment_type": {
+                "type": "string",
+                "description": "String field `fragment_type`."
+              },
+              "narrative_seed": {
+                "type": "string",
+                "description": "String field `narrative_seed`."
+              },
+              "placement_rules": {
+                "additionalProperties": false,
+                "properties": {
+                  "biomes": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `biomes` items."
+                  },
+                  "exclusion_zones": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `exclusion_zones` items."
+                  },
+                  "max_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `max_distance_from_player`."
+                  },
+                  "min_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `min_distance_from_player`."
+                  },
+                  "requires_poi": {
+                    "type": "string",
+                    "description": "String field `requires_poi`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `placement_rules`."
+              },
+              "prerequisites": {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `prerequisites` items."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "String field `content`."
+              },
+              "faction_influence": {
+                "additionalProperties": false,
+                "properties": {
+                  "mirror_monks": {
+                    "type": "number",
+                    "description": "Number field `mirror_monks`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `faction_influence`."
+              },
+              "fragment_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "fragment_type": {
+                "type": "string",
+                "description": "String field `fragment_type`."
+              },
+              "narrative_seed": {
+                "type": "string",
+                "description": "String field `narrative_seed`."
+              },
+              "placement_rules": {
+                "additionalProperties": false,
+                "properties": {
+                  "biomes": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `biomes` items."
+                  },
+                  "exclusion_zones": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `exclusion_zones` items."
+                  },
+                  "max_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `max_distance_from_player`."
+                  },
+                  "min_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `min_distance_from_player`."
+                  },
+                  "requires_poi": {
+                    "type": "null",
+                    "description": "Field `requires_poi`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `placement_rules`."
+              },
+              "prerequisites": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Array of `prerequisites` items."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "String field `content`."
+              },
+              "faction_influence": {
+                "additionalProperties": false,
+                "properties": {
+                  "glassborn": {
+                    "type": "number",
+                    "description": "Number field `glassborn`."
+                  },
+                  "sand_engineers": {
+                    "type": "number",
+                    "description": "Number field `sand_engineers`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `faction_influence`."
+              },
+              "fragment_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "fragment_type": {
+                "type": "string",
+                "description": "String field `fragment_type`."
+              },
+              "narrative_seed": {
+                "type": "string",
+                "description": "String field `narrative_seed`."
+              },
+              "placement_rules": {
+                "additionalProperties": false,
+                "properties": {
+                  "biomes": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `biomes` items."
+                  },
+                  "exclusion_zones": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `exclusion_zones` items."
+                  },
+                  "max_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `max_distance_from_player`."
+                  },
+                  "min_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `min_distance_from_player`."
+                  },
+                  "requires_poi": {
+                    "type": "null",
+                    "description": "Field `requires_poi`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `placement_rules`."
+              },
+              "prerequisites": {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `prerequisites` items."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "String field `content`."
+              },
+              "faction_influence": {
+                "additionalProperties": false,
+                "properties": {
+                  "glassborn": {
+                    "type": "number",
+                    "description": "Number field `glassborn`."
+                  },
+                  "hermits": {
+                    "type": "number",
+                    "description": "Number field `hermits`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `faction_influence`."
+              },
+              "fragment_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "fragment_type": {
+                "type": "string",
+                "description": "String field `fragment_type`."
+              },
+              "narrative_seed": {
+                "type": "string",
+                "description": "String field `narrative_seed`."
+              },
+              "placement_rules": {
+                "additionalProperties": false,
+                "properties": {
+                  "biomes": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `biomes` items."
+                  },
+                  "exclusion_zones": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `exclusion_zones` items."
+                  },
+                  "max_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `max_distance_from_player`."
+                  },
+                  "min_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `min_distance_from_player`."
+                  },
+                  "requires_poi": {
+                    "type": "null",
+                    "description": "Field `requires_poi`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `placement_rules`."
+              },
+              "prerequisites": {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `prerequisites` items."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "String field `content`."
+              },
+              "faction_influence": {
+                "additionalProperties": false,
+                "properties": {
+                  "hermits": {
+                    "type": "number",
+                    "description": "Number field `hermits`."
+                  },
+                  "mirror_monks": {
+                    "type": "number",
+                    "description": "Number field `mirror_monks`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `faction_influence`."
+              },
+              "fragment_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "fragment_type": {
+                "type": "string",
+                "description": "String field `fragment_type`."
+              },
+              "narrative_seed": {
+                "type": "string",
+                "description": "String field `narrative_seed`."
+              },
+              "placement_rules": {
+                "additionalProperties": false,
+                "properties": {
+                  "biomes": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `biomes` items."
+                  },
+                  "exclusion_zones": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `exclusion_zones` items."
+                  },
+                  "max_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `max_distance_from_player`."
+                  },
+                  "min_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `min_distance_from_player`."
+                  },
+                  "requires_poi": {
+                    "type": "null",
+                    "description": "Field `requires_poi`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `placement_rules`."
+              },
+              "prerequisites": {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `prerequisites` items."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "String field `content`."
+              },
+              "faction_influence": {
+                "additionalProperties": false,
+                "properties": {
+                  "archive_drones": {
+                    "type": "number",
+                    "description": "Number field `archive_drones`."
+                  },
+                  "sand_engineers": {
+                    "type": "number",
+                    "description": "Number field `sand_engineers`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `faction_influence`."
+              },
+              "fragment_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "fragment_type": {
+                "type": "string",
+                "description": "String field `fragment_type`."
+              },
+              "narrative_seed": {
+                "type": "string",
+                "description": "String field `narrative_seed`."
+              },
+              "placement_rules": {
+                "additionalProperties": false,
+                "properties": {
+                  "biomes": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `biomes` items."
+                  },
+                  "exclusion_zones": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `exclusion_zones` items."
+                  },
+                  "max_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `max_distance_from_player`."
+                  },
+                  "min_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `min_distance_from_player`."
+                  },
+                  "requires_poi": {
+                    "type": "string",
+                    "description": "String field `requires_poi`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `placement_rules`."
+              },
+              "prerequisites": {
+                "items": {
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `prerequisites` items."
+              }
+            },
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "content": {
+                "type": "string",
+                "description": "String field `content`."
+              },
+              "faction_influence": {
+                "additionalProperties": false,
+                "properties": {
+                  "glassborn": {
+                    "type": "number",
+                    "description": "Number field `glassborn`."
+                  },
+                  "sand_engineers": {
+                    "type": "number",
+                    "description": "Number field `sand_engineers`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `faction_influence`."
+              },
+              "fragment_id": {
+                "type": "string",
+                "description": "Unique identifier (snake_case).",
+                "minLength": 1,
+                "pattern": "^[a-z][a-z0-9_]*$"
+              },
+              "fragment_type": {
+                "type": "string",
+                "description": "String field `fragment_type`."
+              },
+              "narrative_seed": {
+                "type": "string",
+                "description": "String field `narrative_seed`."
+              },
+              "placement_rules": {
+                "additionalProperties": false,
+                "properties": {
+                  "biomes": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `biomes` items."
+                  },
+                  "exclusion_zones": {
+                    "items": {
+                      "type": "string"
+                    },
+                    "type": "array",
+                    "description": "Array of `exclusion_zones` items."
+                  },
+                  "max_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `max_distance_from_player`."
+                  },
+                  "min_distance_from_player": {
+                    "type": "integer",
+                    "description": "Integer field `min_distance_from_player`."
+                  },
+                  "requires_poi": {
+                    "type": "null",
+                    "description": "Field `requires_poi`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `placement_rules`."
+              },
+              "prerequisites": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array",
+                "description": "Array of `prerequisites` items."
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array",
+      "description": "Array of `story_fragments` items."
+    }
+  },
+  "title": "Narrative Integration Schema",
+  "type": "object",
+  "description": "Narrative seeds and story fragment integration for worldgen."
+}

@@ -1,0 +1,93 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/loot_tables_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "items": {
+    "additionalProperties": false,
+    "properties": {
+      "description": {
+        "type": "string",
+        "description": "Short summary of when this loot table is used.",
+        "minLength": 1
+      },
+      "entries": {
+        "items": {
+          "additionalProperties": false,
+          "properties": {
+            "chance": {
+              "type": "number",
+              "description": "Independent chance for this entry to appear (0-1).",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "item_id": {
+              "type": "string",
+              "description": "Item id to spawn when this entry is selected.",
+              "minLength": 1,
+              "pattern": "^[a-z0-9_]+$"
+            },
+            "max_count": {
+              "type": "integer",
+              "description": "Maximum stack count awarded for this entry.",
+              "minimum": 1
+            },
+            "min_count": {
+              "type": "integer",
+              "description": "Minimum stack count awarded for this entry.",
+              "minimum": 1
+            },
+            "weight": {
+              "type": "integer",
+              "description": "Relative weight for this entry when sampling.",
+              "minimum": 1
+            }
+          },
+          "type": "object",
+          "required": [
+            "item_id",
+            "weight",
+            "min_count",
+            "max_count",
+            "chance"
+          ]
+        },
+        "type": "array",
+        "description": "Weighted loot entries with per-entry count and chance.",
+        "minItems": 1
+      },
+      "id": {
+        "type": "string",
+        "description": "Stable loot table id (snake_case).",
+        "minLength": 1,
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "max_items": {
+        "type": "integer",
+        "description": "Maximum number of entries to roll from this table.",
+        "minimum": 1
+      },
+      "min_items": {
+        "type": "integer",
+        "description": "Minimum number of entries to roll from this table.",
+        "minimum": 0
+      },
+      "name": {
+        "type": "string",
+        "description": "Human-readable table name shown in tools and docs.",
+        "minLength": 1
+      }
+    },
+    "type": "object",
+    "required": [
+      "id",
+      "name",
+      "description",
+      "min_items",
+      "max_items",
+      "entries"
+    ]
+  },
+  "title": "Loot Tables Schema",
+  "type": "array",
+  "description": "Loot table definitions used for container and reward generation.",
+  "minItems": 1
+}

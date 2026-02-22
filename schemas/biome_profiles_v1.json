@@ -1,0 +1,3427 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/biome_profiles_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "profiles"
+  ],
+  "properties": {
+    "profiles": {
+      "items": {
+        "oneOf": [
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "movement_cost": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Movement cost multiplier for the feature."
+                            },
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "damage_per_turn": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "description": "Damage dealt per turn while in the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "type": "null",
+                          "description": "Field `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Damage type applied by the hazard."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "damage_per_turn": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "description": "Damage dealt per turn while in the feature."
+                            },
+                            "status_effect": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Status effect id applied by the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "movement_cost": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Movement cost multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "type": "null",
+                          "description": "Field `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Damage type applied by the hazard."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "damage_per_turn": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "description": "Damage dealt per turn while in the feature."
+                            },
+                            "movement_cost": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Movement cost multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "type": "null",
+                          "description": "Field `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "movement_cost": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Movement cost multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Damage type applied by the hazard."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "type": "null",
+                          "description": "Field `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Damage type applied by the hazard."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "type": "null",
+                          "description": "Field `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "status_effect": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Status effect id applied by the feature."
+                            },
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "status_effect": {
+                              "type": "string",
+                              "minLength": 1,
+                              "description": "Status effect id applied by the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Damage type applied by the hazard."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "refraction_gain": {
+                              "type": "integer",
+                              "description": "Integer field `refraction_gain`."
+                            },
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "adaptation_trigger_chance": {
+                              "type": "number",
+                              "description": "Number field `adaptation_trigger_chance`."
+                            },
+                            "light_amplification": {
+                              "type": "number",
+                              "description": "Number field `light_amplification`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "damage_per_turn": {
+                              "type": "integer",
+                              "minimum": 0,
+                              "description": "Damage dealt per turn while in the feature."
+                            },
+                            "movement_cost": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Movement cost multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "psychic_resonance": {
+                              "type": "number",
+                              "description": "Number field `psychic_resonance`."
+                            },
+                            "vision_range_bonus": {
+                              "type": "integer",
+                              "description": "Integer field `vision_range_bonus`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "adaptation_acceleration": {
+                              "type": "number",
+                              "description": "Number field `adaptation_acceleration`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_range": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array",
+                      "description": "Array of `damage_range` items."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    },
+                    "trigger_conditions": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `trigger_conditions` items."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "crystal_multiplier": {
+                    "type": "number",
+                    "description": "Number field `crystal_multiplier`."
+                  },
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "navigation_difficulty": {
+                              "type": "number",
+                              "description": "Number field `navigation_difficulty`."
+                            },
+                            "visibility_modifier": {
+                              "type": "number",
+                              "minimum": 0,
+                              "description": "Visibility multiplier for the feature."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "cover_bonus": {
+                              "type": "integer",
+                              "description": "Integer field `cover_bonus`."
+                            },
+                            "defensive_position": {
+                              "type": "boolean",
+                              "description": "Boolean field `defensive_position`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "psychic_damage": {
+                              "type": "integer",
+                              "description": "Integer field `psychic_damage`."
+                            },
+                            "void_exposure": {
+                              "type": "boolean",
+                              "description": "Boolean field `void_exposure`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "audio_distortion": {
+                              "type": "number",
+                              "description": "Number field `audio_distortion`."
+                            },
+                            "memory_fragments": {
+                              "type": "boolean",
+                              "description": "Boolean field `memory_fragments`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "authority_resonance": {
+                              "type": "number",
+                              "description": "Number field `authority_resonance`."
+                            },
+                            "faction_memory": {
+                              "type": "boolean",
+                              "description": "Boolean field `faction_memory`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_range": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array",
+                      "description": "Array of `damage_range` items."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    },
+                    "trigger_conditions": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `trigger_conditions` items."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "dehydration_risk": {
+                              "type": "number",
+                              "description": "Number field `dehydration_risk`."
+                            },
+                            "salt_harvest_bonus": {
+                              "type": "number",
+                              "description": "Number field `salt_harvest_bonus`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "fall_risk": {
+                              "type": "number",
+                              "description": "Number field `fall_risk`."
+                            },
+                            "vertical_movement": {
+                              "type": "boolean",
+                              "description": "Boolean field `vertical_movement`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "corrosion_damage": {
+                              "type": "integer",
+                              "description": "Integer field `corrosion_damage`."
+                            },
+                            "healing_source": {
+                              "type": "integer",
+                              "description": "Integer field `healing_source`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "acoustic_amplification": {
+                              "type": "number",
+                              "description": "Number field `acoustic_amplification`."
+                            },
+                            "crystal_resonance": {
+                              "type": "number",
+                              "description": "Number field `crystal_resonance`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "excavation_required": {
+                              "type": "boolean",
+                              "description": "Boolean field `excavation_required`."
+                            },
+                            "hidden_passage": {
+                              "type": "number",
+                              "description": "Number field `hidden_passage`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_range": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array",
+                      "description": "Array of `damage_range` items."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    },
+                    "trigger_conditions": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `trigger_conditions` items."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "brine_multiplier": {
+                    "type": "number",
+                    "description": "Number field `brine_multiplier`."
+                  },
+                  "crystal_multiplier": {
+                    "type": "number",
+                    "description": "Number field `crystal_multiplier`."
+                  },
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "navigation_difficulty": {
+                              "type": "number",
+                              "description": "Number field `navigation_difficulty`."
+                            },
+                            "wind_amplification": {
+                              "type": "number",
+                              "description": "Number field `wind_amplification`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "disorientation": {
+                              "type": "number",
+                              "description": "Number field `disorientation`."
+                            },
+                            "storm_prediction_bonus": {
+                              "type": "number",
+                              "description": "Number field `storm_prediction_bonus`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "elevation_bonus": {
+                              "type": "integer",
+                              "description": "Integer field `elevation_bonus`."
+                            },
+                            "lightning_attraction": {
+                              "type": "number",
+                              "description": "Number field `lightning_attraction`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "movement_acceleration": {
+                              "type": "number",
+                              "description": "Number field `movement_acceleration`."
+                            },
+                            "sound_distortion": {
+                              "type": "number",
+                              "description": "Number field `sound_distortion`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "storm_immunity": {
+                              "type": "boolean",
+                              "description": "Boolean field `storm_immunity`."
+                            },
+                            "temporal_distortion": {
+                              "type": "number",
+                              "description": "Number field `temporal_distortion`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_range": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array",
+                      "description": "Array of `damage_range` items."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    },
+                    "trigger_conditions": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `trigger_conditions` items."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "storm_glass_multiplier": {
+                    "type": "number",
+                    "description": "Number field `storm_glass_multiplier`."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  },
+                  "wind_essence_chance": {
+                    "type": "number",
+                    "description": "Number field `wind_essence_chance`."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "description",
+              "environmental_features",
+              "atmospheric_elements",
+              "hazards",
+              "resource_modifiers",
+              "story_themes",
+              "ambient_descriptions"
+            ],
+            "type": "object"
+          },
+          {
+            "additionalProperties": false,
+            "properties": {
+              "ambient_descriptions": {
+                "additionalProperties": false,
+                "properties": {
+                  "entries": {
+                    "minItems": 1,
+                    "items": {
+                      "additionalProperties": false,
+                      "properties": {
+                        "item": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Ambient description snippet."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    "type": "array",
+                    "description": "Array of `entries` items."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `ambient_descriptions`."
+              },
+              "atmospheric_elements": {
+                "minItems": 1,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "element_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Atmospheric element identifier."
+                    },
+                    "intensity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative intensity (0-1)."
+                    },
+                    "triggers": {
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "day",
+                          "night",
+                          "storm",
+                          "adapted"
+                        ]
+                      },
+                      "type": "array",
+                      "minItems": 1,
+                      "uniqueItems": true,
+                      "description": "Context triggers for this atmospheric element."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `atmospheric_elements` items."
+              },
+              "description": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Short narrative summary of the biome."
+              },
+              "environmental_features": {
+                "minItems": 1,
+                "items": {
+                  "oneOf": [
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "light_based_puzzles": {
+                              "type": "boolean",
+                              "description": "Boolean field `light_based_puzzles`."
+                            },
+                            "navigation_difficulty": {
+                              "type": "number",
+                              "description": "Number field `navigation_difficulty`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "false_destination": {
+                              "type": "boolean",
+                              "description": "Boolean field `false_destination`."
+                            },
+                            "hope_and_despair": {
+                              "type": "number",
+                              "description": "Number field `hope_and_despair`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "rainbow_effects": {
+                              "type": "boolean",
+                              "description": "Boolean field `rainbow_effects`."
+                            },
+                            "visibility_chaos": {
+                              "type": "number",
+                              "description": "Number field `visibility_chaos`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "false_visions": {
+                              "type": "number",
+                              "description": "Number field `false_visions`."
+                            },
+                            "prophetic_glimpses": {
+                              "type": "number",
+                              "description": "Number field `prophetic_glimpses`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    },
+                    {
+                      "additionalProperties": false,
+                      "properties": {
+                        "description_template": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Template text used to describe the feature."
+                        },
+                        "feature_type": {
+                          "type": "string",
+                          "minLength": 1,
+                          "description": "Feature identifier used by worldgen."
+                        },
+                        "mechanical_effects": {
+                          "additionalProperties": false,
+                          "properties": {
+                            "adaptation_catalyst": {
+                              "type": "number",
+                              "description": "Number field `adaptation_catalyst`."
+                            },
+                            "light_source": {
+                              "type": "integer",
+                              "description": "Integer field `light_source`."
+                            }
+                          },
+                          "type": "object",
+                          "description": "Object for `mechanical_effects`."
+                        },
+                        "weight": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "description": "Relative selection weight."
+                        }
+                      },
+                      "type": "object"
+                    }
+                  ]
+                },
+                "type": "array",
+                "description": "Array of `environmental_features` items."
+              },
+              "hazards": {
+                "minItems": 0,
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "damage_range": {
+                      "items": {
+                        "type": "integer"
+                      },
+                      "type": "array",
+                      "description": "Array of `damage_range` items."
+                    },
+                    "description": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Narrative description text."
+                    },
+                    "frequency": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1,
+                      "description": "Relative chance of hazard occurrence (0-1)."
+                    },
+                    "hazard_type": {
+                      "type": "string",
+                      "minLength": 1,
+                      "description": "Hazard identifier."
+                    },
+                    "severity": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Hazard severity scale (higher is worse)."
+                    },
+                    "trigger_conditions": {
+                      "items": {
+                        "type": "string"
+                      },
+                      "type": "array",
+                      "description": "Array of `trigger_conditions` items."
+                    }
+                  },
+                  "type": "object"
+                },
+                "type": "array",
+                "description": "Array of `hazards` items."
+              },
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*$",
+                "description": "Biome identifier (snake_case).",
+                "minLength": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Display name for the biome."
+              },
+              "resource_modifiers": {
+                "additionalProperties": false,
+                "properties": {
+                  "glass_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for glass yields."
+                  },
+                  "light_essence_multiplier": {
+                    "type": "number",
+                    "description": "Number field `light_essence_multiplier`."
+                  },
+                  "prism_multiplier": {
+                    "type": "number",
+                    "description": "Number field `prism_multiplier`."
+                  },
+                  "rare_materials_chance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 1,
+                    "description": "Chance to roll rare materials (0-1)."
+                  },
+                  "salt_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for salt yields."
+                  },
+                  "water_multiplier": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Resource multiplier for water yields."
+                  }
+                },
+                "type": "object",
+                "description": "Object for `resource_modifiers`."
+              },
+              "story_themes": {
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "description": "Narrative themes tagged for this biome."
+              }
+            },
+            "type": "object"
+          }
+        ]
+      },
+      "type": "array",
+      "description": "Array of `profiles` items."
+    }
+  },
+  "title": "Biome Profiles Schema",
+  "type": "object",
+  "description": "Biome profile definitions for narrative and mechanics."
+}

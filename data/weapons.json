@@ -1,4 +1,5 @@
 {
+  "schema": "weapons_v1",
   "weapons": [
     {
       "id": "fists",

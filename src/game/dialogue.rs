@@ -66,18 +66,56 @@ pub struct DialogueTree {
     pub aria_personality: Option<String>,
 }
 
+#[derive(Clone, Debug, Deserialize)]
+pub struct AriaOption {
+    pub text: String,
+    pub target: String,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct AriaGreeting {
+    pub id: String,
+    pub text: String,
+    pub options: Vec<AriaOption>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct AriaNode {
+    pub text: String,
+    pub options: Vec<AriaOption>,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct AriaPersonality {
+    pub name: String,
+    pub greeting: AriaGreeting,
+    pub nodes: HashMap<String, AriaNode>,
+}
+
 #[derive(Deserialize)]
 struct DialoguesFile {
     dialogues: Vec<DialogueTree>,
+    #[serde(default)]
+    aria_personalities: HashMap<String, AriaPersonality>,
 }
 
-static DIALOGUES: Lazy<HashMap<String, DialogueTree>> = Lazy::new(|| {
+struct DialoguesData {
+    dialogues: HashMap<String, DialogueTree>,
+    aria_personalities: HashMap<String, AriaPersonality>,
+}
+
+static DIALOGUES_DATA: Lazy<DialoguesData> = Lazy::new(|| {
     let data = include_str!("../../data/dialogues.json");
     let file: DialoguesFile = serde_json::from_str(data).expect("Failed to parse dialogues.json");
-    file.dialogues
+    let dialogues = file
+        .dialogues
         .into_iter()
         .map(|d| (d.npc_id.clone(), d))
-        .collect()
+        .collect();
+    DialoguesData {
+        dialogues,
+        aria_personalities: file.aria_personalities,
+    }
 });
 
 /// Current dialogue state for UI
@@ -91,7 +129,7 @@ pub struct DialogueState {
 }
 
 pub fn get_dialogue_tree(npc_id: &str) -> Option<&'static DialogueTree> {
-    DIALOGUES.get(npc_id)
+    DIALOGUES_DATA.dialogues.get(npc_id)
 }
 
 pub fn start_dialogue(npc_id: &str, game_state: &crate::game::GameState) -> Option<DialogueState> {
@@ -129,19 +167,16 @@ pub fn start_dialogue(npc_id: &str, game_state: &crate::game::GameState) -> Opti
 }
 
 pub fn start_aria_dialogue(_npc_id: &str, personality: &str, game_state: &crate::game::GameState) -> Option<(String, Vec<String>)> {
-    let data = include_str!("../../data/aria_dialogues.json");
-    let aria_data: serde_json::Value = serde_json::from_str(data).ok()?;
-    
-    let personality_data = aria_data.get("personalities")?.get(personality)?;
-    let greeting = personality_data.get("greeting")?;
-    
-    let mut text = greeting.get("text")?.as_str()?.to_string();
+    let personality_data = DIALOGUES_DATA.aria_personalities.get(personality)?;
+    let greeting = &personality_data.greeting;
+
+    let mut text = greeting.text.clone();
     text = text.replace("{refraction_level}", &game_state.refraction().to_string());
     
-    let options: Vec<String> = greeting.get("options")?
-        .as_array()?
+    let options: Vec<String> = greeting
+        .options
         .iter()
-        .filter_map(|opt| opt.get("text")?.as_str().map(|s| s.to_string()))
+        .map(|opt| opt.text.clone())
         .collect();
     
     Some((text, options))

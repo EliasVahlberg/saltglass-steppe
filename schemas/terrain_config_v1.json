@@ -1,0 +1,1386 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/terrain_config_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Terrain Config Schema",
+  "description": "Worldgen terrain tuning for base terrain types, biome modifiers, and POI layouts.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "algorithm_params": {
+      "type": "null",
+      "description": "Reserved for future terrain algorithm parameters."
+    },
+    "biome_algorithm_profiles": {
+      "additionalProperties": false,
+      "properties": {
+        "desert": {
+          "additionalProperties": false,
+          "properties": {
+            "default": {
+              "additionalProperties": false,
+              "properties": {
+                "bsp": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for BSP room carving."
+                },
+                "cellular": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for cellular automata carving."
+                },
+                "rooms": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for rectangular room placement."
+                }
+              },
+              "type": "object",
+              "description": "Object for `default`."
+            },
+            "terrain_overrides": {
+              "additionalProperties": false,
+              "properties": {
+                "canyon": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `canyon`."
+                },
+                "dunes": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `dunes`."
+                },
+                "mesa": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `mesa`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `terrain_overrides`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `desert`."
+        },
+        "oasis": {
+          "additionalProperties": false,
+          "properties": {
+            "default": {
+              "additionalProperties": false,
+              "properties": {
+                "bsp": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for BSP room carving."
+                },
+                "cellular": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for cellular automata carving."
+                },
+                "rooms": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for rectangular room placement."
+                }
+              },
+              "type": "object",
+              "description": "Object for `default`."
+            },
+            "terrain_overrides": {
+              "additionalProperties": false,
+              "properties": {
+                "flat": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `flat`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `terrain_overrides`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `oasis`."
+        },
+        "ruins": {
+          "additionalProperties": false,
+          "properties": {
+            "default": {
+              "additionalProperties": false,
+              "properties": {
+                "bsp": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for BSP room carving."
+                },
+                "cellular": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for cellular automata carving."
+                },
+                "rooms": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for rectangular room placement."
+                }
+              },
+              "type": "object",
+              "description": "Object for `default`."
+            },
+            "terrain_overrides": {
+              "additionalProperties": false,
+              "properties": {
+                "canyon": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `canyon`."
+                },
+                "mesa": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `mesa`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `terrain_overrides`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `ruins`."
+        },
+        "saltflat": {
+          "additionalProperties": false,
+          "properties": {
+            "default": {
+              "additionalProperties": false,
+              "properties": {
+                "bsp": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for BSP room carving."
+                },
+                "cellular": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for cellular automata carving."
+                },
+                "rooms": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for rectangular room placement."
+                }
+              },
+              "type": "object",
+              "description": "Object for `default`."
+            },
+            "terrain_overrides": {
+              "additionalProperties": false,
+              "properties": {
+                "flat": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `flat`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `terrain_overrides`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `saltflat`."
+        },
+        "scrubland": {
+          "additionalProperties": false,
+          "properties": {
+            "default": {
+              "additionalProperties": false,
+              "properties": {
+                "bsp": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for BSP room carving."
+                },
+                "cellular": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for cellular automata carving."
+                },
+                "rooms": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Relative weight for rectangular room placement."
+                }
+              },
+              "type": "object",
+              "description": "Object for `default`."
+            },
+            "terrain_overrides": {
+              "additionalProperties": false,
+              "properties": {
+                "flat": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `flat`."
+                },
+                "hills": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "bsp": {
+                      "type": "number",
+                      "description": "Number field `bsp`."
+                    },
+                    "cellular": {
+                      "type": "number",
+                      "description": "Number field `cellular`."
+                    },
+                    "rooms": {
+                      "type": "number",
+                      "description": "Number field `rooms`."
+                    }
+                  },
+                  "type": "object",
+                  "description": "Object for `hills`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `terrain_overrides`."
+            }
+          },
+          "type": "object",
+          "description": "Object for `scrubland`."
+        }
+      },
+      "type": "object",
+      "description": "Per-biome weights for terrain generation algorithms.",
+      "required": [
+        "desert",
+        "oasis",
+        "ruins",
+        "saltflat",
+        "scrubland"
+      ]
+    },
+    "biome_modifiers": {
+      "additionalProperties": false,
+      "properties": {
+        "desert": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_threshold_bonus": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Additive adjustment to the base floor threshold."
+            },
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            }
+          },
+          "type": "object",
+          "description": "Object for `desert`."
+        },
+        "glass_gardens": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_threshold_bonus": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Additive adjustment to the base floor threshold."
+            },
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "glass_density_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Multiplier applied to base glass density for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            },
+            "wall_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base wall tile id for this biome."
+            }
+          },
+          "type": "object",
+          "description": "Object for `glass_gardens`."
+        },
+        "oasis": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_threshold_bonus": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Additive adjustment to the base floor threshold."
+            },
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "glass_density_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Multiplier applied to base glass density for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            }
+          },
+          "type": "object",
+          "description": "Object for `oasis`."
+        },
+        "refraction_fields": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_threshold_bonus": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Additive adjustment to the base floor threshold."
+            },
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "glass_density_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Multiplier applied to base glass density for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            },
+            "wall_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base wall tile id for this biome."
+            }
+          },
+          "type": "object",
+          "description": "Object for `refraction_fields`."
+        },
+        "ruins": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            },
+            "wall_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base wall tile id for this biome."
+            }
+          },
+          "type": "object",
+          "description": "Object for `ruins`."
+        },
+        "salt_mines": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_threshold_bonus": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Additive adjustment to the base floor threshold."
+            },
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "glass_density_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Multiplier applied to base glass density for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            },
+            "wall_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base wall tile id for this biome."
+            }
+          },
+          "type": "object",
+          "description": "Object for `salt_mines`."
+        },
+        "saltflat": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_threshold_bonus": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Additive adjustment to the base floor threshold."
+            },
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "glass_density_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Multiplier applied to base glass density for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            },
+            "wall_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base wall tile id for this biome."
+            }
+          },
+          "type": "object",
+          "description": "Object for `saltflat`."
+        },
+        "scrubland": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            }
+          },
+          "type": "object",
+          "description": "Object for `scrubland`."
+        },
+        "shattered_citadel": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_threshold_bonus": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Additive adjustment to the base floor threshold."
+            },
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "glass_density_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Multiplier applied to base glass density for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            },
+            "wall_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base wall tile id for this biome."
+            }
+          },
+          "type": "object",
+          "description": "Object for `shattered_citadel`."
+        },
+        "storm_scars": {
+          "additionalProperties": false,
+          "properties": {
+            "floor_threshold_bonus": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Additive adjustment to the base floor threshold."
+            },
+            "floor_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base floor tile id for this biome."
+            },
+            "glass_density_multiplier": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Multiplier applied to base glass density for this biome."
+            },
+            "unique_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Biome-specific feature ids eligible for placement."
+            },
+            "wall_type_override": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Overrides the base wall tile id for this biome."
+            }
+          },
+          "type": "object",
+          "description": "Object for `storm_scars`."
+        }
+      },
+      "type": "object",
+      "description": "Biome-specific overrides layered on top of terrain defaults.",
+      "required": [
+        "desert",
+        "glass_gardens",
+        "oasis",
+        "refraction_fields",
+        "ruins",
+        "salt_mines",
+        "saltflat",
+        "scrubland",
+        "shattered_citadel",
+        "storm_scars"
+      ]
+    },
+    "feature_density": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Global density of terrain features placed during generation."
+    },
+    "poi_algorithm_overrides": {
+      "additionalProperties": false,
+      "properties": {
+        "dungeon": {
+          "additionalProperties": false,
+          "properties": {
+            "bsp": {
+              "type": "number",
+              "description": "Number field `bsp`."
+            },
+            "cellular": {
+              "type": "number",
+              "description": "Number field `cellular`."
+            },
+            "rooms": {
+              "type": "number",
+              "description": "Number field `rooms`."
+            }
+          },
+          "type": "object",
+          "description": "Algorithm weight overrides for dungeon POIs."
+        },
+        "landmark": {
+          "additionalProperties": false,
+          "properties": {
+            "bsp": {
+              "type": "number",
+              "description": "Number field `bsp`."
+            },
+            "cellular": {
+              "type": "number",
+              "description": "Number field `cellular`."
+            },
+            "rooms": {
+              "type": "number",
+              "description": "Number field `rooms`."
+            }
+          },
+          "type": "object",
+          "description": "Algorithm weight overrides for landmark POIs."
+        },
+        "shrine": {
+          "additionalProperties": false,
+          "properties": {
+            "bsp": {
+              "type": "number",
+              "description": "Number field `bsp`."
+            },
+            "cellular": {
+              "type": "number",
+              "description": "Number field `cellular`."
+            },
+            "rooms": {
+              "type": "number",
+              "description": "Number field `rooms`."
+            }
+          },
+          "type": "object",
+          "description": "Algorithm weight overrides for shrine POIs."
+        },
+        "town": {
+          "additionalProperties": false,
+          "properties": {
+            "bsp": {
+              "type": "number",
+              "description": "Number field `bsp`."
+            },
+            "cellular": {
+              "type": "number",
+              "description": "Number field `cellular`."
+            },
+            "rooms": {
+              "type": "number",
+              "description": "Number field `rooms`."
+            }
+          },
+          "type": "object",
+          "description": "Algorithm weight overrides for town POIs."
+        }
+      },
+      "type": "object",
+      "description": "POI-specific algorithm weight overrides.",
+      "required": [
+        "dungeon",
+        "landmark",
+        "shrine",
+        "town"
+      ]
+    },
+    "poi_layouts": {
+      "additionalProperties": false,
+      "properties": {
+        "archive": {
+          "additionalProperties": false,
+          "properties": {
+            "central_clearing_size": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Diameter/size of the central clearing in tiles."
+            },
+            "chamber_count": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of chambers to generate."
+            },
+            "chamber_size_max": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum chamber size in tiles."
+            },
+            "chamber_size_min": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Minimum chamber size in tiles."
+            },
+            "corridor_width": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Width of corridors in tiles."
+            },
+            "dead_ends": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of intended dead-end branches."
+            },
+            "special_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Named special features to seed in the POI layout."
+            },
+            "structure_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Fraction of the POI area dedicated to structures."
+            }
+          },
+          "type": "object",
+          "description": "Layout parameters for archive POIs."
+        },
+        "ruins": {
+          "additionalProperties": false,
+          "properties": {
+            "building_clusters": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of building clusters to place."
+            },
+            "building_size_max": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum building size in tiles."
+            },
+            "building_size_min": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Minimum building size in tiles."
+            },
+            "central_clearing_size": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Diameter/size of the central clearing in tiles."
+            },
+            "partial_walls": {
+              "type": "boolean",
+              "description": "Boolean field `partial_walls`."
+            },
+            "rubble_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Fraction of tiles converted to rubble."
+            },
+            "special_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Named special features to seed in the POI layout."
+            },
+            "structure_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Fraction of the POI area dedicated to structures."
+            }
+          },
+          "type": "object",
+          "description": "Layout parameters for ruins POIs."
+        },
+        "shrine": {
+          "additionalProperties": false,
+          "properties": {
+            "altar_platform_size": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Size of the altar platform in tiles."
+            },
+            "central_clearing_size": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Diameter/size of the central clearing in tiles."
+            },
+            "meditation_paths": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of meditation paths to carve."
+            },
+            "path_width": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Width of meditation paths in tiles."
+            },
+            "special_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Named special features to seed in the POI layout."
+            },
+            "structure_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Fraction of the POI area dedicated to structures."
+            }
+          },
+          "type": "object",
+          "description": "Layout parameters for shrine POIs."
+        },
+        "town": {
+          "additionalProperties": false,
+          "properties": {
+            "building_clusters": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Number of building clusters to place."
+            },
+            "building_size_max": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Maximum building size in tiles."
+            },
+            "building_size_min": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Minimum building size in tiles."
+            },
+            "central_clearing_size": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Diameter/size of the central clearing in tiles."
+            },
+            "market_area_size": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Approximate size of the market area in tiles."
+            },
+            "road_width": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Width of roads in tiles."
+            },
+            "special_features": {
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "description": "Named special features to seed in the POI layout."
+            },
+            "structure_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Fraction of the POI area dedicated to structures."
+            }
+          },
+          "type": "object",
+          "description": "Layout parameters for town POIs."
+        }
+      },
+      "type": "object",
+      "description": "Named layout parameter bundles for POIs.",
+      "required": [
+        "archive",
+        "ruins",
+        "shrine",
+        "town"
+      ]
+    },
+    "structure_algorithm": {
+      "type": "null",
+      "description": "Field `structure_algorithm`."
+    },
+    "terrain_types": {
+      "additionalProperties": false,
+      "properties": {
+        "canyon": {
+          "additionalProperties": false,
+          "properties": {
+            "feature_weights": {
+              "additionalProperties": false,
+              "properties": {
+                "crystal_formation": {
+                  "type": "number",
+                  "description": "Number field `crystal_formation`."
+                },
+                "glass_seam": {
+                  "type": "number",
+                  "description": "Number field `glass_seam`."
+                },
+                "wind_carved": {
+                  "type": "number",
+                  "description": "Number field `wind_carved`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `feature_weights`."
+            },
+            "floor_threshold": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Noise threshold for floor placement (negative favors walls)."
+            },
+            "floor_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Floor tile id used for this terrain type."
+            },
+            "glass_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Base glass feature density within this terrain."
+            },
+            "noise_scale": {
+              "type": "number",
+              "minimum": 0.1,
+              "description": "Noise scale controlling terrain variation frequency."
+            },
+            "wall_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Wall tile id used for this terrain type."
+            }
+          },
+          "required": [
+            "floor_threshold",
+            "glass_density",
+            "noise_scale",
+            "wall_type",
+            "floor_type",
+            "feature_weights"
+          ],
+          "type": "object",
+          "description": "Object for `canyon`."
+        },
+        "dunes": {
+          "additionalProperties": false,
+          "properties": {
+            "feature_weights": {
+              "additionalProperties": false,
+              "properties": {
+                "buried_relic": {
+                  "type": "number",
+                  "description": "Number field `buried_relic`."
+                },
+                "sand_devil": {
+                  "type": "number",
+                  "description": "Number field `sand_devil`."
+                },
+                "shifting_glass": {
+                  "type": "number",
+                  "description": "Number field `shifting_glass`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `feature_weights`."
+            },
+            "floor_threshold": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Noise threshold for floor placement (negative favors walls)."
+            },
+            "floor_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Floor tile id used for this terrain type."
+            },
+            "glass_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Base glass feature density within this terrain."
+            },
+            "noise_scale": {
+              "type": "number",
+              "minimum": 0.1,
+              "description": "Noise scale controlling terrain variation frequency."
+            },
+            "wall_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Wall tile id used for this terrain type."
+            }
+          },
+          "required": [
+            "floor_threshold",
+            "glass_density",
+            "noise_scale",
+            "wall_type",
+            "floor_type",
+            "feature_weights"
+          ],
+          "type": "object",
+          "description": "Object for `dunes`."
+        },
+        "flat": {
+          "additionalProperties": false,
+          "properties": {
+            "feature_weights": {
+              "additionalProperties": false,
+              "properties": {
+                "glass_garden": {
+                  "type": "number",
+                  "description": "Number field `glass_garden`."
+                },
+                "mirage_pool": {
+                  "type": "number",
+                  "description": "Number field `mirage_pool`."
+                },
+                "salt_formation": {
+                  "type": "number",
+                  "description": "Number field `salt_formation`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `feature_weights`."
+            },
+            "floor_threshold": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Noise threshold for floor placement (negative favors walls)."
+            },
+            "floor_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Floor tile id used for this terrain type."
+            },
+            "glass_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Base glass feature density within this terrain."
+            },
+            "noise_scale": {
+              "type": "number",
+              "minimum": 0.1,
+              "description": "Noise scale controlling terrain variation frequency."
+            },
+            "wall_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Wall tile id used for this terrain type."
+            }
+          },
+          "required": [
+            "floor_threshold",
+            "glass_density",
+            "noise_scale",
+            "wall_type",
+            "floor_type",
+            "feature_weights"
+          ],
+          "type": "object",
+          "description": "Object for `flat`."
+        },
+        "hills": {
+          "additionalProperties": false,
+          "properties": {
+            "feature_weights": {
+              "additionalProperties": false,
+              "properties": {
+                "hidden_grove": {
+                  "type": "number",
+                  "description": "Number field `hidden_grove`."
+                },
+                "rolling_glass": {
+                  "type": "number",
+                  "description": "Number field `rolling_glass`."
+                },
+                "weathered_stone": {
+                  "type": "number",
+                  "description": "Number field `weathered_stone`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `feature_weights`."
+            },
+            "floor_threshold": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Noise threshold for floor placement (negative favors walls)."
+            },
+            "floor_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Floor tile id used for this terrain type."
+            },
+            "glass_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Base glass feature density within this terrain."
+            },
+            "noise_scale": {
+              "type": "number",
+              "minimum": 0.1,
+              "description": "Noise scale controlling terrain variation frequency."
+            },
+            "wall_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Wall tile id used for this terrain type."
+            }
+          },
+          "required": [
+            "floor_threshold",
+            "glass_density",
+            "noise_scale",
+            "wall_type",
+            "floor_type",
+            "feature_weights"
+          ],
+          "type": "object",
+          "description": "Object for `hills`."
+        },
+        "mesa": {
+          "additionalProperties": false,
+          "properties": {
+            "feature_weights": {
+              "additionalProperties": false,
+              "properties": {
+                "ancient_structure": {
+                  "type": "number",
+                  "description": "Number field `ancient_structure`."
+                },
+                "crystal_spire": {
+                  "type": "number",
+                  "description": "Number field `crystal_spire`."
+                },
+                "overlook": {
+                  "type": "number",
+                  "description": "Number field `overlook`."
+                }
+              },
+              "type": "object",
+              "description": "Object for `feature_weights`."
+            },
+            "floor_threshold": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 1,
+              "description": "Noise threshold for floor placement (negative favors walls)."
+            },
+            "floor_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Floor tile id used for this terrain type."
+            },
+            "glass_density": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1,
+              "description": "Base glass feature density within this terrain."
+            },
+            "noise_scale": {
+              "type": "number",
+              "minimum": 0.1,
+              "description": "Noise scale controlling terrain variation frequency."
+            },
+            "wall_type": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Wall tile id used for this terrain type."
+            }
+          },
+          "required": [
+            "floor_threshold",
+            "glass_density",
+            "noise_scale",
+            "wall_type",
+            "floor_type",
+            "feature_weights"
+          ],
+          "type": "object",
+          "description": "Object for `mesa`."
+        }
+      },
+      "type": "object",
+      "description": "Base terrain definitions that feed map generation.",
+      "required": [
+        "canyon",
+        "dunes",
+        "flat",
+        "hills",
+        "mesa"
+      ]
+    },
+    "variation_intensity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall intensity of terrain variation noise."
+    }
+  },
+  "required": [
+    "feature_density",
+    "variation_intensity",
+    "structure_algorithm",
+    "algorithm_params",
+    "terrain_types",
+    "biome_modifiers",
+    "biome_algorithm_profiles",
+    "poi_algorithm_overrides",
+    "poi_layouts"
+  ]
+}

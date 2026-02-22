@@ -1,9 +1,11 @@
 use once_cell::sync::Lazy;
 use rand::Rng;
+use schemars::JsonSchema;
 use serde::Deserialize;
-use std::collections::HashMap;
 
-#[derive(Clone, Debug, Deserialize)]
+use crate::game::data_loader::{DataLoader, DataSource, HasId};
+
+#[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct WeaponDef {
     pub id: String,
     pub name: String,
@@ -20,22 +22,22 @@ pub struct WeaponDef {
     pub description: String,
 }
 
+impl HasId for WeaponDef {
+    fn id(&self) -> &str {
+        &self.id
+    }
+}
+
 fn default_ap_cost() -> i32 {
     2
 }
 
-#[derive(Deserialize)]
-struct WeaponsFile {
-    weapons: Vec<WeaponDef>,
-}
-
-static WEAPON_DEFS: Lazy<HashMap<String, WeaponDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/weapons.json");
-    let file: WeaponsFile = serde_json::from_str(data).expect("Failed to parse weapons.json");
-    file.weapons
-        .into_iter()
-        .map(|w| (w.id.clone(), w))
-        .collect()
+static WEAPON_DEFS: Lazy<DataLoader<WeaponDef>> = Lazy::new(|| {
+    DataLoader::load_single(
+        DataSource::new("data/weapons.json", include_str!("../../data/weapons.json")),
+        "weapons",
+        "weapons_v1",
+    )
 });
 
 pub fn get_weapon_def(id: &str) -> Option<&'static WeaponDef> {

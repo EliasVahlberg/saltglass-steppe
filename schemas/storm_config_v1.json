@@ -1,0 +1,62 @@
+{
+  "$id": "https://saltglass-steppe.game/schemas/storm_config_v1.json",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "required": [
+    "base_intensity",
+    "intensity_variance",
+    "min_interval",
+    "max_interval",
+    "refraction_multiplier",
+    "glass_conversion_chance",
+    "storm_glass_drop_chance",
+    "wraith_spawn_max"
+  ],
+  "properties": {
+    "base_intensity": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Base storm intensity value."
+    },
+    "glass_conversion_chance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Chance of terrain converting to glass per storm tick."
+    },
+    "intensity_variance": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Random variance applied to base intensity."
+    },
+    "max_interval": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Maximum turns between storms."
+    },
+    "min_interval": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Minimum turns between storms."
+    },
+    "refraction_multiplier": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Multiplier applied to refraction during storms."
+    },
+    "storm_glass_drop_chance": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Chance of storm glass drops per storm tick."
+    },
+    "wraith_spawn_max": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Maximum wraith spawns per storm."
+    }
+  },
+  "title": "Storm Config Schema",
+  "type": "object",
+  "description": "Storm timing and intensity tuning."
+}
