@@ -485,9 +485,9 @@ pub fn all_item_ids() -> Vec<&'static str> {
 - Type-safe data structures
 - IDE autocomplete support (with `.vscode/settings.json` configuration)
 
-**Schema generation tool**: `cargo run --bin schema-gen`
+**Schema documentation**: `docs/features/*_JSON_SCHEMA_V1.md` for each schema
 
-**Documentation**: `docs/features/*_JSON_SCHEMA_V1.md` for each schema
+**Note**: Schemas are manually maintained. The `schema-gen` tool was used for initial generation only.
 
 ---
 
