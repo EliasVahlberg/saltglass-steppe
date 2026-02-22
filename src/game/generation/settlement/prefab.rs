@@ -260,12 +260,45 @@ pub struct PrefabLibrary {
 impl PrefabLibrary {
     /// Load prefab library from data
     fn load() -> Result<Self, String> {
-        // For now, return empty library until we have data files
-        // TODO: Load from data/prefabs/*.json
+        let data = include_str!("../../../../data/prefabs/core.json");
+        let library_data: PrefabLibraryData = serde_json::from_str(data)
+            .map_err(|e| format!("Failed to parse prefabs/core.json: {}", e))?;
+
+        // Validate schema
+        if library_data.schema != "prefabs_v1" {
+            return Err(format!(
+                "Invalid schema version: expected 'prefabs_v1', got '{}'",
+                library_data.schema
+            ));
+        }
+
+        // Parse all prefabs
+        let mut prefabs = Vec::new();
+        for data in library_data.prefabs {
+            let prefab = Prefab::from_data(data)?;
+            prefabs.push(prefab);
+        }
+
+        // Build indices
+        let mut by_tag: HashMap<String, Vec<usize>> = HashMap::new();
+        let mut by_faction: HashMap<String, Vec<usize>> = HashMap::new();
+
+        for (idx, prefab) in prefabs.iter().enumerate() {
+            // Index by tags
+            for tag in &prefab.tags {
+                by_tag.entry(tag.clone()).or_default().push(idx);
+            }
+
+            // Index by faction
+            if let Some(faction) = &prefab.faction {
+                by_faction.entry(faction.clone()).or_default().push(idx);
+            }
+        }
+
         Ok(Self {
-            prefabs: Vec::new(),
-            by_tag: HashMap::new(),
-            by_faction: HashMap::new(),
+            prefabs,
+            by_tag,
+            by_faction,
         })
     }
 
@@ -410,5 +443,27 @@ mod tests {
         assert_eq!(mirrored.width, 3);
         assert_eq!(mirrored.height, 3);
         assert_eq!(mirrored.get(1, 1).unwrap().tile, "floor");
+    }
+
+    #[test]
+    fn test_load_prefab_library() {
+        let library = get_prefab_library();
+        
+        // Should have 14 core prefabs
+        assert!(library.prefabs.len() >= 14, "Expected at least 14 prefabs, got {}", library.prefabs.len());
+        
+        // Check for specific prefabs
+        let town_halls: Vec<_> = library.prefabs.iter()
+            .filter(|p| p.name.starts_with("town_hall"))
+            .collect();
+        assert_eq!(town_halls.len(), 2, "Expected 2 town hall variants");
+        
+        // Check tag indexing
+        let core_buildings = library.get_by_tags(&[String::from("core")]);
+        assert!(!core_buildings.is_empty(), "Should have core-tagged buildings");
+        
+        // Check government buildings
+        let government = library.get_by_tags(&[String::from("government")]);
+        assert_eq!(government.len(), 2, "Expected 2 government buildings");
     }
 }
