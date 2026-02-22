@@ -105,6 +105,46 @@
         "color": "White",
         "hp": 12,
         "description": "Polished surface that reflects both light and sound"
+      },
+      {
+        "id": "wood_wall",
+        "name": "Wood Wall",
+        "glyph": "#",
+        "color": "DarkYellow",
+        "hp": 8,
+        "description": "Weathered timber planks, brine-cured and storm-tested"
+      },
+      {
+        "id": "stone_wall",
+        "name": "Stone Wall",
+        "glyph": "#",
+        "color": "Gray",
+        "hp": 15,
+        "description": "Hewn stone blocks, mortared with salt-lime"
+      },
+      {
+        "id": "brick_wall",
+        "name": "Brick Wall",
+        "glyph": "#",
+        "color": "Red",
+        "hp": 12,
+        "description": "Fired clay bricks, stacked and sealed against the storms"
+      },
+      {
+        "id": "glass_wall",
+        "name": "Glass Wall",
+        "glyph": "\u2551",
+        "color": "Cyan",
+        "hp": 6,
+        "description": "Translucent glass panels, refracting light in prismatic patterns"
+      },
+      {
+        "id": "metal_wall",
+        "name": "Metal Wall",
+        "glyph": "#",
+        "color": "DarkGray",
+        "hp": 18,
+        "description": "Riveted metal plates, salvaged and reinforced"
       }
     ],
     "floors": [
@@ -205,6 +245,34 @@
         "glyph": "\u25c7",
         "color": "LightMagenta",
         "description": "Crystalline floor tiles that refract light in all directions"
+      },
+      {
+        "id": "wood_floor",
+        "name": "Wood Floor",
+        "glyph": ".",
+        "color": "DarkYellow",
+        "description": "Worn wooden planks, creaking with age"
+      },
+      {
+        "id": "stone_floor",
+        "name": "Stone Floor",
+        "glyph": ".",
+        "color": "Gray",
+        "description": "Smooth flagstones, cool to the touch"
+      },
+      {
+        "id": "brick_floor",
+        "name": "Brick Floor",
+        "glyph": ".",
+        "color": "Red",
+        "description": "Laid bricks in herringbone pattern"
+      },
+      {
+        "id": "tile_floor",
+        "name": "Tile Floor",
+        "glyph": ".",
+        "color": "LightGray",
+        "description": "Glazed ceramic tiles, some cracked"
       }
     ]
   },
