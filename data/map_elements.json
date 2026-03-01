@@ -273,6 +273,13 @@
         "glyph": ".",
         "color": "LightGray",
         "description": "Glazed ceramic tiles, some cracked"
+      },
+      {
+        "id": "dirt_path",
+        "name": "Dirt Path",
+        "glyph": ".",
+        "color": "Yellow",
+        "description": "A worn track of packed earth, marked by countless footsteps"
       }
     ]
   },

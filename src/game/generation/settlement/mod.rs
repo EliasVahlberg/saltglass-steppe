@@ -90,6 +90,8 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
                         LegendEntry::Interactable { .. } => Tile::Floor { id: "wood_floor".to_string() },
                         LegendEntry::Npc { .. } => Tile::Floor { id: "wood_floor".to_string() },
                         LegendEntry::Structure { .. } => continue, // Skip nested structures
+                        LegendEntry::Ground => continue, // Leave terrain tile unchanged
+                        LegendEntry::Path => Tile::Floor { id: "dirt_path".to_string() },
                     };
 
                     map.set_tile(tile_x as usize, tile_y as usize, tile);

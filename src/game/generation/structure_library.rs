@@ -37,6 +37,10 @@ pub enum LegendEntry {
     Interactable { id: String },
     Npc { id: String, name: Option<String> },
     Structure { id: String },
+    /// Leave the underlying terrain tile unchanged (outdoor/open area within bounding box)
+    Ground,
+    /// Stamp a path/road tile (replaced with settlement road material during city generation)
+    Path,
 }
 
 /// Structure metadata
