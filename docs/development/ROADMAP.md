@@ -4,13 +4,31 @@
 
 ## Current State
 
-The codebase has been through a major maintainability overhaul (Phases 1–5). The monolithic `state.rs` has been decomposed into `PlayerState`, `WorldState`, and `NarrativeEngine`. Dead code, stub systems, and duplicate implementations have been removed. The game compiles with zero warnings and 133 tests pass.
+The codebase has been through a major maintainability overhaul (Phases 1–5). The monolithic `state.rs` has been decomposed into `PlayerState`, `WorldState`, and `NarrativeEngine`. Dead code, stub systems, and duplicate implementations have been removed. The game compiles with zero warnings and 161 tests pass.
 
 A 30-minute play session is possible: character creation, movement, combat, quests, inventory, crafting, trading, storms, and auto-explore all work. The first quest ("The Pilgrim's Last Angle") is completable. Quest progression beyond that is blocked by missing infrastructure.
 
 ---
 
 ## Recently Completed
+
+### Tile Generator Refactor + Tile-Gen Tester (2026-03-01) ⏳ Awaiting Approval
+- **Refactor**: Extracted `generate_tile()` from `travel_to_tile()` into `src/game/generation/tile_generator.rs`. `travel_to_tile` is now a thin wrapper. Generation is now independently callable without a full `GameState`.
+- **TileTestConfig**: JSON-driven test configs in `data/tile_tests/` (21 configs covering all biomes, POIs, factions)
+- **In-game tester**: "Test Tile Generation" option in main menu → config sub-menu → loads tile directly into game session with `test_mode=true` (exits blocked, save disabled)
+- **Documentation**: `docs/development/TILE_GENERATOR_REFACTOR_PLAN.md`
+
+### Settlement Generation — Complete (2026-02-22 to 2026-03-01)
+- **Unified StructureLibrary**: Replaced prefab system with single JSON+txt hybrid loading
+- **Grid-with-jitter layout**: Replaced terrain-forge BSP/Voronoi (all algorithms produce one connected region, not isolated plots)
+- **Building placement**: Weighted random by faction, `to_snake_case()` normalization for faction ID lookup
+- **Faction integration**: Dominant faction determines building selection and settlement aesthetic
+- **NPC spawning**: Per-building `npc_types` from `structures.json` metadata
+- **Decorations**: Faction-themed decoration placement
+- **World map integration**: `Map::generate_from_world()` detects `POI::Town`, calls `generate_settlement()`
+- **mapgen-tool**: `settlement <seed> <tier>` renders full ASCII map + building list
+- **Documentation**: `docs/features/SETTLEMENT_GENERATION.md`, `docs/features/SETTLEMENT_GENERATION_SUMMARY.md`
+- **Future work logged**: `docs/development/SETTLEMENT_FUTURE_WORK.md`
 
 ### Settlement Generation Foundation (2026-02-22 to 2026-03-01)
 - **Prefab Library System**: Implemented JSON-based building template system with rotation, mirroring, and validation
@@ -21,7 +39,6 @@ A 30-minute play session is possible: character creation, movement, combat, ques
 - **Configuration**: Created settlement_config.json with tier parameters and faction building mappings
 - **Unified Structure System**: Designed consolidation of structure_templates and prefabs into single system with hybrid loading (external .txt files + inline JSON)
 - **Documentation**: `docs/development/SETTLEMENT_GENERATION_PLAN.md`, `docs/development/PREFAB_SYSTEM_DESIGN.md`, `docs/development/UNIFIED_STRUCTURE_SYSTEM.md`
-- **Status**: Foundation complete (8/20 tasks), ready for layout generation and building placement
 
 ### Cleanup (2026-02-15)
 - Removed ritual/sanity placeholder systems and orphaned DES test files
@@ -136,36 +153,21 @@ These are foundational systems that most other features depend on. They should b
 
 These features fill the world with meaningful content. They depend on Tier 1 foundations.
 
-#### 5. Procedural Village/Town/City Generation 🚧 **IN PROGRESS**
+#### 5. Procedural Village/Town/City Generation ✅ **COMPLETE** (2026-03-01)
 
-**Completed (8/20 tasks)**:
-- ✅ Prefab library system with JSON loading, transformations, and validation
-- ✅ 35 building prefabs (14 core buildings + 21 faction-specific buildings)
-- ✅ Settlement tile types (walls, floors, furniture, decorations)
-- ✅ Settlement module structure with tier system (Village/Town/City)
-- ✅ settlement_config.json with tier parameters and faction mappings
-- ✅ Unified structure system design (consolidates prefabs + structure_templates)
-
-**Next Steps**:
-- Implement unified StructureLibrary with hybrid loading (.txt files + inline JSON)
-- Migrate existing structures to new format with pattern reuse
-- Integrate terrain-forge BSP/Voronoi for settlement layouts
-- Implement building placement algorithm with road generation
-- Add NPC spawning and faction integration
-- Connect to world map POI system
-
-**Benefits of Unified System**:
-- Single API for all structures (settlements, ruins, POIs)
-- Pattern reuse: one layout → multiple themed variants
-- Better editing: ASCII art in .txt files instead of JSON arrays
-- Cleaner version control: diffs show actual pattern changes
-
-**Documentation**: 
-- `docs/development/SETTLEMENT_GENERATION_PLAN.md` (original plan)
-- `docs/development/UNIFIED_STRUCTURE_SYSTEM.md` (new unified approach)
-- `docs/development/PREFAB_SYSTEM_DESIGN.md` (prefab details)
-
-**Depends on**: Faction system ✅, overworld travel ✅
+- ✅ Unified StructureLibrary with hybrid loading (.txt pattern files + inline JSON)
+- ✅ 35 building prefabs (14 core + 21 faction-specific)
+- ✅ Grid-with-jitter layout algorithm (terrain-forge BSP/Voronoi abandoned — produces one connected region, not isolated plots)
+- ✅ Building placement with faction-weighted selection and `to_snake_case()` normalization
+- ✅ Faction integration: dominant faction determines building selection and aesthetic
+- ✅ NPC spawning from per-building `npc_types` in `structures.json` metadata
+- ✅ Decoration placement with faction theming
+- ✅ World map integration: `POI::Town` triggers `generate_settlement()`
+- ✅ mapgen-tool `settlement` command for iteration
+- ✅ Save/load: deterministic from `tile_seed`, no special handling needed
+- 🔲 Building interiors (deferred — z-level approach, logged in `SETTLEMENT_FUTURE_WORK.md`)
+- 🔲 Furniture micro-prefab system (deferred, low priority)
+- **Documentation**: `docs/features/SETTLEMENT_GENERATION.md`, `docs/features/SETTLEMENT_GENERATION_SUMMARY.md`
 
 #### 5.5. Biome-Driven Tile Generation Profiles ✅
 
