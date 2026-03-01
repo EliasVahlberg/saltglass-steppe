@@ -1,0 +1,10 @@
+{
+  "name": "Refraction Outcasts Town",
+  "biome": "Saltflat",
+  "terrain": "Flat",
+  "elevation": 130,
+  "poi": "Town",
+  "level": 7,
+  "faction_territory": "RefractionOutcasts",
+  "seed": 12359
+}

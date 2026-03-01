@@ -1,0 +1,9 @@
+{
+  "name": "Oasis Baseline",
+  "biome": "Oasis",
+  "terrain": "Flat",
+  "elevation": 90,
+  "poi": "None",
+  "level": 2,
+  "seed": 12348
+}

@@ -1,0 +1,9 @@
+{
+  "name": "Oasis Shrine",
+  "biome": "Oasis",
+  "terrain": "Flat",
+  "elevation": 85,
+  "poi": "Shrine",
+  "level": 4,
+  "seed": 12352
+}

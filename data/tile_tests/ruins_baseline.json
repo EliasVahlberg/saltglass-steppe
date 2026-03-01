@@ -1,0 +1,9 @@
+{
+  "name": "Ruins Baseline",
+  "biome": "Ruins",
+  "terrain": "Canyon",
+  "elevation": 80,
+  "poi": "None",
+  "level": 5,
+  "seed": 12349
+}

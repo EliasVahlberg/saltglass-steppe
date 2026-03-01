@@ -1,0 +1,10 @@
+{
+  "name": "Archive Drones Town",
+  "biome": "Saltflat",
+  "terrain": "Flat",
+  "elevation": 135,
+  "poi": "Town",
+  "level": 8,
+  "faction_territory": "ArchiveDrones",
+  "seed": 12360
+}

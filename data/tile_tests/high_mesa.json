@@ -1,0 +1,9 @@
+{
+  "name": "High Mesa",
+  "biome": "Desert",
+  "terrain": "Mesa",
+  "elevation": 220,
+  "poi": "Landmark",
+  "level": 6,
+  "seed": 12361
+}

@@ -26,6 +26,7 @@ pub mod structure_library;
 pub mod structures;
 pub mod templates;
 pub mod terrain_forge_adapter;
+pub mod tile_generator;
 pub mod weighted_table;
 pub mod world_gen;
 

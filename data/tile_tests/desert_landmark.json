@@ -1,0 +1,9 @@
+{
+  "name": "Desert Landmark",
+  "biome": "Desert",
+  "terrain": "Mesa",
+  "elevation": 160,
+  "poi": "Landmark",
+  "level": 5,
+  "seed": 12353
+}

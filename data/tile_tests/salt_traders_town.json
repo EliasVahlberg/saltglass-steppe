@@ -1,0 +1,10 @@
+{
+  "name": "Salt Traders Town",
+  "biome": "Saltflat",
+  "terrain": "Flat",
+  "elevation": 120,
+  "poi": "Town",
+  "level": 2,
+  "faction_territory": "SaltTraders",
+  "seed": 12357
+}

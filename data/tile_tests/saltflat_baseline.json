@@ -1,0 +1,9 @@
+{
+  "name": "Saltflat Baseline",
+  "biome": "Saltflat",
+  "terrain": "Flat",
+  "elevation": 100,
+  "poi": "None",
+  "level": 3,
+  "seed": 12346
+}

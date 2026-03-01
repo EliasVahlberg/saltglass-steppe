@@ -1,0 +1,10 @@
+{
+  "name": "Storm Cults Town",
+  "biome": "Saltflat",
+  "terrain": "Flat",
+  "elevation": 125,
+  "poi": "Town",
+  "level": 6,
+  "faction_territory": "StormCults",
+  "seed": 12358
+}

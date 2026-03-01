@@ -1,0 +1,9 @@
+{
+  "name": "Saltflat Town",
+  "biome": "Saltflat",
+  "terrain": "Flat",
+  "elevation": 95,
+  "poi": "Town",
+  "level": 3,
+  "seed": 12350
+}

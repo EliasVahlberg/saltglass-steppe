@@ -1,0 +1,10 @@
+{
+  "name": "Glassborn Town",
+  "biome": "Saltflat",
+  "terrain": "Flat",
+  "elevation": 110,
+  "poi": "Town",
+  "level": 3,
+  "faction_territory": "Glassborn",
+  "seed": 12355
+}

@@ -19,7 +19,6 @@ use super::{
     equipment::EquipSlot,
     event::GameEvent,
     generation::{
-        TerrainForgeGenerator,
         distribute_points_grid, generate_loot, get_biome_spawn_table,
         weighted_pick_by_level_and_tier,
     },
@@ -631,7 +630,7 @@ impl GameState {
     }
 
     /// Get quest IDs that have objectives at the given world coordinates
-    fn get_quest_ids_for_location(&self, world_x: usize, world_y: usize) -> Vec<String> {
+    pub fn get_quest_ids_for_location(&self, world_x: usize, world_y: usize) -> Vec<String> {
         let mut quest_ids = Vec::new();
 
         for quest in &self.player.quest_log.active {
@@ -658,284 +657,48 @@ impl GameState {
 
     /// Travel to a new world tile (lazy generation)
     pub fn travel_to_tile(&mut self, new_wx: usize, new_wy: usize) {
-        let world_map = match &self.world.world_map {
-            Some(wm) => wm,
-            None => return,
-        };
-
-        let (biome, terrain, elevation, poi, _resources, _connected, level) =
-            world_map.get(new_wx, new_wy);
-        let tile_seed = world_map.tile_seed(new_wx, new_wy);
-        let faction_control = match world_map.get_faction_territory(new_wx, new_wy) {
-            Some(f) => vec![(f.to_string(), 1.0f32)],
-            None => vec![],
-        };
-        let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
-
-        // Get quest IDs for this location
-        let quest_ids = self.get_quest_ids_for_location(new_wx, new_wy);
-
-        // Generate new tile map via terrain-forge adapter
-        let mut map = {
-            let generator = TerrainForgeGenerator::new();
-            let (map, _) = generator
-                .generate_tile_with_seed(biome, terrain, elevation, poi, tile_seed, &quest_ids);
-            map
-        };
-
-        // Find safe spawn position
-        let (px, py) = self.find_safe_spawn_position_in_map(&map);
-
-        // Collect walkable positions for later use
-        let walkable_positions: Vec<(i32, i32)> = map
-            .tiles
-            .iter()
-            .enumerate()
-            .filter_map(|(idx, tile)| {
-                if tile.walkable() {
-                    let x = (idx % map.width) as i32;
-                    let y = (idx / map.width) as i32;
-                    Some((x, y))
-                } else {
-                    None
-                }
-            })
-            .collect();
-
-        // Spawn enemies based on POI and quest structure data
-        let mut enemies = Vec::new();
-
-        // Check for quest structure spawns first
-        if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
-            if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data)
-            {
-                for (x, y, spawn_type, id) in spawns {
-                    if spawn_type == "enemy" {
-                        enemies.push(Enemy::new(x, y, &id));
-                    }
-                }
-            }
-        }
-
-        // Add regular enemies if not a quest structure location
-        if enemies.is_empty() {
-            let table = get_biome_spawn_table(&biome);
-            let enemy_count = match poi {
-                super::world_map::POI::Town => 0,
-                super::world_map::POI::Shrine => 2, // Increased from 1 for challenge
-                super::world_map::POI::Landmark => 3, // Ruins have moderate enemies
-                super::world_map::POI::Dungeon => 5, // Increased from 4 for dungeons
-                super::world_map::POI::None => 3,   // Generic tiles
-            };
-
-            // Find walkable positions for enemy spawning (use pre-collected positions)
-            let safe_positions: Vec<(i32, i32)> = walkable_positions
-                .iter()
-                .filter(|&&(x, y)| {
-                    let dx = (x - px).abs();
-                    let dy = (y - py).abs();
-                    // Keep enemies away from player spawn
-                    dx >= 15 || dy >= 15
-                })
-                .cloned()
-                .collect();
-
-            // Use spatial distribution to spread out enemy spawns
-            let distributed_positions = distribute_points_grid(
-                &safe_positions,
-                enemy_count,
-                20, // Minimum distance between enemies
-                &mut rng,
-            );
-
-            for (rx, ry) in distributed_positions {
-                if let Some(id) =
-                    weighted_pick_by_level_and_tier(&table.enemies, level, &mut rng, false)
-                {
-                    enemies.push(Enemy::new(rx, ry, id));
-                }
-            }
-        }
-
-        // Spawn items
-        let mut items = Vec::new();
-        let mut used_positions = HashSet::new();
-
-        // Check for quest structure item spawns first
-        if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
-            if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data)
-            {
-                for (x, y, spawn_type, id) in spawns {
-                    if spawn_type == "item" {
-                        items.push(Item::new(x, y, &id));
-                        used_positions.insert((x, y));
-                    }
-                }
-            }
-        }
-
-        // Add regular items if not many quest items
-        if items.len() < 3 {
-            let table = get_biome_spawn_table(&biome);
-            for spawn in &table.items {
-                for _ in 0..spawn.weight {
-                    // Find a random walkable position
-                    let mut attempts = 0;
-                    while attempts < 10 {
-                        let idx = rng.gen_range(0..map.tiles.len());
-                        if map.tiles[idx].walkable() {
-                            let ix = (idx % map.width) as i32;
-                            let iy = (idx / map.width) as i32;
-                            if !used_positions.contains(&(ix, iy)) {
-                                used_positions.insert((ix, iy));
-                                // Check tier eligibility for travel items
-                                if let Some(item_def) = super::item::get_item_def(&spawn.id) {
-                                    let tier_threshold = match level {
-                                        1 => 1,
-                                        2..=3 => 2,
-                                        4..=6 => 3,
-                                        7..=8 => 4,
-                                        9..=10 => 5,
-                                        _ => 1,
-                                    };
-                                    if item_def.tier <= tier_threshold {
-                                        items.push(Item::new(ix, iy, &spawn.id));
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                        attempts += 1;
-                    }
-                }
-            }
-        }
-
-        // Place microstructures (matching GameState::new() behavior)
-        let biome_str = biome.as_str();
-        let (_microstructures, mut structure_npcs, structure_chests, mut structure_items) =
-            place_microstructures(&mut map, biome_str, &walkable_positions, (px, py), &mut rng);
-        items.append(&mut structure_items);
-
-        // Spawn biome NPCs
-        let mut npcs = Vec::new();
-        let npc_table = get_biome_spawn_table(&biome);
-        for spawn in &npc_table.npcs {
-            if spawn.weight > 0 && rng.gen_ratio(spawn.weight.min(10), 10) {
-                if let Some(&(nx, ny)) = walkable_positions
-                    .iter()
-                    .filter(|&&(x, y)| {
-                        let dx = (x - px).abs();
-                        let dy = (y - py).abs();
-                        dx >= 8 || dy >= 8
-                    })
-                    .nth(rng.gen_range(0..walkable_positions.len().max(1)))
-                {
-                    npcs.push(Npc::new(nx, ny, &spawn.id));
-                }
-            }
-        }
-        npcs.append(&mut structure_npcs);
-
-        // Stamp settlement buildings for towns
-        if poi == super::world_map::POI::Town {
-            use crate::game::generation::settlement::{SettlementConfig, SettlementTier, generate_settlement, stamp_settlement, place_decorations};
-            use crate::game::generation::structure_library::StructureLibrary;
-            use crate::game::npc::Npc;
-            
-            let config = SettlementConfig {
-                seed: tile_seed,
-                tier: SettlementTier::Town,
-                faction_control,
-            };
-            let mut settlement_rng = ChaCha8Rng::seed_from_u64(tile_seed);
-            let settlement = generate_settlement(config, &mut settlement_rng);
-            stamp_settlement(&mut map, &settlement);
-            place_decorations(&mut map, &settlement, &mut settlement_rng);
-            
-            // Spawn NPCs from building npc_types
-            if let Ok(library) = StructureLibrary::load() {
-                for building in &settlement.buildings {
-                    if let Some(structure) = library.get(&building.prefab_name) {
-                        for npc_type in &structure.metadata.npc_types {
-                            // Find closest walkable position to building center
-                            if let Some(&(nx, ny)) = walkable_positions
-                                .iter()
-                                .min_by_key(|&&(x, y)| {
-                                    let dx = (x - building.x).abs();
-                                    let dy = (y - building.y).abs();
-                                    dx + dy
-                                })
-                                .filter(|&&pos| !npcs.iter().any(|npc| npc.x == pos.0 && npc.y == pos.1))
-                            {
-                                npcs.push(Npc::new(nx, ny, npc_type));
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        // Update state
+        use crate::game::generation::tile_generator::{TileParams, generate_tile};
+        
+        let params = TileParams::from_world_state(self, new_wx, new_wy);
+        let tile = generate_tile(&params);
+        
         self.world.world_x = new_wx;
         self.world.world_y = new_wy;
-        self.world.map = map;
-        self.world.enemies = enemies;
-        self.world.items = items;
-        self.world.npcs = npcs;
-        self.world.chests = structure_chests;
-
-        // Materialize terrain-forge markers into entities for the new map
-        crate::game::generation::feature_materializer::materialize_features(
-            self, biome, terrain, poi, level,
-        );
-
-        // Spawn crafting stations in towns
+        self.world.map = tile.map;
+        self.world.enemies = tile.enemies;
+        self.world.items = tile.items;
+        self.world.npcs = tile.npcs;
+        self.world.chests = tile.chests;
+        self.player.x = tile.spawn_pos.0;
+        self.player.y = tile.spawn_pos.1;
+        
+        // post-load hooks (keep these in state.rs, they need &mut self)
+        let biome = params.biome;
+        let terrain = params.terrain;
+        let poi = params.poi;
+        let level = params.level;
+        let walkable = tile.walkable_positions;
+        let mut rng = ChaCha8Rng::seed_from_u64(params.seed);
+        
+        crate::game::generation::feature_materializer::materialize_features(self, biome, terrain, poi, level);
         if poi == super::world_map::POI::Town {
-            self.spawn_crafting_stations(&walkable_positions, &mut rng);
+            self.spawn_crafting_stations(&walkable, &mut rng);
         }
-
-        // Spawn quest-required NPCs if needed
         self.spawn_quest_required_npcs();
-
-        self.player.x = px;
-        self.player.y = py;
         self.update_fov();
         self.rebuild_spatial_index();
         self.update_lighting();
-
-        // Generate narrative fragments for new tile
         self.generate_narrative_fragments(biome.as_str());
-
-        // Generate biome-specific environmental content
         self.generate_biome_content(&biome, level as u8);
-
-        // Generate crystal formations for appropriate biomes
-        self.generate_crystal_formations(&biome, &walkable_positions, &mut rng);
-
-        // Generate template-based procedural content
+        self.generate_crystal_formations(&biome, &walkable, &mut rng);
+        
         let mut template_context = std::collections::HashMap::new();
-        template_context.insert(
-            "biome".to_string(),
-            serde_json::Value::String(biome.as_str().to_string()),
-        );
-        template_context.insert(
-            "level".to_string(),
-            serde_json::Value::Number(serde_json::Number::from(level)),
-        );
-        template_context.insert(
-            "storm_intensity".to_string(),
-            serde_json::Value::String(
-                if self.world.storm.intensity <= 2 {
-                    "low"
-                } else {
-                    "high"
-                }
-                .to_string(),
-            ),
-        );
+        template_context.insert("biome".to_string(), serde_json::Value::String(biome.as_str().to_string()));
+        template_context.insert("level".to_string(), serde_json::Value::Number(serde_json::Number::from(level)));
+        template_context.insert("storm_intensity".to_string(), serde_json::Value::String(
+            if self.world.storm.intensity <= 2 { "low" } else { "high" }.to_string()
+        ));
         self.generate_template_content("encounter", template_context);
-
         self.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
     }
 
@@ -1038,33 +801,6 @@ impl GameState {
         }
 
         None
-    }
-
-    /// Find a safe spawn position in a given map (for initial player placement)
-    fn find_safe_spawn_position_in_map(&self, map: &Map) -> (i32, i32) {
-        use crate::game::constants::{MAP_HEIGHT, MAP_WIDTH};
-
-        // Try center area first
-        for y in (MAP_HEIGHT / 2 - 10)..(MAP_HEIGHT / 2 + 10) {
-            for x in (MAP_WIDTH / 2 - 10)..(MAP_WIDTH / 2 + 10) {
-                let idx = y * MAP_WIDTH + x;
-                if idx < map.tiles.len() && map.tiles[idx].walkable() {
-                    return (x as i32, y as i32);
-                }
-            }
-        }
-
-        // Fallback: find any walkable tile
-        for (idx, tile) in map.tiles.iter().enumerate() {
-            if tile.walkable() {
-                let x = idx % MAP_WIDTH;
-                let y = idx / MAP_WIDTH;
-                return (x as i32, y as i32);
-            }
-        }
-
-        // Ultimate fallback
-        (MAP_WIDTH as i32 / 2, MAP_HEIGHT as i32 / 2)
     }
 
     /// Travel to a world tile with safe spawn (not on wall/enemy/glass)

@@ -1,0 +1,9 @@
+{
+  "name": "Ruins Dungeon",
+  "biome": "Ruins",
+  "terrain": "Canyon",
+  "elevation": 75,
+  "poi": "Dungeon",
+  "level": 6,
+  "seed": 12351
+}

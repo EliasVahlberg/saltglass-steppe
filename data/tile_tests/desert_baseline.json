@@ -1,0 +1,9 @@
+{
+  "name": "Desert Baseline",
+  "biome": "Desert",
+  "terrain": "Dunes",
+  "elevation": 70,
+  "poi": "None",
+  "level": 2,
+  "seed": 12345
+}

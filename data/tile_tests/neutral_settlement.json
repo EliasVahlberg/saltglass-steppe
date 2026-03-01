@@ -1,0 +1,9 @@
+{
+  "name": "Neutral Settlement",
+  "biome": "Scrubland",
+  "terrain": "Hills",
+  "elevation": 150,
+  "poi": "Town",
+  "level": 4,
+  "seed": 12365
+}

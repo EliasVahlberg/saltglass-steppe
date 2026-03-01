@@ -1,0 +1,9 @@
+{
+  "name": "Scrubland Baseline",
+  "biome": "Scrubland",
+  "terrain": "Hills",
+  "elevation": 140,
+  "poi": "None",
+  "level": 4,
+  "seed": 12347
+}

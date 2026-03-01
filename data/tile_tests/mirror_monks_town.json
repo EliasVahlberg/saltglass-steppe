@@ -1,0 +1,10 @@
+{
+  "name": "Mirror Monks Town",
+  "biome": "Saltflat",
+  "terrain": "Flat",
+  "elevation": 105,
+  "poi": "Town",
+  "level": 4,
+  "faction_territory": "MirrorMonks",
+  "seed": 12354
+}
