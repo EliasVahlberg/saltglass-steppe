@@ -2080,6 +2080,272 @@
           "effect": { "faction_join": "Glassborn", "reputation_change": { "Glassborn": 50 } }
         }
       ]
+    },
+    {
+      "id": "merchant",
+      "name": "Salt Merchant",
+      "glyph": "m",
+      "faction": "SaltTraders",
+      "description": "A weathered trader with salt-stained robes and calculating eyes.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Welcome, traveler. I have goods from across the steppe."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "innkeeper",
+      "name": "Brine Keeper",
+      "glyph": "i",
+      "faction": "Unaffiliated",
+      "description": "A sturdy host who maintains shelter against the glass storms.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Rest here, pilgrim. The walls are thick and the storms pass."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "guard",
+      "name": "Settlement Guard",
+      "glyph": "g",
+      "faction": "Unaffiliated",
+      "description": "A vigilant protector who watches for storm signs and wandering threats.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Stay alert out there. The wastes hold many dangers."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "resident",
+      "name": "Steppe Dweller",
+      "glyph": "r",
+      "faction": "Unaffiliated",
+      "description": "A hardy settler who has learned to endure the crystalline desert.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Another day on the steppe. The glass teaches patience."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "trader",
+      "name": "Glass Trader",
+      "glyph": "t",
+      "faction": "SaltTraders",
+      "description": "A shrewd merchant who deals in storm glass and rare minerals.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Quality storm glass for fair scrip. No haggling."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "patron",
+      "name": "Weary Patron",
+      "glyph": "p",
+      "faction": "Unaffiliated",
+      "description": "A tired traveler seeking respite from the endless glass fields.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "The road is long and the storms are many."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "traveler",
+      "name": "Wandering Pilgrim",
+      "glyph": "w",
+      "faction": "Unaffiliated",
+      "description": "A nomadic soul who follows the storm paths across the steppe.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "The storms call, and I must follow their song."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "priest",
+      "name": "Mirror Priest",
+      "glyph": "p",
+      "faction": "MirrorMonks",
+      "description": "A devoted cleric who tends to the spiritual needs of the faithful.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "The light refracts through all things, pilgrim."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "monk",
+      "name": "Glass Monk",
+      "glyph": "M",
+      "faction": "MirrorMonks",
+      "description": "A contemplative brother who seeks wisdom in the storm's patterns.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "The angles speak to those who listen with clarity."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "engineer",
+      "name": "Storm Engineer",
+      "glyph": "e",
+      "faction": "SandEngineers",
+      "description": "A practical technician who maintains the settlement's vital systems.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Keep the machines running, keep the people alive."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "craftsman",
+      "name": "Glass Wright",
+      "glyph": "c",
+      "faction": "SandEngineers",
+      "description": "A skilled artisan who shapes storm glass into useful tools.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Storm glass remembers its fury. I teach it new purpose."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "scribe",
+      "name": "Archive Scribe",
+      "glyph": "s",
+      "faction": "ArchiveDrones",
+      "description": "A meticulous recorder who preserves knowledge for future generations.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "All knowledge must be preserved against the storm's chaos."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "healer",
+      "name": "Salt Healer",
+      "glyph": "h",
+      "faction": "Unaffiliated",
+      "description": "A compassionate medic who tends wounds with brine and wisdom.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Salt cleanses, brine heals. The steppe provides."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "clerk",
+      "name": "Data Clerk",
+      "glyph": "k",
+      "faction": "ArchiveDrones",
+      "description": "An organized administrator who maintains settlement records.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Order from chaos, records from ruin. This is the way."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "storm_cultist",
+      "name": "Storm Cultist",
+      "glyph": "S",
+      "faction": "StormCults",
+      "description": "A fervent believer who worships the transformative power of glass storms.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "The storm brings change, and change brings truth."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "storm_priest",
+      "name": "Storm Priest",
+      "glyph": "P",
+      "faction": "StormCults",
+      "description": "A zealous cleric who preaches the gospel of eternal transformation.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Embrace the storm's gift. Let it remake you in glory."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "archivist",
+      "name": "Memory Keeper",
+      "glyph": "a",
+      "faction": "ArchiveDrones",
+      "description": "A dedicated curator who safeguards the remnants of lost civilizations.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "The past speaks through fragments. I listen and record."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "researcher",
+      "name": "Glass Scholar",
+      "glyph": "R",
+      "faction": "ArchiveDrones",
+      "description": "An inquisitive academic who studies the mysteries of the transformed world.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "Every shard holds secrets. Every storm teaches lessons."
+        }
+      ],
+      "actions": []
+    },
+    {
+      "id": "outcast_trader",
+      "name": "Refraction Outcast",
+      "glyph": "o",
+      "faction": "RefractionOutcasts",
+      "description": "A shunned merchant whose adaptations mark them as dangerous or blessed.",
+      "dialogue": [
+        {
+          "conditions": [],
+          "text": "The changed trade with the changed. We understand each other."
+        }
+      ],
+      "actions": []
     }
   ]
 }

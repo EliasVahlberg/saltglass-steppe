@@ -666,6 +666,10 @@ impl GameState {
         let (biome, terrain, elevation, poi, _resources, _connected, level) =
             world_map.get(new_wx, new_wy);
         let tile_seed = world_map.tile_seed(new_wx, new_wy);
+        let faction_control = match world_map.get_faction_territory(new_wx, new_wy) {
+            Some(f) => vec![(f.to_string(), 1.0f32)],
+            None => vec![],
+        };
         let mut rng = ChaCha8Rng::seed_from_u64(tile_seed);
 
         // Get quest IDs for this location
@@ -836,14 +840,39 @@ impl GameState {
         // Stamp settlement buildings for towns
         if poi == super::world_map::POI::Town {
             use crate::game::generation::settlement::{SettlementConfig, SettlementTier, generate_settlement, stamp_settlement};
+            use crate::game::generation::structure_library::StructureLibrary;
+            use crate::game::npc::Npc;
+            
             let config = SettlementConfig {
                 seed: tile_seed,
                 tier: SettlementTier::Town,
-                faction_control: vec![],
+                faction_control,
             };
             let mut settlement_rng = ChaCha8Rng::seed_from_u64(tile_seed);
             let settlement = generate_settlement(config, &mut settlement_rng);
             stamp_settlement(&mut map, &settlement);
+            
+            // Spawn NPCs from building npc_types
+            if let Ok(library) = StructureLibrary::load() {
+                for building in &settlement.buildings {
+                    if let Some(structure) = library.get(&building.prefab_name) {
+                        for npc_type in &structure.metadata.npc_types {
+                            // Find closest walkable position to building center
+                            if let Some(&(nx, ny)) = walkable_positions
+                                .iter()
+                                .min_by_key(|&&(x, y)| {
+                                    let dx = (x - building.x).abs();
+                                    let dy = (y - building.y).abs();
+                                    dx + dy
+                                })
+                                .filter(|&&pos| !npcs.iter().any(|npc| npc.x == pos.0 && npc.y == pos.1))
+                            {
+                                npcs.push(Npc::new(nx, ny, npc_type));
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         // Update state
