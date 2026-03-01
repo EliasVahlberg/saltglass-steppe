@@ -289,3 +289,57 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
         walkable_positions,
     }
 }
+
+#[derive(Debug, Clone, serde::Deserialize)]
+pub struct TileTestConfig {
+    pub name: String,
+    pub biome: Biome,
+    pub terrain: Terrain,
+    pub elevation: u8,
+    pub poi: POI,
+    pub level: u32,
+    pub faction_territory: Option<String>,
+    pub seed: Option<u64>,
+}
+
+impl TileTestConfig {
+    /// Load all configs from data/tile_tests/*.json
+    pub fn load_all() -> Vec<TileTestConfig> {
+        let dir = std::path::Path::new("data/tile_tests");
+        let mut configs = Vec::new();
+        if let Ok(entries) = std::fs::read_dir(dir) {
+            for entry in entries.flatten() {
+                if entry.path().extension().and_then(|e| e.to_str()) == Some("json") {
+                    if let Ok(text) = std::fs::read_to_string(entry.path()) {
+                        if let Ok(cfg) = serde_json::from_str::<TileTestConfig>(&text) {
+                            configs.push(cfg);
+                        }
+                    }
+                }
+            }
+        }
+        configs.sort_by(|a, b| a.name.cmp(&b.name));
+        configs
+    }
+
+    pub fn to_tile_params(&self) -> TileParams {
+        let seed = self.seed.unwrap_or_else(|| {
+            use std::hash::{Hash, Hasher};
+            let mut h = std::collections::hash_map::DefaultHasher::new();
+            self.name.hash(&mut h);
+            h.finish()
+        });
+        TileParams {
+            seed,
+            biome: self.biome,
+            terrain: self.terrain,
+            elevation: self.elevation,
+            poi: self.poi,
+            level: self.level,
+            faction_control: self.faction_territory.as_ref()
+                .map(|f| vec![(f.clone(), 1.0f32)])
+                .unwrap_or_default(),
+            quest_ids: vec![],
+        }
+    }
+}

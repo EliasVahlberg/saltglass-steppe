@@ -19,6 +19,7 @@ pub enum MenuAction {
     Controls,
     Quit,
     None,
+    TileTest(crate::game::generation::tile_generator::TileTestConfig),
 }
 
 /// Main menu state

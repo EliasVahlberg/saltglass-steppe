@@ -647,7 +647,7 @@ fn run_main_game() -> Result<()> {
                     stdout().execute(LeaveAlternateScreen)?;
                     return Ok(());
                 }
-                MenuAction::LoadGame(_) | MenuAction::None => {}
+                MenuAction::LoadGame(_) | MenuAction::None | MenuAction::TileTest(_) => {}
             }
         };
 

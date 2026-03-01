@@ -287,6 +287,9 @@ impl MovementSystem {
 
     /// Handle world tile transitions at map edges
     fn handle_world_transition(state: &mut GameState, tile: &Tile, new_x: i32, new_y: i32) {
+        if state.test_mode {
+            return;
+        }
         if *tile != Tile::WorldExit || state.layer() != 0 {
             return;
         }

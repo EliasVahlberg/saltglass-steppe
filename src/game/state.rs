@@ -166,6 +166,9 @@ pub struct GameState {
     /// Original seed for reproducibility
     #[serde(default)]
     pub seed: u64,
+    /// Test mode flag (not serialized)
+    #[serde(skip)]
+    pub test_mode: bool,
 
 }
 
@@ -536,6 +539,7 @@ impl GameState {
             debug_disable_glare: false,
             seed,
             pending_book_open: None,
+            test_mode: false,
         };
 
         // Materialize terrain-forge markers into entities
@@ -3315,4 +3319,40 @@ impl GameState {
     pub fn tutorial_progress_mut(&mut self) -> &mut crate::game::tutorial::TutorialProgress { &mut self.narrative.tutorial_progress }
     pub fn world_history(&self) -> &crate::game::narrative_engine::WorldHistory { &self.narrative.world_history }
     pub fn world_history_mut(&mut self) -> &mut crate::game::narrative_engine::WorldHistory { &mut self.narrative.world_history }
+
+    pub fn load_test_tile(&mut self, params: crate::game::generation::tile_generator::TileParams) {
+        use crate::game::generation::tile_generator::generate_tile;
+        use rand::SeedableRng;
+        use rand_chacha::ChaCha8Rng;
+        
+        let tile = generate_tile(&params);
+        let biome = params.biome;
+        let terrain = params.terrain;
+        let poi = params.poi;
+        let level = params.level;
+        let walkable = tile.walkable_positions.clone();
+        let mut rng = ChaCha8Rng::seed_from_u64(params.seed);
+        
+        self.world.map = tile.map;
+        self.world.enemies = tile.enemies;
+        self.world.items = tile.items;
+        self.world.npcs = tile.npcs;
+        self.world.chests = tile.chests;
+        self.player.x = tile.spawn_pos.0;
+        self.player.y = tile.spawn_pos.1;
+        
+        // same post-load hooks as travel_to_tile
+        crate::game::generation::feature_materializer::materialize_features(self, biome, terrain, poi, level);
+        if poi == crate::game::world_map::POI::Town {
+            self.spawn_crafting_stations(&walkable, &mut rng);
+        }
+        self.spawn_quest_required_npcs();
+        self.update_fov();
+        self.rebuild_spatial_index();
+        self.update_lighting();
+        self.generate_narrative_fragments(biome.as_str());
+        self.generate_biome_content(&biome, level as u8);
+        self.generate_crystal_formations(&biome, &walkable, &mut rng);
+        self.log(format!("[TEST] Loaded tile: {:?} {:?} {:?}", biome, terrain, poi));
+    }
 }
