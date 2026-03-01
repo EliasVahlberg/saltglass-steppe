@@ -1,0 +1,2312 @@
+{
+  "schema": "structures_unified_v1",
+  "structures": [
+    {
+      "id": "general_store_1",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/general_store_1.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "wood_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "wood_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "c": {
+          "type": "interactable",
+          "id": "counter"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        }
+      },
+      "metadata": {
+        "description": "A weathered trading post where storm glass and salt provisions change hands. Shelves hold relics of the old world and necessities of the new.",
+        "tags": [
+          "core",
+          "commercial"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "merchant"
+        ]
+      }
+    },
+    {
+      "id": "general_store_2",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/general_store_2.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "wood_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "wood_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "c": {
+          "type": "interactable",
+          "id": "counter"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        }
+      },
+      "metadata": {
+        "description": "A compact merchant's den where brine-cured goods and scavenged curiosities line the walls. The counter bears the marks of countless transactions.",
+        "tags": [
+          "core",
+          "commercial"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "trader"
+        ]
+      }
+    },
+    {
+      "id": "inn_1",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/inn_1.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "wood_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "c": {
+          "type": "interactable",
+          "id": "counter"
+        }
+      },
+      "metadata": {
+        "description": "A weathered waystation where salt-worn travelers find respite. The counter bears scars from countless storm-glass mugs, and the beds offer sanctuary from the endless glare.",
+        "tags": [
+          "core",
+          "hospitality"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "innkeeper",
+          "patron"
+        ]
+      }
+    },
+    {
+      "id": "inn_2",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/inn_2.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "wood_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "c": {
+          "type": "interactable",
+          "id": "counter"
+        }
+      },
+      "metadata": {
+        "description": "A pilgrim's hall where the common room echoes with tales of distant shrines. Long tables bear the weight of shared meals and whispered rumors of storm-touched ruins.",
+        "tags": [
+          "core",
+          "hospitality"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 3,
+        "npc_types": [
+          "innkeeper",
+          "patron",
+          "traveler"
+        ]
+      }
+    },
+    {
+      "id": "residential_large_1",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/residential_large_1.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "x": {
+          "type": "interactable",
+          "id": "chest"
+        }
+      },
+      "metadata": {
+        "description": "A spacious dwelling with separate chambers for rest and work. Salt-traders once counted their wealth in these rooms, their ledgers now dust beneath the shelves.",
+        "tags": [
+          "core",
+          "residential"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "resident",
+          "resident"
+        ]
+      }
+    },
+    {
+      "id": "residential_large_2",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/residential_large_2.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "x": {
+          "type": "interactable",
+          "id": "chest"
+        }
+      },
+      "metadata": {
+        "description": "A dwelling with extensive storage chambers below the living quarters. Storm glass and preserved provisions fill the lower vaults, awaiting the next caravan season.",
+        "tags": [
+          "core",
+          "residential"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "merchant"
+        ]
+      }
+    },
+    {
+      "id": "residential_medium_1",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/residential_medium_1.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        }
+      },
+      "metadata": {
+        "description": "Chambers divided by weathered stone speak of prosperity earned through storm-seasons. Two hearths, two lives intertwined beneath the glass-scarred sky.",
+        "tags": [
+          "core",
+          "residential"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "resident",
+          "resident"
+        ]
+      }
+    },
+    {
+      "id": "residential_medium_2",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/residential_medium_2.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "x": {
+          "type": "interactable",
+          "id": "chest"
+        }
+      },
+      "metadata": {
+        "description": "A dwelling built around an inner courtyard where glass shards catch morning light. The central space offers respite from the steppe's endless winds.",
+        "tags": [
+          "core",
+          "residential"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "resident"
+        ]
+      }
+    },
+    {
+      "id": "residential_small_1",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/residential_small_1.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        }
+      },
+      "metadata": {
+        "description": "A modest dwelling where salt-worn stones shelter simple comforts. The bed bears witness to dreams of distant storms.",
+        "tags": [
+          "core",
+          "residential"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "resident"
+        ]
+      }
+    },
+    {
+      "id": "residential_small_2",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/residential_small_2.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        }
+      },
+      "metadata": {
+        "description": "Stone walls embrace a pilgrim's refuge. Shelves hold fragments of scripture and memories of clearer days.",
+        "tags": [
+          "core",
+          "residential"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "resident"
+        ]
+      }
+    },
+    {
+      "id": "temple_1",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/temple_1.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "A": {
+          "type": "interactable",
+          "id": "altar"
+        }
+      },
+      "metadata": {
+        "description": "A modest shrine where salt-stained pilgrims kneel before altars of fused glass. The stone bears witness to countless prayers for safe passage through the storm-carved wastes.",
+        "tags": [
+          "core",
+          "religious"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "priest"
+        ]
+      }
+    },
+    {
+      "id": "temple_2",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/temple_2.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "A": {
+          "type": "interactable",
+          "id": "altar"
+        }
+      },
+      "metadata": {
+        "description": "A contemplation chamber where the faithful seek clarity in silence. Open space surrounds the sacred altar, allowing light to refract through storm-glass windows in patterns of divine geometry.",
+        "tags": [
+          "core",
+          "religious"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "monk"
+        ]
+      }
+    },
+    {
+      "id": "town_hall_1",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/town_hall_1.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "H": {
+          "type": "interactable",
+          "id": "throne"
+        }
+      },
+      "metadata": {
+        "description": "A vitrified hall where salt-sworn magistrates hold court beneath storm-glass windows. The throne bears the scars of three dynasties.",
+        "tags": [
+          "core",
+          "government"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "magistrate",
+          "scribe"
+        ]
+      }
+    },
+    {
+      "id": "town_hall_2",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/town_hall_2.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        }
+      },
+      "metadata": {
+        "description": "A council chamber where pilgrim voices echo off salt-stained walls. Here, the weight of collective judgment settles disputes.",
+        "tags": [
+          "core",
+          "government"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 3,
+        "npc_types": [
+          "council_member",
+          "clerk",
+          "guard"
+        ]
+      }
+    },
+    {
+      "id": "archive_drones_data_vault",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/archive_drones_data_vault.txt",
+      "legend": {
+        "B": {
+          "type": "wall",
+          "id": "brick_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "x": {
+          "type": "interactable",
+          "id": "chest"
+        }
+      },
+      "metadata": {
+        "description": "A fortified data vault where the ArchiveDrones store their most precious pre-cataclysm records. Reinforced brick walls protect countless shelves of vitrified scripture shards and crystallized memory cores.",
+        "tags": [
+          "faction",
+          "archive_drones"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "archivist",
+          "curator"
+        ],
+        "faction": "archive_drones"
+      }
+    },
+    {
+      "id": "archive_drones_preservation_chamber",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/archive_drones_preservation_chamber.txt",
+      "legend": {
+        "B": {
+          "type": "wall",
+          "id": "brick_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "x": {
+          "type": "interactable",
+          "id": "chest"
+        },
+        "L": {
+          "type": "interactable",
+          "id": "lamp"
+        }
+      },
+      "metadata": {
+        "description": "A climate-controlled preservation chamber where delicate artifacts are maintained in perfect stasis. Specialized lamps provide precise illumination while archivists tend to organized shelves of ancient knowledge.",
+        "tags": [
+          "faction",
+          "archive_drones"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 3,
+        "npc_types": [
+          "archivist",
+          "curator",
+          "scribe"
+        ],
+        "faction": "archive_drones"
+      }
+    },
+    {
+      "id": "archive_drones_knowledge_repository",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/archive_drones_knowledge_repository.txt",
+      "legend": {
+        "B": {
+          "type": "wall",
+          "id": "brick_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        }
+      },
+      "metadata": {
+        "description": "A scholarly repository where ArchiveDrones study and transcribe recovered knowledge. Tables and chairs provide workspace for scribes while towering shelves hold countless volumes of preserved wisdom from the world that was.",
+        "tags": [
+          "faction",
+          "archive_drones"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 3,
+        "npc_types": [
+          "archivist",
+          "scribe",
+          "curator"
+        ],
+        "faction": "archive_drones"
+      }
+    },
+    {
+      "id": "glassborn_crystal_forge",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/glassborn_crystal_forge.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "k": {
+          "type": "interactable",
+          "id": "workbench"
+        },
+        "L": {
+          "type": "interactable",
+          "id": "lamp"
+        }
+      },
+      "metadata": {
+        "description": "Workbenches ring this crystalline forge where Glassborn artisans shape storm glass into tools and ornaments. The air shimmers with heat and the sound of careful hammering on vitrified surfaces.",
+        "tags": [
+          "faction",
+          "glassborn"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "craftsman",
+          "apprentice"
+        ],
+        "faction": "glassborn"
+      }
+    },
+    {
+      "id": "glassborn_transformation_clinic",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/glassborn_transformation_clinic.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        "G": {
+          "type": "wall",
+          "id": "glass_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "k": {
+          "type": "interactable",
+          "id": "workbench"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "L": {
+          "type": "interactable",
+          "id": "lamp"
+        }
+      },
+      "metadata": {
+        "description": "Glass walls filter light into this clinic where Glassborn undergo voluntary refraction adaptations. Shelves hold crystalline instruments while workbenches serve as examination tables for those embracing transformation.",
+        "tags": [
+          "faction",
+          "glassborn"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "healer"
+        ],
+        "faction": "glassborn"
+      }
+    },
+    {
+      "id": "glassborn_shimmer_gallery",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/glassborn_shimmer_gallery.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        "G": {
+          "type": "wall",
+          "id": "glass_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "*": {
+          "type": "interactable",
+          "id": "statue"
+        },
+        "L": {
+          "type": "interactable",
+          "id": "lamp"
+        }
+      },
+      "metadata": {
+        "description": "Crystalline statues catch and scatter light through glass walls in this gallery. Glassborn display their finest refractive art here, celebrating the beauty found in voluntary transformation and vitrified flesh.",
+        "tags": [
+          "faction",
+          "glassborn"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "curator"
+        ],
+        "faction": "glassborn"
+      }
+    },
+    {
+      "id": "mirror_monks_light_temple",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/mirror_monks_light_temple.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        "G": {
+          "type": "wall",
+          "id": "glass_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "A": {
+          "type": "interactable",
+          "id": "altar"
+        },
+        "L": {
+          "type": "interactable",
+          "id": "lamp"
+        }
+      },
+      "metadata": {
+        "description": "A sacred temple where MirrorMonks focus light through glass walls onto twin altars. The vitrified chambers amplify their reverent meditations on the nature of refraction.",
+        "tags": [
+          "faction",
+          "mirror_monks"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "monk",
+          "priest"
+        ],
+        "faction": "mirror_monks"
+      }
+    },
+    {
+      "id": "mirror_monks_meditation_chamber",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/mirror_monks_meditation_chamber.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "L": {
+          "type": "interactable",
+          "id": "lamp"
+        }
+      },
+      "metadata": {
+        "description": "A sparse chamber for silent contemplation. Here, MirrorMonks practice the discipline of inner refraction, seeking clarity through emptiness and the gentle glow of a single lamp.",
+        "tags": [
+          "faction",
+          "mirror_monks"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "monk"
+        ],
+        "faction": "mirror_monks"
+      }
+    },
+    {
+      "id": "mirror_monks_scripture_archive",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/mirror_monks_scripture_archive.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "L": {
+          "type": "interactable",
+          "id": "lamp"
+        }
+      },
+      "metadata": {
+        "description": "Sacred texts line the shelves of this archive, their glass-etched scripture shards catching lamplight. MirrorMonks preserve the luminous wisdom of their order within these hallowed walls.",
+        "tags": [
+          "faction",
+          "mirror_monks"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "scribe"
+        ],
+        "faction": "mirror_monks"
+      }
+    },
+    {
+      "id": "hidden_safehouse",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/hidden_safehouse.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        }
+      },
+      "metadata": {
+        "description": "A cramped hideaway where refraction outcasts seek shelter from persecution. The sparse furnishings speak of desperate lives lived in the shadows, away from the judgment of the unchanged.",
+        "tags": [
+          "faction",
+          "refraction_outcasts"
+        ],
+        "weight": 1.0,
+        "entrance_side": "east",
+        "npc_count": 1,
+        "npc_types": [
+          "outcast_refugee"
+        ],
+        "faction": "refraction_outcasts"
+      }
+    },
+    {
+      "id": "mutation_clinic",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/mutation_clinic.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        }
+      },
+      "metadata": {
+        "description": "A clandestine medical facility where outcasts tend to their own. Crude surgical tools and glass-shard remedies line the shelves, while the examination bed bears stains from desperate procedures.",
+        "tags": [
+          "faction",
+          "refraction_outcasts"
+        ],
+        "weight": 1.0,
+        "entrance_side": "east",
+        "npc_count": 1,
+        "npc_types": [
+          "outcast_healer"
+        ],
+        "faction": "refraction_outcasts"
+      }
+    },
+    {
+      "id": "underground_market",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/underground_market.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "c": {
+          "type": "interactable",
+          "id": "counter"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        }
+      },
+      "metadata": {
+        "description": "A hidden trading post where outcasts exchange forbidden goods and services. Counters display contraband items while the central table serves for hushed negotiations away from the authorities' gaze.",
+        "tags": [
+          "faction",
+          "refraction_outcasts"
+        ],
+        "weight": 1.0,
+        "entrance_side": "east",
+        "npc_count": 1,
+        "npc_types": [
+          "outcast_trader"
+        ],
+        "faction": "refraction_outcasts"
+      }
+    },
+    {
+      "id": "salt_traders_post",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/salt_traders_post.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "wood_floor"
+        },
+        "c": {
+          "type": "interactable",
+          "id": "counter"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "D": {
+          "type": "door"
+        }
+      },
+      "metadata": {
+        "description": "Salt-stained counters display rare goods from distant caravans. The air tastes of brine and distant storms, carrying whispers of profitable ventures.",
+        "tags": [
+          "faction",
+          "salt_traders"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "trader",
+          "merchant"
+        ],
+        "faction": "salt_traders"
+      }
+    },
+    {
+      "id": "salt_traders_station",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/salt_traders_station.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "wood_floor"
+        },
+        "b": {
+          "type": "interactable",
+          "id": "bed"
+        },
+        "x": {
+          "type": "interactable",
+          "id": "chest"
+        },
+        "D": {
+          "type": "door"
+        }
+      },
+      "metadata": {
+        "description": "Weary travelers rest on salt-crusted bedrolls while their goods await the next storm's passing. Maps mark safe routes through the ever-shifting glass.",
+        "tags": [
+          "faction",
+          "salt_traders"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "caravan_master"
+        ],
+        "faction": "salt_traders"
+      }
+    },
+    {
+      "id": "salt_traders_warehouse",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/salt_traders_warehouse.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "wood_floor"
+        },
+        "x": {
+          "type": "interactable",
+          "id": "chest"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "D": {
+          "type": "door"
+        }
+      },
+      "metadata": {
+        "description": "Crystalline brine pools in sealed containers, their surfaces reflecting distorted images of stored relics. The warehouse hums with the value of accumulated trade.",
+        "tags": [
+          "faction",
+          "salt_traders"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "quartermaster"
+        ],
+        "faction": "salt_traders"
+      }
+    },
+    {
+      "id": "sand_engineers_workshop",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/sand_engineers_workshop.txt",
+      "legend": {
+        "M": {
+          "type": "wall",
+          "id": "metal_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "k": {
+          "type": "interactable",
+          "id": "workbench"
+        },
+        "D": {
+          "type": "door"
+        }
+      },
+      "metadata": {
+        "description": "A vitrified workshop where SandEngineers forge precision instruments from storm-tempered metals. The rhythmic hammering echoes through reinforced walls.",
+        "tags": [
+          "faction",
+          "sand_engineers"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 2,
+        "npc_types": [
+          "engineer",
+          "craftsman"
+        ],
+        "faction": "sand_engineers"
+      }
+    },
+    {
+      "id": "sand_engineers_foundry",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/sand_engineers_foundry.txt",
+      "legend": {
+        "M": {
+          "type": "wall",
+          "id": "metal_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "k": {
+          "type": "interactable",
+          "id": "workbench"
+        },
+        "D": {
+          "type": "door"
+        }
+      },
+      "metadata": {
+        "description": "Molten glass and metal flow through channels carved in salt-resistant stone. The foundry's heat warps the air, bending light into prismatic fragments.",
+        "tags": [
+          "faction",
+          "sand_engineers"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "smelter"
+        ],
+        "faction": "sand_engineers"
+      }
+    },
+    {
+      "id": "sand_engineers_lab",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/sand_engineers_lab.txt",
+      "legend": {
+        "M": {
+          "type": "wall",
+          "id": "metal_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        },
+        "k": {
+          "type": "interactable",
+          "id": "workbench"
+        },
+        "x": {
+          "type": "interactable",
+          "id": "chest"
+        },
+        "D": {
+          "type": "door"
+        }
+      },
+      "metadata": {
+        "description": "Precise instruments measure the refraction of storm glass. Shelves hold crystalline components that hum with barely contained energies.",
+        "tags": [
+          "faction",
+          "sand_engineers"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "researcher"
+        ],
+        "faction": "sand_engineers"
+      }
+    },
+    {
+      "id": "storm_shrine",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/storm_shrine.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "A": {
+          "type": "interactable",
+          "id": "altar"
+        }
+      },
+      "metadata": {
+        "description": "A simple shrine where storm cultists gather to commune with the tempest. The central altar bears scorch marks from lightning strikes, and the air hums with residual electrical energy.",
+        "tags": [
+          "faction",
+          "storm_cults"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "storm_priest"
+        ],
+        "faction": "storm_cults"
+      }
+    },
+    {
+      "id": "ritual_circle",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/ritual_circle.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "A": {
+          "type": "interactable",
+          "id": "altar"
+        }
+      },
+      "metadata": {
+        "description": "An open ceremonial space where storm cultists perform their chaotic rituals. Twin altars mark the center, and the minimal walls allow the wild winds to flow freely through the sacred space.",
+        "tags": [
+          "faction",
+          "storm_cults"
+        ],
+        "weight": 1.0,
+        "entrance_side": "any",
+        "npc_count": 2,
+        "npc_types": [
+          "storm_cultist",
+          "storm_cultist"
+        ],
+        "faction": "storm_cults"
+      }
+    },
+    {
+      "id": "tempest_observatory",
+      "usage": "connectable",
+      "pattern_file": "patterns/core/tempest_observatory.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "stone_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "stone_floor"
+        },
+        "D": {
+          "type": "door"
+        },
+        "T": {
+          "type": "interactable",
+          "id": "table"
+        },
+        "C": {
+          "type": "interactable",
+          "id": "chair"
+        },
+        "s": {
+          "type": "interactable",
+          "id": "shelf"
+        }
+      },
+      "metadata": {
+        "description": "A fortified observation post where storm cultists track the movements of glass tempests. Charts and storm-glass instruments line the shelves, while the watcher maintains vigil for the next great storm.",
+        "tags": [
+          "faction",
+          "storm_cults"
+        ],
+        "weight": 1.0,
+        "entrance_side": "south",
+        "npc_count": 1,
+        "npc_types": [
+          "storm_watcher"
+        ],
+        "faction": "storm_cults"
+      }
+    },
+    {
+      "id": "mesa_village",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/mesa_village.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "old_reinforced_concrete"
+        },
+        "¤": {
+          "type": "wall",
+          "id": "rusted_steel"
+        },
+        "▓": {
+          "type": "wall",
+          "id": "shale"
+        },
+        ".": {
+          "type": "floor",
+          "id": "ancient_tile"
+        },
+        ":": {
+          "type": "floor",
+          "id": "soft_sand"
+        },
+        "░": {
+          "type": "floor",
+          "id": "salt_crust"
+        },
+        "M": {
+          "type": "npc",
+          "id": "mesa_merchant",
+          "name": "Keth the Trader"
+        },
+        "G": {
+          "type": "npc",
+          "id": "village_guard",
+          "name": "Sentinel Vex"
+        },
+        "P": {
+          "type": "npc",
+          "id": "village_priest",
+          "name": "Mirror-Touched Yara"
+        }
+      },
+      "metadata": {
+        "description": "A small settlement carved into the mesa walls",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 8,
+          "center_x": 12,
+          "center_y": 8
+        }
+      }
+    },
+    {
+      "id": "salt_shrine",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/salt_shrine.txt",
+      "legend": {
+        "◆": {
+          "type": "wall",
+          "id": "salt_crystal"
+        },
+        "░": {
+          "type": "floor",
+          "id": "salt_crust"
+        },
+        ".": {
+          "type": "floor",
+          "id": "dry_soil"
+        },
+        "S": {
+          "type": "npc",
+          "id": "shrine_keeper",
+          "name": "Saint-Touched Mira"
+        }
+      },
+      "metadata": {
+        "description": "A crystalline shrine dedicated to the Mirror Saints",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 6,
+          "center_x": 8,
+          "center_y": 6
+        }
+      }
+    },
+    {
+      "id": "ruined_archive",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/ruined_archive.txt",
+      "legend": {
+        "█": {
+          "type": "wall",
+          "id": "old_reinforced_concrete"
+        },
+        "¤": {
+          "type": "wall",
+          "id": "rusted_steel"
+        },
+        "▪": {
+          "type": "floor",
+          "id": "ancient_tile"
+        },
+        ".": {
+          "type": "floor",
+          "id": "dry_soil"
+        },
+        "A": {
+          "type": "npc",
+          "id": "archive_drone",
+          "name": "Maintenance Unit 7"
+        },
+        "D": {
+          "type": "npc",
+          "id": "data_ghost",
+          "name": "Echo of Dr. Voss"
+        }
+      },
+      "metadata": {
+        "description": "Remnants of a pre-storm data facility",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "rectangle",
+          "width": 12,
+          "height": 8,
+          "center_x": 10,
+          "center_y": 6
+        }
+      }
+    },
+    {
+      "id": "prism_city",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/prism_city.txt",
+      "legend": {
+        "◊": {
+          "type": "wall",
+          "id": "prismatic_crystal"
+        },
+        "≡": {
+          "type": "wall",
+          "id": "refraction_barrier"
+        },
+        "◇": {
+          "type": "floor",
+          "id": "prismatic_tiles"
+        },
+        "○": {
+          "type": "floor",
+          "id": "light_pool"
+        },
+        ".": {
+          "type": "floor",
+          "id": "crystal_moss"
+        },
+        "M": {
+          "type": "npc",
+          "id": "prism_mayor",
+          "name": "Crystalline Magistrate Zara"
+        },
+        "G": {
+          "type": "npc",
+          "id": "light_guard",
+          "name": "Refraction Sentinel"
+        },
+        "T": {
+          "type": "npc",
+          "id": "crystal_trader",
+          "name": "Merchant of Lights"
+        },
+        "P": {
+          "type": "npc",
+          "id": "prism_priest",
+          "name": "Light-Touched Oracle"
+        },
+        "S": {
+          "type": "npc",
+          "id": "crystal_smith",
+          "name": "Prism Shaper Keth"
+        }
+      },
+      "metadata": {
+        "description": "A magnificent city of crystalline spires and refracted light",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 15,
+          "center_x": 20,
+          "center_y": 15
+        }
+      }
+    },
+    {
+      "id": "salt_harbor",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/salt_harbor.txt",
+      "legend": {
+        "♦": {
+          "type": "wall",
+          "id": "brine_crystal"
+        },
+        "◆": {
+          "type": "wall",
+          "id": "salt_crystal"
+        },
+        "░": {
+          "type": "floor",
+          "id": "salt_crust"
+        },
+        "∙": {
+          "type": "floor",
+          "id": "salt_gravel"
+        },
+        "≈": {
+          "type": "floor",
+          "id": "brine_mud"
+        },
+        ".": {
+          "type": "floor",
+          "id": "dry_soil"
+        },
+        "H": {
+          "type": "npc",
+          "id": "harbor_master",
+          "name": "Salt-Touched Captain Voss"
+        },
+        "M": {
+          "type": "npc",
+          "id": "salt_merchant",
+          "name": "Brine Trader Kira"
+        },
+        "W": {
+          "type": "npc",
+          "id": "salt_worker",
+          "name": "Mine Foreman Dex"
+        },
+        "G": {
+          "type": "npc",
+          "id": "harbor_guard",
+          "name": "Salt Warden"
+        },
+        "D": {
+          "type": "npc",
+          "id": "dock_worker",
+          "name": "Cargo Handler Zeph"
+        }
+      },
+      "metadata": {
+        "description": "A trading port built around ancient salt mines and brine pools",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "rectangle",
+          "width": 25,
+          "height": 18,
+          "center_x": 18,
+          "center_y": 12
+        }
+      }
+    },
+    {
+      "id": "glass_foundry",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/glass_foundry.txt",
+      "legend": {
+        "▓": {
+          "type": "wall",
+          "id": "storm_carved_stone"
+        },
+        "▒": {
+          "type": "wall",
+          "id": "void_glass"
+        },
+        "█": {
+          "type": "wall",
+          "id": "old_reinforced_concrete"
+        },
+        "^": {
+          "type": "floor",
+          "id": "storm_glass_shards"
+        },
+        "░": {
+          "type": "floor",
+          "id": "glass_sand"
+        },
+        "▪": {
+          "type": "floor",
+          "id": "ancient_tile"
+        },
+        ".": {
+          "type": "floor",
+          "id": "dry_soil"
+        },
+        "F": {
+          "type": "npc",
+          "id": "foundry_master",
+          "name": "Glasswright Sovereign Thane"
+        },
+        "A": {
+          "type": "npc",
+          "id": "glass_artisan",
+          "name": "Storm Shaper Lyra"
+        },
+        "W": {
+          "type": "npc",
+          "id": "foundry_worker",
+          "name": "Glass Forger"
+        },
+        "G": {
+          "type": "npc",
+          "id": "foundry_guard",
+          "name": "Furnace Warden"
+        },
+        "T": {
+          "type": "npc",
+          "id": "glass_trader",
+          "name": "Crystal Merchant Vex"
+        }
+      },
+      "metadata": {
+        "description": "An industrial complex where storm glass is shaped into tools and art",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "rectangle",
+          "width": 22,
+          "height": 16,
+          "center_x": 16,
+          "center_y": 11
+        }
+      }
+    },
+    {
+      "id": "mirror_shrine",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/mirror_shrine.txt",
+      "legend": {
+        "║": {
+          "type": "wall",
+          "id": "mirror_wall"
+        },
+        "◇": {
+          "type": "floor",
+          "id": "prismatic_tiles"
+        },
+        ".": {
+          "type": "floor",
+          "id": "dry_soil"
+        },
+        "M": {
+          "type": "npc",
+          "id": "mirror_monk",
+          "name": "Reflection-Touched Seer"
+        }
+      },
+      "metadata": {
+        "description": "A sacred site where Mirror Monks commune with reflected light",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 4,
+          "center_x": 6,
+          "center_y": 5
+        }
+      }
+    },
+    {
+      "id": "archive_node",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/archive_node.txt",
+      "legend": {
+        "█": {
+          "type": "wall",
+          "id": "old_reinforced_concrete"
+        },
+        "▒": {
+          "type": "wall",
+          "id": "void_glass"
+        },
+        "▪": {
+          "type": "floor",
+          "id": "ancient_tile"
+        },
+        ".": {
+          "type": "floor",
+          "id": "dry_soil"
+        },
+        "A": {
+          "type": "npc",
+          "id": "archive_guardian",
+          "name": "Data Custodian Unit"
+        }
+      },
+      "metadata": {
+        "description": "A data storage facility from the pre-storm era, still partially functional",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "rectangle",
+          "width": 8,
+          "height": 6,
+          "center_x": 7,
+          "center_y": 5
+        }
+      }
+    },
+    {
+      "id": "refraction_monument",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/refraction_monument.txt",
+      "legend": {
+        "◊": {
+          "type": "wall",
+          "id": "prismatic_crystal"
+        },
+        "≡": {
+          "type": "wall",
+          "id": "refraction_barrier"
+        },
+        "○": {
+          "type": "floor",
+          "id": "light_pool"
+        },
+        "◇": {
+          "type": "floor",
+          "id": "prismatic_tiles"
+        },
+        ".": {
+          "type": "floor",
+          "id": "crystal_moss"
+        },
+        "L": {
+          "type": "npc",
+          "id": "light_keeper",
+          "name": "Prism Guardian Zara"
+        }
+      },
+      "metadata": {
+        "description": "A towering crystal spire that bends light into impossible patterns",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 6,
+          "center_x": 8,
+          "center_y": 7
+        }
+      }
+    },
+    {
+      "id": "storm_scar_memorial",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/storm_scar_memorial.txt",
+      "legend": {
+        "▓": {
+          "type": "wall",
+          "id": "fused_debris"
+        },
+        "^": {
+          "type": "floor",
+          "id": "storm_glass_shards"
+        },
+        "░": {
+          "type": "floor",
+          "id": "glass_sand"
+        },
+        ".": {
+          "type": "floor",
+          "id": "dry_soil"
+        },
+        "S": {
+          "type": "npc",
+          "id": "storm_keeper",
+          "name": "Memorial Warden Kess"
+        }
+      },
+      "metadata": {
+        "description": "A monument to those lost in the great glass storms",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 5,
+          "center_x": 7,
+          "center_y": 6
+        }
+      }
+    },
+    {
+      "id": "void_breach_site",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/void_breach_site.txt",
+      "legend": {
+        "▒": {
+          "type": "wall",
+          "id": "void_glass"
+        },
+        "▫": {
+          "type": "floor",
+          "id": "void_stone"
+        },
+        ".": {
+          "type": "floor",
+          "id": "dry_soil"
+        },
+        "V": {
+          "type": "npc",
+          "id": "void_watcher",
+          "name": "Breach Sentinel Nyx"
+        }
+      },
+      "metadata": {
+        "description": "A dangerous tear in reality where the void seeps through",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 4,
+          "center_x": 6,
+          "center_y": 5
+        }
+      }
+    },
+    {
+      "id": "nexus_plateau",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/nexus_plateau.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "reinforced_concrete"
+        },
+        "¤": {
+          "type": "wall",
+          "id": "quantum_barrier"
+        },
+        ".": {
+          "type": "floor",
+          "id": "polished_stone"
+        },
+        "~": {
+          "type": "floor",
+          "id": "neutral_ground"
+        },
+        "M": {
+          "type": "npc",
+          "id": "merchant_guild_leader",
+          "name": "Guildmaster Thorne"
+        },
+        "A": {
+          "type": "npc",
+          "id": "archive_custodian",
+          "name": "Custodian ARIA-7"
+        },
+        "D": {
+          "type": "npc",
+          "id": "diplomat",
+          "name": "Ambassador Kess"
+        },
+        "T": {
+          "type": "structure",
+          "id": "signal_tower"
+        },
+        "C": {
+          "type": "structure",
+          "id": "arbitration_chamber"
+        },
+        ":": {
+          "type": "floor",
+          "id": "soft_sand"
+        }
+      },
+      "metadata": {
+        "description": "Massive pre-Event foundation serving as neutral ground for all factions",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 12,
+          "center_x": 20,
+          "center_y": 15
+        }
+      }
+    },
+    {
+      "id": "monastery_ascending_light",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/monastery_ascending_light.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "carved_stone"
+        },
+        "¤": {
+          "type": "wall",
+          "id": "crystal_wall"
+        },
+        ".": {
+          "type": "floor",
+          "id": "polished_stone"
+        },
+        "~": {
+          "type": "floor",
+          "id": "sacred_ground"
+        },
+        "H": {
+          "type": "npc",
+          "id": "brother_halix",
+          "name": "Brother Halix"
+        },
+        "V": {
+          "type": "npc",
+          "id": "sister_vera",
+          "name": "Sister Vera"
+        },
+        "K": {
+          "type": "npc",
+          "id": "novice_kael",
+          "name": "Novice Kael"
+        },
+        "L": {
+          "type": "structure",
+          "id": "great_lens"
+        },
+        "S": {
+          "type": "structure",
+          "id": "scripture_vault"
+        },
+        "C": {
+          "type": "structure",
+          "id": "healing_chamber"
+        }
+      },
+      "metadata": {
+        "description": "Primary Mirror Monk settlement carved into a mountain observatory",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "rectangle",
+          "width": 8,
+          "height": 6,
+          "center_x": 15,
+          "center_y": 10
+        }
+      }
+    },
+    {
+      "id": "new_heliograph_station",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/new_heliograph_station.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "reinforced_steel"
+        },
+        "¤": {
+          "type": "wall",
+          "id": "archive_plating"
+        },
+        ".": {
+          "type": "floor",
+          "id": "metal_grating"
+        },
+        "~": {
+          "type": "floor",
+          "id": "workshop_floor"
+        },
+        "R": {
+          "type": "npc",
+          "id": "forewoman_ressa",
+          "name": "Forewoman Ressa Vane"
+        },
+        "M": {
+          "type": "npc",
+          "id": "dr_marcus",
+          "name": "Dr. Marcus Chen"
+        },
+        "Z": {
+          "type": "npc",
+          "id": "engineer_zara",
+          "name": "Engineer Zara Okafor"
+        },
+        "L": {
+          "type": "structure",
+          "id": "research_lab"
+        },
+        "F": {
+          "type": "structure",
+          "id": "fabrication_yard"
+        },
+        "P": {
+          "type": "structure",
+          "id": "power_grid"
+        },
+        "A": {
+          "type": "structure",
+          "id": "comm_array"
+        }
+      },
+      "metadata": {
+        "description": "Largest Sand-Engineer settlement built around Archive facility",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "rectangle",
+          "width": 10,
+          "height": 8,
+          "center_x": 18,
+          "center_y": 12
+        }
+      }
+    },
+    {
+      "id": "prism_cathedral_natural",
+      "usage": "standalone",
+      "pattern_file": "patterns/ruins/prism_cathedral_natural.txt",
+      "legend": {
+        "#": {
+          "type": "wall",
+          "id": "prismatic_crystal"
+        },
+        "¤": {
+          "type": "wall",
+          "id": "living_crystal"
+        },
+        ".": {
+          "type": "floor",
+          "id": "crystal_moss"
+        },
+        "~": {
+          "type": "floor",
+          "id": "reflection_pool"
+        },
+        "P": {
+          "type": "npc",
+          "id": "the_prism",
+          "name": "The High Prism"
+        },
+        "G": {
+          "type": "npc",
+          "id": "crystal_guardian",
+          "name": "Crystal Guardian"
+        },
+        "A": {
+          "type": "structure",
+          "id": "altar_of_angles"
+        },
+        "R": {
+          "type": "structure",
+          "id": "reflection_chamber"
+        }
+      },
+      "metadata": {
+        "description": "Natural crystal formation in the Glass Gardens, holiest Mirror Monk site",
+        "tags": [
+          "poi"
+        ],
+        "weight": 1.0,
+        "clear_area": {
+          "shape": "circle",
+          "radius": 6,
+          "center_x": 12,
+          "center_y": 8
+        }
+      }
+    }
+  ]
+}

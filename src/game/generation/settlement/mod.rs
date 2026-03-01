@@ -1,10 +1,7 @@
-pub mod prefab;
 pub mod layout;
 pub mod buildings;
 pub mod faction_theme;
 pub mod population;
-
-pub use prefab::{Prefab, PrefabLibrary};
 
 use rand::Rng;
 use serde::{Deserialize, Serialize};

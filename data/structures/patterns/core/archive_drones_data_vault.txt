@@ -1,0 +1,9 @@
+BBBBBBBBB
+B.......B
+B.s.s.s.B
+B.......B
+B.s.x.s.B
+B.......B
+B.s.s.s.B
+B.......B
+BBBDBBBBB

@@ -22,6 +22,7 @@ pub mod settlement;
 pub mod spatial;
 pub mod spawn;
 pub mod story;
+pub mod structure_library;
 pub mod structures;
 pub mod templates;
 pub mod terrain_forge_adapter;
@@ -52,6 +53,7 @@ pub use narrative_templates::{
 pub use spatial::*;
 pub use spawn::*;
 pub use story::*;
+// Don't glob-export structure_library to avoid conflict with structures::Structure
 pub use structures::*;
 pub use templates::*;
 pub use terrain_forge_adapter::*;

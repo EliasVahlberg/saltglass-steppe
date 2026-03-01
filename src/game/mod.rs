@@ -44,7 +44,6 @@ pub mod skills;
 pub mod state;
 pub mod status;
 pub mod storm;
-pub mod structure_templates;
 pub mod systems;
 pub mod trading;
 pub mod travel;

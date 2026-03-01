@@ -1,8 +1,27 @@
 # Unified Structure System - Implementation Plan
 
-## Overview
+## Status: ✅ COMPLETE (2026-03-01)
 
-This document describes the unified structure system that replaces the separate `structure_templates` and `prefabs` systems with a single, flexible approach for all placeable structures (ruins, settlements, buildings).
+All 4 phases delivered. See `docs/archive/phase_reports/` for phase summaries.
+
+### What Was Built
+- `src/game/generation/structure_library.rs` — unified `StructureLibrary` with `by_usage`, `by_faction`, `by_tag`
+- `data/structures/structures.json` — 50 structures (35 connectable, 15 standalone)
+- `data/structures/patterns/core/` — 35 building pattern files
+- `data/structures/patterns/ruins/` — 15 POI pattern files
+- `schemas/structures_unified_v1.json` — unified schema
+- `src/game/generation/settlement/buildings.rs` — `place_buildings` wired to `StructureLibrary`
+
+### What Was Removed
+- `data/prefabs/` (core.json, factions.json)
+- `data/structure_templates.json`
+- `src/game/generation/settlement/prefab.rs`
+- `src/game/structure_templates.rs`
+- `schemas/prefabs_v1.json`, `schemas/structure_templates_v1.json`
+
+---
+
+
 
 ## Motivation
 
