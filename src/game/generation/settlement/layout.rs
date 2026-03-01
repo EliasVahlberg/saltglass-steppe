@@ -1,9 +1,5 @@
 use super::{SettlementConfig, SettlementTier};
 use rand::Rng;
-use terrain_forge::{
-    Algorithm, Grid, Rng as ForgeRng, SemanticExtractor,
-    algorithms::{Bsp, BspConfig, Voronoi, VoronoiConfig},
-};
 
 /// Calculate settlement dimensions based on tier
 pub fn calculate_dimensions(config: &SettlementConfig) -> (usize, usize) {
@@ -14,50 +10,35 @@ pub fn calculate_dimensions(config: &SettlementConfig) -> (usize, usize) {
     }
 }
 
-/// Generate a settlement layout and return building placement positions (region centroids).
-/// Village uses Voronoi (organic scattered plots), Town/City use BSP (structured blocks).
+/// Generate building placement positions distributed across the settlement area.
+/// Returns a grid of candidate positions with spacing appropriate for the tier.
 pub fn generate_layout<R: Rng>(
     config: &SettlementConfig,
     width: usize,
     height: usize,
     rng: &mut R,
 ) -> Vec<(i32, i32)> {
-    let seed = rng.next_u64();
-    let mut grid = Grid::new(width, height);
+    let (spacing_x, spacing_y, margin) = match config.tier {
+        SettlementTier::Village => (18, 14, 8),
+        SettlementTier::Town => (16, 12, 6),
+        SettlementTier::City => (14, 10, 5),
+    };
 
-    match config.tier {
-        SettlementTier::Village => {
-            let num_points = if width * height > 5000 { 12 } else { 8 };
-            Voronoi::new(VoronoiConfig { num_points, floor_chance: 0.65 })
-                .generate(&mut grid, seed);
+    let mut positions = Vec::new();
+    let mut y = margin;
+    while y + margin < height {
+        let mut x = margin;
+        while x + margin < width {
+            // Add small random jitter so buildings don't look perfectly grid-aligned
+            let jitter_x = rng.gen_range(-(spacing_x as i32 / 4)..=(spacing_x as i32 / 4));
+            let jitter_y = rng.gen_range(-(spacing_y as i32 / 4)..=(spacing_y as i32 / 4));
+            let px = (x as i32 + jitter_x).max(margin as i32);
+            let py = (y as i32 + jitter_y).max(margin as i32);
+            positions.push((px, py));
+            x += spacing_x;
         }
-        SettlementTier::Town => {
-            Bsp::new(BspConfig { min_room_size: 8, max_depth: 4, room_padding: 2 })
-                .generate(&mut grid, seed);
-        }
-        SettlementTier::City => {
-            Bsp::new(BspConfig { min_room_size: 8, max_depth: 5, room_padding: 2 })
-                .generate(&mut grid, seed);
-        }
+        y += spacing_y;
     }
 
-    let mut forge_rng = ForgeRng::new(seed);
-    let semantic = SemanticExtractor::for_rooms().extract(&grid, &mut forge_rng);
-
-    // Sort regions largest-first, compute centroids as placement positions
-    let mut regions: Vec<_> = semantic.regions.iter().filter(|r| r.area() >= 20).collect();
-    regions.sort_by(|a, b| b.area().cmp(&a.area()));
-
-    regions
-        .iter()
-        .filter_map(|r| {
-            if r.cells.is_empty() {
-                return None;
-            }
-            let sum_x: u32 = r.cells.iter().map(|(x, _)| x).sum();
-            let sum_y: u32 = r.cells.iter().map(|(_, y)| y).sum();
-            let count = r.cells.len() as u32;
-            Some(((sum_x / count) as i32, (sum_y / count) as i32))
-        })
-        .collect()
+    positions
 }

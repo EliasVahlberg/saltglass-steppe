@@ -833,6 +833,19 @@ impl GameState {
         }
         npcs.append(&mut structure_npcs);
 
+        // Stamp settlement buildings for towns
+        if poi == super::world_map::POI::Town {
+            use crate::game::generation::settlement::{SettlementConfig, SettlementTier, generate_settlement, stamp_settlement};
+            let config = SettlementConfig {
+                seed: tile_seed,
+                tier: SettlementTier::Town,
+                faction_control: vec![],
+            };
+            let mut settlement_rng = ChaCha8Rng::seed_from_u64(tile_seed);
+            let settlement = generate_settlement(config, &mut settlement_rng);
+            stamp_settlement(&mut map, &settlement);
+        }
+
         // Update state
         self.world.world_x = new_wx;
         self.world.world_y = new_wy;

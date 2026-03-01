@@ -1,4 +1,7 @@
 use saltglass_steppe::{Biome, Map, POI, Terrain, Tile, WorldMap};
+use saltglass_steppe::game::generation::settlement::{generate_settlement, SettlementConfig, SettlementTier};
+use rand::SeedableRng;
+use rand_chacha::ChaCha8Rng;
 use std::env;
 
 const WORLD_WIDTH: usize = 192;
@@ -8,28 +11,61 @@ fn main() {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        println!("Usage: {} <command> [seed]", args[0]);
+        println!("Usage: {} <command> [args...]", args[0]);
         println!("Commands:");
         println!("  world [seed] - Generate and display world map");
         println!("  tile [seed]  - Generate and display tile map");
+        println!("  settlement <seed> <tier> - Generate settlement (tier: village, town, city)");
         return;
     }
 
-    let seed = if args.len() > 2 {
-        args[2].parse().unwrap_or_else(|_| {
-            eprintln!("Invalid seed, using default");
-            12345
-        })
-    } else {
-        12345
-    };
-
     match args[1].as_str() {
-        "world" => display_world_map(seed),
-        "tile" => display_tile_map(seed),
+        "world" => {
+            let seed = if args.len() > 2 {
+                args[2].parse().unwrap_or_else(|_| {
+                    eprintln!("Invalid seed, using default");
+                    12345
+                })
+            } else {
+                12345
+            };
+            display_world_map(seed);
+        }
+        "tile" => {
+            let seed = if args.len() > 2 {
+                args[2].parse().unwrap_or_else(|_| {
+                    eprintln!("Invalid seed, using default");
+                    12345
+                })
+            } else {
+                12345
+            };
+            display_tile_map(seed);
+        }
+        "settlement" => {
+            if args.len() < 4 {
+                eprintln!("Usage: {} settlement <seed> <tier>", args[0]);
+                eprintln!("Tier: village, town, city");
+                return;
+            }
+            let seed = args[2].parse().unwrap_or_else(|_| {
+                eprintln!("Invalid seed, using default");
+                12345
+            });
+            let tier = match args[3].as_str() {
+                "village" => SettlementTier::Village,
+                "town" => SettlementTier::Town,
+                "city" => SettlementTier::City,
+                _ => {
+                    eprintln!("Invalid tier: {}. Use village, town, or city", args[3]);
+                    return;
+                }
+            };
+            display_settlement(seed, tier);
+        }
         _ => {
             eprintln!("Unknown command: {}", args[1]);
-            eprintln!("Use 'world' or 'tile'");
+            eprintln!("Use 'world', 'tile', or 'settlement'");
         }
     }
 }
@@ -116,4 +152,40 @@ fn display_tile_map(seed: u64) {
 
     println!("\nLegend:");
     println!(".=Floor, #=Wall, g=Glass, >=StairsDown, <=StairsUp, X=WorldExit");
+}
+
+fn display_settlement(seed: u64, tier: SettlementTier) {
+    println!("Generating settlement with seed: {} and tier: {:?}", seed, tier);
+    
+    let config = SettlementConfig {
+        seed,
+        tier,
+        faction_control: vec![
+            ("MirrorMonks".to_string(), 0.4),
+            ("SaltTraders".to_string(), 0.3),
+        ],
+    };
+    
+    let mut rng = ChaCha8Rng::seed_from_u64(seed);
+    let settlement = generate_settlement(config, &mut rng);
+    
+    println!("Settlement ({:?}) {}x{} — seed {}", 
+             settlement.config.tier, 
+             settlement.width, 
+             settlement.height, 
+             seed);
+    println!("Buildings: {}", settlement.buildings.len());
+    
+    for (i, building) in settlement.buildings.iter().enumerate() {
+        let faction_str = match &building.faction {
+            Some(f) => format!("faction=Some(\"{}\")", f),
+            None => "faction=None".to_string(),
+        };
+        println!("  [{}] {} at ({}, {}) {}", 
+                 i, 
+                 building.prefab_name, 
+                 building.x, 
+                 building.y, 
+                 faction_str);
+    }
 }

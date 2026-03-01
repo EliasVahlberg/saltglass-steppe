@@ -6,6 +6,9 @@ pub mod population;
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+use crate::game::map::{Map, Tile};
+use crate::game::generation::structure_library::{StructureLibrary, LegendEntry};
+
 /// Configuration for settlement generation
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SettlementConfig {
@@ -50,6 +53,49 @@ pub fn generate_settlement<R: Rng>(config: SettlementConfig, rng: &mut R) -> Set
         buildings,
         width,
         height,
+    }
+}
+
+/// Stamp settlement buildings onto the map
+pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
+    let library = match StructureLibrary::load() {
+        Ok(lib) => lib,
+        Err(_) => return, // Skip stamping if library fails to load
+    };
+
+    for building in &settlement.buildings {
+        let structure = match library.get(&building.prefab_name) {
+            Some(s) => s,
+            None => continue, // Skip if structure not found
+        };
+
+        for (py, row) in structure.pattern.iter().enumerate() {
+            for (px, &ch) in row.iter().enumerate() {
+                if ch == ' ' {
+                    continue; // Skip empty cells
+                }
+
+                let tile_x = building.x + px as i32;
+                let tile_y = building.y + py as i32;
+
+                if tile_x < 0 || tile_y < 0 || tile_x >= map.width as i32 || tile_y >= map.height as i32 {
+                    continue; // Skip out of bounds
+                }
+
+                if let Some(legend_entry) = structure.legend.get(&ch) {
+                    let tile = match legend_entry {
+                        LegendEntry::Wall { id } => Tile::Wall { id: id.clone(), hp: 100 },
+                        LegendEntry::Floor { id } => Tile::Floor { id: id.clone() },
+                        LegendEntry::Door => Tile::Floor { id: "wood_floor".to_string() },
+                        LegendEntry::Interactable { .. } => Tile::Floor { id: "wood_floor".to_string() },
+                        LegendEntry::Npc { .. } => Tile::Floor { id: "wood_floor".to_string() },
+                        LegendEntry::Structure { .. } => continue, // Skip nested structures
+                    };
+
+                    map.set_tile(tile_x as usize, tile_y as usize, tile);
+                }
+            }
+        }
     }
 }
 
@@ -146,5 +192,37 @@ mod tests {
             faction_control: vec![],
         };
         assert_eq!(population::calculate_population(&city), 100);
+    }
+
+    #[test]
+    fn test_stamp_settlement() {
+        use crate::game::map::{Map, Tile};
+        
+        let config = SettlementConfig {
+            seed: 12345,
+            tier: SettlementTier::Town,
+            faction_control: vec![],
+        };
+        let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
+        let settlement = generate_settlement(config, &mut rng);
+        
+        // Create a test map
+        let mut map = Map {
+            tiles: vec![Tile::default_floor(); 120 * 90],
+            width: 120,
+            height: 90,
+            lights: vec![],
+            features: vec![],
+            inscriptions: vec![],
+            area_description: None,
+            metadata: std::collections::HashMap::new(),
+        };
+        
+        // Stamp the settlement
+        stamp_settlement(&mut map, &settlement);
+        
+        // Verify that some tiles were modified (should have walls/floors from buildings)
+        let has_walls = map.tiles.iter().any(|tile| matches!(tile, Tile::Wall { .. }));
+        assert!(has_walls, "Settlement stamping should create wall tiles");
     }
 }

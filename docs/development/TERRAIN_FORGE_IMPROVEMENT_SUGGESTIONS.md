@@ -34,6 +34,11 @@ pub fn center(&self) -> Option<(u32, u32)> {
 **Context**: `for_rooms()`, `for_caves()`, `for_mazes()` are dungeon-oriented. Settlement and overworld maps need different size thresholds and marker densities.  
 **Suggested addition**: `SemanticConfig::for_settlements()` and `SemanticConfig::for_overworld()` presets.
 
+### Isolated room generation (no corridors)
+**Context**: Settlement building placement needs isolated floor regions — one region per building plot. All current algorithms (`bsp`, `rooms`, `voronoi`) produce connected floor areas, so `SemanticExtractor` flood-fills them into a single region.  
+**Current workaround**: Grid-based position generation with jitter (no terrain-forge semantic extraction used).  
+**Suggested addition**: A `PlotLayout` algorithm or a `SimpleRooms` option (`connect_rooms: false`) that places rooms without carving corridors between them. Each room would be its own flood-fill region, enabling semantic extraction to return one region per building plot.
+
 ---
 
 ## Generation
