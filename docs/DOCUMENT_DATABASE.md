@@ -109,6 +109,8 @@ Index of all active project documentation. Last updated: 2026-02-21.
 | [THEME_SYSTEM.md](features/THEME_SYSTEM.md) | Theme system documentation |
 | [VISUAL_ANIMATIONS.md](features/VISUAL_ANIMATIONS.md) | Visual animation system |
 | [PARTICLE_EFFECTS.md](features/PARTICLE_EFFECTS.md) | Particle effects system |
+| [SETTLEMENT_GENERATION.md](features/SETTLEMENT_GENERATION.md) | Settlement generation system |
+| [SETTLEMENT_GENERATION_SUMMARY.md](features/SETTLEMENT_GENERATION_SUMMARY.md) | Settlement generation technical reference |
 
 ## Narrative & Lore
 

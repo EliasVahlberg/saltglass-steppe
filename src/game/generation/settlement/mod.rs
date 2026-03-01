@@ -99,6 +99,26 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
     }
 }
 
+/// Place decorative elements in open floor spaces within settlement bounds
+pub fn place_decorations<R: Rng>(map: &mut Map, settlement: &Settlement, rng: &mut R) {
+    let dominant_faction = faction_theme::get_dominant_faction(&settlement.config);
+    
+    for y in 0..settlement.height {
+        for x in 0..settlement.width {
+            let tile = map.get_tile(x as i32, y as i32);
+            if matches!(tile, Tile::Floor { id } if id == "dry_soil") && rng.gen_bool(0.08) {
+                let decoration_id = match dominant_faction.as_deref() {
+                    Some("MirrorMonks") => ["prismatic_tiles", "light_pool", "crystal_moss"][rng.gen_range(0..3)],
+                    Some("StormCults") => ["storm_glass_shards", "void_stone", "glass_sand"][rng.gen_range(0..3)],
+                    Some("SaltTradingCompany") => ["salt_crust", "salt_gravel", "brine_mud"][rng.gen_range(0..3)],
+                    _ => ["ancient_tile", "crushed_saltglass", "soft_sand"][rng.gen_range(0..3)],
+                };
+                map.set_tile(x, y, Tile::Floor { id: decoration_id.to_string() });
+            }
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

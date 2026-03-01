@@ -839,7 +839,7 @@ impl GameState {
 
         // Stamp settlement buildings for towns
         if poi == super::world_map::POI::Town {
-            use crate::game::generation::settlement::{SettlementConfig, SettlementTier, generate_settlement, stamp_settlement};
+            use crate::game::generation::settlement::{SettlementConfig, SettlementTier, generate_settlement, stamp_settlement, place_decorations};
             use crate::game::generation::structure_library::StructureLibrary;
             use crate::game::npc::Npc;
             
@@ -851,6 +851,7 @@ impl GameState {
             let mut settlement_rng = ChaCha8Rng::seed_from_u64(tile_seed);
             let settlement = generate_settlement(config, &mut settlement_rng);
             stamp_settlement(&mut map, &settlement);
+            place_decorations(&mut map, &settlement, &mut settlement_rng);
             
             // Spawn NPCs from building npc_types
             if let Ok(library) = StructureLibrary::load() {
