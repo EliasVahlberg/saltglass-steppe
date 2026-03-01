@@ -32,6 +32,9 @@ pub struct MainMenuState {
     pub seed_text: String,
     pub pending_seed: Option<u64>,
     pub meta: MetaProgress,
+    pub tile_test: bool,
+    pub tile_test_configs: Vec<crate::game::generation::tile_generator::TileTestConfig>,
+    pub tile_test_index: usize,
 }
 
 impl MainMenuState {
@@ -43,7 +46,7 @@ impl MainMenuState {
     }
 }
 
-const MAIN_OPTIONS: &[&str] = &["New Game", "Generate World", "Controls", "Quit"];
+const MAIN_OPTIONS: &[&str] = &["New Game", "Generate World", "Test Tile Generation", "Controls", "Quit"];
 
 /// Handle main menu input
 pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
@@ -57,6 +60,37 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
 
         // TODO(keyboard-config): Migrate hardcoded KeyCode matches to keyboard_config.json
         // See docs/development/KEYBOARD_CONFIG_MIGRATION.md for full migration plan
+        if state.tile_test {
+            return Ok(match key.code {
+                KeyCode::Esc => {
+                    state.tile_test = false;
+                    MenuAction::None
+                }
+                KeyCode::Up | KeyCode::Char('k') => {
+                    if !state.tile_test_configs.is_empty() {
+                        state.tile_test_index = (state.tile_test_index + state.tile_test_configs.len() - 1) % state.tile_test_configs.len();
+                    }
+                    MenuAction::None
+                }
+                KeyCode::Down | KeyCode::Char('j') => {
+                    if !state.tile_test_configs.is_empty() {
+                        state.tile_test_index = (state.tile_test_index + 1) % state.tile_test_configs.len();
+                    }
+                    MenuAction::None
+                }
+                KeyCode::Enter => {
+                    if let Some(cfg) = state.tile_test_configs.get(state.tile_test_index) {
+                        let cfg = cfg.clone();
+                        state.tile_test = false;
+                        MenuAction::TileTest(cfg)
+                    } else {
+                        MenuAction::None
+                    }
+                }
+                _ => MenuAction::None,
+            });
+        }
+
         if state.seed_input {
             // Seed input mode
             return Ok(match key.code {
@@ -152,8 +186,14 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                     state.seed_text.clear();
                     MenuAction::None
                 }
-                2 => MenuAction::Controls,
-                3 => MenuAction::Quit,
+                2 => {
+                    state.tile_test = true;
+                    state.tile_test_index = 0;
+                    state.tile_test_configs = crate::game::generation::tile_generator::TileTestConfig::load_all();
+                    MenuAction::None
+                }
+                3 => MenuAction::Controls,
+                4 => MenuAction::Quit,
                 _ => MenuAction::None,
             },
             KeyCode::Char('q') | KeyCode::Esc => MenuAction::Quit,
@@ -259,6 +299,11 @@ pub fn render_menu(frame: &mut Frame, tick: u64, state: &MainMenuState) {
     if state.seed_input {
         render_seed_input(frame, state);
     }
+
+    // Tile test overlay
+    if state.tile_test {
+        render_tile_test(frame, state);
+    }
 }
 
 fn render_seed_input(frame: &mut Frame, state: &MainMenuState) {
@@ -350,6 +395,43 @@ fn render_class_select(frame: &mut Frame, state: &MainMenuState) {
 
     let block = Block::default()
         .title(" Select Class ")
+        .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black));
+    frame.render_widget(Paragraph::new(lines).block(block), popup);
+}
+
+fn render_tile_test(frame: &mut Frame, state: &MainMenuState) {
+    let area = frame.area();
+
+    let width = 50u16.min(area.width - 4);
+    let height = (state.tile_test_configs.len() as u16 + 4).min(area.height - 4);
+    let x = (area.width.saturating_sub(width)) / 2;
+    let y = (area.height.saturating_sub(height)) / 2;
+    let popup = Rect::new(x, y, width, height);
+
+    frame.render_widget(Clear, popup);
+
+    let mut lines: Vec<Line> = Vec::new();
+    for (i, config) in state.tile_test_configs.iter().enumerate() {
+        let style = if i == state.tile_test_index {
+            Style::default().fg(Color::Yellow).bold()
+        } else {
+            Style::default()
+        };
+        let prefix = if i == state.tile_test_index { "► " } else { "  " };
+        lines.push(Line::from(Span::styled(
+            format!("{}{}", prefix, config.name),
+            style,
+        )));
+    }
+    lines.push(Line::from(""));
+    lines.push(Line::from(Span::styled(
+        "[Enter] Select  [Esc] Back",
+        Style::default().fg(Color::DarkGray),
+    )));
+
+    let block = Block::default()
+        .title(" Test Tile Generation ")
         .borders(Borders::ALL)
         .style(Style::default().bg(Color::Black));
     frame.render_widget(Paragraph::new(lines).block(block), popup);

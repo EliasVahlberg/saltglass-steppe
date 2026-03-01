@@ -39,10 +39,16 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 state.try_break_wall(x, y);
             }
         }
-        Action::Save => match save::save_game(state, SAVE_FILE) {
-            Ok(_) => state.log("Game saved."),
-            Err(e) => state.log(format!("Save failed: {}", e)),
-        },
+        Action::Save => {
+            if state.test_mode {
+                state.log("Cannot save in test mode.");
+            } else {
+                match save::save_game(state, SAVE_FILE) {
+                    Ok(_) => state.log("Game saved."),
+                    Err(e) => state.log(format!("Save failed: {}", e)),
+                }
+            }
+        }
         Action::Load => match save::load_game(SAVE_FILE) {
             Ok(loaded) => {
                 *state = loaded;
@@ -647,7 +653,99 @@ fn run_main_game() -> Result<()> {
                     stdout().execute(LeaveAlternateScreen)?;
                     return Ok(());
                 }
-                MenuAction::LoadGame(_) | MenuAction::None | MenuAction::TileTest(_) => {}
+                MenuAction::TileTest(cfg) => {
+                    // Run tile test session
+                    let params = cfg.to_tile_params();
+                    let seed = params.seed;
+                    let mut state = GameState::new_with_class(seed, "wanderer");
+                    state.test_mode = true;
+                    state.load_test_tile(params);
+                    let mut ui = UiState::new();
+                    ui.camera_x = state.player.x as f32;
+                    ui.camera_y = state.player.y as f32;
+                    
+                    // Run game loop for tile test
+                    loop {
+                        if !ui.debug_console.active {
+                            ui.tick_frame();
+                            state.world.visual_effects.tick_hit_flash();
+                            state.world.visual_effects.tick_damage_numbers();
+                            state.world.visual_effects.tick_projectile_trails();
+                            state.world.visual_effects.tick_light_beams();
+                            state.world.visual_effects.tick_animation();
+                            ui.update_camera(state.player.x, state.player.y);
+                            ui.dialog_box.tick(16);
+                        }
+
+                        if let Some((speaker, text)) = state.pending_dialogue.take() {
+                            ui.dialog_box.show(&speaker, &text);
+                        }
+                        if let Some((text, options)) = state.pending_aria_dialogue.take() {
+                            ui.aria_interface.response_text = text;
+                            ui.aria_interface.options = options;
+                            ui.aria_interface.selected_option = 0;
+                        }
+                        if let Some(book_id) = state.pending_book_open.take() {
+                            ui.book_reader.open(&book_id);
+                        }
+                        if let Some(trader_id) = state.pending_trade.take() {
+                            if ui.dialog_box.active {
+                                state.pending_trade = Some(trader_id);
+                            } else {
+                                use saltglass_steppe::trading::{calculate_area_tier, get_trade_interface};
+                                let area_tier = calculate_area_tier(&state.world.enemies);
+                                if let Some(interface) = get_trade_interface(
+                                    &trader_id,
+                                    area_tier,
+                                    &state.player.faction_reputation,
+                                    None,
+                                ) {
+                                    ui.inventory_menu.close();
+                                    ui.quest_log.close();
+                                    ui.crafting_menu.close();
+                                    ui.wiki_menu.close();
+                                    ui.pause_menu.close();
+                                    ui.trade_menu.open(trader_id, interface);
+                                } else {
+                                    state.log("This merchant has nothing to trade.");
+                                }
+                            }
+                        }
+
+                        if let Some(ei) = ui.target_enemy {
+                            if ei >= state.world.enemies.len() || state.world.enemies[ei].hp <= 0 {
+                                ui.target_enemy = None;
+                            }
+                        }
+
+                        if ui.show_controls {
+                            terminal.draw(render_controls)?;
+                            if event::poll(std::time::Duration::from_millis(16))? {
+                                if let Event::Key(key) = event::read()? {
+                                    if key.kind == KeyEventKind::Press {
+                                        ui.show_controls = false;
+                                    }
+                                }
+                            }
+                        } else {
+                            terminal.draw(|frame| render(frame, &state, &mut ui, &mut renderer))?;
+                            let action = handle_input(&mut ui, &mut state)?;
+                            match update(&mut state, action, &mut ui) {
+                                Some(true) => {
+                                    if ui.tutorial_message.is_none() {
+                                        if let Some(msg) = state.get_next_tutorial_message() {
+                                            ui.tutorial_message = Some(msg);
+                                        }
+                                    }
+                                }
+                                Some(false) => break 'main,
+                                None => break,
+                            }
+                        }
+                    }
+                    continue 'main;
+                }
+                MenuAction::LoadGame(_) | MenuAction::None => {}
             }
         };
 
