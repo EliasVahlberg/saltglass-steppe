@@ -105,41 +105,63 @@ Mitigation: extract incrementally, run `cargo test` after each move.
 }
 ```
 
-One file per scenario. Filenames are the test name. Seed is optional — omit to use a default.
+One file per scenario. `name` is the display label in the menu. `seed` is optional — omit to use a hash of the filename.
 
 Provide configs for:
-- All 5 biomes × common terrain types (flat, canyon, dunes)
+- All 5 biomes × common terrain types
 - All POI types (Town, Dungeon, Shrine, Landmark, None)
 - All 7 factions as `faction_territory`
-- Edge cases: no faction, high elevation, level 10
 
-### CLI: `mapgen-tool tile-test [name] [--seed N]`
+### Main menu integration
+
+Add a new `MenuAction::TileTest(TileTestConfig)` variant and a "Test Tile Generation" option to the main menu. Selecting it opens a sub-menu that lists all configs loaded from `data/tile_tests/`. Selecting a config starts the tester session.
 
 ```
-cargo run --bin mapgen-tool tile-test                  # list all configs
-cargo run --bin mapgen-tool tile-test mirrormonks_town # run one
-cargo run --bin mapgen-tool tile-test mirrormonks_town --seed 99999
+Main Menu
+├── New Game
+├── Load Game
+├── Test Tile Generation   ← new
+│   ├── mirrormonks_town
+│   ├── saltflat_dungeon
+│   └── ...
+├── Controls
+└── Quit
 ```
 
-Output per run:
-1. ASCII map render (same as existing tile command)
-2. Entity summary:
-   ```
-   NPCs (4): merchant @ (12,8), guard @ (15,9), ...
-   Enemies (3): glass_crawler @ (40,20), ...
-   Items (2): salt_shard @ (30,15), ...
-   Chests (1): @ (55,30)
-   ```
-3. Settlement summary (if POI=Town):
-   ```
-   Settlement: Town, 12 buildings, faction=MirrorMonks
-     [0] mirror_monks_light_temple @ (8,6)
-     ...
-   ```
+### GameState for tester sessions
 
-### In-game tester (later, lower priority)
+Create a minimal `GameState` using the existing new-game constructor (default player, no world map needed). Then call a new method:
 
-A menu option "Test Tile Generation" → config picker → calls `generate_tile(&params)` → loads result into `GameState` as if you traveled there. Lets you walk around and interact. Deferred until CLI version is validated.
+```rust
+impl GameState {
+    pub fn load_test_tile(&mut self, params: TileParams) {
+        // same as travel_to_tile but takes params directly
+        // skips world map lookup
+        let tile = generate_tile(&params);
+        self.apply_tile(0, 0, tile);
+        // same post-load hooks as travel_to_tile
+    }
+}
+```
+
+Add a `test_mode: bool` flag to `GameState`. When `true`:
+- `handle_world_transition()` in `movement.rs` is a no-op (blocks exits)
+- Save is disabled — `MenuAction::Save` returns early, autosave skipped
+- A visible indicator in the HUD ("TEST MODE") so it's clear
+
+### `main.rs` wiring
+
+```rust
+MenuAction::TileTest(config) => {
+    let params = TileParams::from_test_config(&config);
+    let mut state = GameState::new_default();
+    state.test_mode = true;
+    state.load_test_tile(params);
+    run_game_loop(&mut state)?;
+}
+```
+
+After the game loop exits (player quits), return to the main menu as normal.
 
 ---
 
@@ -147,15 +169,16 @@ A menu option "Test Tile Generation" → config picker → calls `generate_tile(
 
 1. **Refactor** `travel_to_tile` → `generate_tile()` in `tile_generator.rs`
    - Move pure generation body
-   - `travel_to_tile` becomes wrapper
-   - All existing tests must pass
-   - No behaviour change
+   - `travel_to_tile` becomes wrapper calling `generate_tile` + `apply_tile`
+   - All existing tests must pass, no behaviour change
 
-2. **Add** `data/tile_tests/` with ~15 configs covering all biomes/POIs/factions
+2. **Add** `data/tile_tests/` with configs covering all biomes/POIs/factions
 
-3. **Add** `mapgen-tool tile-test` command using `generate_tile()` directly
+3. **Add** `test_mode: bool` to `GameState`, block exits + saves when set
 
-4. **[Later]** In-game config picker
+4. **Add** `MenuAction::TileTest`, sub-menu in `menu.rs`, wiring in `main.rs`
+
+5. **[Future]** Player save state selection — load a saved player into the test session instead of default player
 
 ---
 
@@ -165,6 +188,8 @@ A menu option "Test Tile Generation" → config picker → calls `generate_tile(
 |------|--------|
 | `src/game/generation/tile_generator.rs` | New — core generation logic |
 | `src/game/generation/mod.rs` | Add `pub mod tile_generator` |
-| `src/game/state.rs` | `travel_to_tile` becomes thin wrapper |
-| `src/bin/mapgen_tool.rs` | Add `tile-test` subcommand |
+| `src/game/state.rs` | `travel_to_tile` becomes thin wrapper, add `test_mode`, add `load_test_tile` |
+| `src/game/systems/movement.rs` | No-op `handle_world_transition` when `test_mode` |
+| `src/ui/menu.rs` | Add `TileTest` action + sub-menu |
+| `src/main.rs` | Handle `MenuAction::TileTest`, disable save in test mode |
 | `data/tile_tests/*.json` | New — test configs |
