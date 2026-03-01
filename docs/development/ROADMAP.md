@@ -1,6 +1,6 @@
 # Development Roadmap
 
-> Last updated: 2026-02-15
+> Last updated: 2026-03-01
 
 ## Current State
 
@@ -11,6 +11,17 @@ A 30-minute play session is possible: character creation, movement, combat, ques
 ---
 
 ## Recently Completed
+
+### Settlement Generation Foundation (2026-02-22 to 2026-03-01)
+- **Prefab Library System**: Implemented JSON-based building template system with rotation, mirroring, and validation
+- **Building Content**: Created 35 building prefabs (14 core + 21 faction-specific)
+- **Settlement Tiles**: Added 5 wall types and 4 floor types for settlement construction
+- **Furniture & Decorations**: Added 12 furniture types as interactables
+- **Settlement Module**: Implemented core data structures (SettlementConfig, Settlement, Building) with tier system (Village/Town/City)
+- **Configuration**: Created settlement_config.json with tier parameters and faction building mappings
+- **Unified Structure System**: Designed consolidation of structure_templates and prefabs into single system with hybrid loading (external .txt files + inline JSON)
+- **Documentation**: `docs/development/SETTLEMENT_GENERATION_PLAN.md`, `docs/development/PREFAB_SYSTEM_DESIGN.md`, `docs/development/UNIFIED_STRUCTURE_SYSTEM.md`
+- **Status**: Foundation complete (8/20 tasks), ready for layout generation and building placement
 
 ### Cleanup (2026-02-15)
 - Removed ritual/sanity placeholder systems and orphaned DES test files
@@ -125,15 +136,36 @@ These are foundational systems that most other features depend on. They should b
 
 These features fill the world with meaningful content. They depend on Tier 1 foundations.
 
-#### 5. Procedural Village/Town/City Generation
-- Settlement generation algorithm: layout, buildings, NPCs, services
-- Settlement tiers: camp (2–3 NPCs) → village (5–10) → town (15–25) → city (30+)
-- Building types: tavern, smithy, temple, archive, market, barracks
-- NPC placement with roles (merchant, quest-giver, guard, civilian)
-- Settlement economy: supply/demand affecting prices
-- Walls, gates, and districts for larger settlements
-- Integration with world map POI system
-- **Depends on**: Faction system (settlements belong to factions), overworld travel
+#### 5. Procedural Village/Town/City Generation 🚧 **IN PROGRESS**
+
+**Completed (8/20 tasks)**:
+- ✅ Prefab library system with JSON loading, transformations, and validation
+- ✅ 35 building prefabs (14 core buildings + 21 faction-specific buildings)
+- ✅ Settlement tile types (walls, floors, furniture, decorations)
+- ✅ Settlement module structure with tier system (Village/Town/City)
+- ✅ settlement_config.json with tier parameters and faction mappings
+- ✅ Unified structure system design (consolidates prefabs + structure_templates)
+
+**Next Steps**:
+- Implement unified StructureLibrary with hybrid loading (.txt files + inline JSON)
+- Migrate existing structures to new format with pattern reuse
+- Integrate terrain-forge BSP/Voronoi for settlement layouts
+- Implement building placement algorithm with road generation
+- Add NPC spawning and faction integration
+- Connect to world map POI system
+
+**Benefits of Unified System**:
+- Single API for all structures (settlements, ruins, POIs)
+- Pattern reuse: one layout → multiple themed variants
+- Better editing: ASCII art in .txt files instead of JSON arrays
+- Cleaner version control: diffs show actual pattern changes
+
+**Documentation**: 
+- `docs/development/SETTLEMENT_GENERATION_PLAN.md` (original plan)
+- `docs/development/UNIFIED_STRUCTURE_SYSTEM.md` (new unified approach)
+- `docs/development/PREFAB_SYSTEM_DESIGN.md` (prefab details)
+
+**Depends on**: Faction system ✅, overworld travel ✅
 
 #### 5.5. Biome-Driven Tile Generation Profiles ✅
 
