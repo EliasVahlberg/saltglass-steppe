@@ -10,6 +10,7 @@ use super::{
 
 #[derive(Serialize, Deserialize)]
 pub struct PlayerState {
+    pub name: String,
     // Position
     pub x: i32,
     pub y: i32,
@@ -60,6 +61,7 @@ pub struct PlayerState {
 impl PlayerState {
     pub fn new() -> Self {
         Self {
+            name: String::new(),
             x: 0,
             y: 0,
             layer: 0,

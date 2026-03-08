@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 
 use super::state::GameState;
 
-pub const SAVE_VERSION: u32 = 2;
+pub const SAVE_VERSION: u32 = 3;
 pub const SAVES_DIR: &str = "saves";
 const META_PATH: &str = "saves/meta.json";
 
@@ -32,6 +32,12 @@ pub enum SaveStatus {
 #[derive(Serialize, Deserialize, Clone)]
 struct SaveEntryMeta {
     status: SaveStatus,
+    #[serde(default)]
+    saved_at: String,
+    #[serde(default)]
+    character_name: String,
+    #[serde(default)]
+    save_version: u32,
 }
 
 #[derive(Serialize, Deserialize, Default)]
@@ -55,7 +61,13 @@ fn save_meta(meta: &SaveMeta) {
 
 fn update_meta_status(stem: &str, status: SaveStatus) {
     let mut meta = load_meta();
-    meta.entries.insert(stem.to_string(), SaveEntryMeta { status });
+    let existing = meta.entries.remove(stem).unwrap_or(SaveEntryMeta {
+        status: status.clone(),
+        saved_at: String::new(),
+        character_name: String::new(),
+        save_version: 0,
+    });
+    meta.entries.insert(stem.to_string(), SaveEntryMeta { status, ..existing });
     save_meta(&meta);
 }
 
@@ -70,6 +82,9 @@ pub struct SaveInfo {
     pub status: SaveStatus,
     /// Human-readable modification time.
     pub modified: String,
+    pub saved_at: String,
+    pub character_name: String,
+    pub save_version: u32,
 }
 
 #[derive(Serialize)]
@@ -97,7 +112,14 @@ pub fn save_game(state: &GameState) -> Result<PathBuf, String> {
     let hash = compute_hash(&data);
     let path = PathBuf::from(SAVES_DIR).join(format!("{}.ron", hash));
     fs::write(&path, &data).map_err(|e| e.to_string())?;
-    update_meta_status(&hash, SaveStatus::Ok);
+    let mut meta = load_meta();
+    meta.entries.insert(hash.clone(), SaveEntryMeta {
+        status: SaveStatus::Ok,
+        saved_at: format_local_time(std::time::SystemTime::now()),
+        character_name: state.player.name.clone(),
+        save_version: SAVE_VERSION,
+    });
+    save_meta(&meta);
     Ok(path)
 }
 
@@ -175,7 +197,13 @@ pub fn list_saves() -> Vec<SaveInfo> {
                         SaveStatus::HashMismatch
                     };
                     if meta.entries.get(&stem).map(|m| &m.status) != Some(&new_status) {
-                        meta.entries.insert(stem.clone(), SaveEntryMeta { status: new_status.clone() });
+                        let old_entry = meta.entries.get(&stem).cloned();
+                        meta.entries.insert(stem.clone(), SaveEntryMeta {
+                            status: new_status.clone(),
+                            saved_at: old_entry.as_ref().map(|e| e.saved_at.clone()).unwrap_or_default(),
+                            character_name: old_entry.as_ref().map(|e| e.character_name.clone()).unwrap_or_default(),
+                            save_version: old_entry.as_ref().map(|e| e.save_version).unwrap_or_default(),
+                        });
                         meta_dirty = true;
                     }
                     new_status
@@ -187,6 +215,9 @@ pub fn list_saves() -> Vec<SaveInfo> {
                 path,
                 status,
                 modified,
+                saved_at: meta.entries.get(&stem).map(|m| m.saved_at.clone()).unwrap_or_default(),
+                character_name: meta.entries.get(&stem).map(|m| m.character_name.clone()).unwrap_or_default(),
+                save_version: meta.entries.get(&stem).map(|m| m.save_version).unwrap_or_default(),
             }))
         })
         .collect();
@@ -267,6 +298,10 @@ fn migrate_save(mut state: GameState, from_version: u32) -> Result<GameState, St
                         super::world_map::WorldMap::generate_faction_territories(state.seed);
                 }
             }
+            migrate_save(state, 2)
+        }
+        2 => {
+            state.player.name = String::new();
             Ok(state)
         }
         _ => Err(format!("Unknown save version: {}", from_version)),

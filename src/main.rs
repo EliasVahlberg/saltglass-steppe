@@ -624,25 +624,19 @@ fn run_main_game() -> Result<()> {
     'main: loop {
         // Main menu loop
         let mut menu_tick: u64 = 0;
-        let (class_id, seed) = loop {
+        let (class_id, seed, player_name) = loop {
             terminal.draw(|f| render_menu(f, menu_tick, &menu_state))?;
             menu_tick = menu_tick.wrapping_add(1);
             match handle_menu_input(&mut menu_state)? {
-                MenuAction::NewGame(class) => {
+                MenuAction::NewGame { class_id: class, name } => {
                     let seed = std::time::SystemTime::now()
                         .duration_since(std::time::UNIX_EPOCH)
                         .unwrap()
                         .as_secs();
-                    break (class, seed);
+                    break (class, seed, name);
                 }
-                MenuAction::NewGameWithSeed(seed) => {
-                    // Get the selected class
-                    let classes: Vec<_> = saltglass_steppe::all_classes()
-                        .iter()
-                        .filter(|c| menu_state.meta.is_class_unlocked(&c.id))
-                        .collect();
-                    let class = classes.get(menu_state.class_index).unwrap().id.clone();
-                    break (class, seed);
+                MenuAction::NewGameWithSeed { seed, class_id: class, name } => {
+                    break (class, seed, name);
                 }
                 MenuAction::Controls => {
                     // Show controls screen
@@ -695,7 +689,8 @@ fn run_main_game() -> Result<()> {
         };
 
         // Create game with selected class and seed
-        let state = GameState::new_with_class(seed, &class_id);
+        let mut state = GameState::new_with_class(seed, &class_id);
+        state.player.name = player_name;
         let outcome = run_game_session(&mut terminal, &mut renderer, state, |state, _ui| {
             use saltglass_steppe::ipc::IpcMessage;
             let adaptations: Vec<String> = state.player.adaptations.iter()

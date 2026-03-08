@@ -13,8 +13,8 @@ use crate::game::{MetaProgress, all_classes, save::{list_saves, SaveInfo, SaveSt
 
 /// Main menu action result
 pub enum MenuAction {
-    NewGame(String),
-    NewGameWithSeed(u64),
+    NewGame { class_id: String, name: String },
+    NewGameWithSeed { seed: u64, class_id: String, name: String },
     LoadGame(String),     // save file path
     Controls,
     Quit,
@@ -28,6 +28,9 @@ pub struct MainMenuState {
     pub selected: usize,
     pub class_select: bool,
     pub class_index: usize,
+    pub name_input: bool,
+    pub name_text: String,
+    pub pending_class: Option<String>,
     pub seed_input: bool,
     pub seed_text: String,
     pub pending_seed: Option<u64>,
@@ -166,6 +169,41 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
             });
         }
 
+        if state.name_input {
+            return Ok(match key.code {
+                KeyCode::Esc => {
+                    state.name_input = false;
+                    state.name_text.clear();
+                    state.pending_class = None;
+                    MenuAction::None
+                }
+                KeyCode::Enter => {
+                    let name = if state.name_text.trim().is_empty() {
+                        random_name()
+                    } else {
+                        state.name_text.trim().to_string()
+                    };
+                    state.name_input = false;
+                    state.name_text.clear();
+                    if let Some(seed) = state.pending_seed.take() {
+                        let class_id = state.pending_class.take().unwrap_or_default();
+                        MenuAction::NewGameWithSeed { seed, class_id, name }
+                    } else {
+                        let class_id = state.pending_class.take().unwrap_or_default();
+                        MenuAction::NewGame { class_id, name }
+                    }
+                }
+                KeyCode::Backspace => { state.name_text.pop(); MenuAction::None }
+                KeyCode::Char(c) if !c.is_control() => {
+                    if state.name_text.len() < 32 {
+                        state.name_text.push(c);
+                    }
+                    MenuAction::None
+                }
+                _ => MenuAction::None,
+            });
+        }
+
         if state.class_select {
             // Class selection mode
             let classes: Vec<_> = all_classes()
@@ -191,11 +229,11 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                 }
                 KeyCode::Enter => {
                     if let Some(class) = classes.get(state.class_index) {
-                        if let Some(seed) = state.pending_seed.take() {
-                            MenuAction::NewGameWithSeed(seed)
-                        } else {
-                            MenuAction::NewGame(class.id.clone())
-                        }
+                        state.class_select = false;
+                        state.pending_class = Some(class.id.clone());
+                        state.name_text = random_name();
+                        state.name_input = true;
+                        MenuAction::None
                     } else {
                         MenuAction::None
                     }
@@ -338,6 +376,11 @@ pub fn render_menu(frame: &mut Frame, tick: u64, state: &MainMenuState) {
     // Class selection overlay
     if state.class_select {
         render_class_select(frame, state);
+    }
+
+    // Name input overlay
+    if state.name_input {
+        render_name_input(frame, state);
     }
 
     // Seed input overlay
@@ -564,8 +607,9 @@ pub fn render_pause_menu(frame: &mut Frame, selected_index: usize) {
 }
 
 fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
+    use crate::game::save::SAVE_VERSION;
     let area = frame.area();
-    let width = 60u16.min(area.width.saturating_sub(4));
+    let width = 70u16.min(area.width.saturating_sub(4));
     let height = (state.save_entries.len() as u16 + 6).min(area.height.saturating_sub(4)).max(8);
     let x = (area.width.saturating_sub(width)) / 2;
     let y = (area.height.saturating_sub(height)) / 2;
@@ -587,10 +631,17 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
                 Style::default().fg(Color::White)
             };
             let prefix = if i == state.save_list_index { "► " } else { "  " };
+            let name_part = if s.character_name.is_empty() {
+                format!("{}...", s.short_hash)
+            } else {
+                s.character_name.clone()
+            };
+            let version_sym = if s.save_version > 0 && s.save_version < SAVE_VERSION { " ↑" } else { "" };
+            let date_part = if s.saved_at.is_empty() { s.modified.clone() } else { s.saved_at.clone() };
             ListItem::new(Line::from(vec![
                 Span::styled(prefix, style),
                 Span::styled(symbol, Style::default().fg(sym_color)),
-                Span::styled(format!(" {}...  {}", s.short_hash, s.modified), style),
+                Span::styled(format!(" {:<20} {}{}", name_part, date_part, version_sym), style),
             ]))
         }).collect()
     };
@@ -626,4 +677,51 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
             err_popup,
         );
     }
+}
+
+fn render_name_input(frame: &mut Frame, state: &MainMenuState) {
+    let area = frame.area();
+    let width = 50u16.min(area.width - 4);
+    let height = 9u16.min(area.height - 4);
+    let x = (area.width.saturating_sub(width)) / 2;
+    let y = (area.height.saturating_sub(height)) / 2;
+    let popup = Rect::new(x, y, width, height);
+    frame.render_widget(Clear, popup);
+
+    let display = if state.name_text.is_empty() { random_name() } else { state.name_text.clone() };
+    let input_style = if state.name_text.is_empty() {
+        Style::default().fg(Color::DarkGray)
+    } else {
+        Style::default().fg(Color::Yellow)
+    };
+    let lines = vec![
+        Line::from(""),
+        Line::from(Span::styled("Name your character:", Style::default().fg(Color::White))),
+        Line::from(""),
+        Line::from(Span::styled(format!("> {}_", display), input_style)),
+        Line::from(""),
+        Line::from(Span::styled("(pre-filled at random — type to change)", Style::default().fg(Color::DarkGray))),
+        Line::from(""),
+        Line::from(Span::styled("[Enter] Confirm  [Esc] Back", Style::default().fg(Color::DarkGray))),
+    ];
+    let block = Block::default()
+        .title(" Name Your Character ")
+        .borders(Borders::ALL)
+        .style(Style::default().bg(Color::Black));
+    frame.render_widget(Paragraph::new(lines).block(block), popup);
+}
+
+fn random_name() -> String {
+    static NAMES: std::sync::OnceLock<Vec<String>> = std::sync::OnceLock::new();
+    let names = NAMES.get_or_init(|| {
+        std::fs::read_to_string("data/character_names.json")
+            .ok()
+            .and_then(|s| serde_json::from_str::<Vec<String>>(&s).ok())
+            .unwrap_or_else(|| vec!["Vael".to_string()])
+    });
+    let idx = (std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0) as usize) % names.len();
+    names[idx].clone()
 }
