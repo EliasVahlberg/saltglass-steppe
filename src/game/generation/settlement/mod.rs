@@ -56,6 +56,41 @@ pub fn generate_settlement<R: Rng>(config: SettlementConfig, rng: &mut R) -> Set
     }
 }
 
+/// Clear natural walls inside the dilated settlement bounding box.
+/// Call this before `stamp_settlement` so terrain doesn't bleed into the town.
+pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement) {
+    let library = match StructureLibrary::load() {
+        Ok(lib) => lib,
+        Err(_) => return,
+    };
+
+    const DILATION: i32 = 6;
+
+    let (mut min_x, mut min_y) = (i32::MAX, i32::MAX);
+    let (mut max_x, mut max_y) = (i32::MIN, i32::MIN);
+
+    for b in &settlement.buildings {
+        let (w, h) = library.get(&b.prefab_name)
+            .map(|s| (s.width as i32, s.height as i32))
+            .unwrap_or((6, 6));
+        min_x = min_x.min(b.x);
+        min_y = min_y.min(b.y);
+        max_x = max_x.max(b.x + w);
+        max_y = max_y.max(b.y + h);
+    }
+
+    if min_x == i32::MAX { return; }
+
+    for cy in (min_y - DILATION)..(max_y + DILATION) {
+        for cx in (min_x - DILATION)..(max_x + DILATION) {
+            if cx < 0 || cy < 0 || cx >= map.width as i32 || cy >= map.height as i32 { continue; }
+            if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
+                map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dry_soil".to_string() });
+            }
+        }
+    }
+}
+
 /// Stamp settlement buildings onto the map
 pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
     let library = match StructureLibrary::load() {

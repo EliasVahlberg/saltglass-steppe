@@ -155,7 +155,7 @@ fn display_tile_map(seed: u64) {
 }
 
 fn display_settlement(seed: u64, tier: SettlementTier) {
-    use saltglass_steppe::game::generation::settlement::{stamp_settlement, place_decorations};
+    use saltglass_steppe::game::generation::settlement::{clear_settlement_footprint, stamp_settlement, place_decorations};
 
     println!("Generating settlement with seed: {} and tier: {:?}", seed, tier);
 
@@ -180,6 +180,7 @@ fn display_settlement(seed: u64, tier: SettlementTier) {
 
     // Stamp onto a map and render
     let mut map = Map::generate_from_world(&mut ChaCha8Rng::seed_from_u64(seed), Biome::Saltflat, Terrain::Flat, 0).0;
+    clear_settlement_footprint(&mut map, &settlement);
     stamp_settlement(&mut map, &settlement);
     place_decorations(&mut map, &settlement, &mut ChaCha8Rng::seed_from_u64(seed));
 
