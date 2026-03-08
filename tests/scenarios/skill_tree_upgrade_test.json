@@ -1,0 +1,99 @@
+{
+  "name": "skill_tree_upgrade_test",
+  "description": "Verify skill upgrade mechanics: spend SP, passive bonus recalculation, prerequisite enforcement",
+  "seed": 99,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 4,
+    "max_ap": 4,
+    "skill_points": 20
+  },
+  "mocks": {},
+  "map_setup": {
+    "clear_radius": 5
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "log", "query": { "custom": { "message": "Upgrading angle_reading (melee_combat, no prereqs)" } } }
+    },
+    {
+      "turn": 1,
+      "action": { "type": "upgrade_skill", "skill_id": "angle_reading" }
+    },
+    {
+      "turn": 2,
+      "action": { "type": "log", "query": { "custom": { "message": "Upgrading draw_a_bead (ranged_combat, no prereqs)" } } }
+    },
+    {
+      "turn": 3,
+      "action": { "type": "upgrade_skill", "skill_id": "draw_a_bead" }
+    },
+    {
+      "turn": 4,
+      "action": { "type": "log", "query": { "custom": { "message": "Attempting snipers_eye — prereq draw_a_bead lv2 NOT met, should fail" } } }
+    },
+    {
+      "turn": 5,
+      "action": { "type": "upgrade_skill", "skill_id": "snipers_eye" }
+    },
+    {
+      "turn": 6,
+      "action": { "type": "upgrade_skill", "skill_id": "draw_a_bead" }
+    },
+    {
+      "turn": 7,
+      "action": { "type": "log", "query": { "custom": { "message": "draw_a_bead now lv2 — snipers_eye prereq met, should succeed" } } }
+    },
+    {
+      "turn": 8,
+      "action": { "type": "upgrade_skill", "skill_id": "snipers_eye" }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 1,
+      "check": { "type": "skill_level", "skill_id": "angle_reading", "op": "eq", "value": 1 },
+      "message": "angle_reading should be level 1 after upgrade"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "passive_bonus", "key": "melee_accuracy_bonus", "op": "gt", "value": 0.0 },
+      "message": "melee_accuracy_bonus should be > 0 after angle_reading upgrade"
+    },
+    {
+      "after_turn": 3,
+      "check": { "type": "skill_level", "skill_id": "draw_a_bead", "op": "eq", "value": 1 },
+      "message": "draw_a_bead should be level 1"
+    },
+    {
+      "after_turn": 5,
+      "check": { "type": "skill_level", "skill_id": "snipers_eye", "op": "eq", "value": 0 },
+      "message": "snipers_eye should NOT upgrade — prereq draw_a_bead lv2 not met"
+    },
+    {
+      "after_turn": 6,
+      "check": { "type": "skill_level", "skill_id": "draw_a_bead", "op": "eq", "value": 2 },
+      "message": "draw_a_bead should be level 2"
+    },
+    {
+      "after_turn": 8,
+      "check": { "type": "skill_level", "skill_id": "snipers_eye", "op": "eq", "value": 1 },
+      "message": "snipers_eye should upgrade now that prereq is met"
+    },
+    {
+      "after_turn": 8,
+      "check": { "type": "passive_bonus", "key": "ranged_accuracy_bonus", "op": "gt", "value": 0.0 },
+      "message": "ranged_accuracy_bonus should be > 0 from draw_a_bead upgrades"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}

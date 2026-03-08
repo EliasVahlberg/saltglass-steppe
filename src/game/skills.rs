@@ -7,11 +7,40 @@ use std::collections::HashMap;
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "snake_case")]
 pub enum SkillCategory {
-    Combat,
-    Athletics,
-    Survival,
+    SaltAlchemy,
     Crafting,
     Social,
+    Survival,
+    Medical,
+    MeleeCombat,
+    RangedCombat,
+    // Legacy variants kept for save compatibility
+    Combat,
+    Athletics,
+}
+
+pub const SKILL_CATEGORIES: &[SkillCategory] = &[
+    SkillCategory::SaltAlchemy,
+    SkillCategory::Crafting,
+    SkillCategory::Social,
+    SkillCategory::Survival,
+    SkillCategory::Medical,
+    SkillCategory::MeleeCombat,
+    SkillCategory::RangedCombat,
+];
+
+pub fn category_name(cat: &SkillCategory) -> &'static str {
+    match cat {
+        SkillCategory::SaltAlchemy => "Salt Alchemy",
+        SkillCategory::Crafting => "Crafting",
+        SkillCategory::Social => "Social",
+        SkillCategory::Survival => "Survival",
+        SkillCategory::Medical => "Medical",
+        SkillCategory::MeleeCombat => "Melee Combat",
+        SkillCategory::RangedCombat => "Ranged Combat",
+        SkillCategory::Combat => "Combat",
+        SkillCategory::Athletics => "Athletics",
+    }
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -40,6 +69,12 @@ pub struct SkillDef {
     pub prerequisites: Vec<SkillPrerequisite>,
     #[serde(default)]
     pub passive_effects: Vec<PassiveEffect>,
+    #[serde(default)]
+    pub tree_parent: Option<String>,
+    #[serde(default)]
+    pub blocked: bool,
+    #[serde(default)]
+    pub active: bool,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -224,6 +259,23 @@ impl SkillsState {
     pub fn get_skill_level(&self, skill_id: &str) -> u32 {
         self.skills.get(skill_id).unwrap_or(&0).clone()
     }
+
+    // --- Typed passive accessors ---
+    pub fn melee_accuracy_bonus(&self) -> f32 {
+        self.passive_bonuses.get("melee_accuracy_bonus").copied().unwrap_or(0.0)
+    }
+    pub fn melee_damage_bonus(&self) -> f32 {
+        self.passive_bonuses.get("melee_damage_bonus").copied().unwrap_or(0.0)
+    }
+    pub fn ranged_accuracy_bonus(&self) -> f32 {
+        self.passive_bonuses.get("ranged_accuracy_bonus").copied().unwrap_or(0.0)
+    }
+    pub fn ranged_damage_bonus(&self) -> f32 {
+        self.passive_bonuses.get("ranged_damage_bonus").copied().unwrap_or(0.0)
+    }
+    pub fn passive(&self, key: &str) -> f32 {
+        self.passive_bonuses.get(key).copied().unwrap_or(0.0)
+    }
 }
 
 /// Calculate XP cost for upgrading a skill
@@ -235,22 +287,41 @@ pub fn calculate_skill_cost(skill_id: &str, current_level: u32) -> u32 {
     base_cost * (current_level + 1)
 }
 
+#[derive(Deserialize)]
+struct AbilitiesFile {
+    #[serde(default)]
+    skills: Vec<SkillDef>,
+    #[serde(default)]
+    abilities: Vec<AbilityDef>,
+}
+
 // Data loading
+#[derive(Deserialize)]
+struct SkillTreesFile {
+    #[serde(default)]
+    skills: Vec<SkillDef>,
+}
+
 static SKILLS: Lazy<HashMap<String, SkillDef>> = Lazy::new(|| {
-    let data = include_str!("../../data/abilities.json");
-    match serde_json::from_str::<AbilitiesFile>(data) {
-        Ok(file) => {
-            let mut skills_map = HashMap::new();
-            for skill in file.skills {
-                skills_map.insert(skill.id.clone(), skill);
-            }
-            skills_map
-        }
-        Err(e) => {
-            eprintln!("Failed to parse abilities.json (skills): {}", e);
-            HashMap::new()
+    let mut skills_map = HashMap::new();
+
+    // Load legacy skills from abilities.json
+    let abilities_data = include_str!("../../data/abilities.json");
+    if let Ok(file) = serde_json::from_str::<AbilitiesFile>(abilities_data) {
+        for skill in file.skills {
+            skills_map.insert(skill.id.clone(), skill);
         }
     }
+
+    // Load tree-structured skills from skill_trees.json (overrides on conflict)
+    let tree_data = include_str!("../../data/skill_trees.json");
+    if let Ok(file) = serde_json::from_str::<SkillTreesFile>(tree_data) {
+        for skill in file.skills {
+            skills_map.insert(skill.id.clone(), skill);
+        }
+    }
+
+    skills_map
 });
 
 static ABILITIES: Lazy<HashMap<String, AbilityDef>> = Lazy::new(|| {
@@ -301,10 +372,22 @@ pub fn get_abilities_by_category(category: &SkillCategory) -> Vec<&AbilityDef> {
         .collect()
 }
 
-#[derive(Deserialize)]
-struct AbilitiesFile {
-    #[serde(default)]
-    skills: Vec<SkillDef>,
-    #[serde(default)]
-    abilities: Vec<AbilityDef>,
+/// Root skills for a category (no tree_parent), sorted by id for stable layout
+pub fn get_category_roots(category: &SkillCategory) -> Vec<&'static SkillDef> {
+    let mut roots: Vec<&SkillDef> = SKILLS
+        .values()
+        .filter(|def| &def.category == category && def.tree_parent.is_none())
+        .collect();
+    roots.sort_by(|a, b| a.id.cmp(&b.id));
+    roots
+}
+
+/// Direct children of a skill node, sorted by id for stable layout
+pub fn get_skill_children(parent_id: &str) -> Vec<&'static SkillDef> {
+    let mut children: Vec<&SkillDef> = SKILLS
+        .values()
+        .filter(|def| def.tree_parent.as_deref() == Some(parent_id))
+        .collect();
+    children.sort_by(|a, b| a.id.cmp(&b.id));
+    children
 }

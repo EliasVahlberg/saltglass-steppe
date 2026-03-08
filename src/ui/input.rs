@@ -5,6 +5,7 @@ use super::{
     CraftingMenu, CrystalMenu, DebugMenu, FactionMenu, InventoryMenu, IssueReporter, LightMenu, MenuPanel, PsychicMenu, QuestLogMenu,
     SkillsMenu, TradeMenu, VoidMenu, WikiMenu, WorldMapView,
 };
+use super::skills_menu::{NODE_W, NODE_H};
 use crate::GameState;
 use crate::all_recipe_ids;
 use crossterm::event::{self, Event, KeyCode, KeyEventKind};
@@ -1164,65 +1165,30 @@ fn handle_crystal_menu_input(ui: &mut UiState, code: KeyCode) -> Action {
 }
 
 fn handle_skills_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyCode) -> Action {
-    use super::skills_menu::SkillsMenuMode;
-    use crate::game::skills::{get_abilities_by_category, get_skills_by_category};
-
     match code {
         KeyCode::Esc | KeyCode::Char('s') => {
             ui.skills_menu.active = false;
-            Action::None
         }
-        KeyCode::Tab => {
-            ui.skills_menu.toggle_mode();
-            Action::None
-        }
-        KeyCode::Left | KeyCode::Char('h') => {
-            ui.skills_menu.prev_category();
-            Action::None
-        }
-        KeyCode::Right | KeyCode::Char('l') => {
-            ui.skills_menu.next_category();
-            Action::None
-        }
-        KeyCode::Up | KeyCode::Char('k') => {
-            ui.skills_menu.navigate_up();
-            Action::None
-        }
-        KeyCode::Down | KeyCode::Char('j') => {
-            let max_items = match ui.skills_menu.mode {
-                SkillsMenuMode::Skills => {
-                    get_skills_by_category(&ui.skills_menu.selected_category).len()
-                }
-                SkillsMenuMode::Abilities => {
-                    get_abilities_by_category(&ui.skills_menu.selected_category).len()
-                }
-            };
-            ui.skills_menu.navigate_down(max_items);
-            Action::None
-        }
+        // Category navigation
+        KeyCode::Tab => ui.skills_menu.next_category(),
+        KeyCode::BackTab => ui.skills_menu.prev_category(),
+        // Cursor navigation (tree edges)
+        KeyCode::Left => ui.skills_menu.cursor_left(),
+        KeyCode::Right => ui.skills_menu.cursor_right(),
+        KeyCode::Up => ui.skills_menu.cursor_up(),
+        KeyCode::Down => ui.skills_menu.cursor_down(),
+        // Pan (HJKL)
+        KeyCode::Char('h') | KeyCode::Char('H') => ui.skills_menu.pan(-NODE_W, 0),
+        KeyCode::Char('l') | KeyCode::Char('L') => ui.skills_menu.pan(NODE_W, 0),
+        KeyCode::Char('k') | KeyCode::Char('K') => ui.skills_menu.pan(0, -(NODE_H + 1)),
+        KeyCode::Char('j') | KeyCode::Char('J') => ui.skills_menu.pan(0, NODE_H + 1),
+        // Upgrade
         KeyCode::Enter => {
-            match ui.skills_menu.mode {
-                SkillsMenuMode::Skills => {
-                    match ui.skills_menu.upgrade_skill(state) {
-                        Ok(()) => {
-                            // Success message will be logged by the upgrade function
-                        }
-                        Err(e) => {
-                            state.log(e);
-                        }
-                    }
-                }
-                SkillsMenuMode::Abilities => match ui.skills_menu.use_ability(state) {
-                    Ok(()) => {
-                        ui.skills_menu.active = false;
-                    }
-                    Err(e) => {
-                        state.log(e);
-                    }
-                },
+            if let Err(e) = ui.skills_menu.upgrade_selected(state) {
+                state.log(e);
             }
-            Action::None
         }
-        _ => Action::None,
+        _ => {}
     }
+    Action::None
 }

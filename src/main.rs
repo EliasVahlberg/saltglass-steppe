@@ -406,7 +406,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
         return;
     }
     if ui.skills_menu.active {
-        render_skills_menu(frame, state, &ui.skills_menu);
+        render_skills_menu(frame, state, &mut ui.skills_menu);
         return;
     }
     if ui.world_map_view.open {

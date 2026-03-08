@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "skill_trees.schema.json",
+  "title": "Skill Trees",
+  "description": "Skill tree definitions for Saltglass Steppe",
+  "type": "object",
+  "required": ["schema", "skills"],
+  "properties": {
+    "schema": { "type": "string" },
+    "skills": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/SkillDef" }
+    }
+  },
+  "definitions": {
+    "SkillCategory": {
+      "type": "string",
+      "enum": ["salt_alchemy", "crafting", "social", "survival", "medical", "melee_combat", "ranged_combat"]
+    },
+    "SkillPrerequisite": {
+      "type": "object",
+      "required": ["skill_id", "required_level"],
+      "properties": {
+        "skill_id": { "type": "string", "description": "ID of the required skill" },
+        "required_level": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "PassiveEffect": {
+      "type": "object",
+      "required": ["effect_type", "target", "value_per_level"],
+      "properties": {
+        "effect_type": {
+          "type": "string",
+          "description": "Key written into passive_bonuses HashMap",
+          "examples": ["melee_damage_bonus", "ranged_accuracy_bonus", "craft_success", "detection_reduction", "buy_price_reduction", "sell_price_bonus", "healing_bonus", "armor_bonus"]
+        },
+        "target": { "type": "string", "description": "Semantic target label (melee, ranged, all, etc.)" },
+        "value_per_level": { "type": "number", "description": "Bonus added per skill level" },
+        "max_value": { "type": "number", "description": "Optional cap on total bonus" }
+      },
+      "additionalProperties": false
+    },
+    "SkillDef": {
+      "type": "object",
+      "required": ["id", "name", "category", "description", "max_level", "base_cost"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" },
+        "name": { "type": "string" },
+        "category": { "$ref": "#/definitions/SkillCategory" },
+        "description": { "type": "string" },
+        "max_level": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "base_cost": { "type": "integer", "minimum": 1 },
+        "tree_parent": {
+          "type": ["string", "null"],
+          "description": "ID of parent skill in the tree. Null = root node."
+        },
+        "blocked": {
+          "type": "boolean",
+          "default": false,
+          "description": "True if the skill depends on an unimplemented system (storm, hunger, etc.)"
+        },
+        "active": {
+          "type": "boolean",
+          "default": false,
+          "description": "True if the skill has an active use handler in skills_menu.rs"
+        },
+        "prerequisites": {
+          "type": "array",
+          "default": [],
+          "items": { "$ref": "#/definitions/SkillPrerequisite" }
+        },
+        "passive_effects": {
+          "type": "array",
+          "default": [],
+          "items": { "$ref": "#/definitions/PassiveEffect" }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

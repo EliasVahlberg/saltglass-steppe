@@ -174,8 +174,8 @@ impl CombatSystem {
         let enemy_armor = state.world.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
 
         // Get skill bonuses
-        let accuracy_bonus = state.player.skills.passive_bonuses.get("melee_accuracy_bonus").copied().unwrap_or(0.0);
-        let damage_bonus = state.player.skills.passive_bonuses.get("melee_damage_bonus").copied().unwrap_or(0.0);
+        let accuracy_bonus = state.player.skills.melee_accuracy_bonus();
+        let damage_bonus = state.player.skills.melee_damage_bonus();
 
         // Apply accuracy bonus to hit chance
         let cover_bonus = -(accuracy_bonus * 100.0) as i32;
@@ -318,8 +318,8 @@ impl CombatSystem {
         let enemy_armor = state.world.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
         
         // Get skill bonuses
-        let accuracy_bonus = state.player.skills.passive_bonuses.get("ranged_accuracy_bonus").copied().unwrap_or(0.0);
-        let damage_bonus = state.player.skills.passive_bonuses.get("ranged_damage_bonus").copied().unwrap_or(0.0);
+        let accuracy_bonus = state.player.skills.ranged_accuracy_bonus();
+        let damage_bonus = state.player.skills.ranged_damage_bonus();
 
         // Apply accuracy bonus to hit chance
         let cover_bonus = -(accuracy_bonus * 100.0) as i32;

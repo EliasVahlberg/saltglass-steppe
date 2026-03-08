@@ -1,0 +1,442 @@
+{
+  "schema": "skill_trees_v1",
+  "skills": [
+    {
+      "id": "crucible_techniques",
+      "name": "Crucible Techniques",
+      "category": "salt_alchemy",
+      "description": "Foundational knowledge of salt crucible operation. Unlocks basic alchemy recipes and improves reagent yield.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "craft_success", "target": "alchemy", "value_per_level": 0.05, "max_value": 0.15 }
+      ]
+    },
+    {
+      "id": "adaptation_tinctures",
+      "name": "Adaptation Tinctures",
+      "category": "salt_alchemy",
+      "description": "Brew tinctures that temporarily suppress adaptation side-effects. Reduces social penalties from visible mutations.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": "crucible_techniques",
+      "prerequisites": [{ "skill_id": "crucible_techniques", "required_level": 1 }],
+      "passive_effects": [
+        { "effect_type": "adaptation_penalty_reduction", "target": "social", "value_per_level": 0.1, "max_value": 0.2 }
+      ]
+    },
+    {
+      "id": "poison_creation",
+      "name": "Poison Creation",
+      "category": "salt_alchemy",
+      "description": "Synthesize contact and ingested poisons from salt compounds. Unlocks poison crafting recipes.",
+      "max_level": 3,
+      "base_cost": 3,
+      "tree_parent": "crucible_techniques",
+      "prerequisites": [{ "skill_id": "crucible_techniques", "required_level": 2 }],
+      "passive_effects": [
+        { "effect_type": "poison_potency", "target": "crafted", "value_per_level": 0.1, "max_value": 0.3 }
+      ]
+    },
+    {
+      "id": "contact_poison",
+      "name": "Contact Poison",
+      "category": "salt_alchemy",
+      "description": "Apply poison to weapons. Requires trap-setting infrastructure.",
+      "max_level": 2,
+      "base_cost": 4,
+      "tree_parent": "poison_creation",
+      "blocked": true,
+      "prerequisites": [{ "skill_id": "poison_creation", "required_level": 2 }],
+      "passive_effects": [
+        { "effect_type": "weapon_poison_duration", "target": "melee", "value_per_level": 1.0, "max_value": 2.0 }
+      ]
+    },
+    {
+      "id": "brine_distillation",
+      "name": "Brine Distillation",
+      "category": "salt_alchemy",
+      "description": "Extract pure brine from salt deposits. Foundation for advanced reagents and stimulants.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "craft_quality", "target": "alchemy", "value_per_level": 0.05, "max_value": 0.15 }
+      ]
+    },
+    {
+      "id": "salt_preservation",
+      "name": "Salt Preservation",
+      "category": "salt_alchemy",
+      "description": "Preserve food and medical supplies using salt compounds. Extends item shelf life.",
+      "max_level": 2,
+      "base_cost": 2,
+      "tree_parent": "brine_distillation",
+      "prerequisites": [{ "skill_id": "brine_distillation", "required_level": 1 }],
+      "passive_effects": [
+        { "effect_type": "item_preservation", "target": "consumables", "value_per_level": 0.2, "max_value": 0.4 }
+      ]
+    },
+    {
+      "id": "void_reagents",
+      "name": "Void Reagents",
+      "category": "salt_alchemy",
+      "description": "Work with void-touched salt compounds. Dangerous but potent.",
+      "max_level": 3,
+      "base_cost": 4,
+      "tree_parent": "brine_distillation",
+      "prerequisites": [{ "skill_id": "brine_distillation", "required_level": 2 }],
+      "passive_effects": [
+        { "effect_type": "void_craft_bonus", "target": "alchemy", "value_per_level": 0.1, "max_value": 0.3 }
+      ]
+    },
+    {
+      "id": "scrap_salvage",
+      "name": "Scrap Salvage",
+      "category": "crafting",
+      "description": "Extract usable components from broken equipment and debris. Increases salvage yield.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "salvage_yield", "target": "scrap", "value_per_level": 0.1, "max_value": 0.3 }
+      ]
+    },
+    {
+      "id": "expert_salvage",
+      "name": "Expert Salvage",
+      "category": "crafting",
+      "description": "Recover rare components from elite and boss enemies. Chance to find intact parts.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": "scrap_salvage",
+      "prerequisites": [{ "skill_id": "scrap_salvage", "required_level": 2 }],
+      "passive_effects": [
+        { "effect_type": "rare_salvage_chance", "target": "scrap", "value_per_level": 0.05, "max_value": 0.1 }
+      ]
+    },
+    {
+      "id": "weapon_modding",
+      "name": "Weapon Modding",
+      "category": "crafting",
+      "description": "Modify weapons with salvaged parts. Unlocks weapon modification recipes.",
+      "max_level": 3,
+      "base_cost": 3,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "craft_success", "target": "weapons", "value_per_level": 0.05, "max_value": 0.15 }
+      ]
+    },
+    {
+      "id": "ammo_fabrication",
+      "name": "Ammo Fabrication",
+      "category": "crafting",
+      "description": "Craft ammunition from raw materials. Reduces ammo consumption.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "ammo_craft_yield", "target": "ranged", "value_per_level": 0.1, "max_value": 0.3 }
+      ]
+    },
+    {
+      "id": "faction_lore",
+      "name": "Faction Lore",
+      "category": "social",
+      "description": "Deep knowledge of faction histories, customs, and power structures. Improves faction interactions.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "faction_rep_gain", "target": "all", "value_per_level": 0.05, "max_value": 0.15 }
+      ]
+    },
+    {
+      "id": "faction_expertise",
+      "name": "Faction Expertise",
+      "category": "social",
+      "description": "Expert-level faction knowledge. Unlocks faction-specific dialogue options.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": "faction_lore",
+      "prerequisites": [{ "skill_id": "faction_lore", "required_level": 2 }],
+      "passive_effects": [
+        { "effect_type": "faction_rep_gain", "target": "all", "value_per_level": 0.05, "max_value": 0.1 }
+      ]
+    },
+    {
+      "id": "bartering",
+      "name": "Bartering",
+      "category": "social",
+      "description": "Negotiate better prices with traders. Reduces buy prices and increases sell prices.",
+      "max_level": 4,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "buy_price_reduction", "target": "trading", "value_per_level": 0.04, "max_value": 0.16 },
+        { "effect_type": "sell_price_bonus", "target": "trading", "value_per_level": 0.03, "max_value": 0.12 }
+      ]
+    },
+    {
+      "id": "hard_bargaining",
+      "name": "Hard Bargaining",
+      "category": "social",
+      "description": "Push negotiations to the limit. Greater price reductions but risks offending traders.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": "bartering",
+      "prerequisites": [{ "skill_id": "bartering", "required_level": 2 }],
+      "passive_effects": [
+        { "effect_type": "buy_price_reduction", "target": "trading", "value_per_level": 0.05, "max_value": 0.1 }
+      ]
+    },
+    {
+      "id": "intimidation",
+      "name": "Intimidation",
+      "category": "social",
+      "description": "Use physical presence and reputation to cow enemies and NPCs.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "flee_bonus", "target": "enemies", "value_per_level": 0.05, "max_value": 0.15 }
+      ]
+    },
+    {
+      "id": "scavenging",
+      "name": "Scavenging",
+      "category": "survival",
+      "description": "Find useful items in the environment. Increases loot quality from containers and corpses.",
+      "max_level": 4,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "loot_quality", "target": "scavenge", "value_per_level": 0.05, "max_value": 0.2 }
+      ]
+    },
+    {
+      "id": "expert_scavenging",
+      "name": "Expert Scavenging",
+      "category": "survival",
+      "description": "Find rare and hidden caches. Reveals hidden containers on the map.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": "scavenging",
+      "prerequisites": [{ "skill_id": "scavenging", "required_level": 3 }],
+      "passive_effects": [
+        { "effect_type": "hidden_cache_reveal", "target": "map", "value_per_level": 0.1, "max_value": 0.2 }
+      ]
+    },
+    {
+      "id": "track_and_trace",
+      "name": "Track & Trace",
+      "category": "survival",
+      "description": "Read environmental signs to track enemies and find resources.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "detection_reduction", "target": "player", "value_per_level": 0.05, "max_value": 0.15 }
+      ]
+    },
+    {
+      "id": "dust_walking",
+      "name": "Dust Walking",
+      "category": "survival",
+      "description": "Move silently across salt flats and dusty terrain. Reduces detection range.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "detection_reduction", "target": "player", "value_per_level": 0.06, "max_value": 0.18 }
+      ]
+    },
+    {
+      "id": "biome_lore",
+      "name": "Biome Lore",
+      "category": "survival",
+      "description": "Knowledge of biome-specific hazards and resources. Reduces encounter frequency.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "encounter_reduction", "target": "travel", "value_per_level": 0.05, "max_value": 0.15 }
+      ]
+    },
+    {
+      "id": "basic_medical_practice",
+      "name": "Basic Medical Practice",
+      "category": "medical",
+      "description": "Foundational wound treatment. Improves healing from all sources.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "healing_bonus", "target": "all", "value_per_level": 0.08, "max_value": 0.24 }
+      ]
+    },
+    {
+      "id": "wound_packing",
+      "name": "Wound Packing",
+      "category": "medical",
+      "description": "Stop bleeding wounds quickly. Active: remove bleeding status.",
+      "max_level": 2,
+      "base_cost": 2,
+      "tree_parent": "basic_medical_practice",
+      "active": true,
+      "prerequisites": [{ "skill_id": "basic_medical_practice", "required_level": 1 }],
+      "passive_effects": [
+        { "effect_type": "bleed_resistance", "target": "player", "value_per_level": 0.1, "max_value": 0.2 }
+      ]
+    },
+    {
+      "id": "triage",
+      "name": "Triage",
+      "category": "medical",
+      "description": "Rapidly assess and prioritize injuries. Reduces time cost of medical actions.",
+      "max_level": 2,
+      "base_cost": 2,
+      "tree_parent": "basic_medical_practice",
+      "prerequisites": [{ "skill_id": "basic_medical_practice", "required_level": 1 }],
+      "passive_effects": [
+        { "effect_type": "medical_ap_reduction", "target": "actions", "value_per_level": 0.1, "max_value": 0.2 }
+      ]
+    },
+    {
+      "id": "stimulant_use",
+      "name": "Stimulant Use",
+      "category": "medical",
+      "description": "Safe use of combat stimulants. Reduces negative side-effects.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "stimulant_side_effect_reduction", "target": "player", "value_per_level": 0.1, "max_value": 0.3 }
+      ]
+    },
+    {
+      "id": "glass_fighting",
+      "name": "Glass Fighting",
+      "category": "melee_combat",
+      "description": "Combat techniques developed against glass-bodied enemies. Bonus damage to glass-type enemies.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "melee_damage_bonus", "target": "glass_enemies", "value_per_level": 0.06, "max_value": 0.18 }
+      ]
+    },
+    {
+      "id": "seam_breaker",
+      "name": "Seam Breaker",
+      "category": "melee_combat",
+      "description": "Strike the crystalline seams in glass enemies for critical hits.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": "glass_fighting",
+      "prerequisites": [{ "skill_id": "glass_fighting", "required_level": 2 }],
+      "passive_effects": [
+        { "effect_type": "melee_crit_chance", "target": "glass_enemies", "value_per_level": 0.05, "max_value": 0.1 }
+      ]
+    },
+    {
+      "id": "angle_reading",
+      "name": "Angle Reading",
+      "category": "melee_combat",
+      "description": "Read enemy attack angles to find openings. Improves melee accuracy.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "melee_accuracy_bonus", "target": "melee", "value_per_level": 0.04, "max_value": 0.12 }
+      ]
+    },
+    {
+      "id": "vortex_footwork",
+      "name": "Vortex Footwork",
+      "category": "melee_combat",
+      "description": "Circular movement patterns that confuse enemies. Reduces incoming melee damage.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "melee_damage_reduction", "target": "incoming", "value_per_level": 0.04, "max_value": 0.12 }
+      ]
+    },
+    {
+      "id": "salt_flurry",
+      "name": "Salt Flurry",
+      "category": "melee_combat",
+      "description": "A rapid series of light strikes. Active: attack twice at reduced damage.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": null,
+      "active": true,
+      "passive_effects": [
+        { "effect_type": "melee_damage_bonus", "target": "melee", "value_per_level": 0.03, "max_value": 0.06 }
+      ]
+    },
+    {
+      "id": "draw_a_bead",
+      "name": "Draw a Bead",
+      "category": "ranged_combat",
+      "description": "Steady aim technique. Improves ranged accuracy.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "ranged_accuracy_bonus", "target": "ranged", "value_per_level": 0.05, "max_value": 0.15 }
+      ]
+    },
+    {
+      "id": "snipers_eye",
+      "name": "Sniper's Eye",
+      "category": "ranged_combat",
+      "description": "Long-range precision. Bonus damage at maximum weapon range.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": "draw_a_bead",
+      "prerequisites": [{ "skill_id": "draw_a_bead", "required_level": 2 }],
+      "passive_effects": [
+        { "effect_type": "ranged_damage_bonus", "target": "max_range", "value_per_level": 0.08, "max_value": 0.16 }
+      ]
+    },
+    {
+      "id": "ammo_conservation",
+      "name": "Ammo Conservation",
+      "category": "ranged_combat",
+      "description": "Efficient ammo use. Chance to not consume ammo on a shot.",
+      "max_level": 3,
+      "base_cost": 2,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "ammo_conservation_chance", "target": "ranged", "value_per_level": 0.04, "max_value": 0.12 }
+      ]
+    },
+    {
+      "id": "brine_volley",
+      "name": "Brine Volley",
+      "category": "ranged_combat",
+      "description": "Fire brine-soaked projectiles that apply corrosion. Unlocks brine ammo recipes.",
+      "max_level": 2,
+      "base_cost": 3,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "ranged_damage_bonus", "target": "ranged", "value_per_level": 0.04, "max_value": 0.08 }
+      ]
+    },
+    {
+      "id": "void_aim",
+      "name": "Void Aim",
+      "category": "ranged_combat",
+      "description": "Channel void energy into ranged attacks. Bonus damage to void-touched enemies.",
+      "max_level": 3,
+      "base_cost": 3,
+      "tree_parent": null,
+      "passive_effects": [
+        { "effect_type": "ranged_damage_bonus", "target": "void_enemies", "value_per_level": 0.06, "max_value": 0.18 }
+      ]
+    }
+  ]
+}

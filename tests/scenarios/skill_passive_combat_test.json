@@ -1,0 +1,70 @@
+{
+  "name": "skill_passive_combat_test",
+  "description": "Test that upgrading a skill increases passive bonus, and verify the bonus is non-zero",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10,
+    "skill_points": 10
+  },
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 5
+  },
+  "map_setup": {
+    "clear_radius": 5
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "shard_spider", "x": 11, "y": 10, "hp": 50, "ai_disabled": true}
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "upgrade_skill", "skill_id": "angle_reading" }
+    },
+    {
+      "turn": 1,
+      "action": { "type": "upgrade_skill", "skill_id": "angle_reading" }
+    },
+    {
+      "turn": 2,
+      "action": { "type": "attack", "target_x": 11, "target_y": 10 }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": { "type": "skill_level", "skill_id": "angle_reading", "op": "eq", "value": 1 },
+      "message": "angle_reading should be level 1"
+    },
+    {
+      "after_turn": 0,
+      "check": { "type": "passive_bonus", "key": "melee_accuracy_bonus", "op": "gt", "value": 0.0 },
+      "message": "melee_accuracy_bonus should be > 0"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "skill_level", "skill_id": "angle_reading", "op": "eq", "value": 2 },
+      "message": "angle_reading should be level 2"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "passive_bonus", "key": "melee_accuracy_bonus", "op": "gt", "value": 0.05 },
+      "message": "level 2 should be higher than level 1"
+    },
+    {
+      "after_turn": 2,
+      "check": { "type": "enemy_hp", "id": "shard_spider", "op": "lt", "value": 50 },
+      "message": "attack should have landed"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}
