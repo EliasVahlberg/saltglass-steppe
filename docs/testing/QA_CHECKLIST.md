@@ -9,16 +9,16 @@
 # Save/Load
 
 - [x] Save game mid-combat, load back — combat state preserved (HP, enemy positions, turn order)
-- [ ] Save with full inventory, load back — all items present with correct quantities
-- [ ] Save after completing quest, load back — quest marked complete in log
+- [x] Save with full inventory, load back — all items present with correct quantities
+- [x] Save after completing quest, load back — quest marked complete in log
 - [ ] Save after gaining faction reputation, load back — reputation values unchanged
-- [ ] Save after learning new skill, load back — skill appears in skills menu
+- [x] Save after learning new skill, load back — skill appears in skills menu
 - [ ] Save after gaining adaptation/mutation, load back — adaptation active and visible
 - [ ] Save at specific map position, load back — player spawns at exact same coordinates
 - [ ] Save with specific HP values, load back — health values match exactly
 - [ ] Save with active storm effects, load back — storm state and timers preserved
-- [ ] Save with equipped items, load back — equipment slots filled correctly
-- [ ] Load corrupted save file — displays clear error message, returns to main menu
+- [x] Save with equipped items, load back — equipment slots filled correctly
+- [x] Load corrupted save file — displays clear error message, returns to main menu - edited "(version:2,state:(player:(..." to "(version:2,states:(player:(..." and it crashed the game in a bad way. need to add error handling for save parsing.
 - [ ] Load save from different game version — shows version mismatch warning
 - [ ] Save and load multiple times in sequence — no data corruption
 - [ ] Save during overworld travel, load back — overworld position and travel state preserved

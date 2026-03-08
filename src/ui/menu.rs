@@ -38,6 +38,7 @@ pub struct MainMenuState {
     pub save_list: bool,
     pub save_entries: Vec<SaveInfo>,
     pub save_list_index: usize,
+    pub load_error: Option<String>,
 }
 
 impl MainMenuState {
@@ -67,6 +68,7 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
             return Ok(match key.code {
                 KeyCode::Esc => {
                     state.save_list = false;
+                    state.load_error = None;
                     MenuAction::None
                 }
                 KeyCode::Up | KeyCode::Char('k') => {
@@ -587,10 +589,16 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
         }).collect()
     };
 
+    let border_color = if state.load_error.is_some() { Color::Red } else { Color::Cyan };
     let block = Block::default()
         .title(" Load Game — [↑↓] Select  [Enter] Load  [Esc] Back ")
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::Cyan));
+        .border_style(Style::default().fg(border_color));
 
-    frame.render_widget(List::new(items).block(block), popup);
+    let mut all_items = items;
+    if let Some(ref err) = state.load_error {
+        all_items.push(ListItem::new(format!("  ✗ {}", err)).style(Style::default().fg(Color::Red)));
+    }
+
+    frame.render_widget(List::new(all_items).block(block), popup);
 }

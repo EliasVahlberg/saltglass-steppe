@@ -9,3 +9,4 @@
 - **Save list sort order** — was sorting by filename (hash), not by modification time. Now sorted newest-first by actual mtime.
 - **Load from world map drops to tile** — loading a save made on the world map reset `world_map_view.open = false`, triggering tile generation. Added `saved_on_world_map` flag to `WorldState`; restored on load.
 - **Build warnings** — suppressed `dead_code` warnings on serde deserialization fields (`params`, `main_questline`) and `schema_gen` structs.
+- **Corrupt save crash** — `rebuild_spatial_index`/`update_lighting` could panic on malformed state. Wrapped in `catch_unwind`; error shown in load menu with red border instead of crashing.

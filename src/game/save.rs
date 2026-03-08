@@ -83,8 +83,13 @@ pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
     } else {
         file.state
     };
-    state.rebuild_spatial_index();
-    state.update_lighting();
+    let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
+        state.rebuild_spatial_index();
+        state.update_lighting();
+    }));
+    if result.is_err() {
+        return Err("Save file is corrupt or incompatible — could not initialize game state.".to_string());
+    }
     Ok(state)
 }
 

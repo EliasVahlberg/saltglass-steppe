@@ -754,6 +754,7 @@ fn run_main_game() -> Result<()> {
                 MenuAction::LoadGame(path) => {
                     match save::load_game(&path) {
                         Ok(loaded_state) => {
+                            menu_state.load_error = None;
                             let mut state = loaded_state;
                             let mut ui = UiState::new();
                             ui.camera_x = state.player.x as f32;
@@ -772,8 +773,8 @@ fn run_main_game() -> Result<()> {
                             continue 'main;
                         }
                         Err(e) => {
-                            // No save file or corrupt — stay on menu
-                            eprintln!("Load failed: {}", e);
+                            menu_state.save_list = true; // keep menu open
+                            menu_state.load_error = Some(e);
                         }
                     }
                 }
