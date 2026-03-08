@@ -8,7 +8,7 @@
 
 # Save/Load
 
-- [ ] Save game mid-combat, load back — combat state preserved (HP, enemy positions, turn order)
+- [x] Save game mid-combat, load back — combat state preserved (HP, enemy positions, turn order)
 - [ ] Save with full inventory, load back — all items present with correct quantities
 - [ ] Save after completing quest, load back — quest marked complete in log
 - [ ] Save after gaining faction reputation, load back — reputation values unchanged
@@ -74,6 +74,7 @@
 # Settlement Generation
 
 ### Basic Generation
+
 - [ ] Enter Town POI on world map — settlement generates and is enterable
 - [ ] Village tier — 80×60 map with 5–10 buildings
 - [ ] Town tier — 120×90 map with 15–30 buildings
@@ -84,6 +85,7 @@
 - [ ] Settlement has clear entrance/exit points
 
 ### NPC Placement
+
 - [ ] Vendors spawn in shops/markets
 - [ ] Innkeepers spawn in inns/taverns
 - [ ] Guards spawn in town halls/barracks
@@ -92,24 +94,28 @@
 - [ ] NPCs match building type (no vendors in temples)
 
 ### Faction Integration
+
 - [ ] Mirror Monks territory — light_temple, meditation_chamber, scripture_archive appear
 - [ ] Glassborn territory — crystal_forge, transformation_clinic, shimmer_gallery appear
 - [ ] Dominant faction aesthetic applied to walls and decorations
 - [ ] Contested territory — mixed faction buildings present
 
 ### Determinism
+
 - [ ] Same seed + same tier → identical layout on repeated runs
 - [ ] Same seed + same tier → identical NPC placement
 - [ ] Different seeds → different layouts
 - [ ] Verify with mapgen-tool: `cargo run --bin mapgen-tool settlement 12345 village`
 
 ### Persistence
+
 - [ ] Save inside settlement, load back — layout preserved
 - [ ] Save inside settlement, load back — NPCs preserved
 - [ ] Exit settlement and re-enter — same layout maintained
 - [ ] Multiple settlements in one session — each generates independently
 
 ### Edge Cases
+
 - [ ] Settlement with minimal faction presence — only core buildings spawn
 - [ ] Generate very small village (5 buildings minimum)
 - [ ] Generate very large city (80 buildings maximum)
