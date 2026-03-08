@@ -57,34 +57,47 @@ pub fn generate_settlement<R: Rng>(config: SettlementConfig, rng: &mut R) -> Set
 }
 
 /// Clear natural walls inside the dilated settlement bounding box.
-/// Call this before `stamp_settlement` so terrain doesn't bleed into the town.
+/// Clear natural walls within DILATION tiles of any building footprint.
+/// Uses a per-building distance field so the cleared area follows the actual
+/// settlement shape (union of rounded rectangles) rather than a bounding box.
 pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement) {
     let library = match StructureLibrary::load() {
         Ok(lib) => lib,
         Err(_) => return,
     };
 
-    const DILATION: i32 = 6;
+    const DILATION: i32 = 8;
+    const DILATION_SQ: i32 = DILATION * DILATION;
 
-    let (mut min_x, mut min_y) = (i32::MAX, i32::MAX);
-    let (mut max_x, mut max_y) = (i32::MIN, i32::MIN);
-
-    for b in &settlement.buildings {
+    // Collect (x, y, w, h) for each building
+    let footprints: Vec<(i32, i32, i32, i32)> = settlement.buildings.iter().map(|b| {
         let (w, h) = library.get(&b.prefab_name)
             .map(|s| (s.width as i32, s.height as i32))
             .unwrap_or((6, 6));
-        min_x = min_x.min(b.x);
-        min_y = min_y.min(b.y);
-        max_x = max_x.max(b.x + w);
-        max_y = max_y.max(b.y + h);
-    }
+        (b.x, b.y, w, h)
+    }).collect();
 
-    if min_x == i32::MAX { return; }
+    if footprints.is_empty() { return; }
 
-    for cy in (min_y - DILATION)..(max_y + DILATION) {
-        for cx in (min_x - DILATION)..(max_x + DILATION) {
+    let margin = DILATION + 1;
+    let min_x = footprints.iter().map(|&(x, _, _, _)| x).min().unwrap() - margin;
+    let min_y = footprints.iter().map(|&(_, y, _, _)| y).min().unwrap() - margin;
+    let max_x = footprints.iter().map(|&(x, _, w, _)| x + w).max().unwrap() + margin;
+    let max_y = footprints.iter().map(|&(_, y, _, h)| y + h).max().unwrap() + margin;
+
+    for cy in min_y..max_y {
+        for cx in min_x..max_x {
             if cx < 0 || cy < 0 || cx >= map.width as i32 || cy >= map.height as i32 { continue; }
-            if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
+            if !matches!(map.get_tile(cx, cy), Tile::Wall { .. }) { continue; }
+
+            // Distance from (cx,cy) to nearest point inside each building rectangle
+            let near_enough = footprints.iter().any(|&(bx, by, bw, bh)| {
+                let dx = if cx < bx { bx - cx } else if cx >= bx + bw { cx - (bx + bw - 1) } else { 0 };
+                let dy = if cy < by { by - cy } else if cy >= by + bh { cy - (by + bh - 1) } else { 0 };
+                dx * dx + dy * dy <= DILATION_SQ
+            });
+
+            if near_enough {
                 map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dry_soil".to_string() });
             }
         }
