@@ -60,6 +60,8 @@ pub struct StructureMetadata {
     pub weight: f32,
     #[serde(default)]
     pub clear_area: Option<ClearArea>,
+    #[serde(default)]
+    pub entrance_side: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
