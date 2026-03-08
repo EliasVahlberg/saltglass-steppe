@@ -58,10 +58,20 @@ struct POILayout {
 }
 
 #[derive(Debug, Clone, Deserialize)]
+struct AlgorithmLayer {
+    algorithm: String,
+    blend: String,
+    #[serde(default)]
+    params: Option<serde_json::Value>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
 struct BiomeAlgorithmProfile {
     default: HashMap<String, f64>,
     #[serde(default)]
     terrain_overrides: HashMap<String, HashMap<String, f64>>,
+    #[serde(default)]
+    algorithm_layers: Option<Vec<AlgorithmLayer>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -122,21 +132,47 @@ impl TerrainForgeGenerator {
 
         let mut grid: Grid<ForgeTile> = Grid::new(MAP_WIDTH, MAP_HEIGHT);
 
-        let algo_name = select_algorithm(
-            poi,
-            biome,
-            terrain,
-            TILE_CONFIG.structure_algorithm.as_deref(),
-            &mut rng,
-        );
+        let biome_key = match biome {
+            Biome::Saltflat => "saltflat",
+            Biome::Oasis => "oasis",
+            Biome::Ruins => "ruins",
+            Biome::Scrubland => "scrubland",
+            Biome::Desert => "desert",
+        };
 
-        // Generate initial terrain
-        if ops::generate(&algo_name, &mut grid, Some(seed), None).is_err() {
-            ops::generate("cellular", &mut grid, Some(seed), None).ok();
+        // Check for algorithm layers first
+        if let Some(profile) = TILE_CONFIG.biome_algorithm_profiles.get(biome_key) {
+            if let Some(layers) = &profile.algorithm_layers {
+                // Use layered generation
+                apply_layers(&mut grid, layers, seed);
+            } else {
+                // Existing single-algorithm path
+                let algo_name = select_algorithm(
+                    poi,
+                    biome,
+                    terrain,
+                    TILE_CONFIG.structure_algorithm.as_deref(),
+                    &mut rng,
+                );
+                if ops::generate(&algo_name, &mut grid, Some(seed), None).is_err() {
+                    ops::generate("cellular", &mut grid, Some(seed), None).ok();
+                }
+                ops::generate("glass_seam", &mut grid, Some(seed), None).ok();
+            }
+        } else {
+            // Fallback to single algorithm
+            let algo_name = select_algorithm(
+                poi,
+                biome,
+                terrain,
+                TILE_CONFIG.structure_algorithm.as_deref(),
+                &mut rng,
+            );
+            if ops::generate(&algo_name, &mut grid, Some(seed), None).is_err() {
+                ops::generate("cellular", &mut grid, Some(seed), None).ok();
+            }
+            ops::generate("glass_seam", &mut grid, Some(seed), None).ok();
         }
-
-        // Apply Glass Seam Bridging to ensure connectivity
-        ops::generate("glass_seam", &mut grid, Some(seed), None).ok();
 
         let biome_key = match biome {
             Biome::Saltflat => "saltflat",
@@ -153,6 +189,22 @@ impl TerrainForgeGenerator {
             Terrain::Flat => "flat",
         };
 
+        let mut map = Map::new(MAP_WIDTH, MAP_HEIGHT);
+        
+        // Set metadata based on generation method
+        if let Some(profile) = TILE_CONFIG.biome_algorithm_profiles.get(biome_key) {
+            if let Some(layers) = &profile.algorithm_layers {
+                let layer_names: Vec<String> = layers.iter().map(|l| l.algorithm.clone()).collect();
+                map.metadata.insert("tilegen_algorithm".to_string(), format!("layered: {}", layer_names.join(" -> ")));
+            } else {
+                let algo_name = select_algorithm(poi, biome, terrain, TILE_CONFIG.structure_algorithm.as_deref(), &mut rng);
+                map.metadata.insert("tilegen_algorithm".to_string(), algo_name);
+            }
+        } else {
+            let algo_name = select_algorithm(poi, biome, terrain, TILE_CONFIG.structure_algorithm.as_deref(), &mut rng);
+            map.metadata.insert("tilegen_algorithm".to_string(), algo_name);
+        }
+
         let base_cfg = TILE_CONFIG
             .terrain_types
             .get(terrain_key)
@@ -168,10 +220,6 @@ impl TerrainForgeGenerator {
             .unwrap_or_else(|| base_cfg.floor_type.clone());
 
         let poi_layout = lookup_poi_layout(poi);
-
-        let mut map = Map::new(MAP_WIDTH, MAP_HEIGHT);
-        map.metadata
-            .insert("tilegen_algorithm".to_string(), algo_name.clone());
         if let Some(params) = TILE_CONFIG.algorithm_params.as_ref() {
             map.metadata
                 .insert("tilegen_algorithm_params".to_string(), params.to_string());
@@ -220,7 +268,23 @@ impl TerrainForgeGenerator {
 
         // Semantic extraction for spawn markers/regions
         let mut forge_rng = ForgeRng::new(seed);
-        let semantic = match algo_name.as_str() {
+        
+        // Determine primary algorithm for semantic extraction
+        let primary_algo = if let Some(profile) = TILE_CONFIG.biome_algorithm_profiles.get(biome_key) {
+            if let Some(layers) = &profile.algorithm_layers {
+                // Use first non-glass_seam algorithm as primary
+                layers.iter()
+                    .find(|l| l.algorithm != "glass_seam")
+                    .map(|l| l.algorithm.as_str())
+                    .unwrap_or("cellular")
+            } else {
+                &select_algorithm(poi, biome, terrain, TILE_CONFIG.structure_algorithm.as_deref(), &mut rng)
+            }
+        } else {
+            &select_algorithm(poi, biome, terrain, TILE_CONFIG.structure_algorithm.as_deref(), &mut rng)
+        };
+        
+        let semantic = match primary_algo {
             "bsp" | "rooms" => SemanticExtractor::for_rooms(),
             "maze" => SemanticExtractor::for_mazes(),
             _ => SemanticExtractor::for_caves(), // cellular, drunkard, etc.
@@ -432,6 +496,34 @@ fn select_algorithm(
 
     // Fallback: cellular
     "cellular".to_string()
+}
+
+fn blend(base: &mut Grid<ForgeTile>, overlay: &Grid<ForgeTile>, mode: &str) {
+    for (x, y, cell) in overlay.iter() {
+        match mode {
+            "replace" => { base.set(x as i32, y as i32, *cell); }
+            "overlay" => {
+                if *cell == ForgeTile::Wall {
+                    base.set(x as i32, y as i32, *cell);
+                }
+            }
+            "mask" => {
+                if *cell == ForgeTile::Floor {
+                    base.set(x as i32, y as i32, *cell);
+                }
+            }
+            _ => { base.set(x as i32, y as i32, *cell); }
+        }
+    }
+}
+
+fn apply_layers(grid: &mut Grid<ForgeTile>, layers: &[AlgorithmLayer], seed: u64) {
+    for (i, layer) in layers.iter().enumerate() {
+        let layer_seed = seed.wrapping_add(i as u64 * 0x9e3779b9);
+        let mut scratch: Grid<ForgeTile> = Grid::new(grid.width(), grid.height());
+        ops::generate(&layer.algorithm, &mut scratch, Some(layer_seed), None).ok();
+        blend(grid, &scratch, &layer.blend);
+    }
 }
 
 fn weighted_pick(weights: &HashMap<String, f64>, rng: &mut ChaCha8Rng) -> String {

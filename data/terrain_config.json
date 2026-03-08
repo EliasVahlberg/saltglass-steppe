@@ -132,6 +132,11 @@
   "biome_algorithm_profiles": {
     "desert": {
       "default": { "cellular": 3.0, "bsp": 0.5, "rooms": 0.5 },
+      "algorithm_layers": [
+        {"algorithm": "cellular", "blend": "replace"},
+        {"algorithm": "drunkard", "blend": "mask"},
+        {"algorithm": "glass_seam", "blend": "mask"}
+      ],
       "terrain_overrides": {
         "canyon": { "cellular": 4.0, "bsp": 0.2, "rooms": 0.1 },
         "mesa":   { "cellular": 2.0, "bsp": 1.5, "rooms": 1.0 },
@@ -140,6 +145,11 @@
     },
     "saltflat": {
       "default": { "cellular": 4.0, "bsp": 0.2, "rooms": 0.2 },
+      "algorithm_layers": [
+        {"algorithm": "cellular", "blend": "replace"},
+        {"algorithm": "perlin", "blend": "mask"},
+        {"algorithm": "glass_seam", "blend": "mask"}
+      ],
       "terrain_overrides": {
         "flat": { "cellular": 5.0, "bsp": 0.1, "rooms": 0.1 }
       }
@@ -159,6 +169,11 @@
     },
     "ruins": {
       "default": { "cellular": 0.5, "bsp": 2.5, "rooms": 2.0 },
+      "algorithm_layers": [
+        {"algorithm": "bsp", "blend": "replace"},
+        {"algorithm": "cellular", "blend": "overlay"},
+        {"algorithm": "glass_seam", "blend": "mask"}
+      ],
       "terrain_overrides": {
         "canyon": { "cellular": 1.5, "bsp": 1.5, "rooms": 1.0 },
         "mesa":   { "cellular": 0.3, "bsp": 3.0, "rooms": 2.0 }

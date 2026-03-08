@@ -1,0 +1,32 @@
+{
+  "name": "algorithm_layering_test",
+  "description": "Test that biomes with algorithm_layers in terrain_config.json generate maps with expected tile properties",
+  "seed": 777,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {},
+  "map_setup": {
+    "world_x": 3,
+    "world_y": 3
+  },
+  "entities": [],
+  "actions": [],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": { "type": "player_on_walkable_tile" },
+      "message": "Map should be valid"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}
