@@ -9,7 +9,7 @@ use ratatui::{
 use std::io::Result;
 
 use super::input::PAUSE_OPTIONS;
-use crate::game::{MetaProgress, all_classes, save::{list_saves, SaveInfo}};
+use crate::game::{MetaProgress, all_classes, save::{list_saves, SaveInfo, SaveStatus}};
 
 /// Main menu action result
 pub enum MenuAction {
@@ -39,8 +39,6 @@ pub struct MainMenuState {
     pub save_entries: Vec<SaveInfo>,
     pub save_list_index: usize,
     pub load_error: Option<String>,
-    pub failed_save_index: Option<usize>,
-    pub checksum_warning_path: Option<String>,
 }
 
 impl MainMenuState {
@@ -73,7 +71,6 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                         state.load_error = None;
                     } else {
                         state.save_list = false;
-                        state.failed_save_index = None;
                     }
                     MenuAction::None
                 }
@@ -579,13 +576,10 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
         vec![ListItem::new("  No saves found.").style(Style::default().fg(Color::DarkGray))]
     } else {
         state.save_entries.iter().enumerate().map(|(i, s)| {
-            let failed = state.failed_save_index == Some(i);
-            let (symbol, sym_color) = if failed {
-                ("✗", Color::Red)
-            } else if s.valid {
-                ("✓", Color::Green)
-            } else {
-                ("⚠", Color::Yellow)
+            let (symbol, sym_color) = match s.status {
+                SaveStatus::Ok          => ("✓", Color::Green),
+                SaveStatus::HashMismatch => ("⚠", Color::Yellow),
+                SaveStatus::Corrupt     => ("✗", Color::Red),
             };
             let style = if i == state.save_list_index {
                 Style::default().fg(Color::Yellow).bold()

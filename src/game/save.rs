@@ -2,8 +2,10 @@
 //!
 //! Saves live in `saves/<md5>.ron`. The MD5 of the file content is the filename,
 //! enabling tamper detection on load.
+//! Per-save status is persisted in `saves/meta.json`.
 
 use std::{
+    collections::HashMap,
     fs,
     path::{Path, PathBuf},
     time::UNIX_EPOCH,
@@ -15,6 +17,60 @@ use super::state::GameState;
 
 pub const SAVE_VERSION: u32 = 2;
 pub const SAVES_DIR: &str = "saves";
+const META_PATH: &str = "saves/meta.json";
+
+// ── Save status ──────────────────────────────────────────────────────────────
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum SaveStatus {
+    Ok,
+    HashMismatch,
+    Corrupt,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+struct SaveEntryMeta {
+    status: SaveStatus,
+}
+
+#[derive(Serialize, Deserialize, Default)]
+struct SaveMeta {
+    #[serde(default)]
+    entries: HashMap<String, SaveEntryMeta>,
+}
+
+fn load_meta() -> SaveMeta {
+    fs::read_to_string(META_PATH)
+        .ok()
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+fn save_meta(meta: &SaveMeta) {
+    if let Ok(json) = serde_json::to_string_pretty(meta) {
+        let _ = fs::write(META_PATH, json);
+    }
+}
+
+fn update_meta_status(stem: &str, status: SaveStatus) {
+    let mut meta = load_meta();
+    meta.entries.insert(stem.to_string(), SaveEntryMeta { status });
+    save_meta(&meta);
+}
+
+// ── Public API ────────────────────────────────────────────────────────────────
+
+/// Metadata for displaying a save in the load menu.
+pub struct SaveInfo {
+    pub path: PathBuf,
+    /// First 8 chars of the MD5 hash (display only).
+    pub short_hash: String,
+    /// Persistent status from meta.json.
+    pub status: SaveStatus,
+    /// Human-readable modification time.
+    pub modified: String,
+}
 
 #[derive(Serialize)]
 struct SaveFile<'a> {
@@ -29,22 +85,11 @@ struct SaveFileOwned {
     state: GameState,
 }
 
-/// Metadata for displaying a save in the load menu.
-pub struct SaveInfo {
-    pub path: PathBuf,
-    /// First 8 chars of the MD5 hash (display only).
-    pub short_hash: String,
-    /// Whether the file content matches its filename hash.
-    pub valid: bool,
-    /// Human-readable modification time.
-    pub modified: String,
-}
-
 fn compute_hash(data: &str) -> String {
     format!("{:x}", md5::compute(data.as_bytes()))
 }
 
-/// Serialize `state`, write to `saves/<md5>.ron`, return the path.
+/// Serialize `state`, write to `saves/<md5>.ron`, update meta, return the path.
 pub fn save_game(state: &GameState) -> Result<PathBuf, String> {
     fs::create_dir_all(SAVES_DIR).map_err(|e| e.to_string())?;
     let data = ron::to_string(&SaveFile { version: SAVE_VERSION, state })
@@ -52,28 +97,33 @@ pub fn save_game(state: &GameState) -> Result<PathBuf, String> {
     let hash = compute_hash(&data);
     let path = PathBuf::from(SAVES_DIR).join(format!("{}.ron", hash));
     fs::write(&path, &data).map_err(|e| e.to_string())?;
+    update_meta_status(&hash, SaveStatus::Ok);
     Ok(path)
 }
 
-/// Load from `path`. Warns (but continues) if checksum doesn't match filename.
+/// Load from `path`. Updates meta on hash mismatch or parse failure.
 pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
     let path = path.as_ref();
+    let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
     let data = fs::read_to_string(path).map_err(|e| e.to_string())?;
 
-    // Checksum verification
-    let expected_hash = path
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or("");
     let actual_hash = compute_hash(&data);
-    if !expected_hash.is_empty() && expected_hash != actual_hash {
-        // Tamper detected — SaveInfo.valid=false already shows ⚠ in the load menu
+    if !stem.is_empty() && stem != actual_hash {
+        update_meta_status(&stem, SaveStatus::HashMismatch);
     }
 
-    let file: SaveFileOwned = ron::from_str(&data).map_err(|e| format!("Corrupt save: {e}"))?;
+    let file: SaveFileOwned = ron::from_str(&data).map_err(|e| {
+        update_meta_status(&stem, SaveStatus::Corrupt);
+        format!("Corrupt save: {e}")
+    })?;
+
     let mut state = if file.version < SAVE_VERSION {
-        migrate_save(file.state, file.version)?
+        migrate_save(file.state, file.version).map_err(|e| {
+            update_meta_status(&stem, SaveStatus::Corrupt);
+            e
+        })?
     } else if file.version > SAVE_VERSION {
+        update_meta_status(&stem, SaveStatus::Corrupt);
         return Err(format!(
             "Save version mismatch: file is v{}, game expects v{}.",
             file.version, SAVE_VERSION
@@ -81,13 +131,17 @@ pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
     } else {
         file.state
     };
+
     let result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
         state.rebuild_spatial_index();
         state.update_lighting();
     }));
     if result.is_err() {
+        update_meta_status(&stem, SaveStatus::Corrupt);
         return Err("Save file is corrupt or incompatible — could not initialize game state.".to_string());
     }
+
+    update_meta_status(&stem, SaveStatus::Ok);
     Ok(state)
 }
 
@@ -96,21 +150,31 @@ pub fn list_saves() -> Vec<SaveInfo> {
     let Ok(entries) = fs::read_dir(SAVES_DIR) else {
         return vec![];
     };
+    let meta = load_meta();
     let mut saves: Vec<(std::time::SystemTime, SaveInfo)> = entries
         .filter_map(|e| e.ok())
         .filter(|e| e.path().extension().and_then(|x| x.to_str()) == Some("ron"))
         .filter_map(|e| {
             let path = e.path();
             let mtime = e.metadata().ok()?.modified().ok()?;
-            let data = fs::read_to_string(&path).ok()?;
-            let hash = compute_hash(&data);
             let stem = path.file_stem()?.to_str()?.to_string();
-            let valid = stem == hash;
             let modified = format_local_time(mtime);
+
+            let status = match meta.entries.get(&stem) {
+                // Corrupt: skip hash check, trust meta
+                Some(m) if m.status == SaveStatus::Corrupt => SaveStatus::Corrupt,
+                // Ok/HashMismatch or unknown: re-verify hash
+                _ => {
+                    let data = fs::read_to_string(&path).ok()?;
+                    let hash = compute_hash(&data);
+                    if stem == hash { SaveStatus::Ok } else { SaveStatus::HashMismatch }
+                }
+            };
+
             Some((mtime, SaveInfo {
                 short_hash: stem[..8.min(stem.len())].to_string(),
                 path,
-                valid,
+                status,
                 modified,
             }))
         })
