@@ -497,6 +497,7 @@ impl GameState {
             total_tiles_traveled: 0,
             world_map_target: None,
             world_map_path: Vec::new(),
+            saved_on_world_map: false,
             enemy_positions: HashMap::new(),
             npc_positions: HashMap::new(),
             item_positions: HashMap::new(),

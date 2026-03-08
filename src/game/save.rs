@@ -88,43 +88,93 @@ pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
     Ok(state)
 }
 
-/// List all saves in `saves/`, sorted newest first.
+/// List all saves in `saves/`, sorted newest first by modification time.
 pub fn list_saves() -> Vec<SaveInfo> {
     let Ok(entries) = fs::read_dir(SAVES_DIR) else {
         return vec![];
     };
-    let mut saves: Vec<SaveInfo> = entries
+    let mut saves: Vec<(std::time::SystemTime, SaveInfo)> = entries
         .filter_map(|e| e.ok())
         .filter(|e| e.path().extension().and_then(|x| x.to_str()) == Some("ron"))
         .filter_map(|e| {
             let path = e.path();
+            let mtime = e.metadata().ok()?.modified().ok()?;
             let data = fs::read_to_string(&path).ok()?;
             let hash = compute_hash(&data);
             let stem = path.file_stem()?.to_str()?.to_string();
             let valid = stem == hash;
-            let modified = e.metadata().ok()
-                .and_then(|m| m.modified().ok())
-                .and_then(|t| t.duration_since(UNIX_EPOCH).ok())
-                .map(|d| {
-                    let secs = d.as_secs();
-                    let mins = (secs / 60) % 60;
-                    let hours = (secs / 3600) % 24;
-                    let days = secs / 86400;
-                    // Days since epoch → rough date (good enough for display)
-                    format!("day {} {:02}:{:02}", days, hours, mins)
-                })
-                .unwrap_or_else(|| "unknown".to_string());
-            Some(SaveInfo {
+            let modified = format_local_time(mtime);
+            Some((mtime, SaveInfo {
                 short_hash: stem[..8.min(stem.len())].to_string(),
                 path,
                 valid,
                 modified,
-            })
+            }))
         })
         .collect();
-    // Newest first by path mtime
-    saves.sort_by(|a, b| b.path.file_name().cmp(&a.path.file_name()));
-    saves
+    saves.sort_by(|a, b| b.0.cmp(&a.0));
+    saves.into_iter().map(|(_, info)| info).collect()
+}
+
+fn format_local_time(t: std::time::SystemTime) -> String {
+    let utc = t.duration_since(UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0);
+    let local = utc + local_offset_secs();
+    let mins  = (local / 60) % 60;
+    let hours = (local / 3600) % 24;
+    let (y, mo, d) = days_to_ymd((local / 86400) as u32);
+    format!("{:04}-{:02}-{:02} {:02}:{:02}", y, mo, d, hours, mins)
+}
+
+fn local_offset_secs() -> i64 {
+    if let Ok(tz) = std::env::var("TZ") {
+        if let Some(off) = parse_posix_tz(&tz) { return off; }
+    }
+    if let Ok(zone) = std::fs::read_to_string("/etc/timezone") {
+        if let Some(off) = named_zone_offset(zone.trim()) { return off; }
+    }
+    0
+}
+
+fn parse_posix_tz(tz: &str) -> Option<i64> {
+    // POSIX: "CET-1" means UTC+1 (sign inverted)
+    let b = tz.as_bytes();
+    let i = b.iter().position(|c| *c == b'+' || *c == b'-')?;
+    let sign: i64 = if b[i] == b'-' { 1 } else { -1 };
+    let h: i64 = std::str::from_utf8(&b[i+1..]).ok()?.trim().parse().ok()?;
+    Some(sign * h * 3600)
+}
+
+fn named_zone_offset(zone: &str) -> Option<i64> {
+    match zone {
+        "UTC" | "Etc/UTC" | "Etc/GMT" => Some(0),
+        "Europe/London" | "GB" => Some(0),
+        "Europe/Paris" | "Europe/Berlin" | "Europe/Stockholm" | "Europe/Oslo" |
+        "Europe/Rome" | "Europe/Madrid" | "Europe/Amsterdam" | "Europe/Brussels" |
+        "Europe/Warsaw" | "Europe/Prague" | "Europe/Vienna" | "Europe/Zurich" |
+        "Europe/Copenhagen" | "CET" | "MET" => Some(3600),
+        "Europe/Helsinki" | "Europe/Riga" | "Europe/Tallinn" | "Europe/Vilnius" |
+        "Europe/Bucharest" | "Europe/Athens" | "EET" => Some(7200),
+        "Europe/Moscow" | "Europe/Istanbul" => Some(10800),
+        "America/New_York" | "US/Eastern" => Some(-18000),
+        "America/Chicago" | "US/Central" => Some(-21600),
+        "America/Denver" | "US/Mountain" => Some(-25200),
+        "America/Los_Angeles" | "US/Pacific" => Some(-28800),
+        _ => None,
+    }
+}
+
+fn days_to_ymd(days: u32) -> (u32, u32, u32) {
+    let z = days as i64 + 719468;
+    let era = if z >= 0 { z } else { z - 146096 } / 146097;
+    let doe = (z - era * 146097) as u32;
+    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    let y = yoe as i64 + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    let y = if m <= 2 { y + 1 } else { y };
+    (y as u32, m, d)
 }
 
 fn migrate_save(mut state: GameState, from_version: u32) -> Result<GameState, String> {

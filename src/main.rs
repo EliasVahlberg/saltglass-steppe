@@ -41,6 +41,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             if state.test_mode {
                 state.log("Cannot save in test mode.");
             } else {
+                state.world.saved_on_world_map = ui.world_map_view.open;
                 match save::save_game(state) {
                     Ok(path) => state.log(format!("Game saved: {}", path.file_name().unwrap_or_default().to_string_lossy())),
                     Err(e) => state.log(format!("Save failed: {}", e)),
@@ -51,6 +52,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             Some(info) => match save::load_game(&info.path) {
                 Ok(loaded) => {
                     *state = loaded;
+                    ui.world_map_view.open = state.world.saved_on_world_map;
                     state.log("Game loaded.");
                 }
                 Err(e) => state.log(format!("Load failed: {}", e)),
@@ -756,6 +758,7 @@ fn run_main_game() -> Result<()> {
                             let mut ui = UiState::new();
                             ui.camera_x = state.player.x as f32;
                             ui.camera_y = state.player.y as f32;
+                            ui.world_map_view.open = state.world.saved_on_world_map;
                             state.log("Game loaded.");
                             'loaded: loop {
                                 terminal.draw(|frame| render(frame, &state, &mut ui, &mut renderer))?;

@@ -74,6 +74,9 @@ pub struct WorldState {
     pub world_map_target: Option<(usize, usize)>,
     #[serde(default)]
     pub world_map_path: Vec<(usize, usize)>,
+    /// True when the player saved while the world map was open.
+    #[serde(default)]
+    pub saved_on_world_map: bool,
 
     // Spatial indexing (computed on load)
     #[serde(skip)]
