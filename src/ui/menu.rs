@@ -70,11 +70,10 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
             return Ok(match key.code {
                 KeyCode::Esc => {
                     if state.load_error.is_some() {
-                        // First Esc dismisses the error popup, second closes the list
                         state.load_error = None;
-                        state.failed_save_index = None;
                     } else {
                         state.save_list = false;
+                        state.failed_save_index = None;
                     }
                     MenuAction::None
                 }
