@@ -109,23 +109,23 @@
       {
         "id": "wood_wall",
         "name": "Wood Wall",
-        "glyph": "#",
-        "color": "DarkYellow",
+        "glyph": "╪",
+        "color": "Yellow",
         "hp": 8,
         "description": "Weathered timber planks, brine-cured and storm-tested"
       },
       {
         "id": "stone_wall",
         "name": "Stone Wall",
-        "glyph": "#",
-        "color": "Gray",
+        "glyph": "▩",
+        "color": "LightGray",
         "hp": 15,
         "description": "Hewn stone blocks, mortared with salt-lime"
       },
       {
         "id": "brick_wall",
         "name": "Brick Wall",
-        "glyph": "#",
+        "glyph": "▬",
         "color": "Red",
         "hp": 12,
         "description": "Fired clay bricks, stacked and sealed against the storms"
@@ -133,16 +133,16 @@
       {
         "id": "glass_wall",
         "name": "Glass Wall",
-        "glyph": "\u2551",
-        "color": "Cyan",
+        "glyph": "▐",
+        "color": "LightCyan",
         "hp": 6,
         "description": "Translucent glass panels, refracting light in prismatic patterns"
       },
       {
         "id": "metal_wall",
         "name": "Metal Wall",
-        "glyph": "#",
-        "color": "DarkGray",
+        "glyph": "╫",
+        "color": "Gray",
         "hp": 18,
         "description": "Riveted metal plates, salvaged and reinforced"
       }
@@ -249,35 +249,35 @@
       {
         "id": "wood_floor",
         "name": "Wood Floor",
-        "glyph": ".",
-        "color": "DarkYellow",
+        "glyph": "─",
+        "color": "Yellow",
         "description": "Worn wooden planks, creaking with age"
       },
       {
         "id": "stone_floor",
         "name": "Stone Floor",
-        "glyph": ".",
-        "color": "Gray",
+        "glyph": "▦",
+        "color": "LightGray",
         "description": "Smooth flagstones, cool to the touch"
       },
       {
         "id": "brick_floor",
         "name": "Brick Floor",
-        "glyph": ".",
+        "glyph": "▤",
         "color": "Red",
         "description": "Laid bricks in herringbone pattern"
       },
       {
         "id": "tile_floor",
         "name": "Tile Floor",
-        "glyph": ".",
-        "color": "LightGray",
+        "glyph": "+",
+        "color": "White",
         "description": "Glazed ceramic tiles, some cracked"
       },
       {
         "id": "dirt_path",
         "name": "Dirt Path",
-        "glyph": ".",
+        "glyph": "╌",
         "color": "Yellow",
         "description": "A worn track of packed earth, marked by countless footsteps"
       }
