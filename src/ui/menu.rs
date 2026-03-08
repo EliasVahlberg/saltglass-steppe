@@ -30,6 +30,7 @@ pub struct MainMenuState {
     pub class_index: usize,
     pub name_input: bool,
     pub name_text: String,
+    pub name_suggestion_idx: usize,
     pub pending_class: Option<String>,
     pub seed_input: bool,
     pub seed_text: String,
@@ -194,6 +195,11 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                     }
                 }
                 KeyCode::Backspace => { state.name_text.pop(); MenuAction::None }
+                KeyCode::Tab | KeyCode::Char('`') => {
+                    state.name_suggestion_idx = state.name_suggestion_idx.wrapping_add(1);
+                    state.name_text = name_at_idx(state.name_suggestion_idx);
+                    MenuAction::None
+                }
                 KeyCode::Char(c) if !c.is_control() => {
                     if state.name_text.len() < 32 {
                         state.name_text.push(c);
@@ -231,7 +237,11 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                     if let Some(class) = classes.get(state.class_index) {
                         state.class_select = false;
                         state.pending_class = Some(class.id.clone());
-                        state.name_text = random_name();
+                        state.name_suggestion_idx = std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .map(|d| d.as_millis() as usize)
+                            .unwrap_or(0);
+                        state.name_text = name_at_idx(state.name_suggestion_idx);
                         state.name_input = true;
                         MenuAction::None
                     } else {
@@ -688,7 +698,7 @@ fn render_name_input(frame: &mut Frame, state: &MainMenuState) {
     let popup = Rect::new(x, y, width, height);
     frame.render_widget(Clear, popup);
 
-    let display = if state.name_text.is_empty() { random_name() } else { state.name_text.clone() };
+    let display = if state.name_text.is_empty() { name_at_idx(state.name_suggestion_idx) } else { state.name_text.clone() };
     let input_style = if state.name_text.is_empty() {
         Style::default().fg(Color::DarkGray)
     } else {
@@ -702,7 +712,7 @@ fn render_name_input(frame: &mut Frame, state: &MainMenuState) {
         Line::from(""),
         Line::from(Span::styled("(pre-filled at random — type to change)", Style::default().fg(Color::DarkGray))),
         Line::from(""),
-        Line::from(Span::styled("[Enter] Confirm  [Esc] Back", Style::default().fg(Color::DarkGray))),
+        Line::from(Span::styled("[Enter] Confirm  [Tab] Re-roll  [Esc] Back", Style::default().fg(Color::DarkGray))),
     ];
     let block = Block::default()
         .title(" Name Your Character ")
@@ -711,7 +721,7 @@ fn render_name_input(frame: &mut Frame, state: &MainMenuState) {
     frame.render_widget(Paragraph::new(lines).block(block), popup);
 }
 
-fn random_name() -> String {
+fn name_at_idx(idx: usize) -> String {
     static NAMES: std::sync::OnceLock<Vec<String>> = std::sync::OnceLock::new();
     let names = NAMES.get_or_init(|| {
         std::fs::read_to_string("data/character_names.json")
@@ -719,9 +729,13 @@ fn random_name() -> String {
             .and_then(|s| serde_json::from_str::<Vec<String>>(&s).ok())
             .unwrap_or_else(|| vec!["Vael".to_string()])
     });
-    let idx = (std::time::SystemTime::now()
+    names[idx % names.len()].clone()
+}
+
+fn random_name() -> String {
+    let idx = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis())
-        .unwrap_or(0) as usize) % names.len();
-    names[idx].clone()
+        .map(|d| d.as_millis() as usize)
+        .unwrap_or(0);
+    name_at_idx(idx)
 }
