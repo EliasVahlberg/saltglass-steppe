@@ -46,7 +46,7 @@ impl MainMenuState {
     }
 }
 
-const MAIN_OPTIONS: &[&str] = &["New Game", "Generate World", "Test Tile Generation", "Controls", "Quit"];
+const MAIN_OPTIONS: &[&str] = &["New Game", "Load Game", "Generate World", "Test Tile Generation", "Controls", "Quit"];
 
 /// Handle main menu input
 pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
@@ -181,19 +181,20 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                     state.class_index = 0;
                     MenuAction::None
                 }
-                1 => {
+                1 => MenuAction::LoadGame("savegame.ron".to_string()),
+                2 => {
                     state.seed_input = true;
                     state.seed_text.clear();
                     MenuAction::None
                 }
-                2 => {
+                3 => {
                     state.tile_test = true;
                     state.tile_test_index = 0;
                     state.tile_test_configs = crate::game::generation::tile_generator::TileTestConfig::load_all();
                     MenuAction::None
                 }
-                3 => MenuAction::Controls,
-                4 => MenuAction::Quit,
+                4 => MenuAction::Controls,
+                5 => MenuAction::Quit,
                 _ => MenuAction::None,
             },
             KeyCode::Char('q') | KeyCode::Esc => MenuAction::Quit,

@@ -745,7 +745,32 @@ fn run_main_game() -> Result<()> {
                     }
                     continue 'main;
                 }
-                MenuAction::LoadGame(_) | MenuAction::None => {}
+                MenuAction::LoadGame(path) => {
+                    match save::load_game(&path) {
+                        Ok(loaded_state) => {
+                            let mut state = loaded_state;
+                            let mut ui = UiState::new();
+                            ui.camera_x = state.player.x as f32;
+                            ui.camera_y = state.player.y as f32;
+                            state.log("Game loaded.");
+                            'loaded: loop {
+                                terminal.draw(|frame| render(frame, &state, &mut ui, &mut renderer))?;
+                                let action = handle_input(&mut ui, &mut state)?;
+                                match update(&mut state, action, &mut ui) {
+                                    Some(true) => {}
+                                    Some(false) => break 'main,
+                                    None => break 'loaded,
+                                }
+                            }
+                            continue 'main;
+                        }
+                        Err(e) => {
+                            // No save file or corrupt — stay on menu
+                            eprintln!("Load failed: {}", e);
+                        }
+                    }
+                }
+                MenuAction::None => {}
             }
         };
 
