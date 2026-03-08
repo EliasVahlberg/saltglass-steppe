@@ -692,7 +692,7 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
 fn render_name_input(frame: &mut Frame, state: &MainMenuState) {
     let area = frame.area();
     let width = 50u16.min(area.width - 4);
-    let height = 11u16.min(area.height - 4);
+    let height = 9u16.min(area.height - 4);
     let x = (area.width.saturating_sub(width)) / 2;
     let y = (area.height.saturating_sub(height)) / 2;
     let popup = Rect::new(x, y, width, height);
@@ -705,7 +705,6 @@ fn render_name_input(frame: &mut Frame, state: &MainMenuState) {
         Style::default().fg(Color::Yellow)
     };
     let lines = vec![
-        Line::from(""),
         Line::from(Span::styled("Name your character:", Style::default().fg(Color::White))),
         Line::from(""),
         Line::from(Span::styled(format!("> {}_", display), input_style)),
