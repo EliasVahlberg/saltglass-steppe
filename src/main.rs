@@ -10,7 +10,7 @@ use ratatui::{
 use saltglass_steppe::cli::{LaunchMode, parse_args};
 use saltglass_steppe::satellite::SatelliteApp;
 use saltglass_steppe::ui::{
-    Action, MainMenuState, MenuAction, UiState, handle_input, handle_menu_input,
+    Action, MainMenuState, MenuAction, UiState, handle_menu_input,
     render_book_reader, render_bottom_panel, render_chest_ui, render_controls,
     render_crafting_menu, render_damage_numbers, render_death_screen, render_debug_console,
     render_debug_menu, render_dialog_box, render_crystal_menu, render_faction_menu, render_inventory_menu, render_issue_reporter,
@@ -20,6 +20,9 @@ use saltglass_steppe::ui::{
 use saltglass_steppe::{GameState, Renderer, get_item_def};
 use saltglass_steppe::game::save;
 use std::io::{Result, stdout};
+
+mod session;
+use session::{SessionOutcome, run_game_session};
 
 fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<bool> {
     match action {
@@ -597,7 +600,7 @@ fn run_main_game() -> Result<()> {
     let mut terminal = Terminal::new(CrosstermBackend::new(stdout()))?;
 
     // Initialize IPC server
-    use saltglass_steppe::ipc::{IpcMessage, IpcServer};
+    use saltglass_steppe::ipc::IpcServer;
     let socket_path = "/tmp/saltglass-steppe.sock";
     let ipc_server = IpcServer::new(socket_path)?;
     ipc_server.start()?;
@@ -660,94 +663,13 @@ fn run_main_game() -> Result<()> {
                     return Ok(());
                 }
                 MenuAction::TileTest(cfg) => {
-                    // Run tile test session
                     let params = cfg.to_tile_params();
                     let seed = params.seed;
                     let mut state = GameState::new_with_class(seed, "wanderer");
                     state.test_mode = true;
                     state.load_test_tile(params);
-                    let mut ui = UiState::new();
-                    ui.camera_x = state.player.x as f32;
-                    ui.camera_y = state.player.y as f32;
-                    
-                    // Run game loop for tile test
-                    loop {
-                        if !ui.debug_console.active {
-                            ui.tick_frame();
-                            state.world.visual_effects.tick_hit_flash();
-                            state.world.visual_effects.tick_damage_numbers();
-                            state.world.visual_effects.tick_projectile_trails();
-                            state.world.visual_effects.tick_light_beams();
-                            state.world.visual_effects.tick_animation();
-                            ui.update_camera(state.player.x, state.player.y);
-                            ui.dialog_box.tick(16);
-                        }
-
-                        if let Some((speaker, text)) = state.pending_dialogue.take() {
-                            ui.dialog_box.show(&speaker, &text);
-                        }
-                        if let Some((text, options)) = state.pending_aria_dialogue.take() {
-                            ui.aria_interface.response_text = text;
-                            ui.aria_interface.options = options;
-                            ui.aria_interface.selected_option = 0;
-                        }
-                        if let Some(book_id) = state.pending_book_open.take() {
-                            ui.book_reader.open(&book_id);
-                        }
-                        if let Some(trader_id) = state.pending_trade.take() {
-                            if ui.dialog_box.active {
-                                state.pending_trade = Some(trader_id);
-                            } else {
-                                use saltglass_steppe::trading::{calculate_area_tier, get_trade_interface};
-                                let area_tier = calculate_area_tier(&state.world.enemies);
-                                if let Some(interface) = get_trade_interface(
-                                    &trader_id,
-                                    area_tier,
-                                    &state.player.faction_reputation,
-                                    None,
-                                ) {
-                                    ui.inventory_menu.close();
-                                    ui.quest_log.close();
-                                    ui.crafting_menu.close();
-                                    ui.wiki_menu.close();
-                                    ui.pause_menu.close();
-                                    ui.trade_menu.open(trader_id, interface);
-                                } else {
-                                    state.log("This merchant has nothing to trade.");
-                                }
-                            }
-                        }
-
-                        if let Some(ei) = ui.target_enemy {
-                            if ei >= state.world.enemies.len() || state.world.enemies[ei].hp <= 0 {
-                                ui.target_enemy = None;
-                            }
-                        }
-
-                        if ui.show_controls {
-                            terminal.draw(render_controls)?;
-                            if event::poll(std::time::Duration::from_millis(16))? {
-                                if let Event::Key(key) = event::read()? {
-                                    if key.kind == KeyEventKind::Press {
-                                        ui.show_controls = false;
-                                    }
-                                }
-                            }
-                        } else {
-                            terminal.draw(|frame| render(frame, &state, &mut ui, &mut renderer))?;
-                            let action = handle_input(&mut ui, &mut state)?;
-                            match update(&mut state, action, &mut ui) {
-                                Some(true) => {
-                                    if ui.tutorial_message.is_none() {
-                                        if let Some(msg) = state.get_next_tutorial_message() {
-                                            ui.tutorial_message = Some(msg);
-                                        }
-                                    }
-                                }
-                                Some(false) => break 'main,
-                                None => break,
-                            }
-                        }
+                    if let SessionOutcome::Quit = run_game_session(&mut terminal, &mut renderer, state, |_, _| {})? {
+                        break 'main;
                     }
                     continue 'main;
                 }
@@ -755,222 +677,89 @@ fn run_main_game() -> Result<()> {
                     match save::load_game(&path) {
                         Ok(loaded_state) => {
                             menu_state.load_error = None;
-                            let mut state = loaded_state;
-                            let mut ui = UiState::new();
-                            ui.camera_x = state.player.x as f32;
-                            ui.camera_y = state.player.y as f32;
-                            ui.world_map_view.open = state.world.saved_on_world_map;
-                            state.log("Game loaded.");
-                            'loaded: loop {
-                                terminal.draw(|frame| render(frame, &state, &mut ui, &mut renderer))?;
-                                let action = handle_input(&mut ui, &mut state)?;
-                                match update(&mut state, action, &mut ui) {
-                                    Some(true) => {}
-                                    Some(false) => break 'main,
-                                    None => break 'loaded,
-                                }
+                            if let SessionOutcome::Quit = run_game_session(&mut terminal, &mut renderer, loaded_state, |_, _| {})? {
+                                break 'main;
                             }
-                            // Refresh save list so status reflects successful load
                             menu_state.save_entries = save::list_saves();
-                            continue 'main;
                         }
                         Err(e) => {
                             menu_state.save_list = true;
-                            // Refresh entries so corrupt status from meta is shown
                             menu_state.save_entries = save::list_saves();
                             menu_state.load_error = Some(e);
-                            continue 'main;
                         }
                     }
+                    continue 'main;
                 }
                 MenuAction::None => {}
             }
         };
 
         // Create game with selected class and seed
-        let mut state = GameState::new_with_class(seed, &class_id);
-        let mut ui = UiState::new();
-        // Initialize camera to player position
-        ui.camera_x = state.player.x as f32;
-        ui.camera_y = state.player.y as f32;
-
-        // Initial tutorial check (game_start trigger)
-        if let Some(msg) = state.get_next_tutorial_message() {
-            ui.tutorial_message = Some(msg);
-        }
-
-        loop {
-            // Only tick animations and updates if debug console is not active
-            if !ui.debug_console.active {
-                ui.tick_frame();
-                state.world.visual_effects.tick_hit_flash();
-                state.world.visual_effects.tick_damage_numbers();
-                state.world.visual_effects.tick_projectile_trails();
-                state.world.visual_effects.tick_light_beams();
-                state.world.visual_effects.tick_animation();
-                ui.update_camera(state.player.x, state.player.y);
-                ui.dialog_box.tick(16); // ~60fps
+        let state = GameState::new_with_class(seed, &class_id);
+        let outcome = run_game_session(&mut terminal, &mut renderer, state, |state, _ui| {
+            use saltglass_steppe::ipc::IpcMessage;
+            let adaptations: Vec<String> = state.player.adaptations.iter()
+                .map(|a| a.name().to_string()).collect();
+            let _ = ipc_server.send_message(IpcMessage::GameState {
+                hp: state.player.hp,
+                max_hp: state.player.max_hp,
+                refraction: state.player.refraction as i32,
+                turn: state.turn as u32,
+                storm_countdown: state.world.storm.turns_until as i32,
+                adaptations,
+                god_view: state.debug_god_view,
+                phase_mode: state.debug_phase,
+            });
+            let equipped_items: Vec<String> = [
+                ("Weapon", &state.player.equipment.weapon),
+                ("Ranged", &state.player.equipment.ranged_weapon),
+                ("Head", &state.player.equipment.head),
+                ("Jacket", &state.player.equipment.jacket),
+                ("Pants", &state.player.equipment.pants),
+                ("Boots", &state.player.equipment.boots),
+                ("Gloves", &state.player.equipment.gloves),
+                ("L.Wrist", &state.player.equipment.left_wrist),
+                ("R.Wrist", &state.player.equipment.right_wrist),
+                ("Necklace", &state.player.equipment.necklace),
+                ("Accessory", &state.player.equipment.accessory),
+                ("Backpack", &state.player.equipment.backpack),
+            ].iter().filter_map(|(slot, item)| item.as_ref().map(|i| format!("{}: {}", slot, i))).collect();
+            let _ = ipc_server.send_message(IpcMessage::InventoryUpdate {
+                items: state.player.inventory.clone(),
+                equipped: equipped_items,
+            });
+            if state.messages.len() > last_message_count {
+                for message in &state.messages[last_message_count..] {
+                    let _ = ipc_server.send_message(IpcMessage::LogEntry {
+                        message: message.text.clone(),
+                        msg_type: format!("{:?}", message.msg_type),
+                        turn: message.turn,
+                    });
+                }
+                last_message_count = state.messages.len();
             }
-
-            // Check for pending dialogue from NPC interaction
-            if let Some((speaker, text)) = state.pending_dialogue.take() {
-                ui.dialog_box.show(&speaker, &text);
-            }
-
-            // Check for pending ARIA dialogue
-            if let Some((text, options)) = state.pending_aria_dialogue.take() {
-                ui.aria_interface.response_text = text;
-                ui.aria_interface.options = options;
-                ui.aria_interface.selected_option = 0;
-            }
-
-            // Check for pending book open
-            if let Some(book_id) = state.pending_book_open.take() {
-                ui.book_reader.open(&book_id);
-            }
-
-            // Check for pending trade (only if no dialog is active)
-            if let Some(trader_id) = state.pending_trade.take() {
-                if ui.dialog_box.active {
-                    // Put the trade back if dialog is still active
-                    state.pending_trade = Some(trader_id);
-                } else {
-                    use saltglass_steppe::trading::{calculate_area_tier, get_trade_interface};
-                    let area_tier = calculate_area_tier(&state.world.enemies);
-                    if let Some(interface) = get_trade_interface(
-                        &trader_id,
-                        area_tier,
-                        &state.player.faction_reputation,
-                        None, // Player faction not yet implemented
-                    ) {
-                        // Close other menus to ensure trade menu has focus
-                        ui.inventory_menu.close();
-                        ui.quest_log.close();
-                        ui.crafting_menu.close();
-                        ui.wiki_menu.close();
-                        ui.pause_menu.close();
-                        ui.trade_menu.open(trader_id, interface);
-                    } else {
-                        state.log("This merchant has nothing to trade.");
-                    }
+            let tile_seed = state.world.world_map.as_ref()
+                .map(|wm| wm.tile_seed(state.world.world_x, state.world.world_y))
+                .unwrap_or(0);
+            let _ = ipc_server.send_message(IpcMessage::DebugInfo {
+                player_pos: (state.player.x, state.player.y),
+                enemies_count: state.world.enemies.len(),
+                items_count: state.player.inventory.len(),
+                storm_intensity: state.world.storm.intensity as i32,
+                seed: state.seed,
+                tile_seed,
+                world_pos: (state.world.world_x, state.world.world_y),
+                god_view: state.debug_god_view,
+                phase_mode: state.debug_phase,
+            });
+            while let Some(message) = ipc_server.try_recv_message() {
+                if let IpcMessage::Command { action } = message {
+                    state.debug_command(&action);
                 }
             }
-
-            // Clear target if enemy is dead
-            if let Some(ei) = ui.target_enemy {
-                if ei >= state.world.enemies.len() || state.world.enemies[ei].hp <= 0 {
-                    ui.target_enemy = None;
-                }
-            }
-
-            if ui.show_controls {
-                terminal.draw(render_controls)?;
-                if event::poll(std::time::Duration::from_millis(16))? {
-                    if let Event::Key(key) = event::read()? {
-                        if key.kind == KeyEventKind::Press {
-                            ui.show_controls = false;
-                        }
-                    }
-                }
-            } else {
-                terminal.draw(|frame| render(frame, &state, &mut ui, &mut renderer))?;
-                let action = handle_input(&mut ui, &mut state)?;
-                match update(&mut state, action, &mut ui) {
-                    Some(true) => {
-                        // Check for tutorial messages after each action
-                        if ui.tutorial_message.is_none() {
-                            if let Some(msg) = state.get_next_tutorial_message() {
-                                ui.tutorial_message = Some(msg);
-                            }
-                        }
-
-                        // Send game state update to satellite terminals
-                        let adaptations: Vec<String> = state
-                            .player
-                            .adaptations
-                            .iter()
-                            .map(|a| a.name().to_string())
-                            .collect();
-
-                        let _ = ipc_server.send_message(IpcMessage::GameState {
-                            hp: state.player.hp,
-                            max_hp: state.player.max_hp,
-                            refraction: state.player.refraction as i32,
-                            turn: state.turn as u32,
-                            storm_countdown: state.world.storm.turns_until as i32,
-                            adaptations,
-                            god_view: state.debug_god_view,
-                            phase_mode: state.debug_phase,
-                        });
-
-                        // Send inventory update
-                        let equipped_items: Vec<String> = [
-                            ("Weapon", &state.player.equipment.weapon),
-                            ("Ranged", &state.player.equipment.ranged_weapon),
-                            ("Head", &state.player.equipment.head),
-                            ("Jacket", &state.player.equipment.jacket),
-                            ("Pants", &state.player.equipment.pants),
-                            ("Boots", &state.player.equipment.boots),
-                            ("Gloves", &state.player.equipment.gloves),
-                            ("L.Wrist", &state.player.equipment.left_wrist),
-                            ("R.Wrist", &state.player.equipment.right_wrist),
-                            ("Necklace", &state.player.equipment.necklace),
-                            ("Accessory", &state.player.equipment.accessory),
-                            ("Backpack", &state.player.equipment.backpack),
-                        ]
-                        .iter()
-                        .filter_map(|(slot, item)| {
-                            item.as_ref().map(|i| format!("{}: {}", slot, i))
-                        })
-                        .collect();
-
-                        let _ = ipc_server.send_message(IpcMessage::InventoryUpdate {
-                            items: state.player.inventory.clone(),
-                            equipped: equipped_items,
-                        });
-
-                        // Send new log messages only
-                        if state.messages.len() > last_message_count {
-                            for message in &state.messages[last_message_count..] {
-                                let _ = ipc_server.send_message(IpcMessage::LogEntry {
-                                    message: message.text.clone(),
-                                    msg_type: format!("{:?}", message.msg_type),
-                                    turn: message.turn,
-                                });
-                            }
-                            last_message_count = state.messages.len();
-                        }
-
-                        // Send debug info update
-                        let tile_seed = state
-                            .world
-                            .world_map
-                            .as_ref()
-                            .map(|wm| wm.tile_seed(state.world.world_x, state.world.world_y))
-                            .unwrap_or(0);
-                        let _ = ipc_server.send_message(IpcMessage::DebugInfo {
-                            player_pos: (state.player.x, state.player.y),
-                            enemies_count: state.world.enemies.len(),
-                            items_count: state.player.inventory.len(),
-                            storm_intensity: state.world.storm.intensity as i32,
-                            seed: state.seed,
-                            tile_seed,
-                            world_pos: (state.world.world_x, state.world.world_y),
-                            god_view: state.debug_god_view,
-                            phase_mode: state.debug_phase,
-                        });
-
-                        // Handle incoming commands from debug terminal
-                        while let Some(message) = ipc_server.try_recv_message() {
-                            if let IpcMessage::Command { action } = message {
-                                state.debug_command(&action);
-                            }
-                        }
-                    }
-                    Some(false) => break 'main, // Quit
-                    None => break,              // Return to main menu
-                }
-            }
+        })?;
+        if let SessionOutcome::Quit = outcome {
+            break 'main;
         }
     }
 

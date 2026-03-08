@@ -150,7 +150,8 @@ pub fn list_saves() -> Vec<SaveInfo> {
     let Ok(entries) = fs::read_dir(SAVES_DIR) else {
         return vec![];
     };
-    let meta = load_meta();
+    let mut meta = load_meta();
+    let mut meta_dirty = false;
     let mut saves: Vec<(std::time::SystemTime, SaveInfo)> = entries
         .filter_map(|e| e.ok())
         .filter(|e| e.path().extension().and_then(|x| x.to_str()) == Some("ron"))
@@ -160,14 +161,24 @@ pub fn list_saves() -> Vec<SaveInfo> {
             let stem = path.file_stem()?.to_str()?.to_string();
             let modified = format_local_time(mtime);
 
-            let status = match meta.entries.get(&stem) {
-                // Corrupt: skip hash check, trust meta
-                Some(m) if m.status == SaveStatus::Corrupt => SaveStatus::Corrupt,
-                // Ok/HashMismatch or unknown: re-verify hash
+            let status = match meta.entries.get(&stem).map(|m| &m.status) {
+                // Trust meta for Ok — skip file read entirely
+                Some(SaveStatus::Ok) => SaveStatus::Ok,
+                // Corrupt — skip hash, just confirm file exists
+                Some(SaveStatus::Corrupt) => SaveStatus::Corrupt,
+                // HashMismatch or unknown — re-verify
                 _ => {
                     let data = fs::read_to_string(&path).ok()?;
-                    let hash = compute_hash(&data);
-                    if stem == hash { SaveStatus::Ok } else { SaveStatus::HashMismatch }
+                    let new_status = if stem == compute_hash(&data) {
+                        SaveStatus::Ok
+                    } else {
+                        SaveStatus::HashMismatch
+                    };
+                    if meta.entries.get(&stem).map(|m| &m.status) != Some(&new_status) {
+                        meta.entries.insert(stem.clone(), SaveEntryMeta { status: new_status.clone() });
+                        meta_dirty = true;
+                    }
+                    new_status
                 }
             };
 
@@ -179,6 +190,9 @@ pub fn list_saves() -> Vec<SaveInfo> {
             }))
         })
         .collect();
+    if meta_dirty {
+        save_meta(&meta);
+    }
     saves.sort_by(|a, b| b.0.cmp(&a.0));
     saves.into_iter().map(|(_, info)| info).collect()
 }
