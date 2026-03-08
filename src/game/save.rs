@@ -23,6 +23,7 @@ struct SaveFile<'a> {
 }
 
 #[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
 struct SaveFileOwned {
     version: u32,
     state: GameState,
