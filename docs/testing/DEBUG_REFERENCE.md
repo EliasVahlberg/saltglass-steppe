@@ -74,6 +74,12 @@ Type `report_issue` in the debug console. A 6-step guided form opens:
 
 Review screen shows the full report before submission. `Enter` to submit, `Backspace` to go back, `Esc` to cancel.
 
+On submit, two files are written:
+- `issue_reports/<id>.json` — structured report
+- `debug_states/<id>.ron` — full game state snapshot
+
+A dev can reproduce by running `load_debug <id>` in the debug console.
+
 **Severity guide:**
 - `Critical` — crash, data loss, softlock
 - `High` — major feature broken, blocks progress

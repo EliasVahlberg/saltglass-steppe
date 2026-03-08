@@ -41,8 +41,12 @@ Run `report_issue` in the console. Fill in:
 ### 3. Note the seed
 Run `debug_info` in the console. The output includes `Seed` and `Tile Seed`. Add both to the report steps or description if the bug is generation-related.
 
-### 4. Attach the debug state
-Reference the `.ron` filename from step 1 in the report. A dev can load it with `load_debug <name>` to reproduce instantly.
+### 4. Locate the output
+On submit, two files are written:
+- `issue_reports/<id>.json` — structured report (description, steps, expected, actual, severity, category)
+- `debug_states/<id>.ron` — full game state snapshot linked from the report
+
+A dev can load the state with `load_debug <id>` to reproduce instantly.
 
 ---
 
