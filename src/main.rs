@@ -617,9 +617,9 @@ fn run_main_game() -> Result<()> {
         }
     };
 
+    let mut menu_state = MainMenuState::new();
     'main: loop {
         // Main menu loop
-        let mut menu_state = MainMenuState::new();
         let mut menu_tick: u64 = 0;
         let (class_id, seed) = loop {
             terminal.draw(|f| render_menu(f, menu_tick, &menu_state))?;
