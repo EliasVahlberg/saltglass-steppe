@@ -710,9 +710,12 @@ fn render_name_input(frame: &mut Frame, state: &MainMenuState) {
         Line::from(""),
         Line::from(Span::styled(format!("> {}_", display), input_style)),
         Line::from(""),
-        Line::from(Span::styled("(pre-filled at random — type to change)", Style::default().fg(Color::DarkGray))),
+        Line::from(Line::from(vec![
+            Span::styled("  [Tab] ", Style::default().fg(Color::Cyan).bold()),
+            Span::styled("re-roll suggestion", Style::default().fg(Color::DarkGray)),
+        ])),
         Line::from(""),
-        Line::from(Span::styled("[Enter] Confirm  [Tab] Re-roll  [Esc] Back", Style::default().fg(Color::DarkGray))),
+        Line::from(Span::styled("[Enter] Confirm  [Esc] Back", Style::default().fg(Color::DarkGray))),
     ];
     let block = Block::default()
         .title(" Name Your Character ")
