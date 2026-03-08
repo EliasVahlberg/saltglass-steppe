@@ -154,6 +154,7 @@ static QUEST_CONTENT_INJECTIONS: Lazy<Vec<QuestContentInjection>> = Lazy::new(||
 
 #[derive(Deserialize)]
 struct MainQuestlineFile {
+    #[allow(dead_code)]
     main_questline: Vec<QuestDef>,
     quest_content_injections: Vec<QuestContentInjection>,
 }

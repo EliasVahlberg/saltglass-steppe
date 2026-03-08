@@ -422,6 +422,9 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
                 state,
             );
         }
+        if ui.pause_menu.active {
+            render_pause_menu(frame, ui.pause_menu.selected_index);
+        }
         return;
     }
 

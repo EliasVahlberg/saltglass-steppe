@@ -62,6 +62,7 @@ struct AlgorithmLayer {
     algorithm: String,
     blend: String,
     #[serde(default)]
+    #[allow(dead_code)]
     params: Option<serde_json::Value>,
 }
 

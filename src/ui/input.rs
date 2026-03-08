@@ -821,8 +821,7 @@ fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode
     
     match code {
         KeyCode::Esc => {
-            // Esc on world map opens pause menu (save/quit access) without entering the tile
-            ui.world_map_view.open = false;
+            // Keep world map open underneath; pause menu renders on top
             ui.pause_menu.open();
         }
         KeyCode::Char('m') | KeyCode::Char('M') | KeyCode::Enter => {

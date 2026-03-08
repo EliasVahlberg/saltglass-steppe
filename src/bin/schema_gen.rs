@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use clap::{Parser, Subcommand};
 use schemars::{schema_for, JsonSchema};
 use serde_json::{Map, Value};
