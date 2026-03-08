@@ -1,161 +1,96 @@
-# Data File Audit Results
+# Data File Audit
 
-**Date**: 2026-02-21  
-**Total JSON files**: 54  
-**Loaded by game**: 44  
-**Test-only**: 1  
-**Dead/Unused**: 9
-
----
-
-## ✅ Active Files (Loaded by Game)
-
-### Core Game Systems
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `actions.json` | `game/action.rs` | Player action definitions |
-| `classes.json` | `game/meta.rs` | Character class definitions |
-| `factions.json` | `game/faction.rs` | Faction definitions and colors |
-| `keyboard_config.json` | `game/keyboard_config.rs` | Keybinding configuration |
-| `progression.json` | `game/progression.rs` | Level-up and XP tables |
-| `tutorial.json` | `game/tutorial.rs` | Tutorial message definitions |
-
-### Combat & Enemies
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `enemies/common.json` | `game/enemy.rs` | Common tier enemies |
-| `enemies/uncommon.json` | `game/enemy.rs` | Uncommon tier enemies |
-| `enemies/rare.json` | `game/enemy.rs` | Rare tier enemies |
-| `enemies/elite.json` | `game/enemy.rs` | Elite tier enemies |
-| `enemies/boss.json` | `game/enemy.rs` | Boss tier enemies |
-| `weapons.json` | `game/combat.rs` | Weapon definitions |
-| `effects.json` | `game/effect.rs` | Visual/gameplay effects (includes status_effects + config) |
-
-### Items & Inventory
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `items.json` | `game/item.rs` | Item definitions |
-| `chests.json` | `game/chest.rs` | Chest loot tables |
-| `loot_tables.json` | `game/generation/loot.rs` | Loot generation tables |
-
-### Crafting & Trading
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `recipes.json` | `game/crafting.rs` | Crafting recipe definitions |
-| `traders.json` | `game/trading.rs` | Trader definitions and inventories |
-
-### Skills & Abilities
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `abilities.json` | `game/skills.rs` | Skills + active abilities (combined) |
-| `adaptations.json` | `game/adaptation.rs` | Mutation/adaptation definitions |
-| `abilities.json` | `game/psychic.rs` | Psychic power definitions (combined) |
-
-### Quests & Dialogue
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `quests.json` | `game/quest.rs` | Side quest definitions |
-| `main_questline.json` | `game/quest.rs` | Main story quest chain |
-| `dialogues.json` | `game/dialogue.rs` | NPC dialogue trees + ARIA personalities |
-| `npcs.json` | `game/npc.rs` | NPC definitions |
-
-### World & Generation
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `terrain_config.json` | `game/generation/terrain_forge_adapter.rs` | **PRIMARY** terrain generation config |
-| `biome_spawn_tables.json` | `game/generation/spawn.rs` | Enemy spawn tables per biome |
-| `biome_profiles.json` | `game/generation/biomes.rs` | Biome generation profiles (⚠️ SUSPECT) |
-| `map_features.json` | `game/generation/feature_registry.rs` | Map feature definitions |
-| `microstructures.json` | `game/generation/microstructures.rs` | Small structure templates |
-| `structure_templates.json` | `game/structure_templates.rs` | Large structure templates |
-| `constraint_rules.json` | `game/generation/constraints.rs` | Generation constraint rules |
-| `narrative_integration.json` | `game/generation/narrative.rs` | Narrative event integration |
-| `dynamic_events.json` | `game/generation/events.rs` | Dynamic event definitions |
-
-### Map & Rendering
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `map_elements.json` | `game/map.rs`, `game/light_defs.rs` | Unified walls/floors/lights |
-| `interactables.json` | `game/interactable.rs` | Interactable object definitions |
-
-### Travel & Encounters
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `travel_config.json` | `game/travel.rs` | Travel cost and mechanics |
-| `encounter_config.json` | `game/encounter.rs` | Encounter generation config |
-| `auto_explore_config.json` | `game/auto_explore.rs` | Auto-explore behavior config |
-| `storm_config.json` | `game/storm.rs` | Storm system configuration |
-
----
-
-## 🧪 Test-Only Files
-
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `structure_generation.json` | `bin/tilegen-tool.rs` | **TEST TOOL ONLY** - Structure gen testing |
-
-**Recommendation**: Move to `tests/data/` or document as test-only.
-
----
-
-## ❌ Dead/Unused Files (Not Loaded)
-
-These files are not referenced by any code:
-
-| File | Status | Recommendation |
-|------|--------|----------------|
-| `npc_spawn_config.json` | Dead | Remove (biome_spawn_tables.json handles spawning) |
-| `quest_constraints.json` | Dead | Remove (constraint_rules.json is used) |
-| `structure_spawn_config.json` | Dead | Remove (structure_templates.json is used) |
-| `grammars/descriptions.json` | Dead | Remove (no grammar system active) |
-| `grammars/names.json` | Dead | Remove (no grammar system active) |
-| `templates/content_templates.json` | Dead | Remove (no template system active) |
-
-**Total dead files**: 6 (11% of total)
-
----
-
-## ⚠️ Suspect Files (Needs Investigation)
-
-### `biome_profiles.json` - UNUSED BUT NOT REDUNDANT
-- **Loaded by**: `game/generation/biomes.rs` (BiomeSystem)
-- **Status**: BiomeSystem is ONLY used in tests, never in production gameplay
-- **Content**: Rich environmental storytelling data (atmospheric elements, hazards, ambient descriptions)
-- **Overlap with terrain_config.json**: Minimal - only resource_modifiers overlap
-- **Purpose**: Different from terrain_config.json (storytelling vs generation parameters)
-- **Recommendation**: Either implement BiomeSystem in gameplay OR remove biome_profiles.json
-- **Decision**: Keep for now (potential future feature), but mark as unused
-
----
-
-## ✅ Files Previously Thought Dead (Actually Used)
-
-These files ARE loaded but not via `include_str!`:
-
-| File | Loaded By | Purpose |
-|------|-----------|---------|
-| `books.json` | `game/book.rs` | Book content data |
-| `effects.json` | `renderer/mod.rs` | Effects management config (merged) |
-| `narrative_templates.json` | `game/generation/narrative_templates.rs` | Narrative generation templates |
-| `render_config.json` | `renderer/mod.rs` | Renderer configuration |
-| `themes.json` | `renderer/mod.rs` | Visual theme definitions |
-| `structure_generation.json` | `bin/tilegen-tool.rs` | Test tool only (not game code) |
-
-**Note**: These use different loading mechanisms (not `include_str!`)
-
----
+> Last updated: 2026-03-07
 
 ## Summary
 
-- **Active files**: 49 (91%)
-- **Test-only**: 1 (2%) - structure_generation.json
-- **Dead files**: 6 (11%)
-- **Unused but valid**: 1 (biome_profiles.json - future feature)
+41 JSON files in `data/`. 38 are loaded by game code. 3 are not yet wired.
 
-**Cleanup potential**: Remove 6 dead files (~11% reduction)
+---
 
-**Next steps**:
-1. ✅ Investigated biome_profiles.json - unused but not redundant (keep for future)
-2. ✅ Verified structure_generation.json is test-only
-3. Remove 6 confirmed dead files
-4. Document remaining active files
+## Load Method by File
+
+### Loaded via `include_str!` (compile-time, embedded in binary)
+
+| File | Loaded by |
+|------|-----------|
+| `abilities.json` | `src/game/skills.rs` (skills + abilities), `src/game/psychic.rs` |
+| `actions.json` | `src/game/state.rs` |
+| `adaptations.json` | `src/game/adaptation.rs` |
+| `auto_explore_config.json` | `src/game/state.rs` |
+| `biome_profiles.json` | `src/game/generation/biomes.rs` |
+| `biome_spawn_tables.json` | `src/game/generation/spawn.rs` |
+| `chests.json` | `src/game/state.rs` |
+| `classes.json` | `src/game/state.rs` |
+| `constraint_rules.json` | `src/game/generation/constraints.rs` |
+| `dialogues.json` | `src/game/dialogue.rs` |
+| `dynamic_events.json` | `src/game/generation/events.rs` |
+| `effects.json` | `src/game/status.rs`, `src/game/state.rs` |
+| `encounter_config.json` | `src/game/encounter.rs` |
+| `enemies/common.json` | `src/game/enemy.rs` |
+| `enemies/uncommon.json` | `src/game/enemy.rs` |
+| `enemies/rare.json` | `src/game/enemy.rs` |
+| `enemies/elite.json` | `src/game/enemy.rs` |
+| `enemies/boss.json` | `src/game/enemy.rs` |
+| `factions.json` | `src/game/faction.rs` |
+| `interactables.json` | `src/game/interactable.rs` |
+| `items.json` | `src/game/item.rs` |
+| `keyboard_config.json` | `src/ui/input.rs` |
+| `loot_tables.json` | `src/game/generation/loot.rs` |
+| `main_questline.json` | `src/game/quest.rs` |
+| `map_features.json` | `src/game/generation/feature_registry.rs` |
+| `microstructures.json` | `src/game/generation/microstructures.rs` |
+| `narrative_integration.json` | `src/game/generation/narrative.rs` |
+| `npcs.json` | `src/game/npc.rs` |
+| `progression.json` | `src/game/progression.rs` |
+| `quests.json` | `src/game/quest.rs` |
+| `recipes.json` | `src/game/crafting.rs` |
+| `skill_trees.json` | `src/game/skills.rs` |
+| `storm_config.json` | `src/game/systems/storm.rs` |
+| `structure_generation.json` | `src/bin/tilegen-tool.rs` only (CLI tool, not main game) |
+| `terrain_config.json` | `src/game/generation/terrain_forge_adapter.rs` |
+| `traders.json` | `src/game/trading.rs` |
+| `travel_config.json` | `src/game/travel.rs` |
+| `tutorial.json` | `src/game/state.rs` |
+| `weapons.json` | `src/game/item.rs` |
+
+### Loaded via `fs::read_to_string` (runtime, not embedded)
+
+| File | Loaded by | Notes |
+|------|-----------|-------|
+| `render_config.json` | `src/renderer/mod.rs` | Reloaded on theme change |
+| `themes.json` | `src/renderer/mod.rs` | Reloaded on theme change |
+| `narrative_templates.json` | `src/game/generation/narrative_templates.rs` | Grammar templates |
+| `books.json` | `src/game/book.rs` | Loaded on first book read |
+| `map_elements.json` | `src/game/map_elements.rs` | Loaded with schema validation |
+
+### Not yet loaded (planned)
+
+| File | Status | Notes |
+|------|--------|-------|
+| `settlement_config.json` | Planned — not yet wired | Settlement generation task 13 (building interiors). Defines tier sizes, building ratios, faction building mappings. |
+| `skill_trees.schema.json` | Schema only — intentionally not loaded | JSON Schema for validating skill_trees.json. Not game data. |
+
+---
+
+## Findings
+
+### `structure_generation.json` — CLI tool only
+Only loaded by `src/bin/tilegen-tool.rs`. Not used by the main game. This is intentional — it's a generation testing config. No action needed, but it should not be treated as game data.
+
+### `biome_profiles.json` vs `terrain_config.json` — no overlap
+- `biome_profiles.json`: environmental flavor (feature descriptions, mechanical effects per biome feature type)
+- `terrain_config.json`: generation algorithm parameters (noise settings, tile weights, POI configs)
+
+These serve different purposes. Consolidation is not warranted.
+
+### `settlement_config.json` — planned, not dead
+Referenced in `SETTLEMENT_GENERATION_PLAN.md` and `ROADMAP.md`. Will be loaded when settlement building interior generation is implemented (settlement task 13).
+
+---
+
+## Recommendations
+
+1. No files to delete — all files are either active, planned, or intentional tool configs.
+2. Consider migrating `books.json`, `map_elements.json` to `include_str!` for consistency and to avoid runtime path dependency. Low priority.
+3. `structure_generation.json` could be moved to `src/bin/data/` to make its tool-only status explicit. Low priority.

@@ -1,16 +1,47 @@
 # Development Roadmap
 
-> Last updated: 2026-03-01
+> Last updated: 2026-03-07
 
 ## Current State
 
-The codebase has been through a major maintainability overhaul (Phases 1–5). The monolithic `state.rs` has been decomposed into `PlayerState`, `WorldState`, and `NarrativeEngine`. Dead code, stub systems, and duplicate implementations have been removed. The game compiles with zero warnings and 161 tests pass.
+The codebase has been through a major maintainability overhaul (Phases 1–5). The monolithic `state.rs` has been decomposed into `PlayerState`, `WorldState`, and `NarrativeEngine`. Dead code, stub systems, and duplicate implementations have been removed.
 
 A 30-minute play session is possible: character creation, movement, combat, quests, inventory, crafting, trading, storms, and auto-explore all work. The first quest ("The Pilgrim's Last Angle") is completable. Quest progression beyond that is blocked by missing infrastructure.
+
+**Test status**: 15/16 DES scenarios pass. 1 pre-existing failure (`interaction_system_test` — `interactables.json` missing `interact` field, unrelated to recent work).
 
 ---
 
 ## Recently Completed
+
+### Skill System Rework (2026-03-07)
+- **7-category skill tree**: `SaltAlchemy`, `Crafting`, `Social`, `Survival`, `Medical`, `MeleeCombat`, `RangedCombat` — legacy variants kept for save compatibility
+- **35 skills in `data/skill_trees.json`** with `tree_parent`, `blocked`, `active` flags and `passive_effects`
+- **Canvas-based tree UI** in `skills_menu.rs`: pannable 2D graph, box-drawing nodes, connection lines, detail panel
+- **Typed accessors** on `SkillsState`: `melee_accuracy_bonus()`, `ranged_accuracy_bonus()`, etc. — replaced 4 raw string lookups in `combat.rs`
+- **Tree query helpers**: `get_category_roots()`, `get_skill_children()` — sorted for stable layout
+- **DES coverage**: `skill_tree_upgrade_test.json` verifies upgrade, passive recalculation, prerequisite enforcement
+- **Design doc**: `docs/development/SKILL_TREE_DESIGN.md` — ~90 planned skills with ASCII tree diagrams, blocker analysis, balancing notes
+- **Implementation plan updated**: `docs/development/SKILL_SYSTEM_IMPLEMENTATION_PLAN.md`
+
+### Faction Enemy Aggression (2026-03-07)
+- Added `faction: Option<String>` to `EnemyDef` — reads existing `faction` field from enemy JSON files
+- `is_hostile()` now accepts `&HashMap<String, i32>` (player faction_reputation) — Aggressive/Defensive enemies won't attack if player rep ≥ 25 with their faction
+- Single call site updated in `src/game/systems/ai.rs`
+
+### Algorithm Layering & Composition (2026-03-07)
+- `AlgorithmLayer` struct + `apply_layers`/`blend` functions in `terrain_forge_adapter.rs`
+- Three blend modes: `replace` (overwrite), `overlay` (walls only), `mask` (floors only)
+- `terrain_config.json` extended with `algorithm_layers` for desert, saltflat, ruins biomes
+- Backward compatible — biomes without layers use existing weighted picks
+- `glass_seam` always uses `mask` blend to preserve floors
+
+### Data File Audit (2026-03-07)
+- 41 JSON files traced: 34 via `include_str!`, 5 via `fs::read_to_string`, 2 not yet loaded
+- No dead files found — `settlement_config.json` is planned (settlement task 13), `skill_trees.schema.json` is schema-only
+- `structure_generation.json` confirmed CLI-tool-only
+- `biome_profiles.json` and `terrain_config.json` serve different purposes — no consolidation needed
+- Full audit: `docs/development/DATA_FILE_AUDIT.md`
 
 ### Tile Generator Refactor + Tile-Gen Tester (2026-03-01) ⏳ Awaiting Approval
 - **Refactor**: Extracted `generate_tile()` from `travel_to_tile()` into `src/game/generation/tile_generator.rs`. `travel_to_tile` is now a thin wrapper. Generation is now independently callable without a full `GameState`.
@@ -126,13 +157,14 @@ These are foundational systems that most other features depend on. They should b
 - Camp/rest mechanic during long journeys
 - **Depends on**: Save system ✅
 
-#### 3. Actual Skill Catalog
-- Design and implement full skill tree with meaningful choices
-- Skill categories: Combat, Survival, Social, Psychic, Crafting
-- Active skills (usable abilities) and passive skills (stat modifiers)
-- Skill synergies and prerequisites
-- Skill point allocation UI already exists — needs real skill definitions
-- **Depends on**: Nothing (standalone system)
+#### 3. Actual Skill Catalog ✅ **COMPLETED** (2026-03-07)
+- ✅ 35 skills in `data/skill_trees.json` across 7 categories with tree structure
+- ✅ Canvas-based tree graph UI with pan, cursor navigation, detail panel
+- ✅ Typed accessors on `SkillsState` — no raw string lookups outside `skills.rs`
+- ✅ DES test coverage: `skill_tree_upgrade_test.json`
+- ✅ Full design doc: `docs/development/SKILL_TREE_DESIGN.md` (~90 planned skills)
+- 🔲 ~55 remaining skills to implement (see design doc for priority order)
+- **Documentation**: `docs/development/SKILL_SYSTEM_ARCHITECTURE.md`, `docs/development/SKILL_TREE_DESIGN.md`
 
 #### 4. Proper Faction System ✅ **COMPLETED** (2026-02-21)
 - ✅ Load and use `factions.json` definitions (7 factions)
@@ -144,7 +176,7 @@ These are foundational systems that most other features depend on. They should b
 - ✅ Faction menu UI with exact numbers and color-coded standings
 - ✅ Save system migration (v1 → v2)
 - ✅ Reputation affects: NPC dialogue, quest availability, shop prices (existing integrations)
-- 🔲 Enemy faction tags (deferred - see TODO list)
+- ✅ Enemy faction tags wired: `EnemyDef.faction` read from JSON, `is_hostile()` checks player rep ≥ 25
 - 🔲 Faction-specific quests and storylines (future content)
 - 🔲 Reputation decay/growth over time (future enhancement)
 - **Documentation**: `docs/features/FACTION_SYSTEM.md`
@@ -180,13 +212,13 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - `generate_with_dungeon_generator` now uses biome-aware selection instead of hardcoded BSP
 - All weights tunable in `data/terrain_config.json` without recompilation
 
-#### 5.6. Algorithm Layering & Composition
-- Allow biome profiles to specify multiple algorithms as ordered layers (e.g. Perlin noise base → cellular detail pass → GSB connectivity)
-- Data-driven layer definitions in `terrain_config.json`: each layer specifies algorithm, params, and blend mode
-- Desert example: Perlin noise with large scale + low threshold as base, glass seam bridging as connectivity pass
-- Enable per-biome algorithm parameter overrides (noise scale, floor threshold, room sizes) in the profile
-- Testable via `tilegen-tool` with `--biome` and `--terrain` flags for visual comparison
-- **Depends on**: Biome-driven profiles (5.5), data file audit (tech debt)
+#### 5.6. Algorithm Layering & Composition ✅ **COMPLETED** (2026-03-07)
+- ✅ `AlgorithmLayer` struct with algorithm, blend mode, optional params
+- ✅ Three blend modes: `replace`, `overlay` (walls only), `mask` (floors only)
+- ✅ `apply_layers` / `blend` functions in `terrain_forge_adapter.rs`
+- ✅ `terrain_config.json` extended with `algorithm_layers` for desert, saltflat, ruins
+- ✅ Backward compatible — biomes without layers use existing weighted picks
+- ✅ `glass_seam` always uses `mask` to preserve floors
 
 #### 6. Mob and Item Spawn Table Update
 - Biome-specific enemy rosters with level scaling
