@@ -1,0 +1,54 @@
+{
+  "name": "storm_intensity_scaling_test",
+  "description": "Test that higher storm intensity causes more tile changes",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 100,
+    "max_hp": 100,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {},
+  "map_setup": {
+    "clear_radius": 5
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "trigger_storm", "intensity": 1 }
+    },
+    {
+      "turn": 1,
+      "action": { "type": "log", "query": { "custom": { "message": "low intensity storm done" } } }
+    },
+    {
+      "turn": 2,
+      "action": { "type": "trigger_storm", "intensity": 9 }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": { "type": "storm_changed_tiles_count", "op": "gt", "value": 0 },
+      "message": "Low intensity should still change tiles"
+    },
+    {
+      "after_turn": 2,
+      "check": { "type": "storm_changed_tiles_count", "op": "gt", "value": 5 },
+      "message": "High intensity should change more tiles"
+    },
+    {
+      "after_turn": 2,
+      "check": { "type": "tile_type_count", "tile_type": "glass", "op": "gt", "value": 0 },
+      "message": "Storm should create glass tiles"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}

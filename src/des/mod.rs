@@ -15,13 +15,7 @@ use std::fs;
 use std::path::Path;
 
 fn parse_adaptation(id: &str) -> Option<Adaptation> {
-    match id.to_lowercase().as_str() {
-        "prismhide" => Some(Adaptation::Prismhide),
-        "sunveins" => Some(Adaptation::Sunveins),
-        "mirage_step" | "miragestep" => Some(Adaptation::MirageStep),
-        "saltblood" => Some(Adaptation::Saltblood),
-        _ => None,
-    }
+    Adaptation::from_id(&id.to_lowercase())
 }
 
 fn parse_status_type(id: &str) -> Option<String> {
@@ -445,6 +439,21 @@ pub enum AssertionCheck {
     NpcExists {
         npc_id: String,
     },
+    // Skill assertions
+    SkillLevel {
+        skill_id: String,
+        op: CmpOp,
+        value: u32,
+    },
+    PassiveBonus {
+        key: String,
+        op: CmpOp,
+        value: f32,
+    },
+    SkillPoints {
+        op: CmpOp,
+        value: u32,
+    },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -504,6 +513,8 @@ pub struct PlayerSetup {
     pub adaptations: Vec<String>,
     #[serde(default)]
     pub equipped_weapon: Option<String>,
+    #[serde(default)]
+    pub skill_points: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -732,6 +743,10 @@ pub enum Action {
     UseAbility {
         ability_id: String,
     },
+    // Skill actions
+    UpgradeSkill {
+        skill_id: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -950,6 +965,9 @@ impl DesExecutor {
         }
         if let Some(xp) = scenario.player.xp {
             state.player.xp = xp;
+        }
+        if let Some(sp) = scenario.player.skill_points {
+            state.player.skills.skill_points = sp;
         }
         for item_id in &scenario.player.inventory {
             state.player.inventory.push(item_id.clone());
@@ -1607,6 +1625,17 @@ impl DesExecutor {
             AssertionCheck::NpcExists { npc_id } => {
                 self.state.world.npcs.iter().any(|npc| npc.id == *npc_id)
             }
+            AssertionCheck::SkillLevel { skill_id, op, value } => {
+                let level = self.state.player.skills.get_skill_level(skill_id);
+                op.compare(level, *value)
+            }
+            AssertionCheck::PassiveBonus { key, op, value } => {
+                let bonus = self.state.player.skills.passive(key);
+                op.compare_f32(bonus, *value)
+            }
+            AssertionCheck::SkillPoints { op, value } => {
+                op.compare(self.state.player.skills.skill_points, *value)
+            }
             // Simplified implementations for other assertions
             _ => {
                 self.log(format!("Unimplemented assertion: {:?}", check));
@@ -1961,6 +1990,12 @@ impl DesExecutor {
                 if let Some(adaptation) = crate::game::Adaptation::from_id(adaptation_id) {
                     self.state.player.adaptations.push(adaptation);
                     self.log(format!("Gave adaptation: {}", adaptation_id));
+                }
+            }
+            Action::UpgradeSkill { skill_id } => {
+                match self.state.player.skills.upgrade_skill(skill_id) {
+                    Ok(()) => self.log(format!("Upgraded skill: {}", skill_id)),
+                    Err(e) => self.log(format!("Skill upgrade failed ({}): {}", skill_id, e)),
                 }
             }
             Action::ExecuteSell { .. } => {

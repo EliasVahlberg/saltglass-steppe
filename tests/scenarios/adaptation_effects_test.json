@@ -1,0 +1,59 @@
+{
+  "name": "adaptation_effects_test",
+  "description": "Test multiple adaptations and their effects",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 30,
+    "max_hp": 30,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 5
+  },
+  "map_setup": {
+    "clear_radius": 5
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "shard_spider", "x": 11, "y": 10, "hp": 5, "ai_disabled": false}
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "give_adaptation", "adaptation_id": "saltblood" }
+    },
+    {
+      "turn": 1,
+      "action": { "type": "give_adaptation", "adaptation_id": "storm_affinity" }
+    },
+    {
+      "turn": 2,
+      "action": { "type": "end_turn" }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": { "type": "player_has_adaptation", "adaptation": "saltblood" },
+      "message": "Player should have saltblood adaptation"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "player_has_adaptation", "adaptation": "storm_affinity" },
+      "message": "Player should have storm_affinity adaptation"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "adaptation_count", "op": "ge", "value": 2 },
+      "message": "Player should have at least 2 adaptations"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}

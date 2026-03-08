@@ -1,0 +1,38 @@
+{
+  "name": "enemy_spawner_behavior_test",
+  "description": "Test that a spawner enemy creates new enemies over time",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 100,
+    "max_hp": 100,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {},
+  "map_setup": {
+    "clear_radius": 10
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "crystal_widow", "x": 20, "y": 20, "hp": 50, "ai_disabled": false}
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "wait", "turns": 8 }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": { "type": "enemy_count", "op": "gt", "value": 1 },
+      "message": "Spawner should create at least 1 new enemy"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "name": "biome_spawn_tables_test",
+  "description": "Test that different enemy types load correctly in biome spawn tables",
+  "seed": 12345,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {},
+  "map_setup": {
+    "world_x": 3,
+    "world_y": 3
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "shard_spider", "x": 15, "y": 10, "hp": 5, "ai_disabled": true},
+    {"entity_type": "enemy", "id": "glass_crawler", "x": 15, "y": 12, "hp": 5, "ai_disabled": true},
+    {"entity_type": "enemy", "id": "mirage_hound", "x": 15, "y": 14, "hp": 5, "ai_disabled": true}
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "wait", "turns": 1 }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": { "type": "enemy_count", "op": "eq", "value": 3 },
+      "message": "Should have exactly 3 enemies"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "enemy_at", "x": 15, "y": 10, "alive": true },
+      "message": "shard_spider should be alive at (15,10)"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "enemy_at", "x": 15, "y": 12, "alive": true },
+      "message": "glass_crawler should be alive at (15,12)"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "enemy_at", "x": 15, "y": 14, "alive": true },
+      "message": "mirage_hound should be alive at (15,14)"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}

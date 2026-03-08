@@ -319,3 +319,103 @@ fn interaction_system_test() {
             .collect::<Vec<_>>()
     );
 }
+
+#[test]
+fn skill_tree_upgrade_test() {
+    let result = run_scenario("tests/scenarios/skill_tree_upgrade_test.json")
+        .expect("Failed to run skill_tree_upgrade_test scenario");
+
+    assert!(
+        result.success,
+        "Skill tree upgrade test failed: {:?}",
+        result
+            .assertion_results
+            .iter()
+            .filter(|r| !r.passed)
+            .collect::<Vec<_>>()
+    );
+}
+
+// ── Gap-analysis scenarios ────────────────────────────────────────────────────
+
+#[test]
+fn faction_enemy_aggression_test() {
+    let result = run_scenario("tests/scenarios/faction_enemy_aggression_test.json")
+        .expect("Failed to run faction_enemy_aggression_test");
+    assert!(result.success, "Faction enemy aggression test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn faction_enemy_hostile_below_threshold_test() {
+    let result = run_scenario("tests/scenarios/faction_enemy_hostile_below_threshold_test.json")
+        .expect("Failed to run faction_enemy_hostile_below_threshold_test");
+    assert!(result.success, "Faction enemy hostile below threshold test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn faction_reputation_boundaries_test() {
+    let result = run_scenario("tests/scenarios/faction_reputation_boundaries_test.json")
+        .expect("Failed to run faction_reputation_boundaries_test");
+    assert!(result.success, "Faction reputation boundaries test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn skill_passive_combat_test() {
+    let result = run_scenario("tests/scenarios/skill_passive_combat_test.json")
+        .expect("Failed to run skill_passive_combat_test");
+    assert!(result.success, "Skill passive combat test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+// ── Tier 2 scenarios ──────────────────────────────────────────────────────────
+
+#[test]
+fn algorithm_layering_test() {
+    let result = run_scenario("tests/scenarios/algorithm_layering_test.json")
+        .expect("Failed to run algorithm_layering_test");
+    assert!(result.success, "Algorithm layering test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn enemy_ranged_behavior_test() {
+    let result = run_scenario("tests/scenarios/enemy_ranged_behavior_test.json")
+        .expect("Failed to run enemy_ranged_behavior_test");
+    assert!(result.success, "Enemy ranged behavior test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn enemy_spawner_behavior_test() {
+    let result = run_scenario("tests/scenarios/enemy_spawner_behavior_test.json")
+        .expect("Failed to run enemy_spawner_behavior_test");
+    assert!(result.success, "Enemy spawner behavior test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn adaptation_effects_test() {
+    let result = run_scenario("tests/scenarios/adaptation_effects_test.json")
+        .expect("Failed to run adaptation_effects_test");
+    assert!(result.success, "Adaptation effects test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn storm_intensity_scaling_test() {
+    let result = run_scenario("tests/scenarios/storm_intensity_scaling_test.json")
+        .expect("Failed to run storm_intensity_scaling_test");
+    assert!(result.success, "Storm intensity scaling test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
+
+#[test]
+fn biome_spawn_tables_test() {
+    let result = run_scenario("tests/scenarios/biome_spawn_tables_test.json")
+        .expect("Failed to run biome_spawn_tables_test");
+    assert!(result.success, "Biome spawn tables test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
