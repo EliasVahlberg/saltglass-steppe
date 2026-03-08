@@ -820,9 +820,14 @@ fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode
     use crate::game::keyboard_config::CONFIG;
     
     match code {
-        KeyCode::Esc | KeyCode::Char('m') | KeyCode::Char('M') | KeyCode::Enter => {
+        KeyCode::Esc => {
+            // Esc on world map opens pause menu (save/quit access) without entering the tile
             ui.world_map_view.open = false;
-            // Always generate tile at current world position when exiting worldmap
+            ui.pause_menu.open();
+        }
+        KeyCode::Char('m') | KeyCode::Char('M') | KeyCode::Enter => {
+            ui.world_map_view.open = false;
+            // Enter the tile at current world position
             state.travel_to_tile(state.world.world_x, state.world.world_y);
         }
         code if CONFIG.matches_worldmap(code, "inspect_toggle") => {
