@@ -774,6 +774,7 @@ fn run_main_game() -> Result<()> {
                             continue 'main;
                         }
                         Err(e) => {
+                            menu_state.save_list = true;
                             menu_state.failed_save_index = Some(menu_state.save_list_index);
                             menu_state.load_error = Some(e);
                             continue 'main;
