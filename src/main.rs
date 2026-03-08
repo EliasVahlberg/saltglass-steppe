@@ -755,6 +755,7 @@ fn run_main_game() -> Result<()> {
                     match save::load_game(&path) {
                         Ok(loaded_state) => {
                             menu_state.load_error = None;
+                            menu_state.failed_save_index = None;
                             let mut state = loaded_state;
                             let mut ui = UiState::new();
                             ui.camera_x = state.player.x as f32;
@@ -773,7 +774,7 @@ fn run_main_game() -> Result<()> {
                             continue 'main;
                         }
                         Err(e) => {
-                            menu_state.save_list = true; // keep menu open
+                            menu_state.failed_save_index = Some(menu_state.save_list_index);
                             menu_state.load_error = Some(e);
                             continue 'main;
                         }

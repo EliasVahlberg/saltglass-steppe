@@ -39,6 +39,8 @@ pub struct MainMenuState {
     pub save_entries: Vec<SaveInfo>,
     pub save_list_index: usize,
     pub load_error: Option<String>,
+    pub failed_save_index: Option<usize>,
+    pub checksum_warning_path: Option<String>,
 }
 
 impl MainMenuState {
@@ -67,8 +69,13 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
         if state.save_list {
             return Ok(match key.code {
                 KeyCode::Esc => {
-                    state.save_list = false;
-                    state.load_error = None;
+                    if state.load_error.is_some() {
+                        // First Esc dismisses the error popup, second closes the list
+                        state.load_error = None;
+                        state.failed_save_index = None;
+                    } else {
+                        state.save_list = false;
+                    }
                     MenuAction::None
                 }
                 KeyCode::Up | KeyCode::Char('k') => {
@@ -573,8 +580,14 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
         vec![ListItem::new("  No saves found.").style(Style::default().fg(Color::DarkGray))]
     } else {
         state.save_entries.iter().enumerate().map(|(i, s)| {
-            let checksum = if s.valid { "✓" } else { "⚠" };
-            let checksum_color = if s.valid { Color::Green } else { Color::Yellow };
+            let failed = state.failed_save_index == Some(i);
+            let (symbol, sym_color) = if failed {
+                ("✗", Color::Red)
+            } else if s.valid {
+                ("✓", Color::Green)
+            } else {
+                ("⚠", Color::Yellow)
+            };
             let style = if i == state.save_list_index {
                 Style::default().fg(Color::Yellow).bold()
             } else {
@@ -583,22 +596,41 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
             let prefix = if i == state.save_list_index { "► " } else { "  " };
             ListItem::new(Line::from(vec![
                 Span::styled(prefix, style),
-                Span::styled(checksum, Style::default().fg(checksum_color)),
+                Span::styled(symbol, Style::default().fg(sym_color)),
                 Span::styled(format!(" {}...  {}", s.short_hash, s.modified), style),
             ]))
         }).collect()
     };
 
-    let border_color = if state.load_error.is_some() { Color::Red } else { Color::Cyan };
     let block = Block::default()
         .title(" Load Game — [↑↓] Select  [Enter] Load  [Esc] Back ")
         .borders(Borders::ALL)
-        .border_style(Style::default().fg(border_color));
+        .border_style(Style::default().fg(Color::Cyan));
 
-    let mut all_items = items;
+    frame.render_widget(List::new(items).block(block), popup);
+
+    // Error popup overlay
     if let Some(ref err) = state.load_error {
-        all_items.push(ListItem::new(format!("  ✗ {}", err)).style(Style::default().fg(Color::Red)));
+        let msg = format!(" {} ", err);
+        let pw = (msg.len() as u16 + 4).min(area.width - 4);
+        let ph = 5u16;
+        let px = (area.width.saturating_sub(pw)) / 2;
+        let py = (area.height.saturating_sub(ph)) / 2;
+        let err_popup = Rect::new(px, py, pw, ph);
+        frame.render_widget(Clear, err_popup);
+        let lines = vec![
+            Line::from(""),
+            Line::from(Span::styled(msg, Style::default().fg(Color::White))),
+            Line::from(Span::styled("  [Esc] Dismiss", Style::default().fg(Color::DarkGray))),
+        ];
+        frame.render_widget(
+            Paragraph::new(lines).block(
+                Block::default()
+                    .title(" Load Failed ")
+                    .borders(Borders::ALL)
+                    .border_style(Style::default().fg(Color::Red))
+            ),
+            err_popup,
+        );
     }
-
-    frame.render_widget(List::new(all_items).block(block), popup);
 }
