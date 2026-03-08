@@ -16,7 +16,7 @@ use super::{
     distribute_points_grid, get_biome_spawn_table,
     weighted_pick_by_level_and_tier,
     place_microstructures,
-    settlement::{SettlementConfig, SettlementTier, generate_settlement, clear_settlement_footprint, stamp_settlement, place_decorations, carve_roads},
+    settlement::{SettlementConfig, SettlementTier, generate_settlement, clear_settlement_footprint, stamp_settlement, place_decorations, paint_roads},
     structure_library::StructureLibrary,
     connectivity::{ensure_connectivity, GSBParams},
 };
@@ -258,7 +258,7 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
         let settlement = generate_settlement(config, &mut settlement_rng);
         clear_settlement_footprint(&mut map, &settlement);
         stamp_settlement(&mut map, &settlement);
-        carve_roads(&mut map, &settlement);
+        paint_roads(&mut map, &settlement);
         place_decorations(&mut map, &settlement, &mut settlement_rng);
 
         // Carve entrance path from spawn to nearest settlement floor tile

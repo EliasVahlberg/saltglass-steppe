@@ -155,14 +155,15 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
     }
 }
 
-/// Carve dirt paths between building centres
-pub fn carve_roads(map: &mut Map, settlement: &Settlement) {
+/// Paint dirt paths along MST edges between building centres.
+/// The settlement footprint is already cleared, so no wall-carving needed —
+/// paths are painted onto existing floor tiles only.
+pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
     let library = match StructureLibrary::load() {
         Ok(lib) => lib,
         Err(_) => return,
     };
 
-    // Collect building centre points
     let centres: Vec<(i32, i32)> = settlement.buildings.iter().map(|b| {
         let (w, h) = library.get(&b.prefab_name)
             .map(|s| (s.width as i32, s.height as i32))
@@ -170,18 +171,47 @@ pub fn carve_roads(map: &mut Map, settlement: &Settlement) {
         (b.x + w / 2, b.y + h / 2)
     }).collect();
 
-    // Connect each building to the next in list (simple chain)
-    for pair in centres.windows(2) {
-        carve_path(map, pair[0], pair[1]);
+    let n = centres.len();
+    if n < 2 { return; }
+
+    // All edges sorted by Euclidean distance for Kruskal's MST
+    let mut edges: Vec<(f32, usize, usize)> = (0..n)
+        .flat_map(|i| ((i + 1)..n).map(move |j| (i, j)))
+        .map(|(i, j)| {
+            let dx = (centres[i].0 - centres[j].0) as f32;
+            let dy = (centres[i].1 - centres[j].1) as f32;
+            ((dx * dx + dy * dy).sqrt(), i, j)
+        })
+        .collect();
+    edges.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+
+    // Union-Find (iterative path compression)
+    let mut parent: Vec<usize> = (0..n).collect();
+    let find = |parent: &mut Vec<usize>, mut x: usize| -> usize {
+        while parent[x] != x { x = parent[x]; }
+        x
+    };
+
+    let mut mst: Vec<(usize, usize)> = Vec::new();
+    let mut extras: Vec<(usize, usize)> = Vec::new();
+    for (_, i, j) in edges {
+        let (pi, pj) = (find(&mut parent, i), find(&mut parent, j));
+        if pi != pj { parent[pi] = pj; mst.push((i, j)); }
+        else { extras.push((i, j)); }
+    }
+
+    // Add a few short non-MST edges to create loops (roughly 1 per 5 buildings)
+    let loop_count = (n / 5).min(extras.len());
+    for (i, j) in mst.into_iter().chain(extras.into_iter().take(loop_count)) {
+        paint_path(map, centres[i], centres[j]);
     }
 }
 
-fn carve_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
+fn paint_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
     let (mut x, mut y) = from;
-    // Horizontal then vertical (L-shaped path)
     while x != to.0 {
         if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
-            if matches!(map.get_tile(x, y), Tile::Wall { .. }) {
+            if matches!(map.get_tile(x, y), Tile::Floor { .. }) {
                 map.set_tile(x as usize, y as usize, Tile::Floor { id: "dirt_path".to_string() });
             }
         }
@@ -189,7 +219,7 @@ fn carve_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
     }
     while y != to.1 {
         if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
-            if matches!(map.get_tile(x, y), Tile::Wall { .. }) {
+            if matches!(map.get_tile(x, y), Tile::Floor { .. }) {
                 map.set_tile(x as usize, y as usize, Tile::Floor { id: "dirt_path".to_string() });
             }
         }
