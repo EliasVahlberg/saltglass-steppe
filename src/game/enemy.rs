@@ -104,6 +104,8 @@ pub struct EnemyDef {
     pub aoe_warning_turns: u32,
     #[serde(default = "default_level")]
     pub level: u32,
+    #[serde(default)]
+    pub faction: Option<String>,
 }
 
 impl HasId for EnemyDef {
@@ -244,7 +246,20 @@ impl Enemy {
     }
 
     /// Returns true if this enemy should act hostile toward player
-    pub fn is_hostile(&self) -> bool {
+    pub fn is_hostile(&self, faction_reputation: &std::collections::HashMap<String, i32>) -> bool {
+        // Check faction reputation first
+        if let Some(def) = self.def() {
+            if let Some(faction) = &def.faction {
+                let rep = faction_reputation.get(faction).copied().unwrap_or(0);
+                if rep >= crate::game::faction::REP_FRIENDLY {
+                    match self.demeanor() {
+                        AIDemeanor::Aggressive | AIDemeanor::Defensive => return false,
+                        _ => {} // Continue with normal logic for other demeanors
+                    }
+                }
+            }
+        }
+
         match self.demeanor() {
             AIDemeanor::Aggressive => true,
             AIDemeanor::Defensive => true,

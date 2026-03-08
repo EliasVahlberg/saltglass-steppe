@@ -1,0 +1,41 @@
+{
+  "name": "faction_enemy_hostile_below_threshold_test",
+  "description": "Test that the same enemy DOES attack when rep < 25 (default behavior)",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 5
+  },
+  "map_setup": {
+    "clear_radius": 5
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "dust_devil", "x": 11, "y": 10, "hp": 20, "ai_disabled": false}
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "end_turn" }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": { "type": "player_hp", "op": "lt", "value": 20 },
+      "message": "Enemy should attack when faction rep < 25"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}

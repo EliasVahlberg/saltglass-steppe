@@ -280,7 +280,7 @@ impl AiBehavior for StandardMeleeBehavior {
         // Demeanor-based behavior
         let mut is_passive = false;
         let mut should_flee = false;
-        if !state.world.enemies[i].is_hostile() {
+        if !state.world.enemies[i].is_hostile(&state.player.faction_reputation) {
             is_passive = true;
         }
         if state.world.enemies[i].should_flee() {

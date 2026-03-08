@@ -1,0 +1,68 @@
+{
+  "name": "faction_reputation_boundaries_test",
+  "description": "Test faction reputation system: SetFactionRep, FactionReputation assertion, boundary at 25",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {},
+  "map_setup": {
+    "clear_radius": 3
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "set_faction_rep", "faction": "glass_spirits", "value": 24 }
+    },
+    {
+      "turn": 1,
+      "action": { "type": "set_faction_rep", "faction": "storm_cultists", "value": 25 }
+    },
+    {
+      "turn": 2,
+      "action": { "type": "set_faction_rep", "faction": "void_touched", "value": -50 }
+    },
+    {
+      "turn": 3,
+      "action": { "type": "set_faction_rep", "faction": "archive_drones", "value": 100 }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 0,
+      "check": { "type": "faction_reputation", "faction": "glass_spirits", "op": "eq", "value": 24 },
+      "message": "glass_spirits reputation should be 24"
+    },
+    {
+      "after_turn": 0,
+      "check": { "type": "faction_reputation", "faction": "glass_spirits", "op": "lt", "value": 25 },
+      "message": "glass_spirits reputation should be below friendly threshold"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "faction_reputation", "faction": "storm_cultists", "op": "ge", "value": 25 },
+      "message": "storm_cultists reputation should be at friendly threshold"
+    },
+    {
+      "after_turn": 2,
+      "check": { "type": "faction_reputation", "faction": "void_touched", "op": "lt", "value": 0 },
+      "message": "void_touched reputation should be hostile"
+    },
+    {
+      "after_turn": 3,
+      "check": { "type": "faction_reputation", "faction": "archive_drones", "op": "eq", "value": 100 },
+      "message": "archive_drones reputation should be 100"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}

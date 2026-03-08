@@ -1,0 +1,47 @@
+{
+  "name": "faction_enemy_aggression_test",
+  "description": "Test that an Aggressive enemy with a faction does NOT attack when player rep >= 25 with that faction",
+  "seed": 42,
+  "player": {
+    "x": 10,
+    "y": 10,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
+  "mocks": {},
+  "map_setup": {
+    "clear_radius": 5
+  },
+  "entities": [
+    {"entity_type": "enemy", "id": "dust_devil", "x": 11, "y": 10, "hp": 20, "ai_disabled": false}
+  ],
+  "actions": [
+    {
+      "turn": 0,
+      "action": { "type": "set_faction_rep", "faction": "storm_cultists", "value": 30 }
+    },
+    {
+      "turn": 1,
+      "action": { "type": "end_turn" }
+    }
+  ],
+  "assertions": [
+    {
+      "after_turn": 1,
+      "check": { "type": "player_hp", "op": "eq", "value": 20 },
+      "message": "Enemy should NOT attack when faction rep >= 25"
+    },
+    {
+      "after_turn": 1,
+      "check": { "type": "faction_reputation", "faction": "storm_cultists", "op": "ge", "value": 25 },
+      "message": "Faction reputation should be >= 25"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should survive the test"
+    }
+  ]
+}
