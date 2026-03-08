@@ -519,7 +519,7 @@ mod tests {
     #[test]
     fn test_algorithm_parameters() {
         let mut params = AlgorithmParameters::new();
-        params.set("float_param".to_string(), ParameterValue::Float(3.14));
+        params.set("float_param".to_string(), ParameterValue::Float(1.5));
         params.set("int_param".to_string(), ParameterValue::Integer(42));
         params.set("bool_param".to_string(), ParameterValue::Boolean(true));
         params.set(
@@ -528,7 +528,7 @@ mod tests {
         );
 
         // Test using the generic get method
-        assert_eq!(params.get::<f64>("float_param").unwrap(), 3.14);
+        assert_eq!(params.get::<f64>("float_param").unwrap(), 1.5);
         assert_eq!(params.get::<i64>("int_param").unwrap(), 42);
         assert_eq!(params.get::<bool>("bool_param").unwrap(), true);
         assert_eq!(

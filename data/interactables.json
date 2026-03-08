@@ -134,7 +134,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A weathered table. Salt crystals have formed in the wood grain."
+        "examine": "A weathered table. Salt crystals have formed in the wood grain.",
+        "interact": "You run your hand along the surface."
       }
     },
     {
@@ -145,7 +146,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A worn chair. The seat is polished smooth from countless sittings."
+        "examine": "A worn chair. The seat is polished smooth from countless sittings.",
+        "interact": "You sit for a moment, then stand."
       }
     },
     {
@@ -156,7 +158,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A simple bed with salt-stained linens. It looks uncomfortable but functional."
+        "examine": "A simple bed with salt-stained linens. It looks uncomfortable but functional.",
+        "interact": "You press the linens. Stiff with salt."
       }
     },
     {
@@ -167,7 +170,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A sturdy counter worn smooth by countless transactions."
+        "examine": "A sturdy counter worn smooth by countless transactions.",
+        "interact": "You lean against the counter."
       }
     },
     {
@@ -178,7 +182,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "Wooden shelves holding various goods and supplies."
+        "examine": "Wooden shelves holding various goods and supplies.",
+        "interact": "You scan the shelves."
       }
     },
     {
@@ -189,7 +194,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A scarred workbench with tools and materials scattered across its surface."
+        "examine": "A scarred workbench with tools and materials scattered across its surface.",
+        "interact": "You examine the tools laid out."
       }
     },
     {
@@ -200,7 +206,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A stone altar bearing offerings of salt and glass. Light refracts strangely around it."
+        "examine": "A stone altar bearing offerings of salt and glass. Light refracts strangely around it.",
+        "interact": "You place your hand near the altar. The air hums."
       }
     },
     {
@@ -211,7 +218,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "An imposing throne carved from storm-glass. It bears the scars of three dynasties."
+        "examine": "An imposing throne carved from storm-glass. It bears the scars of three dynasties.",
+        "interact": "You resist the urge to sit."
       }
     },
     {
@@ -222,7 +230,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A fountain filled with brine. Glass shards float on its surface, catching the light."
+        "examine": "A fountain filled with brine. Glass shards float on its surface, catching the light.",
+        "interact": "You peer into the brine."
       }
     },
     {
@@ -233,7 +242,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A statue worn smooth by wind and salt. Its original form is barely recognizable."
+        "examine": "A statue worn smooth by wind and salt. Its original form is barely recognizable.",
+        "interact": "You trace the worn features."
       }
     },
     {
@@ -244,7 +254,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A lamp filled with luminescent brine. It casts a pale, steady glow."
+        "examine": "A lamp filled with luminescent brine. It casts a pale, steady glow.",
+        "interact": "The brine light flickers at your touch."
       }
     },
     {
@@ -255,7 +266,8 @@
       "interaction_type": "examine",
       "states": [],
       "messages": {
-        "examine": "A tattered banner bearing faded symbols. The fabric is stiff with salt."
+        "examine": "A tattered banner bearing faded symbols. The fabric is stiff with salt.",
+        "interact": "You read the faded symbols."
       }
     }
   ]
