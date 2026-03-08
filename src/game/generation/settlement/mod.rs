@@ -60,28 +60,35 @@ pub fn generate_settlement<R: Rng>(config: SettlementConfig, rng: &mut R) -> Set
 pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
     let library = match StructureLibrary::load() {
         Ok(lib) => lib,
-        Err(_) => return, // Skip stamping if library fails to load
+        Err(_) => return,
     };
 
     for building in &settlement.buildings {
         let structure = match library.get(&building.prefab_name) {
             Some(s) => s,
-            None => continue, // Skip if structure not found
+            None => continue,
         };
+
+        // Clear a floor footprint (building bounds + 1 tile padding) before stamping
+        let pad = 1i32;
+        for cy in (building.y - pad)..(building.y + structure.height as i32 + pad) {
+            for cx in (building.x - pad)..(building.x + structure.width as i32 + pad) {
+                if cx >= 0 && cy >= 0 && cx < map.width as i32 && cy < map.height as i32 {
+                    if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
+                        map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dry_soil".to_string() });
+                    }
+                }
+            }
+        }
 
         for (py, row) in structure.pattern.iter().enumerate() {
             for (px, &ch) in row.iter().enumerate() {
-                if ch == ' ' {
-                    continue; // Skip empty cells
-                }
-
+                if ch == ' ' { continue; }
                 let tile_x = building.x + px as i32;
                 let tile_y = building.y + py as i32;
-
                 if tile_x < 0 || tile_y < 0 || tile_x >= map.width as i32 || tile_y >= map.height as i32 {
-                    continue; // Skip out of bounds
+                    continue;
                 }
-
                 if let Some(legend_entry) = structure.legend.get(&ch) {
                     let tile = match legend_entry {
                         LegendEntry::Wall { id } => Tile::Wall { id: id.clone(), hp: 100 },
@@ -89,15 +96,56 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
                         LegendEntry::Door => Tile::Floor { id: "wood_floor".to_string() },
                         LegendEntry::Interactable { .. } => Tile::Floor { id: "wood_floor".to_string() },
                         LegendEntry::Npc { .. } => Tile::Floor { id: "wood_floor".to_string() },
-                        LegendEntry::Structure { .. } => continue, // Skip nested structures
-                        LegendEntry::Ground => continue, // Leave terrain tile unchanged
+                        LegendEntry::Structure { .. } => continue,
+                        LegendEntry::Ground => continue,
                         LegendEntry::Path => Tile::Floor { id: "dirt_path".to_string() },
                     };
-
                     map.set_tile(tile_x as usize, tile_y as usize, tile);
                 }
             }
         }
+    }
+}
+
+/// Carve dirt paths between building centres
+pub fn carve_roads(map: &mut Map, settlement: &Settlement) {
+    let library = match StructureLibrary::load() {
+        Ok(lib) => lib,
+        Err(_) => return,
+    };
+
+    // Collect building centre points
+    let centres: Vec<(i32, i32)> = settlement.buildings.iter().map(|b| {
+        let (w, h) = library.get(&b.prefab_name)
+            .map(|s| (s.width as i32, s.height as i32))
+            .unwrap_or((6, 6));
+        (b.x + w / 2, b.y + h / 2)
+    }).collect();
+
+    // Connect each building to the next in list (simple chain)
+    for pair in centres.windows(2) {
+        carve_path(map, pair[0], pair[1]);
+    }
+}
+
+fn carve_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
+    let (mut x, mut y) = from;
+    // Horizontal then vertical (L-shaped path)
+    while x != to.0 {
+        if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
+            if matches!(map.get_tile(x, y), Tile::Wall { .. }) {
+                map.set_tile(x as usize, y as usize, Tile::Floor { id: "dirt_path".to_string() });
+            }
+        }
+        x += if to.0 > x { 1 } else { -1 };
+    }
+    while y != to.1 {
+        if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
+            if matches!(map.get_tile(x, y), Tile::Wall { .. }) {
+                map.set_tile(x as usize, y as usize, Tile::Floor { id: "dirt_path".to_string() });
+            }
+        }
+        y += if to.1 > y { 1 } else { -1 };
     }
 }
 

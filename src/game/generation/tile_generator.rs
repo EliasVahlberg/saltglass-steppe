@@ -16,8 +16,9 @@ use super::{
     distribute_points_grid, get_biome_spawn_table,
     weighted_pick_by_level_and_tier,
     place_microstructures,
-    settlement::{SettlementConfig, SettlementTier, generate_settlement, stamp_settlement, place_decorations},
+    settlement::{SettlementConfig, SettlementTier, generate_settlement, stamp_settlement, place_decorations, carve_roads},
     structure_library::StructureLibrary,
+    connectivity::{ensure_connectivity, GSBParams},
 };
 
 pub struct TileParams {
@@ -256,8 +257,41 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
         let mut settlement_rng = ChaCha8Rng::seed_from_u64(params.seed);
         let settlement = generate_settlement(config, &mut settlement_rng);
         stamp_settlement(&mut map, &settlement);
+        carve_roads(&mut map, &settlement);
         place_decorations(&mut map, &settlement, &mut settlement_rng);
-        
+
+        // Carve entrance path from spawn to nearest settlement floor tile
+        if let Some((tx, ty)) = map.tiles.iter().enumerate()
+            .filter_map(|(i, t)| if t.walkable() {
+                let x = (i % map.width) as i32;
+                let y = (i / map.width) as i32;
+                if x < settlement.width as i32 && y < settlement.height as i32 { Some((x, y)) } else { None }
+            } else { None })
+            .min_by_key(|&(x, y)| (x - px).abs() + (y - py).abs())
+        {
+            use crate::game::map::Tile;
+            let (mut cx, mut cy) = (px, py);
+            while cx != tx {
+                if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
+                    map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dirt_path".to_string() });
+                }
+                cx += if tx > cx { 1 } else { -1 };
+            }
+            while cy != ty {
+                if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
+                    map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dirt_path".to_string() });
+                }
+                cy += if ty > cy { 1 } else { -1 };
+            }
+        }
+
+        // Refresh walkable_positions after stamping
+        let walkable_positions: Vec<(i32, i32)> = map.tiles.iter().enumerate()
+            .filter_map(|(idx, tile)| if tile.walkable() {
+                Some(((idx % map.width) as i32, (idx / map.width) as i32))
+            } else { None })
+            .collect();
+
         if let Ok(library) = StructureLibrary::load() {
             for building in &settlement.buildings {
                 if let Some(structure) = library.get(&building.prefab_name) {
@@ -278,6 +312,16 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
             }
         }
     }
+
+    // Final connectivity pass — carve tunnels to connect any isolated regions
+    ensure_connectivity(&mut map, (px, py), &GSBParams::fast(), &mut rng);
+
+    // Refresh walkable_positions for the returned struct
+    let walkable_positions: Vec<(i32, i32)> = map.tiles.iter().enumerate()
+        .filter_map(|(idx, tile)| if tile.walkable() {
+            Some(((idx % map.width) as i32, (idx / map.width) as i32))
+        } else { None })
+        .collect();
 
     GeneratedTile {
         map,
