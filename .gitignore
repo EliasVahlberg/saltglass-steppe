@@ -219,6 +219,10 @@ doc_resources
 
 savegame.ron
 
+# Save files
+saves/*.ron
+!saves/.gitkeep
+
 untracked_docs
 
 .github

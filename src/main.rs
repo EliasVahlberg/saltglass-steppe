@@ -21,8 +21,6 @@ use saltglass_steppe::{GameState, Renderer, get_item_def};
 use saltglass_steppe::game::save;
 use std::io::{Result, stdout};
 
-const SAVE_FILE: &str = "savegame.ron";
-
 fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<bool> {
     match action {
         Action::Quit => return Some(false),
@@ -43,18 +41,21 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             if state.test_mode {
                 state.log("Cannot save in test mode.");
             } else {
-                match save::save_game(state, SAVE_FILE) {
-                    Ok(_) => state.log("Game saved."),
+                match save::save_game(state) {
+                    Ok(path) => state.log(format!("Game saved: {}", path.file_name().unwrap_or_default().to_string_lossy())),
                     Err(e) => state.log(format!("Save failed: {}", e)),
                 }
             }
         }
-        Action::Load => match save::load_game(SAVE_FILE) {
-            Ok(loaded) => {
-                *state = loaded;
-                state.log("Game loaded.");
-            }
-            Err(e) => state.log(format!("Load failed: {}", e)),
+        Action::Load => match save::list_saves().into_iter().next() {
+            Some(info) => match save::load_game(&info.path) {
+                Ok(loaded) => {
+                    *state = loaded;
+                    state.log("Game loaded.");
+                }
+                Err(e) => state.log(format!("Load failed: {}", e)),
+            },
+            None => state.log("No saves found."),
         },
         Action::UseItem(idx) => {
             if state.player.hp > 0 {

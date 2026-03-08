@@ -9,12 +9,12 @@ use ratatui::{
 use std::io::Result;
 
 use super::input::PAUSE_OPTIONS;
-use crate::game::{MetaProgress, all_classes};
+use crate::game::{MetaProgress, all_classes, save::{list_saves, SaveInfo}};
 
 /// Main menu action result
 pub enum MenuAction {
-    NewGame(String),      // class_id
-    NewGameWithSeed(u64), // seed for new game
+    NewGame(String),
+    NewGameWithSeed(u64),
     LoadGame(String),     // save file path
     Controls,
     Quit,
@@ -35,6 +35,9 @@ pub struct MainMenuState {
     pub tile_test: bool,
     pub tile_test_configs: Vec<crate::game::generation::tile_generator::TileTestConfig>,
     pub tile_test_index: usize,
+    pub save_list: bool,
+    pub save_entries: Vec<SaveInfo>,
+    pub save_list_index: usize,
 }
 
 impl MainMenuState {
@@ -60,6 +63,37 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
 
         // TODO(keyboard-config): Migrate hardcoded KeyCode matches to keyboard_config.json
         // See docs/development/KEYBOARD_CONFIG_MIGRATION.md for full migration plan
+        if state.save_list {
+            return Ok(match key.code {
+                KeyCode::Esc => {
+                    state.save_list = false;
+                    MenuAction::None
+                }
+                KeyCode::Up | KeyCode::Char('k') => {
+                    if !state.save_entries.is_empty() {
+                        state.save_list_index = (state.save_list_index + state.save_entries.len() - 1) % state.save_entries.len();
+                    }
+                    MenuAction::None
+                }
+                KeyCode::Down | KeyCode::Char('j') => {
+                    if !state.save_entries.is_empty() {
+                        state.save_list_index = (state.save_list_index + 1) % state.save_entries.len();
+                    }
+                    MenuAction::None
+                }
+                KeyCode::Enter => {
+                    if let Some(entry) = state.save_entries.get(state.save_list_index) {
+                        let path = entry.path.to_string_lossy().to_string();
+                        state.save_list = false;
+                        MenuAction::LoadGame(path)
+                    } else {
+                        MenuAction::None
+                    }
+                }
+                _ => MenuAction::None,
+            });
+        }
+
         if state.tile_test {
             return Ok(match key.code {
                 KeyCode::Esc => {
@@ -181,7 +215,12 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                     state.class_index = 0;
                     MenuAction::None
                 }
-                1 => MenuAction::LoadGame("savegame.ron".to_string()),
+                1 => {
+                    state.save_entries = list_saves();
+                    state.save_list_index = 0;
+                    state.save_list = true;
+                    MenuAction::None
+                }
                 2 => {
                     state.seed_input = true;
                     state.seed_text.clear();
@@ -304,6 +343,11 @@ pub fn render_menu(frame: &mut Frame, tick: u64, state: &MainMenuState) {
     // Tile test overlay
     if state.tile_test {
         render_tile_test(frame, state);
+    }
+
+    // Save list overlay
+    if state.save_list {
+        render_save_list(frame, state);
     }
 }
 
@@ -510,6 +554,43 @@ pub fn render_pause_menu(frame: &mut Frame, selected_index: usize) {
         .title(" Paused ")
         .borders(Borders::ALL)
         .style(Style::default().bg(Color::Black));
+
+    frame.render_widget(List::new(items).block(block), popup);
+}
+
+fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
+    let area = frame.area();
+    let width = 60u16.min(area.width.saturating_sub(4));
+    let height = (state.save_entries.len() as u16 + 6).min(area.height.saturating_sub(4)).max(8);
+    let x = (area.width.saturating_sub(width)) / 2;
+    let y = (area.height.saturating_sub(height)) / 2;
+    let popup = Rect::new(x, y, width, height);
+    frame.render_widget(Clear, popup);
+
+    let items: Vec<ListItem> = if state.save_entries.is_empty() {
+        vec![ListItem::new("  No saves found.").style(Style::default().fg(Color::DarkGray))]
+    } else {
+        state.save_entries.iter().enumerate().map(|(i, s)| {
+            let checksum = if s.valid { "✓" } else { "⚠" };
+            let checksum_color = if s.valid { Color::Green } else { Color::Yellow };
+            let style = if i == state.save_list_index {
+                Style::default().fg(Color::Yellow).bold()
+            } else {
+                Style::default().fg(Color::White)
+            };
+            let prefix = if i == state.save_list_index { "► " } else { "  " };
+            ListItem::new(Line::from(vec![
+                Span::styled(prefix, style),
+                Span::styled(checksum, Style::default().fg(checksum_color)),
+                Span::styled(format!(" {}...  {}", s.short_hash, s.modified), style),
+            ]))
+        }).collect()
+    };
+
+    let block = Block::default()
+        .title(" Load Game — [↑↓] Select  [Enter] Load  [Esc] Back ")
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(Color::Cyan));
 
     frame.render_widget(List::new(items).block(block), popup);
 }
