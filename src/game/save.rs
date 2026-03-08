@@ -67,10 +67,7 @@ pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
         .unwrap_or("");
     let actual_hash = compute_hash(&data);
     if !expected_hash.is_empty() && expected_hash != actual_hash {
-        eprintln!(
-            "Warning: save file '{}' checksum mismatch — file may have been modified.",
-            path.display()
-        );
+        // Tamper detected — SaveInfo.valid=false already shows ⚠ in the load menu
     }
 
     let file: SaveFileOwned = ron::from_str(&data).map_err(|e| format!("Corrupt save: {e}"))?;
