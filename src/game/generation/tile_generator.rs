@@ -298,26 +298,15 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
             {
                 for (cx, cy) in path {
                     if cx >= 0 && cy >= 0 && cx < map.width as i32 && cy < map.height as i32 {
-                        match map.get_tile(cx, cy) {
-                            Tile::Floor { id } if id == "dry_soil" => {
-                                map.set_tile(
-                                    cx as usize,
-                                    cy as usize,
-                                    Tile::Floor {
-                                        id: "dirt_path".to_string(),
-                                    },
-                                );
-                            }
-                            Tile::Wall { .. } => {
-                                map.set_tile(
-                                    cx as usize,
-                                    cy as usize,
-                                    Tile::Floor {
-                                        id: "dirt_path".to_string(),
-                                    },
-                                );
-                            }
-                            _ => {}
+                        if !matches!(map.get_tile(cx, cy), Tile::Floor { id } if id == "dirt_path")
+                        {
+                            map.set_tile(
+                                cx as usize,
+                                cy as usize,
+                                Tile::Floor {
+                                    id: "dirt_path".to_string(),
+                                },
+                            );
                         }
                     }
                 }

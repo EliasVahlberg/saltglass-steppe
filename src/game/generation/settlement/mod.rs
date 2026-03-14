@@ -331,26 +331,14 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
         if let Some(path) = road_pathfinding::astar_path(&costs, map.width, map.height, from, to) {
             for (px, py) in path {
                 if px >= 0 && py >= 0 && px < map.width as i32 && py < map.height as i32 {
-                    match map.get_tile(px, py) {
-                        Tile::Floor { id } if id == "dry_soil" => {
-                            map.set_tile(
-                                px as usize,
-                                py as usize,
-                                Tile::Floor {
-                                    id: "dirt_path".to_string(),
-                                },
-                            );
-                        }
-                        Tile::Wall { .. } => {
-                            map.set_tile(
-                                px as usize,
-                                py as usize,
-                                Tile::Floor {
-                                    id: "dirt_path".to_string(),
-                                },
-                            );
-                        }
-                        _ => {}
+                    if !matches!(map.get_tile(px, py), Tile::Floor { id } if id == "dirt_path") {
+                        map.set_tile(
+                            px as usize,
+                            py as usize,
+                            Tile::Floor {
+                                id: "dirt_path".to_string(),
+                            },
+                        );
                     }
                 }
             }
@@ -392,7 +380,7 @@ fn paint_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
     let (mut x, mut y) = from;
     while x != to.0 {
         if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
-            if matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dry_soil") {
+            if !matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dirt_path") {
                 map.set_tile(
                     x as usize,
                     y as usize,
@@ -406,7 +394,7 @@ fn paint_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
     }
     while y != to.1 {
         if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
-            if matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dry_soil") {
+            if !matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dirt_path") {
                 map.set_tile(
                     x as usize,
                     y as usize,
