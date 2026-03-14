@@ -1,14 +1,14 @@
-pub mod layout;
 pub mod buildings;
 pub mod faction_theme;
+pub mod layout;
 pub mod population;
 pub mod road_pathfinding;
 
 use rand::Rng;
 use serde::{Deserialize, Serialize};
 
+use crate::game::generation::structure_library::{LegendEntry, StructureLibrary};
 use crate::game::map::{Map, Tile};
-use crate::game::generation::structure_library::{StructureLibrary, LegendEntry};
 
 /// Configuration for settlement generation
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -51,7 +51,7 @@ pub struct Settlement {
 pub fn generate_settlement<R: Rng>(config: SettlementConfig, rng: &mut R) -> Settlement {
     let (width, height) = layout::calculate_dimensions(&config);
     let buildings = buildings::place_buildings(&config, width, height, rng);
-    
+
     Settlement {
         config,
         buildings,
@@ -62,7 +62,11 @@ pub fn generate_settlement<R: Rng>(config: SettlementConfig, rng: &mut R) -> Set
 
 /// Effective (width, height) of a building after rotation (90/270 swap dims).
 fn effective_dims(w: i32, h: i32, rotation: u16) -> (i32, i32) {
-    if rotation == 90 || rotation == 270 { (h, w) } else { (w, h) }
+    if rotation == 90 || rotation == 270 {
+        (h, w)
+    } else {
+        (w, h)
+    }
 }
 
 /// Entrance side after applying clockwise rotation.
@@ -75,10 +79,10 @@ fn rotated_side(side: &str, rotation: u16) -> &'static str {
 /// Map pattern coords (px, py) to world offset given rotation and original (w, h).
 fn rotate_coords(px: i32, py: i32, w: i32, h: i32, rotation: u16) -> (i32, i32) {
     match rotation {
-        90  => (h - 1 - py, px),
+        90 => (h - 1 - py, px),
         180 => (w - 1 - px, h - 1 - py),
         270 => (py, w - 1 - px),
-        _   => (px, py),
+        _ => (px, py),
     }
 }
 /// Clear natural walls within DILATION tiles of any building footprint.
@@ -94,15 +98,22 @@ pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement) {
     const DILATION_SQ: i32 = DILATION * DILATION;
 
     // Collect (x, y, w, h) for each building — using effective (rotated) dimensions
-    let footprints: Vec<(i32, i32, i32, i32)> = settlement.buildings.iter().map(|b| {
-        let (w, h) = library.get(&b.prefab_name)
-            .map(|s| (s.width as i32, s.height as i32))
-            .unwrap_or((6, 6));
-        let (ew, eh) = effective_dims(w, h, b.rotation);
-        (b.x, b.y, ew, eh)
-    }).collect();
+    let footprints: Vec<(i32, i32, i32, i32)> = settlement
+        .buildings
+        .iter()
+        .map(|b| {
+            let (w, h) = library
+                .get(&b.prefab_name)
+                .map(|s| (s.width as i32, s.height as i32))
+                .unwrap_or((6, 6));
+            let (ew, eh) = effective_dims(w, h, b.rotation);
+            (b.x, b.y, ew, eh)
+        })
+        .collect();
 
-    if footprints.is_empty() { return; }
+    if footprints.is_empty() {
+        return;
+    }
 
     let margin = DILATION + 1;
     let min_x = footprints.iter().map(|&(x, _, _, _)| x).min().unwrap() - margin;
@@ -112,18 +123,43 @@ pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement) {
 
     for cy in min_y..max_y {
         for cx in min_x..max_x {
-            if cx < 0 || cy < 0 || cx >= map.width as i32 || cy >= map.height as i32 { continue; }
-            if !matches!(map.get_tile(cx, cy), Tile::Wall { .. }) { continue; }
+            if cx < 0 || cy < 0 || cx >= map.width as i32 || cy >= map.height as i32 {
+                continue;
+            }
 
             // Distance from (cx,cy) to nearest point inside each building rectangle
             let near_enough = footprints.iter().any(|&(bx, by, bw, bh)| {
-                let dx = if cx < bx { bx - cx } else if cx >= bx + bw { cx - (bx + bw - 1) } else { 0 };
-                let dy = if cy < by { by - cy } else if cy >= by + bh { cy - (by + bh - 1) } else { 0 };
+                let dx = if cx < bx {
+                    bx - cx
+                } else if cx >= bx + bw {
+                    cx - (bx + bw - 1)
+                } else {
+                    0
+                };
+                let dy = if cy < by {
+                    by - cy
+                } else if cy >= by + bh {
+                    cy - (by + bh - 1)
+                } else {
+                    0
+                };
                 dx * dx + dy * dy <= DILATION_SQ
             });
 
             if near_enough {
-                map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dry_soil".to_string() });
+                // Inside a building footprint: skip (stamp_settlement will handle it)
+                let inside = footprints
+                    .iter()
+                    .any(|&(bx, by, bw, bh)| cx >= bx && cx < bx + bw && cy >= by && cy < by + bh);
+                if !inside {
+                    map.set_tile(
+                        cx as usize,
+                        cy as usize,
+                        Tile::Floor {
+                            id: "dry_soil".to_string(),
+                        },
+                    );
+                }
             }
         }
     }
@@ -143,13 +179,23 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
         };
 
         // Clear a floor footprint (effective rotated bounds + 1 tile padding) before stamping
-        let (ew, eh) = effective_dims(structure.width as i32, structure.height as i32, building.rotation);
+        let (ew, eh) = effective_dims(
+            structure.width as i32,
+            structure.height as i32,
+            building.rotation,
+        );
         let pad = 1i32;
         for cy in (building.y - pad)..(building.y + eh + pad) {
             for cx in (building.x - pad)..(building.x + ew + pad) {
                 if cx >= 0 && cy >= 0 && cx < map.width as i32 && cy < map.height as i32 {
                     if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
-                        map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dry_soil".to_string() });
+                        map.set_tile(
+                            cx as usize,
+                            cy as usize,
+                            Tile::Floor {
+                                id: "dry_soil".to_string(),
+                            },
+                        );
                     }
                 }
             }
@@ -157,23 +203,46 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
 
         for (py, row) in structure.pattern.iter().enumerate() {
             for (px, &ch) in row.iter().enumerate() {
-                if ch == ' ' { continue; }
-                let (ox, oy) = rotate_coords(px as i32, py as i32, structure.width as i32, structure.height as i32, building.rotation);
+                if ch == ' ' {
+                    continue;
+                }
+                let (ox, oy) = rotate_coords(
+                    px as i32,
+                    py as i32,
+                    structure.width as i32,
+                    structure.height as i32,
+                    building.rotation,
+                );
                 let tile_x = building.x + ox;
                 let tile_y = building.y + oy;
-                if tile_x < 0 || tile_y < 0 || tile_x >= map.width as i32 || tile_y >= map.height as i32 {
+                if tile_x < 0
+                    || tile_y < 0
+                    || tile_x >= map.width as i32
+                    || tile_y >= map.height as i32
+                {
                     continue;
                 }
                 if let Some(legend_entry) = structure.legend.get(&ch) {
                     let tile = match legend_entry {
-                        LegendEntry::Wall { id } => Tile::Wall { id: id.clone(), hp: 100 },
+                        LegendEntry::Wall { id } => Tile::Wall {
+                            id: id.clone(),
+                            hp: 100,
+                        },
                         LegendEntry::Floor { id } => Tile::Floor { id: id.clone() },
-                        LegendEntry::Door => Tile::Floor { id: "wood_floor".to_string() },
-                        LegendEntry::Interactable { .. } => Tile::Floor { id: "wood_floor".to_string() },
-                        LegendEntry::Npc { .. } => Tile::Floor { id: "wood_floor".to_string() },
+                        LegendEntry::Door => Tile::Floor {
+                            id: "wood_floor".to_string(),
+                        },
+                        LegendEntry::Interactable { .. } => Tile::Floor {
+                            id: "wood_floor".to_string(),
+                        },
+                        LegendEntry::Npc { .. } => Tile::Floor {
+                            id: "wood_floor".to_string(),
+                        },
                         LegendEntry::Structure { .. } => continue,
                         LegendEntry::Ground => continue,
-                        LegendEntry::Path => Tile::Floor { id: "dirt_path".to_string() },
+                        LegendEntry::Path => Tile::Floor {
+                            id: "dirt_path".to_string(),
+                        },
                     };
                     map.set_tile(tile_x as usize, tile_y as usize, tile);
                 }
@@ -191,26 +260,36 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
         Err(_) => return,
     };
 
-    let entrances: Vec<(i32, i32)> = settlement.buildings.iter().map(|b| {
-        let structure = library.get(&b.prefab_name);
-        let (w, h) = structure
-            .map(|s| (s.width as i32, s.height as i32))
-            .unwrap_or((6, 6));
-        let (ew, eh) = effective_dims(w, h, b.rotation);
-        let natural_side = structure
-            .and_then(|s| s.metadata.entrance_side.as_deref())
-            .unwrap_or("south");
-        let side = if natural_side == "any" { "south" } else { rotated_side(natural_side, b.rotation) };
-        match side {
-            "north" => (b.x + ew / 2, b.y),
-            "east"  => (b.x + ew - 1, b.y + eh / 2),
-            "west"  => (b.x,          b.y + eh / 2),
-            _       => (b.x + ew / 2, b.y + eh - 1), // south
-        }
-    }).collect();
+    let entrances: Vec<(i32, i32)> = settlement
+        .buildings
+        .iter()
+        .map(|b| {
+            let structure = library.get(&b.prefab_name);
+            let (w, h) = structure
+                .map(|s| (s.width as i32, s.height as i32))
+                .unwrap_or((6, 6));
+            let (ew, eh) = effective_dims(w, h, b.rotation);
+            let natural_side = structure
+                .and_then(|s| s.metadata.entrance_side.as_deref())
+                .unwrap_or("south");
+            let side = if natural_side == "any" {
+                "south"
+            } else {
+                rotated_side(natural_side, b.rotation)
+            };
+            match side {
+                "north" => (b.x + ew / 2, b.y - 1),
+                "east" => (b.x + ew, b.y + eh / 2),
+                "west" => (b.x - 1, b.y + eh / 2),
+                _ => (b.x + ew / 2, b.y + eh), // south
+            }
+        })
+        .collect();
 
     let n = entrances.len();
-    if n < 2 { return; }
+    if n < 2 {
+        return;
+    }
 
     let mut edges: Vec<(f32, usize, usize)> = (0..n)
         .flat_map(|i| ((i + 1)..n).map(move |j| (i, j)))
@@ -224,7 +303,9 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
 
     let mut parent: Vec<usize> = (0..n).collect();
     let find = |parent: &mut Vec<usize>, mut x: usize| -> usize {
-        while parent[x] != x { x = parent[x]; }
+        while parent[x] != x {
+            x = parent[x];
+        }
         x
     };
 
@@ -232,8 +313,12 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
     let mut extras: Vec<(usize, usize)> = Vec::new();
     for (_, i, j) in edges {
         let (pi, pj) = (find(&mut parent, i), find(&mut parent, j));
-        if pi != pj { parent[pi] = pj; mst.push((i, j)); }
-        else { extras.push((i, j)); }
+        if pi != pj {
+            parent[pi] = pj;
+            mst.push((i, j));
+        } else {
+            extras.push((i, j));
+        }
     }
 
     // Build cost grid once, reuse for all edges
@@ -246,14 +331,59 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
         if let Some(path) = road_pathfinding::astar_path(&costs, map.width, map.height, from, to) {
             for (px, py) in path {
                 if px >= 0 && py >= 0 && px < map.width as i32 && py < map.height as i32 {
-                    if matches!(map.get_tile(px, py), Tile::Floor { id } if id == "dry_soil") {
-                        map.set_tile(px as usize, py as usize, Tile::Floor { id: "dirt_path".to_string() });
+                    match map.get_tile(px, py) {
+                        Tile::Floor { id } if id == "dry_soil" => {
+                            map.set_tile(
+                                px as usize,
+                                py as usize,
+                                Tile::Floor {
+                                    id: "dirt_path".to_string(),
+                                },
+                            );
+                        }
+                        Tile::Wall { .. } => {
+                            map.set_tile(
+                                px as usize,
+                                py as usize,
+                                Tile::Floor {
+                                    id: "dirt_path".to_string(),
+                                },
+                            );
+                        }
+                        _ => {}
                     }
                 }
             }
         } else {
             // Fallback: L-shaped walk
             paint_path(map, from, to);
+        }
+    }
+
+    // Clear natural walls adjacent to road tiles so paths aren't blocked
+    let w = map.width as i32;
+    let h = map.height as i32;
+    let road_tiles: Vec<(i32, i32)> = map
+        .tiles
+        .iter()
+        .enumerate()
+        .filter(|(_, t)| matches!(t, Tile::Floor { id } if id == "dirt_path"))
+        .map(|(i, _)| ((i % map.width) as i32, (i / map.width) as i32))
+        .collect();
+    for (rx, ry) in road_tiles {
+        for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
+            let (nx, ny) = (rx + dx, ry + dy);
+            if nx >= 0 && ny >= 0 && nx < w && ny < h {
+                if matches!(map.get_tile(nx, ny), Tile::Wall { .. }) {
+                    map.set_tile(
+                        nx as usize,
+                        ny as usize,
+                        Tile::Floor {
+                            id: "dirt_path".to_string(),
+                        },
+                    );
+                }
+            }
         }
     }
 }
@@ -263,7 +393,13 @@ fn paint_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
     while x != to.0 {
         if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
             if matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dry_soil") {
-                map.set_tile(x as usize, y as usize, Tile::Floor { id: "dirt_path".to_string() });
+                map.set_tile(
+                    x as usize,
+                    y as usize,
+                    Tile::Floor {
+                        id: "dirt_path".to_string(),
+                    },
+                );
             }
         }
         x += if to.0 > x { 1 } else { -1 };
@@ -271,28 +407,52 @@ fn paint_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
     while y != to.1 {
         if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
             if matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dry_soil") {
-                map.set_tile(x as usize, y as usize, Tile::Floor { id: "dirt_path".to_string() });
+                map.set_tile(
+                    x as usize,
+                    y as usize,
+                    Tile::Floor {
+                        id: "dirt_path".to_string(),
+                    },
+                );
             }
         }
         y += if to.1 > y { 1 } else { -1 };
     }
 }
 
-/// Place decorative elements in open floor spaces within settlement bounds
+/// Place decorative elements in open floor spaces near settlement buildings
 pub fn place_decorations<R: Rng>(map: &mut Map, settlement: &Settlement, rng: &mut R) {
     let dominant_faction = faction_theme::get_dominant_faction(&settlement.config);
-    
-    for y in 0..settlement.height {
-        for x in 0..settlement.width {
-            let tile = map.get_tile(x as i32, y as i32);
+
+    // Derive bounds from actual building positions
+    let (min_x, min_y, max_x, max_y) = settlement.buildings.iter().fold(
+        (i32::MAX, i32::MAX, i32::MIN, i32::MIN),
+        |(mx, my, ax, ay), b| (mx.min(b.x), my.min(b.y), ax.max(b.x + 20), ay.max(b.y + 20)),
+    );
+
+    for y in min_y.max(0)..max_y.min(map.height as i32) {
+        for x in min_x.max(0)..max_x.min(map.width as i32) {
+            let tile = map.get_tile(x, y);
             if matches!(tile, Tile::Floor { id } if id == "dry_soil") && rng.gen_bool(0.08) {
                 let decoration_id = match dominant_faction.as_deref() {
-                    Some("MirrorMonks") => ["prismatic_tiles", "light_pool", "crystal_moss"][rng.gen_range(0..3)],
-                    Some("StormCults") => ["storm_glass_shards", "void_stone", "glass_sand"][rng.gen_range(0..3)],
-                    Some("SaltTradingCompany") => ["salt_crust", "salt_gravel", "brine_mud"][rng.gen_range(0..3)],
+                    Some("MirrorMonks") => {
+                        ["prismatic_tiles", "light_pool", "crystal_moss"][rng.gen_range(0..3)]
+                    }
+                    Some("StormCults") => {
+                        ["storm_glass_shards", "void_stone", "glass_sand"][rng.gen_range(0..3)]
+                    }
+                    Some("SaltTradingCompany") => {
+                        ["salt_crust", "salt_gravel", "brine_mud"][rng.gen_range(0..3)]
+                    }
                     _ => ["ancient_tile", "crushed_saltglass", "soft_sand"][rng.gen_range(0..3)],
                 };
-                map.set_tile(x, y, Tile::Floor { id: decoration_id.to_string() });
+                map.set_tile(
+                    x as usize,
+                    y as usize,
+                    Tile::Floor {
+                        id: decoration_id.to_string(),
+                    },
+                );
             }
         }
     }
@@ -313,7 +473,7 @@ mod tests {
         };
         let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
         let settlement = generate_settlement(config.clone(), &mut rng);
-        
+
         assert_eq!(settlement.width, 80);
         assert_eq!(settlement.height, 60);
         assert_eq!(settlement.config.tier, SettlementTier::Village);
@@ -331,7 +491,7 @@ mod tests {
         };
         let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
         let settlement = generate_settlement(config, &mut rng);
-        
+
         assert_eq!(settlement.width, 120);
         assert_eq!(settlement.height, 90);
     }
@@ -346,7 +506,7 @@ mod tests {
                 ("Glassborn".to_string(), 0.3),
             ],
         };
-        
+
         let dominant = faction_theme::get_dominant_faction(&config);
         assert_eq!(dominant, Some("MirrorMonks".to_string()));
     }
@@ -362,7 +522,7 @@ mod tests {
                 ("SaltTraders".to_string(), 0.2),
             ],
         };
-        
+
         let significant = faction_theme::get_significant_factions(&config);
         assert_eq!(significant.len(), 2); // Only >25%
         assert!(significant.contains(&"MirrorMonks".to_string()));
@@ -396,7 +556,7 @@ mod tests {
     #[test]
     fn test_stamp_settlement() {
         use crate::game::map::{Map, Tile};
-        
+
         let config = SettlementConfig {
             seed: 12345,
             tier: SettlementTier::Town,
@@ -404,7 +564,7 @@ mod tests {
         };
         let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
         let settlement = generate_settlement(config, &mut rng);
-        
+
         // Create a test map
         let mut map = Map {
             tiles: vec![Tile::default_floor(); 120 * 90],
@@ -416,12 +576,15 @@ mod tests {
             area_description: None,
             metadata: std::collections::HashMap::new(),
         };
-        
+
         // Stamp the settlement
         stamp_settlement(&mut map, &settlement);
-        
+
         // Verify that some tiles were modified (should have walls/floors from buildings)
-        let has_walls = map.tiles.iter().any(|tile| matches!(tile, Tile::Wall { .. }));
+        let has_walls = map
+            .tiles
+            .iter()
+            .any(|tile| matches!(tile, Tile::Wall { .. }));
         assert!(has_walls, "Settlement stamping should create wall tiles");
     }
 
@@ -451,9 +614,14 @@ mod tests {
         stamp_settlement(&mut map, &settlement);
         paint_roads(&mut map, &settlement);
 
-        let dirt_path_count = map.tiles.iter()
+        let dirt_path_count = map
+            .tiles
+            .iter()
             .filter(|t| matches!(t, Tile::Floor { id } if id == "dirt_path"))
             .count();
-        assert!(dirt_path_count > 0, "paint_roads should produce dirt_path tiles, got {dirt_path_count}");
+        assert!(
+            dirt_path_count > 0,
+            "paint_roads should produce dirt_path tiles, got {dirt_path_count}"
+        );
     }
 }

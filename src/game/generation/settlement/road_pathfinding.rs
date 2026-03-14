@@ -5,8 +5,8 @@
 //! organic paths that prefer cheap terrain (dry_soil) over expensive terrain
 //! (glass, sand) and never cross walls.
 
-use std::collections::{BinaryHeap, HashMap};
 use std::cmp::Ordering;
+use std::collections::{BinaryHeap, HashMap};
 
 use once_cell::sync::Lazy;
 use serde::Deserialize;
@@ -32,17 +32,22 @@ struct TerrainConfigPartial {
 
 static MOVEMENT_COSTS: Lazy<TileMovementCosts> = Lazy::new(|| {
     let data = include_str!("../../../../data/terrain_config.json");
-    let cfg: TerrainConfigPartial =
-        serde_json::from_str(data).expect("Failed to parse tile_movement_costs from terrain_config.json");
+    let cfg: TerrainConfigPartial = serde_json::from_str(data)
+        .expect("Failed to parse tile_movement_costs from terrain_config.json");
     cfg.tile_movement_costs
 });
 
 /// Look up the pathfinding cost for a single tile.
+/// Walls use a high finite cost so roads can cut through natural terrain
+/// when no clear route exists.
 fn tile_cost(tile: &Tile) -> f32 {
     let costs = &*MOVEMENT_COSTS;
     match tile {
-        Tile::Wall { .. } => f32::INFINITY,
-        Tile::Floor { id } => *costs.floors.get(id.as_str()).unwrap_or(&costs.default_floor),
+        Tile::Wall { .. } => 50.0,
+        Tile::Floor { id } => *costs
+            .floors
+            .get(id.as_str())
+            .unwrap_or(&costs.default_floor),
         Tile::Glass => costs.glass,
         Tile::Glare => costs.glare,
         Tile::StairsDown | Tile::StairsUp | Tile::WorldExit => costs.default_floor,
@@ -52,8 +57,49 @@ fn tile_cost(tile: &Tile) -> f32 {
 // ── Cost grid ────────────────────────────────────────────────────────
 
 /// Build a flat cost grid from a `Map`. Index = `y * width + x`.
+/// Adds a proximity penalty near walls so roads prefer open areas over
+/// hugging building edges.
 pub fn build_cost_grid(map: &Map) -> Vec<f32> {
-    map.tiles.iter().map(|t| tile_cost(t)).collect()
+    let w = map.width;
+    let h = map.height;
+    let mut costs: Vec<f32> = map.tiles.iter().map(|t| tile_cost(t)).collect();
+
+    // Wall-adjacency inflation: tiles within RADIUS of a wall get extra cost
+    const RADIUS: i32 = 3;
+    const PENALTY: f32 = 6.0;
+
+    const WALL_COST: f32 = 50.0;
+
+    // Collect wall positions
+    let walls: Vec<(i32, i32)> = map
+        .tiles
+        .iter()
+        .enumerate()
+        .filter(|(_, t)| matches!(t, Tile::Wall { .. }))
+        .map(|(i, _)| ((i % w) as i32, (i / w) as i32))
+        .collect();
+
+    for &(wx, wy) in &walls {
+        for dy in -RADIUS..=RADIUS {
+            for dx in -RADIUS..=RADIUS {
+                let (nx, ny) = (wx + dx, wy + dy);
+                if nx < 0 || ny < 0 || nx >= w as i32 || ny >= h as i32 {
+                    continue;
+                }
+                let idx = ny as usize * w + nx as usize;
+                if costs[idx] >= WALL_COST {
+                    continue;
+                }
+                let dist = ((dx * dx + dy * dy) as f32).sqrt();
+                if dist <= RADIUS as f32 {
+                    // Inverse-distance penalty: closer to wall = higher cost
+                    costs[idx] += PENALTY * (1.0 - dist / (RADIUS as f32 + 1.0));
+                }
+            }
+        }
+    }
+
+    costs
 }
 
 // ── A* pathfinder ────────────────────────────────────────────────────
@@ -102,7 +148,10 @@ pub fn astar_path(
     g_score[start] = 0.0;
     let mut came_from = vec![usize::MAX; w * h];
     let mut open = BinaryHeap::new();
-    open.push(Node { f: heuristic(start), pos: start });
+    open.push(Node {
+        f: heuristic(start),
+        pos: start,
+    });
 
     const DIRS: [(i32, i32); 4] = [(-1, 0), (1, 0), (0, -1), (0, 1)];
 
@@ -134,7 +183,10 @@ pub fn astar_path(
             if tentative < g_score[nidx] {
                 g_score[nidx] = tentative;
                 came_from[nidx] = pos;
-                open.push(Node { f: tentative + heuristic(nidx), pos: nidx });
+                open.push(Node {
+                    f: tentative + heuristic(nidx),
+                    pos: nidx,
+                });
             }
         }
     }
@@ -152,13 +204,16 @@ mod tests {
         let rows: Vec<&str> = s.lines().filter(|l| !l.is_empty()).collect();
         let h = rows.len();
         let w = rows[0].len();
-        let costs: Vec<f32> = rows.iter().flat_map(|row| {
-            row.chars().map(|c| match c {
-                '#' => f32::INFINITY,
-                'g' => 8.0,
-                _ => 1.0,
+        let costs: Vec<f32> = rows
+            .iter()
+            .flat_map(|row| {
+                row.chars().map(|c| match c {
+                    '#' => f32::INFINITY,
+                    'g' => 8.0,
+                    _ => 1.0,
+                })
             })
-        }).collect();
+            .collect();
         (costs, w, h)
     }
 
@@ -201,10 +256,13 @@ mod tests {
         );
         let path = astar_path(&costs, w, h, (0, 0), (4, 0)).unwrap();
         // Should prefer going through row 1 (cost 1.0 each) over glass (8.0 each)
-        let glass_cells: usize = path.iter().filter(|&&(x, y)| {
-            let idx = y as usize * w + x as usize;
-            costs[idx] > 1.0
-        }).count();
+        let glass_cells: usize = path
+            .iter()
+            .filter(|&&(x, y)| {
+                let idx = y as usize * w + x as usize;
+                costs[idx] > 1.0
+            })
+            .count();
         assert_eq!(glass_cells, 0, "Path should avoid expensive glass tiles");
     }
 

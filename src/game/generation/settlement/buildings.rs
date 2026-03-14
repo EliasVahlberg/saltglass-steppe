@@ -72,37 +72,63 @@ pub fn place_buildings<R: Rng>(
     let positions = super::layout::generate_layout(config, width, height, rng);
     let centroid = (width as f32 / 2.0, height as f32 / 2.0);
 
-    positions
-        .into_iter()
-        .take(max_buildings)
-        .map(|(x, y)| {
-            let total_weight: f32 = candidates.iter().map(|s| s.metadata.weight).sum();
-            let mut roll = rng.gen_range(0.0f32..total_weight.max(1.0));
-            let structure: &Structure = candidates
-                .iter()
-                .find(|s| {
-                    if roll < s.metadata.weight { true }
-                    else { roll -= s.metadata.weight; false }
-                })
-                .unwrap_or(&candidates[0]);
+    // Track placed footprints as (x, y, w, h) for overlap rejection
+    let mut placed: Vec<(i32, i32, i32, i32)> = Vec::new();
+    const PAD: i32 = 2; // minimum gap between buildings
 
-            let entrance = structure.metadata.entrance_side.as_deref().unwrap_or("south");
-            let rotation = if entrance == "any" {
-                0
-            } else {
-                let bx = x as f32 + structure.width as f32 / 2.0;
-                let by = y as f32 + structure.height as f32 / 2.0;
-                let target = toward((bx, by), centroid);
-                rotation_to_face(entrance, target)
-            };
+    let mut buildings = Vec::new();
+    for (x, y) in positions.into_iter().take(max_buildings * 2) {
+        if buildings.len() >= max_buildings {
+            break;
+        }
 
-            Building {
-                prefab_name: structure.id.clone(),
-                x,
-                y,
-                faction: dominant_faction.clone(),
-                rotation,
-            }
-        })
-        .collect()
+        let total_weight: f32 = candidates.iter().map(|s| s.metadata.weight).sum();
+        let mut roll = rng.gen_range(0.0f32..total_weight.max(1.0));
+        let structure: &Structure = candidates
+            .iter()
+            .find(|s| {
+                if roll < s.metadata.weight {
+                    true
+                } else {
+                    roll -= s.metadata.weight;
+                    false
+                }
+            })
+            .unwrap_or(&candidates[0]);
+
+        let entrance = structure
+            .metadata
+            .entrance_side
+            .as_deref()
+            .unwrap_or("south");
+        let rotation = if entrance == "any" {
+            0
+        } else {
+            let bx = x as f32 + structure.width as f32 / 2.0;
+            let by = y as f32 + structure.height as f32 / 2.0;
+            let target = toward((bx, by), centroid);
+            rotation_to_face(entrance, target)
+        };
+
+        let (ew, eh) =
+            super::effective_dims(structure.width as i32, structure.height as i32, rotation);
+
+        // Check overlap with already-placed buildings
+        let overlaps = placed.iter().any(|&(px, py, pw, ph)| {
+            x < px + pw + PAD && x + ew + PAD > px && y < py + ph + PAD && y + eh + PAD > py
+        });
+        if overlaps {
+            continue;
+        }
+
+        placed.push((x, y, ew, eh));
+        buildings.push(Building {
+            prefab_name: structure.id.clone(),
+            x,
+            y,
+            faction: dominant_faction.clone(),
+            rotation,
+        });
+    }
+    buildings
 }

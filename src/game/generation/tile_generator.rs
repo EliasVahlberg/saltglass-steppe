@@ -2,23 +2,25 @@ use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use std::collections::HashSet;
 
-use crate::game::{
-    chest::Chest,
-    enemy::Enemy,
-    item::Item,
-    map::Map,
-    npc::Npc,
-    world_map::{Biome, Terrain, POI},
-    constants::{MAP_HEIGHT, MAP_WIDTH},
-};
 use super::{
     TerrainForgeGenerator,
-    distribute_points_grid, get_biome_spawn_table,
-    weighted_pick_by_level_and_tier,
-    place_microstructures,
-    settlement::{SettlementConfig, SettlementTier, generate_settlement, clear_settlement_footprint, stamp_settlement, place_decorations, paint_roads},
+    connectivity::{GSBParams, ensure_connectivity},
+    distribute_points_grid, get_biome_spawn_table, place_microstructures,
+    settlement::{
+        SettlementConfig, SettlementTier, clear_settlement_footprint, generate_settlement,
+        paint_roads, place_decorations, stamp_settlement,
+    },
     structure_library::StructureLibrary,
-    connectivity::{ensure_connectivity, GSBParams},
+    weighted_pick_by_level_and_tier,
+};
+use crate::game::{
+    chest::Chest,
+    constants::{MAP_HEIGHT, MAP_WIDTH},
+    enemy::Enemy,
+    item::Item,
+    map::{Map, Tile},
+    npc::Npc,
+    world_map::{Biome, POI, Terrain},
 };
 
 pub struct TileParams {
@@ -96,8 +98,14 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     // Generate new tile map via terrain-forge adapter
     let mut map = {
         let generator = TerrainForgeGenerator::new();
-        let (map, _) = generator
-            .generate_tile_with_seed(params.biome, params.terrain, params.elevation, params.poi, params.seed, &params.quest_ids);
+        let (map, _) = generator.generate_tile_with_seed(
+            params.biome,
+            params.terrain,
+            params.elevation,
+            params.poi,
+            params.seed,
+            &params.quest_ids,
+        );
         map
     };
 
@@ -125,8 +133,7 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
 
     // Check for quest structure spawns first
     if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
-        if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data)
-        {
+        if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data) {
             for (x, y, spawn_type, id) in spawns {
                 if spawn_type == "enemy" {
                     enemies.push(Enemy::new(x, y, &id));
@@ -156,12 +163,8 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
             .cloned()
             .collect();
 
-        let distributed_positions = distribute_points_grid(
-            &safe_positions,
-            enemy_count,
-            20,
-            &mut rng,
-        );
+        let distributed_positions =
+            distribute_points_grid(&safe_positions, enemy_count, 20, &mut rng);
 
         for (rx, ry) in distributed_positions {
             if let Some(id) =
@@ -177,8 +180,7 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     let mut used_positions = HashSet::new();
 
     if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
-        if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data)
-        {
+        if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data) {
             for (x, y, spawn_type, id) in spawns {
                 if spawn_type == "item" {
                     items.push(Item::new(x, y, &id));
@@ -255,42 +257,85 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
             faction_control: params.faction_control.clone(),
         };
         let mut settlement_rng = ChaCha8Rng::seed_from_u64(params.seed);
-        let settlement = generate_settlement(config, &mut settlement_rng);
+        let mut settlement = generate_settlement(config, &mut settlement_rng);
+
+        // Center settlement on the map
+        let ox = (map.width as i32 - settlement.width as i32) / 2;
+        let oy = (map.height as i32 - settlement.height as i32) / 2;
+        for b in &mut settlement.buildings {
+            b.x += ox;
+            b.y += oy;
+        }
         clear_settlement_footprint(&mut map, &settlement);
         stamp_settlement(&mut map, &settlement);
         paint_roads(&mut map, &settlement);
         place_decorations(&mut map, &settlement, &mut settlement_rng);
 
-        // Carve entrance path from spawn to nearest settlement floor tile
-        if let Some((tx, ty)) = map.tiles.iter().enumerate()
-            .filter_map(|(i, t)| if t.walkable() {
-                let x = (i % map.width) as i32;
-                let y = (i / map.width) as i32;
-                if x < settlement.width as i32 && y < settlement.height as i32 { Some((x, y)) } else { None }
-            } else { None })
+        // Path from spawn to nearest settlement walkable tile using A*
+        if let Some((tx, ty)) = map
+            .tiles
+            .iter()
+            .enumerate()
+            .filter_map(|(i, t)| {
+                if t.walkable() {
+                    let x = (i % map.width) as i32;
+                    let y = (i / map.width) as i32;
+                    if x < settlement.width as i32 && y < settlement.height as i32 {
+                        Some((x, y))
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            })
             .min_by_key(|&(x, y)| (x - px).abs() + (y - py).abs())
         {
-            use crate::game::map::Tile;
-            let (mut cx, mut cy) = (px, py);
-            while cx != tx {
-                if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
-                    map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dirt_path".to_string() });
+            use crate::game::generation::settlement::road_pathfinding;
+            let costs = road_pathfinding::build_cost_grid(&map);
+            if let Some(path) =
+                road_pathfinding::astar_path(&costs, map.width, map.height, (px, py), (tx, ty))
+            {
+                for (cx, cy) in path {
+                    if cx >= 0 && cy >= 0 && cx < map.width as i32 && cy < map.height as i32 {
+                        match map.get_tile(cx, cy) {
+                            Tile::Floor { id } if id == "dry_soil" => {
+                                map.set_tile(
+                                    cx as usize,
+                                    cy as usize,
+                                    Tile::Floor {
+                                        id: "dirt_path".to_string(),
+                                    },
+                                );
+                            }
+                            Tile::Wall { .. } => {
+                                map.set_tile(
+                                    cx as usize,
+                                    cy as usize,
+                                    Tile::Floor {
+                                        id: "dirt_path".to_string(),
+                                    },
+                                );
+                            }
+                            _ => {}
+                        }
+                    }
                 }
-                cx += if tx > cx { 1 } else { -1 };
-            }
-            while cy != ty {
-                if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
-                    map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dirt_path".to_string() });
-                }
-                cy += if ty > cy { 1 } else { -1 };
             }
         }
 
         // Refresh walkable_positions after stamping
-        let walkable_positions: Vec<(i32, i32)> = map.tiles.iter().enumerate()
-            .filter_map(|(idx, tile)| if tile.walkable() {
-                Some(((idx % map.width) as i32, (idx / map.width) as i32))
-            } else { None })
+        let walkable_positions: Vec<(i32, i32)> = map
+            .tiles
+            .iter()
+            .enumerate()
+            .filter_map(|(idx, tile)| {
+                if tile.walkable() {
+                    Some(((idx % map.width) as i32, (idx / map.width) as i32))
+                } else {
+                    None
+                }
+            })
             .collect();
 
         if let Ok(library) = StructureLibrary::load() {
@@ -304,7 +349,9 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
                                 let dy = (y - building.y).abs();
                                 dx + dy
                             })
-                            .filter(|&&pos| !npcs.iter().any(|npc| npc.x == pos.0 && npc.y == pos.1))
+                            .filter(|&&pos| {
+                                !npcs.iter().any(|npc| npc.x == pos.0 && npc.y == pos.1)
+                            })
                         {
                             npcs.push(Npc::new(nx, ny, npc_type));
                         }
@@ -318,10 +365,17 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     ensure_connectivity(&mut map, (px, py), &GSBParams::fast(), &mut rng);
 
     // Refresh walkable_positions for the returned struct
-    let walkable_positions: Vec<(i32, i32)> = map.tiles.iter().enumerate()
-        .filter_map(|(idx, tile)| if tile.walkable() {
-            Some(((idx % map.width) as i32, (idx / map.width) as i32))
-        } else { None })
+    let walkable_positions: Vec<(i32, i32)> = map
+        .tiles
+        .iter()
+        .enumerate()
+        .filter_map(|(idx, tile)| {
+            if tile.walkable() {
+                Some(((idx % map.width) as i32, (idx / map.width) as i32))
+            } else {
+                None
+            }
+        })
         .collect();
 
     GeneratedTile {
@@ -381,7 +435,9 @@ impl TileTestConfig {
             elevation: self.elevation,
             poi: self.poi,
             level: self.level,
-            faction_control: self.faction_territory.as_ref()
+            faction_control: self
+                .faction_territory
+                .as_ref()
                 .map(|f| vec![(f.clone(), 1.0f32)])
                 .unwrap_or_default(),
             quest_ids: vec![],

@@ -29,7 +29,6 @@ pub fn generate_layout<R: Rng>(
     while y + margin < height {
         let mut x = margin;
         while x + margin < width {
-            // Add small random jitter so buildings don't look perfectly grid-aligned
             let jitter_x = rng.gen_range(-(spacing_x as i32 / 4)..=(spacing_x as i32 / 4));
             let jitter_y = rng.gen_range(-(spacing_y as i32 / 4)..=(spacing_y as i32 / 4));
             let px = (x as i32 + jitter_x).max(margin as i32);
@@ -38,6 +37,12 @@ pub fn generate_layout<R: Rng>(
             x += spacing_x;
         }
         y += spacing_y;
+    }
+
+    // Shuffle so different seeds pick different subsets of candidate positions
+    for i in (1..positions.len()).rev() {
+        let j = rng.gen_range(0..=i);
+        positions.swap(i, j);
     }
 
     positions
