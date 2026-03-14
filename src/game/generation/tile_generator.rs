@@ -266,7 +266,7 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
             b.x += ox;
             b.y += oy;
         }
-        clear_settlement_footprint(&mut map, &settlement);
+        clear_settlement_footprint(&mut map, &settlement, (ox, oy));
         stamp_settlement(&mut map, &settlement);
         paint_roads(&mut map, &settlement);
         place_decorations(&mut map, &settlement, &mut settlement_rng);

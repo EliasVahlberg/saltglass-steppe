@@ -88,16 +88,12 @@ fn rotate_coords(px: i32, py: i32, w: i32, h: i32, rotation: u16) -> (i32, i32) 
 /// Clear natural walls within DILATION tiles of any building footprint.
 /// Uses a per-building distance field so the cleared area follows the actual
 /// settlement shape (union of rounded rectangles) rather than a bounding box.
-pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement) {
+pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement, origin: (i32, i32)) {
     let library = match StructureLibrary::load() {
         Ok(lib) => lib,
         Err(_) => return,
     };
 
-    const DILATION: i32 = 8;
-    const DILATION_SQ: i32 = DILATION * DILATION;
-
-    // Collect (x, y, w, h) for each building — using effective (rotated) dimensions
     let footprints: Vec<(i32, i32, i32, i32)> = settlement
         .buildings
         .iter()
@@ -115,51 +111,25 @@ pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement) {
         return;
     }
 
-    let margin = DILATION + 1;
-    let min_x = footprints.iter().map(|&(x, _, _, _)| x).min().unwrap() - margin;
-    let min_y = footprints.iter().map(|&(_, y, _, _)| y).min().unwrap() - margin;
-    let max_x = footprints.iter().map(|&(x, _, w, _)| x + w).max().unwrap() + margin;
-    let max_y = footprints.iter().map(|&(_, y, _, h)| y + h).max().unwrap() + margin;
+    // Clear the full settlement area using the known map origin
+    let min_x = origin.0.max(0);
+    let min_y = origin.1.max(0);
+    let max_x = (origin.0 + settlement.width as i32).min(map.width as i32);
+    let max_y = (origin.1 + settlement.height as i32).min(map.height as i32);
 
     for cy in min_y..max_y {
         for cx in min_x..max_x {
-            if cx < 0 || cy < 0 || cx >= map.width as i32 || cy >= map.height as i32 {
-                continue;
-            }
-
-            // Distance from (cx,cy) to nearest point inside each building rectangle
-            let near_enough = footprints.iter().any(|&(bx, by, bw, bh)| {
-                let dx = if cx < bx {
-                    bx - cx
-                } else if cx >= bx + bw {
-                    cx - (bx + bw - 1)
-                } else {
-                    0
-                };
-                let dy = if cy < by {
-                    by - cy
-                } else if cy >= by + bh {
-                    cy - (by + bh - 1)
-                } else {
-                    0
-                };
-                dx * dx + dy * dy <= DILATION_SQ
-            });
-
-            if near_enough {
-                // Inside a building footprint: skip (stamp_settlement will handle it)
-                let inside = footprints
-                    .iter()
-                    .any(|&(bx, by, bw, bh)| cx >= bx && cx < bx + bw && cy >= by && cy < by + bh);
-                if !inside {
-                    map.set_tile(
-                        cx as usize,
-                        cy as usize,
-                        Tile::Floor {
-                            id: "dry_soil".to_string(),
-                        },
-                    );
-                }
+            let inside = footprints
+                .iter()
+                .any(|&(bx, by, bw, bh)| cx >= bx && cx < bx + bw && cy >= by && cy < by + bh);
+            if !inside {
+                map.set_tile(
+                    cx as usize,
+                    cy as usize,
+                    Tile::Floor {
+                        id: "dry_soil".to_string(),
+                    },
+                );
             }
         }
     }

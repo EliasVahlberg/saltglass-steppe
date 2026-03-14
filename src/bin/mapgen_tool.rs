@@ -1,7 +1,9 @@
-use saltglass_steppe::{Biome, Map, POI, Terrain, Tile, WorldMap};
-use saltglass_steppe::game::generation::settlement::{generate_settlement, SettlementConfig, SettlementTier};
 use rand::SeedableRng;
 use rand_chacha::ChaCha8Rng;
+use saltglass_steppe::game::generation::settlement::{
+    SettlementConfig, SettlementTier, generate_settlement,
+};
+use saltglass_steppe::{Biome, Map, POI, Terrain, Tile, WorldMap};
 use std::env;
 
 const WORLD_WIDTH: usize = 192;
@@ -155,9 +157,14 @@ fn display_tile_map(seed: u64) {
 }
 
 fn display_settlement(seed: u64, tier: SettlementTier) {
-    use saltglass_steppe::game::generation::settlement::{clear_settlement_footprint, stamp_settlement, place_decorations};
+    use saltglass_steppe::game::generation::settlement::{
+        clear_settlement_footprint, place_decorations, stamp_settlement,
+    };
 
-    println!("Generating settlement with seed: {} and tier: {:?}", seed, tier);
+    println!(
+        "Generating settlement with seed: {} and tier: {:?}",
+        seed, tier
+    );
 
     let config = SettlementConfig {
         seed,
@@ -171,22 +178,34 @@ fn display_settlement(seed: u64, tier: SettlementTier) {
     let mut rng = ChaCha8Rng::seed_from_u64(seed);
     let settlement = generate_settlement(config, &mut rng);
 
-    println!("Settlement ({:?}) {}x{} — seed {}", settlement.config.tier, settlement.width, settlement.height, seed);
+    println!(
+        "Settlement ({:?}) {}x{} — seed {}",
+        settlement.config.tier, settlement.width, settlement.height, seed
+    );
     println!("Buildings: {}", settlement.buildings.len());
     for (i, building) in settlement.buildings.iter().enumerate() {
-        println!("  [{}] {} at ({}, {}) faction={:?}", i, building.prefab_name, building.x, building.y, building.faction);
+        println!(
+            "  [{}] {} at ({}, {}) faction={:?}",
+            i, building.prefab_name, building.x, building.y, building.faction
+        );
     }
     println!();
 
     // Stamp onto a map and render
-    let mut map = Map::generate_from_world(&mut ChaCha8Rng::seed_from_u64(seed), Biome::Saltflat, Terrain::Flat, 0).0;
-    clear_settlement_footprint(&mut map, &settlement);
+    let mut map = Map::generate_from_world(
+        &mut ChaCha8Rng::seed_from_u64(seed),
+        Biome::Saltflat,
+        Terrain::Flat,
+        0,
+    )
+    .0;
+    clear_settlement_footprint(&mut map, &settlement, (0, 0));
     stamp_settlement(&mut map, &settlement);
     place_decorations(&mut map, &settlement, &mut ChaCha8Rng::seed_from_u64(seed));
 
     for y in 0..settlement.height {
-        let row: String = (0..settlement.width).map(|x| {
-            match map.get(x as i32, y as i32) {
+        let row: String = (0..settlement.width)
+            .map(|x| match map.get(x as i32, y as i32) {
                 Some(Tile::Floor { .. }) => '.',
                 Some(Tile::Wall { .. }) => '#',
                 Some(Tile::Glass) => 'g',
@@ -195,8 +214,8 @@ fn display_settlement(seed: u64, tier: SettlementTier) {
                 Some(Tile::StairsUp) => '<',
                 Some(Tile::WorldExit) => 'X',
                 _ => ' ',
-            }
-        }).collect();
+            })
+            .collect();
         println!("{}", row);
     }
 }
