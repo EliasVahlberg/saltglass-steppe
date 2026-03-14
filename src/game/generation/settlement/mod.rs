@@ -32,6 +32,9 @@ pub struct Building {
     pub x: i32,
     pub y: i32,
     pub faction: Option<String>,
+    /// Clockwise rotation in degrees (0 / 90 / 180 / 270)
+    #[serde(default)]
+    pub rotation: u16,
 }
 
 /// Generated settlement with all placed buildings
@@ -56,7 +59,27 @@ pub fn generate_settlement<R: Rng>(config: SettlementConfig, rng: &mut R) -> Set
     }
 }
 
-/// Clear natural walls inside the dilated settlement bounding box.
+/// Effective (width, height) of a building after rotation (90/270 swap dims).
+fn effective_dims(w: i32, h: i32, rotation: u16) -> (i32, i32) {
+    if rotation == 90 || rotation == 270 { (h, w) } else { (w, h) }
+}
+
+/// Entrance side after applying clockwise rotation.
+fn rotated_side(side: &str, rotation: u16) -> &'static str {
+    const DIRS: [&str; 4] = ["north", "east", "south", "west"];
+    let idx = DIRS.iter().position(|&d| d == side).unwrap_or(2);
+    DIRS[(idx + (rotation / 90) as usize) % 4]
+}
+
+/// Map pattern coords (px, py) to world offset given rotation and original (w, h).
+fn rotate_coords(px: i32, py: i32, w: i32, h: i32, rotation: u16) -> (i32, i32) {
+    match rotation {
+        90  => (h - 1 - py, px),
+        180 => (w - 1 - px, h - 1 - py),
+        270 => (py, w - 1 - px),
+        _   => (px, py),
+    }
+}
 /// Clear natural walls within DILATION tiles of any building footprint.
 /// Uses a per-building distance field so the cleared area follows the actual
 /// settlement shape (union of rounded rectangles) rather than a bounding box.
@@ -69,12 +92,13 @@ pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement) {
     const DILATION: i32 = 8;
     const DILATION_SQ: i32 = DILATION * DILATION;
 
-    // Collect (x, y, w, h) for each building
+    // Collect (x, y, w, h) for each building — using effective (rotated) dimensions
     let footprints: Vec<(i32, i32, i32, i32)> = settlement.buildings.iter().map(|b| {
         let (w, h) = library.get(&b.prefab_name)
             .map(|s| (s.width as i32, s.height as i32))
             .unwrap_or((6, 6));
-        (b.x, b.y, w, h)
+        let (ew, eh) = effective_dims(w, h, b.rotation);
+        (b.x, b.y, ew, eh)
     }).collect();
 
     if footprints.is_empty() { return; }
@@ -117,10 +141,11 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
             None => continue,
         };
 
-        // Clear a floor footprint (building bounds + 1 tile padding) before stamping
+        // Clear a floor footprint (effective rotated bounds + 1 tile padding) before stamping
+        let (ew, eh) = effective_dims(structure.width as i32, structure.height as i32, building.rotation);
         let pad = 1i32;
-        for cy in (building.y - pad)..(building.y + structure.height as i32 + pad) {
-            for cx in (building.x - pad)..(building.x + structure.width as i32 + pad) {
+        for cy in (building.y - pad)..(building.y + eh + pad) {
+            for cx in (building.x - pad)..(building.x + ew + pad) {
                 if cx >= 0 && cy >= 0 && cx < map.width as i32 && cy < map.height as i32 {
                     if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
                         map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dry_soil".to_string() });
@@ -132,8 +157,9 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
         for (py, row) in structure.pattern.iter().enumerate() {
             for (px, &ch) in row.iter().enumerate() {
                 if ch == ' ' { continue; }
-                let tile_x = building.x + px as i32;
-                let tile_y = building.y + py as i32;
+                let (ox, oy) = rotate_coords(px as i32, py as i32, structure.width as i32, structure.height as i32, building.rotation);
+                let tile_x = building.x + ox;
+                let tile_y = building.y + oy;
                 if tile_x < 0 || tile_y < 0 || tile_x >= map.width as i32 || tile_y >= map.height as i32 {
                     continue;
                 }
@@ -169,14 +195,16 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
         let (w, h) = structure
             .map(|s| (s.width as i32, s.height as i32))
             .unwrap_or((6, 6));
-        let side = structure
+        let (ew, eh) = effective_dims(w, h, b.rotation);
+        let natural_side = structure
             .and_then(|s| s.metadata.entrance_side.as_deref())
             .unwrap_or("south");
+        let side = if natural_side == "any" { "south" } else { rotated_side(natural_side, b.rotation) };
         match side {
-            "north" => (b.x + w / 2, b.y),
-            "east"  => (b.x + w - 1, b.y + h / 2),
-            "west"  => (b.x,         b.y + h / 2),
-            _       => (b.x + w / 2, b.y + h - 1), // south / any / None
+            "north" => (b.x + ew / 2, b.y),
+            "east"  => (b.x + ew - 1, b.y + eh / 2),
+            "west"  => (b.x,          b.y + eh / 2),
+            _       => (b.x + ew / 2, b.y + eh - 1), // south
         }
     }).collect();
 
