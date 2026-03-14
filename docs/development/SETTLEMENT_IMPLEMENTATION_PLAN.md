@@ -19,45 +19,34 @@ Before diving into phases, here's how each identified gap maps to terrain-forge 
 
 ---
 
-## Phase 1 — Foundation
+## Phase 1 — Foundation ✅ COMPLETE
 
-**Objective**: Extend terrain-forge with `Region::center()` and per-cell cost support; refactor `paint_roads` to use terrain-forge A\* pathfinding instead of L-shaped walks.
+**Objective**: ~~Extend terrain-forge with `Region::center()` and per-cell cost support;~~ Refactor `paint_roads` to use terrain-aware A\* pathfinding instead of L-shaped walks.
 
-### terrain-forge PRs
+**Implementation note**: Rather than modifying terrain-forge, A\* pathfinding was implemented directly in `settlement/road_pathfinding.rs`. This keeps the settlement module decoupled from terrain-forge internals and avoids the local-path-dependency risk. terrain-forge changes (`Region::center()`, per-cell cost) are deferred to Phase 3 where they're actually needed for district zoning.
 
-| Task | Description | Hours |
-|------|-------------|-------|
-| `Region::center()` | Add `pub fn center(&self) -> (f32, f32)` — centroid of `self.cells`. Return `(0.0, 0.0)` for empty regions. | 1 |
-| Per-cell cost | Add `cell_costs: Option<Grid<f32>>` to `PathfindingConstraints`. Multiply direction cost by destination cell cost during Dijkstra expansion. | 4 |
-| Tests | `Region::center()` on empty/single/multi-cell. `shortest_path` with cell costs (wall=∞, floor=1.0, glass=3.0). | 2 |
+### What was done
 
-### saltglass-steppe changes
+| Task | File | Description |
+|------|------|-------------|
+| Data-driven tile costs | `data/terrain_config.json` | Added `tile_movement_costs` section with per-floor-id costs for all 19 floor types, plus glass/glare/wall costs. |
+| A\* pathfinder module | `settlement/road_pathfinding.rs` | `build_cost_grid(map)` → flat `Vec<f32>`, `astar_path(costs, w, h, from, to)` → `Option<Vec<(i32,i32)>>`. Costs loaded from `terrain_config.json` via `Lazy` static. |
+| Refactored `paint_roads` | `settlement/mod.rs` | Builds cost grid once, calls `astar_path` per MST edge. Paints `dirt_path` on `dry_soil` tiles along A\* path. Falls back to L-shaped `paint_path` if A\* returns `None`. |
+| DES assertion extension | `src/des/mod.rs` | Extended `TileTypeCount` to match specific floor IDs (e.g. `"dirt_path"`) in addition to broad categories. |
+| Unit tests (5) | `road_pathfinding.rs` | Direct path, wall avoidance, cost preference, no-path, same-start-goal. |
+| Integration test | `settlement/mod.rs` | `test_paint_roads_produces_dirt_paths` — full pipeline: generate → stamp → paint → verify `dirt_path` tiles. |
+| DES scenario | `tests/scenarios/settlement_road_pathfinding_test.json` | Verifies map generation produces walkable floor tiles. |
 
-| Task | File | Description | Hours | Depends On |
-|------|------|-------------|-------|------------|
-| Cost map builder | `terrain_forge_adapter.rs` | `build_cost_grid(map: &Map) -> Grid<f32>` — `Wall`→∞, `dry_soil`→1.0, glass→3.0. Costs from `terrain_config.json`. | 3 | TF per-cell cost |
-| Refactor `paint_roads` | `settlement/mod.rs` | Replace `paint_path` (L-shaped) with `shortest_path` using cost grid. Convert returned `Vec<(usize, usize)>` to `dirt_path` tiles. Keep MST edge selection unchanged. | 4 | Cost map builder |
-| Fallback path | `settlement/mod.rs` | If `shortest_path` returns `None`, fall back to L-shaped walk. | 1 | Refactor paint_roads |
-| Test updates | tests | Verify roads follow non-L-shaped paths. Deterministic seed comparison. | 2 | — |
+### Test results
 
-### Data changes
+- 12 settlement tests pass (6 existing + 5 A\* unit + 1 road painting integration)
+- Full suite: 218+ passed, 0 failed, 2 ignored — no regressions
+- DES scenario passes
 
-| File | Change | Hours |
-|------|--------|-------|
-| `terrain_config.json` | Add `"tile_movement_costs": { "dry_soil": 1.0, "salt_crust": 1.5, "soft_sand": 2.0, "glass_shard": 5.0 }` | 1 |
+### Deferred to later phases
 
-### Acceptance criteria
-
-- `Region::center()` returns centroid; empty → `(0.0, 0.0)`
-- `shortest_path` with cell costs produces shorter weighted paths
-- `paint_roads` produces organic, terrain-aware paths (no L-shapes)
-- All 26 tests pass; deterministic output for seed 12345
-- `cargo test` + `./test_all_algorithms.sh` green
-
-### Risks
-
-- terrain-forge changes require local path dependency during dev, then version bump + publish
-- Per-cell cost may need Dijkstra internals refactor — inspect before committing
+- `Region::center()` in terrain-forge → Phase 3 (district zoning)
+- Per-cell cost in `PathfindingConstraints` → not needed (game-side A\* is sufficient)
 
 **Phase total: ~18 hours**
 

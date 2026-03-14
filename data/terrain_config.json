@@ -225,5 +225,33 @@
       "corridor_width": 2,
       "dead_ends": 3
     }
+  },
+  "tile_movement_costs": {
+    "_comment": "Per-tile-id pathfinding costs for settlement road generation. Lower = preferred. Absent IDs default to 1.0. 'impassable' entries use f32::INFINITY at runtime.",
+    "floors": {
+      "dry_soil": 1.0,
+      "dirt_path": 0.8,
+      "salt_crust": 1.5,
+      "soft_sand": 2.5,
+      "crushed_saltglass": 3.0,
+      "glass_sand": 4.0,
+      "storm_glass_shards": 5.0,
+      "brine_mud": 3.0,
+      "void_stone": 4.0,
+      "ancient_tile": 1.2,
+      "stone_floor": 1.0,
+      "brick_floor": 1.0,
+      "wood_floor": 1.0,
+      "tile_floor": 1.0,
+      "crystal_moss": 2.0,
+      "light_pool": 3.5,
+      "prismatic_tiles": 2.0,
+      "salt_gravel": 1.8,
+      "smooth_granite_glass": 1.5
+    },
+    "walls": "impassable",
+    "glass": 8.0,
+    "glare": 6.0,
+    "default_floor": 1.0
   }
 }

@@ -2,6 +2,7 @@ pub mod layout;
 pub mod buildings;
 pub mod faction_theme;
 pub mod population;
+pub mod road_pathfinding;
 
 use rand::Rng;
 use serde::{Deserialize, Serialize};
@@ -182,8 +183,8 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
 }
 
 /// Paint dirt paths along MST edges between building entrances.
-/// The settlement footprint is already cleared, so paths are painted
-/// onto dry_soil tiles only — indoor floors are never overwritten.
+/// Uses terrain-aware A* pathfinding for organic routes; falls back to
+/// L-shaped walks when no A* path exists (e.g. fully walled-off areas).
 pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
     let library = match StructureLibrary::load() {
         Ok(lib) => lib,
@@ -235,9 +236,25 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
         else { extras.push((i, j)); }
     }
 
+    // Build cost grid once, reuse for all edges
+    let costs = road_pathfinding::build_cost_grid(map);
+
     let loop_count = (n / 5).min(extras.len());
     for (i, j) in mst.into_iter().chain(extras.into_iter().take(loop_count)) {
-        paint_path(map, entrances[i], entrances[j]);
+        let from = entrances[i];
+        let to = entrances[j];
+        if let Some(path) = road_pathfinding::astar_path(&costs, map.width, map.height, from, to) {
+            for (px, py) in path {
+                if px >= 0 && py >= 0 && px < map.width as i32 && py < map.height as i32 {
+                    if matches!(map.get_tile(px, py), Tile::Floor { id } if id == "dry_soil") {
+                        map.set_tile(px as usize, py as usize, Tile::Floor { id: "dirt_path".to_string() });
+                    }
+                }
+            }
+        } else {
+            // Fallback: L-shaped walk
+            paint_path(map, from, to);
+        }
     }
 }
 
@@ -406,5 +423,37 @@ mod tests {
         // Verify that some tiles were modified (should have walls/floors from buildings)
         let has_walls = map.tiles.iter().any(|tile| matches!(tile, Tile::Wall { .. }));
         assert!(has_walls, "Settlement stamping should create wall tiles");
+    }
+
+    #[test]
+    fn test_paint_roads_produces_dirt_paths() {
+        use crate::game::map::{Map, Tile};
+
+        let config = SettlementConfig {
+            seed: 12345,
+            tier: SettlementTier::Town,
+            faction_control: vec![],
+        };
+        let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
+        let settlement = generate_settlement(config, &mut rng);
+
+        let mut map = Map {
+            tiles: vec![Tile::default_floor(); 120 * 90],
+            width: 120,
+            height: 90,
+            lights: vec![],
+            features: vec![],
+            inscriptions: vec![],
+            area_description: None,
+            metadata: std::collections::HashMap::new(),
+        };
+
+        stamp_settlement(&mut map, &settlement);
+        paint_roads(&mut map, &settlement);
+
+        let dirt_path_count = map.tiles.iter()
+            .filter(|t| matches!(t, Tile::Floor { id } if id == "dirt_path"))
+            .count();
+        assert!(dirt_path_count > 0, "paint_roads should produce dirt_path tiles, got {dirt_path_count}");
     }
 }

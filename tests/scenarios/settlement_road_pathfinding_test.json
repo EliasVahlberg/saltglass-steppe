@@ -1,0 +1,44 @@
+{
+  "name": "settlement_road_pathfinding_test",
+  "description": "Verify settlement map generation produces walkable floor tiles (road pathfinding tested via unit tests)",
+  "seed": 12345,
+  "player": {
+    "x": 60,
+    "y": 45,
+    "hp": 50,
+    "max_hp": 50,
+    "ap": 10
+  },
+  "entities": [],
+  "actions": [
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
+  ],
+  "assertions": [
+    {
+      "at_end": true,
+      "check": { "type": "player_alive" },
+      "message": "Player should be alive after map generation"
+    },
+    {
+      "at_end": true,
+      "check": { "type": "player_on_walkable_tile" },
+      "message": "Player should be on walkable tile"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "tile_type_count",
+        "tile_type": "floor",
+        "op": "ge",
+        "value": 100
+      },
+      "message": "Map should have adequate floor space for navigation"
+    }
+  ]
+}

@@ -1468,6 +1468,8 @@ impl DesExecutor {
                         ("glass", crate::game::map::Tile::Glass) => true,
                         ("floor", crate::game::map::Tile::Floor { .. }) => true,
                         ("wall", crate::game::map::Tile::Wall { .. }) => true,
+                        // Match specific floor IDs (e.g. "dirt_path", "dry_soil")
+                        (id, crate::game::map::Tile::Floor { id: floor_id }) if floor_id == id => true,
                         _ => false,
                     })
                     .count();

@@ -419,3 +419,11 @@ fn biome_spawn_tables_test() {
     assert!(result.success, "Biome spawn tables test failed: {:?}",
         result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
 }
+
+#[test]
+fn settlement_road_pathfinding_test() {
+    let result = run_scenario("tests/scenarios/settlement_road_pathfinding_test.json")
+        .expect("Failed to run settlement_road_pathfinding_test");
+    assert!(result.success, "Settlement road pathfinding test failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>());
+}
