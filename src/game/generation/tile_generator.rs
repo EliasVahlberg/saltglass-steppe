@@ -5,10 +5,12 @@ use std::collections::HashSet;
 use super::{
     TerrainForgeGenerator,
     connectivity::{GSBParams, ensure_connectivity},
-    distribute_points_grid, get_biome_spawn_table, place_microstructures,
+    distribute_points_grid,
+    environmental_props::place_environmental_props,
+    get_biome_spawn_table, place_microstructures,
     settlement::{
-        SettlementConfig, SettlementTier, clear_settlement_footprint, generate_settlement,
-        paint_roads, place_decorations, stamp_settlement,
+        SettlementConfig, SettlementTier, clear_around_roads, clear_settlement_footprint,
+        generate_settlement, paint_roads, place_decorations, stamp_settlement,
     },
     structure_library::StructureLibrary,
     weighted_pick_by_level_and_tier,
@@ -127,6 +129,9 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
             }
         })
         .collect();
+
+    // Place environmental props (visual-only floor tile decorations)
+    place_environmental_props(&mut map, params.biome.as_str(), (px, py), &mut rng);
 
     // Spawn enemies based on POI and quest structure data
     let mut enemies = Vec::new();
@@ -266,9 +271,10 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
             b.x += ox;
             b.y += oy;
         }
-        clear_settlement_footprint(&mut map, &settlement, (ox, oy));
+        clear_settlement_footprint(&mut map, &settlement);
         stamp_settlement(&mut map, &settlement);
         paint_roads(&mut map, &settlement);
+        clear_around_roads(&mut map, &settlement);
         place_decorations(&mut map, &settlement, &mut settlement_rng);
 
         // Path from spawn to nearest settlement walkable tile using A*
@@ -351,7 +357,7 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     }
 
     // Final connectivity pass — carve tunnels to connect any isolated regions
-    ensure_connectivity(&mut map, (px, py), &GSBParams::fast(), &mut rng);
+    ensure_connectivity(&mut map, (px, py), &GSBParams::default(), &mut rng);
 
     // Refresh walkable_positions for the returned struct
     let walkable_positions: Vec<(i32, i32)> = map

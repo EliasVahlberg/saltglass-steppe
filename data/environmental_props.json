@@ -1,0 +1,165 @@
+{
+  "schema": "environmental_props_v1",
+  "props": [
+    {
+      "id": "dead_scrub",
+      "biomes": ["desert", "scrubland", "oasis"],
+      "place_on": ["dry_soil", "soft_sand"],
+      "density": 0.015,
+      "cluster_chance": 0.3,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "salt_lichen",
+      "biomes": ["saltflat"],
+      "place_on": ["salt_crust"],
+      "density": 0.012,
+      "cluster_chance": 0.3,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "crystal_sprout",
+      "biomes": ["oasis", "saltflat"],
+      "place_on": ["dry_soil", "crystal_moss", "salt_crust"],
+      "density": 0.005,
+      "cluster_chance": 0.2,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "dried_moss",
+      "biomes": ["oasis", "scrubland"],
+      "place_on": ["dry_soil"],
+      "density": 0.010,
+      "cluster_chance": 0.3,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "thorn_patch",
+      "biomes": ["scrubland", "desert"],
+      "place_on": ["dry_soil", "soft_sand"],
+      "density": 0.008,
+      "cluster_chance": 0.2,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "cairn",
+      "biomes": null,
+      "place_on": ["dry_soil", "soft_sand", "salt_crust", "ancient_tile"],
+      "density": 0.002,
+      "cluster_chance": 0.0,
+      "cluster_size": [1, 1]
+    },
+    {
+      "id": "loose_rocks",
+      "biomes": ["ruins", "desert", "scrubland"],
+      "place_on": ["dry_soil", "soft_sand", "ancient_tile"],
+      "density": 0.010,
+      "cluster_chance": 0.25,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "salt_deposit",
+      "biomes": ["saltflat"],
+      "place_on": ["salt_crust", "salt_gravel"],
+      "density": 0.008,
+      "cluster_chance": 0.2,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "sand_ripple",
+      "biomes": ["desert"],
+      "place_on": ["soft_sand"],
+      "density": 0.015,
+      "cluster_chance": 0.3,
+      "cluster_size": [2, 4]
+    },
+    {
+      "id": "glass_fragment",
+      "biomes": ["saltflat", "desert", "ruins"],
+      "place_on": ["salt_crust", "soft_sand", "ancient_tile", "dry_soil"],
+      "density": 0.005,
+      "cluster_chance": 0.2,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "campfire_remains",
+      "biomes": null,
+      "place_on": ["dry_soil", "soft_sand", "salt_crust"],
+      "density": 0.001,
+      "cluster_chance": 0.0,
+      "cluster_size": [1, 1]
+    },
+    {
+      "id": "bone_scatter",
+      "biomes": ["desert", "scrubland", "saltflat"],
+      "place_on": ["dry_soil", "soft_sand", "salt_crust"],
+      "density": 0.003,
+      "cluster_chance": 0.15,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "old_tracks",
+      "biomes": null,
+      "place_on": ["dry_soil", "soft_sand"],
+      "density": 0.003,
+      "cluster_chance": 0.0,
+      "cluster_size": [1, 1]
+    },
+    {
+      "id": "torn_cloth",
+      "biomes": ["ruins", "scrubland"],
+      "place_on": ["dry_soil", "ancient_tile"],
+      "density": 0.003,
+      "cluster_chance": 0.0,
+      "cluster_size": [1, 1]
+    },
+    {
+      "id": "carved_mark",
+      "biomes": ["ruins"],
+      "place_on": ["ancient_tile", "dry_soil"],
+      "density": 0.003,
+      "cluster_chance": 0.0,
+      "cluster_size": [1, 1]
+    },
+    {
+      "id": "brine_puddle",
+      "biomes": ["saltflat", "oasis"],
+      "place_on": ["salt_crust", "dry_soil", "brine_mud"],
+      "density": 0.004,
+      "cluster_chance": 0.2,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "glass_bloom",
+      "biomes": ["saltflat", "oasis"],
+      "place_on": ["salt_crust", "crystal_moss"],
+      "density": 0.004,
+      "cluster_chance": 0.2,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "storm_scar",
+      "biomes": ["desert", "saltflat", "scrubland"],
+      "place_on": ["dry_soil", "soft_sand", "salt_crust"],
+      "density": 0.003,
+      "cluster_chance": 0.0,
+      "cluster_size": [1, 1]
+    },
+    {
+      "id": "void_stain",
+      "biomes": ["ruins"],
+      "place_on": ["ancient_tile", "void_stone"],
+      "density": 0.003,
+      "cluster_chance": 0.15,
+      "cluster_size": [2, 3]
+    },
+    {
+      "id": "rubble_pile",
+      "biomes": ["ruins"],
+      "place_on": ["ancient_tile", "dry_soil"],
+      "density": 0.008,
+      "cluster_chance": 0.2,
+      "cluster_size": [2, 3]
+    }
+  ]
+}

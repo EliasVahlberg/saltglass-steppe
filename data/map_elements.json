@@ -280,6 +280,146 @@
         "glyph": "╌",
         "color": "Yellow",
         "description": "A worn track of packed earth, marked by countless footsteps"
+      },
+      {
+        "id": "dead_scrub",
+        "name": "Dead Scrub",
+        "glyph": "τ",
+        "color": "DarkYellow",
+        "description": "Dried-out scrub brush, brittle and sun-bleached"
+      },
+      {
+        "id": "salt_lichen",
+        "name": "Salt Lichen",
+        "glyph": "~",
+        "color": "White",
+        "description": "Pale lichen clinging to the salt crust"
+      },
+      {
+        "id": "crystal_sprout",
+        "name": "Crystal Sprout",
+        "glyph": "↑",
+        "color": "LightCyan",
+        "description": "A tiny crystal formation pushing through the ground"
+      },
+      {
+        "id": "dried_moss",
+        "name": "Dried Moss",
+        "glyph": "\"",
+        "color": "DarkYellow",
+        "description": "Desiccated moss, long dead"
+      },
+      {
+        "id": "thorn_patch",
+        "name": "Thorn Patch",
+        "glyph": "*",
+        "color": "DarkYellow",
+        "description": "A thorny patch of dried brambles"
+      },
+      {
+        "id": "cairn",
+        "name": "Cairn",
+        "glyph": "▲",
+        "color": "LightGray",
+        "description": "A deliberate stack of stones, marking something"
+      },
+      {
+        "id": "loose_rocks",
+        "name": "Loose Rocks",
+        "glyph": "%",
+        "color": "Gray",
+        "description": "Scattered loose stones"
+      },
+      {
+        "id": "salt_deposit",
+        "name": "Salt Deposit",
+        "glyph": "°",
+        "color": "White",
+        "description": "A small mound of crystallized salt"
+      },
+      {
+        "id": "sand_ripple",
+        "name": "Sand Ripple",
+        "glyph": "~",
+        "color": "Yellow",
+        "description": "Wind-sculpted ripples in the sand"
+      },
+      {
+        "id": "glass_fragment",
+        "name": "Glass Fragment",
+        "glyph": ",",
+        "color": "Cyan",
+        "description": "A single shard of storm glass, too small to collect"
+      },
+      {
+        "id": "campfire_remains",
+        "name": "Campfire Remains",
+        "glyph": "○",
+        "color": "DarkGray",
+        "description": "Cold ashes and charred stones — someone camped here"
+      },
+      {
+        "id": "bone_scatter",
+        "name": "Scattered Bones",
+        "glyph": ";",
+        "color": "White",
+        "description": "Bleached bones, picked clean by wind and sun"
+      },
+      {
+        "id": "old_tracks",
+        "name": "Old Tracks",
+        "glyph": "=",
+        "color": "DarkYellow",
+        "description": "Faded footprints in the hardened ground"
+      },
+      {
+        "id": "torn_cloth",
+        "name": "Torn Cloth",
+        "glyph": "?",
+        "color": "DarkGray",
+        "description": "A scrap of fabric, sun-faded and fraying"
+      },
+      {
+        "id": "carved_mark",
+        "name": "Carved Mark",
+        "glyph": "×",
+        "color": "LightGray",
+        "description": "A symbol scratched into the ground — a warning?"
+      },
+      {
+        "id": "brine_puddle",
+        "name": "Brine Puddle",
+        "glyph": "○",
+        "color": "DarkCyan",
+        "description": "A shallow pool of concentrated brine"
+      },
+      {
+        "id": "glass_bloom",
+        "name": "Glass Bloom",
+        "glyph": "✦",
+        "color": "LightMagenta",
+        "description": "A cluster of tiny glass crystals, almost beautiful"
+      },
+      {
+        "id": "storm_scar",
+        "name": "Storm Scar",
+        "glyph": "╳",
+        "color": "DarkGray",
+        "description": "A gouge in the earth left by a glass storm"
+      },
+      {
+        "id": "void_stain",
+        "name": "Void Stain",
+        "glyph": "▪",
+        "color": "DarkMagenta",
+        "description": "A dark discoloration — something unnatural happened here"
+      },
+      {
+        "id": "rubble_pile",
+        "name": "Rubble Pile",
+        "glyph": "&",
+        "color": "DarkGray",
+        "description": "Crumbled masonry from a structure long collapsed"
       }
     ]
   },

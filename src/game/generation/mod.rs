@@ -6,6 +6,7 @@ pub mod config;
 pub mod connectivity;
 pub mod constraint_tests;
 pub mod constraints;
+pub mod environmental_props;
 pub mod events;
 pub mod grammar;
 
