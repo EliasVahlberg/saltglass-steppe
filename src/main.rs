@@ -139,7 +139,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             if let Some(interface) = &mut ui.trade_menu.interface
                 && let Some(item) = interface.available_items.get(idx)
             {
-                let trader_id = interface.trader_id.clone();
+                let _trader_id = interface.trader_id.clone();
                 use saltglass_steppe::trading::execute_trade;
                 match execute_trade(
                     interface,
@@ -150,9 +150,6 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 ) {
                     Ok(msg) => {
                         state.log_typed(msg, saltglass_steppe::MsgType::Social);
-                        state.emit(saltglass_steppe::event::GameEvent::TradeCompleted {
-                            npc_id: trader_id,
-                        });
                     }
                     Err(e) => state.log(e),
                 }
@@ -162,7 +159,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             if let Some(interface) = &ui.trade_menu.interface
                 && let Some(item_id) = state.player.inventory.get(idx)
             {
-                let trader_id = interface.trader_id.clone();
+                let _trader_id = interface.trader_id.clone();
                 use saltglass_steppe::trading::execute_sell;
                 match execute_sell(
                     interface,
@@ -173,9 +170,6 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 ) {
                     Ok(msg) => {
                         state.log_typed(msg, saltglass_steppe::MsgType::Social);
-                        state.emit(saltglass_steppe::event::GameEvent::TradeCompleted {
-                            npc_id: trader_id,
-                        });
                     }
                     Err(e) => state.log(e),
                 }

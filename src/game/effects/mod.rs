@@ -109,7 +109,22 @@ pub enum ResourceEffect {
 #[derive(Debug, Clone, PartialEq)]
 pub enum EventEffect {
     OpenBook { book_id: String },
-    EmitGameEvent { event_name: String },
+    /// Bridge: calls LootSystem::drop_loot for the killed enemy
+    LootDrop { enemy_id: String, x: i32, y: i32 },
+    /// Bridge: calls quest_log methods + check_auto_complete + logs completions
+    QuestNotify { kind: QuestNotifyKind },
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum QuestNotifyKind {
+    Kill { enemy_id: String },
+    Collect { item_id: String },
+    Move { x: i32, y: i32 },
+    NpcTalk { npc_id: String },
+    Interact { target_id: String },
+    Examine { target_id: String },
+    AriaInterface { item_id: String },
+    Turn,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -230,7 +245,6 @@ pub enum TurnPhase {
     AdvanceTime,
     UpdateDerives,
     CheckEncounters,
-    ProcessEvents,
 }
 
 impl TurnPhase {
@@ -245,7 +259,6 @@ impl TurnPhase {
             TurnPhase::AdvanceTime,
             TurnPhase::UpdateDerives,
             TurnPhase::CheckEncounters,
-            TurnPhase::ProcessEvents,
         ]
     }
 }

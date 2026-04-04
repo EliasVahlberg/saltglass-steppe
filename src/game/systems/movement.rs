@@ -3,7 +3,6 @@
 use crate::game::{
     action::action_cost,
     adaptation::Adaptation,
-    event::GameEvent,
     item::get_item_def,
     map::Tile,
     npc::DialogueContext,
@@ -87,10 +86,9 @@ impl MovementSystem {
             state.world.npcs[ni].talked = true;
         }
 
-        // Emit event — QuestSystem handles quest progression and completion
-        state.emit(GameEvent::NpcTalkedTo {
-            npc_id: npc_id.clone(),
-        });
+        // Quest progress for NPC talk objectives
+        let completed = state.player.quest_log.on_npc_talked(&npc_id);
+        state.log_quest_completions(&completed);
 
         state.meta.discover_npc(&state.world.npcs[ni].id);
         state.check_auto_end_turn();
@@ -230,9 +228,10 @@ impl MovementSystem {
             }
 
             state.player.inventory.push(id.clone());
-            state.emit(GameEvent::ItemPickedUp {
-                item_id: id.clone(),
-            });
+            // Quest progress for collect objectives
+            state.player.quest_log.on_item_collected(&id);
+            let completed = state.player.quest_log.check_auto_complete();
+            state.log_quest_completions(&completed);
             state.meta.discover_item(&id);
             state.log_typed(format!("Picked up {}.", name), MsgType::Loot);
             picked_up.push(i);

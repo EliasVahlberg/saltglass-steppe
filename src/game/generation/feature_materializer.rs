@@ -135,17 +135,8 @@ fn place_interactable(
     }
 }
 
-fn emit_story_hook(state: &mut GameState, feature: &crate::game::map::MapFeature, params: &Value) {
-    let kind = params
-        .get("kind")
-        .and_then(|v| v.as_str())
-        .unwrap_or("environmental");
-    state.emit(crate::game::event::GameEvent::StoryHook {
-        kind: kind.to_string(),
-        x: feature.x,
-        y: feature.y,
-        context: feature.metadata.clone(),
-    });
+fn emit_story_hook(state: &mut GameState, feature: &crate::game::map::MapFeature, _params: &Value) {
+    state.log(format!("Story hook at ({}, {})", feature.x, feature.y));
 }
 use std::collections::HashSet;
 
@@ -177,9 +168,9 @@ mod tests {
         materialize_features(&mut state, Biome::Desert, Terrain::Flat, POI::None, 1);
 
         let hook = state
-            .event_queue
+            .messages
             .iter()
-            .any(|e| matches!(e, crate::game::event::GameEvent::StoryHook { .. }));
-        assert!(hook, "story hook event should be enqueued");
+            .any(|m| m.text.contains("Story hook"));
+        assert!(hook, "story hook log message should exist");
     }
 }

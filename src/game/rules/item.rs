@@ -101,8 +101,10 @@ pub fn rule_use_item(item_index: usize, ctx: &QueryContext) -> RuleOutput {
             text: "You interface with ARIA...".into(),
             msg_type: "system".into(),
         });
-        effects.push(Effect::Event(EventEffect::EmitGameEvent {
-            event_name: format!("aria_interfaced:{}", def.id),
+        effects.push(Effect::Event(EventEffect::QuestNotify {
+            kind: super::super::effects::QuestNotifyKind::AriaInterface {
+                item_id: def.id.clone(),
+            },
         }));
     }
 
@@ -133,12 +135,6 @@ pub fn rule_use_item(item_index: usize, ctx: &QueryContext) -> RuleOutput {
     if def.void_exposure > 0 {
         effects.push(Effect::Resource(ResourceEffect::GainVoidExposure {
             amount: def.void_exposure,
-        }));
-        effects.push(Effect::Event(EventEffect::EmitGameEvent {
-            event_name: format!(
-                "void_exposure_changed:{}",
-                ctx.player.void_system.void_exposure + def.void_exposure
-            ),
         }));
         presentation.push(Presentation::LogMessage {
             text: format!(
@@ -191,9 +187,6 @@ pub fn rule_use_item(item_index: usize, ctx: &QueryContext) -> RuleOutput {
             x: ctx.player.x,
             y: ctx.player.y,
             frequency: frequency.clone(),
-        }));
-        effects.push(Effect::Event(EventEffect::EmitGameEvent {
-            event_name: format!("crystal_resonance_changed:{}", frequency),
         }));
         presentation.push(Presentation::LogMessage {
             text: format!("A {} crystal grows at your feet!", frequency),

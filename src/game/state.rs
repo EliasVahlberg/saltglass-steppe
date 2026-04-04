@@ -12,7 +12,6 @@ use super::{
     enemy::Enemy,
     entity::Entity,
     equipment::EquipSlot,
-    event::GameEvent,
     generation::place_microstructures,
     generation::{
         distribute_points_grid, generate_loot, get_biome_spawn_table,
@@ -147,8 +146,6 @@ pub struct GameState {
     pub decoys: Vec<Decoy>,
     #[serde(skip)]
     pub spatial: SpatialIndex,
-    #[serde(skip)]
-    pub event_queue: Vec<GameEvent>,
     #[serde(skip)]
     pub debug: DebugState,
     #[serde(skip)]
@@ -520,7 +517,6 @@ impl GameState {
             triggered_effects: Vec::new(),
             decoys: Vec::new(),
             spatial: SpatialIndex { dirty: true, ..Default::default() },
-            event_queue: Vec::new(),
             debug: DebugState::default(),
             pending_ui: PendingUi::default(),
             meta: super::meta::MetaProgress::load(),
@@ -776,10 +772,6 @@ impl GameState {
         if hit {
             self.trigger_hit_flash(target_x, target_y);
             self.spawn_damage_number(target_x, target_y, damage_dealt, false);
-            self.emit(super::event::GameEvent::EnemyDamaged {
-                enemy_idx: self.enemy_at(target_x, target_y).unwrap_or(0),
-                amount: damage_dealt,
-            });
         }
 
         // Swarm aggro
@@ -900,10 +892,6 @@ impl GameState {
         if hit {
             self.trigger_hit_flash(target_x, target_y);
             self.spawn_damage_number(target_x, target_y, damage_dealt, false);
-            self.emit(super::event::GameEvent::EnemyDamaged {
-                enemy_idx: self.enemy_at(target_x, target_y).unwrap_or(0),
-                amount: damage_dealt,
-            });
         }
 
         // Swarm aggro
@@ -1249,15 +1237,9 @@ impl GameState {
     }
 
     /// Run reactions triggered by applied effects. Max cascade depth 10.
+    /// Run reactions triggered by applied effects. Max cascade depth 10.
     ///
-    /// Currently a no-op: Kill → XP is handled directly in the rule output,
-    /// and Kill → loot/quest is handled by the EnemyKilled event emitted in
-    /// the Kill apply arm (processed at end_turn via process_events).
-    /// This preserves RNG ordering — loot rolls happen at end_turn, not
-    /// immediately after the kill.
-    ///
-    /// Future phases can register reactions here when the event system is
-    /// migrated to VERA.
+    /// Kill → loot drop + quest progress via collect_reactions.
     pub fn run_reactions(&mut self, effects: &[super::effects::Effect], depth: u32) {
         if depth >= 10 {
             self.log("Warning: reaction cascade depth limit reached");
@@ -1285,12 +1267,33 @@ impl GameState {
 
     fn collect_reactions(
         &self,
-        _effects: &[super::effects::Effect],
+        effects: &[super::effects::Effect],
     ) -> Vec<(super::effects::Effect, &'static str, super::effects::Effect)> {
-        // Reaction registration point. Each match arm produces
-        // (reaction_effect, reaction_name, triggering_effect).
-        // Currently empty — see run_reactions doc comment for rationale.
-        Vec::new()
+        use super::effects::{CombatEffect, Effect, EventEffect, QuestNotifyKind};
+        let mut results = Vec::new();
+        for effect in effects {
+            if let Effect::Combat(CombatEffect::Kill { enemy_id, x, y, .. }) = effect {
+                results.push((
+                    Effect::Event(EventEffect::LootDrop {
+                        enemy_id: enemy_id.clone(),
+                        x: *x,
+                        y: *y,
+                    }),
+                    "reaction_loot_drop",
+                    effect.clone(),
+                ));
+                results.push((
+                    Effect::Event(EventEffect::QuestNotify {
+                        kind: QuestNotifyKind::Kill {
+                            enemy_id: enemy_id.clone(),
+                        },
+                    }),
+                    "reaction_quest_kill",
+                    effect.clone(),
+                ));
+            }
+        }
+        results
     }
 
     /// Create a new game with a specific character class
@@ -2302,14 +2305,6 @@ impl GameState {
         });
     }
 
-    pub fn emit(&mut self, event: GameEvent) {
-        self.event_queue.push(event);
-    }
-
-    pub fn drain_events(&mut self) -> Vec<GameEvent> {
-        std::mem::take(&mut self.event_queue)
-    }
-
     /// Gain XP and check for level up
     pub fn gain_xp(&mut self, amount: u32) {
         use super::progression::{max_level, stat_points_per_level, xp_for_level};
@@ -2330,9 +2325,6 @@ impl GameState {
                     "⬆ LEVEL {}! (+{} stat points, +2 skill points)",
                     self.player.level, points
                 ));
-                self.emit(GameEvent::LevelUp {
-                    level: self.player.level,
-                });
             } else {
                 break;
             }
@@ -2410,6 +2402,12 @@ impl GameState {
                 let ctx = super::effects::context::QueryContext::from_state(self);
                 let output = super::rules::turn::rule_check_adaptation(&ctx);
                 self.apply_and_trace(output, "rule_check_adaptation");
+                // Quest turn progress (replaces TurnEnded event)
+                let qt = Effect::Event(super::effects::EventEffect::QuestNotify {
+                    kind: super::effects::QuestNotifyKind::Turn,
+                });
+                self.apply_effect(&qt);
+                self.trace.record(&qt, TraceSource::Rule { name: "end_turn" }, self.turn);
             }
             TurnPhase::RunAI => {
                 self.update_enemies();
@@ -2448,95 +2446,16 @@ impl GameState {
                 let output = super::rules::turn::rule_check_encounters(&ctx);
                 self.apply_and_trace(output, "rule_check_encounters");
             }
-            TurnPhase::ProcessEvents => {
-                self.emit(GameEvent::TurnEnded { turn: self.turn });
-                self.process_events();
-            }
-        }
-    }
-
-    /// Process all queued game events
-    /// This enables decoupled communication between systems
-    fn process_events(&mut self) {
-        use super::systems::{LootSystem, QuestSystem, System};
-
-        // Loop to handle cascading events (e.g. QuestCompleted emitted by QuestSystem)
-        let mut iterations = 0;
-        loop {
-            let events = self.drain_events();
-            if events.is_empty() || iterations >= 10 {
-                break;
-            }
-            iterations += 1;
-
-            for event in events {
-                LootSystem.on_event(self, &event);
-                QuestSystem.on_event(self, &event);
-                self.handle_event(&event);
-            }
-        }
-    }
-
-    /// Handle a single game event - internal logging and state updates
-    fn handle_event(&mut self, event: &GameEvent) {
-        match event {
-            GameEvent::EnemyKilled { enemy_id, x, y } => {
-                self.log_typed(
-                    format!("[Event] Enemy '{}' killed at ({}, {})", enemy_id, x, y),
-                    MsgType::System,
-                );
-            }
-            GameEvent::LevelUp { level } => {
-                self.log_typed(
-                    format!("[Event] Player reached level {}!", level),
-                    MsgType::Status,
-                );
-            }
-            GameEvent::ItemPickedUp { .. } => {
-                // Handled by QuestSystem
-            }
-            GameEvent::AdaptationGained { name } => {
-                self.log_typed(
-                    format!("[Event] Gained adaptation: {}", name),
-                    MsgType::Status,
-                );
-            }
-            GameEvent::StormArrived { intensity } => {
-                self.log_typed(
-                    format!("[Event] Storm arrived with intensity {}", intensity),
-                    MsgType::Warning,
-                );
-            }
-            GameEvent::QuestCompleted { quest_id } => {
-                if let Some(def) = crate::game::quest::get_quest_def(quest_id) {
-                    self.log_typed(format!("Quest completed: {}", def.name), MsgType::System);
-                    for unlock_id in &def.reward.unlocks_quests {
-                        if let Some(unlock_def) = crate::game::quest::get_quest_def(unlock_id) {
-                            self.log_typed(
-                                format!("New quest available: {}", unlock_def.name),
-                                MsgType::System,
-                            );
-                        }
-                    }
-                }
-            }
-            _ => {}
         }
     }
 
     /// Apply a status effect to the player
     pub fn apply_status(&mut self, effect: super::status::StatusEffect) {
-        let effect_id = effect.id.clone();
-        let duration = effect.duration;
         self.log_typed(
             format!("You are {}! ({} turns)", effect.name, effect.duration),
             MsgType::System,
         );
         self.player.status_effects.push(effect);
-        self.emit(GameEvent::StatusEffectApplied {
-            effect_id,
-            duration,
-        });
     }
 
     /// Wait in place (costs 0 AP, ends turn). Auto-heals after 10 consecutive waits with no enemies nearby.
@@ -2653,6 +2572,23 @@ impl GameState {
         }
     }
 
+    /// Log quest completion messages and unlock notifications
+    pub fn log_quest_completions(&mut self, completed: &[String]) {
+        for quest_id in completed {
+            if let Some(def) = crate::game::quest::get_quest_def(quest_id) {
+                self.log_typed(format!("Quest completed: {}", def.name), MsgType::System);
+                for unlock_id in &def.reward.unlocks_quests {
+                    if let Some(unlock_def) = crate::game::quest::get_quest_def(unlock_id) {
+                        self.log_typed(
+                            format!("New quest available: {}", unlock_def.name),
+                            MsgType::System,
+                        );
+                    }
+                }
+            }
+        }
+    }
+
     /// Interact with an object at the given position
     pub fn interact_at(&mut self, x: i32, y: i32) {
         self.ensure_spatial_index();
@@ -2665,8 +2601,10 @@ impl GameState {
             if let Some(message) = interactable.interact() {
                 self.log(&message);
 
-                // Emit event — QuestSystem handles quest objectives
-                self.emit(GameEvent::InteractableUsed { interactable_id });
+                // Quest progress for interact objectives
+                self.player.quest_log.on_interact(&interactable_id);
+                let completed = self.player.quest_log.check_auto_complete();
+                self.log_quest_completions(&completed);
 
                 // Mark spatial index as dirty since interactable state changed
                 self.spatial.dirty = true;
@@ -2681,10 +2619,9 @@ impl GameState {
             let npc_name = npc.name().to_string();
             let npc_id = npc.id.clone();
             self.log(format!("You talk to {}.", npc_name));
-            self.emit(GameEvent::NpcTalkedTo {
-                npc_id: npc_id.clone(),
-            });
-            self.emit(GameEvent::DialogueStarted { npc_id });
+            // Quest progress for NPC talk objectives
+            let completed = self.player.quest_log.on_npc_talked(&npc_id);
+            self.log_quest_completions(&completed);
             return;
         }
 
@@ -2712,8 +2649,10 @@ impl GameState {
             if let Some(message) = interactable.examine() {
                 self.log(&message);
 
-                // Emit event — QuestSystem handles quest objectives
-                self.emit(GameEvent::InteractableExamined { interactable_id });
+                // Quest progress for examine objectives
+                self.player.quest_log.on_examine(&interactable_id);
+                let completed = self.player.quest_log.check_auto_complete();
+                self.log_quest_completions(&completed);
                 return;
             }
         }
@@ -2855,9 +2794,6 @@ impl GameState {
             && let Some(adaptation) = super::adaptation::Adaptation::from_id(adaptation_id)
         {
             self.player.adaptations.push(adaptation);
-            self.emit(GameEvent::AdaptationGained {
-                name: adaptation.name().to_string(),
-            });
             self.log(format!("🧬 You gain {}!", adaptation.name()));
         }
     }
@@ -3493,10 +3429,6 @@ impl GameState {
             .insert(faction.to_string(), new_rep);
 
         if delta != 0 {
-            self.emit(GameEvent::FactionReputationChanged {
-                faction_id: faction.to_string(),
-                delta,
-            });
             let change_desc = if delta > 0 { "improved" } else { "worsened" };
             self.log_typed(
                 format!("Your reputation with {} has {}.", faction, change_desc),
@@ -3531,10 +3463,6 @@ impl GameState {
                 .push(super::status::StatusEffect::new(effect_id, duration));
         }
 
-        self.emit(GameEvent::StatusEffectApplied {
-            effect_id: effect_id.to_string(),
-            duration,
-        });
         self.log_typed(
             format!("You are affected by {}.", effect_id),
             MsgType::Combat,

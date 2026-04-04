@@ -82,12 +82,9 @@ pub fn rule_move(dx: i32, dy: i32, ctx: &QueryContext, rng: &mut ChaCha8Rng) -> 
     let tile_idx = new_y as usize * ctx.map.width + new_x as usize;
     effects.push(Effect::Map(MapEffect::ClearStormHighlight { tile_index: tile_idx }));
 
-    // Emit movement event
-    effects.push(Effect::Event(EventEffect::EmitGameEvent {
-        event_name: format!(
-            "player_moved:{},{},{},{}",
-            ctx.player.x, ctx.player.y, new_x, new_y
-        ),
+    // Notify quest system of movement
+    effects.push(Effect::Event(EventEffect::QuestNotify {
+        kind: super::super::effects::QuestNotifyKind::Move { x: new_x, y: new_y },
     }));
 
     // Tile effects

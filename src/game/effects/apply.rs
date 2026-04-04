@@ -64,9 +64,6 @@ impl GameState {
                             format!("⬆ LEVEL {}! (+{} stat points, +2 skill points)", self.player.level, points),
                             MsgType::System,
                         );
-                        self.emit(crate::game::event::GameEvent::LevelUp {
-                            level: self.player.level,
-                        });
                     } else {
                         break;
                     }
@@ -107,20 +104,11 @@ impl GameState {
                 let points = crate::game::progression::stat_points_per_level();
                 self.player.pending_stat_points += points;
                 self.player.skills.skill_points += 2;
-                self.emit(crate::game::event::GameEvent::LevelUp {
-                    level: self.player.level,
-                });
             }
             PlayerEffect::ModifyReputation { faction, delta } => {
                 let current = self.player.faction_reputation.get(faction.as_str()).copied().unwrap_or(0);
                 let new_rep = (current + delta).clamp(-100, 100);
                 self.player.faction_reputation.insert(faction.clone(), new_rep);
-                if *delta != 0 {
-                    self.emit(crate::game::event::GameEvent::FactionReputationChanged {
-                        faction_id: faction.clone(),
-                        delta: *delta,
-                    });
-                }
             }
             PlayerEffect::ApplyStatusEffect { effect_id, duration } => {
                 self.apply_status(crate::game::status::StatusEffect::new(effect_id, *duration));
@@ -170,10 +158,11 @@ impl GameState {
             }
             PlayerEffect::GainAdaptation { adaptation_id } => {
                 if let Some(adaptation) = crate::game::adaptation::Adaptation::from_id(adaptation_id) {
+                    self.log_typed(
+                        format!("Gained adaptation: {}", adaptation.name()),
+                        MsgType::Status,
+                    );
                     self.player.adaptations.push(adaptation);
-                    self.emit(crate::game::event::GameEvent::AdaptationGained {
-                        name: adaptation.name().to_string(),
-                    });
                 }
             }
         }
@@ -190,11 +179,6 @@ impl GameState {
             CombatEffect::Kill { enemy_id, x, y, .. } => {
                 self.spatial.enemy_positions.remove(&(*x, *y));
                 self.meta.discover_enemy(enemy_id);
-                self.emit(crate::game::event::GameEvent::EnemyKilled {
-                    enemy_id: enemy_id.clone(),
-                    x: *x,
-                    y: *y,
-                });
             }
             CombatEffect::Provoke { enemy_idx } => {
                 if let Some(enemy) = self.world.enemies.get_mut(*enemy_idx) {
@@ -338,47 +322,45 @@ impl GameState {
             EventEffect::OpenBook { book_id } => {
                 self.pending_ui.book_open = Some(book_id.clone());
             }
-            EventEffect::EmitGameEvent { event_name } => {
-                // Parse and emit known game events
-                if event_name.starts_with("player_moved:") {
-                    let parts: Vec<&str> =
-                        event_name.trim_start_matches("player_moved:").split(',').collect();
-                    if parts.len() == 4
-                        && let (Ok(fx), Ok(fy), Ok(tx), Ok(ty)) = (
-                            parts[0].parse::<i32>(),
-                            parts[1].parse::<i32>(),
-                            parts[2].parse::<i32>(),
-                            parts[3].parse::<i32>(),
-                        )
-                    {
-                        self.emit(crate::game::event::GameEvent::PlayerMoved {
-                            from_x: fx,
-                            from_y: fy,
-                            to_x: tx,
-                            to_y: ty,
-                        });
+            EventEffect::LootDrop { enemy_id, x, y } => {
+                crate::game::systems::LootSystem::handle_enemy_death(self, enemy_id, *x, *y);
+            }
+            EventEffect::QuestNotify { kind } => {
+                use super::QuestNotifyKind;
+                let completed = match kind {
+                    QuestNotifyKind::Kill { enemy_id } => {
+                        self.player.quest_log.on_enemy_killed(enemy_id);
+                        self.player.quest_log.check_auto_complete()
                     }
-                } else if event_name.starts_with("aria_interfaced:") {
-                    let item_id = event_name.trim_start_matches("aria_interfaced:").to_string();
-                    self.emit(crate::game::event::GameEvent::AriaInterfaced { item_id });
-                } else if event_name.starts_with("item_used:") {
-                    let item_id = event_name.trim_start_matches("item_used:").to_string();
-                    self.emit(crate::game::event::GameEvent::ItemUsed { item_id });
-                } else if event_name.starts_with("void_exposure_changed:") {
-                    if let Ok(level) = event_name
-                        .trim_start_matches("void_exposure_changed:")
-                        .parse::<u32>()
-                    {
-                        self.emit(crate::game::event::GameEvent::VoidExposureChanged { level });
+                    QuestNotifyKind::Collect { item_id } => {
+                        self.player.quest_log.on_item_collected(item_id);
+                        self.player.quest_log.check_auto_complete()
                     }
-                } else if event_name.starts_with("crystal_resonance_changed:") {
-                    let frequency = event_name
-                        .trim_start_matches("crystal_resonance_changed:")
-                        .to_string();
-                    self.emit(crate::game::event::GameEvent::CrystalResonanceChanged {
-                        frequency,
-                    });
-                }
+                    QuestNotifyKind::Move { x, y } => {
+                        self.player.quest_log.on_position_changed(*x, *y);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::NpcTalk { npc_id } => {
+                        self.player.quest_log.on_npc_talked(npc_id)
+                    }
+                    QuestNotifyKind::Interact { target_id } => {
+                        self.player.quest_log.on_interact(target_id);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::Examine { target_id } => {
+                        self.player.quest_log.on_examine(target_id);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::AriaInterface { item_id } => {
+                        self.player.quest_log.on_aria_interfaced(item_id);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::Turn => {
+                        self.player.quest_log.on_turn_passed();
+                        self.player.quest_log.check_auto_complete()
+                    }
+                };
+                self.log_quest_completions(&completed);
             }
         }
     }

@@ -43,17 +43,7 @@ impl StatusEffectSystem {
             state.player.hp -= total_damage;
         }
 
-        let expired: Vec<String> = state
-            .player
-            .status_effects
-            .iter()
-            .filter(|e| e.is_expired())
-            .map(|e| e.id.clone())
-            .collect();
         state.player.status_effects.retain(|e| !e.is_expired());
-        for effect_id in expired {
-            state.emit(GameEvent::StatusEffectExpired { effect_id });
-        }
     }
 
     /// Tick all enemy status effects
@@ -101,7 +91,11 @@ impl StatusEffectSystem {
                 MsgType::Combat,
             );
 
-            state.emit(GameEvent::EnemyKilled { enemy_id, x, y });
+            // Loot drop + quest progress (replaces event system)
+            super::loot::LootSystem::handle_enemy_death(state, &enemy_id, x, y);
+            state.player.quest_log.on_enemy_killed(&enemy_id);
+            let completed = state.player.quest_log.check_auto_complete();
+            state.log_quest_completions(&completed);
         }
     }
 

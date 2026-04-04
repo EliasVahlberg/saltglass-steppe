@@ -22,7 +22,7 @@ impl System for LootSystem {
 
 impl LootSystem {
     /// Handle loot drop when an enemy is killed
-    fn handle_enemy_death(state: &mut GameState, enemy_id: &str, x: i32, y: i32) {
+    pub fn handle_enemy_death(state: &mut GameState, enemy_id: &str, x: i32, y: i32) {
         let Some(def) = get_enemy_def(enemy_id) else {
             return;
         };

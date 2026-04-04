@@ -58,9 +58,12 @@ impl StormSystem {
         // Spawn storm enemies on glass tiles
         Self::spawn_storm_enemies(state);
 
-        // Emit event and forecast next storm
+        // Log storm arrival and forecast next storm
         let intensity = state.world.storm.intensity;
-        state.emit(GameEvent::StormArrived { intensity });
+        state.log_typed(
+            format!("A glass storm arrives with intensity {}!", intensity),
+            MsgType::Warning,
+        );
         state.world.storm = Storm::forecast(&mut state.rng);
         state.update_fov();
         state.update_lighting();
