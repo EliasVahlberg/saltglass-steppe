@@ -311,7 +311,7 @@ fn execute_dialogue_action(action: &DialogueAction, game_state: &mut crate::game
             if let Some(trader_id) = action.parameters.get("trader_id")
                 && let Some(trader_id_str) = trader_id.as_str()
             {
-                game_state.pending_trade = Some(trader_id_str.to_string());
+                game_state.pending_ui.trade = Some(trader_id_str.to_string());
             }
         }
         "reputation_change" => {

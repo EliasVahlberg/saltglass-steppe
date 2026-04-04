@@ -91,7 +91,7 @@ impl StormSystem {
                     .world
                     .enemies
                     .push(Enemy::new(x, y, "refraction_wraith"));
-                state.enemy_positions.insert((x, y), enemy_idx);
+                state.spatial.enemy_positions.insert((x, y), enemy_idx);
                 state.log("A wraith coalesces from the storm's edge.");
             }
         }

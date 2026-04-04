@@ -9,11 +9,11 @@ pub fn execute(state: &mut super::state::GameState, cmd: &str) {
     let parts: Vec<&str> = cmd.split_whitespace().collect();
     match parts.first().copied() {
         Some("show") if parts.get(1) == Some(&"tile") => {
-            state.debug_god_view = true;
+            state.debug.god_view = true;
             state.log("Debug: God view enabled");
         }
         Some("hide") if parts.get(1) == Some(&"tile") => {
-            state.debug_god_view = false;
+            state.debug.god_view = false;
             state.log("Debug: God view disabled");
         }
         Some("sturdy") => {
@@ -22,10 +22,10 @@ pub fn execute(state: &mut super::state::GameState, cmd: &str) {
             state.log("Debug: HP set to 9999/9999");
         }
         Some("phase") => {
-            state.debug_phase = !state.debug_phase;
+            state.debug.phase = !state.debug.phase;
             state.log(format!(
                 "Debug: Phase {}",
-                if state.debug_phase {
+                if state.debug.phase {
                     "enabled"
                 } else {
                     "disabled"

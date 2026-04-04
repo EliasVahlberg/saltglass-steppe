@@ -950,7 +950,7 @@ impl DesExecutor {
         if let Some(val) = scenario.variables.get("debug_disable_glare")
             && val.as_bool().unwrap_or(false)
         {
-            state.debug_disable_glare = true;
+            state.debug.disable_glare = true;
         }
 
         if let Some(hp) = scenario.player.hp {
@@ -1036,8 +1036,11 @@ impl DesExecutor {
         state.update_lighting();
 
         // Apply mock settings
-        state.mock_combat_hit = scenario.mocks.combat_always_hit;
-        state.mock_combat_damage = scenario.mocks.combat_fixed_damage;
+        state.debug.mock_combat_hit = scenario.mocks.combat_always_hit;
+        state.debug.mock_combat_damage = scenario.mocks.combat_fixed_damage;
+
+        // Enable VERA trace for DES runs
+        state.trace.enabled = true;
 
         Self {
             state,
@@ -1244,6 +1247,12 @@ impl DesExecutor {
 
     fn check_assertion(&mut self, assertion: &Assertion) {
         let passed = self.evaluate_check(&assertion.check);
+        if !passed && self.state.trace.enabled && !self.state.trace.entries.is_empty() {
+            eprintln!(
+                "TRACE for failed assertion {:?}:\n{}",
+                assertion.check, self.state.trace
+            );
+        }
         self.assertion_results.push(AssertionResult {
             passed,
             check: format!("{:?}", assertion.check),
@@ -1590,7 +1599,7 @@ impl DesExecutor {
             }
             // Book assertions
             AssertionCheck::PendingBookOpen { book_id } => {
-                self.state.pending_book_open.as_ref() == Some(book_id)
+                self.state.pending_ui.book_open.as_ref() == Some(book_id)
             }
 
             // Trading assertions
@@ -1622,7 +1631,7 @@ impl DesExecutor {
                 .unwrap_or(false),
             AssertionCheck::DialogueEnded => self.current_dialogue.is_none(),
             AssertionCheck::PendingTrade { trader_id } => {
-                self.state.pending_trade.as_ref() == Some(trader_id)
+                self.state.pending_ui.trade.as_ref() == Some(trader_id)
             }
             AssertionCheck::AreaTier { op, value } => {
                 let tier = crate::game::trading::calculate_area_tier(&self.state.world.enemies);
@@ -1700,7 +1709,10 @@ impl DesExecutor {
     fn execute_player_action(&mut self, action: &Action) {
         match action {
             Action::Move { dx, dy } => {
-                self.state.try_move(*dx, *dy);
+                self.state.dispatch(crate::game::effects::Command::Move {
+                    dx: *dx,
+                    dy: *dy,
+                });
                 self.log(format!("Player moved ({}, {})", dx, dy));
             }
             Action::Teleport { x, y } => {
@@ -1730,15 +1742,17 @@ impl DesExecutor {
                 self.log(format!("Player teleported to ({}, {})", x, y));
             }
             Action::Attack { target_x, target_y } => {
-                let dx = target_x - self.state.player.x;
-                let dy = target_y - self.state.player.y;
-                if dx.abs() <= 1 && dy.abs() <= 1 {
-                    self.state.try_move(dx, dy);
-                    self.log(format!("Player attacked ({}, {})", target_x, target_y));
-                }
+                self.state.dispatch(crate::game::effects::Command::Attack {
+                    target_x: *target_x,
+                    target_y: *target_y,
+                });
+                self.log(format!("Player attacked ({}, {})", target_x, target_y));
             }
             Action::RangedAttack { target_x, target_y } => {
-                self.state.try_ranged_attack(*target_x, *target_y);
+                self.state.dispatch(crate::game::effects::Command::RangedAttack {
+                    target_x: *target_x,
+                    target_y: *target_y,
+                });
                 self.log(format!("Player ranged attack ({}, {})", target_x, target_y));
             }
             Action::ApplyStatus {
@@ -1754,11 +1768,17 @@ impl DesExecutor {
                 }
             }
             Action::UseItem { item_index } => {
-                self.state.use_item(*item_index);
+                self.state.dispatch(crate::game::effects::Command::UseItem {
+                    index: *item_index,
+                });
                 self.log(format!("Player used item at index {}", item_index));
             }
             Action::UseItemOn { item_index, x, y } => {
-                self.state.use_item_on_tile(*item_index, *x, *y);
+                self.state.dispatch(crate::game::effects::Command::UseItemOnTile {
+                    index: *item_index,
+                    x: *x,
+                    y: *y,
+                });
                 self.log(format!("Player used item {} on ({}, {})", item_index, x, y));
             }
             Action::Equip { item_index, slot } => {
@@ -2400,7 +2420,7 @@ mod tests {
         }"#;
         let result = run_scenario_json(json).unwrap();
         let state = result.final_state.as_ref().unwrap();
-        eprintln!("Mock hit setting: {:?}", state.mock_combat_hit);
+        eprintln!("Mock hit setting: {:?}", state.debug.mock_combat_hit);
         // Find enemy at target position
         let enemy = state.world.enemies.iter().find(|e| e.x == 6 && e.y == 5);
         eprintln!("Enemy at (6,5): {:?}", enemy.map(|e| (e.id.as_str(), e.hp)));

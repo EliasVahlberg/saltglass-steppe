@@ -52,8 +52,8 @@ impl TileRenderer {
                 }
 
                 let idx = state.world.map.idx(x, y);
-                let visible = state.visible.contains(&idx) || state.debug_god_view;
-                let revealed = state.revealed.contains(&idx) || state.debug_god_view;
+                let visible = state.visible.contains(&idx) || state.debug.god_view;
+                let revealed = state.revealed.contains(&idx) || state.debug.god_view;
 
                 let span = if visible {
                     self.render_visible_tile(state, x, y, idx, light_map, frame_count)

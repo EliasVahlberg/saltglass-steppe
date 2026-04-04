@@ -48,7 +48,7 @@ impl EntityRenderer {
         }
 
         // Render enemies
-        for (pos, &enemy_idx) in &state.enemy_positions {
+        for (pos, &enemy_idx) in &state.spatial.enemy_positions {
             if let Some((screen_x, screen_y)) =
                 self.world_to_screen(pos.0, pos.1, cam_x, cam_y, view_width, view_height)
                 && let Some(span) =
@@ -59,7 +59,7 @@ impl EntityRenderer {
         }
 
         // Render NPCs
-        for (pos, &npc_idx) in &state.npc_positions {
+        for (pos, &npc_idx) in &state.spatial.npc_positions {
             if let Some((screen_x, screen_y)) =
                 self.world_to_screen(pos.0, pos.1, cam_x, cam_y, view_width, view_height)
                 && let Some(span) =
@@ -70,7 +70,7 @@ impl EntityRenderer {
         }
 
         // Render items
-        for (pos, item_indices) in &state.item_positions {
+        for (pos, item_indices) in &state.spatial.item_positions {
             if let Some((screen_x, screen_y)) =
                 self.world_to_screen(pos.0, pos.1, cam_x, cam_y, view_width, view_height)
                 && let Some(span) =
@@ -125,7 +125,7 @@ impl EntityRenderer {
         let visible = state
             .visible
             .contains(&state.world.map.idx(state.player.x, state.player.y))
-            || state.debug_god_view;
+            || state.debug.god_view;
         if !visible {
             return None;
         }
@@ -271,7 +271,7 @@ impl EntityRenderer {
         light_map: &[u8],
         frame_count: u64,
     ) -> Option<Span<'_>> {
-        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug_god_view;
+        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug.god_view;
         if !visible {
             return None;
         }
@@ -329,7 +329,7 @@ impl EntityRenderer {
         light_map: &[u8],
         _frame_count: u64,
     ) -> Option<Span<'_>> {
-        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug_god_view;
+        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug.god_view;
         if !visible {
             return None;
         }
@@ -360,7 +360,7 @@ impl EntityRenderer {
         light_map: &[u8],
         _frame_count: u64,
     ) -> Option<Span<'_>> {
-        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug_god_view;
+        let visible = state.visible.contains(&state.world.map.idx(x, y)) || state.debug.god_view;
         if !visible {
             return None;
         }

@@ -1,22 +1,11 @@
 //! Combat action methods for GameState
 
 use super::{
-    action::action_cost, adaptation::total_stat_modifiers, combat::CombatResult,
+    action::action_cost, adaptation::total_stat_modifiers,
     item::get_item_def, map::Tile, state::GameState, systems::ai::AiSystem,
-    systems::combat::CombatSystem,
 };
 
 impl GameState {
-    /// Melee attack against enemy at position
-    pub fn attack_melee(&mut self, target_x: i32, target_y: i32) -> bool {
-        CombatSystem::attack_melee(self, target_x, target_y)
-    }
-
-    /// Ranged attack at target position
-    pub fn try_ranged_attack(&mut self, target_x: i32, target_y: i32) -> bool {
-        CombatSystem::ranged_attack(self, target_x, target_y)
-    }
-
     /// Break a wall at position (requires tool)
     pub fn try_break_wall(&mut self, x: i32, y: i32) -> bool {
         let has_pick = self
@@ -59,23 +48,6 @@ impl GameState {
         }
         self.log("Nothing to break there.");
         false
-    }
-
-    // Helper for tests/mocks - delegated to CombatSystem if needed, but for now we keep the fields in GameState
-    // and CombatSystem reads them.
-    pub fn apply_combat_mocks(&self, mut result: CombatResult) -> CombatResult {
-        if let Some(force_hit) = self.mock_combat_hit {
-            result.hit = force_hit;
-            if !force_hit {
-                result.damage = 0;
-            }
-        }
-        if let Some(dmg) = self.mock_combat_damage
-            && result.hit
-        {
-            result.damage = dmg;
-        }
-        result
     }
 
     /// Get effective player armor (base + equipment + adaptations)

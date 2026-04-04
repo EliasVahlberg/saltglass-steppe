@@ -1,0 +1,27 @@
+"ratatui-expert": {
+      "command": "/home/elias/Documents/mcp_servers/mindsdb-mcp-server/venv/mindsdb-mcp-venv/bin/python3.12",
+      "args": [
+        "/home/elias/Documents/mcp_servers/mindsdb-mcp-server/mcp_ratatui_server_v2.py"
+      ],
+      "env": {
+        "MINDSDB_AGENT": "ratatui_expert_v2",
+        "MINDSDB_KB": "ratatui_csv_kb"
+      }
+    },
+    "game-project-expert": {
+      "command": "/home/elias/Documents/mcp_servers/mindsdb-mcp-server/venv/mindsdb-mcp-venv/bin/python3.12",
+      "args": [
+        "/home/elias/Documents/mcp_servers/mindsdb-mcp-server/mcp_game_proj_server.py"
+      ],
+      "env": {
+        "MINDSDB_AGENT": "game_proj_expert",
+        "MINDSDB_KB": "github_game_proj_kb"
+      }
+    },
+    "ratatui-direct-kb": {
+      "command": "/home/elias/Documents/mcp_servers/mindsdb-mcp-server/venv/mindsdb-mcp-venv/bin/python3.12",
+      "args": [
+        "/home/elias/Documents/mcp_servers/mindsdb-mcp-server/mcp_direct_kb_server.py"
+      ],
+      "env": {}
+    }

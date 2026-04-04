@@ -42,7 +42,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             }
         }
         Action::Save => {
-            if state.test_mode {
+            if state.debug.test_mode {
                 state.log("Cannot save in test mode.");
             } else {
                 state.world.saved_on_world_map = ui.world_map_view.open;
@@ -68,7 +68,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         },
         Action::UseItem(idx) => {
             if state.player.hp > 0 {
-                state.use_item(idx);
+                state.dispatch(saltglass_steppe::game::effects::Command::UseItem { index: idx });
                 ui.inventory_menu.close();
             }
         }
@@ -79,7 +79,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 if let Some(ei) = state.enemy_at(new_x, new_y) {
                     ui.target_enemy = Some(ei);
                 }
-                state.try_move(dx, dy);
+                state.dispatch(saltglass_steppe::game::effects::Command::Move { dx, dy });
             }
         }
         Action::EndTurn => {
@@ -103,7 +103,10 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 if let Some(ei) = state.enemy_at(x, y) {
                     ui.target_enemy = Some(ei);
                 }
-                state.try_ranged_attack(x, y);
+                state.dispatch(saltglass_steppe::game::effects::Command::RangedAttack {
+                    target_x: x,
+                    target_y: y,
+                });
             }
         }
         Action::SetTarget(x, y) => {
@@ -230,7 +233,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::OpenChest(_) => {
             // Check if player is standing on a chest
-            if let Some(&chest_idx) = state.chest_positions.get(&(state.player.x, state.player.y)) {
+            if let Some(&chest_idx) = state.spatial.chest_positions.get(&(state.player.x, state.player.y)) {
                 if state.open_chest(chest_idx) {
                     ui.chest_ui = Some(saltglass_steppe::ui::ChestUI::new(chest_idx));
                 }
@@ -664,7 +667,7 @@ fn run_main_game() -> Result<()> {
                     let params = cfg.to_tile_params();
                     let seed = params.seed;
                     let mut state = GameState::new_with_class(seed, "wanderer");
-                    state.test_mode = true;
+                    state.debug.test_mode = true;
                     state.load_test_tile(params);
                     if let SessionOutcome::Quit =
                         run_game_session(&mut terminal, &mut renderer, state, |_, _| {})?
@@ -717,8 +720,8 @@ fn run_main_game() -> Result<()> {
                 turn: state.turn,
                 storm_countdown: state.world.storm.turns_until as i32,
                 adaptations,
-                god_view: state.debug_god_view,
-                phase_mode: state.debug_phase,
+                god_view: state.debug.god_view,
+                phase_mode: state.debug.phase,
             });
             let equipped_items: Vec<String> = [
                 ("Weapon", &state.player.equipment.weapon),
@@ -765,8 +768,8 @@ fn run_main_game() -> Result<()> {
                 seed: state.seed,
                 tile_seed,
                 world_pos: (state.world.world_x, state.world.world_y),
-                god_view: state.debug_god_view,
-                phase_mode: state.debug_phase,
+                god_view: state.debug.god_view,
+                phase_mode: state.debug.phase,
             });
             while let Some(message) = ipc_server.try_recv_message() {
                 if let IpcMessage::Command { action } = message {

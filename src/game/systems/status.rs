@@ -92,7 +92,7 @@ impl StatusEffectSystem {
             let x = state.world.enemies[idx].x;
             let y = state.world.enemies[idx].y;
 
-            state.enemy_positions.remove(&(x, y));
+            state.spatial.enemy_positions.remove(&(x, y));
             state.log_typed(
                 format!(
                     "The {} succumbs to status effects!",

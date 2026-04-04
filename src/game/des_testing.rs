@@ -143,7 +143,7 @@ impl DesTest {
                     let dx: i32 = action.parameters[0].parse()?;
                     let dy: i32 = action.parameters[1].parse()?;
                     let old_pos = (state.player_x(), state.player_y());
-                    state.try_move(dx, dy);
+                    state.dispatch(crate::game::effects::Command::Move { dx, dy });
                     Ok(format!(
                         "Moved from ({},{}) to ({},{})",
                         old_pos.0,
@@ -160,7 +160,7 @@ impl DesTest {
                     let idx: usize = action.parameters[0].parse()?;
                     if idx < state.player.inventory.len() {
                         let item_id = state.player.inventory[idx].clone();
-                        state.use_item(idx);
+                        state.dispatch(crate::game::effects::Command::UseItem { index: idx });
                         Ok(format!("Used item: {}", item_id))
                     } else {
                         Err(format!("Item index {} out of range", idx).into())

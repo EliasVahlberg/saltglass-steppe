@@ -7,6 +7,7 @@ commit: e0d1fe7
 # System Status Registry
 
 > **Purpose**: Single source of truth for what actually works in gameplay. Read this before working on any system.
+> **Architecture**: VERA (Verified Effect-Rule Architecture) — see `docs/development/architecture_refactor/FINAL_ARCHITECTURE.md`
 > **Last verified**: 2026-04-04 (from codebase health audit)
 > **Rule**: If a system isn't marked ✅, don't assume it works. Verify before building on it.
 

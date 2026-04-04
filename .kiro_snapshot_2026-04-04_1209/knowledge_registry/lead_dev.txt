@@ -1,0 +1,6 @@
+/knowledge add --name "ratatui-knowledge" --path /home/elias/Documents/knowledge_bases/agent_data/ratatui-expert --index-type Best
+/knowledge add --name "saltglass-docs-snapshot" --path "/home/elias/Documents/knowledge_bases/saltglass-documentation-snapshot" --index-type Best
+/knowledge add --name "game-dev-books" --path "/home/elias/Documents/knowledge_bases/game-development-book-resources" --index-type Best
+/knowledge add --name "game-docs-best" --path /home/elias/Documents/knowledge_bases/agent_data/game-project-expert-docs --include "**/*.md" --include "**/README*" --include "**/CHANGELOG*" --include "**/*.txt" --include "**/*.sql" --index-type Best
+/knowledge add --name "game-source-fast" --path /home/elias/Documents/knowledge_bases/agent_data/game-project-expert-source --include "**/*.rs" --include "**/*.cpp" --include "**/*.h" --include "**/*.toml" --include "**/*.json" --index-type Fast
+/knowledge add --name "bracket-lib-complete" --path /home/elias/Documents/knowledge_bases/bracket-lib --include "**/*.rs" --include "**/*.md" --include "**/*.toml" --include "**/README*" --include "**/CHANGELOG*" --exclude "**/.git/**" --exclude "**/target/**" --exclude "**/node_modules/**" --index-type Best

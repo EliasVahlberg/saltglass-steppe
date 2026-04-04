@@ -168,7 +168,7 @@ pub fn render_map(
                 idx,
                 player_effects,
                 frame_count,
-                state.debug_god_view,
+                state.debug.god_view,
             );
             let style = if is_look_cursor {
                 style.bg(Color::White).fg(Color::Black)
@@ -280,7 +280,7 @@ fn render_tile(
     }
 
     // Enemy
-    if let Some(&ei) = state.enemy_positions.get(&(x as i32, y as i32)) {
+    if let Some(&ei) = state.spatial.enemy_positions.get(&(x as i32, y as i32)) {
         let e = &state.world.enemies[ei];
         if visible {
             // Hit flash takes priority
@@ -352,7 +352,7 @@ fn render_tile(
     }
 
     // NPC
-    if let Some(&ni) = state.npc_positions.get(&(x as i32, y as i32)) {
+    if let Some(&ni) = state.spatial.npc_positions.get(&(x as i32, y as i32)) {
         let npc = &state.world.npcs[ni];
         if visible {
             let light = state.get_light_level(x as i32, y as i32);
@@ -370,7 +370,7 @@ fn render_tile(
     }
 
     // Item
-    if let Some(items) = state.item_positions.get(&(x as i32, y as i32)) {
+    if let Some(items) = state.spatial.item_positions.get(&(x as i32, y as i32)) {
         let item = &state.world.items[items[0]];
         if visible {
             let light = state.get_light_level(x as i32, y as i32);

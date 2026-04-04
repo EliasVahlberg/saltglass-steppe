@@ -40,7 +40,7 @@ mod lib_tests {
         let mut state = GameState::new(42);
         let start_x = state.player_x();
         for _ in 0..100 {
-            state.try_move(-1, 0);
+            state.dispatch(crate::game::effects::Command::Move { dx: -1, dy: 0 });
         }
         let tile = state.world.map.get(state.player_x() - 1, state.player_y());
         if let Some(t) = tile
@@ -105,7 +105,7 @@ mod lib_tests {
             // Try attack multiple times to ensure at least one hit
             for _ in 0..5 {
                 state.player.ap = 4; // Reset AP
-                state.try_move(1, 0);
+                state.dispatch(crate::game::effects::Command::Move { dx: 1, dy: 0 });
                 state.player.x = ex - 1; // Reset position for next attempt
             }
             // With 90% accuracy and 5 attempts, very unlikely to miss all
@@ -140,8 +140,9 @@ mod lib_tests {
         let idx = state.world.map.idx(state.player_x() + 1, state.player_y());
         state.world.map.tiles[idx] = Tile::Glass;
         let initial_refraction = state.player.refraction;
-        let moved = state.try_move(1, 0);
-        assert!(moved, "Player should be able to move onto glass tile");
+        let old_x = state.player_x();
+        state.dispatch(crate::game::effects::Command::Move { dx: 1, dy: 0 });
+        assert_ne!(state.player_x(), old_x, "Player should be able to move onto glass tile");
         assert!(
             state.player.refraction > initial_refraction,
             "Refraction should increase after walking on glass"
@@ -155,7 +156,7 @@ mod lib_tests {
         let idx = state.world.map.idx(state.player_x() + 1, state.player_y());
         state.world.map.tiles[idx] = Tile::Glass;
         let initial_hp = state.player_hp();
-        state.try_move(1, 0);
+        state.dispatch(crate::game::effects::Command::Move { dx: 1, dy: 0 });
         assert_eq!(state.player_hp(), initial_hp);
     }
 
@@ -189,8 +190,9 @@ mod lib_tests {
         state.rebuild_spatial_index();
         assert_eq!(state.world.items.len(), 1);
         // Move onto item
-        let moved = state.try_move(1, 0);
-        assert!(moved, "Player should be able to move onto the item tile");
+        let old_x = state.player_x();
+        state.dispatch(crate::game::effects::Command::Move { dx: 1, dy: 0 });
+        assert_ne!(state.player_x(), old_x, "Player should be able to move onto the item tile");
         // Item should be removed from map
         assert_eq!(
             state.world.items.len(),
@@ -223,7 +225,7 @@ mod lib_tests {
         let mut state = GameState::new(42);
         state.player.hp = 10;
         state.player.inventory.push("brine_vial".to_string());
-        state.use_item(0);
+        state.dispatch(crate::game::effects::Command::UseItem { index: 0 });
         assert_eq!(state.player_hp(), 15);
     }
 
@@ -280,7 +282,7 @@ mod lib_tests {
         );
 
         // Bump into NPC
-        state.try_move(1, 0);
+        state.dispatch(crate::game::effects::Command::Move { dx: 1, dy: 0 });
 
         assert!(
             state.world.npcs[npc_idx].talked,

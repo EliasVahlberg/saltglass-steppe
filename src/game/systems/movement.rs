@@ -7,32 +7,15 @@ use crate::game::{
     item::get_item_def,
     map::Tile,
     npc::DialogueContext,
-    state::{Decoy, GameState, MsgType},
+    state::{GameState, MsgType},
 };
-use rand::Rng;
 
 pub struct MovementSystem;
 
 impl MovementSystem {
-    /// Main entry point for player movement
-    /// Returns true if action was taken (even if blocked), false if invalid
-    pub fn try_move(state: &mut GameState, dx: i32, dy: i32) -> bool {
-        state.wait_counter = 0; // Reset auto-rest counter on movement
-        let new_x = state.player.x + dx;
-        let new_y = state.player.y + dy;
-
-        // Check for NPC interaction first
-        if Self::handle_npc_interaction(state, new_x, new_y) {
-            return true;
-        }
-
-        // Check for enemy combat
-        if Self::handle_enemy_combat(state, new_x, new_y) {
-            return true;
-        }
-
-        // Handle actual movement
-        Self::handle_movement(state, new_x, new_y)
+    /// Legacy NPC interaction — called from dispatch() for Phase 2 bridge
+    pub fn handle_npc_interaction_legacy(state: &mut GameState, new_x: i32, new_y: i32) {
+        Self::handle_npc_interaction(state, new_x, new_y);
     }
 
     /// Handle NPC bump-to-talk interaction
@@ -80,7 +63,7 @@ impl MovementSystem {
                 crate::game::dialogue::start_aria_dialogue(&npc_id, personality, state)
         {
             // Set up ARIA interface instead of regular dialogue
-            state.pending_aria_dialogue = Some((aria_text, aria_options));
+            state.pending_ui.aria_dialogue = Some((aria_text, aria_options));
             state.log_typed(
                 format!("ARIA Terminal activated: {}", name),
                 MsgType::System,
@@ -89,7 +72,7 @@ impl MovementSystem {
         }
 
         // Store pending dialogue for UI
-        state.pending_dialogue = Some((name.clone(), dialogue.clone()));
+        state.pending_ui.dialogue = Some((name.clone(), dialogue.clone()));
         state.log_typed(
             format!("{}: \"{}\"", name, dialogue.replace("</nextpage>", " ")),
             MsgType::Dialogue,
@@ -165,137 +148,16 @@ impl MovementSystem {
             }
             // Trade action
             if action.effect.trade == Some(true) {
-                state.pending_trade = Some(npc_id.to_string());
+                state.pending_ui.trade = Some(npc_id.to_string());
                 state.log_typed("The merchant opens their wares.", MsgType::Social);
                 return;
             }
         }
     }
 
-    /// Handle enemy bump-to-attack
-    fn handle_enemy_combat(state: &mut GameState, new_x: i32, new_y: i32) -> bool {
-        if state.enemy_at(new_x, new_y).is_none() {
-            return false;
-        }
-
-        let cost = action_cost("attack_melee");
-        if state.player_ap() < cost {
-            state.end_turn();
-        }
-        let hit = state.attack_melee(new_x, new_y);
-        if hit {
-            state.check_auto_end_turn();
-        }
-        hit
-    }
-
-    /// Handle actual movement to a tile
-    fn handle_movement(state: &mut GameState, new_x: i32, new_y: i32) -> bool {
-        let tile = match state.world.map.get(new_x, new_y) {
-            Some(t) => t.clone(),
-            None => return false,
-        };
-
-        let walkable = tile.walkable() || state.debug_phase;
-        if !walkable {
-            return false;
-        }
-
-        let cost = action_cost("move");
-        if state.player.ap < cost {
-            return false;
-        }
-        state.player.ap -= cost;
-
-        // Handle pre-movement effects (Mirage Step)
-        Self::handle_pre_movement(state);
-
-        // Update position
-        let old_x = state.player.x;
-        let old_y = state.player.y;
-        state.player.x = new_x;
-        state.player.y = new_y;
-
-        // Clear storm change highlighting
-        let player_idx = new_y as usize * state.world.map.width + new_x as usize;
-        state
-            .world
-            .visual_effects
-            .storm_changed_tiles
-            .remove(&player_idx);
-
-        // Emit movement event (QuestSystem handles position-based objectives)
-        state.emit(GameEvent::PlayerMoved {
-            from_x: old_x,
-            from_y: old_y,
-            to_x: new_x,
-            to_y: new_y,
-        });
-        state.update_fov();
-        state.update_lighting();
-
-        // Pickup items at new position
-        Self::pickup_items(state);
-
-        // Handle tile-specific effects
-        Self::handle_tile_effects(state, &tile, new_x, new_y);
-
-        // Handle world transition
-        Self::handle_world_transition(state, &tile, new_x, new_y);
-
-        state.check_auto_end_turn();
-        true
-    }
-
-    /// Handle pre-movement effects like Mirage Step
-    fn handle_pre_movement(state: &mut GameState) {
-        if state
-            .player
-            .adaptations
-            .iter()
-            .any(|a| a.has_ability("mirage_step"))
-        {
-            state.decoys.push(Decoy {
-                x: state.player.x,
-                y: state.player.y,
-                turns_remaining: 3,
-            });
-        }
-    }
-
-    /// Handle tile-specific effects (glass damage, glare)
-    fn handle_tile_effects(state: &mut GameState, tile: &Tile, _x: i32, _y: i32) {
-        match tile {
-            Tile::Glass => {
-                if state
-                    .player
-                    .adaptations
-                    .iter()
-                    .any(|a| a.has_immunity("glass"))
-                {
-                    state.log("Your saltblood protects you from the glass.");
-                } else {
-                    state.player.hp -= 1;
-                    state.player.refraction += 1;
-                    state.log("Sharp glass cuts you! (-1 HP, +1 Refraction)");
-                    state.check_adaptation_threshold();
-                }
-            }
-            Tile::Glare => {
-                state.player.ap = (state.player.ap - 1).max(0);
-                state.log("Intense glare impairs your movement! (-1 AP)");
-
-                if state.rng.gen_range(0..100) < 30 {
-                    state.log("The glare blinds you temporarily!");
-                }
-            }
-            _ => {}
-        }
-    }
-
     /// Handle world tile transitions at map edges
-    fn handle_world_transition(state: &mut GameState, tile: &Tile, new_x: i32, new_y: i32) {
-        if state.test_mode {
+    pub fn handle_world_transition(state: &mut GameState, tile: &Tile, new_x: i32, new_y: i32) {
+        if state.debug.test_mode {
             return;
         }
         if *tile != Tile::WorldExit || state.layer() != 0 {
@@ -327,7 +189,7 @@ impl MovementSystem {
         let px = state.player.x;
         let py = state.player.y;
 
-        let indices = match state.item_positions.remove(&(px, py)) {
+        let indices = match state.spatial.item_positions.remove(&(px, py)) {
             Some(v) => v,
             None => return,
         };

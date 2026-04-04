@@ -7,7 +7,6 @@ use std::fs;
 use std::path::Path;
 
 use super::{
-    action::action_cost,
     adaptation::Adaptation,
     chest::Chest,
     enemy::Enemy,
@@ -26,6 +25,7 @@ use super::{
     map_features::MapFeatures,
     npc::Npc,
     storm::Storm,
+    systems::combat::CombatSystem,
     systems::movement::MovementSystem,
     world_map::WorldMap,
 };
@@ -97,6 +97,37 @@ pub struct Decoy {
     pub turns_remaining: u32,
 }
 
+/// Spatial indices — rebuilt from entity positions, never serialized.
+#[derive(Clone, Default)]
+pub struct SpatialIndex {
+    pub enemy_positions: HashMap<(i32, i32), usize>,
+    pub npc_positions: HashMap<(i32, i32), usize>,
+    pub item_positions: HashMap<(i32, i32), Vec<usize>>,
+    pub chest_positions: HashMap<(i32, i32), usize>,
+    pub interactable_positions: HashMap<(i32, i32), usize>,
+    pub dirty: bool,
+}
+
+/// Debug/mock flags — never serialized, testing infrastructure only.
+#[derive(Clone, Default)]
+pub struct DebugState {
+    pub god_view: bool,
+    pub phase: bool,
+    pub disable_glare: bool,
+    pub mock_combat_hit: Option<bool>,
+    pub mock_combat_damage: Option<i32>,
+    pub test_mode: bool,
+}
+
+/// Pending UI handoff state — game logic sets, UI reads and clears.
+#[derive(Clone, Default)]
+pub struct PendingUi {
+    pub book_open: Option<String>,
+    pub trade: Option<String>,
+    pub dialogue: Option<(String, String)>,
+    pub aria_dialogue: Option<(String, Vec<String>)>,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct GameState {
     pub player: PlayerState,
@@ -115,25 +146,13 @@ pub struct GameState {
     #[serde(default)]
     pub decoys: Vec<Decoy>,
     #[serde(skip)]
-    pub enemy_positions: HashMap<(i32, i32), usize>,
-    #[serde(skip)]
-    pub npc_positions: HashMap<(i32, i32), usize>,
-    #[serde(skip)]
-    pub item_positions: HashMap<(i32, i32), Vec<usize>>,
-    #[serde(skip)]
-    pub chest_positions: HashMap<(i32, i32), usize>,
-    #[serde(skip)]
-    pub interactable_positions: HashMap<(i32, i32), usize>,
-    #[serde(skip)]
-    spatial_dirty: bool,
+    pub spatial: SpatialIndex,
     #[serde(skip)]
     pub event_queue: Vec<GameEvent>,
     #[serde(skip)]
-    pub mock_combat_hit: Option<bool>,
+    pub debug: DebugState,
     #[serde(skip)]
-    pub mock_combat_damage: Option<i32>,
-    #[serde(skip)]
-    pub pending_book_open: Option<String>,
+    pub pending_ui: PendingUi,
     #[serde(skip)]
     pub meta: super::meta::MetaProgress,
     /// Consecutive turns waited (for auto-rest)
@@ -145,29 +164,12 @@ pub struct GameState {
     /// Advanced map features (hidden locations, safe routes, etc.)
     #[serde(default)]
     pub map_features: MapFeatures,
-    /// Pending trade interface (for UI)
-    #[serde(skip)]
-    pub pending_trade: Option<String>,
-
-    /// Pending dialogue to show in UI (speaker, text)
-    #[serde(skip)]
-    pub pending_dialogue: Option<(String, String)>,
-    /// Pending ARIA dialogue to show in terminal UI (text, options)
-    #[serde(skip)]
-    pub pending_aria_dialogue: Option<(String, Vec<String>)>,
-    // Debug flags
-    #[serde(skip)]
-    pub debug_god_view: bool,
-    #[serde(skip)]
-    pub debug_phase: bool,
-    #[serde(skip)]
-    pub debug_disable_glare: bool,
     /// Original seed for reproducibility
     #[serde(default)]
     pub seed: u64,
-    /// Test mode flag (not serialized)
+    /// VERA trace — records effects for DES verification
     #[serde(skip)]
-    pub test_mode: bool,
+    pub trace: super::effects::Trace,
 }
 
 impl GameState {
@@ -517,28 +519,16 @@ impl GameState {
             rng,
             triggered_effects: Vec::new(),
             decoys: Vec::new(),
-            enemy_positions: HashMap::new(),
-            npc_positions: HashMap::new(),
-            item_positions: HashMap::new(),
-            chest_positions: HashMap::new(),
-            interactable_positions: HashMap::new(),
-            spatial_dirty: true,
+            spatial: SpatialIndex { dirty: true, ..Default::default() },
             event_queue: Vec::new(),
-            mock_combat_hit: None,
-            mock_combat_damage: None,
+            debug: DebugState::default(),
+            pending_ui: PendingUi::default(),
             meta: super::meta::MetaProgress::load(),
             wait_counter: 0,
             narrative: NarrativeEngine::default(),
             map_features: MapFeatures::new(),
-            pending_trade: None,
-            pending_dialogue: None,
-            pending_aria_dialogue: None,
-            debug_god_view: false,
-            debug_phase: false,
-            debug_disable_glare: false,
             seed,
-            pending_book_open: None,
-            test_mode: false,
+            trace: Default::default(),
         };
 
         // Materialize terrain-forge markers into entities
@@ -548,6 +538,360 @@ impl GameState {
 
         state.rebuild_spatial_index();
         state
+    }
+
+    /// VERA dispatch — central command handler
+    pub fn dispatch(&mut self, command: super::effects::Command) {
+        use super::effects::Command;
+        match command {
+            Command::Move { dx, dy } => self.dispatch_move(dx, dy),
+            Command::Attack { target_x, target_y } => {
+                self.dispatch_melee_attack(target_x, target_y)
+            }
+            Command::RangedAttack { target_x, target_y } => {
+                self.dispatch_ranged_attack(target_x, target_y)
+            }
+            _ => {
+                let output = {
+                    let ctx = super::effects::context::QueryContext::from_state(self);
+                    match &command {
+                        Command::UseItem { index } => {
+                            super::rules::rule_use_item(*index, &ctx)
+                        }
+                        Command::UseItemOnTile { index, x, y } => {
+                            super::rules::rule_use_item_on_tile(*index, *x, *y, &ctx)
+                        }
+                        _ => unreachable!(),
+                    }
+                };
+                self.apply_and_trace(output, command.name());
+            }
+        }
+    }
+
+    /// Dispatch movement: rule determines outcome, imperative fallback for NPC/combat
+    fn dispatch_move(&mut self, dx: i32, dy: i32) {
+        use super::effects::MoveResult;
+
+        self.ensure_spatial_index();
+        let move_output = {
+            let ctx = super::effects::context::QueryContext {
+                player: &self.player,
+                map: &self.world.map,
+                revealed_count: self.revealed.len(),
+                tile_count: self.world.map.tiles.len(),
+                npc_positions: &self.spatial.npc_positions,
+                enemy_positions: &self.spatial.enemy_positions,
+                enemies: &self.world.enemies,
+                visible: &self.visible,
+                debug_phase: self.debug.phase,
+                mock_combat_hit: self.debug.mock_combat_hit,
+                mock_combat_damage: self.debug.mock_combat_damage,
+            };
+            super::rules::rule_move(dx, dy, &ctx, &mut self.rng)
+        };
+
+        // Apply effects common to all branches (e.g. ResetWaitCounter)
+        let turn = self.turn;
+        for effect in &move_output.effects {
+            self.apply_effect(effect);
+            self.trace.record(
+                effect,
+                super::effects::TraceSource::Rule { name: "rule_move" },
+                turn,
+            );
+        }
+        for p in &move_output.presentation {
+            self.apply_presentation(p);
+        }
+
+        match move_output.result {
+            MoveResult::Npc => {
+                // Legacy NPC interaction path (Phase 3+ migration)
+                let new_x = self.player.x + dx;
+                let new_y = self.player.y + dy;
+                MovementSystem::handle_npc_interaction_legacy(self, new_x, new_y);
+            }
+            MoveResult::Combat => {
+                let new_x = self.player.x + dx;
+                let new_y = self.player.y + dy;
+                self.dispatch_melee_attack(new_x, new_y);
+            }
+            MoveResult::Moved => {
+                // Derives: FOV, lighting, pickup, world transition, adaptation, auto-end-turn
+                self.update_fov();
+                self.update_lighting();
+                MovementSystem::pickup_items(self);
+                let tile = self.world.map.get(self.player.x, self.player.y).cloned();
+                if let Some(t) = tile {
+                    MovementSystem::handle_world_transition(self, &t, self.player.x, self.player.y);
+                }
+                self.check_adaptation_threshold();
+                self.check_auto_end_turn();
+            }
+            MoveResult::Blocked => {}
+        }
+    }
+
+    /// Dispatch melee attack: rule produces effects, post-processing handles behaviors
+    fn dispatch_melee_attack(&mut self, target_x: i32, target_y: i32) {
+        self.ensure_spatial_index();
+        let output = {
+            let ctx = super::effects::context::QueryContext {
+                player: &self.player,
+                map: &self.world.map,
+                revealed_count: self.revealed.len(),
+                tile_count: self.world.map.tiles.len(),
+                npc_positions: &self.spatial.npc_positions,
+                enemy_positions: &self.spatial.enemy_positions,
+                enemies: &self.world.enemies,
+                visible: &self.visible,
+                debug_phase: self.debug.phase,
+                mock_combat_hit: self.debug.mock_combat_hit,
+                mock_combat_damage: self.debug.mock_combat_damage,
+            };
+            super::rules::rule_melee_attack(target_x, target_y, &ctx, &mut self.rng)
+        };
+
+        // Check what happened for post-processing
+        let mut killed_idx = None;
+        let mut damage_dealt = 0i32;
+        let mut hit = false;
+        for effect in &output.effects {
+            match effect {
+                super::effects::Effect::Combat(super::effects::CombatEffect::Kill {
+                    enemy_idx,
+                    ..
+                }) => {
+                    killed_idx = Some(*enemy_idx);
+                }
+                super::effects::Effect::Combat(super::effects::CombatEffect::DealDamage {
+                    amount,
+                    ..
+                }) => {
+                    damage_dealt = *amount;
+                    hit = true;
+                }
+                _ => {}
+            }
+        }
+
+        // Apply effects and trace
+        let applied_effects = output.effects.clone();
+        self.apply_and_trace(output, "rule_melee_attack");
+
+        // Run reactions (currently no-op, infrastructure for future phases)
+        self.run_reactions(&applied_effects, 0);
+
+        // Post-processing: visual effects and behaviors (imperative, not rule-based)
+        if hit {
+            self.trigger_hit_flash(target_x, target_y);
+            self.spawn_damage_number(target_x, target_y, damage_dealt, false);
+            self.emit(super::event::GameEvent::EnemyDamaged {
+                enemy_idx: self.enemy_at(target_x, target_y).unwrap_or(0),
+                amount: damage_dealt,
+            });
+        }
+
+        // Swarm aggro
+        if let Some(ei) = self.enemy_at(target_x, target_y).or(killed_idx)
+            && let Some(enemy) = self.world.enemies.get(ei)
+            && enemy.def().map(|d| d.swarm).unwrap_or(false)
+        {
+            let id = enemy.id.clone();
+            let ex = enemy.x;
+            let ey = enemy.y;
+            CombatSystem::trigger_swarm_aggro(self, &id, ex, ey, 8);
+        }
+
+        // On-hit effects and reflect damage
+        if hit
+            && killed_idx.is_none()
+            && let Some(ei) = self.enemy_at(target_x, target_y)
+            && let Some(def) = self.world.enemies[ei].def()
+        {
+            for e in &def.effects {
+                if e.condition == "on_hit" {
+                    self.trigger_effect(&e.effect, 2);
+                }
+            }
+            for behavior in &def.behaviors {
+                if behavior.behavior_type == "reflect_damage" {
+                    let percent = behavior.percent.unwrap_or(25);
+                    let reflected = (damage_dealt as u32 * percent / 100) as i32;
+                    if reflected > 0 {
+                        self.player.hp -= reflected;
+                        self.log_typed(
+                            format!("The enemy reflects {} damage back at you!", reflected),
+                            MsgType::Combat,
+                        );
+                    }
+                }
+            }
+        }
+
+        // On-death effects, XP, split on death
+        if let Some(ki) = killed_idx {
+            CombatSystem::process_enemy_death_post(self, ki);
+        }
+
+        self.check_auto_end_turn();
+    }
+
+    /// Dispatch ranged attack: rule produces effects, post-processing handles behaviors
+    fn dispatch_ranged_attack(&mut self, target_x: i32, target_y: i32) {
+        self.ensure_spatial_index();
+
+        // Spawn projectile before the rule (visual only)
+        let weapon_range = self
+            .player
+            .equipped_weapon
+            .as_ref()
+            .and_then(|id| super::combat::get_weapon_def(id))
+            .map(|w| w.range)
+            .unwrap_or(0);
+        if weapon_range > 1 {
+            let proj_char = if weapon_range > 3 { '*' } else { '-' };
+            self.spawn_projectile(
+                (self.player.x, self.player.y),
+                (target_x, target_y),
+                proj_char,
+            );
+        }
+
+        let output = {
+            let ctx = super::effects::context::QueryContext {
+                player: &self.player,
+                map: &self.world.map,
+                revealed_count: self.revealed.len(),
+                tile_count: self.world.map.tiles.len(),
+                npc_positions: &self.spatial.npc_positions,
+                enemy_positions: &self.spatial.enemy_positions,
+                enemies: &self.world.enemies,
+                visible: &self.visible,
+                debug_phase: self.debug.phase,
+                mock_combat_hit: self.debug.mock_combat_hit,
+                mock_combat_damage: self.debug.mock_combat_damage,
+            };
+            super::rules::rule_ranged_attack(target_x, target_y, &ctx, &mut self.rng)
+        };
+
+        let mut killed_idx = None;
+        let mut damage_dealt = 0i32;
+        let mut hit = false;
+        for effect in &output.effects {
+            match effect {
+                super::effects::Effect::Combat(super::effects::CombatEffect::Kill {
+                    enemy_idx,
+                    ..
+                }) => {
+                    killed_idx = Some(*enemy_idx);
+                }
+                super::effects::Effect::Combat(super::effects::CombatEffect::DealDamage {
+                    amount,
+                    ..
+                }) => {
+                    damage_dealt = *amount;
+                    hit = true;
+                }
+                _ => {}
+            }
+        }
+
+        let applied_effects = output.effects.clone();
+        self.apply_and_trace(output, "rule_ranged_attack");
+        self.run_reactions(&applied_effects, 0);
+
+        if hit {
+            self.trigger_hit_flash(target_x, target_y);
+            self.spawn_damage_number(target_x, target_y, damage_dealt, false);
+            self.emit(super::event::GameEvent::EnemyDamaged {
+                enemy_idx: self.enemy_at(target_x, target_y).unwrap_or(0),
+                amount: damage_dealt,
+            });
+        }
+
+        // Swarm aggro
+        if let Some(ei) = self.enemy_at(target_x, target_y).or(killed_idx)
+            && let Some(enemy) = self.world.enemies.get(ei)
+            && enemy.def().map(|d| d.swarm).unwrap_or(false)
+        {
+            let id = enemy.id.clone();
+            let ex = enemy.x;
+            let ey = enemy.y;
+            CombatSystem::trigger_swarm_aggro(self, &id, ex, ey, 8);
+        }
+
+        if let Some(ki) = killed_idx {
+            CombatSystem::process_enemy_death_post(self, ki);
+        }
+
+        self.check_auto_end_turn();
+    }
+
+    /// Apply a RuleOutput: effects → apply + trace, presentation → log
+    pub fn apply_and_trace(
+        &mut self,
+        output: super::effects::RuleOutput,
+        rule_name: &'static str,
+    ) {
+        let turn = self.turn;
+        for effect in &output.effects {
+            self.apply_effect(effect);
+            self.trace.record(
+                effect,
+                super::effects::TraceSource::Rule { name: rule_name },
+                turn,
+            );
+        }
+        for p in &output.presentation {
+            self.apply_presentation(p);
+        }
+    }
+
+    /// Run reactions triggered by applied effects. Max cascade depth 10.
+    ///
+    /// Currently a no-op: Kill → XP is handled directly in the rule output,
+    /// and Kill → loot/quest is handled by the EnemyKilled event emitted in
+    /// the Kill apply arm (processed at end_turn via process_events).
+    /// This preserves RNG ordering — loot rolls happen at end_turn, not
+    /// immediately after the kill.
+    ///
+    /// Future phases can register reactions here when the event system is
+    /// migrated to VERA.
+    pub fn run_reactions(&mut self, effects: &[super::effects::Effect], depth: u32) {
+        if depth >= 10 {
+            self.log("Warning: reaction cascade depth limit reached");
+            return;
+        }
+        let reaction_effects = self.collect_reactions(effects);
+        if reaction_effects.is_empty() {
+            return;
+        }
+        let turn = self.turn;
+        for (effect, source_name, trigger) in &reaction_effects {
+            self.apply_effect(effect);
+            self.trace.record(
+                effect,
+                super::effects::TraceSource::Reaction {
+                    name: source_name,
+                    trigger: Box::new(trigger.clone()),
+                },
+                turn,
+            );
+        }
+        let next: Vec<_> = reaction_effects.into_iter().map(|(e, _, _)| e).collect();
+        self.run_reactions(&next, depth + 1);
+    }
+
+    fn collect_reactions(
+        &self,
+        _effects: &[super::effects::Effect],
+    ) -> Vec<(super::effects::Effect, &'static str, super::effects::Effect)> {
+        // Reaction registration point. Each match arm produces
+        // (reaction_effect, reaction_name, triggering_effect).
+        // Currently empty — see run_reactions doc comment for rationale.
+        Vec::new()
     }
 
     /// Create a new game with a specific character class
@@ -586,40 +930,40 @@ impl GameState {
 
     /// Ensure spatial index is up to date before querying
     fn ensure_spatial_index(&mut self) {
-        if self.spatial_dirty {
+        if self.spatial.dirty {
             self.rebuild_spatial_index_internal();
         }
     }
 
     /// Internal rebuild that clears the dirty flag
     fn rebuild_spatial_index_internal(&mut self) {
-        self.enemy_positions.clear();
+        self.spatial.enemy_positions.clear();
         for (i, e) in self.world.enemies.iter().enumerate() {
             if e.hp > 0 {
-                self.enemy_positions.insert((e.x, e.y), i);
+                self.spatial.enemy_positions.insert((e.x, e.y), i);
             }
         }
-        self.npc_positions.clear();
+        self.spatial.npc_positions.clear();
         for (i, n) in self.world.npcs.iter().enumerate() {
-            self.npc_positions.insert((n.x, n.y), i);
+            self.spatial.npc_positions.insert((n.x, n.y), i);
         }
-        self.item_positions.clear();
+        self.spatial.item_positions.clear();
         for (i, item) in self.world.items.iter().enumerate() {
-            self.item_positions
+            self.spatial.item_positions
                 .entry((item.x, item.y))
                 .or_default()
                 .push(i);
         }
-        self.chest_positions.clear();
+        self.spatial.chest_positions.clear();
         for (i, chest) in self.world.chests.iter().enumerate() {
-            self.chest_positions.insert((chest.x, chest.y), i);
+            self.spatial.chest_positions.insert((chest.x, chest.y), i);
         }
-        self.interactable_positions.clear();
+        self.spatial.interactable_positions.clear();
         for (i, interactable) in self.world.interactables.iter().enumerate() {
-            self.interactable_positions
+            self.spatial.interactable_positions
                 .insert((interactable.x, interactable.y), i);
         }
-        self.spatial_dirty = false;
+        self.spatial.dirty = false;
     }
 
     /// Rebuild spatial index (public, for backwards compatibility)
@@ -1622,42 +1966,70 @@ impl GameState {
         true
     }
 
-    /// End turn: reset AP, tick status effects, run enemy turns, tick storm, tick time
+    /// End turn: execute the turn phase sequence.
     pub fn end_turn(&mut self) {
+        // Ensure spatial index is up to date before systems run
+        self.ensure_spatial_index();
+        for phase in super::effects::TurnPhase::sequence() {
+            self.execute_phase(phase);
+        }
+    }
+
+    fn execute_phase(&mut self, phase: &super::effects::TurnPhase) {
+        use super::effects::{Effect, PlayerEffect, TurnPhase};
+        use super::effects::trace::TraceSource;
         use super::systems::{StatusEffectSystem, StormSystem, System};
 
-        // Ensure spatial index is up to date before AI/systems run
-        self.ensure_spatial_index();
-
-        self.player.ap = self.player.max_ap;
-        StatusEffectSystem.update(self);
-        self.player.psychic.tick();
-        self.player.skills.tick();
-        self.player.light_system.update(&mut self.rng);
-        self.player.void_system.update(&mut self.rng);
-        self.player.crystal_system.update(&mut self.rng);
-        self.tick_turn();
-        self.update_enemies();
-        if self.world.storm.tick() {
-            StormSystem::apply_storm(self);
+        match phase {
+            TurnPhase::ResetAp => {
+                let effect = Effect::Player(PlayerEffect::ResetAp);
+                self.apply_effect(&effect);
+                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
+            }
+            TurnPhase::TickStatusEffects => {
+                StatusEffectSystem.update(self);
+            }
+            TurnPhase::TickSubsystems => {
+                self.player.psychic.tick();
+                self.player.skills.tick();
+                self.player.light_system.update(&mut self.rng);
+                self.player.void_system.update(&mut self.rng);
+                self.player.crystal_system.update(&mut self.rng);
+            }
+            TurnPhase::AdvanceTurn => {
+                let effect = Effect::Player(PlayerEffect::AdvanceTurn);
+                self.apply_effect(&effect);
+                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
+                // Tick adaptation suppression, triggered effects, decoys, light effects
+                self.tick_turn_housekeeping();
+            }
+            TurnPhase::RunAI => {
+                self.update_enemies();
+            }
+            TurnPhase::TickStorm => {
+                if self.world.storm.tick() {
+                    StormSystem::apply_storm(self);
+                }
+            }
+            TurnPhase::AdvanceTime => {
+                self.tick_time();
+            }
+            TurnPhase::UpdateDerives => {
+                self.ensure_spatial_index();
+                self.update_lighting();
+                self.update_fov();
+            }
+            TurnPhase::CheckEncounters => {
+                self.check_encounter_completion();
+                if let Some(encounter) = &mut self.world.encounter_state {
+                    encounter.turns_in_encounter += 1;
+                }
+            }
+            TurnPhase::ProcessEvents => {
+                self.emit(GameEvent::TurnEnded { turn: self.turn });
+                self.process_events();
+            }
         }
-        self.tick_time();
-        self.update_lighting();
-        self.update_fov();
-
-        // Check encounter completion
-        self.check_encounter_completion();
-
-        // Tick encounter timer
-        if let Some(encounter) = &mut self.world.encounter_state {
-            encounter.turns_in_encounter += 1;
-        }
-
-        // Emit TurnEnded — QuestSystem handles turn-based objectives
-        self.emit(GameEvent::TurnEnded { turn: self.turn });
-
-        // Process queued events
-        self.process_events();
     }
 
     /// Process all queued game events
@@ -1802,7 +2174,8 @@ impl GameState {
 
         // Advance 10 turns
         for _ in 0..10 {
-            self.tick_turn();
+            self.turn += 1;
+            self.tick_turn_housekeeping();
         }
 
         // Process enemy turns (they get to act while you rest)
@@ -1818,8 +2191,9 @@ impl GameState {
         }
     }
 
-    fn tick_turn(&mut self) {
-        self.turn += 1;
+    /// Housekeeping that runs after turn counter advances:
+    /// adaptation suppression, triggered effects, decoys, light effects.
+    fn tick_turn_housekeeping(&mut self) {
         if self.player.adaptations_hidden_turns > 0 {
             self.player.adaptations_hidden_turns -= 1;
             if self.player.adaptations_hidden_turns == 0 {
@@ -1861,7 +2235,7 @@ impl GameState {
         self.ensure_spatial_index();
 
         // Check for interactables at this position
-        if let Some(&interactable_idx) = self.interactable_positions.get(&(x, y))
+        if let Some(&interactable_idx) = self.spatial.interactable_positions.get(&(x, y))
             && let Some(interactable) = self.world.interactables.get_mut(interactable_idx)
         {
             let interactable_id = interactable.id.clone();
@@ -1872,13 +2246,13 @@ impl GameState {
                 self.emit(GameEvent::InteractableUsed { interactable_id });
 
                 // Mark spatial index as dirty since interactable state changed
-                self.spatial_dirty = true;
+                self.spatial.dirty = true;
                 return;
             }
         }
 
         // Check for NPCs at this position
-        if let Some(&npc_idx) = self.npc_positions.get(&(x, y))
+        if let Some(&npc_idx) = self.spatial.npc_positions.get(&(x, y))
             && let Some(npc) = self.world.npcs.get(npc_idx)
         {
             let npc_name = npc.name().to_string();
@@ -1892,7 +2266,7 @@ impl GameState {
         }
 
         // Check for chests at this position
-        if let Some(&chest_idx) = self.chest_positions.get(&(x, y))
+        if let Some(&chest_idx) = self.spatial.chest_positions.get(&(x, y))
             && let Some(chest) = self.world.chests.get(chest_idx)
         {
             let chest_name = chest.name().to_string();
@@ -1908,7 +2282,7 @@ impl GameState {
         self.ensure_spatial_index();
 
         // Check for interactables at this position
-        if let Some(&interactable_idx) = self.interactable_positions.get(&(x, y))
+        if let Some(&interactable_idx) = self.spatial.interactable_positions.get(&(x, y))
             && let Some(interactable) = self.world.interactables.get(interactable_idx)
         {
             let interactable_id = interactable.id.clone();
@@ -1922,7 +2296,7 @@ impl GameState {
         }
 
         // Check for enemies at this position
-        if let Some(&enemy_idx) = self.enemy_positions.get(&(x, y))
+        if let Some(&enemy_idx) = self.spatial.enemy_positions.get(&(x, y))
             && let Some(enemy) = self.world.enemies.get(enemy_idx)
             && enemy.hp > 0
         {
@@ -1937,7 +2311,7 @@ impl GameState {
         }
 
         // Check for NPCs at this position
-        if let Some(&npc_idx) = self.npc_positions.get(&(x, y))
+        if let Some(&npc_idx) = self.spatial.npc_positions.get(&(x, y))
             && let Some(npc) = self.world.npcs.get(npc_idx)
         {
             let npc_name = npc.name().to_string();
@@ -1947,7 +2321,7 @@ impl GameState {
         }
 
         // Check for items at this position
-        if let Some(item_indices) = self.item_positions.get(&(x, y))
+        if let Some(item_indices) = self.spatial.item_positions.get(&(x, y))
             && !item_indices.is_empty()
         {
             let item = &self.world.items[item_indices[0]];
@@ -1956,7 +2330,7 @@ impl GameState {
         }
 
         // Check for chests at this position
-        if let Some(&chest_idx) = self.chest_positions.get(&(x, y))
+        if let Some(&chest_idx) = self.spatial.chest_positions.get(&(x, y))
             && let Some(chest) = self.world.chests.get(chest_idx)
         {
             let chest_name = chest.name().to_string();
@@ -2070,11 +2444,11 @@ impl GameState {
     }
 
     pub fn enemy_at(&self, x: i32, y: i32) -> Option<usize> {
-        self.enemy_positions.get(&(x, y)).copied()
+        self.spatial.enemy_positions.get(&(x, y)).copied()
     }
 
     pub fn npc_at(&self, x: i32, y: i32) -> Option<usize> {
-        self.npc_positions.get(&(x, y)).copied()
+        self.spatial.npc_positions.get(&(x, y)).copied()
     }
 
     /// Auto-explore: find nearest unexplored walkable tile and move toward it
@@ -2197,7 +2571,9 @@ impl GameState {
                 return false;
             }
 
-            self.try_move(dx, dy)
+            let old_pos = (self.player.x, self.player.y);
+            self.dispatch(super::effects::Command::Move { dx, dy });
+            self.player.x != old_pos.0 || self.player.y != old_pos.1
         } else {
             false
         }
@@ -2314,11 +2690,6 @@ impl GameState {
         }
     }
 
-    /// Move player by delta - delegates to MovementSystem
-    pub fn try_move(&mut self, dx: i32, dy: i32) -> bool {
-        MovementSystem::try_move(self, dx, dy)
-    }
-
     /// Pickup items at player position - delegates to MovementSystem
     pub fn pickup_items(&mut self) {
         MovementSystem::pickup_items(self)
@@ -2408,234 +2779,6 @@ impl GameState {
         }
     }
 
-    pub fn use_item(&mut self, idx: usize) -> bool {
-        if idx >= self.player.inventory.len() {
-            return false;
-        }
-        let cost = action_cost("use_item");
-        if self.player.ap < cost {
-            return false;
-        }
-        let id = &self.player.inventory[idx];
-        let def = match get_item_def(id) {
-            Some(d) => d,
-            None => return false,
-        };
-        if !def.usable {
-            self.log(format!("You can't use {} right now.", def.name));
-            return false;
-        }
-
-        // Check if it's a book
-        if let Some(book_id) = &def.book_id {
-            self.pending_book_open = Some(book_id.clone());
-            self.log(format!("You read {}.", def.name));
-            return true;
-        }
-
-        self.player.ap -= cost;
-        if def.heal > 0 {
-            let heal = def.heal.min(self.player.max_hp - self.player.hp);
-            self.player.hp += heal;
-            self.log_typed(
-                format!("You use {}. (+{} HP)", def.name, heal),
-                MsgType::Loot,
-            );
-        }
-        if def.reduces_refraction > 0 {
-            let reduce = def.reduces_refraction.min(self.player.refraction);
-            self.player.refraction -= reduce;
-            self.log_typed(
-                format!("Your glow fades slightly. (-{} Refraction)", reduce),
-                MsgType::Status,
-            );
-        }
-        if def.suppresses_adaptations {
-            self.player.adaptations_hidden_turns = 10;
-            self.log_typed(
-                "Your glow dims. The tincture masks your changes.",
-                MsgType::Status,
-            );
-        }
-        if def.reveals_map {
-            self.log_typed(
-                format!("The {} reveals hidden paths...", def.name),
-                MsgType::Loot,
-            );
-            for idx in 0..self.world.map.tiles.len() {
-                self.revealed.insert(idx);
-            }
-        }
-        if def.enables_aria_dialogue {
-            self.log_typed("You interface with ARIA...", MsgType::System);
-            self.emit(GameEvent::AriaInterfaced {
-                item_id: def.id.clone(),
-            });
-            // Trigger ARIA dialogue if we have a pending dialogue system
-            // For now, we just log it.
-        }
-
-        // New system integrations
-        if def.light_energy > 0 {
-            self.player.light_system.light_energy += def.light_energy;
-            self.log_typed(
-                format!(
-                    "Light energy surges through you! (+{} Light Energy)",
-                    def.light_energy
-                ),
-                MsgType::Status,
-            );
-        }
-        if def.teaches_light_manipulation {
-            self.log_typed(
-                "You learn to manipulate light! Use debug commands: focus_beam, create_prism",
-                MsgType::System,
-            );
-        }
-        if def.void_exposure > 0 {
-            let level_changed = self.player.void_system.add_exposure(def.void_exposure);
-            self.emit(GameEvent::VoidExposureChanged {
-                level: self.player.void_system.void_exposure,
-            });
-            self.log_typed(
-                format!(
-                    "Void corruption seeps into you! (+{} Void Exposure)",
-                    def.void_exposure
-                ),
-                MsgType::Status,
-            );
-            if level_changed {
-                self.log_typed(
-                    format!(
-                        "Void exposure level: {:?}",
-                        self.player.void_system.exposure_level()
-                    ),
-                    MsgType::Status,
-                );
-            }
-        }
-        if def.void_energy > 0 {
-            self.player.void_system.gain_energy(def.void_energy);
-            self.log_typed(
-                format!(
-                    "Void energy flows through you! (+{} Void Energy)",
-                    def.void_energy
-                ),
-                MsgType::Status,
-            );
-        }
-        if def.teaches_crystal_resonance {
-            self.log_typed("You learn crystal resonance! Use debug commands: create_crystal, resonate, harmonize", MsgType::System);
-        }
-        if def.resonance_energy > 0 {
-            self.player.crystal_system.resonance_energy =
-                (self.player.crystal_system.resonance_energy + def.resonance_energy)
-                    .min(self.player.crystal_system.max_resonance_energy);
-            self.log_typed(
-                format!(
-                    "Crystal resonance fills you! (+{} Resonance Energy)",
-                    def.resonance_energy
-                ),
-                MsgType::Status,
-            );
-        }
-        if let Some(frequency) = &def.crystal_frequency {
-            let freq = match frequency.as_str() {
-                "alpha" => super::crystal_resonance::CrystalFrequency::Alpha,
-                "beta" => super::crystal_resonance::CrystalFrequency::Beta,
-                "gamma" => super::crystal_resonance::CrystalFrequency::Gamma,
-                "delta" => super::crystal_resonance::CrystalFrequency::Delta,
-                "epsilon" => super::crystal_resonance::CrystalFrequency::Epsilon,
-                _ => super::crystal_resonance::CrystalFrequency::Alpha,
-            };
-            self.player
-                .crystal_system
-                .add_crystal(self.player.x, self.player.y, freq);
-            self.emit(GameEvent::CrystalResonanceChanged {
-                frequency: frequency.clone(),
-            });
-            self.log_typed(
-                format!("A {} crystal grows at your feet!", frequency),
-                MsgType::Loot,
-            );
-        }
-
-        if def.consumable {
-            self.player.inventory.remove(idx);
-        }
-        true
-    }
-
-    pub fn use_item_on_tile(&mut self, idx: usize, x: i32, y: i32) -> bool {
-        if idx >= self.player.inventory.len() {
-            return false;
-        }
-
-        // Check range (must be adjacent)
-        let dx = (x - self.player.x).abs();
-        let dy = (y - self.player.y).abs();
-        if dx > 1 || dy > 1 {
-            self.log("That is too far away.");
-            return false;
-        }
-
-        let cost = action_cost("use_item");
-        if self.player.ap < cost {
-            return false;
-        }
-
-        let id = &self.player.inventory[idx];
-        let def = match get_item_def(id) {
-            Some(d) => d,
-            None => return false,
-        };
-
-        if def.breaks_walls {
-            let tile_idx = (y * self.world.map.width as i32 + x) as usize;
-            if tile_idx >= self.world.map.tiles.len() {
-                return false;
-            }
-
-            let is_wall = matches!(
-                self.world.map.tiles[tile_idx],
-                super::map::Tile::Wall { .. }
-            );
-            if !is_wall {
-                self.log("You can only use this on walls.");
-                return false;
-            }
-
-            self.player.ap -= cost;
-            let mut broken = false;
-            if let super::map::Tile::Wall { id: _, hp } = &mut self.world.map.tiles[tile_idx] {
-                *hp -= 10; // Arbitrary damage for now
-                if *hp <= 0 {
-                    broken = true;
-                }
-            }
-
-            self.log_typed(
-                "You strike the wall. Cracks spread through the glass.",
-                MsgType::Combat,
-            );
-
-            if broken {
-                self.world.map.tiles[tile_idx] = super::map::Tile::default_floor();
-                self.log_typed("The wall shatters!", MsgType::Combat);
-                self.update_lighting(); // Wall break changes lighting
-            }
-
-            // Consume item if consumable (or maybe always for now as per discussion)
-            if def.consumable {
-                self.player.inventory.remove(idx);
-            }
-            return true;
-        }
-
-        self.log(format!("You can't use {} on that.", def.name));
-        false
-    }
-
     pub fn use_psychic_ability(&mut self, ability_id: &str) {
         match self.player.psychic.use_ability(ability_id) {
             Ok(effect_id) => {
@@ -2665,7 +2808,7 @@ impl GameState {
                     }
                     "phasing" => {
                         self.apply_status_effect("phasing", 5);
-                        self.debug_phase = true; // Or handle via status effect check in movement
+                        self.debug.phase = true; // Or handle via status effect check in movement
                     }
                     _ => self.log("Effect not implemented."),
                 }
@@ -2795,7 +2938,7 @@ impl GameState {
         for dx in -1..=1 {
             for dy in -1..=1 {
                 let pos = (self.player.x + dx, self.player.y + dy);
-                if let Some(&idx) = self.interactable_positions.get(&pos)
+                if let Some(&idx) = self.spatial.interactable_positions.get(&pos)
                     && let Some(inter) = self.world.interactables.get(idx)
                 {
                     stations.push(inter.id.clone());
@@ -2982,7 +3125,7 @@ impl GameState {
 
     /// Apply light-based effects (glare damage, visibility modifiers)
     pub fn apply_light_effects(&mut self) {
-        if self.debug_disable_glare {
+        if self.debug.disable_glare {
             return;
         }
         let light_level =

@@ -13,6 +13,7 @@ pub mod debug_commands;
 pub mod des_testing;
 pub mod dialogue;
 pub mod effect;
+pub mod effects;
 pub mod encounter;
 pub mod enemy;
 pub mod entity;
@@ -39,6 +40,7 @@ pub mod psychic;
 pub mod qa_tools;
 pub mod quest;
 
+pub mod rules;
 pub mod save;
 pub mod skills;
 pub mod state;

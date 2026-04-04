@@ -1,0 +1,32 @@
+{
+  "mcpServers": {
+    "cargo-package-readme": {
+      "command": "npx",
+      "args": [
+        "cargo-package-readme-mcp-server"
+      ]
+    },
+    "cargo-mcp": {
+      "command": "/home/elias/Documents/mcp_servers/cargo-mcp/target/release/cargo-mcp",
+      "args": [],
+      "disabledTools": [
+        "version",
+        "metadata"
+      ]
+    },
+    "agentic-tools": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pimzino/agentic-tools-mcp"
+      ],
+      "disabledTools": [
+        "create_subtask",
+        "get_subtask",
+        "update_subtask",
+        "delete_subtask",
+        "list_subtasks"
+      ]
+    }
+  }
+}

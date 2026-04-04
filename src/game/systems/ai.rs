@@ -135,7 +135,7 @@ impl AiBehavior for StandardMeleeBehavior {
                         state.world.enemies.push(new_enemy);
                         // Update spatial index for new enemy
                         state
-                            .enemy_positions
+                            .spatial.enemy_positions
                             .insert((sx, sy), state.world.enemies.len() - 1);
                         state.world.enemies[i].spawned_count += 1;
                         state.world.enemies[i].last_spawn_turn = state.turn;
@@ -236,10 +236,10 @@ impl AiBehavior for StandardMeleeBehavior {
                                     && state.enemy_at(nx, ny).is_none()
                                     && !(nx == state.player_x() && ny == state.player_y())
                                 {
-                                    state.enemy_positions.remove(&(ex, ey));
+                                    state.spatial.enemy_positions.remove(&(ex, ey));
                                     state.world.enemies[i].x = nx;
                                     state.world.enemies[i].y = ny;
-                                    state.enemy_positions.insert((nx, ny), i);
+                                    state.spatial.enemy_positions.insert((nx, ny), i);
                                     state.log_typed(
                                         format!(
                                             "{} teleports away!",
@@ -337,10 +337,10 @@ impl AiBehavior for StandardMeleeBehavior {
                 && state.enemy_at(nx, ny).is_none()
                 && !(nx == state.player_x() && ny == state.player_y())
             {
-                state.enemy_positions.remove(&(ex, ey));
+                state.spatial.enemy_positions.remove(&(ex, ey));
                 state.world.enemies[i].x = nx;
                 state.world.enemies[i].y = ny;
-                state.enemy_positions.insert((nx, ny), i);
+                state.spatial.enemy_positions.insert((nx, ny), i);
             }
             return true;
         }
@@ -536,10 +536,10 @@ impl AiBehavior for StandardMeleeBehavior {
                 && state.enemy_at(nx, ny).is_none()
                 && !(nx == state.player_x() && ny == state.player_y())
             {
-                state.enemy_positions.remove(&(ex, ey));
+                state.spatial.enemy_positions.remove(&(ex, ey));
                 state.world.enemies[i].x = nx;
                 state.world.enemies[i].y = ny;
-                state.enemy_positions.insert((nx, ny), i);
+                state.spatial.enemy_positions.insert((nx, ny), i);
             }
         }
 
@@ -589,10 +589,10 @@ impl AiBehavior for RangedOnlyBehavior {
                 && state.enemy_at(nx, ny).is_none()
                 && !(nx == px && ny == py)
             {
-                state.enemy_positions.remove(&(ex, ey));
+                state.spatial.enemy_positions.remove(&(ex, ey));
                 state.world.enemies[i].x = nx;
                 state.world.enemies[i].y = ny;
-                state.enemy_positions.insert((nx, ny), i);
+                state.spatial.enemy_positions.insert((nx, ny), i);
                 return true;
             }
         }
@@ -662,7 +662,7 @@ impl AiBehavior for SuicideBomberBehavior {
 
             // Kill self
             state.world.enemies[i].hp = 0;
-            state.enemy_positions.remove(&(ex, ey));
+            state.spatial.enemy_positions.remove(&(ex, ey));
             return true;
         }
 
@@ -681,10 +681,10 @@ impl AiBehavior for SuicideBomberBehavior {
             && state.enemy_at(nx, ny).is_none()
             && !(nx == px && ny == py)
         {
-            state.enemy_positions.remove(&(ex, ey));
+            state.spatial.enemy_positions.remove(&(ex, ey));
             state.world.enemies[i].x = nx;
             state.world.enemies[i].y = ny;
-            state.enemy_positions.insert((nx, ny), i);
+            state.spatial.enemy_positions.insert((nx, ny), i);
         }
         true
     }

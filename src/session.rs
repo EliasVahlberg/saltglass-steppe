@@ -41,20 +41,20 @@ pub fn run_game_session(
             ui.dialog_box.tick(16);
         }
 
-        if let Some((speaker, text)) = state.pending_dialogue.take() {
+        if let Some((speaker, text)) = state.pending_ui.dialogue.take() {
             ui.dialog_box.show(&speaker, &text);
         }
-        if let Some((text, options)) = state.pending_aria_dialogue.take() {
+        if let Some((text, options)) = state.pending_ui.aria_dialogue.take() {
             ui.aria_interface.response_text = text;
             ui.aria_interface.options = options;
             ui.aria_interface.selected_option = 0;
         }
-        if let Some(book_id) = state.pending_book_open.take() {
+        if let Some(book_id) = state.pending_ui.book_open.take() {
             ui.book_reader.open(&book_id);
         }
-        if let Some(trader_id) = state.pending_trade.take() {
+        if let Some(trader_id) = state.pending_ui.trade.take() {
             if ui.dialog_box.active {
-                state.pending_trade = Some(trader_id);
+                state.pending_ui.trade = Some(trader_id);
             } else {
                 let area_tier = calculate_area_tier(&state.world.enemies);
                 if let Some(interface) = get_trade_interface(
