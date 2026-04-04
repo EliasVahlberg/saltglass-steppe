@@ -89,7 +89,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::Wait => {
             if state.player.hp > 0 {
-                state.wait_turn();
+                state.dispatch(saltglass_steppe::game::effects::Command::Wait);
             }
         }
         Action::AutoExplore => {
@@ -215,14 +215,19 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 && idx < state.player.inventory.len()
                 && let Some(def) = get_item_def(&state.player.inventory[idx])
                 && let Some(slot_str) = &def.equip_slot
-                && let Ok(slot) = slot_str.parse::<saltglass_steppe::EquipSlot>()
+                && let Ok(_slot) = slot_str.parse::<saltglass_steppe::EquipSlot>()
             {
-                state.equip_item(idx, slot);
+                state.dispatch(saltglass_steppe::game::effects::Command::Equip {
+                    inv_idx: idx,
+                    slot: slot_str.to_string(),
+                });
             }
         }
         Action::UnequipSelected => {
             if let Some(slot) = ui.inventory_menu.selected_equip_slot() {
-                state.unequip_slot(slot);
+                state.dispatch(saltglass_steppe::game::effects::Command::Unequip {
+                    slot: format!("{:?}", slot).to_lowercase(),
+                });
             }
         }
         Action::OpenQuestLog => {
@@ -256,12 +261,18 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::Interact(_, _) => {
             if state.player.hp > 0 {
-                state.interact_at(state.player.x, state.player.y);
+                state.dispatch(saltglass_steppe::game::effects::Command::Interact {
+                    x: state.player.x,
+                    y: state.player.y,
+                });
             }
         }
         Action::Examine(_, _) => {
             if state.player.hp > 0 {
-                state.examine_at(state.player.x, state.player.y);
+                state.dispatch(saltglass_steppe::game::effects::Command::Examine {
+                    x: state.player.x,
+                    y: state.player.y,
+                });
             }
         }
         Action::OpenWiki => {
@@ -289,7 +300,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             ui.skills_menu.open();
         }
         Action::UsePsychicAbility(ability_id) => {
-            state.use_psychic_ability(&ability_id);
+            state.dispatch(saltglass_steppe::game::effects::Command::UsePsychic {
+                ability_id: ability_id.clone(),
+            });
         }
         Action::RangedAttackMode => {
             // TODO: Implement ranged attack mode
@@ -530,7 +543,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
     // Tutorial overlay
     if let Some((_, ref text)) = ui.tutorial_message {
         let area = frame.area();
-        let popup_width = (area.width.min(60)).max(20);
+        let popup_width = area.width.clamp(20, 60);
         let lines: Vec<Line> = textwrap::wrap(text, (popup_width - 4) as usize)
             .into_iter()
             .map(|l| Line::from(l.into_owned()))

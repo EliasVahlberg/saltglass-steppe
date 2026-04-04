@@ -551,6 +551,65 @@ impl GameState {
             Command::RangedAttack { target_x, target_y } => {
                 self.dispatch_ranged_attack(target_x, target_y)
             }
+            Command::Wait => {
+                let output = {
+                    let ctx = super::effects::context::QueryContext::from_state(self);
+                    super::rules::rule_wait(&ctx)
+                };
+                self.apply_and_trace(output, "rule_wait");
+                self.end_turn();
+            }
+            Command::Rest => {
+                let output = {
+                    let ctx = super::effects::context::QueryContext::from_state(self);
+                    super::rules::rule_rest(&ctx)
+                };
+                let had_effects = !output.effects.is_empty();
+                self.apply_and_trace(output, "rule_rest");
+                if had_effects {
+                    // Rest advances turns internally; also run AI and housekeeping
+                    for _ in 0..10 {
+                        self.tick_turn_housekeeping();
+                    }
+                    self.update_enemies();
+                }
+            }
+            Command::Equip { inv_idx, slot } => {
+                let output = {
+                    let ctx = super::effects::context::QueryContext::from_state(self);
+                    super::rules::rule_equip(inv_idx, &slot, &ctx)
+                };
+                self.apply_and_trace(output, "rule_equip");
+            }
+            Command::Unequip { slot } => {
+                let output = super::rules::rule_unequip(&slot);
+                self.apply_and_trace(output, "rule_unequip");
+            }
+            Command::AllocateStat { stat } => {
+                let output = {
+                    let ctx = super::effects::context::QueryContext::from_state(self);
+                    super::rules::rule_allocate_stat(&stat, &ctx)
+                };
+                self.apply_and_trace(output, "rule_allocate_stat");
+            }
+            Command::AcceptQuest { quest_id } => {
+                self.dispatch_accept_quest(&quest_id);
+            }
+            Command::CompleteQuest { quest_id } => {
+                self.dispatch_complete_quest(&quest_id);
+            }
+            Command::Interact { x, y } => {
+                self.interact_at(x, y);
+            }
+            Command::Examine { x, y } => {
+                self.examine_at(x, y);
+            }
+            Command::UsePsychic { ability_id } => {
+                self.dispatch_use_psychic(&ability_id);
+            }
+            Command::FleeEncounter => {
+                self.dispatch_flee_encounter();
+            }
             _ => {
                 let output = {
                     let ctx = super::effects::context::QueryContext::from_state(self);
@@ -587,6 +646,8 @@ impl GameState {
                 debug_phase: self.debug.phase,
                 mock_combat_hit: self.debug.mock_combat_hit,
                 mock_combat_damage: self.debug.mock_combat_damage,
+                wait_counter: self.wait_counter,
+                turn: self.turn,
             };
             super::rules::rule_move(dx, dy, &ctx, &mut self.rng)
         };
@@ -649,6 +710,8 @@ impl GameState {
                 debug_phase: self.debug.phase,
                 mock_combat_hit: self.debug.mock_combat_hit,
                 mock_combat_damage: self.debug.mock_combat_damage,
+                wait_counter: self.wait_counter,
+                turn: self.turn,
             };
             super::rules::rule_melee_attack(target_x, target_y, &ctx, &mut self.rng)
         };
@@ -772,6 +835,8 @@ impl GameState {
                 debug_phase: self.debug.phase,
                 mock_combat_hit: self.debug.mock_combat_hit,
                 mock_combat_damage: self.debug.mock_combat_damage,
+                wait_counter: self.wait_counter,
+                turn: self.turn,
             };
             super::rules::rule_ranged_attack(target_x, target_y, &ctx, &mut self.rng)
         };
@@ -830,6 +895,155 @@ impl GameState {
     }
 
     /// Apply a RuleOutput: effects → apply + trace, presentation → log
+    fn dispatch_accept_quest(&mut self, quest_id: &str) {
+        use super::effects::{Effect, QuestEffect, Presentation};
+
+        let can_accept = self.player.quest_log.is_quest_available(quest_id, self);
+        if !can_accept { return; }
+
+        let mut effects: Vec<Effect> = vec![
+            Effect::Quest(QuestEffect::Accept { quest_id: quest_id.to_string() }),
+        ];
+        let mut presentation = Vec::new();
+
+        if let Some(def) = super::quest::get_quest_def(quest_id) {
+            presentation.push(Presentation::LogMessage {
+                text: format!("Quest accepted: {}", def.name),
+                msg_type: "system".into(),
+            });
+            if def.category == "main" && quest_id.starts_with("faction_choice_") {
+                let faction = if quest_id.contains("monks") { "Mirror Monks" }
+                    else if quest_id.contains("engineers") { "Sand-Engineers" }
+                    else if quest_id.contains("glassborn") { "Glassborn" }
+                    else { "" };
+                if !faction.is_empty() {
+                    effects.push(Effect::Quest(QuestEffect::SetFactionAlignment {
+                        faction: faction.to_string(),
+                    }));
+                    presentation.push(Presentation::LogMessage {
+                        text: format!("You have aligned with the {}", faction),
+                        msg_type: "system".into(),
+                    });
+                }
+            }
+        }
+
+        let output = super::effects::RuleOutput { effects, presentation };
+        self.apply_and_trace(output, "rule_accept_quest");
+    }
+
+    fn dispatch_complete_quest(&mut self, quest_id: &str) {
+        use super::effects::{Effect, PlayerEffect, ItemEffect, Presentation};
+
+        // complete() moves quest to completed and returns reward
+        let reward = match self.player.quest_log.complete(quest_id) {
+            Some(r) => r,
+            None => return,
+        };
+
+        let mut effects = Vec::new();
+        let mut presentation = Vec::new();
+
+        if let Some(def) = super::quest::get_quest_def(quest_id) {
+            presentation.push(Presentation::LogMessage {
+                text: format!("Quest completed: {}", def.name),
+                msg_type: "system".into(),
+            });
+        }
+
+        if reward.xp > 0 {
+            effects.push(Effect::Player(PlayerEffect::GainXp { amount: reward.xp }));
+        }
+        if reward.salt_scrip > 0 {
+            effects.push(Effect::Player(PlayerEffect::GainSaltScrip { amount: reward.salt_scrip }));
+            presentation.push(Presentation::LogMessage {
+                text: format!("Received {} salt scrip", reward.salt_scrip),
+                msg_type: "loot".into(),
+            });
+        }
+        for item_id in &reward.items {
+            effects.push(Effect::Item(ItemEffect::AddToInventory { item_id: item_id.clone() }));
+        }
+        for (faction_id, delta) in &reward.reputation_rewards {
+            effects.push(Effect::Player(PlayerEffect::ModifyReputation {
+                faction: faction_id.clone(),
+                delta: *delta,
+            }));
+        }
+        for unlocked_id in &reward.unlocks_quests {
+            if let Some(unlocked_def) = super::quest::get_quest_def(unlocked_id) {
+                presentation.push(Presentation::LogMessage {
+                    text: format!("New quest available: {}", unlocked_def.name),
+                    msg_type: "system".into(),
+                });
+            }
+        }
+
+        let output = super::effects::RuleOutput { effects, presentation };
+        self.apply_and_trace(output, "rule_complete_quest");
+    }
+
+    fn dispatch_use_psychic(&mut self, ability_id: &str) {
+        match self.player.psychic.use_ability(ability_id) {
+            Ok(effect_id) => {
+                let output = {
+                    let ctx = super::effects::context::QueryContext::from_state(self);
+                    super::rules::rule_use_psychic(&effect_id, &ctx)
+                };
+                self.apply_and_trace(output, "rule_use_psychic");
+            }
+            Err(e) => self.log(e),
+        }
+    }
+
+    fn dispatch_flee_encounter(&mut self) {
+        use super::effects::{Effect, PlayerEffect, Presentation};
+
+        let encounter = match &self.world.encounter_state {
+            Some(e) => e.clone(),
+            None => {
+                self.log("No active encounter.");
+                return;
+            }
+        };
+
+        let difficulty_mod = 1.0;
+        if !encounter.can_flee(self.turn, difficulty_mod) {
+            self.log("You cannot flee yet!");
+            return;
+        }
+
+        match super::encounter::attempt_flee(
+            self.player.x,
+            self.player.y,
+            &self.world.enemies,
+            &encounter.spawned_enemies,
+            &mut self.rng,
+            self.player.skills.get_skill_level("wayfaring"),
+        ) {
+            Ok(()) => {
+                let output = super::effects::RuleOutput {
+                    effects: vec![Effect::Player(PlayerEffect::ClearEncounter)],
+                    presentation: vec![Presentation::LogMessage {
+                        text: "You successfully flee the encounter!".into(),
+                        msg_type: "status".into(),
+                    }],
+                };
+                self.apply_and_trace(output, "rule_flee_encounter");
+            }
+            Err(e) => {
+                let output = super::effects::RuleOutput {
+                    effects: vec![Effect::Player(PlayerEffect::SetLastFleeAttempt { turn: self.turn })],
+                    presentation: vec![Presentation::LogMessage {
+                        text: e,
+                        msg_type: "warning".into(),
+                    }],
+                };
+                self.apply_and_trace(output, "rule_flee_encounter");
+            }
+        }
+    }
+
     pub fn apply_and_trace(
         &mut self,
         output: super::effects::RuleOutput,
@@ -978,17 +1192,12 @@ impl GameState {
         for quest in &self.player.quest_log.active {
             if let Some(def) = quest.def() {
                 for (i, quest_obj) in def.objectives.iter().enumerate() {
-                    // Only include if objective is not completed
-                    if !quest.objectives[i].completed {
-                        match &quest_obj.objective_type {
-                            crate::game::quest::ObjectiveType::Reach { x, y } => {
-                                if *x as usize == world_x && *y as usize == world_y {
-                                    quest_ids.push(quest.quest_id.clone());
-                                    break; // Don't add the same quest multiple times
-                                }
-                            }
-                            _ => {} // Other objective types don't have specific locations
-                        }
+                    if !quest.objectives[i].completed
+                        && let crate::game::quest::ObjectiveType::Reach { x, y } = &quest_obj.objective_type
+                        && *x as usize == world_x && *y as usize == world_y
+                    {
+                        quest_ids.push(quest.quest_id.clone());
+                        break;
                     }
                 }
             }
@@ -2845,7 +3054,7 @@ impl GameState {
     }
 
     /// Recalculate stats from equipment
-    fn recalc_equipment_stats(&mut self) {
+    pub(crate) fn recalc_equipment_stats(&mut self) {
         // Sync equipped_weapon with equipment.weapon for backward compat
         self.player.equipped_weapon = self.player.equipment.weapon.clone();
 

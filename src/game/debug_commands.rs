@@ -117,10 +117,7 @@ pub fn execute(state: &mut super::state::GameState, cmd: &str) {
             }
         }
         Some("flee") => {
-            match state.attempt_flee_encounter() {
-                Ok(()) => {} // Message already logged
-                Err(e) => state.log(e),
-            }
+            state.dispatch(super::effects::Command::FleeEncounter);
         }
         Some("help") => {
             state.log("Debug Commands:");

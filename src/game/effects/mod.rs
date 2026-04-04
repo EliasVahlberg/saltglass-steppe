@@ -22,6 +22,7 @@ pub enum Effect {
     Map(MapEffect),
     Resource(ResourceEffect),
     Event(EventEffect),
+    Quest(QuestEffect),
 }
 
 // ---------------------------------------------------------------------------
@@ -42,6 +43,16 @@ pub enum PlayerEffect {
     RecordDamageDealt { amount: u32 },
     ResetAp,
     AdvanceTurn,
+    IncrementWaitCounter,
+    AllocateStat { stat: String },
+    GainSaltScrip { amount: u32 },
+    GainSkillPoints { amount: u32 },
+    LevelUp,
+    ModifyReputation { faction: String, delta: i32 },
+    ApplyStatusEffect { effect_id: String, duration: i32 },
+    SetPhaseMode { enabled: bool },
+    ClearEncounter,
+    SetLastFleeAttempt { turn: u32 },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -50,12 +61,17 @@ pub enum CombatEffect {
     Miss { enemy_idx: usize },
     Kill { enemy_idx: usize, enemy_id: String, x: i32, y: i32 },
     Provoke { enemy_idx: usize },
+    StunEnemy { enemy_idx: usize, duration: i32 },
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ItemEffect {
     Consume { item_id: String, inventory_index: usize },
     RemoveFromInventory { index: usize },
+    Equip { item_id: String, slot: String },
+    Unequip { slot: String },
+    AddToInventory { item_id: String },
+    RecalcStats,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -80,6 +96,13 @@ pub enum EventEffect {
     EmitGameEvent { event_name: String },
 }
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum QuestEffect {
+    Accept { quest_id: String },
+    Complete { quest_id: String },
+    SetFactionAlignment { faction: String },
+}
+
 // ---------------------------------------------------------------------------
 // Presentation — visual feedback only, never traced
 // ---------------------------------------------------------------------------
@@ -90,14 +113,11 @@ pub enum Presentation {
 }
 
 // ---------------------------------------------------------------------------
-// RuleOutput — what a rule function returns
+// RuleOutput — returned by rule functions
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Default)]
-pub struct RuleOutput {
-    pub effects: Vec<Effect>,
-    pub presentation: Vec<Presentation>,
-}
+/// Concrete rule output for saltglass-steppe.
+pub type RuleOutput = vera_effects::RuleOutput<Effect, Presentation>;
 
 /// Result of rule_move — tells dispatch which derives to run
 #[derive(Debug, Clone, PartialEq)]
@@ -131,6 +151,17 @@ pub enum Command {
     Move { dx: i32, dy: i32 },
     Attack { target_x: i32, target_y: i32 },
     RangedAttack { target_x: i32, target_y: i32 },
+    Wait,
+    Rest,
+    Equip { inv_idx: usize, slot: String },
+    Unequip { slot: String },
+    AllocateStat { stat: String },
+    AcceptQuest { quest_id: String },
+    CompleteQuest { quest_id: String },
+    Interact { x: i32, y: i32 },
+    Examine { x: i32, y: i32 },
+    UsePsychic { ability_id: String },
+    FleeEncounter,
 }
 
 impl Command {
@@ -141,6 +172,17 @@ impl Command {
             Command::Move { .. } => "rule_move",
             Command::Attack { .. } => "rule_melee_attack",
             Command::RangedAttack { .. } => "rule_ranged_attack",
+            Command::Wait => "rule_wait",
+            Command::Rest => "rule_rest",
+            Command::Equip { .. } => "rule_equip",
+            Command::Unequip { .. } => "rule_unequip",
+            Command::AllocateStat { .. } => "rule_allocate_stat",
+            Command::AcceptQuest { .. } => "rule_accept_quest",
+            Command::CompleteQuest { .. } => "rule_complete_quest",
+            Command::Interact { .. } => "rule_interact",
+            Command::Examine { .. } => "rule_examine",
+            Command::UsePsychic { .. } => "rule_use_psychic",
+            Command::FleeEncounter => "rule_flee_encounter",
         }
     }
 }

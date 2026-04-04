@@ -1782,16 +1782,21 @@ impl DesExecutor {
                 self.log(format!("Player used item {} on ({}, {})", item_index, x, y));
             }
             Action::Equip { item_index, slot } => {
-                if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>() {
-                    self.state.equip_item(*item_index, equip_slot);
+                if let Ok(_equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>() {
+                    self.state.dispatch(crate::game::effects::Command::Equip {
+                        inv_idx: *item_index,
+                        slot: slot.clone(),
+                    });
                     self.log(format!("Equipped item {} to {}", item_index, slot));
                 } else {
                     self.log(format!("Unknown slot: {}", slot));
                 }
             }
             Action::Unequip { slot } => {
-                if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>() {
-                    self.state.unequip_slot(equip_slot);
+                if let Ok(_equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>() {
+                    self.state.dispatch(crate::game::effects::Command::Unequip {
+                        slot: slot.clone(),
+                    });
                     self.log(format!("Unequipped {}", slot));
                 } else {
                     self.log(format!("Unknown slot: {}", slot));
@@ -1806,14 +1811,14 @@ impl DesExecutor {
             }
             Action::Wait { turns } => {
                 for _ in 0..*turns {
-                    self.state.wait_turn();
+                    self.state.dispatch(crate::game::effects::Command::Wait);
                 }
                 self.log(format!("Player waited {} turns", turns));
             }
-            Action::Rest => match self.state.rest() {
-                Ok(()) => self.log("Player rested and recovered HP".to_string()),
-                Err(e) => self.log(format!("Rest failed: {}", e)),
-            },
+            Action::Rest => {
+                self.state.dispatch(crate::game::effects::Command::Rest);
+                self.log("Player rested".to_string());
+            }
             Action::EndTurn => {
                 self.state.end_turn();
                 self.log("Player ended turn".to_string());
@@ -1823,29 +1828,23 @@ impl DesExecutor {
                 self.log(msg);
             }
             Action::AllocateStat { stat } => {
-                let success = self.state.allocate_stat(stat);
-                self.log(format!(
-                    "Allocate stat '{}': {}",
-                    stat,
-                    if success { "success" } else { "failed" }
-                ));
+                self.state.dispatch(crate::game::effects::Command::AllocateStat {
+                    stat: stat.clone(),
+                });
+                self.log(format!("Allocate stat '{}'", stat));
             }
             // Quest actions
             Action::AcceptQuest { quest_id } => {
-                let success = self.state.accept_quest(quest_id);
-                self.log(format!(
-                    "Accept quest '{}': {}",
-                    quest_id,
-                    if success { "success" } else { "failed" }
-                ));
+                self.state.dispatch(crate::game::effects::Command::AcceptQuest {
+                    quest_id: quest_id.clone(),
+                });
+                self.log(format!("Accept quest '{}'", quest_id));
             }
             Action::CompleteQuest { quest_id } => {
-                let success = self.state.complete_quest(quest_id);
-                self.log(format!(
-                    "Complete quest '{}': {}",
-                    quest_id,
-                    if success { "success" } else { "failed" }
-                ));
+                self.state.dispatch(crate::game::effects::Command::CompleteQuest {
+                    quest_id: quest_id.clone(),
+                });
+                self.log(format!("Complete quest '{}'", quest_id));
             }
             // Crafting actions
             Action::Craft { recipe_id } => {
@@ -1997,7 +1996,9 @@ impl DesExecutor {
                 self.log(format!("Unlocked ability: {}", ability_id));
             }
             Action::UseAbility { ability_id } => {
-                self.state.use_psychic_ability(ability_id);
+                self.state.dispatch(crate::game::effects::Command::UsePsychic {
+                    ability_id: ability_id.clone(),
+                });
             }
 
             // Trading actions
@@ -2075,11 +2076,17 @@ impl DesExecutor {
             }
             // Interaction actions
             Action::Interact { target_x, target_y } => {
-                self.state.interact_at(*target_x, *target_y);
+                self.state.dispatch(crate::game::effects::Command::Interact {
+                    x: *target_x,
+                    y: *target_y,
+                });
                 self.log(format!("Player interacted at ({}, {})", target_x, target_y));
             }
             Action::Examine { target_x, target_y } => {
-                self.state.examine_at(*target_x, *target_y);
+                self.state.dispatch(crate::game::effects::Command::Examine {
+                    x: *target_x,
+                    y: *target_y,
+                });
                 self.log(format!("Player examined at ({}, {})", target_x, target_y));
             }
         }

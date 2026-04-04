@@ -19,6 +19,8 @@ pub struct QueryContext<'a> {
     pub debug_phase: bool,
     pub mock_combat_hit: Option<bool>,
     pub mock_combat_damage: Option<i32>,
+    pub wait_counter: u32,
+    pub turn: u32,
 }
 
 impl<'a> QueryContext<'a> {
@@ -35,6 +37,8 @@ impl<'a> QueryContext<'a> {
             debug_phase: state.debug.phase,
             mock_combat_hit: state.debug.mock_combat_hit,
             mock_combat_damage: state.debug.mock_combat_damage,
+            wait_counter: state.wait_counter,
+            turn: state.turn,
         }
     }
 
@@ -78,6 +82,8 @@ pub struct TestContext {
     pub debug_phase: bool,
     pub mock_combat_hit: Option<bool>,
     pub mock_combat_damage: Option<i32>,
+    pub wait_counter: u32,
+    pub turn: u32,
 }
 
 impl Default for TestContext {
@@ -99,6 +105,8 @@ impl TestContext {
             debug_phase: false,
             mock_combat_hit: None,
             mock_combat_damage: None,
+            wait_counter: 0,
+            turn: 0,
         }
     }
 
@@ -195,6 +203,8 @@ impl TestContext {
             debug_phase: self.debug_phase,
             mock_combat_hit: self.mock_combat_hit,
             mock_combat_damage: self.mock_combat_damage,
+            wait_counter: self.wait_counter,
+            turn: self.turn,
         }
     }
 }

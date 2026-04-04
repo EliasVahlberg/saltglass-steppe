@@ -2021,6 +2021,7 @@ dependencies = [
  "tempfile",
  "terrain-forge",
  "textwrap",
+ "vera-effects",
  "which",
 ]
 
@@ -2561,6 +2562,12 @@ dependencies = [
  "num-traits",
  "wasm-bindgen",
 ]
+
+[[package]]
+name = "vera-effects"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ac5ec6771bbc7fd42446281743b84a825c2703a56f4be99979500ae0791c83ce"
 
 [[package]]
 name = "version_check"

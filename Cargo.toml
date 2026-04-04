@@ -9,6 +9,7 @@ name = "mapgen-tool"
 path = "src/bin/mapgen_tool.rs"
 
 [dependencies]
+vera-effects = "0.1"
 ratatui = "0.28"
 crossterm = "0.28"
 serde = { version = "1", features = ["derive"] }

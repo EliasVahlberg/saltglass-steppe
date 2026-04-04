@@ -1,6 +1,6 @@
 use super::{
     CombatEffect, Effect, EventEffect, ItemEffect, MapEffect, Presentation, PlayerEffect,
-    ResourceEffect,
+    QuestEffect, ResourceEffect,
 };
 use crate::game::state::{GameState, MsgType};
 
@@ -13,6 +13,7 @@ impl GameState {
             Effect::Map(e) => self.apply_map_effect(e),
             Effect::Resource(e) => self.apply_resource_effect(e),
             Effect::Event(e) => self.apply_event_effect(e),
+            Effect::Quest(e) => self.apply_quest_effect(e),
         }
     }
 
@@ -49,7 +50,27 @@ impl GameState {
                 self.wait_counter = 0;
             }
             PlayerEffect::GainXp { amount } => {
-                self.gain_xp(*amount);
+                use crate::game::progression::{max_level, xp_for_level};
+                self.player.xp += amount;
+                self.log_typed(format!("+{} XP", amount), MsgType::System);
+                while self.player.level < max_level() {
+                    let next_threshold = xp_for_level(self.player.level + 1);
+                    if self.player.xp >= next_threshold {
+                        self.player.level += 1;
+                        let points = crate::game::progression::stat_points_per_level();
+                        self.player.pending_stat_points += points;
+                        self.player.skills.skill_points += 2;
+                        self.log_typed(
+                            format!("⬆ LEVEL {}! (+{} stat points, +2 skill points)", self.player.level, points),
+                            MsgType::System,
+                        );
+                        self.emit(crate::game::event::GameEvent::LevelUp {
+                            level: self.player.level,
+                        });
+                    } else {
+                        break;
+                    }
+                }
             }
             PlayerEffect::RecordDamageDealt { amount } => {
                 self.player.last_damage_dealt = *amount;
@@ -59,6 +80,61 @@ impl GameState {
             }
             PlayerEffect::AdvanceTurn => {
                 self.turn += 1;
+            }
+            PlayerEffect::IncrementWaitCounter => {
+                self.wait_counter += 1;
+            }
+            PlayerEffect::AllocateStat { stat } => {
+                match stat.as_str() {
+                    "max_hp" => {
+                        self.player.max_hp += 1;
+                        self.player.hp += 1;
+                    }
+                    "max_ap" => self.player.max_ap += 1,
+                    "reflex" => self.player.reflex += 1,
+                    _ => {}
+                }
+                self.player.pending_stat_points -= 1;
+            }
+            PlayerEffect::GainSaltScrip { amount } => {
+                self.player.salt_scrip += amount;
+            }
+            PlayerEffect::GainSkillPoints { amount } => {
+                self.player.skills.skill_points += amount;
+            }
+            PlayerEffect::LevelUp => {
+                self.player.level += 1;
+                let points = crate::game::progression::stat_points_per_level();
+                self.player.pending_stat_points += points;
+                self.player.skills.skill_points += 2;
+                self.emit(crate::game::event::GameEvent::LevelUp {
+                    level: self.player.level,
+                });
+            }
+            PlayerEffect::ModifyReputation { faction, delta } => {
+                let current = self.player.faction_reputation.get(faction.as_str()).copied().unwrap_or(0);
+                let new_rep = (current + delta).clamp(-100, 100);
+                self.player.faction_reputation.insert(faction.clone(), new_rep);
+                if *delta != 0 {
+                    self.emit(crate::game::event::GameEvent::FactionReputationChanged {
+                        faction_id: faction.clone(),
+                        delta: *delta,
+                    });
+                }
+            }
+            PlayerEffect::ApplyStatusEffect { effect_id, duration } => {
+                self.apply_status(crate::game::status::StatusEffect::new(effect_id, *duration));
+            }
+            PlayerEffect::SetPhaseMode { enabled } => {
+                self.debug.phase = *enabled;
+            }
+            PlayerEffect::ClearEncounter => {
+                self.world.encounter_state = None;
+            }
+            PlayerEffect::SetLastFleeAttempt { turn } => {
+                if let Some(enc) = &mut self.world.encounter_state {
+                    enc.last_flee_attempt = *turn;
+                }
             }
         }
     }
@@ -85,6 +161,11 @@ impl GameState {
                     enemy.provoked = true;
                 }
             }
+            CombatEffect::StunEnemy { enemy_idx, duration } => {
+                if let Some(enemy) = self.world.enemies.get_mut(*enemy_idx) {
+                    enemy.apply_status("stun", *duration);
+                }
+            }
         }
     }
 
@@ -99,6 +180,26 @@ impl GameState {
                 if *index < self.player.inventory.len() {
                     self.player.inventory.remove(*index);
                 }
+            }
+            ItemEffect::Equip { item_id, slot } => {
+                if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>()
+                    && let Some(old) = self.player.equipment.set(equip_slot, Some(item_id.clone()))
+                {
+                    self.player.inventory.push(old);
+                }
+            }
+            ItemEffect::Unequip { slot } => {
+                if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>()
+                    && let Some(item) = self.player.equipment.set(equip_slot, None)
+                {
+                    self.player.inventory.push(item);
+                }
+            }
+            ItemEffect::AddToInventory { item_id } => {
+                self.player.inventory.push(item_id.clone());
+            }
+            ItemEffect::RecalcStats => {
+                self.recalc_equipment_stats();
             }
         }
     }
@@ -214,6 +315,22 @@ impl GameState {
                         frequency,
                     });
                 }
+            }
+        }
+    }
+
+    fn apply_quest_effect(&mut self, effect: &QuestEffect) {
+        match effect {
+            QuestEffect::Accept { quest_id } => {
+                if let Some(quest) = crate::game::quest::ActiveQuest::new(quest_id) {
+                    self.player.quest_log.active.push(quest);
+                }
+            }
+            QuestEffect::Complete { quest_id } => {
+                let _ = self.player.quest_log.complete(quest_id);
+            }
+            QuestEffect::SetFactionAlignment { faction } => {
+                self.player.quest_log.set_faction_alignment(faction);
             }
         }
     }
