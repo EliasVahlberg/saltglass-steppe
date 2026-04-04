@@ -9,6 +9,17 @@ use crate::game::world_map::{
     Biome, Connected, POI, Resources, Terrain, WORLD_HEIGHT, WORLD_WIDTH,
 };
 
+/// World generation output: (biomes, terrain, elevation, pois, resources, connected, levels)
+type WorldGenOutput = (
+    Vec<Biome>,
+    Vec<Terrain>,
+    Vec<u8>,
+    Vec<POI>,
+    Vec<Resources>,
+    Vec<Connected>,
+    Vec<u32>,
+);
+
 /// World generation configuration
 #[derive(Debug, Clone, Deserialize)]
 pub struct WorldGenConfig {
@@ -164,15 +175,7 @@ impl WorldGenerator {
     pub fn generate(
         &self,
         seed: u64,
-    ) -> (
-        Vec<Biome>,
-        Vec<Terrain>,
-        Vec<u8>,
-        Vec<POI>,
-        Vec<Resources>,
-        Vec<Connected>,
-        Vec<u32>,
-    ) {
+    ) -> WorldGenOutput {
         let mut biome_noise = FastNoise::seeded(seed.wrapping_mul(200));
         biome_noise.set_noise_type(NoiseType::Perlin);
         biome_noise.set_frequency(self.config.biome_noise_scale as f32);
@@ -283,7 +286,6 @@ impl WorldGenerator {
         let pois = self.generate_pois(seed, &biomes, &terrain);
 
         // Override biomes at quest-critical POI locations
-        let mut biomes = biomes;
         self.override_quest_biomes(&mut biomes, &pois);
 
         // Enhanced road generation
@@ -403,7 +405,7 @@ impl WorldGenerator {
     }
 
     /// Place POIs at quest-critical locations
-    fn place_quest_pois(&self, pois: &mut Vec<POI>, poi_positions: &mut Vec<(usize, usize)>) {
+    fn place_quest_pois(&self, pois: &mut [POI], poi_positions: &mut Vec<(usize, usize)>) {
         // Vitrified library ruins at (50, 50) - use Landmark POI
         let x = 50;
         let y = 50;
@@ -415,7 +417,7 @@ impl WorldGenerator {
     }
 
     /// Override biomes at quest-critical POI locations
-    fn override_quest_biomes(&self, biomes: &mut Vec<Biome>, pois: &[POI]) {
+    fn override_quest_biomes(&self, biomes: &mut [Biome], pois: &[POI]) {
         // Set biome to Ruins at Landmark POIs for proper microstructure generation
         for (idx, &poi) in pois.iter().enumerate() {
             if poi == POI::Landmark {
@@ -571,7 +573,7 @@ impl WorldGenerator {
                     total_level.saturating_sub((-poi_mod) as u32)
                 };
 
-                levels[idx] = final_level.max(1).min(15);
+                levels[idx] = final_level.clamp(1, 15);
             }
         }
 

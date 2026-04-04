@@ -9,6 +9,9 @@ use std::collections::{HashMap, HashSet, VecDeque};
 use crate::game::constants::{MAP_HEIGHT, MAP_WIDTH};
 use crate::game::map::{Map, Tile};
 
+/// Exit pair: (point_a, point_b, cost)
+type ExitPair = ((i32, i32), (i32, i32), usize);
+
 // ============================================================================
 // Configuration
 // ============================================================================
@@ -261,7 +264,7 @@ fn flood_fill(
     map: &Map,
     start_x: i32,
     start_y: i32,
-    visited: &mut Vec<Vec<bool>>,
+    visited: &mut [Vec<bool>],
 ) -> Vec<(i32, i32)> {
     let mut tiles = Vec::new();
     let mut queue = VecDeque::new();
@@ -587,7 +590,7 @@ fn prune_occlusion(edges: &mut Vec<TunnelEdge>, occlusion_factor: f32) {
 // ============================================================================
 
 /// Optimize edge costs using PGD and/or FRR
-fn optimize_edges(edges: &mut Vec<TunnelEdge>, regions: &[Region], map: &Map, params: &GSBParams) {
+fn optimize_edges(edges: &mut [TunnelEdge], regions: &[Region], map: &Map, params: &GSBParams) {
     for edge in edges.iter_mut() {
         let r1 = &regions[edge.region_a];
         let r2 = &regions[edge.region_b];
@@ -621,7 +624,7 @@ fn perimeter_gradient_descent(
     initial_b: (i32, i32),
     map: &Map,
     params: &GSBParams,
-) -> Option<((i32, i32), (i32, i32), usize)> {
+) -> Option<ExitPair> {
     if r1.perimeter.is_empty() || r2.perimeter.is_empty() {
         return None;
     }
@@ -679,7 +682,7 @@ fn frustum_ray_refinement(
     r2: &Region,
     map: &Map,
     params: &GSBParams,
-) -> Option<((i32, i32), (i32, i32), usize)> {
+) -> Option<ExitPair> {
     use std::f32::consts::PI;
 
     if r1.perimeter.is_empty() || r2.perimeter.is_empty() {
@@ -742,14 +745,14 @@ fn frr_refine(
     map: &Map,
     depth: usize,
     bins: usize,
-) -> Option<((i32, i32), (i32, i32), usize)> {
+) -> Option<ExitPair> {
     if candidates_a.is_empty() || candidates_b.is_empty() {
         return None;
     }
 
     if depth == 0 || candidates_a.len() <= bins || candidates_b.len() <= bins {
         // Base case: find best pair
-        let mut best: Option<((i32, i32), (i32, i32), usize)> = None;
+        let mut best: Option<ExitPair> = None;
         for &a in candidates_a {
             for &b in candidates_b {
                 let cost = count_walls_bresenham(map, a, b);

@@ -22,6 +22,7 @@ impl TileRenderer {
     }
 
     /// Render all tiles and return spans for each screen position
+    #[allow(clippy::too_many_arguments)]
     pub fn render_tiles(
         &self,
         state: &GameState,
@@ -235,16 +236,12 @@ impl TileRenderer {
                     Color::White // Very bright: white
                 } else if light_level >= 150 {
                     Color::Gray // Bright: gray
-                } else if light_level >= 100 {
-                    Color::DarkGray // Medium: dark gray
                 } else {
-                    Color::DarkGray // Low: still dark gray (no black)
+                    Color::DarkGray // Medium/Low: dark gray (no black)
                 }
             }
             _ => {
-                if light_level >= 200 {
-                    color
-                } else if light_level >= 100 {
+                if light_level >= 100 {
                     color
                 } else {
                     Color::DarkGray

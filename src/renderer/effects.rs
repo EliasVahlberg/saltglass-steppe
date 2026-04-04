@@ -22,6 +22,7 @@ impl EffectsRenderer {
     }
 
     /// Apply visual effects to rendered spans
+    #[allow(clippy::too_many_arguments)]
     pub fn apply_effects(
         &self,
         _state: &GameState,

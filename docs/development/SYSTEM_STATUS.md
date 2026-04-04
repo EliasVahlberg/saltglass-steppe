@@ -1,14 +1,14 @@
 ---
 status: current
 last_verified: 2026-04-04
-commit: e0d1fe7
+commit: 3033a75
 ---
 
 # System Status Registry
 
 > **Purpose**: Single source of truth for what actually works in gameplay. Read this before working on any system.
 > **Architecture**: VERA (Verified Effect-Rule Architecture) — see `docs/development/architecture_refactor/FINAL_ARCHITECTURE.md`
-> **Last verified**: 2026-04-04 (from codebase health audit)
+> **Last verified**: 2026-04-04 (VERA Phases 1–4 merged)
 > **Rule**: If a system isn't marked ✅, don't assume it works. Verify before building on it.
 
 ## Status Key
@@ -24,24 +24,25 @@ commit: e0d1fe7
 
 ## Core Gameplay Systems
 
-| System | Input Path | State Mutation | DES Coverage | Status |
-|--------|-----------|---------------|-------------|--------|
-| **Movement** | Arrow keys → `MovementSystem::try_move` | player.x/y, FOV, lighting, tile effects | Multiple scenarios | ✅ |
-| **Melee combat** | Bump-to-attack → `CombatSystem::attack_melee` | enemy.hp, player.ap, XP, loot events | 12+ scenarios | ✅ |
-| **Ranged combat** | 'f' key → `CombatSystem::ranged_attack` | enemy.hp, ammo consumed, projectile visual | Some scenarios | ✅ |
-| **Item use** | 'u' key → `state.use_item()` | HP, AP, refraction, energy, inventory | Some scenarios | ✅ |
-| **Item pickup** | Walk over → `MovementSystem::pickup_items` | inventory, item removed from map | Some scenarios | ✅ |
-| **Equipment** | Inventory menu → equip | player.equipped_weapon | Minimal | ✅ |
-| **Enemy AI** | `end_turn` → `AiSystem::update` | enemy positions, player.hp (attacks) | Some scenarios | ✅ |
-| **Status effects** | Applied by combat/items → `StatusEffectSystem::update` | HP ticks, duration, expiry | Some scenarios | ✅ |
-| **Storm system** | `end_turn` → `StormSystem::apply_storm` | map tiles (7 edit types), refraction, wraith spawns | Minimal | ✅ |
-| **Quest system** | Events → `QuestSystem::on_event` | quest progress, completion | Some scenarios | ✅ |
-| **Loot system** | EnemyKilled event → `LootSystem::on_event` | items spawned on map | Some scenarios | ✅ |
-| **Save/load** | Menu → `save_game`/`load_game` | Full GameState serialization | No DES coverage | ⚠️ No tests |
-| **World travel** | Map edge → `travel_to_tile` | map regenerated, entities spawned | Minimal | ✅ |
-| **NPC dialogue** | Bump NPC → `MovementSystem::handle_npc_interaction` | pending_dialogue, quest events | Some scenarios | ✅ |
-| **Trading** | NPC action → `pending_trade` | inventory, salt_scrip | Thin coverage (1-2 scenarios) | ⚠️ |
-| **Crafting** | Menu → craft | inventory (consume + produce) | Thin coverage (1-2 scenarios) | ⚠️ |
+| System | Input Path | State Mutation | DES Coverage | Status | VERA |
+|--------|-----------|---------------|-------------|--------|------|
+| **Movement** | Arrow keys → `Command::Move` → `rule_move` | player.x/y, FOV, lighting, tile effects | Multiple scenarios + 7 rule tests | ✅ | ⚠️ Partial — NPC/combat branches delegate to legacy bridge |
+| **Melee combat** | Bump-to-attack → `Command::Attack` → `rule_melee_attack` | enemy.hp, player.ap, XP, loot events | 12+ scenarios + 4 rule tests | ✅ | ⚠️ Partial — post-processing (swarm aggro, reflect, split) still imperative |
+| **Ranged combat** | 'f' key → `Command::RangedAttack` → `rule_ranged_attack` | enemy.hp, ammo consumed, projectile visual | Some scenarios + 3 rule tests | ✅ | ⚠️ Partial — same caveats as melee |
+| **Item use** | 'u' key → `Command::UseItem` → `rule_use_item` | HP, AP, refraction, energy, inventory | 12 DES scenarios + 7 rule tests | ✅ | ✅ Migrated |
+| **Item pickup** | Walk over → `MovementSystem::pickup_items` | inventory, item removed from map | Some scenarios | ✅ | — Legacy |
+| **Equipment** | Inventory menu → equip | player.equipped_weapon | Minimal | ✅ | — Legacy |
+| **Enemy AI** | `end_turn` → `TurnPhase::RunAI` → `AiSystem::update` | enemy positions, player.hp (attacks) | Some scenarios | ✅ | — Legacy (called from TurnPhase) |
+| **Status effects** | `end_turn` → `TurnPhase::TickStatusEffects` → `StatusEffectSystem::update` | HP ticks, duration, expiry | Some scenarios | ✅ | — Legacy (called from TurnPhase) |
+| **Storm system** | `end_turn` → `TurnPhase::TickStorm` → `StormSystem::apply_storm` | map tiles (7 edit types), refraction, wraith spawns | Minimal | ✅ | — Legacy (called from TurnPhase) |
+| **end_turn** | End of player action → `TurnPhase::sequence()` | AP reset, turn advance, all sub-systems | Every scenario (implicit) | ✅ | ⚠️ Partial — ResetAp/AdvanceTurn traced; sub-systems remain legacy |
+| **Quest system** | Events → `QuestSystem::on_event` | quest progress, completion | Some scenarios | ✅ | — Legacy |
+| **Loot system** | EnemyKilled event → `LootSystem::on_event` | items spawned on map | Some scenarios | ✅ | — Legacy |
+| **Save/load** | Menu → `save_game`/`load_game` | Full GameState serialization | No DES coverage | ⚠️ No tests | — Legacy |
+| **World travel** | Map edge → `travel_to_tile` | map regenerated, entities spawned | Minimal | ✅ | — Legacy |
+| **NPC dialogue** | Bump NPC → `handle_npc_interaction_legacy` | pending_ui.dialogue, quest events | Some scenarios | ✅ | — Legacy (bridge from rule_move) |
+| **Trading** | NPC action → `pending_ui.trade` | inventory, salt_scrip | Thin coverage (1-2 scenarios) | ⚠️ | — Legacy |
+| **Crafting** | Menu → craft | inventory (consume + produce) | Thin coverage (1-2 scenarios) | ⚠️ | — Legacy |
 
 ## Special Systems (Audit Findings)
 
@@ -82,8 +83,8 @@ commit: e0d1fe7
 |-------|--------|---------|
 | Traders → Items cross-refs | ✅ | 0 dangling references |
 | Spawn tables → Enemies cross-refs | ✅ | 0 dangling references |
-| Loot tables → Items cross-refs | ❌ | 2 dangling: `angle_split_lens`, `prism_shard` |
-| Spawn tables → Items cross-refs | ❌ | 16 dangling: `ancient_gear`, `cactus_water`, `crystalline_shard`, `dried_herbs`, `healing_herb`, `prism_shard`, etc. |
+| Loot tables → Items cross-refs | ✅ | 0 dangling (fixed: `angle_split_lens`→`angle_lens`, `prism_shard`→`prism_core`) |
+| Spawn tables → Items cross-refs | ✅ | 0 dangling (fixed: 16 refs remapped to existing items) |
 | Schema coverage | ⚠️ | 5 data files without schemas: biome_spawn_tables, environmental_props, main_questline, skill_trees, traders |
 | Orphaned schemas | ❌ | 11 schemas with no matching data file |
 | Runtime cross-ref validation | ❌ | DataLoader validates schema structure but not referential integrity |

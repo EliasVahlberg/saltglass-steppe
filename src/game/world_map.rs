@@ -205,8 +205,7 @@ impl WorldMap {
 
                 levels[idx] = (base_level + terrain_mod)
                     .saturating_add_signed(poi_mod)
-                    .max(1)
-                    .min(10);
+                    .clamp(1, 10);
             }
         }
 

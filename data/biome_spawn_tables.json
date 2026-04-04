@@ -1,286 +1,1325 @@
 {
   "default": {
     "items": [
-      {"id": "storm_glass", "weight": 4, "min_level": 1, "max_level": 10},
-      {"id": "pristine_storm_glass", "weight": 2, "min_level": 4, "max_level": 10},
-      {"id": "storm_core", "weight": 1, "min_level": 9, "max_level": 10},
-      {"id": "brine_vial", "weight": 3, "min_level": 1, "max_level": 6},
-      {"id": "greater_brine_vial", "weight": 2, "min_level": 4, "max_level": 10},
-      {"id": "saints_tear", "weight": 1, "min_level": 7, "max_level": 10},
-      {"id": "scripture_shard", "weight": 2, "min_level": 1, "max_level": 8},
-      {"id": "illuminated_scripture", "weight": 1, "min_level": 7, "max_level": 10, "room": "last"},
-      {"id": "saint_key", "weight": 1, "min_level": 3, "max_level": 10, "room": "last"},
-      {"id": "master_saint_key", "weight": 1, "min_level": 9, "max_level": 10, "room": "last"},
-      {"id": "angle_lens", "weight": 1, "min_level": 4, "max_level": 10, "room": "last"},
-      {"id": "perfect_lens", "weight": 1, "min_level": 8, "max_level": 10, "room": "last"},
-      {"id": "salt_knife", "weight": 2, "min_level": 1, "max_level": 4},
-      {"id": "glass_blade", "weight": 1, "min_level": 4, "max_level": 8},
-      {"id": "saint_blade", "weight": 1, "min_level": 9, "max_level": 10},
-      {"id": "glass_shard", "weight": 2, "min_level": 1, "max_level": 6},
-      {"id": "refined_glass_shard", "weight": 1, "min_level": 3, "max_level": 8},
-      {"id": "salt_vest", "weight": 1, "min_level": 2, "max_level": 5},
-      {"id": "glass_mail", "weight": 1, "min_level": 5, "max_level": 9},
-      {"id": "saint_aegis", "weight": 1, "min_level": 9, "max_level": 10},
-      {"id": "leather_jacket", "weight": 1, "min_level": 1, "max_level": 4},
-      {"id": "reinforced_jacket", "weight": 1, "min_level": 3, "max_level": 7},
-      {"id": "glass_pick", "weight": 1, "min_level": 1, "max_level": 6},
-      {"id": "master_glass_pick", "weight": 1, "min_level": 7, "max_level": 10},
-      {"id": "storm_compass", "weight": 1, "min_level": 3, "max_level": 8},
-      {"id": "storm_oracle", "weight": 1, "min_level": 7, "max_level": 10},
-      {"id": "veil_tincture", "weight": 1, "min_level": 3, "max_level": 8},
-      {"id": "perfect_veil", "weight": 1, "min_level": 8, "max_level": 10},
-      {"id": "salt_poultice", "weight": 2, "min_level": 1, "max_level": 6},
-      {"id": "master_salve", "weight": 1, "min_level": 9, "max_level": 10},
-      {"id": "hand_torch", "weight": 1, "min_level": 1, "max_level": 3},
-      {"id": "storm_lantern", "weight": 1, "min_level": 4, "max_level": 8},
-      {"id": "saint_beacon", "weight": 1, "min_level": 9, "max_level": 10},
-      {"id": "salt_crystal", "weight": 2, "min_level": 1, "max_level": 6},
-      {"id": "perfect_salt_crystal", "weight": 1, "min_level": 5, "max_level": 10},
-      {"id": "quantum_silk", "weight": 1, "min_level": 2, "max_level": 6},
-      {"id": "crystal_fragment", "weight": 1, "min_level": 2, "max_level": 7},
-      {"id": "storm_feather", "weight": 1, "min_level": 3, "max_level": 8},
-      {"id": "void_essence", "weight": 1, "min_level": 4, "max_level": 9},
-      {"id": "dimensional_shard", "weight": 1, "min_level": 5, "max_level": 10, "room": "last"}
+      {
+        "id": "storm_glass",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 10
+      },
+      {
+        "id": "pristine_storm_glass",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "storm_core",
+        "weight": 1,
+        "min_level": 9,
+        "max_level": 10
+      },
+      {
+        "id": "brine_vial",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "greater_brine_vial",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "saints_tear",
+        "weight": 1,
+        "min_level": 7,
+        "max_level": 10
+      },
+      {
+        "id": "scripture_shard",
+        "weight": 2,
+        "min_level": 1,
+        "max_level": 8
+      },
+      {
+        "id": "illuminated_scripture",
+        "weight": 1,
+        "min_level": 7,
+        "max_level": 10,
+        "room": "last"
+      },
+      {
+        "id": "saint_key",
+        "weight": 1,
+        "min_level": 3,
+        "max_level": 10,
+        "room": "last"
+      },
+      {
+        "id": "master_saint_key",
+        "weight": 1,
+        "min_level": 9,
+        "max_level": 10,
+        "room": "last"
+      },
+      {
+        "id": "angle_lens",
+        "weight": 1,
+        "min_level": 4,
+        "max_level": 10,
+        "room": "last"
+      },
+      {
+        "id": "perfect_lens",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 10,
+        "room": "last"
+      },
+      {
+        "id": "salt_knife",
+        "weight": 2,
+        "min_level": 1,
+        "max_level": 4
+      },
+      {
+        "id": "glass_blade",
+        "weight": 1,
+        "min_level": 4,
+        "max_level": 8
+      },
+      {
+        "id": "saint_blade",
+        "weight": 1,
+        "min_level": 9,
+        "max_level": 10
+      },
+      {
+        "id": "glass_shard",
+        "weight": 2,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "refined_glass_shard",
+        "weight": 1,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "salt_vest",
+        "weight": 1,
+        "min_level": 2,
+        "max_level": 5
+      },
+      {
+        "id": "glass_mail",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 9
+      },
+      {
+        "id": "saint_aegis",
+        "weight": 1,
+        "min_level": 9,
+        "max_level": 10
+      },
+      {
+        "id": "leather_jacket",
+        "weight": 1,
+        "min_level": 1,
+        "max_level": 4
+      },
+      {
+        "id": "reinforced_jacket",
+        "weight": 1,
+        "min_level": 3,
+        "max_level": 7
+      },
+      {
+        "id": "glass_pick",
+        "weight": 1,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "master_glass_pick",
+        "weight": 1,
+        "min_level": 7,
+        "max_level": 10
+      },
+      {
+        "id": "storm_compass",
+        "weight": 1,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "storm_oracle",
+        "weight": 1,
+        "min_level": 7,
+        "max_level": 10
+      },
+      {
+        "id": "veil_tincture",
+        "weight": 1,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "perfect_veil",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 10
+      },
+      {
+        "id": "salt_poultice",
+        "weight": 2,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "master_salve",
+        "weight": 1,
+        "min_level": 9,
+        "max_level": 10
+      },
+      {
+        "id": "hand_torch",
+        "weight": 1,
+        "min_level": 1,
+        "max_level": 3
+      },
+      {
+        "id": "storm_lantern",
+        "weight": 1,
+        "min_level": 4,
+        "max_level": 8
+      },
+      {
+        "id": "saint_beacon",
+        "weight": 1,
+        "min_level": 9,
+        "max_level": 10
+      },
+      {
+        "id": "salt_crystal",
+        "weight": 2,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "perfect_salt_crystal",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10
+      },
+      {
+        "id": "quantum_silk",
+        "weight": 1,
+        "min_level": 2,
+        "max_level": 6
+      },
+      {
+        "id": "crystal_fragment",
+        "weight": 1,
+        "min_level": 2,
+        "max_level": 7
+      },
+      {
+        "id": "storm_feather",
+        "weight": 1,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "void_essence",
+        "weight": 1,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "dimensional_shard",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10,
+        "room": "last"
+      }
     ],
     "enemies": [
-      {"id": "mirage_hound", "weight": 4, "min_level": 1, "max_level": 3},
-      {"id": "glass_beetle", "weight": 3, "min_level": 2, "max_level": 4},
-      {"id": "salt_mummy", "weight": 3, "min_level": 2, "max_level": 5},
-      {"id": "shard_spider", "weight": 3, "min_level": 1, "max_level": 3},
-      {"id": "salt_wraith", "weight": 2, "min_level": 1, "max_level": 4},
-      {"id": "glass_crawler", "weight": 2, "min_level": 2, "max_level": 5},
-      {"id": "storm_herald", "weight": 2, "min_level": 3, "max_level": 7},
-      {"id": "void_whisper", "weight": 1, "min_level": 4, "max_level": 8},
-      {"id": "shard_sentinel", "weight": 1, "min_level": 5, "max_level": 10},
-      {"id": "brine_leech", "weight": 2, "min_level": 1, "max_level": 3},
-      {"id": "dust_devil", "weight": 2, "min_level": 2, "max_level": 4},
-      {"id": "archive_custodian", "weight": 1, "min_level": 4, "max_level": 8},
-      {"id": "refraction_wraith", "weight": 1, "min_level": 5, "max_level": 8},
-      {"id": "pilgrim_hollow", "weight": 1, "min_level": 6, "max_level": 9},
-      {"id": "crystal_scarab", "weight": 1, "min_level": 8, "max_level": 12},
-      {"id": "crystal_widow", "weight": 1, "min_level": 10, "max_level": 15},
-      {"id": "storm_caller", "weight": 1, "min_level": 12, "max_level": 18},
-      {"id": "refraction_beast", "weight": 1, "min_level": 10, "max_level": 15},
-      {"id": "salt_lord", "weight": 1, "min_level": 12, "max_level": 20},
-      {"id": "storm_phantom", "weight": 1, "min_level": 12, "max_level": 18},
-      {"id": "prism_tyrant", "weight": 1, "min_level": 18, "max_level": 25},
-      {"id": "void_sovereign", "weight": 1, "min_level": 18, "max_level": 25},
-      {"id": "storm_sovereign", "weight": 1, "min_level": 20, "max_level": 30}
+      {
+        "id": "mirage_hound",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 3
+      },
+      {
+        "id": "glass_beetle",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 4
+      },
+      {
+        "id": "salt_mummy",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 5
+      },
+      {
+        "id": "shard_spider",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 3
+      },
+      {
+        "id": "salt_wraith",
+        "weight": 2,
+        "min_level": 1,
+        "max_level": 4
+      },
+      {
+        "id": "glass_crawler",
+        "weight": 2,
+        "min_level": 2,
+        "max_level": 5
+      },
+      {
+        "id": "storm_herald",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 7
+      },
+      {
+        "id": "void_whisper",
+        "weight": 1,
+        "min_level": 4,
+        "max_level": 8
+      },
+      {
+        "id": "shard_sentinel",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10
+      },
+      {
+        "id": "brine_leech",
+        "weight": 2,
+        "min_level": 1,
+        "max_level": 3
+      },
+      {
+        "id": "dust_devil",
+        "weight": 2,
+        "min_level": 2,
+        "max_level": 4
+      },
+      {
+        "id": "archive_custodian",
+        "weight": 1,
+        "min_level": 4,
+        "max_level": 8
+      },
+      {
+        "id": "refraction_wraith",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 8
+      },
+      {
+        "id": "pilgrim_hollow",
+        "weight": 1,
+        "min_level": 6,
+        "max_level": 9
+      },
+      {
+        "id": "crystal_scarab",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 12
+      },
+      {
+        "id": "crystal_widow",
+        "weight": 1,
+        "min_level": 10,
+        "max_level": 15
+      },
+      {
+        "id": "storm_caller",
+        "weight": 1,
+        "min_level": 12,
+        "max_level": 18
+      },
+      {
+        "id": "refraction_beast",
+        "weight": 1,
+        "min_level": 10,
+        "max_level": 15
+      },
+      {
+        "id": "salt_lord",
+        "weight": 1,
+        "min_level": 12,
+        "max_level": 20
+      },
+      {
+        "id": "storm_phantom",
+        "weight": 1,
+        "min_level": 12,
+        "max_level": 18
+      },
+      {
+        "id": "prism_tyrant",
+        "weight": 1,
+        "min_level": 18,
+        "max_level": 25
+      },
+      {
+        "id": "void_sovereign",
+        "weight": 1,
+        "min_level": 18,
+        "max_level": 25
+      },
+      {
+        "id": "storm_sovereign",
+        "weight": 1,
+        "min_level": 20,
+        "max_level": 30
+      }
     ],
     "npcs": [
-      {"id": "mirror_monk", "weight": 1, "min_level": 1, "max_level": 10, "room": "late"},
-      {"id": "salt_hermit", "weight": 1, "min_level": 1, "max_level": 6},
-      {"id": "glass_merchant", "weight": 1, "min_level": 2, "max_level": 8},
-      {"id": "dying_pilgrim", "weight": 1, "min_level": 1, "max_level": 5},
-      {"id": "mirror_monk_friendly", "weight": 2, "min_level": 3, "max_level": 8},
-      {"id": "sand_engineer_friendly", "weight": 2, "min_level": 4, "max_level": 9},
-      {"id": "glassborn_friendly", "weight": 1, "min_level": 5, "max_level": 10},
-      {"id": "iron_covenant_recruiter", "weight": 1, "min_level": 3, "max_level": 8},
-      {"id": "glass_prophet_herald", "weight": 1, "min_level": 4, "max_level": 9},
-      {"id": "wandering_court_sage", "weight": 1, "min_level": 3, "max_level": 8},
-      {"id": "captain_vasquez_ghost", "weight": 1, "min_level": 6, "max_level": 10, "room": "late"},
-      {"id": "unit_seven", "weight": 1, "min_level": 5, "max_level": 10, "room": "late"},
-      {"id": "cosmic_watcher", "weight": 1, "min_level": 8, "max_level": 10, "room": "last"}
+      {
+        "id": "mirror_monk",
+        "weight": 1,
+        "min_level": 1,
+        "max_level": 10,
+        "room": "late"
+      },
+      {
+        "id": "salt_hermit",
+        "weight": 1,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "glass_merchant",
+        "weight": 1,
+        "min_level": 2,
+        "max_level": 8
+      },
+      {
+        "id": "dying_pilgrim",
+        "weight": 1,
+        "min_level": 1,
+        "max_level": 5
+      },
+      {
+        "id": "mirror_monk_friendly",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "sand_engineer_friendly",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "glassborn_friendly",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10
+      },
+      {
+        "id": "iron_covenant_recruiter",
+        "weight": 1,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "glass_prophet_herald",
+        "weight": 1,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "wandering_court_sage",
+        "weight": 1,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "captain_vasquez_ghost",
+        "weight": 1,
+        "min_level": 6,
+        "max_level": 10,
+        "room": "late"
+      },
+      {
+        "id": "unit_seven",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10,
+        "room": "late"
+      },
+      {
+        "id": "cosmic_watcher",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 10,
+        "room": "last"
+      }
     ]
   },
   "saltflat": {
     "items": [
-      {"id": "salt_crystal", "weight": 5, "min_level": 1, "max_level": 10},
-      {"id": "brine_vial", "weight": 4, "min_level": 1, "max_level": 10},
-      {"id": "salt_poultice", "weight": 3, "min_level": 2, "max_level": 8},
-      {"id": "crystalline_shard", "weight": 2, "min_level": 3, "max_level": 10},
-      {"id": "salt_knife", "weight": 3, "min_level": 1, "max_level": 6},
-      {"id": "salt_vest", "weight": 2, "min_level": 2, "max_level": 8}
+      {
+        "id": "salt_crystal",
+        "weight": 5,
+        "min_level": 1,
+        "max_level": 10
+      },
+      {
+        "id": "brine_vial",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 10
+      },
+      {
+        "id": "salt_poultice",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 8
+      },
+      {
+        "id": "crystal_fragment",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 10
+      },
+      {
+        "id": "salt_knife",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "salt_vest",
+        "weight": 2,
+        "min_level": 2,
+        "max_level": 8
+      }
     ],
     "enemies": [
-      {"id": "salt_mummy", "weight": 5, "min_level": 2, "max_level": 6},
-      {"id": "mirage_hound", "weight": 3, "min_level": 1, "max_level": 4},
-      {"id": "salt_wraith", "weight": 4, "min_level": 1, "max_level": 5},
-      {"id": "dust_devil", "weight": 3, "min_level": 2, "max_level": 5},
-      {"id": "salt_lord", "weight": 1, "min_level": 12, "max_level": 20},
-      {"id": "salt_emperor", "weight": 1, "min_level": 25, "max_level": 40}
+      {
+        "id": "salt_mummy",
+        "weight": 5,
+        "min_level": 2,
+        "max_level": 6
+      },
+      {
+        "id": "mirage_hound",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 4
+      },
+      {
+        "id": "salt_wraith",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 5
+      },
+      {
+        "id": "dust_devil",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 5
+      },
+      {
+        "id": "salt_lord",
+        "weight": 1,
+        "min_level": 12,
+        "max_level": 20
+      },
+      {
+        "id": "salt_emperor",
+        "weight": 1,
+        "min_level": 25,
+        "max_level": 40
+      }
     ],
     "npcs": [
-      {"id": "salt_hermit", "weight": 3, "min_level": 1, "max_level": 8},
-      {"id": "mirror_monk_friendly", "weight": 2, "min_level": 3, "max_level": 8}
+      {
+        "id": "salt_hermit",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 8
+      },
+      {
+        "id": "mirror_monk_friendly",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 8
+      }
     ]
   },
   "oasis": {
     "items": [
-      {"id": "fresh_water", "weight": 6, "min_level": 1, "max_level": 10},
-      {"id": "healing_herb", "weight": 4, "min_level": 1, "max_level": 8},
-      {"id": "fruit_ration", "weight": 3, "min_level": 1, "max_level": 6},
-      {"id": "oasis_crystal", "weight": 2, "min_level": 3, "max_level": 10}
+      {
+        "id": "water_flask",
+        "weight": 6,
+        "min_level": 1,
+        "max_level": 10
+      },
+      {
+        "id": "brine_vial",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 8
+      },
+      {
+        "id": "dried_meat",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "salt_crystal",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 10
+      }
     ],
     "enemies": [
-      {"id": "glass_beetle", "weight": 3, "min_level": 2, "max_level": 5},
-      {"id": "mirage_hound", "weight": 2, "min_level": 1, "max_level": 4},
-      {"id": "glass_crawler", "weight": 2, "min_level": 2, "max_level": 5},
-      {"id": "crystal_scarab", "weight": 1, "min_level": 8, "max_level": 15}
+      {
+        "id": "glass_beetle",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 5
+      },
+      {
+        "id": "mirage_hound",
+        "weight": 2,
+        "min_level": 1,
+        "max_level": 4
+      },
+      {
+        "id": "glass_crawler",
+        "weight": 2,
+        "min_level": 2,
+        "max_level": 5
+      },
+      {
+        "id": "crystal_scarab",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 15
+      }
     ],
     "npcs": [
-      {"id": "oasis_guardian", "weight": 2, "min_level": 3, "max_level": 8},
-      {"id": "water_trader", "weight": 3, "min_level": 1, "max_level": 6},
-      {"id": "glassborn_friendly", "weight": 1, "min_level": 5, "max_level": 10}
+      {
+        "id": "oasis_guardian",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "water_trader",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "glassborn_friendly",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10
+      }
     ]
   },
   "ruins": {
     "items": [
-      {"id": "ancient_gear", "weight": 4, "min_level": 2, "max_level": 10},
-      {"id": "rusted_weapon", "weight": 3, "min_level": 1, "max_level": 6},
-      {"id": "scripture_shard", "weight": 4, "min_level": 1, "max_level": 10},
-      {"id": "saint_key", "weight": 2, "min_level": 4, "max_level": 10},
-      {"id": "archive_data", "weight": 2, "min_level": 5, "max_level": 10}
+      {
+        "id": "prototype_gear",
+        "weight": 4,
+        "min_level": 2,
+        "max_level": 10
+      },
+      {
+        "id": "glass_shard",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "scripture_shard",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 10
+      },
+      {
+        "id": "saint_key",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "research_data",
+        "weight": 2,
+        "min_level": 5,
+        "max_level": 10
+      }
     ],
     "enemies": [
-      {"id": "refraction_wraith", "weight": 4, "min_level": 3, "max_level": 10},
-      {"id": "pilgrim_hollow", "weight": 3, "min_level": 6, "max_level": 15},
-      {"id": "refraction_beast", "weight": 2, "min_level": 10, "max_level": 20},
-      {"id": "archive_custodian", "weight": 2, "min_level": 5, "max_level": 12},
-      {"id": "storm_phantom", "weight": 1, "min_level": 12, "max_level": 20},
-      {"id": "void_sovereign", "weight": 1, "min_level": 18, "max_level": 30}
+      {
+        "id": "refraction_wraith",
+        "weight": 4,
+        "min_level": 3,
+        "max_level": 10
+      },
+      {
+        "id": "pilgrim_hollow",
+        "weight": 3,
+        "min_level": 6,
+        "max_level": 15
+      },
+      {
+        "id": "refraction_beast",
+        "weight": 2,
+        "min_level": 10,
+        "max_level": 20
+      },
+      {
+        "id": "archive_custodian",
+        "weight": 2,
+        "min_level": 5,
+        "max_level": 12
+      },
+      {
+        "id": "storm_phantom",
+        "weight": 1,
+        "min_level": 12,
+        "max_level": 20
+      },
+      {
+        "id": "void_sovereign",
+        "weight": 1,
+        "min_level": 18,
+        "max_level": 30
+      }
     ],
     "npcs": [
-      {"id": "archive_scholar", "weight": 2, "min_level": 4, "max_level": 9},
-      {"id": "ruin_explorer", "weight": 3, "min_level": 2, "max_level": 7},
-      {"id": "sand_engineer_friendly", "weight": 2, "min_level": 4, "max_level": 9}
+      {
+        "id": "archive_scholar",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "ruin_explorer",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 7
+      },
+      {
+        "id": "sand_engineer_friendly",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 9
+      }
     ]
   },
   "scrubland": {
     "items": [
-      {"id": "dried_herbs", "weight": 5, "min_level": 1, "max_level": 8},
-      {"id": "thorn_spear", "weight": 3, "min_level": 2, "max_level": 6},
-      {"id": "cactus_water", "weight": 4, "min_level": 1, "max_level": 6},
-      {"id": "fiber_rope", "weight": 3, "min_level": 1, "max_level": 5}
+      {
+        "id": "dried_meat",
+        "weight": 5,
+        "min_level": 1,
+        "max_level": 8
+      },
+      {
+        "id": "glass_shard",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 6
+      },
+      {
+        "id": "water_flask",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "rope",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 5
+      }
     ],
     "enemies": [
-      {"id": "shard_spider", "weight": 4, "min_level": 1, "max_level": 4},
-      {"id": "brine_leech", "weight": 3, "min_level": 1, "max_level": 3},
-      {"id": "storm_herald", "weight": 3, "min_level": 5, "max_level": 10},
-      {"id": "crystal_widow", "weight": 1, "min_level": 12, "max_level": 25},
-      {"id": "storm_caller", "weight": 1, "min_level": 15, "max_level": 25}
+      {
+        "id": "shard_spider",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 4
+      },
+      {
+        "id": "brine_leech",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 3
+      },
+      {
+        "id": "storm_herald",
+        "weight": 3,
+        "min_level": 5,
+        "max_level": 10
+      },
+      {
+        "id": "crystal_widow",
+        "weight": 1,
+        "min_level": 12,
+        "max_level": 25
+      },
+      {
+        "id": "storm_caller",
+        "weight": 1,
+        "min_level": 15,
+        "max_level": 25
+      }
     ],
     "npcs": [
-      {"id": "scrub_ranger", "weight": 3, "min_level": 2, "max_level": 7},
-      {"id": "plant_whisperer", "weight": 2, "min_level": 3, "max_level": 8}
+      {
+        "id": "scrub_ranger",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 7
+      },
+      {
+        "id": "plant_whisperer",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 8
+      }
     ]
   },
   "glass_gardens": {
     "items": [
-      {"id": "prism_shard", "weight": 5, "min_level": 2, "max_level": 10},
-      {"id": "light_thread", "weight": 3, "min_level": 3, "max_level": 8},
-      {"id": "crystal_fragment", "weight": 4, "min_level": 2, "max_level": 7},
-      {"id": "quantum_silk", "weight": 3, "min_level": 2, "max_level": 6},
-      {"id": "focusing_crystal", "weight": 2, "min_level": 3, "max_level": 9},
-      {"id": "light_prism", "weight": 2, "min_level": 3, "max_level": 8},
-      {"id": "practice_crystal", "weight": 3, "min_level": 1, "max_level": 5}
+      {
+        "id": "prism_core",
+        "weight": 5,
+        "min_level": 2,
+        "max_level": 10
+      },
+      {
+        "id": "light_crystal",
+        "weight": 3,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "crystal_fragment",
+        "weight": 4,
+        "min_level": 2,
+        "max_level": 7
+      },
+      {
+        "id": "quantum_silk",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 6
+      },
+      {
+        "id": "focusing_crystal",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 9
+      },
+      {
+        "id": "light_prism",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "practice_crystal",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 5
+      }
     ],
     "enemies": [
-      {"id": "glass_crawler", "weight": 5, "min_level": 2, "max_level": 6},
-      {"id": "shard_sentinel", "weight": 3, "min_level": 8, "max_level": 15},
-      {"id": "crystal_scarab", "weight": 2, "min_level": 10, "max_level": 18},
-      {"id": "refraction_wraith", "weight": 2, "min_level": 4, "max_level": 10},
-      {"id": "light_eater", "weight": 3, "min_level": 8, "max_level": 16}
+      {
+        "id": "glass_crawler",
+        "weight": 5,
+        "min_level": 2,
+        "max_level": 6
+      },
+      {
+        "id": "shard_sentinel",
+        "weight": 3,
+        "min_level": 8,
+        "max_level": 15
+      },
+      {
+        "id": "crystal_scarab",
+        "weight": 2,
+        "min_level": 10,
+        "max_level": 18
+      },
+      {
+        "id": "refraction_wraith",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "light_eater",
+        "weight": 3,
+        "min_level": 8,
+        "max_level": 16
+      }
     ],
     "npcs": [
-      {"id": "glass_prophet_herald", "weight": 3, "min_level": 4, "max_level": 9},
-      {"id": "the_prism", "weight": 1, "min_level": 8, "max_level": 10, "room": "last"},
-      {"id": "crystal_guardian", "weight": 2, "min_level": 5, "max_level": 9}
+      {
+        "id": "glass_prophet_herald",
+        "weight": 3,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "the_prism",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 10,
+        "room": "last"
+      },
+      {
+        "id": "crystal_guardian",
+        "weight": 2,
+        "min_level": 5,
+        "max_level": 9
+      }
     ]
   },
   "shattered_citadel": {
     "items": [
-      {"id": "void_essence", "weight": 4, "min_level": 4, "max_level": 9},
-      {"id": "dimensional_shard", "weight": 2, "min_level": 5, "max_level": 10},
-      {"id": "archive_component", "weight": 3, "min_level": 3, "max_level": 8},
-      {"id": "quantum_crystal", "weight": 2, "min_level": 4, "max_level": 9},
-      {"id": "construction_blueprint", "weight": 2, "min_level": 3, "max_level": 8},
-      {"id": "null_field_generator", "weight": 1, "min_level": 4, "max_level": 10},
-      {"id": "restoration_detector", "weight": 2, "min_level": 3, "max_level": 7}
+      {
+        "id": "void_essence",
+        "weight": 4,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "dimensional_shard",
+        "weight": 2,
+        "min_level": 5,
+        "max_level": 10
+      },
+      {
+        "id": "archive_component",
+        "weight": 3,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "quantum_crystal",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "construction_blueprint",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "null_field_generator",
+        "weight": 1,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "echo_detector",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 7
+      }
     ],
     "enemies": [
-      {"id": "void_whisper", "weight": 4, "min_level": 4, "max_level": 10},
-      {"id": "archive_custodian", "weight": 3, "min_level": 5, "max_level": 12},
-      {"id": "shard_sentinel", "weight": 2, "min_level": 8, "max_level": 15},
-      {"id": "archive_sentinel", "weight": 2, "min_level": 15, "max_level": 28},
-      {"id": "refraction_wraith", "weight": 3, "min_level": 4, "max_level": 10},
-      {"id": "archive_overmind", "weight": 1, "min_level": 25, "max_level": 35}
+      {
+        "id": "void_whisper",
+        "weight": 4,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "archive_custodian",
+        "weight": 3,
+        "min_level": 5,
+        "max_level": 12
+      },
+      {
+        "id": "shard_sentinel",
+        "weight": 2,
+        "min_level": 8,
+        "max_level": 15
+      },
+      {
+        "id": "archive_sentinel",
+        "weight": 2,
+        "min_level": 15,
+        "max_level": 28
+      },
+      {
+        "id": "refraction_wraith",
+        "weight": 3,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "archive_overmind",
+        "weight": 1,
+        "min_level": 25,
+        "max_level": 35
+      }
     ],
     "npcs": [
-      {"id": "iron_covenant_recruiter", "weight": 3, "min_level": 3, "max_level": 8},
-      {"id": "unit_seven", "weight": 2, "min_level": 5, "max_level": 10},
-      {"id": "forge_master_durgan", "weight": 1, "min_level": 8, "max_level": 10, "room": "last"}
+      {
+        "id": "iron_covenant_recruiter",
+        "weight": 3,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "unit_seven",
+        "weight": 2,
+        "min_level": 5,
+        "max_level": 10
+      },
+      {
+        "id": "forge_master_durgan",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 10,
+        "room": "last"
+      }
     ]
   },
   "salt_mines": {
     "items": [
-      {"id": "salt_crystal", "weight": 6, "min_level": 1, "max_level": 10},
-      {"id": "brine_vial", "weight": 5, "min_level": 1, "max_level": 8},
-      {"id": "salt_poultice", "weight": 4, "min_level": 1, "max_level": 6},
-      {"id": "memory_crystal", "weight": 2, "min_level": 3, "max_level": 8},
-      {"id": "cultural_artifact", "weight": 2, "min_level": 3, "max_level": 9},
-      {"id": "balance_guide", "weight": 2, "min_level": 2, "max_level": 7},
-      {"id": "adaptation_journal", "weight": 3, "min_level": 2, "max_level": 6}
+      {
+        "id": "salt_crystal",
+        "weight": 6,
+        "min_level": 1,
+        "max_level": 10
+      },
+      {
+        "id": "brine_vial",
+        "weight": 5,
+        "min_level": 1,
+        "max_level": 8
+      },
+      {
+        "id": "salt_poultice",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 6
+      },
+      {
+        "id": "memory_crystal",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "cultural_artifact",
+        "weight": 2,
+        "min_level": 3,
+        "max_level": 9
+      },
+      {
+        "id": "balance_guide",
+        "weight": 2,
+        "min_level": 2,
+        "max_level": 7
+      },
+      {
+        "id": "adaptation_journal",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 6
+      }
     ],
     "enemies": [
-      {"id": "salt_mummy", "weight": 4, "min_level": 2, "max_level": 6},
-      {"id": "salt_wraith", "weight": 4, "min_level": 1, "max_level": 5},
-      {"id": "brine_leech", "weight": 3, "min_level": 1, "max_level": 4},
-      {"id": "dust_devil", "weight": 3, "min_level": 2, "max_level": 5},
-      {"id": "salt_lord", "weight": 1, "min_level": 12, "max_level": 20}
+      {
+        "id": "salt_mummy",
+        "weight": 4,
+        "min_level": 2,
+        "max_level": 6
+      },
+      {
+        "id": "salt_wraith",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 5
+      },
+      {
+        "id": "brine_leech",
+        "weight": 3,
+        "min_level": 1,
+        "max_level": 4
+      },
+      {
+        "id": "dust_devil",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 5
+      },
+      {
+        "id": "salt_lord",
+        "weight": 1,
+        "min_level": 12,
+        "max_level": 20
+      }
     ],
     "npcs": [
-      {"id": "wandering_court_sage", "weight": 3, "min_level": 3, "max_level": 8},
-      {"id": "salt_hermit", "weight": 4, "min_level": 1, "max_level": 7},
-      {"id": "echo_of_memory", "weight": 1, "min_level": 6, "max_level": 10, "room": "late"}
+      {
+        "id": "wandering_court_sage",
+        "weight": 3,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "salt_hermit",
+        "weight": 4,
+        "min_level": 1,
+        "max_level": 7
+      },
+      {
+        "id": "echo_of_memory",
+        "weight": 1,
+        "min_level": 6,
+        "max_level": 10,
+        "room": "late"
+      }
     ]
   },
   "storm_scars": {
     "items": [
-      {"id": "storm_feather", "weight": 4, "min_level": 3, "max_level": 8},
-      {"id": "quantum_core", "weight": 2, "min_level": 4, "max_level": 10},
-      {"id": "storm_catalyst", "weight": 2, "min_level": 4, "max_level": 9},
-      {"id": "temporal_lens", "weight": 2, "min_level": 4, "max_level": 9},
-      {"id": "storm_glass", "weight": 5, "min_level": 1, "max_level": 10},
-      {"id": "quantum_communicator", "weight": 1, "min_level": 5, "max_level": 10, "room": "late"},
-      {"id": "heliograph_shard", "weight": 1, "min_level": 5, "max_level": 10, "room": "late"}
+      {
+        "id": "storm_feather",
+        "weight": 4,
+        "min_level": 3,
+        "max_level": 8
+      },
+      {
+        "id": "quantum_core",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "storm_catalyst",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "temporal_lens",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "storm_glass",
+        "weight": 5,
+        "min_level": 1,
+        "max_level": 10
+      },
+      {
+        "id": "quantum_communicator",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10,
+        "room": "late"
+      },
+      {
+        "id": "glass_shard",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10,
+        "room": "late"
+      }
     ],
     "enemies": [
-      {"id": "storm_herald", "weight": 5, "min_level": 5, "max_level": 12},
-      {"id": "dust_devil", "weight": 4, "min_level": 2, "max_level": 6},
-      {"id": "refraction_wraith", "weight": 3, "min_level": 4, "max_level": 10},
-      {"id": "storm_phantom", "weight": 2, "min_level": 12, "max_level": 20},
-      {"id": "storm_caller", "weight": 1, "min_level": 15, "max_level": 25},
-      {"id": "storm_sovereign", "weight": 1, "min_level": 25, "max_level": 35}
+      {
+        "id": "storm_herald",
+        "weight": 5,
+        "min_level": 5,
+        "max_level": 12
+      },
+      {
+        "id": "dust_devil",
+        "weight": 4,
+        "min_level": 2,
+        "max_level": 6
+      },
+      {
+        "id": "refraction_wraith",
+        "weight": 3,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "storm_phantom",
+        "weight": 2,
+        "min_level": 12,
+        "max_level": 20
+      },
+      {
+        "id": "storm_caller",
+        "weight": 1,
+        "min_level": 15,
+        "max_level": 25
+      },
+      {
+        "id": "storm_sovereign",
+        "weight": 1,
+        "min_level": 25,
+        "max_level": 35
+      }
     ],
     "npcs": [
-      {"id": "captain_vasquez_ghost", "weight": 2, "min_level": 6, "max_level": 10},
-      {"id": "storm_watcher", "weight": 3, "min_level": 4, "max_level": 8},
-      {"id": "cosmic_watcher", "weight": 1, "min_level": 8, "max_level": 10, "room": "last"}
+      {
+        "id": "captain_vasquez_ghost",
+        "weight": 2,
+        "min_level": 6,
+        "max_level": 10
+      },
+      {
+        "id": "storm_watcher",
+        "weight": 3,
+        "min_level": 4,
+        "max_level": 8
+      },
+      {
+        "id": "cosmic_watcher",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 10,
+        "room": "last"
+      }
     ]
   },
   "refraction_fields": {
     "items": [
-      {"id": "void_essence", "weight": 3, "min_level": 4, "max_level": 9},
-      {"id": "dimensional_shard", "weight": 2, "min_level": 5, "max_level": 10},
-      {"id": "quantum_collective_artifact", "weight": 1, "min_level": 6, "max_level": 10, "room": "last"},
-      {"id": "dimensional_key", "weight": 1, "min_level": 6, "max_level": 10, "room": "last"},
-      {"id": "phase_anchor", "weight": 2, "min_level": 4, "max_level": 8},
-      {"id": "telepathy_amplifier", "weight": 2, "min_level": 4, "max_level": 9},
-      {"id": "quantum_resonator", "weight": 1, "min_level": 5, "max_level": 10, "room": "late"}
+      {
+        "id": "void_essence",
+        "weight": 3,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "dimensional_shard",
+        "weight": 2,
+        "min_level": 5,
+        "max_level": 10
+      },
+      {
+        "id": "quantum_collective_artifact",
+        "weight": 1,
+        "min_level": 6,
+        "max_level": 10,
+        "room": "last"
+      },
+      {
+        "id": "dimensional_key",
+        "weight": 1,
+        "min_level": 6,
+        "max_level": 10,
+        "room": "last"
+      },
+      {
+        "id": "phase_anchor",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 8
+      },
+      {
+        "id": "telepathy_amplifier",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "quantum_resonator",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10,
+        "room": "late"
+      }
     ],
     "enemies": [
-      {"id": "void_whisper", "weight": 4, "min_level": 4, "max_level": 10},
-      {"id": "light_eater", "weight": 4, "min_level": 8, "max_level": 16},
-      {"id": "refraction_wraith", "weight": 3, "min_level": 4, "max_level": 10},
-      {"id": "glass_crawler", "weight": 3, "min_level": 2, "max_level": 6},
-      {"id": "void_sovereign", "weight": 1, "min_level": 20, "max_level": 30},
-      {"id": "void_emperor", "weight": 1, "min_level": 30, "max_level": 45}
+      {
+        "id": "void_whisper",
+        "weight": 4,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "light_eater",
+        "weight": 4,
+        "min_level": 8,
+        "max_level": 16
+      },
+      {
+        "id": "refraction_wraith",
+        "weight": 3,
+        "min_level": 4,
+        "max_level": 10
+      },
+      {
+        "id": "glass_crawler",
+        "weight": 3,
+        "min_level": 2,
+        "max_level": 6
+      },
+      {
+        "id": "void_sovereign",
+        "weight": 1,
+        "min_level": 20,
+        "max_level": 30
+      },
+      {
+        "id": "void_emperor",
+        "weight": 1,
+        "min_level": 30,
+        "max_level": 45
+      }
     ],
     "npcs": [
-      {"id": "cosmic_watcher", "weight": 2, "min_level": 8, "max_level": 10},
-      {"id": "glass_prophet_herald", "weight": 2, "min_level": 4, "max_level": 9},
-      {"id": "captain_vasquez_ghost", "weight": 1, "min_level": 6, "max_level": 10}
+      {
+        "id": "cosmic_watcher",
+        "weight": 2,
+        "min_level": 8,
+        "max_level": 10
+      },
+      {
+        "id": "glass_prophet_herald",
+        "weight": 2,
+        "min_level": 4,
+        "max_level": 9
+      },
+      {
+        "id": "captain_vasquez_ghost",
+        "weight": 1,
+        "min_level": 6,
+        "max_level": 10
+      }
     ]
   }
 }

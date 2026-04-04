@@ -124,10 +124,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         let mut speed = 4u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
-            if part.starts_with('@') {
-                speed = part[1..].parse().unwrap_or(4);
-            } else if part.starts_with('&') {
-                color = parse_color(&part[1..]);
+            if let Some(rest) = part.strip_prefix('@') {
+                speed = rest.parse().unwrap_or(4);
+            } else if let Some(rest) = part.strip_prefix('&') {
+                color = parse_color(rest);
             }
         }
         return Some(VisualEffect::Blink { speed, color });
@@ -138,8 +138,8 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         let inner = &s[2..s.len() - 1];
         let mut color = Color::White;
         for part in inner.split_whitespace() {
-            if part.starts_with('&') {
-                color = parse_color(&part[1..]);
+            if let Some(rest) = part.strip_prefix('&') {
+                color = parse_color(rest);
             }
         }
         return Some(VisualEffect::Glow { color });
@@ -151,10 +151,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         let mut speed = 8u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
-            if part.starts_with('@') {
-                speed = part[1..].parse().unwrap_or(8);
-            } else if part.starts_with('&') {
-                color = parse_color(&part[1..]);
+            if let Some(rest) = part.strip_prefix('@') {
+                speed = rest.parse().unwrap_or(8);
+            } else if let Some(rest) = part.strip_prefix('&') {
+                color = parse_color(rest);
             }
         }
         return Some(VisualEffect::Pulse { speed, color });
@@ -166,10 +166,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         let mut speed = 6u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
-            if part.starts_with('@') {
-                speed = part[1..].parse().unwrap_or(6);
-            } else if part.starts_with('&') {
-                color = parse_color(&part[1..]);
+            if let Some(rest) = part.strip_prefix('@') {
+                speed = rest.parse().unwrap_or(6);
+            } else if let Some(rest) = part.strip_prefix('&') {
+                color = parse_color(rest);
             }
         }
         return Some(VisualEffect::Wave { speed, color });
@@ -181,10 +181,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         let mut speed = 6u32;
         let mut colors = Vec::new();
         for part in inner.split_whitespace() {
-            if part.starts_with('@') {
-                speed = part[1..].parse().unwrap_or(6);
-            } else if part.starts_with('&') {
-                colors.push(parse_color(&part[1..]));
+            if let Some(rest) = part.strip_prefix('@') {
+                speed = rest.parse().unwrap_or(6);
+            } else if let Some(rest) = part.strip_prefix('&') {
+                colors.push(parse_color(rest));
             }
         }
         if colors.is_empty() {
@@ -199,10 +199,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         let mut speed = 8u32;
         let mut colors = Vec::new();
         for part in inner.split_whitespace() {
-            if part.starts_with('@') {
-                speed = part[1..].parse().unwrap_or(8);
-            } else if part.starts_with('&') {
-                colors.push(parse_color(&part[1..]));
+            if let Some(rest) = part.strip_prefix('@') {
+                speed = rest.parse().unwrap_or(8);
+            } else if let Some(rest) = part.strip_prefix('&') {
+                colors.push(parse_color(rest));
             }
         }
         if colors.is_empty() {
@@ -217,10 +217,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         let mut speed = 16u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
-            if part.starts_with('@') {
-                speed = part[1..].parse().unwrap_or(16);
-            } else if part.starts_with('&') {
-                color = parse_color(&part[1..]);
+            if let Some(rest) = part.strip_prefix('@') {
+                speed = rest.parse().unwrap_or(16);
+            } else if let Some(rest) = part.strip_prefix('&') {
+                color = parse_color(rest);
             }
         }
         return Some(VisualEffect::Fade { speed, color });
@@ -232,10 +232,10 @@ pub fn parse_effect(s: &str) -> Option<VisualEffect> {
         let mut speed = 12u32;
         let mut color = Color::White;
         for part in inner.split_whitespace() {
-            if part.starts_with('@') {
-                speed = part[1..].parse().unwrap_or(12);
-            } else if part.starts_with('&') {
-                color = parse_color(&part[1..]);
+            if let Some(rest) = part.strip_prefix('@') {
+                speed = rest.parse().unwrap_or(12);
+            } else if let Some(rest) = part.strip_prefix('&') {
+                color = parse_color(rest);
             }
         }
         return Some(VisualEffect::Drift { speed, color });

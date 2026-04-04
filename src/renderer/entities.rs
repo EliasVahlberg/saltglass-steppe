@@ -22,6 +22,7 @@ impl EntityRenderer {
     }
 
     /// Render all entities and return spans for each screen position
+    #[allow(clippy::too_many_arguments)]
     pub fn render_entities(
         &self,
         state: &GameState,

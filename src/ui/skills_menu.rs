@@ -458,9 +458,8 @@ fn render_tree_canvas(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu, 
 
     // Blit canvas to frame buffer
     let frame_buf = f.buffer_mut();
-    for row in 0..buf_h {
-        for col in 0..buf_w {
-            let (ch, style) = canvas[row][col];
+    for (row, canvas_row) in canvas.iter().enumerate() {
+        for (col, &(ch, style)) in canvas_row.iter().enumerate() {
             let sx = inner_x + col as u16;
             let sy = inner_y + row as u16;
             if sx < area.x + area.width && sy < area.y + area.height {
@@ -476,7 +475,7 @@ fn render_tree_canvas(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu, 
 }
 
 fn draw_char(
-    canvas: &mut Vec<Vec<(char, Style)>>,
+    canvas: &mut [Vec<(char, Style)>],
     x: i32,
     y: i32,
     ch: char,
@@ -490,7 +489,7 @@ fn draw_char(
 }
 
 fn draw_str(
-    canvas: &mut Vec<Vec<(char, Style)>>,
+    canvas: &mut [Vec<(char, Style)>],
     x: i32,
     y: i32,
     s: &str,

@@ -261,7 +261,7 @@ impl Renderer {
     /// Render particles onto the span grid
     fn render_particles(
         &self,
-        spans: &mut Vec<Vec<Span<'static>>>,
+        spans: &mut [Vec<Span<'static>>],
         cam_x: i32,
         cam_y: i32,
         view_width: i32,
@@ -324,7 +324,7 @@ impl Renderer {
     /// Render procedural effects onto the span grid
     fn render_procedural_effects(
         &self,
-        spans: &mut Vec<Vec<Span<'static>>>,
+        spans: &mut [Vec<Span<'static>>],
         cam_x: i32,
         cam_y: i32,
         view_width: i32,

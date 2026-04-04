@@ -111,6 +111,7 @@ impl EncounterState {
 }
 
 /// Check if an encounter should trigger for this travel
+#[allow(clippy::too_many_arguments)]
 pub fn should_trigger_encounter(
     world_seed: u64,
     world_x: usize,

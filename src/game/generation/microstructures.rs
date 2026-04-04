@@ -104,7 +104,7 @@ pub fn place_microstructures(
     }
 
     // Place structures with spatial distribution
-    let max_structures = (valid_positions.len() / 8).max(1).min(4); // 1-4 structures per tile
+    let max_structures = (valid_positions.len() / 8).clamp(1, 4); // 1-4 structures per tile
     let mut placed_positions = Vec::new();
 
     for _ in 0..max_structures {

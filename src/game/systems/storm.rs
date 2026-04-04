@@ -137,30 +137,30 @@ impl StormSystem {
 
             // Extract 3x3 area
             let mut area = vec![vec![Tile::default_floor(); 3]; 3];
-            for dy in 0..3 {
-                for dx in 0..3 {
+            for (dy, row) in area.iter_mut().enumerate() {
+                for (dx, cell) in row.iter_mut().enumerate() {
                     let x = center_x + dx - 1;
                     let y = center_y + dy - 1;
-                    area[dy][dx] = state.world.map.tiles[y * state.world.map.width + x].clone();
+                    *cell = state.world.map.tiles[y * state.world.map.width + x].clone();
                 }
             }
 
             // Rotate 90 degrees clockwise
             let mut rotated = vec![vec![Tile::default_floor(); 3]; 3];
-            for dy in 0..3 {
-                for dx in 0..3 {
-                    rotated[dx][2 - dy] = area[dy][dx].clone();
+            for (dy, row) in area.iter().enumerate() {
+                for (dx, cell) in row.iter().enumerate() {
+                    rotated[dx][2 - dy] = cell.clone();
                 }
             }
 
             // Place back
-            for dy in 0..3 {
-                for dx in 0..3 {
+            for (dy, row) in rotated.iter().enumerate() {
+                for (dx, cell) in row.iter().enumerate() {
                     let x = center_x + dx - 1;
                     let y = center_y + dy - 1;
                     let idx = y * state.world.map.width + x;
-                    if state.world.map.tiles[idx] != rotated[dy][dx] {
-                        state.world.map.tiles[idx] = rotated[dy][dx].clone();
+                    if state.world.map.tiles[idx] != *cell {
+                        state.world.map.tiles[idx] = cell.clone();
                         state.world.visual_effects.storm_changed_tiles.insert(idx);
                     }
                 }
