@@ -165,6 +165,9 @@ impl GameState {
                     self.player.adaptations.push(adaptation);
                 }
             }
+            PlayerEffect::RunAI => {
+                self.update_enemies();
+            }
         }
     }
 
@@ -282,6 +285,11 @@ impl GameState {
             MapEffect::TickEncounterTimer => {
                 if let Some(encounter) = &mut self.world.encounter_state {
                     encounter.turns_in_encounter += 1;
+                }
+            }
+            MapEffect::TickStorm => {
+                if self.world.storm.tick() {
+                    crate::game::systems::StormSystem::apply_storm(self);
                 }
             }
         }

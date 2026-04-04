@@ -2410,13 +2410,14 @@ impl GameState {
                 self.trace.record(&qt, TraceSource::Rule { name: "end_turn" }, self.turn);
             }
             TurnPhase::RunAI => {
-                self.update_enemies();
+                let effect = Effect::Player(PlayerEffect::RunAI);
+                self.apply_effect(&effect);
+                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
             }
             TurnPhase::TickStorm => {
-                use super::systems::StormSystem;
-                if self.world.storm.tick() {
-                    StormSystem::apply_storm(self);
-                }
+                let effect = Effect::Map(super::effects::MapEffect::TickStorm);
+                self.apply_effect(&effect);
+                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
             }
             TurnPhase::AdvanceTime => {
                 // Inline tick_time logic to avoid borrow conflict (rule needs &ctx + &mut rng)

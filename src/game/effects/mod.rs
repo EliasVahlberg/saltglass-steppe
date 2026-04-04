@@ -64,6 +64,8 @@ pub enum PlayerEffect {
     TickStatusEffects,
     TickHousekeeping,
     GainAdaptation { adaptation_id: String },
+    /// Bridge: calls AiSystem::update_enemies (all enemy turns)
+    RunAI,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -95,6 +97,8 @@ pub enum MapEffect {
     AdvanceTime { new_time: u32 },
     SetWeather { weather: String },
     TickEncounterTimer,
+    /// Bridge: calls storm.tick() + StormSystem::apply_storm if storm fires
+    TickStorm,
 }
 
 #[derive(Debug, Clone, PartialEq)]
