@@ -666,6 +666,10 @@ impl GameState {
                 mock_combat_damage: self.debug.mock_combat_damage,
                 wait_counter: self.wait_counter,
                 turn: self.turn,
+                time_of_day: self.world.time_of_day,
+                encounter_state: self.world.encounter_state.as_ref(),
+                player_adaptations: &self.player.adaptations,
+                player_refraction: self.player.refraction,
             };
             super::rules::rule_move(dx, dy, &ctx, &mut self.rng)
         };
@@ -730,6 +734,10 @@ impl GameState {
                 mock_combat_damage: self.debug.mock_combat_damage,
                 wait_counter: self.wait_counter,
                 turn: self.turn,
+                time_of_day: self.world.time_of_day,
+                encounter_state: self.world.encounter_state.as_ref(),
+                player_adaptations: &self.player.adaptations,
+                player_refraction: self.player.refraction,
             };
             super::rules::rule_melee_attack(target_x, target_y, &ctx, &mut self.rng)
         };
@@ -855,6 +863,10 @@ impl GameState {
                 mock_combat_damage: self.debug.mock_combat_damage,
                 wait_counter: self.wait_counter,
                 turn: self.turn,
+                time_of_day: self.world.time_of_day,
+                encounter_state: self.world.encounter_state.as_ref(),
+                player_adaptations: &self.player.adaptations,
+                player_refraction: self.player.refraction,
             };
             super::rules::rule_ranged_attack(target_x, target_y, &ctx, &mut self.rng)
         };
@@ -2360,7 +2372,6 @@ impl GameState {
     fn execute_phase(&mut self, phase: &super::effects::TurnPhase) {
         use super::effects::{Effect, PlayerEffect, TurnPhase};
         use super::effects::trace::TraceSource;
-        use super::systems::{StatusEffectSystem, StormSystem, System};
 
         match phase {
             TurnPhase::ResetAp => {
@@ -2369,32 +2380,63 @@ impl GameState {
                 self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
             }
             TurnPhase::TickStatusEffects => {
-                StatusEffectSystem.update(self);
+                let effect = Effect::Player(PlayerEffect::TickStatusEffects);
+                self.apply_effect(&effect);
+                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
             }
             TurnPhase::TickSubsystems => {
-                self.player.psychic.tick();
-                self.player.skills.tick();
-                self.player.light_system.update(&mut self.rng);
-                self.player.void_system.update(&mut self.rng);
-                self.player.crystal_system.update(&mut self.rng);
+                // Bridge effects — preserve RNG order: psychic, skills, light, void, crystal
+                let effects = vec![
+                    Effect::Player(PlayerEffect::TickPsychic),
+                    Effect::Player(PlayerEffect::TickSkills),
+                    Effect::Player(PlayerEffect::TickLightSystem),
+                    Effect::Player(PlayerEffect::TickVoidSystem),
+                    Effect::Player(PlayerEffect::TickCrystalSystem),
+                ];
+                for effect in &effects {
+                    self.apply_effect(effect);
+                    self.trace.record(effect, TraceSource::Rule { name: "end_turn" }, self.turn);
+                }
             }
             TurnPhase::AdvanceTurn => {
                 let effect = Effect::Player(PlayerEffect::AdvanceTurn);
                 self.apply_effect(&effect);
                 self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
-                // Tick adaptation suppression, triggered effects, decoys, light effects
-                self.tick_turn_housekeeping();
+                // Housekeeping (adaptation suppression, triggered effects, decoys, light effects)
+                let hk = Effect::Player(PlayerEffect::TickHousekeeping);
+                self.apply_effect(&hk);
+                self.trace.record(&hk, TraceSource::Rule { name: "end_turn" }, self.turn);
+                // Adaptation threshold check
+                let ctx = super::effects::context::QueryContext::from_state(self);
+                let output = super::rules::turn::rule_check_adaptation(&ctx);
+                self.apply_and_trace(output, "rule_check_adaptation");
             }
             TurnPhase::RunAI => {
                 self.update_enemies();
             }
             TurnPhase::TickStorm => {
+                use super::systems::StormSystem;
                 if self.world.storm.tick() {
                     StormSystem::apply_storm(self);
                 }
             }
             TurnPhase::AdvanceTime => {
-                self.tick_time();
+                // Inline tick_time logic to avoid borrow conflict (rule needs &ctx + &mut rng)
+                use super::effects::{MapEffect, RuleOutput};
+                let mut effects = Vec::new();
+                if self.turn.is_multiple_of(10) {
+                    let new_time = (self.world.time_of_day as u32 + 1) % 24;
+                    effects.push(Effect::Map(MapEffect::AdvanceTime { new_time }));
+                    if new_time == 6 || new_time == 18 {
+                        use rand::Rng;
+                        let roll = self.rng.gen_range(0..10);
+                        let weather = match roll {
+                            0..=6 => "clear", 7..=8 => "dusty", 9 => "sandstorm", _ => "clear",
+                        };
+                        effects.push(Effect::Map(MapEffect::SetWeather { weather: weather.to_string() }));
+                    }
+                }
+                self.apply_and_trace(RuleOutput { effects, presentation: Vec::new() }, "rule_tick_time");
             }
             TurnPhase::UpdateDerives => {
                 self.ensure_spatial_index();
@@ -2402,10 +2444,9 @@ impl GameState {
                 self.update_fov();
             }
             TurnPhase::CheckEncounters => {
-                self.check_encounter_completion();
-                if let Some(encounter) = &mut self.world.encounter_state {
-                    encounter.turns_in_encounter += 1;
-                }
+                let ctx = super::effects::context::QueryContext::from_state(self);
+                let output = super::rules::turn::rule_check_encounters(&ctx);
+                self.apply_and_trace(output, "rule_check_encounters");
             }
             TurnPhase::ProcessEvents => {
                 self.emit(GameEvent::TurnEnded { turn: self.turn });
@@ -2575,7 +2616,7 @@ impl GameState {
 
     /// Housekeeping that runs after turn counter advances:
     /// adaptation suppression, triggered effects, decoys, light effects.
-    fn tick_turn_housekeeping(&mut self) {
+    pub(crate) fn tick_turn_housekeeping(&mut self) {
         if self.player.adaptations_hidden_turns > 0 {
             self.player.adaptations_hidden_turns -= 1;
             if self.player.adaptations_hidden_turns == 0 {

@@ -56,6 +56,14 @@ pub enum PlayerEffect {
     SetWorldPosition { wx: usize, wy: usize },
     SetLayer { layer: i32 },
     IncrementTilesTraveled,
+    TickPsychic,
+    TickSkills,
+    TickLightSystem,
+    TickVoidSystem,
+    TickCrystalSystem,
+    TickStatusEffects,
+    TickHousekeeping,
+    GainAdaptation { adaptation_id: String },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -84,6 +92,9 @@ pub enum MapEffect {
     ClearStormHighlight { tile_index: usize },
     SetWorldPath { path: Vec<(usize, usize)>, target: Option<(usize, usize)> },
     ClearWorldPath,
+    AdvanceTime { new_time: u32 },
+    SetWeather { weather: String },
+    TickEncounterTimer,
 }
 
 #[derive(Debug, Clone, PartialEq)]

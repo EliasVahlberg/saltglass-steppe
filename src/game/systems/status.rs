@@ -23,7 +23,7 @@ impl System for StatusEffectSystem {
 
 impl StatusEffectSystem {
     /// Tick all player status effects
-    fn tick_player_effects(state: &mut GameState) {
+    pub fn tick_player_effects(state: &mut GameState) {
         let mut total_damage = 0;
         let mut messages = Vec::new();
 
@@ -57,7 +57,7 @@ impl StatusEffectSystem {
     }
 
     /// Tick all enemy status effects
-    fn tick_enemy_effects(state: &mut GameState) {
+    pub fn tick_enemy_effects(state: &mut GameState) {
         let mut dead_enemies = Vec::new();
 
         for (idx, enemy) in state.world.enemies.iter_mut().enumerate() {

@@ -146,6 +146,36 @@ impl GameState {
             PlayerEffect::IncrementTilesTraveled => {
                 self.world.total_tiles_traveled += 1;
             }
+            PlayerEffect::TickPsychic => {
+                self.player.psychic.tick();
+            }
+            PlayerEffect::TickSkills => {
+                self.player.skills.tick();
+            }
+            PlayerEffect::TickLightSystem => {
+                self.player.light_system.update(&mut self.rng);
+            }
+            PlayerEffect::TickVoidSystem => {
+                self.player.void_system.update(&mut self.rng);
+            }
+            PlayerEffect::TickCrystalSystem => {
+                self.player.crystal_system.update(&mut self.rng);
+            }
+            PlayerEffect::TickStatusEffects => {
+                crate::game::systems::StatusEffectSystem::tick_player_effects(self);
+                crate::game::systems::StatusEffectSystem::tick_enemy_effects(self);
+            }
+            PlayerEffect::TickHousekeeping => {
+                self.tick_turn_housekeeping();
+            }
+            PlayerEffect::GainAdaptation { adaptation_id } => {
+                if let Some(adaptation) = crate::game::adaptation::Adaptation::from_id(adaptation_id) {
+                    self.player.adaptations.push(adaptation);
+                    self.emit(crate::game::event::GameEvent::AdaptationGained {
+                        name: adaptation.name().to_string(),
+                    });
+                }
+            }
         }
     }
 
@@ -253,6 +283,22 @@ impl GameState {
             MapEffect::ClearWorldPath => {
                 self.world.world_map_path.clear();
                 self.world.world_map_target = None;
+            }
+            MapEffect::AdvanceTime { new_time } => {
+                self.world.time_of_day = *new_time as u8;
+            }
+            MapEffect::SetWeather { weather } => {
+                self.world.weather = match weather.as_str() {
+                    "clear" => crate::game::world_state::Weather::Clear,
+                    "dusty" => crate::game::world_state::Weather::Dusty,
+                    "sandstorm" => crate::game::world_state::Weather::Sandstorm,
+                    _ => crate::game::world_state::Weather::Clear,
+                };
+            }
+            MapEffect::TickEncounterTimer => {
+                if let Some(encounter) = &mut self.world.encounter_state {
+                    encounter.turns_in_encounter += 1;
+                }
             }
         }
     }

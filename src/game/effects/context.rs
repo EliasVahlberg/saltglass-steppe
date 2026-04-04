@@ -1,4 +1,5 @@
 use crate::game::adaptation::Adaptation;
+use crate::game::encounter::EncounterState;
 use crate::game::enemy::Enemy;
 use crate::game::item::{ItemDef, get_item_def};
 use crate::game::map::Map;
@@ -21,6 +22,10 @@ pub struct QueryContext<'a> {
     pub mock_combat_damage: Option<i32>,
     pub wait_counter: u32,
     pub turn: u32,
+    pub time_of_day: u8,
+    pub encounter_state: Option<&'a EncounterState>,
+    pub player_adaptations: &'a [Adaptation],
+    pub player_refraction: u32,
 }
 
 impl<'a> QueryContext<'a> {
@@ -39,6 +44,10 @@ impl<'a> QueryContext<'a> {
             mock_combat_damage: state.debug.mock_combat_damage,
             wait_counter: state.wait_counter,
             turn: state.turn,
+            time_of_day: state.world.time_of_day,
+            encounter_state: state.world.encounter_state.as_ref(),
+            player_adaptations: &state.player.adaptations,
+            player_refraction: state.player.refraction,
         }
     }
 
@@ -84,6 +93,8 @@ pub struct TestContext {
     pub mock_combat_damage: Option<i32>,
     pub wait_counter: u32,
     pub turn: u32,
+    pub time_of_day: u8,
+    pub encounter_state: Option<crate::game::encounter::EncounterState>,
 }
 
 impl Default for TestContext {
@@ -107,6 +118,8 @@ impl TestContext {
             mock_combat_damage: None,
             wait_counter: 0,
             turn: 0,
+            time_of_day: 12,
+            encounter_state: None,
         }
     }
 
@@ -190,6 +203,16 @@ impl TestContext {
         self
     }
 
+    pub fn with_turn(mut self, turn: u32) -> Self {
+        self.turn = turn;
+        self
+    }
+
+    pub fn with_time_of_day(mut self, tod: u8) -> Self {
+        self.time_of_day = tod;
+        self
+    }
+
     pub fn build(&self) -> QueryContext<'_> {
         QueryContext {
             player: &self.player,
@@ -205,6 +228,10 @@ impl TestContext {
             mock_combat_damage: self.mock_combat_damage,
             wait_counter: self.wait_counter,
             turn: self.turn,
+            time_of_day: self.time_of_day,
+            encounter_state: self.encounter_state.as_ref(),
+            player_adaptations: &self.player.adaptations,
+            player_refraction: self.player.refraction,
         }
     }
 }
