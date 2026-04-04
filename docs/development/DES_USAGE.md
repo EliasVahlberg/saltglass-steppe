@@ -1,3 +1,9 @@
+---
+status: current
+last_verified: 2026-04-04
+commit: e0d1fe7
+---
+
 # Debug Execution System (DES) - Usage Guide
 
 ## Overview

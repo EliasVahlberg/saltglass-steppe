@@ -57,14 +57,14 @@ impl PoissonSampler {
             let mut found = false;
             for _ in 0..30 {
                 // Try 30 times to find valid point
-                if let Some(new_point) = self.find_valid_candidate(candidates, point, rng) {
-                    if self.is_valid_point(new_point) {
-                        result.push(new_point);
-                        active.push(new_point);
-                        self.insert_point(new_point);
-                        found = true;
-                        break;
-                    }
+                if let Some(new_point) = self.find_valid_candidate(candidates, point, rng)
+                    && self.is_valid_point(new_point)
+                {
+                    result.push(new_point);
+                    active.push(new_point);
+                    self.insert_point(new_point);
+                    found = true;
+                    break;
                 }
             }
 

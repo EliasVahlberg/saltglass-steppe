@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "Describes StoryState/JournalEntry that don't exist; actual NarrativeEngine has different structure"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: Describes StoryState/JournalEntry that don't exist; actual NarrativeEngine has different structure
+> Last verified: 2026-04-04
+
 # Implementation Specifications: Narrative Engine
 
 **Purpose:** Technical specs for tracking player choices and generating the dynamic epilogue described in `The_Chronicle_of_Choices.md`.

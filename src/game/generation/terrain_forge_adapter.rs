@@ -105,6 +105,12 @@ static TILE_CONFIG: Lazy<TileGenConfig> = Lazy::new(|| {
 /// New tile generator backed by terrain-forge.
 pub struct TerrainForgeGenerator;
 
+impl Default for TerrainForgeGenerator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TerrainForgeGenerator {
     pub fn new() -> Self {
         Self
@@ -122,14 +128,13 @@ impl TerrainForgeGenerator {
         let mut rng = ChaCha8Rng::seed_from_u64(seed);
 
         // Check if POI should use DungeonGenerator
-        if matches!(poi, POI::Dungeon | POI::Landmark | POI::Shrine) {
-            if let Some(map) = generate_with_dungeon_generator(poi, seed, biome, terrain, &mut rng)
-            {
-                let floor_positions = collect_floor_positions(&map);
-                return (map, floor_positions);
-            }
-            // Fall back to terrain-forge if DungeonGenerator fails
+        if matches!(poi, POI::Dungeon | POI::Landmark | POI::Shrine)
+            && let Some(map) = generate_with_dungeon_generator(poi, seed, biome, terrain, &mut rng)
+        {
+            let floor_positions = collect_floor_positions(&map);
+            return (map, floor_positions);
         }
+        // Fall back to terrain-forge if DungeonGenerator fails
 
         let mut grid: Grid<ForgeTile> = Grid::new(MAP_WIDTH, MAP_HEIGHT);
 
@@ -191,19 +196,36 @@ impl TerrainForgeGenerator {
         };
 
         let mut map = Map::new(MAP_WIDTH, MAP_HEIGHT);
-        
+
         // Set metadata based on generation method
         if let Some(profile) = TILE_CONFIG.biome_algorithm_profiles.get(biome_key) {
             if let Some(layers) = &profile.algorithm_layers {
                 let layer_names: Vec<String> = layers.iter().map(|l| l.algorithm.clone()).collect();
-                map.metadata.insert("tilegen_algorithm".to_string(), format!("layered: {}", layer_names.join(" -> ")));
+                map.metadata.insert(
+                    "tilegen_algorithm".to_string(),
+                    format!("layered: {}", layer_names.join(" -> ")),
+                );
             } else {
-                let algo_name = select_algorithm(poi, biome, terrain, TILE_CONFIG.structure_algorithm.as_deref(), &mut rng);
-                map.metadata.insert("tilegen_algorithm".to_string(), algo_name);
+                let algo_name = select_algorithm(
+                    poi,
+                    biome,
+                    terrain,
+                    TILE_CONFIG.structure_algorithm.as_deref(),
+                    &mut rng,
+                );
+                map.metadata
+                    .insert("tilegen_algorithm".to_string(), algo_name);
             }
         } else {
-            let algo_name = select_algorithm(poi, biome, terrain, TILE_CONFIG.structure_algorithm.as_deref(), &mut rng);
-            map.metadata.insert("tilegen_algorithm".to_string(), algo_name);
+            let algo_name = select_algorithm(
+                poi,
+                biome,
+                terrain,
+                TILE_CONFIG.structure_algorithm.as_deref(),
+                &mut rng,
+            );
+            map.metadata
+                .insert("tilegen_algorithm".to_string(), algo_name);
         }
 
         let base_cfg = TILE_CONFIG
@@ -269,22 +291,36 @@ impl TerrainForgeGenerator {
 
         // Semantic extraction for spawn markers/regions
         let mut forge_rng = ForgeRng::new(seed);
-        
+
         // Determine primary algorithm for semantic extraction
-        let primary_algo = if let Some(profile) = TILE_CONFIG.biome_algorithm_profiles.get(biome_key) {
-            if let Some(layers) = &profile.algorithm_layers {
-                // Use first non-glass_seam algorithm as primary
-                layers.iter()
-                    .find(|l| l.algorithm != "glass_seam")
-                    .map(|l| l.algorithm.as_str())
-                    .unwrap_or("cellular")
+        let primary_algo =
+            if let Some(profile) = TILE_CONFIG.biome_algorithm_profiles.get(biome_key) {
+                if let Some(layers) = &profile.algorithm_layers {
+                    // Use first non-glass_seam algorithm as primary
+                    layers
+                        .iter()
+                        .find(|l| l.algorithm != "glass_seam")
+                        .map(|l| l.algorithm.as_str())
+                        .unwrap_or("cellular")
+                } else {
+                    &select_algorithm(
+                        poi,
+                        biome,
+                        terrain,
+                        TILE_CONFIG.structure_algorithm.as_deref(),
+                        &mut rng,
+                    )
+                }
             } else {
-                &select_algorithm(poi, biome, terrain, TILE_CONFIG.structure_algorithm.as_deref(), &mut rng)
-            }
-        } else {
-            &select_algorithm(poi, biome, terrain, TILE_CONFIG.structure_algorithm.as_deref(), &mut rng)
-        };
-        
+                &select_algorithm(
+                    poi,
+                    biome,
+                    terrain,
+                    TILE_CONFIG.structure_algorithm.as_deref(),
+                    &mut rng,
+                )
+            };
+
         let semantic = match primary_algo {
             "bsp" | "rooms" => SemanticExtractor::for_rooms(),
             "maze" => SemanticExtractor::for_mazes(),
@@ -502,7 +538,9 @@ fn select_algorithm(
 fn blend(base: &mut Grid<ForgeTile>, overlay: &Grid<ForgeTile>, mode: &str) {
     for (x, y, cell) in overlay.iter() {
         match mode {
-            "replace" => { base.set(x as i32, y as i32, *cell); }
+            "replace" => {
+                base.set(x as i32, y as i32, *cell);
+            }
             "overlay" => {
                 if *cell == ForgeTile::Wall {
                     base.set(x as i32, y as i32, *cell);
@@ -513,7 +551,9 @@ fn blend(base: &mut Grid<ForgeTile>, overlay: &Grid<ForgeTile>, mode: &str) {
                     base.set(x as i32, y as i32, *cell);
                 }
             }
-            _ => { base.set(x as i32, y as i32, *cell); }
+            _ => {
+                base.set(x as i32, y as i32, *cell);
+            }
         }
     }
 }
@@ -594,17 +634,17 @@ fn apply_poi_layout(
             // Create building walls
             for y in bldg_y..bldg_y + bldg_h {
                 for x in bldg_x..bldg_x + bldg_w {
-                    if x < MAP_WIDTH && y < MAP_HEIGHT {
-                        if x == bldg_x
+                    if x < MAP_WIDTH
+                        && y < MAP_HEIGHT
+                        && (x == bldg_x
                             || x == bldg_x + bldg_w - 1
                             || y == bldg_y
-                            || y == bldg_y + bldg_h - 1
-                        {
-                            map.tiles[y * MAP_WIDTH + x] = Tile::Wall {
-                                id: wall_id.to_string(),
-                                hp: 100,
-                            };
-                        }
+                            || y == bldg_y + bldg_h - 1)
+                    {
+                        map.tiles[y * MAP_WIDTH + x] = Tile::Wall {
+                            id: wall_id.to_string(),
+                            hp: 100,
+                        };
                     }
                 }
             }

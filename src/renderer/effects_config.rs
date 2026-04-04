@@ -4,7 +4,7 @@ use crate::renderer::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct EffectsConfig {
     pub particles: ParticleConfig,
     pub animations: VisualAnimationConfig,
@@ -35,18 +35,6 @@ pub enum QualityLevel {
     Enhanced,
 }
 
-impl Default for EffectsConfig {
-    fn default() -> Self {
-        Self {
-            particles: ParticleConfig::default(),
-            animations: VisualAnimationConfig::default(),
-            themes: ThemeConfig::default(),
-            procedural: ProceduralConfig::default(),
-            global: GlobalEffectsConfig::default(),
-        }
-    }
-}
-
 impl Default for GlobalEffectsConfig {
     fn default() -> Self {
         Self {
@@ -62,6 +50,12 @@ pub struct EffectsManager {
     config: EffectsConfig,
 }
 
+impl Default for EffectsManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EffectsManager {
     pub fn new() -> Self {
         Self {
@@ -74,7 +68,9 @@ impl EffectsManager {
         let value: serde_json::Value = serde_json::from_str(&content)?;
         if value.get("config").is_some() {
             let file: EffectsConfigFile = serde_json::from_value(value)?;
-            Ok(Self { config: file.config })
+            Ok(Self {
+                config: file.config,
+            })
         } else {
             let config: EffectsConfig = serde_json::from_value(value)?;
             Ok(Self { config })

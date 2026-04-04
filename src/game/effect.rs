@@ -81,10 +81,10 @@ static EFFECT_INDEX: Lazy<EffectIndex> = Lazy::new(|| {
                     condition: def.condition,
                     effect,
                 });
-            } else if def.target == "enemy" {
-                if let Some(enemy_id) = def.condition.enemy_type {
-                    enemy_effects.entry(enemy_id).or_default().push(effect);
-                }
+            } else if def.target == "enemy"
+                && let Some(enemy_id) = def.condition.enemy_type
+            {
+                enemy_effects.entry(enemy_id).or_default().push(effect);
             }
         }
     }
@@ -260,60 +260,61 @@ pub struct EffectContext {
 
 impl EffectCondition {
     pub fn evaluate(&self, ctx: &EffectContext) -> bool {
-        if let Some(threshold) = self.low_hp {
-            if ctx.player_hp > threshold {
-                return false;
-            }
+        if let Some(threshold) = self.low_hp
+            && ctx.player_hp > threshold
+        {
+            return false;
         }
-        if let Some(turns) = self.storm_near {
-            if ctx.storm_turns > turns {
-                return false;
-            }
+        if let Some(turns) = self.storm_near
+            && ctx.storm_turns > turns
+        {
+            return false;
         }
-        if let Some(true) = self.has_adaptation {
-            if !ctx.has_adaptation {
-                return false;
-            }
+        if let Some(true) = self.has_adaptation
+            && !ctx.has_adaptation
+        {
+            return false;
         }
-        if let Some(ref tile) = self.on_tile {
-            if tile == "Glass" && !ctx.on_glass {
-                return false;
-            }
+        if let Some(ref tile) = self.on_tile
+            && tile == "Glass"
+            && !ctx.on_glass
+        {
+            return false;
         }
-        if let Some(true) = self.adaptations_hidden {
-            if !ctx.adaptations_hidden {
-                return false;
-            }
+        if let Some(true) = self.adaptations_hidden
+            && !ctx.adaptations_hidden
+        {
+            return false;
         }
-        if let Some(count) = self.adaptation_count_gte {
-            if ctx.adaptation_count < count {
-                return false;
-            }
+        if let Some(count) = self.adaptation_count_gte
+            && ctx.adaptation_count < count
+        {
+            return false;
         }
-        if let Some(true) = self.in_storm_eye {
-            if !ctx.in_storm_eye {
-                return false;
-            }
+        if let Some(true) = self.in_storm_eye
+            && !ctx.in_storm_eye
+        {
+            return false;
         }
-        if let Some(true) = self.on_fragile_glass {
-            if !ctx.on_fragile_glass {
-                return false;
-            }
+        if let Some(true) = self.on_fragile_glass
+            && !ctx.on_fragile_glass
+        {
+            return false;
         }
-        if let Some(true) = self.psychic_active {
-            if !ctx.psychic_active {
-                return false;
-            }
+        if let Some(true) = self.psychic_active
+            && !ctx.psychic_active
+        {
+            return false;
         }
-        if let Some(true) = self.high_salt_exposure {
-            if !ctx.high_salt_exposure {
-                return false;
-            }
+        if let Some(true) = self.high_salt_exposure
+            && !ctx.high_salt_exposure
+        {
+            return false;
         }
-        if let Some(true) = self.void_exposure {
-            if !ctx.void_exposure {
-                return false;
-            }
+        if let Some(true) = self.void_exposure
+            && !ctx.void_exposure
+        {
+            return false;
         }
         true
     }

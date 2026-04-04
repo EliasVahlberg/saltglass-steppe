@@ -63,8 +63,8 @@ pub fn render_damage_numbers(frame: &mut Frame, area: Rect, state: &GameState) {
 
     for dn in &state.world.visual_effects.damage_numbers {
         let rise = (12 - dn.frames) / 6;
-        let screen_x = (dn.x - cam_x) as i32;
-        let screen_y = (dn.y - cam_y) as i32 - rise as i32;
+        let screen_x = dn.x - cam_x;
+        let screen_y = (dn.y - cam_y) - rise as i32;
 
         if screen_x >= 0 && screen_x < view_w && screen_y >= 0 && screen_y < view_h {
             let color = if dn.is_heal {
@@ -203,7 +203,7 @@ fn render_tile(
         let mut style = Style::default().fg(Color::Yellow).bold();
 
         // Hit flash takes priority
-        if has_flash && (frame_count % 2 == 0) {
+        if has_flash && frame_count.is_multiple_of(2) {
             return ('@', Style::default().fg(Color::White).bg(Color::Red).bold());
         }
 
@@ -218,7 +218,7 @@ fn render_tile(
             };
             if let Some(color) = status_color {
                 // Blink effect for status
-                if (frame_count / 4) % 2 == 0 {
+                if (frame_count / 4).is_multiple_of(2) {
                     style = style.fg(color);
                 }
                 break; // Only show highest priority status
@@ -228,7 +228,7 @@ fn render_tile(
         for effect in player_effects {
             match effect {
                 VisualEffect::Blink { speed, color } => {
-                    if (frame_count / *speed as u64) % 2 == 0 {
+                    if (frame_count / *speed as u64).is_multiple_of(2) {
                         style = style.fg(*color);
                     }
                 }
@@ -284,7 +284,7 @@ fn render_tile(
         let e = &state.world.enemies[ei];
         if visible {
             // Hit flash takes priority
-            if has_flash && (frame_count % 2 == 0) {
+            if has_flash && frame_count.is_multiple_of(2) {
                 return (e.glyph(), Style::default().fg(Color::White).bg(Color::Red));
             }
 
@@ -299,7 +299,7 @@ fn render_tile(
             for effect in get_enemy_effects(&e.id) {
                 match effect {
                     VisualEffect::Blink { speed, color } => {
-                        if (frame_count / speed as u64) % 2 == 0 {
+                        if (frame_count / speed as u64).is_multiple_of(2) {
                             style = style.fg(dim_color(color, light));
                         }
                     }
@@ -422,7 +422,11 @@ fn render_tile(
         let light = state.get_light_level(x as i32, y as i32);
 
         // Check if this tile was changed by the last storm
-        let is_storm_changed = state.world.visual_effects.storm_changed_tiles.contains(&idx);
+        let is_storm_changed = state
+            .world
+            .visual_effects
+            .storm_changed_tiles
+            .contains(&idx);
 
         // Animated tiles based on animation_frame
         let (glyph, base_color) = match tile {

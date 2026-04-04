@@ -43,7 +43,7 @@ pub fn all_chest_ids() -> Vec<String> {
 
 impl Chest {
     pub fn new(x: i32, y: i32, id: &str) -> Self {
-        let def = get_chest_def(id).expect(&format!("Unknown chest: {}", id));
+        let def = get_chest_def(id).unwrap_or_else(|| panic!("Unknown chest: {}", id));
         Self {
             x,
             y,

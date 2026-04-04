@@ -41,7 +41,11 @@ impl TileRenderer {
             for vx in 0..view_width {
                 let x = cam_x + vx;
 
-                if x < 0 || y < 0 || x >= state.world.map.width as i32 || y >= state.world.map.height as i32 {
+                if x < 0
+                    || y < 0
+                    || x >= state.world.map.width as i32
+                    || y >= state.world.map.height as i32
+                {
                     // Out of bounds - render empty space
                     row_spans.push(Span::raw(" "));
                     continue;
@@ -78,7 +82,13 @@ impl TileRenderer {
         frame_count: u64,
     ) -> Span<'_> {
         let tile = &state.world.map.tiles[idx];
-        let light_level = self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
+        let light_level = self.get_light_level(
+            x,
+            y,
+            light_map,
+            state.world.map.width,
+            state.world.map.height,
+        );
 
         let (glyph, base_color) = self.get_tile_appearance(
             tile,

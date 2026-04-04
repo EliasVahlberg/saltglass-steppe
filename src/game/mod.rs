@@ -26,9 +26,9 @@ pub mod item;
 pub mod keyboard_config;
 pub mod light;
 pub mod light_defs;
-pub mod map_elements;
 pub mod lighting;
 pub mod map;
+pub mod map_elements;
 pub mod map_features;
 pub mod meta;
 pub mod narrative_engine;
@@ -162,7 +162,9 @@ pub use des_testing::{
     DesTest, DesTestResult, create_sample_des_test, list_des_tests, run_des_test_file,
     save_sample_des_test,
 };
-pub use dialogue::{DialogueState, continue_dialogue, get_dialogue_tree, start_dialogue, start_aria_dialogue};
+pub use dialogue::{
+    DialogueState, continue_dialogue, get_dialogue_tree, start_aria_dialogue, start_dialogue,
+};
 pub use meta::{ClassDef, MetaProgress, all_classes, get_class};
 pub use qa_tools::{DebugInfo, IssueCategory, IssueReport, IssueSeverity};
 pub use trading::{

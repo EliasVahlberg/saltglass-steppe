@@ -14,6 +14,12 @@ pub struct PerlinNoiseAlgorithm {
     parameters: AlgorithmParameters,
 }
 
+impl Default for PerlinNoiseAlgorithm {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PerlinNoiseAlgorithm {
     pub fn new() -> Self {
         let mut parameters = AlgorithmParameters::new();
@@ -255,7 +261,7 @@ mod tests {
         // Check values are in valid range [0, 1]
         for row in &heightmap.data {
             for &value in row {
-                assert!(value >= 0.0 && value <= 1.0);
+                assert!((0.0..=1.0).contains(&value));
             }
         }
     }

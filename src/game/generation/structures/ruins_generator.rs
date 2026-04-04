@@ -7,6 +7,12 @@ use std::collections::HashMap;
 
 pub struct RuinsGenerator;
 
+impl Default for RuinsGenerator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RuinsGenerator {
     pub fn new() -> Self {
         Self

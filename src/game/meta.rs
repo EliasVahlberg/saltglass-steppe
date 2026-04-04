@@ -62,12 +62,11 @@ pub struct MetaProgress {
 
 impl MetaProgress {
     pub fn load() -> Self {
-        if Path::new(META_FILE).exists() {
-            if let Ok(data) = fs::read_to_string(META_FILE) {
-                if let Ok(meta) = ron::from_str(&data) {
-                    return meta;
-                }
-            }
+        if Path::new(META_FILE).exists()
+            && let Ok(data) = fs::read_to_string(META_FILE)
+            && let Ok(meta) = ron::from_str(&data)
+        {
+            return meta;
         }
         Self::default()
     }
@@ -79,10 +78,10 @@ impl MetaProgress {
     }
 
     pub fn is_class_unlocked(&self, class_id: &str) -> bool {
-        if let Some(class) = get_class(class_id) {
-            if class.unlocked_by_default {
-                return true;
-            }
+        if let Some(class) = get_class(class_id)
+            && class.unlocked_by_default
+        {
+            return true;
         }
         self.unlocked_classes.contains(class_id)
     }

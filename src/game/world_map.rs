@@ -106,7 +106,7 @@ impl WorldMap {
 
         let _rng = ChaCha8Rng::seed_from_u64(seed.wrapping_add(999));
         let mut territories = vec![None; WORLD_WIDTH * WORLD_HEIGHT];
-        
+
         let faction_ids = all_faction_ids();
         if faction_ids.is_empty() {
             return territories;
@@ -115,13 +115,17 @@ impl WorldMap {
         // Place faction capitals evenly spaced around the map
         let num_factions = faction_ids.len();
         let mut capitals = Vec::new();
-        
+
         for (i, faction_id) in faction_ids.iter().enumerate() {
             let angle = (i as f64 / num_factions as f64) * 2.0 * std::f64::consts::PI;
             let radius = WORLD_WIDTH.min(WORLD_HEIGHT) as f64 / 2.5;
             let cx = (WORLD_WIDTH as f64 / 2.0 + radius * angle.cos()) as usize;
             let cy = (WORLD_HEIGHT as f64 / 2.0 + radius * angle.sin()) as usize;
-            capitals.push((cx.min(WORLD_WIDTH - 1), cy.min(WORLD_HEIGHT - 1), faction_id.clone()));
+            capitals.push((
+                cx.min(WORLD_WIDTH - 1),
+                cy.min(WORLD_HEIGHT - 1),
+                faction_id.clone(),
+            ));
         }
 
         // Assign each tile to nearest capital (Voronoi diagram)
@@ -132,7 +136,7 @@ impl WorldMap {
         for y in 0..WORLD_HEIGHT {
             for x in 0..WORLD_WIDTH {
                 let idx = y * WORLD_WIDTH + x;
-                
+
                 // Check if in neutral center zone
                 let dx = (x as i32 - center_x as i32).abs();
                 let dy = (y as i32 - center_y as i32).abs();
@@ -149,7 +153,7 @@ impl WorldMap {
                     let dx = x as f64 - *cx as f64;
                     let dy = y as f64 - *cy as f64;
                     let dist = (dx * dx + dy * dy).sqrt();
-                    
+
                     if dist < min_dist {
                         min_dist = dist;
                         nearest_faction = Some(faction_id.clone());

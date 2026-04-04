@@ -69,11 +69,7 @@ impl<T: DeserializeOwned + HasId> DataLoader<T> {
         self.data.keys().map(|id| id.as_str()).collect()
     }
 
-    fn parse_source(
-        source: &DataSource<'_>,
-        list_key: &str,
-        expected_schema: &str,
-    ) -> Vec<T> {
+    fn parse_source(source: &DataSource<'_>, list_key: &str, expected_schema: &str) -> Vec<T> {
         let root: Value = serde_json::from_str(source.data)
             .unwrap_or_else(|e| panic!("Failed to parse {}: {}", source.label, e));
 

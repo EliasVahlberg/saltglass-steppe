@@ -272,7 +272,7 @@ impl ProceduralEffects {
         let noise_value = self.noise.get_noise(
             (time as f64 * self.config.ambient_lighting.variation_speed as f64) as f32,
             0.0,
-        ) as f32;
+        );
         noise_value * self.config.ambient_lighting.variation_intensity
     }
 
@@ -286,13 +286,12 @@ impl ProceduralEffects {
         }
 
         let time = self.start_time.elapsed().as_secs_f32();
-        let noise_x =
-            self.noise
-                .get_noise((x as f64 * 0.1) as f32, (time as f64 * 2.0) as f32) as f32;
+        let noise_x = self
+            .noise
+            .get_noise((x as f64 * 0.1) as f32, (time as f64 * 2.0) as f32);
         let noise_y = self
             .noise
-            .get_noise((x as f64 * 0.1 + 100.0) as f32, (y as f64 * 0.1) as f32)
-            as f32;
+            .get_noise((x as f64 * 0.1 + 100.0) as f32, (y as f64 * 0.1) as f32);
 
         let offset_x = (noise_x * 0.5).round() as i16;
         let offset_y = (noise_y * 0.3).round() as i16;

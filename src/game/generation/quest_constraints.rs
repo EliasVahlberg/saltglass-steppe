@@ -454,7 +454,7 @@ impl QuestConstraintSystem {
             .map
             .tiles
             .iter()
-            .filter(|tile| !matches!(tile, Tile::Glass { .. }))
+            .filter(|tile| !matches!(tile, Tile::Glass))
             .count() as f32;
 
         structure_tiles / total_tiles
@@ -480,10 +480,7 @@ impl QuestConstraintSystem {
     /// Check if required entity is present
     fn check_entity_presence(req: &EntityRequirement, context: &ConstraintContext) -> bool {
         context.entities.iter().any(|e| {
-            e.entity_type == req.entity_type
-                && e.properties
-                    .get("id")
-                    .map_or(false, |id| id == &req.entity_id)
+            e.entity_type == req.entity_type && (e.properties.get("id") == Some(&req.entity_id))
         })
     }
 
@@ -491,10 +488,7 @@ impl QuestConstraintSystem {
     fn check_entity_reachability(req: &EntityRequirement, context: &ConstraintContext) -> bool {
         // Find the entity
         if let Some(entity) = context.entities.iter().find(|e| {
-            e.entity_type == req.entity_type
-                && e.properties
-                    .get("id")
-                    .map_or(false, |id| id == &req.entity_id)
+            e.entity_type == req.entity_type && (e.properties.get("id") == Some(&req.entity_id))
         }) {
             // Simple reachability check - ensure the entity is on a walkable tile
             if let Some(tile) = context.map.get(entity.x, entity.y) {
@@ -518,17 +512,17 @@ impl QuestConstraintSystem {
                 continue;
             }
 
-            if let Some(tile) = map.get(x, y) {
-                if tile.walkable() {
-                    visited.insert((x, y));
+            if let Some(tile) = map.get(x, y)
+                && tile.walkable()
+            {
+                visited.insert((x, y));
 
-                    // Add neighbors
-                    for (dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
-                        let nx = x + dx;
-                        let ny = y + dy;
-                        if !visited.contains(&(nx, ny)) {
-                            queue.push_back((nx, ny));
-                        }
+                // Add neighbors
+                for (dx, dy) in &[(0, 1), (0, -1), (1, 0), (-1, 0)] {
+                    let nx = x + dx;
+                    let ny = y + dy;
+                    if !visited.contains(&(nx, ny)) {
+                        queue.push_back((nx, ny));
                     }
                 }
             }

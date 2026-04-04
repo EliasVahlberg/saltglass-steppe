@@ -1,5 +1,5 @@
-use once_cell::sync::Lazy;
 use jsonschema::JSONSchema;
+use once_cell::sync::Lazy;
 use serde::Deserialize;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -68,8 +68,8 @@ struct MapElementsData {
 }
 
 static MAP_ELEMENTS: Lazy<MapElementsData> = Lazy::new(|| {
-    let data =
-        fs::read_to_string("data/map_elements.json").expect("Failed to read data/map_elements.json");
+    let data = fs::read_to_string("data/map_elements.json")
+        .expect("Failed to read data/map_elements.json");
     let root: Value = serde_json::from_str(&data).expect("Failed to parse data/map_elements.json");
     validate_map_elements_schema("data/map_elements.json", &root);
     let file: MapElementsFile =
@@ -117,7 +117,6 @@ fn validate_map_elements_schema(label: &str, root: &Value) {
         );
     }
 }
-
 
 pub fn get_wall_def(id: &str) -> Option<&'static WallDef> {
     MAP_ELEMENTS.walls.get(id)

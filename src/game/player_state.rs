@@ -1,12 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-use super::{
-    adaptation::Adaptation,
-    equipment::Equipment,
-    quest::QuestLog,
-    status::StatusEffect,
-};
+use super::{adaptation::Adaptation, equipment::Equipment, quest::QuestLog, status::StatusEffect};
 
 #[derive(Serialize, Deserialize)]
 pub struct PlayerState {
@@ -56,6 +51,12 @@ pub struct PlayerState {
 
     // Combat tracking
     pub last_damage_dealt: u32,
+}
+
+impl Default for PlayerState {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PlayerState {

@@ -1,7 +1,7 @@
+use crate::game::faction;
+use crate::game::state::GameState;
 use ratatui::prelude::*;
 use ratatui::widgets::{Block, Borders, List, ListItem, Paragraph};
-use crate::game::state::GameState;
-use crate::game::faction;
 
 #[derive(Default)]
 pub struct FactionMenu {
@@ -38,7 +38,7 @@ pub fn render_faction_menu(frame: &mut Frame, area: Rect, state: &GameState, men
     let block = Block::default()
         .title(" Faction Reputation (F) ")
         .borders(Borders::ALL);
-    
+
     let inner = block.inner(area);
     frame.render_widget(block, area);
 
@@ -48,30 +48,34 @@ pub fn render_faction_menu(frame: &mut Frame, area: Rect, state: &GameState, men
         .split(inner);
 
     let faction_ids = faction::all_faction_ids();
-    let faction_items: Vec<ListItem> = faction_ids.iter().enumerate().map(|(i, faction_id)| {
-        let faction_def = faction::get_faction(faction_id).expect("Faction not found");
-        let reputation = state.get_reputation(faction_id);
-        let standing = faction::get_standing(reputation);
-        let color = faction::get_standing_color(reputation);
-        
-        let text = format!("{}: {} ({})", faction_def.name, reputation, standing);
-        let style = if i == menu.selected_index {
-            Style::default().bg(Color::DarkGray).fg(color)
-        } else {
-            Style::default().fg(color)
-        };
-        
-        ListItem::new(text).style(style)
-    }).collect();
+    let faction_items: Vec<ListItem> = faction_ids
+        .iter()
+        .enumerate()
+        .map(|(i, faction_id)| {
+            let faction_def = faction::get_faction(faction_id).expect("Faction not found");
+            let reputation = state.get_reputation(faction_id);
+            let standing = faction::get_standing(reputation);
+            let color = faction::get_standing_color(reputation);
+
+            let text = format!("{}: {} ({})", faction_def.name, reputation, standing);
+            let style = if i == menu.selected_index {
+                Style::default().bg(Color::DarkGray).fg(color)
+            } else {
+                Style::default().fg(color)
+            };
+
+            ListItem::new(text).style(style)
+        })
+        .collect();
 
     let list = List::new(faction_items);
     frame.render_widget(list, chunks[0]);
 
-    if let Some(faction_id) = faction_ids.get(menu.selected_index) {
-        if let Some(faction_def) = faction::get_faction(faction_id) {
-            let description = Paragraph::new(faction_def.description.as_str())
-                .wrap(ratatui::widgets::Wrap { trim: true });
-            frame.render_widget(description, chunks[1]);
-        }
+    if let Some(faction_id) = faction_ids.get(menu.selected_index)
+        && let Some(faction_def) = faction::get_faction(faction_id)
+    {
+        let description = Paragraph::new(faction_def.description.as_str())
+            .wrap(ratatui::widgets::Wrap { trim: true });
+        frame.render_widget(description, chunks[1]);
     }
 }

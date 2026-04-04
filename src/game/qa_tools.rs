@@ -170,10 +170,10 @@ impl GameState {
         if Path::new("debug_states").exists() {
             for entry in fs::read_dir("debug_states")? {
                 let entry = entry?;
-                if let Some(name) = entry.file_name().to_str() {
-                    if name.ends_with(".ron") {
-                        states.push(name.to_string());
-                    }
+                if let Some(name) = entry.file_name().to_str()
+                    && name.ends_with(".ron")
+                {
+                    states.push(name.to_string());
                 }
             }
         }
@@ -188,10 +188,10 @@ impl GameState {
         if Path::new("issue_reports").exists() {
             for entry in fs::read_dir("issue_reports")? {
                 let entry = entry?;
-                if let Some(name) = entry.file_name().to_str() {
-                    if name.ends_with(".json") {
-                        reports.push(name.to_string());
-                    }
+                if let Some(name) = entry.file_name().to_str()
+                    && name.ends_with(".json")
+                {
+                    reports.push(name.to_string());
                 }
             }
         }

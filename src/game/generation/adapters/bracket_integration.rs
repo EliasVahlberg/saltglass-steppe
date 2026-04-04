@@ -38,7 +38,7 @@ mod tests {
         assert!(path.is_some(), "Should find a path");
 
         let path = path.unwrap();
-        assert!(path.steps.len() > 0, "Path should have steps");
+        assert!(!path.steps.is_empty(), "Path should have steps");
     }
 
     #[test]
@@ -55,7 +55,7 @@ mod tests {
         let center = Point::new(10, 10);
         let visible = test_fov(&map, center, 5);
 
-        assert!(visible.len() > 0, "Should see some tiles");
+        assert!(!visible.is_empty(), "Should see some tiles");
         assert!(visible.contains(&center), "Should see center tile");
     }
 }

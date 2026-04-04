@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 use clap::{Parser, Subcommand};
-use schemars::{schema_for, JsonSchema};
+use schemars::{JsonSchema, schema_for};
 use serde_json::{Map, Value};
 use std::fs;
 use std::path::PathBuf;
@@ -13,7 +13,10 @@ use saltglass_steppe::game::quest::QuestDef;
 use saltglass_steppe::game::trading::TraderTable;
 
 #[derive(Parser)]
-#[command(name = "schema-gen", about = "Generate JSON Schemas from Rust types or JSON data")]
+#[command(
+    name = "schema-gen",
+    about = "Generate JSON Schemas from Rust types or JSON data"
+)]
 struct Cli {
     #[command(subcommand)]
     command: Command,
@@ -146,8 +149,7 @@ fn main() {
 }
 
 fn wrap_schema(schema: schemars::schema::RootSchema) -> Value {
-    let schema_value = serde_json::to_value(&schema).expect("Failed to serialize schema");
-    schema_value
+    serde_json::to_value(&schema).expect("Failed to serialize schema")
 }
 
 fn apply_top_level_metadata(
@@ -225,10 +227,7 @@ fn infer_schema(value: &Value, use_required: bool) -> Map<String, Value> {
             if use_required && !required.is_empty() {
                 map.insert("required".to_string(), Value::Array(required));
             }
-            map.insert(
-                "additionalProperties".to_string(),
-                Value::Bool(false),
-            );
+            map.insert("additionalProperties".to_string(), Value::Bool(false));
             map
         }
     }

@@ -1,10 +1,10 @@
 //! Overworld travel encounter system.
 
-use std::collections::HashMap;
 use once_cell::sync::Lazy;
 use rand::{Rng, SeedableRng};
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Deserialize)]
 struct EncounterConfig {
@@ -76,9 +76,16 @@ pub struct EncounterState {
 
 #[derive(Clone, Serialize, Deserialize)]
 pub enum EncounterType {
-    Hostile { threat_points: u32 },
-    Neutral { event_id: String, description: String },
-    Beneficial { boon_points: u32 },
+    Hostile {
+        threat_points: u32,
+    },
+    Neutral {
+        event_id: String,
+        description: String,
+    },
+    Beneficial {
+        boon_points: u32,
+    },
 }
 
 impl EncounterState {
@@ -91,9 +98,9 @@ impl EncounterState {
         match self.encounter_type {
             EncounterType::Hostile { .. } => {
                 // Complete when all spawned enemies are dead
-                self.spawned_enemies.iter().all(|&idx| {
-                    enemies.get(idx).map(|e| e.hp <= 0).unwrap_or(true)
-                })
+                self.spawned_enemies
+                    .iter()
+                    .all(|&idx| enemies.get(idx).map(|e| e.hp <= 0).unwrap_or(true))
             }
             EncounterType::Neutral { .. } | EncounterType::Beneficial { .. } => {
                 // Complete after interacting or leaving map edge
@@ -130,7 +137,8 @@ pub fn should_trigger_encounter(
     // Calculate encounter probability
     let danger_mod = 1.0 + (tile_danger as f32 * CONFIG.danger_scaling);
     let wayfaring_mod = 1.0 - (wayfaring_level as f32 * 0.05);
-    let p = (CONFIG.base_encounter_rate * danger_mod * wayfaring_mod).clamp(CONFIG.min_rate, CONFIG.max_rate);
+    let p = (CONFIG.base_encounter_rate * danger_mod * wayfaring_mod)
+        .clamp(CONFIG.min_rate, CONFIG.max_rate);
 
     e < p
 }
@@ -151,10 +159,14 @@ pub fn generate_encounter(
     let mut rng = ChaCha8Rng::seed_from_u64(encounter_seed);
 
     // Get biome modifiers
-    let biome_mod = CONFIG.biome_modifiers.get(biome).cloned().unwrap_or(BiomeModifier {
-        danger_mult: 1.0,
-        richness_mult: 1.0,
-    });
+    let biome_mod = CONFIG
+        .biome_modifiers
+        .get(biome)
+        .cloned()
+        .unwrap_or(BiomeModifier {
+            danger_mult: 1.0,
+            richness_mult: 1.0,
+        });
 
     // Roll encounter type
     let total_weight = CONFIG.encounter_types.hostile.weight
@@ -168,18 +180,31 @@ pub fn generate_encounter(
             CONFIG.encounter_types.hostile.threat_range[0]
                 ..=CONFIG.encounter_types.hostile.threat_range[1],
         );
-        let threat_points = (base_threat as f32 * biome_mod.danger_mult * (tile_danger as f32 / 5.0)) as u32;
+        let threat_points =
+            (base_threat as f32 * biome_mod.danger_mult * (tile_danger as f32 / 5.0)) as u32;
         EncounterType::Hostile { threat_points }
     } else if roll < CONFIG.encounter_types.hostile.weight + CONFIG.encounter_types.neutral.weight {
         // Neutral encounter
-        let total_event_weight: u32 = CONFIG.encounter_types.neutral.events.iter().map(|e| e.weight).sum();
+        let total_event_weight: u32 = CONFIG
+            .encounter_types
+            .neutral
+            .events
+            .iter()
+            .map(|e| e.weight)
+            .sum();
         let event_roll = rng.gen_range(0..total_event_weight);
         let mut cumulative = 0;
-        let event = CONFIG.encounter_types.neutral.events.iter().find(|e| {
-            cumulative += e.weight;
-            event_roll < cumulative
-        }).unwrap();
-        
+        let event = CONFIG
+            .encounter_types
+            .neutral
+            .events
+            .iter()
+            .find(|e| {
+                cumulative += e.weight;
+                event_roll < cumulative
+            })
+            .unwrap();
+
         EncounterType::Neutral {
             event_id: event.id.clone(),
             description: event.description.clone(),
@@ -216,15 +241,15 @@ pub fn attempt_flee(
 ) -> Result<(), String> {
     // Check distance from all spawned enemies
     for &idx in spawned_enemy_indices {
-        if let Some(enemy) = enemies.get(idx) {
-            if enemy.hp > 0 {
-                let dist = (enemy.x - player_x).abs() + (enemy.y - player_y).abs();
-                if dist <= CONFIG.flee_distance_required {
-                    return Err(format!(
-                        "Too close to enemies! Must be >{} cells away.",
-                        CONFIG.flee_distance_required
-                    ));
-                }
+        if let Some(enemy) = enemies.get(idx)
+            && enemy.hp > 0
+        {
+            let dist = (enemy.x - player_x).abs() + (enemy.y - player_y).abs();
+            if dist <= CONFIG.flee_distance_required {
+                return Err(format!(
+                    "Too close to enemies! Must be >{} cells away.",
+                    CONFIG.flee_distance_required
+                ));
             }
         }
     }

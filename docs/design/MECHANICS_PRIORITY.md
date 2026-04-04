@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "Completion estimates and priority rankings outdated vs actual development state"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: Completion estimates and priority rankings outdated vs actual development state
+> Last verified: 2026-04-04
+
 # Core Mechanics Priority Analysis
 
 Ranked by gameplay importance and implementation difficulty.

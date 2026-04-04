@@ -18,6 +18,12 @@ pub struct GrammarContext {
     pub variables: HashMap<String, String>,
 }
 
+impl Default for Grammar {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Grammar {
     pub fn new() -> Self {
         Self {
@@ -121,7 +127,7 @@ impl Grammar {
                 let mut rule_name = String::new();
                 let mut found_close = false;
 
-                while let Some(inner_ch) = chars.next() {
+                for inner_ch in chars.by_ref() {
                     if inner_ch == '>' {
                         found_close = true;
                         break;
@@ -153,16 +159,13 @@ pub fn load_grammars_from_directory(
     let mut grammars = HashMap::new();
 
     if let Ok(entries) = std::fs::read_dir(dir_path) {
-        for entry in entries {
-            if let Ok(entry) = entry {
-                let path = entry.path();
-                if path.extension().and_then(|s| s.to_str()) == Some("json") {
-                    if let Some(file_stem) = path.file_stem().and_then(|s| s.to_str()) {
-                        if let Ok(grammar) = Grammar::load_from_file(&path.to_string_lossy()) {
-                            grammars.insert(file_stem.to_string(), grammar);
-                        }
-                    }
-                }
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.extension().and_then(|s| s.to_str()) == Some("json")
+                && let Some(file_stem) = path.file_stem().and_then(|s| s.to_str())
+                && let Ok(grammar) = Grammar::load_from_file(&path.to_string_lossy())
+            {
+                grammars.insert(file_stem.to_string(), grammar);
             }
         }
     }

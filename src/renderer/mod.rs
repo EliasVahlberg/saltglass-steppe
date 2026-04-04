@@ -25,7 +25,7 @@ use self::{
     entities::EntityRenderer,
     lighting::LightingRenderer,
     particles::{ParticleSystem, ParticleType},
-    performance::{FrameLimiter, ViewportCuller},
+    performance::FrameLimiter,
     procedural::ProceduralEffects,
     themes::ThemeManager,
     tiles::TileRenderer,
@@ -45,7 +45,6 @@ pub struct Renderer {
     tiles: TileRenderer,
     camera: Camera,
     frame_limiter: FrameLimiter,
-    viewport_culler: ViewportCuller,
     particle_system: ParticleSystem,
     animation_system: AnimationSystem,
     theme_manager: ThemeManager,
@@ -73,7 +72,6 @@ impl Renderer {
             tiles: TileRenderer::new(&config),
             camera: Camera::new(),
             frame_limiter: FrameLimiter::new(config.performance.target_fps),
-            viewport_culler: ViewportCuller::new(),
             particle_system: ParticleSystem::new(config.particles.clone()),
             animation_system: AnimationSystem::new(config.visual_animations.clone()),
             theme_manager,
@@ -128,19 +126,11 @@ impl Renderer {
         let adjusted_cam_x = cam_x + shake_x as i32;
         let adjusted_cam_y = cam_y + shake_y as i32;
 
-        // Get viewport bounds for culling
-        let _viewport_bounds = self.viewport_culler.get_bounds(
-            adjusted_cam_x,
-            adjusted_cam_y,
-            inner.width as i32,
-            inner.height as i32,
-        );
-
         // Calculate lighting if enabled (only for visible area)
         let light_map = if self.config.lighting.enabled {
             self.lighting.calculate_lighting(state)
         } else {
-            vec![255; (state.world.map.width * state.world.map.height) as usize]
+            vec![255; state.world.map.width * state.world.map.height]
         };
 
         // Render tiles first (background layer)
@@ -424,8 +414,7 @@ impl Renderer {
 
     /// Save effects configuration to file
     pub fn save_effects_config(&self) -> Result<(), Box<dyn std::error::Error>> {
-        self.effects_manager
-            .save_to_file("data/effects.json")
+        self.effects_manager.save_to_file("data/effects.json")
     }
 
     /// Apply theme colors to the render config

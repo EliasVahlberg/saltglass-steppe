@@ -11,21 +11,21 @@ use std::collections::HashMap;
 
 use crate::game::{
     skills::{
-        SKILL_CATEGORIES, category_name, calculate_skill_cost,
-        get_category_roots, get_skill_children, get_skill_def,
+        SKILL_CATEGORIES, calculate_skill_cost, category_name, get_category_roots,
+        get_skill_children, get_skill_def,
     },
     state::GameState,
 };
 
 // --- Layout constants ---
-pub const NODE_W: i32 = 22;   // chars per node (including box)
-pub const NODE_H: i32 = 3;    // rows per node
-const COL_GAP: i32 = 6;   // extra chars between columns
-const ROW_GAP: i32 = 1;   // extra rows between rows
+pub const NODE_W: i32 = 22; // chars per node (including box)
+pub const NODE_H: i32 = 3; // rows per node
+const COL_GAP: i32 = 6; // extra chars between columns
+const ROW_GAP: i32 = 1; // extra rows between rows
 
 // --- State ---
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub struct SkillsMenu {
     pub active: bool,
     pub category_idx: usize,
@@ -37,22 +37,10 @@ pub struct SkillsMenu {
     layout_category: Option<usize>,
 }
 
-impl Default for SkillsMenu {
-    fn default() -> Self {
-        Self {
-            active: false,
-            category_idx: 0,
-            cursor_id: String::new(),
-            pan_x: 0,
-            pan_y: 0,
-            layout_cache: HashMap::new(),
-            layout_category: None,
-        }
-    }
-}
-
 impl SkillsMenu {
-    pub fn new() -> Self { Self::default() }
+    pub fn new() -> Self {
+        Self::default()
+    }
 
     pub fn open(&mut self) {
         self.active = true;
@@ -64,7 +52,9 @@ impl SkillsMenu {
         }
     }
 
-    pub fn close(&mut self) { self.active = false; }
+    pub fn close(&mut self) {
+        self.active = false;
+    }
 
     pub fn next_category(&mut self) {
         self.category_idx = (self.category_idx + 1) % SKILL_CATEGORIES.len();
@@ -95,11 +85,11 @@ impl SkillsMenu {
 
     /// Move cursor to parent node
     pub fn cursor_left(&mut self) {
-        if let Some(def) = get_skill_def(&self.cursor_id) {
-            if let Some(parent_id) = &def.tree_parent {
-                self.cursor_id = parent_id.clone();
-                self.scroll_to_cursor();
-            }
+        if let Some(def) = get_skill_def(&self.cursor_id)
+            && let Some(parent_id) = &def.tree_parent
+        {
+            self.cursor_id = parent_id.clone();
+            self.scroll_to_cursor();
         }
     }
 
@@ -135,15 +125,22 @@ impl SkillsMenu {
 
         // Collect siblings (same parent)
         let siblings: Vec<String> = if let Some(ref pid) = parent_id {
-            get_skill_children(pid).iter().map(|d| d.id.clone()).collect()
+            get_skill_children(pid)
+                .iter()
+                .map(|d| d.id.clone())
+                .collect()
         } else {
             // Root nodes — siblings are other roots in this category
             let cat = &SKILL_CATEGORIES[self.category_idx];
-            get_category_roots(cat).iter().map(|d| d.id.clone()).collect()
+            get_category_roots(cat)
+                .iter()
+                .map(|d| d.id.clone())
+                .collect()
         };
 
         // Sort by canvas Y
-        let mut sorted: Vec<(String, i32)> = siblings.iter()
+        let mut sorted: Vec<(String, i32)> = siblings
+            .iter()
             .filter_map(|id| self.layout_cache.get(id).map(|&(_, y)| (id.clone(), y)))
             .collect();
         sorted.sort_by_key(|(_, y)| *y);
@@ -178,7 +175,12 @@ impl SkillsMenu {
         let roots = get_category_roots(cat);
         let mut row_counter: HashMap<i32, i32> = HashMap::new(); // col → next row slot
         for root in roots {
-            assign_positions(root.id.as_str(), 0, &mut row_counter, &mut self.layout_cache);
+            assign_positions(
+                root.id.as_str(),
+                0,
+                &mut row_counter,
+                &mut self.layout_cache,
+            );
         }
         self.layout_category = Some(self.category_idx);
     }
@@ -237,7 +239,11 @@ pub fn render_skills_menu(f: &mut Frame, game_state: &GameState, menu: &mut Skil
 
     let chunks = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(3), Constraint::Min(10), Constraint::Length(3)])
+        .constraints([
+            Constraint::Length(3),
+            Constraint::Min(10),
+            Constraint::Length(3),
+        ])
         .split(popup);
 
     // Header
@@ -245,8 +251,10 @@ pub fn render_skills_menu(f: &mut Frame, game_state: &GameState, menu: &mut Skil
     let sp = game_state.player.skills.skill_points;
     let header_text = format!(
         " {} ─── {} SP available  [{}/{}]",
-        category_name(cat), sp,
-        menu.category_idx + 1, SKILL_CATEGORIES.len()
+        category_name(cat),
+        sp,
+        menu.category_idx + 1,
+        SKILL_CATEGORIES.len()
     );
     f.render_widget(
         Paragraph::new(header_text)
@@ -272,9 +280,11 @@ pub fn render_skills_menu(f: &mut Frame, game_state: &GameState, menu: &mut Skil
 
     // Footer
     f.render_widget(
-        Paragraph::new(" ←→↑↓: Move cursor  HJKL: Pan  Tab/Shift+Tab: Category  Enter: Upgrade  Esc: Close")
-            .block(Block::default().borders(Borders::ALL))
-            .style(Style::default().fg(Color::DarkGray)),
+        Paragraph::new(
+            " ←→↑↓: Move cursor  HJKL: Pan  Tab/Shift+Tab: Category  Enter: Upgrade  Esc: Close",
+        )
+        .block(Block::default().borders(Borders::ALL))
+        .style(Style::default().fg(Color::DarkGray)),
         chunks[2],
     );
 }
@@ -296,7 +306,9 @@ fn render_tree_canvas(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu, 
     // Draw connections first (behind nodes)
     for (skill_id, &(cx, cy)) in &menu.layout_cache {
         let children = get_skill_children(skill_id);
-        if children.is_empty() { continue; }
+        if children.is_empty() {
+            continue;
+        }
 
         let node_right_x = cx + NODE_W; // right edge of parent node
         let parent_mid_y = cy + NODE_H / 2;
@@ -312,71 +324,135 @@ fn render_tree_canvas(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu, 
 
                 // Draw horizontal segment from parent to connector column
                 for x in line_start_x..connector_x {
-                    draw_char(&mut canvas, x - menu.pan_x, parent_mid_y - menu.pan_y, '─', Style::default().fg(Color::DarkGray), vw, vh);
+                    draw_char(
+                        &mut canvas,
+                        x - menu.pan_x,
+                        parent_mid_y - menu.pan_y,
+                        '─',
+                        Style::default().fg(Color::DarkGray),
+                        vw,
+                        vh,
+                    );
                 }
                 // Vertical segment if needed
                 if parent_mid_y != child_mid_y {
                     let y_min = parent_mid_y.min(child_mid_y);
                     let y_max = parent_mid_y.max(child_mid_y);
                     for y in y_min..=y_max {
-                        draw_char(&mut canvas, connector_x - menu.pan_x, y - menu.pan_y, '│', Style::default().fg(Color::DarkGray), vw, vh);
+                        draw_char(
+                            &mut canvas,
+                            connector_x - menu.pan_x,
+                            y - menu.pan_y,
+                            '│',
+                            Style::default().fg(Color::DarkGray),
+                            vw,
+                            vh,
+                        );
                     }
                     // Corner chars
                     let corner = if i == 0 { '├' } else { '└' };
-                    draw_char(&mut canvas, connector_x - menu.pan_x, child_mid_y - menu.pan_y, corner, Style::default().fg(Color::DarkGray), vw, vh);
+                    draw_char(
+                        &mut canvas,
+                        connector_x - menu.pan_x,
+                        child_mid_y - menu.pan_y,
+                        corner,
+                        Style::default().fg(Color::DarkGray),
+                        vw,
+                        vh,
+                    );
                 }
                 // Horizontal segment from connector to child
                 for x in connector_x..line_end_x {
-                    draw_char(&mut canvas, x - menu.pan_x, child_mid_y - menu.pan_y, '─', Style::default().fg(Color::DarkGray), vw, vh);
+                    draw_char(
+                        &mut canvas,
+                        x - menu.pan_x,
+                        child_mid_y - menu.pan_y,
+                        '─',
+                        Style::default().fg(Color::DarkGray),
+                        vw,
+                        vh,
+                    );
                 }
             }
         }
     }
 
     // Draw nodes
-    for skill_id in get_category_roots(cat).iter()
+    for skill_id in get_category_roots(cat)
+        .iter()
         .flat_map(|r| collect_subtree(r.id.as_str()))
     {
-        if let Some(def) = get_skill_def(&skill_id) {
-            if let Some(&(cx, cy)) = menu.layout_cache.get(&def.id) {
-                let level = game_state.player.skills.get_skill_level(&def.id);
-                let can_up = game_state.player.skills.can_upgrade_skill(&def.id).is_ok();
-                let is_cursor = def.id == menu.cursor_id;
+        if let Some(def) = get_skill_def(&skill_id)
+            && let Some(&(cx, cy)) = menu.layout_cache.get(&def.id)
+        {
+            let level = game_state.player.skills.get_skill_level(&def.id);
+            let can_up = game_state.player.skills.can_upgrade_skill(&def.id).is_ok();
+            let is_cursor = def.id == menu.cursor_id;
 
-                let node_style = if is_cursor {
-                    Style::default().fg(Color::Black).bg(Color::White).add_modifier(Modifier::BOLD)
-                } else if def.blocked {
-                    Style::default().fg(Color::Red)
-                } else if level >= def.max_level {
-                    Style::default().fg(Color::Yellow)
-                } else if can_up {
-                    Style::default().fg(Color::Green)
-                } else {
-                    Style::default().fg(Color::DarkGray)
-                };
+            let node_style = if is_cursor {
+                Style::default()
+                    .fg(Color::Black)
+                    .bg(Color::White)
+                    .add_modifier(Modifier::BOLD)
+            } else if def.blocked {
+                Style::default().fg(Color::Red)
+            } else if level >= def.max_level {
+                Style::default().fg(Color::Yellow)
+            } else if can_up {
+                Style::default().fg(Color::Green)
+            } else {
+                Style::default().fg(Color::DarkGray)
+            };
 
-                let suffix = if def.blocked { "✗" } else if def.active { "★" } else { "" };
-                let label = format!("{}{}", def.name, suffix);
-                let label_truncated = if label.len() > (NODE_W - 4) as usize {
-                    format!("{}…", &label[..(NODE_W - 5) as usize])
-                } else {
-                    label
-                };
-                let level_str = format!("{}/{}", level, def.max_level);
+            let suffix = if def.blocked {
+                "✗"
+            } else if def.active {
+                "★"
+            } else {
+                ""
+            };
+            let label = format!("{}{}", def.name, suffix);
+            let label_truncated = if label.len() > (NODE_W - 4) as usize {
+                format!("{}…", &label[..(NODE_W - 5) as usize])
+            } else {
+                label
+            };
+            let level_str = format!("{}/{}", level, def.max_level);
 
-                // Top border
-                draw_str(&mut canvas, cx - menu.pan_x, cy - menu.pan_y,
-                    &format!("┌{:─<width$}┐", "", width = (NODE_W - 2) as usize),
-                    node_style, vw, vh);
-                // Label row
-                draw_str(&mut canvas, cx - menu.pan_x, cy + 1 - menu.pan_y,
-                    &format!("│{:<width$}│", label_truncated, width = (NODE_W - 2) as usize),
-                    node_style, vw, vh);
-                // Level row
-                draw_str(&mut canvas, cx - menu.pan_x, cy + 2 - menu.pan_y,
-                    &format!("└{:─<width$}┘", level_str, width = (NODE_W - 2) as usize),
-                    node_style, vw, vh);
-            }
+            // Top border
+            draw_str(
+                &mut canvas,
+                cx - menu.pan_x,
+                cy - menu.pan_y,
+                &format!("┌{:─<width$}┐", "", width = (NODE_W - 2) as usize),
+                node_style,
+                vw,
+                vh,
+            );
+            // Label row
+            draw_str(
+                &mut canvas,
+                cx - menu.pan_x,
+                cy + 1 - menu.pan_y,
+                &format!(
+                    "│{:<width$}│",
+                    label_truncated,
+                    width = (NODE_W - 2) as usize
+                ),
+                node_style,
+                vw,
+                vh,
+            );
+            // Level row
+            draw_str(
+                &mut canvas,
+                cx - menu.pan_x,
+                cy + 2 - menu.pan_y,
+                &format!("└{:─<width$}┘", level_str, width = (NODE_W - 2) as usize),
+                node_style,
+                vw,
+                vh,
+            );
         }
     }
 
@@ -399,13 +475,29 @@ fn render_tree_canvas(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu, 
     f.render_widget(Block::default().borders(Borders::ALL).title("Tree"), area);
 }
 
-fn draw_char(canvas: &mut Vec<Vec<(char, Style)>>, x: i32, y: i32, ch: char, style: Style, w: i32, h: i32) {
+fn draw_char(
+    canvas: &mut Vec<Vec<(char, Style)>>,
+    x: i32,
+    y: i32,
+    ch: char,
+    style: Style,
+    w: i32,
+    h: i32,
+) {
     if x >= 0 && y >= 0 && x < w && y < h {
         canvas[y as usize][x as usize] = (ch, style);
     }
 }
 
-fn draw_str(canvas: &mut Vec<Vec<(char, Style)>>, x: i32, y: i32, s: &str, style: Style, w: i32, h: i32) {
+fn draw_str(
+    canvas: &mut Vec<Vec<(char, Style)>>,
+    x: i32,
+    y: i32,
+    s: &str,
+    style: Style,
+    w: i32,
+    h: i32,
+) {
     for (i, ch) in s.chars().enumerate() {
         draw_char(canvas, x + i as i32, y, ch, style, w, h);
     }
@@ -428,7 +520,12 @@ fn render_detail_panel(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu,
         let upgrade = game_state.player.skills.can_upgrade_skill(&def.id);
 
         let mut lines = vec![
-            Line::from(Span::styled(def.name.clone(), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))),
+            Line::from(Span::styled(
+                def.name.clone(),
+                Style::default()
+                    .fg(Color::Yellow)
+                    .add_modifier(Modifier::BOLD),
+            )),
             Line::from(""),
             Line::from(def.description.clone()),
             Line::from(""),
@@ -438,16 +535,25 @@ fn render_detail_panel(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu,
 
         if def.blocked {
             lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled("⚠ Blocked — system not yet implemented", Style::default().fg(Color::Red))));
+            lines.push(Line::from(Span::styled(
+                "⚠ Blocked — system not yet implemented",
+                Style::default().fg(Color::Red),
+            )));
         } else {
             match upgrade {
                 Ok(()) => {
                     lines.push(Line::from(""));
-                    lines.push(Line::from(Span::styled("[Enter] Upgrade", Style::default().fg(Color::Green))));
+                    lines.push(Line::from(Span::styled(
+                        "[Enter] Upgrade",
+                        Style::default().fg(Color::Green),
+                    )));
                 }
                 Err(ref e) => {
                     lines.push(Line::from(""));
-                    lines.push(Line::from(Span::styled(format!("✗ {}", e), Style::default().fg(Color::Red))));
+                    lines.push(Line::from(Span::styled(
+                        format!("✗ {}", e),
+                        Style::default().fg(Color::Red),
+                    )));
                 }
             }
         }
@@ -455,7 +561,10 @@ fn render_detail_panel(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu,
         // Prerequisites
         if !def.prerequisites.is_empty() {
             lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled("Prerequisites:", Style::default().fg(Color::DarkGray))));
+            lines.push(Line::from(Span::styled(
+                "Prerequisites:",
+                Style::default().fg(Color::DarkGray),
+            )));
             for prereq in &def.prerequisites {
                 let have = game_state.player.skills.get_skill_level(&prereq.skill_id);
                 let met = have >= prereq.required_level;
@@ -474,7 +583,10 @@ fn render_detail_panel(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu,
         // Passive effects summary
         if !def.passive_effects.is_empty() {
             lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled("Passives:", Style::default().fg(Color::DarkGray))));
+            lines.push(Line::from(Span::styled(
+                "Passives:",
+                Style::default().fg(Color::DarkGray),
+            )));
             for eff in &def.passive_effects {
                 lines.push(Line::from(format!(
                     "  +{:.0}% {} per level",
@@ -492,7 +604,10 @@ fn render_detail_panel(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu,
             .collect();
         if !unlocked_abilities.is_empty() {
             lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled("Unlocks:", Style::default().fg(Color::DarkGray))));
+            lines.push(Line::from(Span::styled(
+                "Unlocks:",
+                Style::default().fg(Color::DarkGray),
+            )));
             for ab in unlocked_abilities {
                 let have = game_state.player.skills.unlocked_abilities.contains(&ab.id);
                 let color = if have { Color::Yellow } else { Color::White };

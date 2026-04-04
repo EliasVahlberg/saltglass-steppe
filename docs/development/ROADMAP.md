@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "LOC counts and DES scenario counts outdated after cleanup"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: LOC counts and DES scenario counts outdated after cleanup
+> Last verified: 2026-04-04
+
 # Development Roadmap
 
 > Last updated: 2026-03-07

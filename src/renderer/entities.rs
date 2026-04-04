@@ -42,22 +42,19 @@ impl EntityRenderer {
             cam_y,
             view_width,
             view_height,
-        ) {
-            if let Some(span) = self.render_player(state, light_map, frame_count) {
-                entity_spans[screen_y as usize][screen_x as usize] = Some(span);
-            }
+        ) && let Some(span) = self.render_player(state, light_map, frame_count)
+        {
+            entity_spans[screen_y as usize][screen_x as usize] = Some(span);
         }
 
         // Render enemies
         for (pos, &enemy_idx) in &state.enemy_positions {
             if let Some((screen_x, screen_y)) =
                 self.world_to_screen(pos.0, pos.1, cam_x, cam_y, view_width, view_height)
-            {
-                if let Some(span) =
+                && let Some(span) =
                     self.render_enemy(state, enemy_idx, pos.0, pos.1, light_map, frame_count)
-                {
-                    entity_spans[screen_y as usize][screen_x as usize] = Some(span);
-                }
+            {
+                entity_spans[screen_y as usize][screen_x as usize] = Some(span);
             }
         }
 
@@ -65,12 +62,10 @@ impl EntityRenderer {
         for (pos, &npc_idx) in &state.npc_positions {
             if let Some((screen_x, screen_y)) =
                 self.world_to_screen(pos.0, pos.1, cam_x, cam_y, view_width, view_height)
-            {
-                if let Some(span) =
+                && let Some(span) =
                     self.render_npc(state, npc_idx, pos.0, pos.1, light_map, frame_count)
-                {
-                    entity_spans[screen_y as usize][screen_x as usize] = Some(span);
-                }
+            {
+                entity_spans[screen_y as usize][screen_x as usize] = Some(span);
             }
         }
 
@@ -78,12 +73,10 @@ impl EntityRenderer {
         for (pos, item_indices) in &state.item_positions {
             if let Some((screen_x, screen_y)) =
                 self.world_to_screen(pos.0, pos.1, cam_x, cam_y, view_width, view_height)
-            {
-                if let Some(span) =
+                && let Some(span) =
                     self.render_item(state, item_indices[0], pos.0, pos.1, light_map, frame_count)
-                {
-                    entity_spans[screen_y as usize][screen_x as usize] = Some(span);
-                }
+            {
+                entity_spans[screen_y as usize][screen_x as usize] = Some(span);
             }
         }
 
@@ -96,12 +89,10 @@ impl EntityRenderer {
                 cam_y,
                 view_width,
                 view_height,
-            ) {
-                if let Some(span) =
-                    self.render_light_source(&map_light.id, map_light.x, map_light.y, light_map)
-                {
-                    entity_spans[screen_y as usize][screen_x as usize] = Some(span);
-                }
+            ) && let Some(span) =
+                self.render_light_source(&map_light.id, map_light.x, map_light.y, light_map)
+            {
+                entity_spans[screen_y as usize][screen_x as usize] = Some(span);
             }
         }
 
@@ -150,7 +141,7 @@ impl EntityRenderer {
         let mut style = Style::default().fg(base_color).bold();
 
         // Apply hit flash
-        if state.has_hit_flash(state.player.x, state.player.y) && (frame_count % 2 == 0) {
+        if state.has_hit_flash(state.player.x, state.player.y) && frame_count.is_multiple_of(2) {
             return Some(Span::styled(
                 "@",
                 Style::default()
@@ -242,22 +233,25 @@ impl EntityRenderer {
 
         // Apply status effect colors (priority order from config)
         for status_name in &self.config.rendering.status_effect_priority {
-            if state.player.status_effects.iter().any(|e| e.id == *status_name) {
-                if let Some(color_name) = self
+            if state
+                .player
+                .status_effects
+                .iter()
+                .any(|e| e.id == *status_name)
+                && let Some(color_name) = self
                     .config
                     .colors
                     .entities
                     .player
                     .status_effects
                     .get(status_name)
-                {
-                    let status_color = parse_color(color_name);
-                    // Blink effect for status
-                    if (frame_count / 4) % 2 == 0 {
-                        style = style.fg(status_color);
-                    }
-                    break; // Only show highest priority status
+            {
+                let status_color = parse_color(color_name);
+                // Blink effect for status
+                if (frame_count / 4).is_multiple_of(2) {
+                    style = style.fg(status_color);
                 }
+                break; // Only show highest priority status
             }
         }
 
@@ -283,10 +277,16 @@ impl EntityRenderer {
         }
 
         let enemy = &state.world.enemies[enemy_idx];
-        let light_level = self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
+        let light_level = self.get_light_level(
+            x,
+            y,
+            light_map,
+            state.world.map.width,
+            state.world.map.height,
+        );
 
         // Apply hit flash
-        if state.has_hit_flash(x, y) && (frame_count % 2 == 0) {
+        if state.has_hit_flash(x, y) && frame_count.is_multiple_of(2) {
             return Some(Span::styled(
                 enemy.glyph().to_string(),
                 Style::default()
@@ -305,8 +305,7 @@ impl EntityRenderer {
             .map(|c| parse_color(c))
             .unwrap_or_else(|| {
                 parse_color(
-                    &self
-                        .config
+                    self.config
                         .colors
                         .entities
                         .enemies
@@ -336,7 +335,13 @@ impl EntityRenderer {
         }
 
         let npc = &state.world.npcs[npc_idx];
-        let light_level = self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
+        let light_level = self.get_light_level(
+            x,
+            y,
+            light_map,
+            state.world.map.width,
+            state.world.map.height,
+        );
         let base_color = parse_color(&self.config.colors.entities.npcs.base);
         let style = Style::default()
             .fg(self.dim_color(base_color, light_level))
@@ -361,7 +366,13 @@ impl EntityRenderer {
         }
 
         let item = &state.world.items[item_idx];
-        let light_level = self.get_light_level(x, y, light_map, state.world.map.width, state.world.map.height);
+        let light_level = self.get_light_level(
+            x,
+            y,
+            light_map,
+            state.world.map.width,
+            state.world.map.height,
+        );
         let base_color = parse_color(&self.config.colors.entities.items.base);
         let style = Style::default().fg(self.dim_color(base_color, light_level));
 

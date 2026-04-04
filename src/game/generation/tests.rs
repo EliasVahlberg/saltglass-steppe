@@ -145,7 +145,7 @@ mod generation_tests {
         assert_eq!(result.get("wall_type").unwrap().as_str().unwrap(), "glass");
 
         // Should have child-specific property
-        assert_eq!(result.get("special").unwrap().as_bool().unwrap(), true);
+        assert!(result.get("special").unwrap().as_bool().unwrap());
     }
 
     #[test]

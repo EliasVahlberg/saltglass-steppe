@@ -11,8 +11,8 @@ use std::collections::HashSet;
 use super::constants::{FOV_RANGE, MAP_HEIGHT, MAP_WIDTH};
 use super::generation::TerrainForgeGenerator;
 use super::light_defs::{get_spawn_rule, pick_light_type};
-use super::map_elements::{get_floor_def as get_floor_def_from_loader};
-use super::map_elements::{get_wall_def as get_wall_def_from_loader, FloorDef, WallDef};
+use super::map_elements::get_floor_def as get_floor_def_from_loader;
+use super::map_elements::{FloorDef, WallDef, get_wall_def as get_wall_def_from_loader};
 use super::world_map::{Biome, POI, Terrain};
 
 pub fn get_wall_def(id: &str) -> Option<&'static WallDef> {
@@ -417,10 +417,10 @@ impl Map {
         }
 
         // Place stairs down in last room (if not at max depth)
-        if layer > -3 {
-            if let Some(&(rx, ry)) = room_centers.last() {
-                tiles[ry as usize * MAP_WIDTH + rx as usize] = Tile::StairsDown;
-            }
+        if layer > -3
+            && let Some(&(rx, ry)) = room_centers.last()
+        {
+            tiles[ry as usize * MAP_WIDTH + rx as usize] = Tile::StairsDown;
         }
 
         // Fewer lights underground
@@ -603,11 +603,11 @@ impl Map {
                 if matches!(tile, Tile::Wall { .. } | Tile::Glass) {
                     // Check if there's a floor tile adjacent (visible to players)
                     for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
-                        if let Some(adj_tile) = self.get(x as i32 + dx, y as i32 + dy) {
-                            if matches!(adj_tile, Tile::Floor { .. }) {
-                                candidates.push((x as i32, y as i32));
-                                break;
-                            }
+                        if let Some(adj_tile) = self.get(x as i32 + dx, y as i32 + dy)
+                            && matches!(adj_tile, Tile::Floor { .. })
+                        {
+                            candidates.push((x as i32, y as i32));
+                            break;
                         }
                     }
                 }
@@ -631,10 +631,10 @@ impl BaseMap for Map {
         let x = (idx % self.width) as i32;
         let y = (idx / self.width) as i32;
         for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
-            if let Some(tile) = self.get(x + dx, y + dy) {
-                if tile.walkable() {
-                    exits.push((self.idx(x + dx, y + dy), 1.0));
-                }
+            if let Some(tile) = self.get(x + dx, y + dy)
+                && tile.walkable()
+            {
+                exits.push((self.idx(x + dx, y + dy), 1.0));
             }
         }
         exits

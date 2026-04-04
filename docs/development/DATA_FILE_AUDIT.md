@@ -1,3 +1,9 @@
+---
+status: current
+last_verified: 2026-04-04
+commit: e0d1fe7
+---
+
 # Data File Audit
 
 > Last updated: 2026-03-07

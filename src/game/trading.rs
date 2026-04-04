@@ -131,10 +131,10 @@ pub fn get_trade_interface(
         if item.min_tier > area_tier {
             continue;
         }
-        if let Some(max_tier) = item.max_tier {
-            if area_tier > max_tier {
-                continue;
-            }
+        if let Some(max_tier) = item.max_tier
+            && area_tier > max_tier
+        {
+            continue;
         }
 
         // Check reputation requirements
@@ -143,10 +143,10 @@ pub fn get_trade_interface(
         }
 
         // Check faction exclusivity
-        if let Some(required_faction) = &item.faction_exclusive {
-            if player_faction != Some(required_faction) {
-                continue;
-            }
+        if let Some(required_faction) = &item.faction_exclusive
+            && player_faction != Some(required_faction)
+        {
+            continue;
         }
 
         // Calculate final price and stock

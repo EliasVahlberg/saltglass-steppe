@@ -13,7 +13,7 @@ fn has_quest_objective_at(state: &GameState, world_x: usize, world_y: usize) -> 
     state.player.quest_log.active.iter().any(|quest| {
         quest.objectives.iter().any(|obj| {
             !obj.completed &&
-            quest.def().map_or(false, |def| {
+            quest.def().is_some_and(|def| {
                 def.objectives.iter().any(|quest_obj| {
                     quest_obj.id == obj.objective_id &&
                     matches!(quest_obj.objective_type, crate::game::quest::ObjectiveType::Reach { x, y }
@@ -132,16 +132,33 @@ pub fn render_world_map(
     view: &WorldMapView,
     state: &GameState,
 ) {
-    let mode_str = if view.inspect_mode { "INSPECT" } else { "TRAVEL" };
-    let faction_str = if view.show_faction_overlay { " [FACTION OVERLAY]" } else { "" };
-    let title = if state.world.world_map_target.is_some() {
-        format!(" World Map [{}]{} [Target Set - O auto-move, T clear, F factions] ", mode_str, faction_str)
-    } else if view.inspect_mode {
-        format!(" World Map [INSPECT]{} [X travel mode, T set target, F factions] ", faction_str)
+    let mode_str = if view.inspect_mode {
+        "INSPECT"
     } else {
-        format!(" World Map [TRAVEL]{} [X inspect mode, arrows move, F factions] ", faction_str)
+        "TRAVEL"
     };
-    
+    let faction_str = if view.show_faction_overlay {
+        " [FACTION OVERLAY]"
+    } else {
+        ""
+    };
+    let title = if state.world.world_map_target.is_some() {
+        format!(
+            " World Map [{}]{} [Target Set - O auto-move, T clear, F factions] ",
+            mode_str, faction_str
+        )
+    } else if view.inspect_mode {
+        format!(
+            " World Map [INSPECT]{} [X travel mode, T set target, F factions] ",
+            faction_str
+        )
+    } else {
+        format!(
+            " World Map [TRAVEL]{} [X inspect mode, arrows move, F factions] ",
+            faction_str
+        )
+    };
+
     let block = Block::default()
         .title(title)
         .borders(Borders::ALL)
@@ -163,9 +180,9 @@ pub fn render_world_map(
     let end_y = (start_y + view_height).min(WORLD_HEIGHT);
 
     // Render map tiles
-    let path_set: std::collections::HashSet<(usize, usize)> = 
+    let path_set: std::collections::HashSet<(usize, usize)> =
         state.world.world_map_path.iter().copied().collect();
-    
+
     for (screen_y, world_y) in (start_y..end_y).enumerate() {
         for (screen_x, world_x) in (start_x..end_x).enumerate() {
             let (biome, terrain, _elev, poi, resources, connected, level) =
@@ -173,7 +190,7 @@ pub fn render_world_map(
 
             let is_on_path = path_set.contains(&(world_x, world_y));
             let show_cursor = view.inspect_mode || state.world.world_map_target.is_some();
-            
+
             // Get base character and color
             let (ch, base_fg) = if world_x == player_wx && world_y == player_wy {
                 ('@', Color::White)
@@ -244,7 +261,7 @@ pub fn render_world_map(
     } else {
         (player_wx, player_wy)
     };
-    
+
     let (biome, terrain, _elev, poi, resources, _connected, level) =
         world_map.get(info_x, info_y_coord);
     let poi_str = match poi {
@@ -263,7 +280,7 @@ pub fn render_world_map(
         9..=10 => "EXTREME THREAT",
         _ => "Unknown Threat",
     };
-    
+
     // Line 1: Legend and tile info
     let legend = if view.inspect_mode || state.world.world_map_target.is_some() {
         "@ = You, X = Cursor"
@@ -280,10 +297,12 @@ pub fn render_world_map(
         Paragraph::new(info_line).style(Style::default().fg(Color::Gray)),
         Rect::new(inner.x, info_y, inner.width, 1),
     );
-    
+
     // Line 2: Turn counter and recent log message
     let turn_info = format!("Turn: {} | ", state.turn);
-    let recent_log = state.messages.last()
+    let recent_log = state
+        .messages
+        .last()
         .map(|msg| msg.text.as_str())
         .unwrap_or("");
     let status_line = format!("{}{}", turn_info, recent_log);

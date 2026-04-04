@@ -217,10 +217,10 @@ fn can_place_structure(map: &Map, structure: &MicroStructureDef, x: i32, y: i32)
         for dx in 0..structure.width as i32 {
             let map_x = x + dx;
             let map_y = y + dy;
-            if let Some(tile) = map.get(map_x, map_y) {
-                if tile.walkable() {
-                    floor_count += 1;
-                }
+            if let Some(tile) = map.get(map_x, map_y)
+                && tile.walkable()
+            {
+                floor_count += 1;
             }
         }
     }
@@ -276,12 +276,12 @@ fn spawn_structure_entities(
             }
             "chest" => {
                 let mut chest = Chest::new(spawn_x, spawn_y, &spawn.id);
-                if let Some(def) = crate::game::chest::get_chest_def(&spawn.id) {
-                    if let Some(loot_table) = &def.loot_table {
-                        let loot = generate_loot(loot_table, spawn_x, spawn_y, rng);
-                        for item in loot {
-                            chest.add_item(item);
-                        }
+                if let Some(def) = crate::game::chest::get_chest_def(&spawn.id)
+                    && let Some(loot_table) = &def.loot_table
+                {
+                    let loot = generate_loot(loot_table, spawn_x, spawn_y, rng);
+                    for item in loot {
+                        chest.add_item(item);
                     }
                 }
                 chests.push(chest);

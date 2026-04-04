@@ -2,16 +2,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 use super::{
-    chest::Chest,
-    enemy::Enemy,
-    interactable::Interactable,
-    item::Item,
-    lighting::LightMap,
-    map::Map,
-    npc::Npc,
-    storm::Storm,
-    visual_effects::VisualEffects,
-    world_map::WorldMap,
+    chest::Chest, enemy::Enemy, interactable::Interactable, item::Item, lighting::LightMap,
+    map::Map, npc::Npc, storm::Storm, visual_effects::VisualEffects, world_map::WorldMap,
 };
 
 /// Weather conditions affecting visibility and lighting
@@ -110,7 +102,7 @@ impl WorldState {
         for (i, item) in self.items.iter().enumerate() {
             self.item_positions
                 .entry((item.x, item.y))
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(i);
         }
 
@@ -119,7 +111,8 @@ impl WorldState {
         }
 
         for (i, interactable) in self.interactables.iter().enumerate() {
-            self.interactable_positions.insert((interactable.x, interactable.y), i);
+            self.interactable_positions
+                .insert((interactable.x, interactable.y), i);
         }
     }
 }

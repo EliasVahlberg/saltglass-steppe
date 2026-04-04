@@ -1,3 +1,9 @@
+---
+status: current
+last_verified: 2026-04-04
+commit: e0d1fe7
+---
+
 # Settlement Generation — Future Work
 
 Items deferred from the settlement generation sprint. Not critical path.

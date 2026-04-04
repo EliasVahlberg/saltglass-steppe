@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "References non-existent grammar/template directories; narrative system not wired"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: References non-existent grammar/template directories; narrative system not wired
+> Last verified: 2026-04-04
+
 # Procedural Generation Guide - Saltglass Steppe
 
 **Version:** 1.0  

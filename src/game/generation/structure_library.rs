@@ -23,20 +23,31 @@ pub struct Structure {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum StructureUsage {
-    Standalone,   // Complete POI (ruins, shrines, landmarks)
-    Connectable,  // Settlement building (can attach roads/paths)
+    Standalone,  // Complete POI (ruins, shrines, landmarks)
+    Connectable, // Settlement building (can attach roads/paths)
 }
 
 /// Legend entry types for pattern characters
 #[derive(Debug, Clone, Deserialize)]
 #[serde(tag = "type", rename_all = "snake_case")]
 pub enum LegendEntry {
-    Wall { id: String },
-    Floor { id: String },
+    Wall {
+        id: String,
+    },
+    Floor {
+        id: String,
+    },
     Door,
-    Interactable { id: String },
-    Npc { id: String, name: Option<String> },
-    Structure { id: String },
+    Interactable {
+        id: String,
+    },
+    Npc {
+        id: String,
+        name: Option<String>,
+    },
+    Structure {
+        id: String,
+    },
     /// Leave the underlying terrain tile unchanged (outdoor/open area within bounding box)
     Ground,
     /// Stamp a path/road tile (replaced with settlement road material during city generation)
@@ -182,7 +193,10 @@ fn parse_inline_pattern(lines: Vec<String>) -> Result<Vec<Vec<char>>, String> {
         return Err("Inline pattern is empty".to_string());
     }
 
-    Ok(lines.into_iter().map(|line| line.chars().collect()).collect())
+    Ok(lines
+        .into_iter()
+        .map(|line| line.chars().collect())
+        .collect())
 }
 
 // ============================================================================
@@ -224,7 +238,10 @@ impl StructureLibrary {
 
     /// Get all structures with specific usage
     pub fn by_usage(&self, usage: StructureUsage) -> Vec<&Structure> {
-        self.structures.values().filter(|s| s.usage == usage).collect()
+        self.structures
+            .values()
+            .filter(|s| s.usage == usage)
+            .collect()
     }
 
     /// Get all structures for a faction
@@ -285,10 +302,15 @@ mod tests {
             usage: StructureUsage::Standalone,
             pattern_file: None,
             pattern: Some(vec!["###".to_string(), "##".to_string()]),
-            legend: [('#', LegendEntry::Wall { id: "stone".to_string() })]
-                .iter()
-                .cloned()
-                .collect(),
+            legend: [(
+                '#',
+                LegendEntry::Wall {
+                    id: "stone".to_string(),
+                },
+            )]
+            .iter()
+            .cloned()
+            .collect(),
             metadata: StructureMetadata::default(),
         };
 
@@ -305,11 +327,20 @@ mod tests {
             id: "test".to_string(),
             usage: StructureUsage::Standalone,
             pattern_file: None,
-            pattern: Some(vec!["###".to_string(), "#.#".to_string(), "###".to_string()]),
-            legend: [('#', LegendEntry::Wall { id: "stone".to_string() })]
-                .iter()
-                .cloned()
-                .collect(),
+            pattern: Some(vec![
+                "###".to_string(),
+                "#.#".to_string(),
+                "###".to_string(),
+            ]),
+            legend: [(
+                '#',
+                LegendEntry::Wall {
+                    id: "stone".to_string(),
+                },
+            )]
+            .iter()
+            .cloned()
+            .collect(),
             metadata: StructureMetadata::default(),
         };
 
@@ -324,10 +355,24 @@ mod tests {
             id: "test".to_string(),
             usage: StructureUsage::Standalone,
             pattern_file: None,
-            pattern: Some(vec!["###".to_string(), "#.#".to_string(), "###".to_string()]),
+            pattern: Some(vec![
+                "###".to_string(),
+                "#.#".to_string(),
+                "###".to_string(),
+            ]),
             legend: [
-                ('#', LegendEntry::Wall { id: "stone".to_string() }),
-                ('.', LegendEntry::Floor { id: "dirt".to_string() }),
+                (
+                    '#',
+                    LegendEntry::Wall {
+                        id: "stone".to_string(),
+                    },
+                ),
+                (
+                    '.',
+                    LegendEntry::Floor {
+                        id: "dirt".to_string(),
+                    },
+                ),
             ]
             .iter()
             .cloned()
@@ -345,9 +390,9 @@ mod tests {
     #[test]
     fn test_library_load() {
         let json = "{\"structures\":[{\"id\":\"test_house\",\"usage\":\"connectable\",\"pattern\":[\"####\",\"#..#\",\"#..D\",\"####\"],\"legend\":{\"#\":{\"type\":\"wall\",\"id\":\"wood_wall\"},\".\":{\"type\":\"floor\",\"id\":\"wood_floor\"},\"D\":{\"type\":\"door\"}},\"metadata\":{\"tags\":[\"test\",\"residential\"]}}]}";
-        
+
         let library = StructureLibrary::from_json(json, Path::new(".")).expect("Failed to load");
-        
+
         assert!(library.get("test_house").is_some());
         let house = library.get("test_house").unwrap();
         assert_eq!(house.width, 4);
@@ -359,15 +404,15 @@ mod tests {
     #[test]
     fn test_library_filtering() {
         let json = "{\"structures\":[{\"id\":\"house\",\"usage\":\"connectable\",\"pattern\":[\"##\",\"##\"],\"legend\":{\"#\":{\"type\":\"wall\",\"id\":\"wood\"}},\"metadata\":{\"tags\":[\"residential\"]}},{\"id\":\"ruins\",\"usage\":\"standalone\",\"pattern\":[\"##\",\"##\"],\"legend\":{\"#\":{\"type\":\"wall\",\"id\":\"stone\"}},\"metadata\":{\"tags\":[\"poi\"]}}]}";
-        
+
         let library = StructureLibrary::from_json(json, Path::new(".")).expect("Failed to load");
-        
+
         let connectable = library.by_usage(StructureUsage::Connectable);
         assert_eq!(connectable.len(), 1);
-        
+
         let standalone = library.by_usage(StructureUsage::Standalone);
         assert_eq!(standalone.len(), 1);
-        
+
         let residential = library.by_tag("residential");
         assert_eq!(residential.len(), 1);
     }
@@ -376,37 +421,43 @@ mod tests {
     fn test_pattern_file_loading() {
         use std::env;
         use std::fs;
-        
+
         let temp_dir = env::temp_dir();
         let pattern_path = temp_dir.join("test_pattern.txt");
         fs::write(&pattern_path, "###\n#.#\n###").expect("Failed to write test pattern");
-        
+
         let json = format!(
             "{{\"structures\":[{{\"id\":\"test_from_file\",\"usage\":\"standalone\",\"pattern_file\":\"{}\",\"legend\":{{\"#\":{{\"type\":\"wall\",\"id\":\"stone\"}},\".\":{{\"type\":\"floor\",\"id\":\"dirt\"}}}},\"metadata\":{{}}}}]}}",
             pattern_path.file_name().unwrap().to_str().unwrap()
         );
-        
+
         let library = StructureLibrary::from_json(&json, &temp_dir).expect("Failed to load");
         let structure = library.get("test_from_file").expect("Structure not found");
-        
+
         assert_eq!(structure.width, 3);
         assert_eq!(structure.height, 3);
-        
+
         fs::remove_file(pattern_path).ok();
     }
 
     #[test]
     fn test_pattern_reuse() {
         let json = "{\"structures\":[{\"id\":\"temple_glass\",\"usage\":\"connectable\",\"pattern\":[\"###\",\"#A#\",\"###\"],\"legend\":{\"#\":{\"type\":\"wall\",\"id\":\"glass_wall\"},\"A\":{\"type\":\"interactable\",\"id\":\"altar\"}},\"metadata\":{\"faction\":\"mirror_monks\"}},{\"id\":\"temple_stone\",\"usage\":\"connectable\",\"pattern\":[\"###\",\"#A#\",\"###\"],\"legend\":{\"#\":{\"type\":\"wall\",\"id\":\"stone_wall\"},\"A\":{\"type\":\"interactable\",\"id\":\"altar\"}},\"metadata\":{\"faction\":\"storm_cults\"}}]}";
-        
+
         let library = StructureLibrary::from_json(json, Path::new(".")).expect("Failed to load");
-        
+
         let glass_temple = library.get("temple_glass").unwrap();
         let stone_temple = library.get("temple_stone").unwrap();
-        
+
         assert_eq!(glass_temple.width, stone_temple.width);
         assert_eq!(glass_temple.height, stone_temple.height);
-        assert_eq!(glass_temple.metadata.faction, Some("mirror_monks".to_string()));
-        assert_eq!(stone_temple.metadata.faction, Some("storm_cults".to_string()));
+        assert_eq!(
+            glass_temple.metadata.faction,
+            Some("mirror_monks".to_string())
+        );
+        assert_eq!(
+            stone_temple.metadata.faction,
+            Some("storm_cults".to_string())
+        );
     }
 }

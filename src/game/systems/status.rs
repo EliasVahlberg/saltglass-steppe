@@ -43,7 +43,10 @@ impl StatusEffectSystem {
             state.player.hp -= total_damage;
         }
 
-        let expired: Vec<String> = state.player.status_effects.iter()
+        let expired: Vec<String> = state
+            .player
+            .status_effects
+            .iter()
             .filter(|e| e.is_expired())
             .map(|e| e.id.clone())
             .collect();
@@ -65,10 +68,10 @@ impl StatusEffectSystem {
             let mut enemy_damage = 0;
 
             for effect in &mut enemy.status_effects {
-                if let Some(def) = get_status_def(&effect.id) {
-                    if def.tick_damage > 0 {
-                        enemy_damage += def.tick_damage;
-                    }
+                if let Some(def) = get_status_def(&effect.id)
+                    && def.tick_damage > 0
+                {
+                    enemy_damage += def.tick_damage;
                 }
                 effect.duration -= 1;
             }
@@ -114,7 +117,8 @@ impl StatusEffectSystem {
     /// Get player's accuracy penalty from status effects
     pub fn player_accuracy_penalty(state: &GameState) -> i32 {
         state
-            .player.status_effects
+            .player
+            .status_effects
             .iter()
             .filter_map(|e| get_status_def(&e.id))
             .map(|d| d.reduces_accuracy)
@@ -124,7 +128,8 @@ impl StatusEffectSystem {
     /// Check if player is stunned
     pub fn player_is_stunned(state: &GameState) -> bool {
         state
-            .player.status_effects
+            .player
+            .status_effects
             .iter()
             .any(|e| e.id == "stun" && e.duration > 0)
     }

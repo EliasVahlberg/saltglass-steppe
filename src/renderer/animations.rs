@@ -126,7 +126,7 @@ impl Animation {
 
         match &self.animation_type {
             AnimationType::Blink { config } => {
-                let blink_on = (progress * 2.0) as u32 % 2 == 0;
+                let blink_on = ((progress * 2.0) as u32).is_multiple_of(2);
                 let color = if blink_on {
                     parse_color(&config.on_color)
                 } else {

@@ -92,8 +92,8 @@ mod tests {
 
         // Should move towards target but not instantly (due to smoothing)
         let (x, y) = camera.position();
-        assert!(x >= 0 && x <= 10);
-        assert!(y >= 0 && y <= 10);
+        assert!((0..=10).contains(&x));
+        assert!((0..=10).contains(&y));
 
         // After many updates, should reach target
         for _ in 0..100 {

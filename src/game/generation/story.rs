@@ -151,7 +151,7 @@ impl StoryModel {
     }
 
     fn generate_founding_characters(&mut self, rng: &mut ChaCha8Rng) {
-        let names = vec![
+        let names = [
             "Saint Vex",
             "Keth the Seeker",
             "Naia Glassborn",
@@ -215,7 +215,7 @@ impl StoryModel {
     }
 
     fn generate_event_description(&self, rng: &mut ChaCha8Rng) -> String {
-        let templates = vec![
+        let templates = [
             "A great storm revealed ancient secrets",
             "The factions clashed over sacred territory",
             "A powerful artifact was discovered",
@@ -226,7 +226,7 @@ impl StoryModel {
     }
 
     fn generate_consequence(&self, rng: &mut ChaCha8Rng) -> String {
-        let consequences = vec![
+        let consequences = [
             "The balance of power shifted",
             "New adaptations emerged",
             "Ancient knowledge was lost",
@@ -251,15 +251,13 @@ impl StoryModel {
     }
 
     pub fn get_artifact_inscription(&self, artifact_name: &str) -> Option<String> {
-        if let Some(artifact) = self.artifacts.get(artifact_name) {
-            Some(format!(
+        self.artifacts.get(artifact_name).map(|artifact| {
+            format!(
                 "'{}' - {}",
                 artifact.legend,
                 artifact.creator.as_ref().unwrap_or(&"Unknown".to_string())
-            ))
-        } else {
-            None
-        }
+            )
+        })
     }
 
     pub fn get_shrine_text(&self, location: &str) -> Option<String> {
@@ -270,11 +268,9 @@ impl StoryModel {
             .filter(|e| e.location.as_ref() == Some(&location.to_string()))
             .collect();
 
-        if let Some(event) = local_events.first() {
-            Some(format!("Here {}", event.description.to_lowercase()))
-        } else {
-            None
-        }
+        local_events
+            .first()
+            .map(|event| format!("Here {}", event.description.to_lowercase()))
     }
 
     pub fn get_character_relationships(&self, character_id: &str) -> Vec<String> {

@@ -1,3 +1,9 @@
+---
+status: current
+last_verified: 2026-04-04
+commit: e0d1fe7
+---
+
 # Glass Seam Bridging Algorithm
 
 > **Purpose**: Ensure map connectivity by finding the optimal set of tunnels to connect disconnected floor regions to the player spawn area, meeting a coverage threshold while minimizing total tunnel length.

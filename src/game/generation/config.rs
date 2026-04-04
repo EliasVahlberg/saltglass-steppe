@@ -234,7 +234,7 @@ mod tests {
 
         assert_eq!(scale, 0.1);
         assert_eq!(octaves, 4);
-        assert_eq!(enabled, true);
+        assert!(enabled);
     }
 
     #[test]

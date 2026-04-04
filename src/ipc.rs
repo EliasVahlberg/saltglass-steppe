@@ -74,10 +74,10 @@ impl IpcServer {
         thread::spawn(move || {
             if let Ok(listener) = UnixListener::bind(&socket_path_clone) {
                 for stream in listener.incoming() {
-                    if let Ok(stream) = stream {
-                        if let Ok(mut clients) = clients_clone.lock() {
-                            clients.push(stream);
-                        }
+                    if let Ok(stream) = stream
+                        && let Ok(mut clients) = clients_clone.lock()
+                    {
+                        clients.push(stream);
                     }
                 }
             }
@@ -120,7 +120,7 @@ fn handle_client(stream: UnixStream, sender: mpsc::Sender<IpcMessage>) {
     let mut line = String::new();
 
     while reader.read_line(&mut line).unwrap_or(0) > 0 {
-        if let Ok(message) = serde_json::from_str::<IpcMessage>(&line.trim()) {
+        if let Ok(message) = serde_json::from_str::<IpcMessage>(line.trim()) {
             let _ = sender.send(message);
         }
         line.clear();

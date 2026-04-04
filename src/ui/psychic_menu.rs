@@ -106,47 +106,51 @@ fn render_psychic_menu_internal(
     frame.render_widget(List::new(abilities), chunks[0]);
 
     // Right side: ability details
-    if let Some(selected_id) = state.player.psychic.unlocked_abilities.get(menu.selected_index) {
-        if let Some(def) = get_ability_def(selected_id) {
-            let category_color = match def.category {
-                PsychicCategory::Telepathy => Color::Magenta,
-                PsychicCategory::Probability => Color::Yellow,
-                PsychicCategory::Energy => Color::Red,
-                PsychicCategory::Phasing => Color::Cyan,
-                PsychicCategory::Temporal => Color::Green,
-            };
+    if let Some(selected_id) = state
+        .player
+        .psychic
+        .unlocked_abilities
+        .get(menu.selected_index)
+        && let Some(def) = get_ability_def(selected_id)
+    {
+        let category_color = match def.category {
+            PsychicCategory::Telepathy => Color::Magenta,
+            PsychicCategory::Probability => Color::Yellow,
+            PsychicCategory::Energy => Color::Red,
+            PsychicCategory::Phasing => Color::Cyan,
+            PsychicCategory::Temporal => Color::Green,
+        };
 
-            let details = vec![
-                Line::from(vec![
-                    Span::styled("Category: ", Style::default().fg(Color::Gray)),
-                    Span::styled(
-                        format!("{:?}", def.category),
-                        Style::default().fg(category_color),
-                    ),
-                ]),
-                Line::from(vec![
-                    Span::styled("Cost: ", Style::default().fg(Color::Gray)),
-                    Span::styled(
-                        format!("{} Coherence", def.coherence_cost),
-                        Style::default().fg(Color::Cyan),
-                    ),
-                ]),
-                Line::from(vec![
-                    Span::styled("Cooldown: ", Style::default().fg(Color::Gray)),
-                    Span::styled(
-                        format!("{} turns", def.cooldown),
-                        Style::default().fg(Color::Yellow),
-                    ),
-                ]),
-                Line::from(""),
-                Line::from(Span::styled(
-                    &def.description,
-                    Style::default().fg(Color::White),
-                )),
-            ];
+        let details = vec![
+            Line::from(vec![
+                Span::styled("Category: ", Style::default().fg(Color::Gray)),
+                Span::styled(
+                    format!("{:?}", def.category),
+                    Style::default().fg(category_color),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("Cost: ", Style::default().fg(Color::Gray)),
+                Span::styled(
+                    format!("{} Coherence", def.coherence_cost),
+                    Style::default().fg(Color::Cyan),
+                ),
+            ]),
+            Line::from(vec![
+                Span::styled("Cooldown: ", Style::default().fg(Color::Gray)),
+                Span::styled(
+                    format!("{} turns", def.cooldown),
+                    Style::default().fg(Color::Yellow),
+                ),
+            ]),
+            Line::from(""),
+            Line::from(Span::styled(
+                &def.description,
+                Style::default().fg(Color::White),
+            )),
+        ];
 
-            frame.render_widget(Paragraph::new(details), chunks[1]);
-        }
+        frame.render_widget(Paragraph::new(details), chunks[1]);
     }
 
     // Instructions at bottom

@@ -63,6 +63,12 @@ pub struct EventSystem {
     event_cooldowns: HashMap<String, u32>,
 }
 
+impl Default for EventSystem {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl EventSystem {
     pub fn new() -> Self {
         Self {
@@ -79,10 +85,10 @@ impl EventSystem {
 
         for (event_id, event) in &self.events {
             // Skip if on cooldown
-            if let Some(&cooldown) = self.event_cooldowns.get(event_id) {
-                if cooldown > context.turn {
-                    continue;
-                }
+            if let Some(&cooldown) = self.event_cooldowns.get(event_id)
+                && cooldown > context.turn
+            {
+                continue;
             }
 
             // Check all triggers
@@ -119,39 +125,38 @@ impl EventSystem {
 
         match trigger.trigger_type.as_str() {
             "player_hp_below" => {
-                if let Some(threshold) = trigger.conditions.get("threshold") {
-                    if let Some(threshold) = threshold.as_f64() {
-                        return (context.player_hp as f64 / context.player_max_hp as f64)
-                            < threshold;
-                    }
+                if let Some(threshold) = trigger.conditions.get("threshold")
+                    && let Some(threshold) = threshold.as_f64()
+                {
+                    return (context.player_hp as f64 / context.player_max_hp as f64) < threshold;
                 }
             }
             "biome_match" => {
-                if let Some(biome) = trigger.conditions.get("biome") {
-                    if let Some(biome) = biome.as_str() {
-                        return context.biome == biome;
-                    }
+                if let Some(biome) = trigger.conditions.get("biome")
+                    && let Some(biome) = biome.as_str()
+                {
+                    return context.biome == biome;
                 }
             }
             "storm_intensity" => {
-                if let Some(min_intensity) = trigger.conditions.get("min_intensity") {
-                    if let Some(min_intensity) = min_intensity.as_u64() {
-                        return context.storm_intensity >= min_intensity as u8;
-                    }
+                if let Some(min_intensity) = trigger.conditions.get("min_intensity")
+                    && let Some(min_intensity) = min_intensity.as_u64()
+                {
+                    return context.storm_intensity >= min_intensity as u8;
                 }
             }
             "turn_multiple" => {
-                if let Some(multiple) = trigger.conditions.get("multiple") {
-                    if let Some(multiple) = multiple.as_u64() {
-                        return context.turn % multiple as u32 == 0;
-                    }
+                if let Some(multiple) = trigger.conditions.get("multiple")
+                    && let Some(multiple) = multiple.as_u64()
+                {
+                    return context.turn.is_multiple_of(multiple as u32);
                 }
             }
             "refraction_level" => {
-                if let Some(min_level) = trigger.conditions.get("min_level") {
-                    if let Some(min_level) = min_level.as_u64() {
-                        return context.refraction_level >= min_level as u32;
-                    }
+                if let Some(min_level) = trigger.conditions.get("min_level")
+                    && let Some(min_level) = min_level.as_u64()
+                {
+                    return context.refraction_level >= min_level as u32;
                 }
             }
             _ => return false,
@@ -168,52 +173,48 @@ impl EventSystem {
             for consequence in &event.consequences {
                 match consequence.consequence_type.as_str() {
                     "damage_player" => {
-                        if let Some(amount) = consequence.parameters.get("amount") {
-                            if let Some(amount) = amount.as_i64() {
-                                context.variables.insert(
-                                    "damage_taken".to_string(),
-                                    serde_json::Value::Number(serde_json::Number::from(amount)),
-                                );
-                                messages.push(format!(
-                                    "You take {} damage from {}",
-                                    amount, event.name
-                                ));
-                            }
+                        if let Some(amount) = consequence.parameters.get("amount")
+                            && let Some(amount) = amount.as_i64()
+                        {
+                            context.variables.insert(
+                                "damage_taken".to_string(),
+                                serde_json::Value::Number(serde_json::Number::from(amount)),
+                            );
+                            messages
+                                .push(format!("You take {} damage from {}", amount, event.name));
                         }
                     }
                     "heal_player" => {
-                        if let Some(amount) = consequence.parameters.get("amount") {
-                            if let Some(amount) = amount.as_i64() {
-                                context.variables.insert(
-                                    "healing_received".to_string(),
-                                    serde_json::Value::Number(serde_json::Number::from(amount)),
-                                );
-                                messages.push(format!(
-                                    "You recover {} health from {}",
-                                    amount, event.name
-                                ));
-                            }
+                        if let Some(amount) = consequence.parameters.get("amount")
+                            && let Some(amount) = amount.as_i64()
+                        {
+                            context.variables.insert(
+                                "healing_received".to_string(),
+                                serde_json::Value::Number(serde_json::Number::from(amount)),
+                            );
+                            messages
+                                .push(format!("You recover {} health from {}", amount, event.name));
                         }
                     }
                     "add_refraction" => {
-                        if let Some(amount) = consequence.parameters.get("amount") {
-                            if let Some(amount) = amount.as_u64() {
-                                context.variables.insert(
-                                    "refraction_gained".to_string(),
-                                    serde_json::Value::Number(serde_json::Number::from(amount)),
-                                );
-                                messages.push(format!(
-                                    "Glass energy courses through you (+{} Refraction)",
-                                    amount
-                                ));
-                            }
+                        if let Some(amount) = consequence.parameters.get("amount")
+                            && let Some(amount) = amount.as_u64()
+                        {
+                            context.variables.insert(
+                                "refraction_gained".to_string(),
+                                serde_json::Value::Number(serde_json::Number::from(amount)),
+                            );
+                            messages.push(format!(
+                                "Glass energy courses through you (+{} Refraction)",
+                                amount
+                            ));
                         }
                     }
                     "environmental_story" => {
-                        if let Some(message) = consequence.parameters.get("message") {
-                            if let Some(message) = message.as_str() {
-                                messages.push(message.to_string());
-                            }
+                        if let Some(message) = consequence.parameters.get("message")
+                            && let Some(message) = message.as_str()
+                        {
+                            messages.push(message.to_string());
                         }
                     }
                     _ => {}
@@ -226,10 +227,10 @@ impl EventSystem {
 
     /// Get event chains triggered by an event
     pub fn get_event_chains(&self, event_id: &str) -> Option<&EventChain> {
-        if let Some(event) = self.events.get(event_id) {
-            if let Some(chain_id) = &event.chains_to {
-                return self.chains.get(chain_id);
-            }
+        if let Some(event) = self.events.get(event_id)
+            && let Some(chain_id) = &event.chains_to
+        {
+            return self.chains.get(chain_id);
         }
         None
     }

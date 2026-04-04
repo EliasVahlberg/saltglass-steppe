@@ -26,9 +26,8 @@ struct FactionsFile {
 
 static FACTIONS: Lazy<HashMap<String, Faction>> = Lazy::new(|| {
     let data = include_str!("../../data/factions.json");
-    let file: FactionsFile = serde_json::from_str(data)
-        .expect("Failed to parse factions.json");
-    
+    let file: FactionsFile = serde_json::from_str(data).expect("Failed to parse factions.json");
+
     file.factions
         .into_iter()
         .map(|f| (f.id.clone(), f))
@@ -73,7 +72,7 @@ pub fn get_standing_color(rep: i32) -> ratatui::style::Color {
 /// Get starting reputation for a character class
 pub fn get_starting_reputation(class: &str) -> HashMap<String, i32> {
     let mut rep = HashMap::new();
-    
+
     match class {
         "pilgrim" => {
             rep.insert("MirrorMonks".to_string(), 10);
@@ -100,7 +99,7 @@ pub fn get_starting_reputation(class: &str) -> HashMap<String, i32> {
             // Default: all neutral (0)
         }
     }
-    
+
     rep
 }
 
@@ -139,7 +138,7 @@ mod tests {
         let rep = get_starting_reputation("pilgrim");
         assert_eq!(rep.get("MirrorMonks"), Some(&10));
         assert_eq!(rep.get("ArchiveDrones"), Some(&5));
-        
+
         let rep = get_starting_reputation("outcast");
         assert_eq!(rep.get("RefractionOutcasts"), Some(&15));
         assert_eq!(rep.get("MirrorMonks"), Some(&-10));

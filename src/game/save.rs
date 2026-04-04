@@ -67,7 +67,8 @@ fn update_meta_status(stem: &str, status: SaveStatus) {
         character_name: String::new(),
         save_version: 0,
     });
-    meta.entries.insert(stem.to_string(), SaveEntryMeta { status, ..existing });
+    meta.entries
+        .insert(stem.to_string(), SaveEntryMeta { status, ..existing });
     save_meta(&meta);
 }
 
@@ -107,18 +108,24 @@ fn compute_hash(data: &str) -> String {
 /// Serialize `state`, write to `saves/<md5>.ron`, update meta, return the path.
 pub fn save_game(state: &GameState) -> Result<PathBuf, String> {
     fs::create_dir_all(SAVES_DIR).map_err(|e| e.to_string())?;
-    let data = ron::to_string(&SaveFile { version: SAVE_VERSION, state })
-        .map_err(|e| e.to_string())?;
+    let data = ron::to_string(&SaveFile {
+        version: SAVE_VERSION,
+        state,
+    })
+    .map_err(|e| e.to_string())?;
     let hash = compute_hash(&data);
     let path = PathBuf::from(SAVES_DIR).join(format!("{}.ron", hash));
     fs::write(&path, &data).map_err(|e| e.to_string())?;
     let mut meta = load_meta();
-    meta.entries.insert(hash.clone(), SaveEntryMeta {
-        status: SaveStatus::Ok,
-        saved_at: format_local_time(std::time::SystemTime::now()),
-        character_name: state.player.name.clone(),
-        save_version: SAVE_VERSION,
-    });
+    meta.entries.insert(
+        hash.clone(),
+        SaveEntryMeta {
+            status: SaveStatus::Ok,
+            saved_at: format_local_time(std::time::SystemTime::now()),
+            character_name: state.player.name.clone(),
+            save_version: SAVE_VERSION,
+        },
+    );
     save_meta(&meta);
     Ok(path)
 }
@@ -126,7 +133,11 @@ pub fn save_game(state: &GameState) -> Result<PathBuf, String> {
 /// Load from `path`. Updates meta on hash mismatch or parse failure.
 pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
     let path = path.as_ref();
-    let stem = path.file_stem().and_then(|s| s.to_str()).unwrap_or("").to_string();
+    let stem = path
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .unwrap_or("")
+        .to_string();
     let data = fs::read_to_string(path).map_err(|e| e.to_string())?;
 
     let actual_hash = compute_hash(&data);
@@ -140,9 +151,8 @@ pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
     })?;
 
     let mut state = if file.version < SAVE_VERSION {
-        migrate_save(file.state, file.version).map_err(|e| {
+        migrate_save(file.state, file.version).inspect_err(|_e| {
             update_meta_status(&stem, SaveStatus::Corrupt);
-            e
         })?
     } else if file.version > SAVE_VERSION {
         update_meta_status(&stem, SaveStatus::Corrupt);
@@ -160,7 +170,9 @@ pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String> {
     }));
     if result.is_err() {
         update_meta_status(&stem, SaveStatus::Corrupt);
-        return Err("Save file is corrupt or incompatible — could not initialize game state.".to_string());
+        return Err(
+            "Save file is corrupt or incompatible — could not initialize game state.".to_string(),
+        );
     }
 
     update_meta_status(&stem, SaveStatus::Ok);
@@ -198,27 +210,54 @@ pub fn list_saves() -> Vec<SaveInfo> {
                     };
                     if meta.entries.get(&stem).map(|m| &m.status) != Some(&new_status) {
                         let old_entry = meta.entries.get(&stem).cloned();
-                        meta.entries.insert(stem.clone(), SaveEntryMeta {
-                            status: new_status.clone(),
-                            saved_at: old_entry.as_ref().map(|e| e.saved_at.clone()).unwrap_or_default(),
-                            character_name: old_entry.as_ref().map(|e| e.character_name.clone()).unwrap_or_default(),
-                            save_version: old_entry.as_ref().map(|e| e.save_version).unwrap_or_default(),
-                        });
+                        meta.entries.insert(
+                            stem.clone(),
+                            SaveEntryMeta {
+                                status: new_status.clone(),
+                                saved_at: old_entry
+                                    .as_ref()
+                                    .map(|e| e.saved_at.clone())
+                                    .unwrap_or_default(),
+                                character_name: old_entry
+                                    .as_ref()
+                                    .map(|e| e.character_name.clone())
+                                    .unwrap_or_default(),
+                                save_version: old_entry
+                                    .as_ref()
+                                    .map(|e| e.save_version)
+                                    .unwrap_or_default(),
+                            },
+                        );
                         meta_dirty = true;
                     }
                     new_status
                 }
             };
 
-            Some((mtime, SaveInfo {
-                short_hash: stem[..8.min(stem.len())].to_string(),
-                path,
-                status,
-                modified,
-                saved_at: meta.entries.get(&stem).map(|m| m.saved_at.clone()).unwrap_or_default(),
-                character_name: meta.entries.get(&stem).map(|m| m.character_name.clone()).unwrap_or_default(),
-                save_version: meta.entries.get(&stem).map(|m| m.save_version).unwrap_or_default(),
-            }))
+            Some((
+                mtime,
+                SaveInfo {
+                    short_hash: stem[..8.min(stem.len())].to_string(),
+                    path,
+                    status,
+                    modified,
+                    saved_at: meta
+                        .entries
+                        .get(&stem)
+                        .map(|m| m.saved_at.clone())
+                        .unwrap_or_default(),
+                    character_name: meta
+                        .entries
+                        .get(&stem)
+                        .map(|m| m.character_name.clone())
+                        .unwrap_or_default(),
+                    save_version: meta
+                        .entries
+                        .get(&stem)
+                        .map(|m| m.save_version)
+                        .unwrap_or_default(),
+                },
+            ))
         })
         .collect();
     if meta_dirty {
@@ -229,20 +268,27 @@ pub fn list_saves() -> Vec<SaveInfo> {
 }
 
 fn format_local_time(t: std::time::SystemTime) -> String {
-    let utc = t.duration_since(UNIX_EPOCH).map(|d| d.as_secs() as i64).unwrap_or(0);
+    let utc = t
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0);
     let local = utc + local_offset_secs();
-    let mins  = (local / 60) % 60;
+    let mins = (local / 60) % 60;
     let hours = (local / 3600) % 24;
     let (y, mo, d) = days_to_ymd((local / 86400) as u32);
     format!("{:04}-{:02}-{:02} {:02}:{:02}", y, mo, d, hours, mins)
 }
 
 fn local_offset_secs() -> i64 {
-    if let Ok(tz) = std::env::var("TZ") {
-        if let Some(off) = parse_posix_tz(&tz) { return off; }
+    if let Ok(tz) = std::env::var("TZ")
+        && let Some(off) = parse_posix_tz(&tz)
+    {
+        return off;
     }
-    if let Ok(zone) = std::fs::read_to_string("/etc/timezone") {
-        if let Some(off) = named_zone_offset(zone.trim()) { return off; }
+    if let Ok(zone) = std::fs::read_to_string("/etc/timezone")
+        && let Some(off) = named_zone_offset(zone.trim())
+    {
+        return off;
     }
     0
 }
@@ -252,7 +298,7 @@ fn parse_posix_tz(tz: &str) -> Option<i64> {
     let b = tz.as_bytes();
     let i = b.iter().position(|c| *c == b'+' || *c == b'-')?;
     let sign: i64 = if b[i] == b'-' { 1 } else { -1 };
-    let h: i64 = std::str::from_utf8(&b[i+1..]).ok()?.trim().parse().ok()?;
+    let h: i64 = std::str::from_utf8(&b[i + 1..]).ok()?.trim().parse().ok()?;
     Some(sign * h * 3600)
 }
 
@@ -260,12 +306,12 @@ fn named_zone_offset(zone: &str) -> Option<i64> {
     match zone {
         "UTC" | "Etc/UTC" | "Etc/GMT" => Some(0),
         "Europe/London" | "GB" => Some(0),
-        "Europe/Paris" | "Europe/Berlin" | "Europe/Stockholm" | "Europe/Oslo" |
-        "Europe/Rome" | "Europe/Madrid" | "Europe/Amsterdam" | "Europe/Brussels" |
-        "Europe/Warsaw" | "Europe/Prague" | "Europe/Vienna" | "Europe/Zurich" |
-        "Europe/Copenhagen" | "CET" | "MET" => Some(3600),
-        "Europe/Helsinki" | "Europe/Riga" | "Europe/Tallinn" | "Europe/Vilnius" |
-        "Europe/Bucharest" | "Europe/Athens" | "EET" => Some(7200),
+        "Europe/Paris" | "Europe/Berlin" | "Europe/Stockholm" | "Europe/Oslo" | "Europe/Rome"
+        | "Europe/Madrid" | "Europe/Amsterdam" | "Europe/Brussels" | "Europe/Warsaw"
+        | "Europe/Prague" | "Europe/Vienna" | "Europe/Zurich" | "Europe/Copenhagen" | "CET"
+        | "MET" => Some(3600),
+        "Europe/Helsinki" | "Europe/Riga" | "Europe/Tallinn" | "Europe/Vilnius"
+        | "Europe/Bucharest" | "Europe/Athens" | "EET" => Some(7200),
         "Europe/Moscow" | "Europe/Istanbul" => Some(10800),
         "America/New_York" | "US/Eastern" => Some(-18000),
         "America/Chicago" | "US/Central" => Some(-21600),
@@ -292,11 +338,11 @@ fn days_to_ymd(days: u32) -> (u32, u32, u32) {
 fn migrate_save(mut state: GameState, from_version: u32) -> Result<GameState, String> {
     match from_version {
         1 => {
-            if let Some(ref mut world_map) = state.world.world_map {
-                if world_map.faction_territories.is_empty() {
-                    world_map.faction_territories =
-                        super::world_map::WorldMap::generate_faction_territories(state.seed);
-                }
+            if let Some(ref mut world_map) = state.world.world_map
+                && world_map.faction_territories.is_empty()
+            {
+                world_map.faction_territories =
+                    super::world_map::WorldMap::generate_faction_territories(state.seed);
             }
             migrate_save(state, 2)
         }
@@ -328,8 +374,12 @@ mod tests {
         let state = GameState::new(42);
         // Write directly to a temp path (bypassing hash naming) to tamper version
         let tmp = "/tmp/saltglass_version_test.ron";
-        let data = ron::to_string(&SaveFile { version: SAVE_VERSION, state: &state }).unwrap();
-        let mut tampered = data.replacen(&format!("version:{SAVE_VERSION}"), "version:9999", 1);
+        let data = ron::to_string(&SaveFile {
+            version: SAVE_VERSION,
+            state: &state,
+        })
+        .unwrap();
+        let tampered = data.replacen(&format!("version:{SAVE_VERSION}"), "version:9999", 1);
         fs::write(tmp, &tampered).unwrap();
         let result = load_game(tmp);
         assert!(result.is_err());

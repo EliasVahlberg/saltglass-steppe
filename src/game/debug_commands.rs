@@ -6,8 +6,8 @@
 
 /// Execute a debug command on the given game state
 pub fn execute(state: &mut super::state::GameState, cmd: &str) {
-    let parts: Vec<&str> = cmd.trim().split_whitespace().collect();
-    match parts.first().map(|s| *s) {
+    let parts: Vec<&str> = cmd.split_whitespace().collect();
+    match parts.first().copied() {
         Some("show") if parts.get(1) == Some(&"tile") => {
             state.debug_god_view = true;
             state.log("Debug: God view enabled");
@@ -118,7 +118,7 @@ pub fn execute(state: &mut super::state::GameState, cmd: &str) {
         }
         Some("flee") => {
             match state.attempt_flee_encounter() {
-                Ok(()) => {}, // Message already logged
+                Ok(()) => {} // Message already logged
                 Err(e) => state.log(e),
             }
         }

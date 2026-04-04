@@ -1,3 +1,9 @@
+---
+status: current
+last_verified: 2026-04-04
+commit: e0d1fe7
+---
+
 # Settlement Generation — Implementation Plan
 
 *Derived from `SETTLEMENT_GENERATION_RESEARCH.md` (CDDA / Caves of Qud comparison). Each phase is incremental — the game stays working and all 26 tests pass after every merge.*

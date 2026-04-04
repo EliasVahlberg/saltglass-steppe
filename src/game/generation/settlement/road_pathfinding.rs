@@ -62,7 +62,7 @@ fn tile_cost(tile: &Tile) -> f32 {
 pub fn build_cost_grid(map: &Map) -> Vec<f32> {
     let w = map.width;
     let h = map.height;
-    let mut costs: Vec<f32> = map.tiles.iter().map(|t| tile_cost(t)).collect();
+    let mut costs: Vec<f32> = map.tiles.iter().map(tile_cost).collect();
 
     // Wall-adjacency inflation: tiles within RADIUS of a wall get extra cost
     const RADIUS: i32 = 3;

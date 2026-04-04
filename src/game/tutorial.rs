@@ -59,7 +59,12 @@ impl TutorialProgress {
     }
 
     /// Check if a tutorial message should be shown based on trigger condition
-    pub fn check_trigger(&self, id: &str, trigger: &str, game_state: &super::state::GameState) -> bool {
+    pub fn check_trigger(
+        &self,
+        id: &str,
+        trigger: &str,
+        game_state: &super::state::GameState,
+    ) -> bool {
         if self.tutorial_disabled || self.has_shown(id) {
             return false;
         }
@@ -83,9 +88,7 @@ impl TutorialProgress {
                             .contains(&(item.y as usize * game_state.map().width + item.x as usize))
                     })
             }
-            "low_hp" => {
-                game_state.player_hp() < (game_state.player_max_hp() / 3)
-            }
+            "low_hp" => game_state.player_hp() < (game_state.player_max_hp() / 3),
             "first_npc_visible" => {
                 !game_state.npcs().is_empty()
                     && game_state.npcs().iter().any(|npc| {
@@ -106,13 +109,10 @@ impl TutorialProgress {
     ) -> Option<&'static TutorialMessage> {
         let data = get_tutorial_data();
 
-        for message in &data.messages {
-            if self.check_trigger(&message.id, &message.trigger, game_state) {
-                return Some(message);
-            }
-        }
-
-        None
+        data.messages
+            .iter()
+            .find(|&message| self.check_trigger(&message.id, &message.trigger, game_state))
+            .map(|v| v as _)
     }
 }
 

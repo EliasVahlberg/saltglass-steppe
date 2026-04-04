@@ -102,53 +102,55 @@ impl AiBehavior for StandardMeleeBehavior {
         // or move it to a separate "PreTurnBehavior"
 
         // Handle spawners
-        if state.world.enemies[i].can_spawn(state.turn) {
-            if let Some(def) = state.world.enemies[i].def() {
-                if !def.spawn_types.is_empty() {
-                    let spawn_type =
-                        &def.spawn_types[state.rng.gen_range(0..def.spawn_types.len())];
+        if state.world.enemies[i].can_spawn(state.turn)
+            && let Some(def) = state.world.enemies[i].def()
+            && !def.spawn_types.is_empty()
+        {
+            let spawn_type = &def.spawn_types[state.rng.gen_range(0..def.spawn_types.len())];
 
-                    // Find nearby spawn location
-                    let mut spawned = false;
-                    for dx in -2..=2 {
-                        for dy in -2..=2 {
-                            if dx == 0 && dy == 0 {
-                                continue;
-                            }
-                            let sx = ex + dx;
-                            let sy = ey + dy;
-
-                            if state.world.map.get(sx, sy).map(|t| t.walkable()).unwrap_or(false)
-                                && state.enemy_at(sx, sy).is_none()
-                                && !(sx == state.player_x() && sy == state.player_y())
-                            {
-                                let mut new_enemy =
-                                    crate::game::enemy::Enemy::new(sx, sy, spawn_type);
-                                if def.swarm {
-                                    new_enemy.swarm_id = Some(format!("spawner_{}", i));
-                                }
-
-                                state.world.enemies.push(new_enemy);
-                                // Update spatial index for new enemy
-                                state
-                                    .enemy_positions
-                                    .insert((sx, sy), state.world.enemies.len() - 1);
-                                state.world.enemies[i].spawned_count += 1;
-                                state.world.enemies[i].last_spawn_turn = state.turn;
-
-                                state.log_typed(
-                                    format!("{} spawns a {}!", state.world.enemies[i].name(), spawn_type),
-                                    MsgType::Combat,
-                                );
-                                state.trigger_effect("S(@3 &LightCyan &White)", 2);
-                                spawned = true;
-                                break;
-                            }
-                        }
-                        if spawned {
-                            break;
-                        }
+            // Find nearby spawn location
+            let mut spawned = false;
+            for dx in -2..=2 {
+                for dy in -2..=2 {
+                    if dx == 0 && dy == 0 {
+                        continue;
                     }
+                    let sx = ex + dx;
+                    let sy = ey + dy;
+
+                    if state
+                        .world
+                        .map
+                        .get(sx, sy)
+                        .map(|t| t.walkable())
+                        .unwrap_or(false)
+                        && state.enemy_at(sx, sy).is_none()
+                        && !(sx == state.player_x() && sy == state.player_y())
+                    {
+                        let mut new_enemy = crate::game::enemy::Enemy::new(sx, sy, spawn_type);
+                        if def.swarm {
+                            new_enemy.swarm_id = Some(format!("spawner_{}", i));
+                        }
+
+                        state.world.enemies.push(new_enemy);
+                        // Update spatial index for new enemy
+                        state
+                            .enemy_positions
+                            .insert((sx, sy), state.world.enemies.len() - 1);
+                        state.world.enemies[i].spawned_count += 1;
+                        state.world.enemies[i].last_spawn_turn = state.turn;
+
+                        state.log_typed(
+                            format!("{} spawns a {}!", state.world.enemies[i].name(), spawn_type),
+                            MsgType::Combat,
+                        );
+                        state.trigger_effect("S(@3 &LightCyan &White)", 2);
+                        spawned = true;
+                        break;
+                    }
+                }
+                if spawned {
+                    break;
                 }
             }
         }
@@ -156,44 +158,47 @@ impl AiBehavior for StandardMeleeBehavior {
         // Handle AOE warning countdown
         if state.world.enemies[i].tick_aoe_warning() {
             // AOE attack is ready to execute
-            if let Some((target_x, target_y)) = state.world.enemies[i].aoe_target {
-                if let Some(def) = state.world.enemies[i].def() {
-                    let radius = def.aoe_radius as i32;
-                    let damage = state.rng.gen_range(def.damage_min..=def.damage_max);
+            if let Some((target_x, target_y)) = state.world.enemies[i].aoe_target
+                && let Some(def) = state.world.enemies[i].def()
+            {
+                let radius = def.aoe_radius as i32;
+                let damage = state.rng.gen_range(def.damage_min..=def.damage_max);
 
+                state.log_typed(
+                    format!(
+                        "{} unleashes an area attack!",
+                        state.world.enemies[i].name()
+                    ),
+                    MsgType::Combat,
+                );
+
+                // Check if player is in AOE
+                let player_dist = ((state.player_x() - target_x).pow(2)
+                    + (state.player_y() - target_y).pow(2))
+                    as f32;
+                if player_dist <= (radius as f32).powi(2) {
+                    let player_armor = state.effective_armor();
+                    let final_damage = (damage - player_armor).max(1);
+                    state.player.hp -= final_damage;
+                    state.trigger_hit_flash(state.player_x(), state.player_y());
+                    state.spawn_damage_number(
+                        state.player_x(),
+                        state.player_y(),
+                        final_damage,
+                        false,
+                    );
                     state.log_typed(
-                        format!("{} unleashes an area attack!", state.world.enemies[i].name()),
+                        format!("You take {} damage from the area attack!", final_damage),
                         MsgType::Combat,
                     );
-
-                    // Check if player is in AOE
-                    let player_dist = ((state.player_x() - target_x).pow(2)
-                        + (state.player_y() - target_y).pow(2))
-                        as f32;
-                    if player_dist <= (radius as f32).powi(2) {
-                        let player_armor = state.effective_armor();
-                        let final_damage = (damage - player_armor).max(1);
-                        state.player.hp -= final_damage;
-                        state.trigger_hit_flash(state.player_x(), state.player_y());
-                        state.spawn_damage_number(
-                            state.player_x(),
-                            state.player_y(),
-                            final_damage,
-                            false,
-                        );
-                        state.log_typed(
-                            format!("You take {} damage from the area attack!", final_damage),
-                            MsgType::Combat,
-                        );
-                    }
-
-                    // Visual effect
-                    state.trigger_effect(&format!("B(@{} &LightRed)", radius), 4);
-
-                    // Reset AOE state
-                    state.world.enemies[i].aoe_target = None;
-                    state.world.enemies[i].aoe_warning_turns = 0;
                 }
+
+                // Visual effect
+                state.trigger_effect(&format!("B(@{} &LightRed)", radius), 4);
+
+                // Reset AOE state
+                state.world.enemies[i].aoe_target = None;
+                state.world.enemies[i].aoe_warning_turns = 0;
             }
         }
 
@@ -222,7 +227,12 @@ impl AiBehavior for StandardMeleeBehavior {
                                 let dy = state.rng.gen_range(-range..=range);
                                 let nx = ex + dx;
                                 let ny = ey + dy;
-                                if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+                                if state
+                                    .world
+                                    .map
+                                    .get(nx, ny)
+                                    .map(|t| t.walkable())
+                                    .unwrap_or(false)
                                     && state.enemy_at(nx, ny).is_none()
                                     && !(nx == state.player_x() && ny == state.player_y())
                                 {
@@ -231,7 +241,10 @@ impl AiBehavior for StandardMeleeBehavior {
                                     state.world.enemies[i].y = ny;
                                     state.enemy_positions.insert((nx, ny), i);
                                     state.log_typed(
-                                        format!("{} teleports away!", state.world.enemies[i].name()),
+                                        format!(
+                                            "{} teleports away!",
+                                            state.world.enemies[i].name()
+                                        ),
                                         MsgType::Combat,
                                     );
                                     return true;
@@ -315,7 +328,12 @@ impl AiBehavior for StandardMeleeBehavior {
             let dy = (ey - state.player_y()).signum();
             let nx = ex + dx;
             let ny = ey + dy;
-            if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+            if state
+                .world
+                .map
+                .get(nx, ny)
+                .map(|t| t.walkable())
+                .unwrap_or(false)
                 && state.enemy_at(nx, ny).is_none()
                 && !(nx == state.player_x() && ny == state.player_y())
             {
@@ -377,23 +395,22 @@ impl AiBehavior for StandardMeleeBehavior {
         }
 
         // AOE attack initiation
-        if let Some(def) = state.world.enemies[i].def() {
-            if def.aoe_attack
-                && target_dist <= sight
-                && target_dist <= 4
-                && !target_is_decoy
-                && state.world.enemies[i].aoe_target.is_none()
-            {
-                state.world.enemies[i].start_aoe_attack(target_x, target_y);
-                state.log_typed(
-                    format!(
-                        "{} begins charging an area attack!",
-                        state.world.enemies[i].name()
-                    ),
-                    MsgType::Warning,
-                );
-                return true;
-            }
+        if let Some(def) = state.world.enemies[i].def()
+            && def.aoe_attack
+            && target_dist <= sight
+            && target_dist <= 4
+            && !target_is_decoy
+            && state.world.enemies[i].aoe_target.is_none()
+        {
+            state.world.enemies[i].start_aoe_attack(target_x, target_y);
+            state.log_typed(
+                format!(
+                    "{} begins charging an area attack!",
+                    state.world.enemies[i].name()
+                ),
+                MsgType::Warning,
+            );
+            return true;
         }
 
         if target_dist == 1 {
@@ -404,7 +421,11 @@ impl AiBehavior for StandardMeleeBehavior {
                     .retain(|d| !(d.x == target_x && d.y == target_y));
                 let dir = state.direction_from(ex, ey);
                 state.log_typed(
-                    format!("{} {} attacks your decoy!", state.world.enemies[i].name(), dir),
+                    format!(
+                        "{} {} attacks your decoy!",
+                        state.world.enemies[i].name(),
+                        dir
+                    ),
                     MsgType::Combat,
                 );
             } else {
@@ -439,15 +460,15 @@ impl AiBehavior for StandardMeleeBehavior {
 
                     // Check on_hit behaviors
                     for behavior in &def.behaviors {
-                        if behavior.behavior_type == "on_hit_refraction" {
-                            if let Some(val) = behavior.value {
-                                state.player.refraction += val;
-                                state.log_typed(
-                                    format!("Glass shards pierce you. (+{} Refraction)", val),
-                                    MsgType::Status,
-                                );
-                                state.check_adaptation_threshold();
-                            }
+                        if behavior.behavior_type == "on_hit_refraction"
+                            && let Some(val) = behavior.value
+                        {
+                            state.player.refraction += val;
+                            state.log_typed(
+                                format!("Glass shards pierce you. (+{} Refraction)", val),
+                                MsgType::Status,
+                            );
+                            state.check_adaptation_threshold();
                         }
                     }
 
@@ -458,7 +479,8 @@ impl AiBehavior for StandardMeleeBehavior {
             }
         } else if target_dist < sight {
             // Laser beam check
-            if has_laser && !target_is_decoy && state.visible.contains(&state.world.map.idx(ex, ey)) {
+            if has_laser && !target_is_decoy && state.visible.contains(&state.world.map.idx(ex, ey))
+            {
                 // Fire laser
                 state.player.hp -= laser_damage;
                 state.trigger_hit_flash(state.player_x(), state.player_y());
@@ -505,7 +527,12 @@ impl AiBehavior for StandardMeleeBehavior {
                 (ex + dx, ey + dy)
             };
 
-            if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+            if state
+                .world
+                .map
+                .get(nx, ny)
+                .map(|t| t.walkable())
+                .unwrap_or(false)
                 && state.enemy_at(nx, ny).is_none()
                 && !(nx == state.player_x() && ny == state.player_y())
             {
@@ -531,8 +558,14 @@ impl AiBehavior for RangedOnlyBehavior {
         let py = state.player_y();
         let dist = (ex - px).abs() + (ey - py).abs();
 
-        let sight = state.world.enemies[i].def().map(|d| d.sight_range).unwrap_or(6);
-        let attack_range = state.world.enemies[i].def().map(|d| d.attack_range).unwrap_or(4) as i32;
+        let sight = state.world.enemies[i]
+            .def()
+            .map(|d| d.sight_range)
+            .unwrap_or(6);
+        let attack_range = state.world.enemies[i]
+            .def()
+            .map(|d| d.attack_range)
+            .unwrap_or(4) as i32;
         let min_range = 3; // Try to stay at least this far away
 
         // Only act if player in sight
@@ -547,7 +580,12 @@ impl AiBehavior for RangedOnlyBehavior {
             let nx = ex + dx;
             let ny = ey + dy;
 
-            if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+            if state
+                .world
+                .map
+                .get(nx, ny)
+                .map(|t| t.walkable())
+                .unwrap_or(false)
                 && state.enemy_at(nx, ny).is_none()
                 && !(nx == px && ny == py)
             {
@@ -560,16 +598,20 @@ impl AiBehavior for RangedOnlyBehavior {
         }
 
         // If in range, fire
-        if dist <= attack_range {
-            if let Some(def) = state.world.enemies[i].def() {
-                let dmg = state.rng.gen_range(def.damage_min..=def.damage_max);
-                state.player.hp -= dmg;
-                state.log_typed(
-                    format!("{} shoots you for {} damage!", state.world.enemies[i].name(), dmg),
-                    MsgType::Combat,
-                );
-                state.spawn_damage_number(px, py, dmg, true);
-            }
+        if dist <= attack_range
+            && let Some(def) = state.world.enemies[i].def()
+        {
+            let dmg = state.rng.gen_range(def.damage_min..=def.damage_max);
+            state.player.hp -= dmg;
+            state.log_typed(
+                format!(
+                    "{} shoots you for {} damage!",
+                    state.world.enemies[i].name(),
+                    dmg
+                ),
+                MsgType::Combat,
+            );
+            state.spawn_damage_number(px, py, dmg, true);
         }
         true
     }
@@ -586,7 +628,10 @@ impl AiBehavior for SuicideBomberBehavior {
         let py = state.player_y();
         let dist = (ex - px).abs() + (ey - py).abs();
 
-        let sight = state.world.enemies[i].def().map(|d| d.sight_range).unwrap_or(8);
+        let sight = state.world.enemies[i]
+            .def()
+            .map(|d| d.sight_range)
+            .unwrap_or(8);
 
         if dist > sight {
             return true;
@@ -627,7 +672,12 @@ impl AiBehavior for SuicideBomberBehavior {
         let nx = ex + dx;
         let ny = ey + dy;
 
-        if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+        if state
+            .world
+            .map
+            .get(nx, ny)
+            .map(|t| t.walkable())
+            .unwrap_or(false)
             && state.enemy_at(nx, ny).is_none()
             && !(nx == px && ny == py)
         {
@@ -676,7 +726,8 @@ impl AiBehavior for HealerBehavior {
         if let Some(idx) = healed_idx {
             let target_name = state.world.enemies[idx].name().to_string();
             if let Some(def) = state.world.enemies[idx].def() {
-                state.world.enemies[idx].hp = (state.world.enemies[idx].hp + heal_amount).min(def.max_hp);
+                state.world.enemies[idx].hp =
+                    (state.world.enemies[idx].hp + heal_amount).min(def.max_hp);
             }
             state.log_typed(
                 format!(

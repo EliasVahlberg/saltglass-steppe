@@ -171,7 +171,7 @@ impl ConstraintSystem {
 
         for start in &start_points {
             for end in &end_points {
-                if Self::is_path_exists(&context.map, *start, *end) {
+                if Self::is_path_exists(context.map, *start, *end) {
                     connected_count += 1;
                 }
             }
@@ -201,7 +201,7 @@ impl ConstraintSystem {
         let entities: Vec<_> = context
             .entities
             .iter()
-            .filter(|e| entity_type.as_ref().map_or(true, |et| &e.entity_type == et))
+            .filter(|e| entity_type.as_ref().is_none_or(|et| &e.entity_type == et))
             .collect();
 
         if entities.len() < 2 {
@@ -296,10 +296,7 @@ impl ConstraintSystem {
         let min_amount = Self::extract_u32(&rule.parameters, "min_amount").unwrap_or(1);
         let max_amount = Self::extract_u32(&rule.parameters, "max_amount").unwrap_or(100);
 
-        let total_resources: u32 = if resource_type
-            .as_ref()
-            .map_or(false, |rt| rt == "open_space")
-        {
+        let total_resources: u32 = if resource_type.as_ref().is_some_and(|rt| rt == "open_space") {
             // Count walkable tiles (Floor and Glass)
             context
                 .map
@@ -314,7 +311,7 @@ impl ConstraintSystem {
                 .filter(|r| {
                     resource_type
                         .as_ref()
-                        .map_or(true, |rt| &r.resource_type == rt)
+                        .is_none_or(|rt| &r.resource_type == rt)
                 })
                 .map(|r| r.amount)
                 .sum()
@@ -349,7 +346,7 @@ impl ConstraintSystem {
         let entities: Vec<_> = context
             .entities
             .iter()
-            .filter(|e| entity_type.as_ref().map_or(true, |et| &e.entity_type == et))
+            .filter(|e| entity_type.as_ref().is_none_or(|et| &e.entity_type == et))
             .collect();
 
         let biome_name = format!("{:?}", context.biome).to_lowercase();
@@ -482,7 +479,7 @@ impl ConstraintSystem {
         // Count chokepoints (floor tiles with <= 2 adjacent floor tiles)
         for y in 1..(context.map.height - 1) {
             for x in 1..(context.map.width - 1) {
-                let idx = (y * context.map.width + x) as usize;
+                let idx = y * context.map.width + x;
                 if context.map.tiles[idx].walkable() {
                     let adjacent_floors =
                         Self::count_adjacent_floors(context.map, x as i32, y as i32);
@@ -537,7 +534,7 @@ impl ConstraintSystem {
         // Check each floor tile for safety (distance from enemies/hazards)
         for y in 0..context.map.height {
             for x in 0..context.map.width {
-                let idx = (y * context.map.width + x) as usize;
+                let idx = y * context.map.width + x;
                 if context.map.tiles[idx].walkable() {
                     let mut is_safe = true;
 
@@ -595,7 +592,7 @@ impl ConstraintSystem {
         // Sample key positions and check escape routes
         for y in (5..context.map.height).step_by(10) {
             for x in (5..context.map.width).step_by(10) {
-                let idx = (y * context.map.width + x) as usize;
+                let idx = y * context.map.width + x;
                 if context.map.tiles[idx].walkable() {
                     total_areas += 1;
 

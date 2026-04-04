@@ -593,23 +593,22 @@ fn optimize_edges(edges: &mut Vec<TunnelEdge>, regions: &[Region], map: &Map, pa
         let r2 = &regions[edge.region_b];
 
         // Try FRR first (global search)
-        if params.use_frr {
-            if let Some((exit_a, exit_b, cost)) = frustum_ray_refinement(r1, r2, map, params) {
-                edge.exit_a = exit_a;
-                edge.exit_b = exit_b;
-                edge.cost = cost;
-            }
+        if params.use_frr
+            && let Some((exit_a, exit_b, cost)) = frustum_ray_refinement(r1, r2, map, params)
+        {
+            edge.exit_a = exit_a;
+            edge.exit_b = exit_b;
+            edge.cost = cost;
         }
 
         // Then PGD (local refinement)
-        if params.use_pgd {
-            if let Some((exit_a, exit_b, cost)) =
+        if params.use_pgd
+            && let Some((exit_a, exit_b, cost)) =
                 perimeter_gradient_descent(r1, r2, edge.exit_a, edge.exit_b, map, params)
-            {
-                edge.exit_a = exit_a;
-                edge.exit_b = exit_b;
-                edge.cost = cost;
-            }
+        {
+            edge.exit_a = exit_a;
+            edge.exit_b = exit_b;
+            edge.cost = cost;
         }
     }
 }
@@ -763,8 +762,8 @@ fn frr_refine(
     }
 
     // Partition into bins and sample
-    let chunk_a = (candidates_a.len() + bins - 1) / bins;
-    let chunk_b = (candidates_b.len() + bins - 1) / bins;
+    let chunk_a = candidates_a.len().div_ceil(bins);
+    let chunk_b = candidates_b.len().div_ceil(bins);
 
     let mut best_bin = (0, 0, usize::MAX);
 
@@ -885,10 +884,10 @@ fn carve_tunnel(map: &mut Map, edge: &TunnelEdge, width: usize, _rng: &mut ChaCh
                 let nx = x + dx;
                 let ny = y + dy;
 
-                if let Some(idx) = map.pos_to_idx(nx, ny) {
-                    if matches!(map.tiles[idx], Tile::Wall { .. }) {
-                        map.tiles[idx] = Tile::default_floor();
-                    }
+                if let Some(idx) = map.pos_to_idx(nx, ny)
+                    && matches!(map.tiles[idx], Tile::Wall { .. })
+                {
+                    map.tiles[idx] = Tile::default_floor();
                 }
             }
         }
@@ -1020,12 +1019,8 @@ fn connect_required_regions(
         }
 
         // Add intermediate regions to parent map
-        if !parent.contains_key(&edge.region_a) {
-            parent.insert(edge.region_a, edge.region_a);
-        }
-        if !parent.contains_key(&edge.region_b) {
-            parent.insert(edge.region_b, edge.region_b);
-        }
+        parent.entry(edge.region_a).or_insert(edge.region_a);
+        parent.entry(edge.region_b).or_insert(edge.region_b);
 
         let root_a = find(&mut parent, edge.region_a);
         let root_b = find(&mut parent, edge.region_b);

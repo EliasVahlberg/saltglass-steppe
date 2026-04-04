@@ -82,17 +82,17 @@ pub fn can_craft_advanced(
     }
 
     // Check crafting station
-    if let Some(required_station) = &recipe.station_required {
-        if !available_stations.contains(required_station) {
-            return false;
-        }
+    if let Some(required_station) = &recipe.station_required
+        && !available_stations.contains(required_station)
+    {
+        return false;
     }
 
     // Check faction requirement (need positive reputation)
-    if let Some(required_faction) = &recipe.faction_required {
-        if faction_reputation.get(required_faction).unwrap_or(&0) <= &0 {
-            return false;
-        }
+    if let Some(required_faction) = &recipe.faction_required
+        && faction_reputation.get(required_faction).unwrap_or(&0) <= &0
+    {
+        return false;
     }
 
     true

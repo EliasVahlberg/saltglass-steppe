@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "Example constraint types don't match actual JSON constraint names"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: Example constraint types don't match actual JSON constraint names
+> Last verified: 2026-04-04
+
 # Constraint System Guide
 
 The constraint system provides validation and automatic correction for procedural generation, ensuring generated content meets quality and playability requirements.

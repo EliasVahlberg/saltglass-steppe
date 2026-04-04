@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "Partial migration status still accurate but 135 hardcoded matches remain"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: Partial migration status still accurate but 135 hardcoded matches remain
+> Last verified: 2026-04-04
+
 # Keyboard Config Migration TODO
 
 This document tracks hardcoded `KeyCode::` matches that need to be migrated to use the keyboard config system (`data/keyboard_config.json` and `src/game/keyboard_config.rs`).

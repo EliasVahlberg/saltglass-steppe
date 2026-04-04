@@ -130,7 +130,7 @@ impl StructureGenerator for DungeonGenerator {
 
         // Create a single large "room" representing the entire dungeon
         let main_room = Room {
-            bounds: bounds.clone(),
+            bounds,
             room_type: "dungeon_chamber".to_string(),
             depth_from_entrance: 0,
         };

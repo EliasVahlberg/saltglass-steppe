@@ -143,6 +143,12 @@ pub struct WorldGenerator {
     config: WorldGenConfig,
 }
 
+impl Default for WorldGenerator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl WorldGenerator {
     pub fn new() -> Self {
         Self {

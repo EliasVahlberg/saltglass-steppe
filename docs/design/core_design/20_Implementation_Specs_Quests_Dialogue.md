@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "Describes QuestStatus/QuestStage that don't exist; actual code uses QuestDef/ActiveQuest"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: Describes QuestStatus/QuestStage that don't exist; actual code uses QuestDef/ActiveQuest
+> Last verified: 2026-04-04
+
 # Implementation Specifications: Quests & Dialogue
 
 **Purpose:** Technical specs for implementing the systems defined in `19_Quest_Structure_and_Endings.md`.

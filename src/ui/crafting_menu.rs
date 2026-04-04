@@ -80,62 +80,67 @@ pub fn render_crafting_menu(frame: &mut Frame, menu: &CraftingMenu, state: &Game
     let detail_inner = detail_block.inner(chunks[1]);
     frame.render_widget(detail_block, chunks[1]);
 
-    if let Some(recipe_id) = menu.selected_recipe_id() {
-        if let Some(recipe) = get_recipe(recipe_id) {
-            let craftable = can_craft(recipe, &state.player.inventory);
+    if let Some(recipe_id) = menu.selected_recipe_id()
+        && let Some(recipe) = get_recipe(recipe_id)
+    {
+        let craftable = can_craft(recipe, &state.player.inventory);
 
-            let mut lines = vec![
-                Line::from(Span::styled(
-                    &recipe.name,
-                    Style::default().fg(Color::Yellow).bold(),
-                )),
-                Line::from(""),
-                Line::from(&recipe.description[..]),
-                Line::from(""),
-                Line::from(Span::styled("Materials:", Style::default().bold())),
-            ];
+        let mut lines = vec![
+            Line::from(Span::styled(
+                &recipe.name,
+                Style::default().fg(Color::Yellow).bold(),
+            )),
+            Line::from(""),
+            Line::from(&recipe.description[..]),
+            Line::from(""),
+            Line::from(Span::styled("Materials:", Style::default().bold())),
+        ];
 
-            for (item_id, &required) in &recipe.materials {
-                let have = state.player.inventory.iter().filter(|id| *id == item_id).count() as u32;
-                let item_name = get_item_def(item_id)
-                    .map(|d| d.name.as_str())
-                    .unwrap_or(item_id);
-                let color = if have >= required {
-                    Color::Green
-                } else {
-                    Color::Red
-                };
-                lines.push(Line::from(vec![
-                    Span::raw("  "),
-                    Span::styled(format!("{}/{}", have, required), Style::default().fg(color)),
-                    Span::raw(format!(" {}", item_name)),
-                ]));
-            }
-
-            lines.push(Line::from(""));
-            lines.push(Line::from(Span::styled("Output:", Style::default().bold())));
-            let output_name = get_item_def(&recipe.output)
+        for (item_id, &required) in &recipe.materials {
+            let have = state
+                .player
+                .inventory
+                .iter()
+                .filter(|id| *id == item_id)
+                .count() as u32;
+            let item_name = get_item_def(item_id)
                 .map(|d| d.name.as_str())
-                .unwrap_or(&recipe.output);
-            lines.push(Line::from(format!(
-                "  {}x {}",
-                recipe.output_count, output_name
-            )));
-
-            lines.push(Line::from(""));
-            if craftable {
-                lines.push(Line::from(Span::styled(
-                    "Press Enter to craft",
-                    Style::default().fg(Color::Green),
-                )));
+                .unwrap_or(item_id);
+            let color = if have >= required {
+                Color::Green
             } else {
-                lines.push(Line::from(Span::styled(
-                    "Missing materials",
-                    Style::default().fg(Color::Red),
-                )));
-            }
-
-            frame.render_widget(Paragraph::new(lines), detail_inner);
+                Color::Red
+            };
+            lines.push(Line::from(vec![
+                Span::raw("  "),
+                Span::styled(format!("{}/{}", have, required), Style::default().fg(color)),
+                Span::raw(format!(" {}", item_name)),
+            ]));
         }
+
+        lines.push(Line::from(""));
+        lines.push(Line::from(Span::styled("Output:", Style::default().bold())));
+        let output_name = get_item_def(&recipe.output)
+            .map(|d| d.name.as_str())
+            .unwrap_or(&recipe.output);
+        lines.push(Line::from(format!(
+            "  {}x {}",
+            recipe.output_count, output_name
+        )));
+
+        lines.push(Line::from(""));
+        if craftable {
+            lines.push(Line::from(Span::styled(
+                "Press Enter to craft",
+                Style::default().fg(Color::Green),
+            )));
+        } else {
+            lines.push(Line::from(Span::styled(
+                "Missing materials",
+                Style::default().fg(Color::Red),
+            )));
+        }
+
+        frame.render_widget(Paragraph::new(lines), detail_inner);
     }
 }

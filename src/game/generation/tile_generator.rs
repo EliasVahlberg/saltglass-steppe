@@ -9,8 +9,8 @@ use super::{
     environmental_props::place_environmental_props,
     get_biome_spawn_table, place_microstructures,
     settlement::{
-        SettlementConfig, SettlementTier, clear_around_roads, clear_settlement_footprint,
-        generate_settlement, paint_roads, place_decorations, stamp_settlement,
+        SettlementConfig, SettlementTier, clear_settlement_footprint, generate_settlement,
+        paint_roads, place_decorations, stamp_settlement,
     },
     structure_library::StructureLibrary,
     weighted_pick_by_level_and_tier,
@@ -137,12 +137,12 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     let mut enemies = Vec::new();
 
     // Check for quest structure spawns first
-    if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
-        if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data) {
-            for (x, y, spawn_type, id) in spawns {
-                if spawn_type == "enemy" {
-                    enemies.push(Enemy::new(x, y, &id));
-                }
+    if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns")
+        && let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data)
+    {
+        for (x, y, spawn_type, id) in spawns {
+            if spawn_type == "enemy" {
+                enemies.push(Enemy::new(x, y, &id));
             }
         }
     }
@@ -184,13 +184,13 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     let mut items = Vec::new();
     let mut used_positions = HashSet::new();
 
-    if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns") {
-        if let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data) {
-            for (x, y, spawn_type, id) in spawns {
-                if spawn_type == "item" {
-                    items.push(Item::new(x, y, &id));
-                    used_positions.insert((x, y));
-                }
+    if let Some(spawn_data) = map.metadata.get("vitrified_library_spawns")
+        && let Ok(spawns) = serde_json::from_str::<Vec<(i32, i32, String, String)>>(spawn_data)
+    {
+        for (x, y, spawn_type, id) in spawns {
+            if spawn_type == "item" {
+                items.push(Item::new(x, y, &id));
+                used_positions.insert((x, y));
             }
         }
     }
@@ -238,8 +238,9 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     let mut npcs = Vec::new();
     let npc_table = get_biome_spawn_table(&params.biome);
     for spawn in &npc_table.npcs {
-        if spawn.weight > 0 && rng.gen_ratio(spawn.weight.min(10), 10) {
-            if let Some(&(nx, ny)) = walkable_positions
+        if spawn.weight > 0
+            && rng.gen_ratio(spawn.weight.min(10), 10)
+            && let Some(&(nx, ny)) = walkable_positions
                 .iter()
                 .filter(|&&(x, y)| {
                     let dx = (x - px).abs();
@@ -247,9 +248,8 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
                     dx >= 8 || dy >= 8
                 })
                 .nth(rng.gen_range(0..walkable_positions.len().max(1)))
-            {
-                npcs.push(Npc::new(nx, ny, &spawn.id));
-            }
+        {
+            npcs.push(Npc::new(nx, ny, &spawn.id));
         }
     }
     npcs.append(&mut structure_npcs);
@@ -271,10 +271,9 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
             b.x += ox;
             b.y += oy;
         }
-        clear_settlement_footprint(&mut map, &settlement);
+        clear_settlement_footprint(&mut map, &settlement, (ox, oy));
         stamp_settlement(&mut map, &settlement);
         paint_roads(&mut map, &settlement);
-        clear_around_roads(&mut map, &settlement);
         place_decorations(&mut map, &settlement, &mut settlement_rng);
 
         // Path from spawn to nearest settlement walkable tile using A*
@@ -303,17 +302,19 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
                 road_pathfinding::astar_path(&costs, map.width, map.height, (px, py), (tx, ty))
             {
                 for (cx, cy) in path {
-                    if cx >= 0 && cy >= 0 && cx < map.width as i32 && cy < map.height as i32 {
-                        if !matches!(map.get_tile(cx, cy), Tile::Floor { id } if id == "dirt_path")
-                        {
-                            map.set_tile(
-                                cx as usize,
-                                cy as usize,
-                                Tile::Floor {
-                                    id: "dirt_path".to_string(),
-                                },
-                            );
-                        }
+                    if cx >= 0
+                        && cy >= 0
+                        && cx < map.width as i32
+                        && cy < map.height as i32
+                        && !matches!(map.get_tile(cx, cy), Tile::Floor { id } if id == "dirt_path")
+                    {
+                        map.set_tile(
+                            cx as usize,
+                            cy as usize,
+                            Tile::Floor {
+                                id: "dirt_path".to_string(),
+                            },
+                        );
                     }
                 }
             }
@@ -403,12 +404,11 @@ impl TileTestConfig {
         let mut configs = Vec::new();
         if let Ok(entries) = std::fs::read_dir(dir) {
             for entry in entries.flatten() {
-                if entry.path().extension().and_then(|e| e.to_str()) == Some("json") {
-                    if let Ok(text) = std::fs::read_to_string(entry.path()) {
-                        if let Ok(cfg) = serde_json::from_str::<TileTestConfig>(&text) {
-                            configs.push(cfg);
-                        }
-                    }
+                if entry.path().extension().and_then(|e| e.to_str()) == Some("json")
+                    && let Ok(text) = std::fs::read_to_string(entry.path())
+                    && let Ok(cfg) = serde_json::from_str::<TileTestConfig>(&text)
+                {
+                    configs.push(cfg);
                 }
             }
         }

@@ -5,11 +5,11 @@ use serde::{Deserialize, Serialize};
 /// Void exposure levels and effects
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum VoidExposureLevel {
-    None,     // 0-10 exposure
-    Minimal,  // 11-25 exposure
-    Moderate, // 26-50 exposure
-    High,     // 51-75 exposure
-    Extreme,  // 76-100 exposure
+    None,
+    Minimal,
+    Moderate,
+    High,
+    Extreme,
 }
 
 impl VoidExposureLevel {
@@ -34,14 +34,14 @@ impl VoidExposureLevel {
     }
 }
 
-/// Void-based abilities
+/// Void-based abilities (kept for serialization compatibility and menu display)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum VoidAbility {
-    VoidStep,    // Short-range teleportation
-    RealityRend, // Damage that ignores armor
-    VoidShield,  // Absorb damage using void energy
-    PhaseWalk,   // Walk through walls temporarily
-    VoidDrain,   // Drain energy from enemies
+    VoidStep,
+    RealityRend,
+    VoidShield,
+    PhaseWalk,
+    VoidDrain,
 }
 
 impl VoidAbility {
@@ -78,10 +78,10 @@ pub struct RealityDistortion {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum DistortionType {
-    Temporal, // Time flows differently
-    Spatial,  // Space is warped
-    Material, // Matter becomes unstable
-    Psychic,  // Mental effects
+    Temporal,
+    Spatial,
+    Material,
+    Psychic,
 }
 
 /// Void energy system state
@@ -92,11 +92,10 @@ pub struct VoidSystem {
     pub max_void_energy: u32,
     pub unlocked_abilities: Vec<VoidAbility>,
     pub active_distortions: Vec<RealityDistortion>,
-    pub phase_walk_turns: u32, // Remaining turns of phase walk
+    pub phase_walk_turns: u32,
 }
 
 impl VoidSystem {
-    /// Create new void system with default values
     pub fn new() -> Self {
         Self {
             void_exposure: 0,
@@ -113,18 +112,12 @@ impl VoidSystem {
         VoidExposureLevel::from_exposure(self.void_exposure)
     }
 
-    /// Increase void exposure
+    /// Increase void exposure (called from item use)
     pub fn add_exposure(&mut self, amount: u32) -> bool {
         let old_level = self.exposure_level();
         self.void_exposure = (self.void_exposure + amount).min(100);
-
-        // Increase max void energy as exposure increases
         self.max_void_energy = 50 + (self.void_exposure / 2);
-
-        // Check for new ability unlocks
         self.check_ability_unlocks();
-
-        // Return true if exposure level changed
         old_level != self.exposure_level()
     }
 
@@ -147,72 +140,9 @@ impl VoidSystem {
         }
     }
 
-    /// Use void ability if possible
-    pub fn use_ability(&mut self, ability: VoidAbility) -> bool {
-        if !self.unlocked_abilities.contains(&ability) {
-            return false;
-        }
-
-        let cost = ability.energy_cost();
-        if self.void_energy < cost {
-            return false;
-        }
-
-        self.void_energy -= cost;
-
-        match ability {
-            VoidAbility::PhaseWalk => {
-                self.phase_walk_turns = 3; // 3 turns of phase walking
-            }
-            _ => {} // Other abilities handled by caller
-        }
-
-        true
-    }
-
-    /// Gain void energy
+    /// Gain void energy (called from item use)
     pub fn gain_energy(&mut self, amount: u32) {
         self.void_energy = (self.void_energy + amount).min(self.max_void_energy);
-    }
-
-    /// Create reality distortion at position
-    pub fn create_distortion(
-        &mut self,
-        x: i32,
-        y: i32,
-        intensity: u8,
-        duration: u32,
-        effect_type: DistortionType,
-    ) {
-        let distortion = RealityDistortion {
-            x,
-            y,
-            intensity,
-            duration,
-            effect_type,
-        };
-        self.active_distortions.push(distortion);
-    }
-
-    /// Check if position has reality distortion
-    pub fn has_distortion(&self, x: i32, y: i32) -> Option<&RealityDistortion> {
-        self.active_distortions
-            .iter()
-            .find(|d| d.x == x && d.y == y)
-    }
-
-    /// Calculate void damage at position
-    pub fn calculate_void_damage(&self, x: i32, y: i32) -> u32 {
-        let mut damage = 0;
-
-        for distortion in &self.active_distortions {
-            let distance = ((x - distortion.x).abs() + (y - distortion.y).abs()) as u8;
-            if distance <= distortion.intensity {
-                damage += (distortion.intensity - distance) as u32;
-            }
-        }
-
-        damage
     }
 
     /// Update void system each turn
@@ -240,7 +170,7 @@ impl VoidSystem {
         }
     }
 
-    /// Trigger random reality distortion
+    /// Trigger random reality distortion (called from update)
     fn trigger_random_distortion(&mut self, rng: &mut ChaCha8Rng) {
         let distortion_types = [
             DistortionType::Temporal,
@@ -252,67 +182,15 @@ impl VoidSystem {
         let effect_type = distortion_types[rng.gen_range(0..distortion_types.len())];
         let intensity = rng.gen_range(1..=5);
         let duration = rng.gen_range(3..=8);
-
-        // Create distortion at random nearby location
         let x = rng.gen_range(-5..=5);
         let y = rng.gen_range(-5..=5);
 
-        self.create_distortion(x, y, intensity, duration, effect_type);
-    }
-
-    /// Check if player can phase walk through walls
-    pub fn can_phase_walk(&self) -> bool {
-        self.phase_walk_turns > 0
-    }
-
-    /// Perform void step teleportation
-    pub fn void_step(&mut self, from_x: i32, from_y: i32, to_x: i32, to_y: i32) -> bool {
-        if !self.use_ability(VoidAbility::VoidStep) {
-            return false;
-        }
-
-        let distance = ((to_x - from_x).abs() + (to_y - from_y).abs()) as u32;
-        if distance > 5 {
-            return false; // Max range of 5 tiles
-        }
-
-        // Create small distortion at departure point
-        self.create_distortion(from_x, from_y, 2, 3, DistortionType::Spatial);
-
-        true
-    }
-
-    /// Perform reality rend attack
-    pub fn reality_rend(&mut self, target_x: i32, target_y: i32) -> Option<u32> {
-        if !self.use_ability(VoidAbility::RealityRend) {
-            return None;
-        }
-
-        let base_damage = 15 + (self.void_exposure / 10);
-
-        // Create distortion at target
-        self.create_distortion(target_x, target_y, 3, 2, DistortionType::Material);
-
-        Some(base_damage)
-    }
-
-    /// Activate void shield
-    pub fn void_shield(&mut self) -> bool {
-        self.use_ability(VoidAbility::VoidShield)
-    }
-
-    /// Drain void energy from target
-    pub fn void_drain(&mut self, target_x: i32, target_y: i32) -> u32 {
-        if !self.use_ability(VoidAbility::VoidDrain) {
-            return 0;
-        }
-
-        let drained = 5 + (self.void_exposure / 20);
-        self.gain_energy(drained);
-
-        // Create psychic distortion
-        self.create_distortion(target_x, target_y, 2, 2, DistortionType::Psychic);
-
-        drained
+        self.active_distortions.push(RealityDistortion {
+            x,
+            y,
+            intensity,
+            duration,
+            effect_type,
+        });
     }
 }

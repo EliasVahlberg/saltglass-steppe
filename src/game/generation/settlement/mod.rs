@@ -157,16 +157,19 @@ pub fn stamp_settlement(map: &mut Map, settlement: &Settlement) {
         let pad = 1i32;
         for cy in (building.y - pad)..(building.y + eh + pad) {
             for cx in (building.x - pad)..(building.x + ew + pad) {
-                if cx >= 0 && cy >= 0 && cx < map.width as i32 && cy < map.height as i32 {
-                    if matches!(map.get_tile(cx, cy), Tile::Wall { .. }) {
-                        map.set_tile(
-                            cx as usize,
-                            cy as usize,
-                            Tile::Floor {
-                                id: "dry_soil".to_string(),
-                            },
-                        );
-                    }
+                if cx >= 0
+                    && cy >= 0
+                    && cx < map.width as i32
+                    && cy < map.height as i32
+                    && matches!(map.get_tile(cx, cy), Tile::Wall { .. })
+                {
+                    map.set_tile(
+                        cx as usize,
+                        cy as usize,
+                        Tile::Floor {
+                            id: "dry_soil".to_string(),
+                        },
+                    );
                 }
             }
         }
@@ -300,16 +303,19 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
         let to = entrances[j];
         if let Some(path) = road_pathfinding::astar_path(&costs, map.width, map.height, from, to) {
             for (px, py) in path {
-                if px >= 0 && py >= 0 && px < map.width as i32 && py < map.height as i32 {
-                    if !matches!(map.get_tile(px, py), Tile::Floor { id } if id == "dirt_path") {
-                        map.set_tile(
-                            px as usize,
-                            py as usize,
-                            Tile::Floor {
-                                id: "dirt_path".to_string(),
-                            },
-                        );
-                    }
+                if px >= 0
+                    && py >= 0
+                    && px < map.width as i32
+                    && py < map.height as i32
+                    && !matches!(map.get_tile(px, py), Tile::Floor { id } if id == "dirt_path")
+                {
+                    map.set_tile(
+                        px as usize,
+                        py as usize,
+                        Tile::Floor {
+                            id: "dirt_path".to_string(),
+                        },
+                    );
                 }
             }
         } else {
@@ -331,16 +337,19 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
     for (rx, ry) in road_tiles {
         for (dx, dy) in [(-1, 0), (1, 0), (0, -1), (0, 1)] {
             let (nx, ny) = (rx + dx, ry + dy);
-            if nx >= 0 && ny >= 0 && nx < w && ny < h {
-                if matches!(map.get_tile(nx, ny), Tile::Wall { .. }) {
-                    map.set_tile(
-                        nx as usize,
-                        ny as usize,
-                        Tile::Floor {
-                            id: "dirt_path".to_string(),
-                        },
-                    );
-                }
+            if nx >= 0
+                && ny >= 0
+                && nx < w
+                && ny < h
+                && matches!(map.get_tile(nx, ny), Tile::Wall { .. })
+            {
+                map.set_tile(
+                    nx as usize,
+                    ny as usize,
+                    Tile::Floor {
+                        id: "dirt_path".to_string(),
+                    },
+                );
             }
         }
     }
@@ -349,30 +358,36 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
 fn paint_path(map: &mut Map, from: (i32, i32), to: (i32, i32)) {
     let (mut x, mut y) = from;
     while x != to.0 {
-        if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
-            if !matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dirt_path") {
-                map.set_tile(
-                    x as usize,
-                    y as usize,
-                    Tile::Floor {
-                        id: "dirt_path".to_string(),
-                    },
-                );
-            }
+        if x >= 0
+            && y >= 0
+            && x < map.width as i32
+            && y < map.height as i32
+            && !matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dirt_path")
+        {
+            map.set_tile(
+                x as usize,
+                y as usize,
+                Tile::Floor {
+                    id: "dirt_path".to_string(),
+                },
+            );
         }
         x += if to.0 > x { 1 } else { -1 };
     }
     while y != to.1 {
-        if x >= 0 && y >= 0 && x < map.width as i32 && y < map.height as i32 {
-            if !matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dirt_path") {
-                map.set_tile(
-                    x as usize,
-                    y as usize,
-                    Tile::Floor {
-                        id: "dirt_path".to_string(),
-                    },
-                );
-            }
+        if x >= 0
+            && y >= 0
+            && x < map.width as i32
+            && y < map.height as i32
+            && !matches!(map.get_tile(x, y), Tile::Floor { id } if id == "dirt_path")
+        {
+            map.set_tile(
+                x as usize,
+                y as usize,
+                Tile::Floor {
+                    id: "dirt_path".to_string(),
+                },
+            );
         }
         y += if to.1 > y { 1 } else { -1 };
     }

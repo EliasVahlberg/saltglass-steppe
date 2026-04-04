@@ -112,7 +112,10 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             Span::raw("St "),
             Span::styled(stamina_bar, Style::default().fg(Color::Green)),
             Span::styled(
-                format!(" {}/{}", state.player.skills.stamina, state.player.skills.max_stamina),
+                format!(
+                    " {}/{}",
+                    state.player.skills.stamina, state.player.skills.max_stamina
+                ),
                 Style::default().fg(Color::Green),
             ),
         ]),

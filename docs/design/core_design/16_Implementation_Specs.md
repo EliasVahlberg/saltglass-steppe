@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "Describes RefractionState struct that doesn't exist; actual code uses refraction: u32"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: Describes RefractionState struct that doesn't exist; actual code uses refraction: u32
+> Last verified: 2026-04-04
+
 # Implementation Specifications: World Mechanics
 
 **Purpose:** Concrete technical specifications for implementing the lore concepts defined in `15_World_Mechanics_Deep_Dive.md`.

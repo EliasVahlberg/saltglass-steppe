@@ -24,9 +24,7 @@ impl System for QuestSystem {
                 state.player.quest_log.on_position_changed(*to_x, *to_y);
                 state.player.quest_log.check_auto_complete()
             }
-            GameEvent::NpcTalkedTo { npc_id } => {
-                state.player.quest_log.on_npc_talked(npc_id)
-            }
+            GameEvent::NpcTalkedTo { npc_id } => state.player.quest_log.on_npc_talked(npc_id),
             GameEvent::InteractableUsed { interactable_id } => {
                 state.player.quest_log.on_interact(interactable_id);
                 state.player.quest_log.check_auto_complete()

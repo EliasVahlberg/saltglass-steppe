@@ -841,15 +841,15 @@ impl Scenario {
 
         // Prepend base entities, actions, assertions
         let mut entities = base.entities;
-        entities.extend(self.entities.drain(..));
+        entities.append(&mut self.entities);
         self.entities = entities;
 
         let mut actions = base.actions;
-        actions.extend(self.actions.drain(..));
+        actions.append(&mut self.actions);
         self.actions = actions;
 
         let mut assertions = base.assertions;
-        assertions.extend(self.assertions.drain(..));
+        assertions.append(&mut self.assertions);
         self.assertions = assertions;
 
         // Merge variables (child overrides base)
@@ -929,7 +929,9 @@ impl DesExecutor {
                     let ny = state.player.y + dy;
                     if nx >= 0 && ny >= 0 {
                         let nidx = ny as usize * state.world.map.width + nx as usize;
-                        if nidx < state.world.map.tiles.len() && !state.world.map.tiles[nidx].walkable() {
+                        if nidx < state.world.map.tiles.len()
+                            && !state.world.map.tiles[nidx].walkable()
+                        {
                             state.map_mut().tiles[nidx] = crate::game::map::Tile::default_floor();
                         }
                     }
@@ -945,10 +947,10 @@ impl DesExecutor {
         Self::apply_map_setup(&mut state, &scenario.map_setup);
 
         // Check for debug flags in variables
-        if let Some(val) = scenario.variables.get("debug_disable_glare") {
-            if val.as_bool().unwrap_or(false) {
-                state.debug_disable_glare = true;
-            }
+        if let Some(val) = scenario.variables.get("debug_disable_glare")
+            && val.as_bool().unwrap_or(false)
+        {
+            state.debug_disable_glare = true;
         }
 
         if let Some(hp) = scenario.player.hp {
@@ -1006,7 +1008,10 @@ impl DesExecutor {
                     state.world.npcs.push(Npc::new(spawn.x, spawn.y, &spawn.id));
                 }
                 EntityType::Item => {
-                    state.world.items.push(Item::new(spawn.x, spawn.y, &spawn.id));
+                    state
+                        .world
+                        .items
+                        .push(Item::new(spawn.x, spawn.y, &spawn.id));
                 }
                 EntityType::Chest => {
                     let mut chest = Chest::new(spawn.x, spawn.y, &spawn.id);
@@ -1019,9 +1024,11 @@ impl DesExecutor {
                     state.world.chests.push(chest);
                 }
                 EntityType::Interactable => {
-                    state
-                        .world.interactables
-                        .push(Interactable::new(spawn.id.clone(), spawn.x, spawn.y));
+                    state.world.interactables.push(Interactable::new(
+                        spawn.id.clone(),
+                        spawn.x,
+                        spawn.y,
+                    ));
                 }
             }
         }
@@ -1252,7 +1259,9 @@ impl DesExecutor {
             }
             AssertionCheck::PlayerAlive => self.state.player.hp > 0,
             AssertionCheck::PlayerDead => self.state.player.hp <= 0,
-            AssertionCheck::InventoryContains { item } => self.state.player.inventory.contains(item),
+            AssertionCheck::InventoryContains { item } => {
+                self.state.player.inventory.contains(item)
+            }
             AssertionCheck::InventorySize { op, value } => {
                 op.compare(self.state.player.inventory.len() as i32, *value as i32)
             }
@@ -1272,17 +1281,24 @@ impl DesExecutor {
             // New assertions
             AssertionCheck::EnemyHp { id, op, value } => self
                 .state
-                .world.enemies
+                .world
+                .enemies
                 .iter()
                 .find(|e| e.id() == id)
                 .map(|e| op.compare(e.hp, *value))
                 .unwrap_or(false),
-            AssertionCheck::EnemyAlive { id } => {
-                self.state.world.enemies.iter().any(|e| e.id() == id && e.hp > 0)
-            }
-            AssertionCheck::EnemyDead { id } => {
-                self.state.world.enemies.iter().any(|e| e.id() == id && e.hp <= 0)
-            }
+            AssertionCheck::EnemyAlive { id } => self
+                .state
+                .world
+                .enemies
+                .iter()
+                .any(|e| e.id() == id && e.hp > 0),
+            AssertionCheck::EnemyDead { id } => self
+                .state
+                .world
+                .enemies
+                .iter()
+                .any(|e| e.id() == id && e.hp <= 0),
             AssertionCheck::PlayerHasAdaptation { adaptation } => parse_adaptation(adaptation)
                 .map(|a| self.state.player.adaptations.contains(&a))
                 .unwrap_or(false),
@@ -1291,7 +1307,8 @@ impl DesExecutor {
             }
             AssertionCheck::MapTileAt { x, y, tile } => self
                 .state
-                .world.map
+                .world
+                .map
                 .get(*x, *y)
                 .map(|t| {
                     format!("{:?}", t)
@@ -1305,7 +1322,8 @@ impl DesExecutor {
             AssertionCheck::PlayerAp { op, value } => op.compare(self.state.player.ap, *value),
             AssertionCheck::HasStatusEffect { effect } => self
                 .state
-                .player.status_effects
+                .player
+                .status_effects
                 .iter()
                 .any(|e| e.id.to_lowercase() == effect.to_lowercase()),
             AssertionCheck::StatusEffectCount { op, value } => {
@@ -1329,21 +1347,24 @@ impl DesExecutor {
             }
             AssertionCheck::EnemyProvoked { id, provoked } => self
                 .state
-                .world.enemies
+                .world
+                .enemies
                 .iter()
                 .find(|e| e.id == *id)
                 .map(|e| e.provoked == *provoked)
                 .unwrap_or(false),
             AssertionCheck::EnemyHasItem { id, item } => self
                 .state
-                .world.enemies
+                .world
+                .enemies
                 .iter()
                 .find(|e| e.id == *id)
                 .map(|e| e.inventory.contains(item))
                 .unwrap_or(false),
             AssertionCheck::EnemyHasStatus { id, effect } => self
                 .state
-                .world.enemies
+                .world
+                .enemies
                 .iter()
                 .find(|e| e.id == *id)
                 .map(|e| e.has_status_effect(effect))
@@ -1360,7 +1381,8 @@ impl DesExecutor {
                 .unwrap_or(true),
             AssertionCheck::NpcTalked { id, talked } => self
                 .state
-                .world.npcs
+                .world
+                .npcs
                 .iter()
                 .find(|n| n.id == *id)
                 .map(|n| n.talked == *talked)
@@ -1383,7 +1405,8 @@ impl DesExecutor {
             // Quest assertions
             AssertionCheck::QuestActive { quest_id } => self
                 .state
-                .player.quest_log
+                .player
+                .quest_log
                 .active
                 .iter()
                 .any(|q| q.quest_id == *quest_id),
@@ -1392,7 +1415,8 @@ impl DesExecutor {
             }
             AssertionCheck::QuestAvailable { quest_id } => self
                 .state
-                .player.quest_log
+                .player
+                .quest_log
                 .is_quest_available(quest_id, &self.state),
             AssertionCheck::QuestObjectiveProgress {
                 quest_id,
@@ -1401,7 +1425,8 @@ impl DesExecutor {
                 value,
             } => self
                 .state
-                .player.quest_log
+                .player
+                .quest_log
                 .get_active(quest_id)
                 .and_then(|q| {
                     q.objectives
@@ -1415,7 +1440,8 @@ impl DesExecutor {
                 objective_id,
             } => self
                 .state
-                .player.quest_log
+                .player
+                .quest_log
                 .get_active(quest_id)
                 .and_then(|q| {
                     q.objectives
@@ -1469,7 +1495,9 @@ impl DesExecutor {
                         ("floor", crate::game::map::Tile::Floor { .. }) => true,
                         ("wall", crate::game::map::Tile::Wall { .. }) => true,
                         // Match specific floor IDs (e.g. "dirt_path", "dry_soil")
-                        (id, crate::game::map::Tile::Floor { id: floor_id }) if floor_id == id => true,
+                        (id, crate::game::map::Tile::Floor { id: floor_id }) if floor_id == id => {
+                            true
+                        }
                         _ => false,
                     })
                     .count();
@@ -1530,7 +1558,13 @@ impl DesExecutor {
             // Crafting assertions
             AssertionCheck::HasItem { item } => self.state.player.inventory.contains(item),
             AssertionCheck::ItemCount { item, op, value } => {
-                let count = self.state.player.inventory.iter().filter(|id| *id == item).count() as u32;
+                let count = self
+                    .state
+                    .player
+                    .inventory
+                    .iter()
+                    .filter(|id| *id == item)
+                    .count() as u32;
                 op.compare(count as i32, *value as i32)
             }
             AssertionCheck::CraftingSuccess { recipe, op, value } => {
@@ -1570,14 +1604,14 @@ impl DesExecutor {
                 item_id,
                 available,
             } => {
-                if let Some(interface) = &self.current_trade_interface {
-                    if interface.trader_id == *trader_id {
-                        let has_item = interface
-                            .available_items
-                            .iter()
-                            .any(|item| item.item_id == *item_id);
-                        return has_item == *available;
-                    }
+                if let Some(interface) = &self.current_trade_interface
+                    && interface.trader_id == *trader_id
+                {
+                    let has_item = interface
+                        .available_items
+                        .iter()
+                        .any(|item| item.item_id == *item_id);
+                    return has_item == *available;
                 }
                 false
             }
@@ -1598,8 +1632,12 @@ impl DesExecutor {
                 let count = self.state.world.enemies.iter().filter(|e| e.hp > 0).count();
                 op.compare(count, *value)
             }
-            AssertionCheck::NpcCount { op, value } => op.compare(self.state.world.npcs.len(), *value),
-            AssertionCheck::ChestCount { op, value } => op.compare(self.state.world.chests.len(), *value),
+            AssertionCheck::NpcCount { op, value } => {
+                op.compare(self.state.world.npcs.len(), *value)
+            }
+            AssertionCheck::ChestCount { op, value } => {
+                op.compare(self.state.world.chests.len(), *value)
+            }
             AssertionCheck::PlayerOnWalkableTile => {
                 let tile = self
                     .state
@@ -1627,7 +1665,11 @@ impl DesExecutor {
             AssertionCheck::NpcExists { npc_id } => {
                 self.state.world.npcs.iter().any(|npc| npc.id == *npc_id)
             }
-            AssertionCheck::SkillLevel { skill_id, op, value } => {
+            AssertionCheck::SkillLevel {
+                skill_id,
+                op,
+                value,
+            } => {
                 let level = self.state.player.skills.get_skill_level(skill_id);
                 op.compare(level, *value)
             }
@@ -1888,7 +1930,8 @@ impl DesExecutor {
             }
             Action::SetFactionRep { faction, value } => {
                 self.state
-                    .player.faction_reputation
+                    .player
+                    .faction_reputation
                     .insert(faction.clone(), *value);
                 self.log(format!(
                     "Set faction reputation for '{}' to {}",
@@ -1927,7 +1970,8 @@ impl DesExecutor {
             // Psychic actions
             Action::UnlockAbility { ability_id } => {
                 self.state
-                    .player.psychic
+                    .player
+                    .psychic
                     .unlocked_abilities
                     .push(ability_id.clone());
                 self.log(format!("Unlocked ability: {}", ability_id));
@@ -2024,11 +2068,16 @@ impl DesExecutor {
     fn query_state(&self, query: &LogQuery) -> String {
         match query {
             LogQuery::PlayerHp => {
-                format!("HP: {}/{}", self.state.player_hp(), self.state.player_max_hp())
+                format!(
+                    "HP: {}/{}",
+                    self.state.player_hp(),
+                    self.state.player_max_hp()
+                )
             }
             LogQuery::PlayerPosition => format!(
                 "Position: ({}, {})",
-                self.state.player_x(), self.state.player_y()
+                self.state.player_x(),
+                self.state.player_y()
             ),
             LogQuery::Inventory => format!("Inventory: {:?}", self.state.player.inventory),
             LogQuery::EntityAt { x, y } => self.state.describe_at(*x, *y),
@@ -2056,29 +2105,30 @@ impl DesExecutor {
                     line.push('@');
                 }
                 // Check for enemies
-                else if let Some(_) = self
+                else if self
                     .state
-                    .world.enemies
+                    .world
+                    .enemies
                     .iter()
-                    .find(|e| e.x == world_x && e.y == world_y)
+                    .any(|e| e.x == world_x && e.y == world_y)
                 {
                     line.push('E');
                 }
                 // Check for items
-                else if let Some(_) = self
+                else if self
                     .state
                     .items()
                     .iter()
-                    .find(|i| i.x == world_x && i.y == world_y)
+                    .any(|i| i.x == world_x && i.y == world_y)
                 {
                     line.push('i');
                 }
                 // Check for NPCs
-                else if let Some(_) = self
+                else if self
                     .state
                     .npcs()
                     .iter()
-                    .find(|n| n.x == world_x && n.y == world_y)
+                    .any(|n| n.x == world_x && n.y == world_y)
                 {
                     line.push('N');
                 }
@@ -2303,7 +2353,10 @@ mod tests {
         let final_state = result.final_state.as_ref().unwrap();
         eprintln!(
             "Final turn: {}, AP: {}, pos: ({}, {})",
-            result.final_turn, final_state.player_ap(), final_state.player_x(), final_state.player_y()
+            result.final_turn,
+            final_state.player_ap(),
+            final_state.player_x(),
+            final_state.player_y()
         );
         eprintln!(
             "Logs: {:?}",

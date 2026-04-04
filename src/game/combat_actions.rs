@@ -20,7 +20,8 @@ impl GameState {
     /// Break a wall at position (requires tool)
     pub fn try_break_wall(&mut self, x: i32, y: i32) -> bool {
         let has_pick = self
-            .player.inventory
+            .player
+            .inventory
             .iter()
             .any(|id| get_item_def(id).map(|d| d.breaks_walls).unwrap_or(false));
         if !has_pick {
@@ -69,10 +70,10 @@ impl GameState {
                 result.damage = 0;
             }
         }
-        if let Some(dmg) = self.mock_combat_damage {
-            if result.hit {
-                result.damage = dmg;
-            }
+        if let Some(dmg) = self.mock_combat_damage
+            && result.hit
+        {
+            result.damage = dmg;
         }
         result
     }

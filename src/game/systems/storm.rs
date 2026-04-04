@@ -70,7 +70,12 @@ impl StormSystem {
     fn spawn_storm_enemies(state: &mut GameState) {
         let glass_tiles: Vec<(i32, i32)> = (0..state.world.map.tiles.len())
             .filter(|&i| state.world.map.tiles[i] == Tile::Glass)
-            .map(|i| ((i % state.world.map.width) as i32, (i / state.world.map.width) as i32))
+            .map(|i| {
+                (
+                    (i % state.world.map.width) as i32,
+                    (i / state.world.map.width) as i32,
+                )
+            })
             .filter(|&(x, y)| {
                 state.enemy_at(x, y).is_none() && !(x == state.player_x() && y == state.player_y())
             })
@@ -82,7 +87,10 @@ impl StormSystem {
                 let idx = state.rng.gen_range(0..glass_tiles.len());
                 let (x, y) = glass_tiles[idx];
                 let enemy_idx = state.world.enemies.len();
-                state.world.enemies.push(Enemy::new(x, y, "refraction_wraith"));
+                state
+                    .world
+                    .enemies
+                    .push(Enemy::new(x, y, "refraction_wraith"));
                 state.enemy_positions.insert((x, y), enemy_idx);
                 state.log("A wraith coalesces from the storm's edge.");
             }
@@ -103,18 +111,18 @@ impl StormSystem {
 
                 // Chance to spawn storm_glass item
                 let roll: f32 = state.rng.gen_range(0.0..1.0);
-                if roll < storm_glass_drop_chance() {
-                    if !state
-                        .world.items
+                if roll < storm_glass_drop_chance()
+                    && !state
+                        .world
+                        .items
                         .iter()
                         .any(|item| item.x == x as i32 && item.y == y as i32)
-                    {
-                        state.world.items.push(crate::game::item::Item::new(
-                            x as i32,
-                            y as i32,
-                            "storm_glass",
-                        ));
-                    }
+                {
+                    state.world.items.push(crate::game::item::Item::new(
+                        x as i32,
+                        y as i32,
+                        "storm_glass",
+                    ));
                 }
             }
         }
@@ -222,8 +230,16 @@ impl StormSystem {
                         state.world.map.tiles[left_idx] = state.world.map.tiles[right_idx].clone();
                         state.world.map.tiles[right_idx] = left_tile;
 
-                        state.world.visual_effects.storm_changed_tiles.insert(left_idx);
-                        state.world.visual_effects.storm_changed_tiles.insert(right_idx);
+                        state
+                            .world
+                            .visual_effects
+                            .storm_changed_tiles
+                            .insert(left_idx);
+                        state
+                            .world
+                            .visual_effects
+                            .storm_changed_tiles
+                            .insert(right_idx);
                     }
                 }
             } else {
@@ -236,8 +252,16 @@ impl StormSystem {
                         state.world.map.tiles[top_idx] = state.world.map.tiles[bottom_idx].clone();
                         state.world.map.tiles[bottom_idx] = top_tile;
 
-                        state.world.visual_effects.storm_changed_tiles.insert(top_idx);
-                        state.world.visual_effects.storm_changed_tiles.insert(bottom_idx);
+                        state
+                            .world
+                            .visual_effects
+                            .storm_changed_tiles
+                            .insert(top_idx);
+                        state
+                            .world
+                            .visual_effects
+                            .storm_changed_tiles
+                            .insert(bottom_idx);
                     }
                 }
             }
@@ -293,9 +317,9 @@ impl StormSystem {
             let center_y = state.rng.gen_range(2..state.world.map.height - 2);
             let radius = state.rng.gen_range(1..4);
 
-            for dy in -(radius as i32)..=(radius as i32) {
-                for dx in -(radius as i32)..=(radius as i32) {
-                    if dx * dx + dy * dy <= (radius * radius) as i32 {
+            for dy in -radius..=radius {
+                for dx in -radius..=radius {
+                    if dx * dx + dy * dy <= (radius * radius) {
                         let x = (center_x as i32 + dx) as usize;
                         let y = (center_y as i32 + dy) as usize;
 
@@ -329,7 +353,10 @@ impl StormSystem {
                     let x = center_x as i32 + (r as f32 * theta.cos()) as i32;
                     let y = center_y as i32 + (r as f32 * theta.sin()) as i32;
 
-                    if x >= 0 && x < state.world.map.width as i32 && y >= 0 && y < state.world.map.height as i32
+                    if x >= 0
+                        && x < state.world.map.width as i32
+                        && y >= 0
+                        && y < state.world.map.height as i32
                     {
                         let idx = (y as usize) * state.world.map.width + (x as usize);
                         tiles.push(state.world.map.tiles[idx].clone());

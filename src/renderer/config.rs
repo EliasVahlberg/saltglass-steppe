@@ -189,14 +189,14 @@ pub fn parse_color(color_str: &str) -> Color {
             // Parse "Rgb(r, g, b)" format
             let inner = &s[4..s.len() - 1];
             let parts: Vec<&str> = inner.split(',').map(|s| s.trim()).collect();
-            if parts.len() == 3 {
-                if let (Ok(r), Ok(g), Ok(b)) = (
+            if parts.len() == 3
+                && let (Ok(r), Ok(g), Ok(b)) = (
                     parts[0].parse::<u8>(),
                     parts[1].parse::<u8>(),
                     parts[2].parse::<u8>(),
-                ) {
-                    return Color::Rgb(r, g, b);
-                }
+                )
+            {
+                return Color::Rgb(r, g, b);
             }
             Color::White // fallback
         }
@@ -308,6 +308,6 @@ mod tests {
 
         let json = serde_json::to_string(&config).unwrap();
         let parsed: RenderConfig = serde_json::from_str(&json).unwrap();
-        assert_eq!(parsed.lighting.enabled, true);
+        assert!(parsed.lighting.enabled);
     }
 }

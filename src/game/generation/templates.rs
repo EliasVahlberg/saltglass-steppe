@@ -29,6 +29,12 @@ pub struct TemplateLibrary {
     templates: HashMap<String, ContentTemplate>,
 }
 
+impl Default for TemplateLibrary {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TemplateLibrary {
     pub fn new() -> Self {
         Self {
@@ -151,7 +157,7 @@ impl TemplateLibrary {
         // Simple condition evaluation: "key=value" or "key"
         if let Some((key, expected)) = condition.split_once('=') {
             if let Some(value) = context.variables.get(key) {
-                return value.as_str().map_or(false, |v| v == expected);
+                return value.as_str() == Some(expected);
             }
             false
         } else {
@@ -159,7 +165,7 @@ impl TemplateLibrary {
             context
                 .variables
                 .get(condition)
-                .map_or(false, |v| !v.is_null() && v != &Value::Bool(false))
+                .is_some_and(|v| !v.is_null() && v != &Value::Bool(false))
         }
     }
 

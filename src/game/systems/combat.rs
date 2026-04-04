@@ -52,41 +52,46 @@ impl CombatSystem {
 
             // Handle split_on_death behavior
             for behavior in &def.behaviors {
-                if behavior.behavior_type == "split_on_death" {
-                    if let Some(child_id) = &behavior.condition {
-                        let count = behavior.value.unwrap_or(2) as usize;
-                        let mut spawned = 0;
+                if behavior.behavior_type == "split_on_death"
+                    && let Some(child_id) = &behavior.condition
+                {
+                    let count = behavior.value.unwrap_or(2) as usize;
+                    let mut spawned = 0;
 
-                        for dy in -1..=1 {
-                            for dx in -1..=1 {
-                                if dx == 0 && dy == 0 {
-                                    continue;
-                                }
-                                if spawned >= count {
-                                    break;
-                                }
-                                let nx = enemy_x + dx;
-                                let ny = enemy_y + dy;
+                    for dy in -1..=1 {
+                        for dx in -1..=1 {
+                            if dx == 0 && dy == 0 {
+                                continue;
+                            }
+                            if spawned >= count {
+                                break;
+                            }
+                            let nx = enemy_x + dx;
+                            let ny = enemy_y + dy;
 
-                                if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
-                                    && state.enemy_at(nx, ny).is_none()
-                                    && !(nx == state.player_x() && ny == state.player_y())
-                                {
-                                    state.world.enemies.push(Enemy::new(nx, ny, child_id));
-                                    state
-                                        .enemy_positions
-                                        .insert((nx, ny), state.world.enemies.len() - 1);
-                                    spawned += 1;
-                                }
+                            if state
+                                .world
+                                .map
+                                .get(nx, ny)
+                                .map(|t| t.walkable())
+                                .unwrap_or(false)
+                                && state.enemy_at(nx, ny).is_none()
+                                && !(nx == state.player_x() && ny == state.player_y())
+                            {
+                                state.world.enemies.push(Enemy::new(nx, ny, child_id));
+                                state
+                                    .enemy_positions
+                                    .insert((nx, ny), state.world.enemies.len() - 1);
+                                spawned += 1;
                             }
                         }
+                    }
 
-                        if spawned > 0 {
-                            state.log_typed(
-                                format!("The {} splits into smaller forms!", enemy_name),
-                                MsgType::Combat,
-                            );
-                        }
+                    if spawned > 0 {
+                        state.log_typed(
+                            format!("The {} splits into smaller forms!", enemy_name),
+                            MsgType::Combat,
+                        );
                     }
                 }
             }
@@ -111,10 +116,10 @@ impl CombatSystem {
                 result.damage = 0;
             }
         }
-        if let Some(dmg) = state.mock_combat_damage {
-            if result.hit {
-                result.damage = dmg;
-            }
+        if let Some(dmg) = state.mock_combat_damage
+            && result.hit
+        {
+            result.damage = dmg;
         }
         result
     }
@@ -157,7 +162,11 @@ impl CombatSystem {
         state.world.enemies[ei].provoked = true;
 
         // Swarm behavior
-        if state.world.enemies[ei].def().map(|d| d.swarm).unwrap_or(false) {
+        if state.world.enemies[ei]
+            .def()
+            .map(|d| d.swarm)
+            .unwrap_or(false)
+        {
             let id = state.world.enemies[ei].id.clone();
             let x = state.world.enemies[ei].x;
             let y = state.world.enemies[ei].y;
@@ -165,7 +174,8 @@ impl CombatSystem {
         }
 
         let weapon = state
-            .player.equipped_weapon
+            .player
+            .equipped_weapon
             .as_ref()
             .and_then(|id| get_weapon_def(id))
             .unwrap_or_else(default_weapon);
@@ -179,7 +189,13 @@ impl CombatSystem {
 
         // Apply accuracy bonus to hit chance
         let cover_bonus = -(accuracy_bonus * 100.0) as i32;
-        let result = roll_attack(&mut state.rng, weapon, enemy_reflex, enemy_armor, cover_bonus);
+        let result = roll_attack(
+            &mut state.rng,
+            weapon,
+            enemy_reflex,
+            enemy_armor,
+            cover_bonus,
+        );
         let result = Self::apply_combat_mocks(state, result);
         let name = state.world.enemies[ei].name().to_string();
         let dir = state.direction_from(target_x, target_y);
@@ -196,7 +212,10 @@ impl CombatSystem {
         let adapt_mods = total_stat_modifiers(&state.player.adaptations);
         dmg += adapt_mods.damage_bonus;
         state.world.enemies[ei].hp -= dmg;
-        state.emit(GameEvent::EnemyDamaged { enemy_idx: ei, amount: dmg });
+        state.emit(GameEvent::EnemyDamaged {
+            enemy_idx: ei,
+            amount: dmg,
+        });
         state.trigger_hit_flash(target_x, target_y);
         state.spawn_damage_number(target_x, target_y, dmg, false);
 
@@ -244,7 +263,8 @@ impl CombatSystem {
 
     pub fn ranged_attack(state: &mut GameState, target_x: i32, target_y: i32) -> bool {
         let weapon = match state
-            .player.equipped_weapon
+            .player
+            .equipped_weapon
             .as_ref()
             .and_then(|id| get_weapon_def(id))
         {
@@ -307,7 +327,11 @@ impl CombatSystem {
         state.world.enemies[ei].provoked = true;
 
         // Swarm behavior
-        if state.world.enemies[ei].def().map(|d| d.swarm).unwrap_or(false) {
+        if state.world.enemies[ei]
+            .def()
+            .map(|d| d.swarm)
+            .unwrap_or(false)
+        {
             let id = state.world.enemies[ei].id.clone();
             let x = state.world.enemies[ei].x;
             let y = state.world.enemies[ei].y;
@@ -316,14 +340,20 @@ impl CombatSystem {
 
         let enemy_reflex = state.world.enemies[ei].def().map(|d| d.reflex).unwrap_or(0);
         let enemy_armor = state.world.enemies[ei].def().map(|d| d.armor).unwrap_or(0);
-        
+
         // Get skill bonuses
         let accuracy_bonus = state.player.skills.ranged_accuracy_bonus();
         let damage_bonus = state.player.skills.ranged_damage_bonus();
 
         // Apply accuracy bonus to hit chance
         let cover_bonus = -(accuracy_bonus * 100.0) as i32;
-        let result = roll_attack(&mut state.rng, weapon, enemy_reflex, enemy_armor, cover_bonus);
+        let result = roll_attack(
+            &mut state.rng,
+            weapon,
+            enemy_reflex,
+            enemy_armor,
+            cover_bonus,
+        );
         let result = Self::apply_combat_mocks(state, result);
         let name = state.world.enemies[ei].name().to_string();
 
@@ -337,7 +367,10 @@ impl CombatSystem {
         // Apply skill damage bonus
         dmg = (dmg as f32 * (1.0 + damage_bonus)) as i32;
         state.world.enemies[ei].hp -= dmg;
-        state.emit(GameEvent::EnemyDamaged { enemy_idx: ei, amount: dmg });
+        state.emit(GameEvent::EnemyDamaged {
+            enemy_idx: ei,
+            amount: dmg,
+        });
         state.trigger_hit_flash(target_x, target_y);
         state.spawn_damage_number(target_x, target_y, dmg, false);
 

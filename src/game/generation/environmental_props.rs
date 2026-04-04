@@ -22,8 +22,8 @@ struct PropsFile {
 }
 
 static PROPS: Lazy<Vec<PropDef>> = Lazy::new(|| {
-    let data =
-        std::fs::read_to_string("data/environmental_props.json").expect("Failed to read environmental_props.json");
+    let data = std::fs::read_to_string("data/environmental_props.json")
+        .expect("Failed to read environmental_props.json");
     let file: PropsFile =
         serde_json::from_str(&data).expect("Failed to parse environmental_props.json");
     file.props
@@ -74,7 +74,13 @@ pub fn place_environmental_props(
                     continue;
                 }
 
-                map.set_tile(x, y, Tile::Floor { id: prop.id.clone() });
+                map.set_tile(
+                    x,
+                    y,
+                    Tile::Floor {
+                        id: prop.id.clone(),
+                    },
+                );
 
                 // Cluster placement
                 if prop.cluster_chance > 0.0 && rng.gen_bool(prop.cluster_chance) {
@@ -115,7 +121,10 @@ fn place_cluster(
                     continue;
                 }
                 let idx = ny as usize * w + nx as usize;
-                if let Tile::Floor { id } = &map.tiles[idx] && place_on.contains(id) && rng.gen_bool(0.5) {
+                if let Tile::Floor { id } = &map.tiles[idx]
+                    && place_on.contains(id)
+                    && rng.gen_bool(0.5)
+                {
                     map.tiles[idx] = Tile::Floor {
                         id: prop_id.to_string(),
                     };

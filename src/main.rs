@@ -8,17 +8,18 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 use saltglass_steppe::cli::{LaunchMode, parse_args};
+use saltglass_steppe::game::save;
 use saltglass_steppe::satellite::SatelliteApp;
 use saltglass_steppe::ui::{
-    Action, MainMenuState, MenuAction, UiState, handle_menu_input,
-    render_book_reader, render_bottom_panel, render_chest_ui, render_controls,
-    render_crafting_menu, render_damage_numbers, render_death_screen, render_debug_console,
-    render_debug_menu, render_dialog_box, render_crystal_menu, render_faction_menu, render_inventory_menu, render_issue_reporter,
-    render_light_menu, render_menu, render_pause_menu, render_psychic_menu, render_quest_log, render_side_panel,
-    render_skills_menu, render_target_hud, render_void_menu, render_wiki,
+    Action, MainMenuState, MenuAction, UiState, handle_menu_input, render_book_reader,
+    render_bottom_panel, render_chest_ui, render_controls, render_crafting_menu,
+    render_crystal_menu, render_damage_numbers, render_death_screen, render_debug_console,
+    render_debug_menu, render_dialog_box, render_faction_menu, render_inventory_menu,
+    render_issue_reporter, render_light_menu, render_menu, render_pause_menu, render_psychic_menu,
+    render_quest_log, render_side_panel, render_skills_menu, render_target_hud, render_void_menu,
+    render_wiki,
 };
 use saltglass_steppe::{GameState, Renderer, get_item_def};
-use saltglass_steppe::game::save;
 use std::io::{Result, stdout};
 
 mod session;
@@ -46,7 +47,10 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             } else {
                 state.world.saved_on_world_map = ui.world_map_view.open;
                 match save::save_game(state) {
-                    Ok(path) => state.log(format!("Game saved: {}", path.file_name().unwrap_or_default().to_string_lossy())),
+                    Ok(path) => state.log(format!(
+                        "Game saved: {}",
+                        path.file_name().unwrap_or_default().to_string_lossy()
+                    )),
                     Err(e) => state.log(format!("Save failed: {}", e)),
                 }
             }
@@ -129,44 +133,48 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             }
         }
         Action::TradeBuy(idx) => {
-            if let Some(interface) = &mut ui.trade_menu.interface {
-                if let Some(item) = interface.available_items.get(idx) {
-                    let trader_id = interface.trader_id.clone();
-                    use saltglass_steppe::trading::execute_trade;
-                    match execute_trade(
-                        interface,
-                        &item.item_id.clone(),
-                        1,
-                        &mut state.player.salt_scrip,
-                        &mut state.player.inventory,
-                    ) {
-                        Ok(msg) => {
-                            state.log_typed(msg, saltglass_steppe::MsgType::Social);
-                            state.emit(saltglass_steppe::event::GameEvent::TradeCompleted { npc_id: trader_id });
-                        }
-                        Err(e) => state.log(e),
+            if let Some(interface) = &mut ui.trade_menu.interface
+                && let Some(item) = interface.available_items.get(idx)
+            {
+                let trader_id = interface.trader_id.clone();
+                use saltglass_steppe::trading::execute_trade;
+                match execute_trade(
+                    interface,
+                    &item.item_id.clone(),
+                    1,
+                    &mut state.player.salt_scrip,
+                    &mut state.player.inventory,
+                ) {
+                    Ok(msg) => {
+                        state.log_typed(msg, saltglass_steppe::MsgType::Social);
+                        state.emit(saltglass_steppe::event::GameEvent::TradeCompleted {
+                            npc_id: trader_id,
+                        });
                     }
+                    Err(e) => state.log(e),
                 }
             }
         }
         Action::TradeSell(idx) => {
-            if let Some(interface) = &ui.trade_menu.interface {
-                if let Some(item_id) = state.player.inventory.get(idx) {
-                    let trader_id = interface.trader_id.clone();
-                    use saltglass_steppe::trading::execute_sell;
-                    match execute_sell(
-                        interface,
-                        &item_id.clone(),
-                        1,
-                        &mut state.player.salt_scrip,
-                        &mut state.player.inventory,
-                    ) {
-                        Ok(msg) => {
-                            state.log_typed(msg, saltglass_steppe::MsgType::Social);
-                            state.emit(saltglass_steppe::event::GameEvent::TradeCompleted { npc_id: trader_id });
-                        }
-                        Err(e) => state.log(e),
+            if let Some(interface) = &ui.trade_menu.interface
+                && let Some(item_id) = state.player.inventory.get(idx)
+            {
+                let trader_id = interface.trader_id.clone();
+                use saltglass_steppe::trading::execute_sell;
+                match execute_sell(
+                    interface,
+                    &item_id.clone(),
+                    1,
+                    &mut state.player.salt_scrip,
+                    &mut state.player.inventory,
+                ) {
+                    Ok(msg) => {
+                        state.log_typed(msg, saltglass_steppe::MsgType::Social);
+                        state.emit(saltglass_steppe::event::GameEvent::TradeCompleted {
+                            npc_id: trader_id,
+                        });
                     }
+                    Err(e) => state.log(e),
                 }
             }
         }
@@ -200,16 +208,13 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             ui.inventory_menu.open();
         }
         Action::EquipSelected => {
-            if let Some(idx) = ui.inventory_menu.selected_inv_index() {
-                if idx < state.player.inventory.len() {
-                    if let Some(def) = get_item_def(&state.player.inventory[idx]) {
-                        if let Some(slot_str) = &def.equip_slot {
-                            if let Ok(slot) = slot_str.parse::<saltglass_steppe::EquipSlot>() {
-                                state.equip_item(idx, slot);
-                            }
-                        }
-                    }
-                }
+            if let Some(idx) = ui.inventory_menu.selected_inv_index()
+                && idx < state.player.inventory.len()
+                && let Some(def) = get_item_def(&state.player.inventory[idx])
+                && let Some(slot_str) = &def.equip_slot
+                && let Ok(slot) = slot_str.parse::<saltglass_steppe::EquipSlot>()
+            {
+                state.equip_item(idx, slot);
             }
         }
         Action::UnequipSelected => {
@@ -275,9 +280,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             ui.light_menu.toggle();
         }
         Action::UseVoidAbility => {
-            if let Some(ability) = saltglass_steppe::ui::void_menu::get_selected_ability(&ui.void_menu, state) {
-                state.player.void_system.use_ability(ability);
-            }
+            // Void abilities are display-only; activation not yet implemented
         }
         Action::OpenSkillsMenu => {
             ui.skills_menu.open();
@@ -292,7 +295,8 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             // TODO: Implement targeting mode
         }
         Action::OpenWorldMap => {
-            ui.world_map_view.toggle(state.world.world_x, state.world.world_y);
+            ui.world_map_view
+                .toggle(state.world.world_x, state.world.world_y);
         }
         Action::WorldMapTravel(wx, wy) => {
             if state.player.hp > 0 && state.player.layer == 0 {
@@ -308,12 +312,12 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             if state.player.hp > 0 && state.player.layer == 0 {
                 let new_wx = (state.world.world_x as i32 + dx).clamp(0, 191) as usize;
                 let new_wy = (state.world.world_y as i32 + dy).clamp(0, 63) as usize;
-                
+
                 if new_wx != state.world.world_x || new_wy != state.world.world_y {
                     // Clear path on manual movement
                     state.world.world_map_path.clear();
                     state.world.world_map_target = None;
-                    
+
                     // Use fast worldmap movement
                     if let Some(encounter_msg) = state.move_on_world_map(new_wx, new_wy) {
                         // Encounter triggered - show popup and close worldmap
@@ -349,7 +353,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
 
 fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut Renderer) {
     // Fullscreen menus
-    if ui.aria_interface.response_text.len() > 0 {
+    if !ui.aria_interface.response_text.is_empty() {
         ui.aria_interface.render(frame, frame.area());
         return;
     }
@@ -544,10 +548,7 @@ fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut
             "Press any key to dismiss",
             Style::default().fg(Color::DarkGray),
         )));
-        frame.render_widget(
-            Paragraph::new(all_lines).block(block),
-            popup_area,
-        );
+        frame.render_widget(Paragraph::new(all_lines).block(block), popup_area);
     }
 
     // Dialog box overlay (highest priority)
@@ -613,10 +614,7 @@ fn run_main_game() -> Result<()> {
             eprintln!("Failed to initialize renderer: {}", e);
             disable_raw_mode()?;
             stdout().execute(LeaveAlternateScreen)?;
-            return Err(std::io::Error::new(
-                std::io::ErrorKind::Other,
-                e.to_string(),
-            ));
+            return Err(std::io::Error::other(e.to_string()));
         }
     };
 
@@ -628,26 +626,32 @@ fn run_main_game() -> Result<()> {
             terminal.draw(|f| render_menu(f, menu_tick, &menu_state))?;
             menu_tick = menu_tick.wrapping_add(1);
             match handle_menu_input(&mut menu_state)? {
-                MenuAction::NewGame { class_id: class, name } => {
+                MenuAction::NewGame {
+                    class_id: class,
+                    name,
+                } => {
                     let seed = std::time::SystemTime::now()
                         .duration_since(std::time::UNIX_EPOCH)
                         .unwrap()
                         .as_secs();
                     break (class, seed, name);
                 }
-                MenuAction::NewGameWithSeed { seed, class_id: class, name } => {
+                MenuAction::NewGameWithSeed {
+                    seed,
+                    class_id: class,
+                    name,
+                } => {
                     break (class, seed, name);
                 }
                 MenuAction::Controls => {
                     // Show controls screen
                     loop {
                         terminal.draw(render_controls)?;
-                        if event::poll(std::time::Duration::from_millis(16))? {
-                            if let Event::Key(key) = event::read()? {
-                                if key.kind == KeyEventKind::Press {
-                                    break;
-                                }
-                            }
+                        if event::poll(std::time::Duration::from_millis(16))?
+                            && let Event::Key(key) = event::read()?
+                            && key.kind == KeyEventKind::Press
+                        {
+                            break;
                         }
                     }
                 }
@@ -662,7 +666,9 @@ fn run_main_game() -> Result<()> {
                     let mut state = GameState::new_with_class(seed, "wanderer");
                     state.test_mode = true;
                     state.load_test_tile(params);
-                    if let SessionOutcome::Quit = run_game_session(&mut terminal, &mut renderer, state, |_, _| {})? {
+                    if let SessionOutcome::Quit =
+                        run_game_session(&mut terminal, &mut renderer, state, |_, _| {})?
+                    {
                         break 'main;
                     }
                     continue 'main;
@@ -671,7 +677,12 @@ fn run_main_game() -> Result<()> {
                     match save::load_game(&path) {
                         Ok(loaded_state) => {
                             menu_state.load_error = None;
-                            if let SessionOutcome::Quit = run_game_session(&mut terminal, &mut renderer, loaded_state, |_, _| {})? {
+                            if let SessionOutcome::Quit = run_game_session(
+                                &mut terminal,
+                                &mut renderer,
+                                loaded_state,
+                                |_, _| {},
+                            )? {
                                 break 'main;
                             }
                             menu_state.save_entries = save::list_saves();
@@ -693,13 +704,17 @@ fn run_main_game() -> Result<()> {
         state.player.name = player_name;
         let outcome = run_game_session(&mut terminal, &mut renderer, state, |state, _ui| {
             use saltglass_steppe::ipc::IpcMessage;
-            let adaptations: Vec<String> = state.player.adaptations.iter()
-                .map(|a| a.name().to_string()).collect();
+            let adaptations: Vec<String> = state
+                .player
+                .adaptations
+                .iter()
+                .map(|a| a.name().to_string())
+                .collect();
             let _ = ipc_server.send_message(IpcMessage::GameState {
                 hp: state.player.hp,
                 max_hp: state.player.max_hp,
                 refraction: state.player.refraction as i32,
-                turn: state.turn as u32,
+                turn: state.turn,
                 storm_countdown: state.world.storm.turns_until as i32,
                 adaptations,
                 god_view: state.debug_god_view,
@@ -718,7 +733,10 @@ fn run_main_game() -> Result<()> {
                 ("Necklace", &state.player.equipment.necklace),
                 ("Accessory", &state.player.equipment.accessory),
                 ("Backpack", &state.player.equipment.backpack),
-            ].iter().filter_map(|(slot, item)| item.as_ref().map(|i| format!("{}: {}", slot, i))).collect();
+            ]
+            .iter()
+            .filter_map(|(slot, item)| item.as_ref().map(|i| format!("{}: {}", slot, i)))
+            .collect();
             let _ = ipc_server.send_message(IpcMessage::InventoryUpdate {
                 items: state.player.inventory.clone(),
                 equipped: equipped_items,
@@ -733,7 +751,10 @@ fn run_main_game() -> Result<()> {
                 }
                 last_message_count = state.messages.len();
             }
-            let tile_seed = state.world.world_map.as_ref()
+            let tile_seed = state
+                .world
+                .world_map
+                .as_ref()
                 .map(|wm| wm.tile_seed(state.world.world_x, state.world.world_y))
                 .unwrap_or(0);
             let _ = ipc_server.send_message(IpcMessage::DebugInfo {

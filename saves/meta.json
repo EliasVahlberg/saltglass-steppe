@@ -1,9 +1,27 @@
 {
   "entries": {
+    "c74a95d4a1999feec667274ea8e45981": {
+      "status": "ok",
+      "saved_at": "",
+      "character_name": "",
+      "save_version": 0
+    },
     "2b679fe1bc3f87bf8fa79bdda2a62ea3": {
       "status": "ok",
       "saved_at": "2026-03-08 13:20",
       "character_name": "Caen Vorn",
+      "save_version": 3
+    },
+    "saltglass_version_test": {
+      "status": "corrupt",
+      "saved_at": "",
+      "character_name": "",
+      "save_version": 0
+    },
+    "a02c82911f0d81d5a55948a44fdfe50c": {
+      "status": "ok",
+      "saved_at": "2026-04-04 09:17",
+      "character_name": "",
       "save_version": 3
     }
   }

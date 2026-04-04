@@ -146,14 +146,17 @@ impl DesTest {
                     state.try_move(dx, dy);
                     Ok(format!(
                         "Moved from ({},{}) to ({},{})",
-                        old_pos.0, old_pos.1, state.player_x(), state.player_y()
+                        old_pos.0,
+                        old_pos.1,
+                        state.player_x(),
+                        state.player_y()
                     ))
                 } else {
                     Err("Move action requires dx and dy parameters".into())
                 }
             }
             "use_item" => {
-                if action.parameters.len() >= 1 {
+                if !action.parameters.is_empty() {
                     let idx: usize = action.parameters[0].parse()?;
                     if idx < state.player.inventory.len() {
                         let item_id = state.player.inventory[idx].clone();
@@ -167,7 +170,7 @@ impl DesTest {
                 }
             }
             "wait" => {
-                if action.parameters.len() >= 1 {
+                if !action.parameters.is_empty() {
                     let turns: u32 = action.parameters[0].parse()?;
                     for _ in 0..turns {
                         state.end_turn();
@@ -179,7 +182,7 @@ impl DesTest {
                 }
             }
             "debug_command" => {
-                if action.parameters.len() >= 1 {
+                if !action.parameters.is_empty() {
                     let cmd = action.parameters.join(" ");
                     state.debug_command(&cmd);
                     Ok(format!("Executed debug command: {}", cmd))
@@ -211,7 +214,9 @@ impl DesTest {
                     Err("Position expectation must be in format 'x,y'".into())
                 }
             }
-            "inventory_contains" => Ok(state.player.inventory.contains(&expectation.expected_value)),
+            "inventory_contains" => {
+                Ok(state.player.inventory.contains(&expectation.expected_value))
+            }
             "inventory_count" => {
                 let expected: usize = expectation.expected_value.parse()?;
                 Ok(state.player.inventory.len() == expected)
@@ -253,16 +258,16 @@ pub fn list_des_tests() -> Result<Vec<String>, Box<dyn std::error::Error>> {
         if std::path::Path::new(dir).exists() {
             for entry in fs::read_dir(dir)? {
                 let entry = entry?;
-                if let Some(name) = entry.file_name().to_str() {
-                    if name.ends_with("_test.des") || name.ends_with(".des") {
-                        let path = if *dir == "." {
-                            name.to_string()
-                        } else {
-                            format!("{}/{}", dir, name)
-                        };
-                        if !tests.contains(&path) {
-                            tests.push(path);
-                        }
+                if let Some(name) = entry.file_name().to_str()
+                    && (name.ends_with("_test.des") || name.ends_with(".des"))
+                {
+                    let path = if *dir == "." {
+                        name.to_string()
+                    } else {
+                        format!("{}/{}", dir, name)
+                    };
+                    if !tests.contains(&path) {
+                        tests.push(path);
                     }
                 }
             }

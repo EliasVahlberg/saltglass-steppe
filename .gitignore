@@ -269,3 +269,7 @@ test_reports/
 TERRAIN_FORGE_TEST_REPORTS.md
 extraction_*.log
 extract_terrain_forge.sh
+
+# Legacy agent tool configs (local only)
+.codex/
+.agentic-tools-mcp/

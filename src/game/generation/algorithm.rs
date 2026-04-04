@@ -248,6 +248,12 @@ impl fmt::Display for ValidationError {
 
 impl Error for ValidationError {}
 
+impl Default for AlgorithmParameters {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl AlgorithmParameters {
     /// Create new empty parameters
     pub fn new() -> Self {
@@ -306,67 +312,67 @@ impl AlgorithmParameters {
         if let Some(constraints) = &definition.constraints {
             match value {
                 ParameterValue::Float(f) => {
-                    if let Some(min) = constraints.min_value {
-                        if *f < min {
-                            return Err(ValidationError {
-                                message: format!("Value {} below minimum {}", f, min),
-                                field: Some(name.to_string()),
-                            });
-                        }
+                    if let Some(min) = constraints.min_value
+                        && *f < min
+                    {
+                        return Err(ValidationError {
+                            message: format!("Value {} below minimum {}", f, min),
+                            field: Some(name.to_string()),
+                        });
                     }
-                    if let Some(max) = constraints.max_value {
-                        if *f > max {
-                            return Err(ValidationError {
-                                message: format!("Value {} above maximum {}", f, max),
-                                field: Some(name.to_string()),
-                            });
-                        }
+                    if let Some(max) = constraints.max_value
+                        && *f > max
+                    {
+                        return Err(ValidationError {
+                            message: format!("Value {} above maximum {}", f, max),
+                            field: Some(name.to_string()),
+                        });
                     }
                 }
                 ParameterValue::Integer(i) => {
-                    if let Some(min) = constraints.min_value {
-                        if (*i as f64) < min {
-                            return Err(ValidationError {
-                                message: format!("Value {} below minimum {}", i, min),
-                                field: Some(name.to_string()),
-                            });
-                        }
+                    if let Some(min) = constraints.min_value
+                        && (*i as f64) < min
+                    {
+                        return Err(ValidationError {
+                            message: format!("Value {} below minimum {}", i, min),
+                            field: Some(name.to_string()),
+                        });
                     }
-                    if let Some(max) = constraints.max_value {
-                        if (*i as f64) > max {
-                            return Err(ValidationError {
-                                message: format!("Value {} above maximum {}", i, max),
-                                field: Some(name.to_string()),
-                            });
-                        }
+                    if let Some(max) = constraints.max_value
+                        && (*i as f64) > max
+                    {
+                        return Err(ValidationError {
+                            message: format!("Value {} above maximum {}", i, max),
+                            field: Some(name.to_string()),
+                        });
                     }
                 }
                 ParameterValue::String(s) => {
-                    if let Some(valid_values) = &constraints.valid_values {
-                        if !valid_values.contains(s) {
-                            return Err(ValidationError {
-                                message: format!(
-                                    "Invalid value '{}', must be one of: {:?}",
-                                    s, valid_values
-                                ),
-                                field: Some(name.to_string()),
-                            });
-                        }
+                    if let Some(valid_values) = &constraints.valid_values
+                        && !valid_values.contains(s)
+                    {
+                        return Err(ValidationError {
+                            message: format!(
+                                "Invalid value '{}', must be one of: {:?}",
+                                s, valid_values
+                            ),
+                            field: Some(name.to_string()),
+                        });
                     }
                 }
                 ParameterValue::Array(arr) => {
-                    if let Some((min_len, max_len)) = constraints.array_length {
-                        if arr.len() < min_len || arr.len() > max_len {
-                            return Err(ValidationError {
-                                message: format!(
-                                    "Array length {} not in range [{}, {}]",
-                                    arr.len(),
-                                    min_len,
-                                    max_len
-                                ),
-                                field: Some(name.to_string()),
-                            });
-                        }
+                    if let Some((min_len, max_len)) = constraints.array_length
+                        && (arr.len() < min_len || arr.len() > max_len)
+                    {
+                        return Err(ValidationError {
+                            message: format!(
+                                "Array length {} not in range [{}, {}]",
+                                arr.len(),
+                                min_len,
+                                max_len
+                            ),
+                            field: Some(name.to_string()),
+                        });
                     }
                 }
                 _ => {}
@@ -530,7 +536,7 @@ mod tests {
         // Test using the generic get method
         assert_eq!(params.get::<f64>("float_param").unwrap(), 1.5);
         assert_eq!(params.get::<i64>("int_param").unwrap(), 42);
-        assert_eq!(params.get::<bool>("bool_param").unwrap(), true);
+        assert!(params.get::<bool>("bool_param").unwrap());
         assert_eq!(
             params.get::<String>("string_param").unwrap(),
             "test".to_string()

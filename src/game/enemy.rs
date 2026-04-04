@@ -1,6 +1,6 @@
+use crate::game::data_loader::{DataLoader, DataSource, HasId};
 use crate::game::entity::Entity;
 use crate::game::status::StatusEffect;
-use crate::game::data_loader::{DataLoader, DataSource, HasId};
 use once_cell::sync::Lazy;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -123,11 +123,26 @@ fn default_level() -> u32 {
 
 static ENEMY_DEFS: Lazy<DataLoader<EnemyDef>> = Lazy::new(|| {
     let sources = [
-        DataSource::new("data/enemies/common.json", include_str!("../../data/enemies/common.json")),
-        DataSource::new("data/enemies/uncommon.json", include_str!("../../data/enemies/uncommon.json")),
-        DataSource::new("data/enemies/rare.json", include_str!("../../data/enemies/rare.json")),
-        DataSource::new("data/enemies/elite.json", include_str!("../../data/enemies/elite.json")),
-        DataSource::new("data/enemies/boss.json", include_str!("../../data/enemies/boss.json")),
+        DataSource::new(
+            "data/enemies/common.json",
+            include_str!("../../data/enemies/common.json"),
+        ),
+        DataSource::new(
+            "data/enemies/uncommon.json",
+            include_str!("../../data/enemies/uncommon.json"),
+        ),
+        DataSource::new(
+            "data/enemies/rare.json",
+            include_str!("../../data/enemies/rare.json"),
+        ),
+        DataSource::new(
+            "data/enemies/elite.json",
+            include_str!("../../data/enemies/elite.json"),
+        ),
+        DataSource::new(
+            "data/enemies/boss.json",
+            include_str!("../../data/enemies/boss.json"),
+        ),
     ];
 
     DataLoader::load_multiple(&sources, "enemies", "enemies_v1")
@@ -154,13 +169,12 @@ impl Behavior {
             None => return true,
         };
 
-        if cond.starts_with("player_adaptations >= ") {
-            if let Ok(n) = cond[22..].parse::<usize>() {
-                return ctx.player_adaptations >= n;
-            }
+        if cond.starts_with("player_adaptations >= ")
+            && let Ok(n) = cond[22..].parse::<usize>()
+        {
+            return ctx.player_adaptations >= n;
         }
-        if cond.starts_with("player_has_item:") {
-            let item_id = &cond[16..];
+        if let Some(item_id) = cond.strip_prefix("player_has_item:") {
             return ctx.player_items.iter().any(|i| i == item_id);
         }
         false
@@ -248,14 +262,14 @@ impl Enemy {
     /// Returns true if this enemy should act hostile toward player
     pub fn is_hostile(&self, faction_reputation: &std::collections::HashMap<String, i32>) -> bool {
         // Check faction reputation first
-        if let Some(def) = self.def() {
-            if let Some(faction) = &def.faction {
-                let rep = faction_reputation.get(faction).copied().unwrap_or(0);
-                if rep >= crate::game::faction::REP_FRIENDLY {
-                    match self.demeanor() {
-                        AIDemeanor::Aggressive | AIDemeanor::Defensive => return false,
-                        _ => {} // Continue with normal logic for other demeanors
-                    }
+        if let Some(def) = self.def()
+            && let Some(faction) = &def.faction
+        {
+            let rep = faction_reputation.get(faction).copied().unwrap_or(0);
+            if rep >= crate::game::faction::REP_FRIENDLY {
+                match self.demeanor() {
+                    AIDemeanor::Aggressive | AIDemeanor::Defensive => return false,
+                    _ => {} // Continue with normal logic for other demeanors
                 }
             }
         }
@@ -309,11 +323,11 @@ impl Enemy {
     }
 
     pub fn start_aoe_attack(&mut self, target_x: i32, target_y: i32) {
-        if let Some(def) = self.def() {
-            if def.aoe_attack {
-                self.aoe_target = Some((target_x, target_y));
-                self.aoe_warning_turns = def.aoe_warning_turns;
-            }
+        if let Some(def) = self.def()
+            && def.aoe_attack
+        {
+            self.aoe_target = Some((target_x, target_y));
+            self.aoe_warning_turns = def.aoe_warning_turns;
         }
     }
 

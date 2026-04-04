@@ -9,13 +9,23 @@ use ratatui::{
 use std::io::Result;
 
 use super::input::PAUSE_OPTIONS;
-use crate::game::{MetaProgress, all_classes, save::{list_saves, SaveInfo, SaveStatus}};
+use crate::game::{
+    MetaProgress, all_classes,
+    save::{SaveInfo, SaveStatus, list_saves},
+};
 
 /// Main menu action result
 pub enum MenuAction {
-    NewGame { class_id: String, name: String },
-    NewGameWithSeed { seed: u64, class_id: String, name: String },
-    LoadGame(String),     // save file path
+    NewGame {
+        class_id: String,
+        name: String,
+    },
+    NewGameWithSeed {
+        seed: u64,
+        class_id: String,
+        name: String,
+    },
+    LoadGame(String), // save file path
     Controls,
     Quit,
     None,
@@ -54,7 +64,14 @@ impl MainMenuState {
     }
 }
 
-const MAIN_OPTIONS: &[&str] = &["New Game", "Load Game", "Generate World", "Test Tile Generation", "Controls", "Quit"];
+const MAIN_OPTIONS: &[&str] = &[
+    "New Game",
+    "Load Game",
+    "Generate World",
+    "Test Tile Generation",
+    "Controls",
+    "Quit",
+];
 
 /// Handle main menu input
 pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
@@ -80,13 +97,16 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                 }
                 KeyCode::Up | KeyCode::Char('k') => {
                     if !state.save_entries.is_empty() {
-                        state.save_list_index = (state.save_list_index + state.save_entries.len() - 1) % state.save_entries.len();
+                        state.save_list_index = (state.save_list_index + state.save_entries.len()
+                            - 1)
+                            % state.save_entries.len();
                     }
                     MenuAction::None
                 }
                 KeyCode::Down | KeyCode::Char('j') => {
                     if !state.save_entries.is_empty() {
-                        state.save_list_index = (state.save_list_index + 1) % state.save_entries.len();
+                        state.save_list_index =
+                            (state.save_list_index + 1) % state.save_entries.len();
                     }
                     MenuAction::None
                 }
@@ -111,13 +131,16 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                 }
                 KeyCode::Up | KeyCode::Char('k') => {
                     if !state.tile_test_configs.is_empty() {
-                        state.tile_test_index = (state.tile_test_index + state.tile_test_configs.len() - 1) % state.tile_test_configs.len();
+                        state.tile_test_index =
+                            (state.tile_test_index + state.tile_test_configs.len() - 1)
+                                % state.tile_test_configs.len();
                     }
                     MenuAction::None
                 }
                 KeyCode::Down | KeyCode::Char('j') => {
                     if !state.tile_test_configs.is_empty() {
-                        state.tile_test_index = (state.tile_test_index + 1) % state.tile_test_configs.len();
+                        state.tile_test_index =
+                            (state.tile_test_index + 1) % state.tile_test_configs.len();
                     }
                     MenuAction::None
                 }
@@ -188,13 +211,20 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                     state.name_text.clear();
                     if let Some(seed) = state.pending_seed.take() {
                         let class_id = state.pending_class.take().unwrap_or_default();
-                        MenuAction::NewGameWithSeed { seed, class_id, name }
+                        MenuAction::NewGameWithSeed {
+                            seed,
+                            class_id,
+                            name,
+                        }
                     } else {
                         let class_id = state.pending_class.take().unwrap_or_default();
                         MenuAction::NewGame { class_id, name }
                     }
                 }
-                KeyCode::Backspace => { state.name_text.pop(); MenuAction::None }
+                KeyCode::Backspace => {
+                    state.name_text.pop();
+                    MenuAction::None
+                }
                 KeyCode::Tab | KeyCode::Char('`') => {
                     state.name_suggestion_idx = state.name_suggestion_idx.wrapping_add(1);
                     state.name_text = name_at_idx(state.name_suggestion_idx);
@@ -282,7 +312,8 @@ pub fn handle_menu_input(state: &mut MainMenuState) -> Result<MenuAction> {
                 3 => {
                     state.tile_test = true;
                     state.tile_test_index = 0;
-                    state.tile_test_configs = crate::game::generation::tile_generator::TileTestConfig::load_all();
+                    state.tile_test_configs =
+                        crate::game::generation::tile_generator::TileTestConfig::load_all();
                     MenuAction::None
                 }
                 4 => MenuAction::Controls,
@@ -521,7 +552,11 @@ fn render_tile_test(frame: &mut Frame, state: &MainMenuState) {
         } else {
             Style::default()
         };
-        let prefix = if i == state.tile_test_index { "► " } else { "  " };
+        let prefix = if i == state.tile_test_index {
+            "► "
+        } else {
+            "  "
+        };
         lines.push(Line::from(Span::styled(
             format!("{}{}", prefix, config.name),
             style,
@@ -620,7 +655,9 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
     use crate::game::save::SAVE_VERSION;
     let area = frame.area();
     let width = 70u16.min(area.width.saturating_sub(4));
-    let height = (state.save_entries.len() as u16 + 6).min(area.height.saturating_sub(4)).max(8);
+    let height = (state.save_entries.len() as u16 + 6)
+        .min(area.height.saturating_sub(4))
+        .max(8);
     let x = (area.width.saturating_sub(width)) / 2;
     let y = (area.height.saturating_sub(height)) / 2;
     let popup = Rect::new(x, y, width, height);
@@ -629,31 +666,51 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
     let items: Vec<ListItem> = if state.save_entries.is_empty() {
         vec![ListItem::new("  No saves found.").style(Style::default().fg(Color::DarkGray))]
     } else {
-        state.save_entries.iter().enumerate().map(|(i, s)| {
-            let (symbol, sym_color) = match s.status {
-                SaveStatus::Ok          => ("✓", Color::Green),
-                SaveStatus::HashMismatch => ("⚠", Color::Yellow),
-                SaveStatus::Corrupt     => ("✗", Color::Red),
-            };
-            let style = if i == state.save_list_index {
-                Style::default().fg(Color::Yellow).bold()
-            } else {
-                Style::default().fg(Color::White)
-            };
-            let prefix = if i == state.save_list_index { "► " } else { "  " };
-            let name_part = if s.character_name.is_empty() {
-                format!("{}...", s.short_hash)
-            } else {
-                s.character_name.clone()
-            };
-            let version_sym = if s.save_version > 0 && s.save_version < SAVE_VERSION { " ↑" } else { "" };
-            let date_part = if s.saved_at.is_empty() { s.modified.clone() } else { s.saved_at.clone() };
-            ListItem::new(Line::from(vec![
-                Span::styled(prefix, style),
-                Span::styled(symbol, Style::default().fg(sym_color)),
-                Span::styled(format!(" {:<20} {}{}", name_part, date_part, version_sym), style),
-            ]))
-        }).collect()
+        state
+            .save_entries
+            .iter()
+            .enumerate()
+            .map(|(i, s)| {
+                let (symbol, sym_color) = match s.status {
+                    SaveStatus::Ok => ("✓", Color::Green),
+                    SaveStatus::HashMismatch => ("⚠", Color::Yellow),
+                    SaveStatus::Corrupt => ("✗", Color::Red),
+                };
+                let style = if i == state.save_list_index {
+                    Style::default().fg(Color::Yellow).bold()
+                } else {
+                    Style::default().fg(Color::White)
+                };
+                let prefix = if i == state.save_list_index {
+                    "► "
+                } else {
+                    "  "
+                };
+                let name_part = if s.character_name.is_empty() {
+                    format!("{}...", s.short_hash)
+                } else {
+                    s.character_name.clone()
+                };
+                let version_sym = if s.save_version > 0 && s.save_version < SAVE_VERSION {
+                    " ↑"
+                } else {
+                    ""
+                };
+                let date_part = if s.saved_at.is_empty() {
+                    s.modified.clone()
+                } else {
+                    s.saved_at.clone()
+                };
+                ListItem::new(Line::from(vec![
+                    Span::styled(prefix, style),
+                    Span::styled(symbol, Style::default().fg(sym_color)),
+                    Span::styled(
+                        format!(" {:<20} {}{}", name_part, date_part, version_sym),
+                        style,
+                    ),
+                ]))
+            })
+            .collect()
     };
 
     let block = Block::default()
@@ -675,14 +732,17 @@ fn render_save_list(frame: &mut Frame, state: &MainMenuState) {
         let lines = vec![
             Line::from(""),
             Line::from(Span::styled(msg, Style::default().fg(Color::White))),
-            Line::from(Span::styled("  [Esc] Dismiss", Style::default().fg(Color::DarkGray))),
+            Line::from(Span::styled(
+                "  [Esc] Dismiss",
+                Style::default().fg(Color::DarkGray),
+            )),
         ];
         frame.render_widget(
             Paragraph::new(lines).block(
                 Block::default()
                     .title(" Load Failed ")
                     .borders(Borders::ALL)
-                    .border_style(Style::default().fg(Color::Red))
+                    .border_style(Style::default().fg(Color::Red)),
             ),
             err_popup,
         );
@@ -698,23 +758,33 @@ fn render_name_input(frame: &mut Frame, state: &MainMenuState) {
     let popup = Rect::new(x, y, width, height);
     frame.render_widget(Clear, popup);
 
-    let display = if state.name_text.is_empty() { name_at_idx(state.name_suggestion_idx) } else { state.name_text.clone() };
+    let display = if state.name_text.is_empty() {
+        name_at_idx(state.name_suggestion_idx)
+    } else {
+        state.name_text.clone()
+    };
     let input_style = if state.name_text.is_empty() {
         Style::default().fg(Color::DarkGray)
     } else {
         Style::default().fg(Color::Yellow)
     };
     let lines = vec![
-        Line::from(Span::styled("Name your character:", Style::default().fg(Color::White))),
+        Line::from(Span::styled(
+            "Name your character:",
+            Style::default().fg(Color::White),
+        )),
         Line::from(""),
         Line::from(Span::styled(format!("> {}_", display), input_style)),
         Line::from(""),
-        Line::from(Line::from(vec![
+        Line::from(vec![
             Span::styled("  [Tab] ", Style::default().fg(Color::Cyan).bold()),
             Span::styled("re-roll suggestion", Style::default().fg(Color::DarkGray)),
-        ])),
+        ]),
         Line::from(""),
-        Line::from(Span::styled("[Enter] Confirm  [Esc] Back", Style::default().fg(Color::DarkGray))),
+        Line::from(Span::styled(
+            "[Enter] Confirm  [Esc] Back",
+            Style::default().fg(Color::DarkGray),
+        )),
     ];
     let block = Block::default()
         .title(" Name Your Character ")

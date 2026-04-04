@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "Milestone targets and schedule likely outdated"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: Milestone targets and schedule likely outdated
+> Last verified: 2026-04-04
+
 # 10 Vertical Slice Plan (Milestone + Scope Contract)
 
 ---

@@ -4,8 +4,6 @@ pub mod game;
 pub mod ipc;
 pub mod renderer;
 pub mod satellite;
-pub mod terminal_spawn;
-pub mod tilegen_tools;
 pub mod ui;
 
 pub use game::*;
@@ -29,7 +27,11 @@ mod lib_tests {
     #[test]
     fn player_spawns_on_floor() {
         let state = GameState::new(42);
-        let tile = state.world.map.get(state.player_x(), state.player_y()).unwrap();
+        let tile = state
+            .world
+            .map
+            .get(state.player_x(), state.player_y())
+            .unwrap();
         assert!(tile.walkable());
     }
 
@@ -41,10 +43,10 @@ mod lib_tests {
             state.try_move(-1, 0);
         }
         let tile = state.world.map.get(state.player_x() - 1, state.player_y());
-        if let Some(t) = tile {
-            if !t.walkable() {
-                assert!(state.player_x() <= start_x);
-            }
+        if let Some(t) = tile
+            && !t.walkable()
+        {
+            assert!(state.player_x() <= start_x);
         }
     }
 
@@ -53,7 +55,8 @@ mod lib_tests {
         use game::systems::StormSystem;
         let mut state = GameState::new(42);
         let walls_before: usize = state
-            .world.map
+            .world
+            .map
             .tiles
             .iter()
             .filter(|t| matches!(t, Tile::Wall { .. }))
@@ -62,7 +65,8 @@ mod lib_tests {
         state.world.storm.intensity = 3;
         StormSystem::apply_storm(&mut state);
         let walls_after: usize = state
-            .world.map
+            .world
+            .map
             .tiles
             .iter()
             .filter(|t| matches!(t, Tile::Wall { .. }))
@@ -178,7 +182,10 @@ mod lib_tests {
         };
         // Clear existing items and add test item
         state.world.items.clear();
-        state.world.items.push(Item::new(item_x, item_y, "brine_vial"));
+        state
+            .world
+            .items
+            .push(Item::new(item_x, item_y, "brine_vial"));
         state.rebuild_spatial_index();
         assert_eq!(state.world.items.len(), 1);
         // Move onto item
@@ -190,14 +197,19 @@ mod lib_tests {
             0,
             "Item should be removed after walking onto it"
         );
-        assert_eq!(state.player.inventory.len(), 1, "Inventory should have 1 item");
+        assert_eq!(
+            state.player.inventory.len(),
+            1,
+            "Inventory should have 1 item"
+        );
     }
 
     #[test]
     fn pickup_adds_to_inventory() {
         let mut state = GameState::new(42);
         state
-            .world.items
+            .world
+            .items
             .push(Item::new(state.player_x(), state.player_y(), "brine_vial"));
         state.rebuild_spatial_index();
         let items_before = state.world.items.len();

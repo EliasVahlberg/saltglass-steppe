@@ -1,3 +1,14 @@
+---
+status: stale
+last_verified: 2026-04-04
+commit: e0d1fe7
+stale_reason: "Links to non-existent docs; missing links to many current docs"
+---
+
+> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
+> Reason: Links to non-existent docs; missing links to many current docs
+> Last verified: 2026-04-04
+
 # Development Documentation
 
 Development tools, processes, and technical guides.

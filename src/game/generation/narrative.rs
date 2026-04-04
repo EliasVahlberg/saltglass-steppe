@@ -97,6 +97,12 @@ pub struct NarrativeIntegration {
     state: NarrativeState,
 }
 
+impl Default for NarrativeIntegration {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl NarrativeIntegration {
     pub fn new() -> Self {
         Self {
@@ -180,14 +186,13 @@ impl NarrativeIntegration {
     /// Check if a fragment can be placed according to its rules
     fn can_place_fragment(&self, fragment: &StoryFragment, context: &NarrativeContext) -> bool {
         // Check biome requirements
-        if !fragment.placement_rules.biomes.is_empty() {
-            if !fragment
+        if !fragment.placement_rules.biomes.is_empty()
+            && !fragment
                 .placement_rules
                 .biomes
                 .contains(&context.current_biome)
-            {
-                return false;
-            }
+        {
+            return false;
         }
 
         // Check prerequisites
@@ -304,20 +309,20 @@ impl NarrativeIntegration {
         let mut influenced_content = base_content.to_string();
 
         for faction_id in location_factions {
-            if let Some(_faction) = self.factions.get(faction_id) {
-                if let Some(standing) = self.state.faction_standings.get(faction_id) {
-                    // Modify content based on faction standing
-                    if *standing > 0.5 {
-                        influenced_content = format!(
-                            "{} [The {} regard you favorably.]",
-                            influenced_content, faction_id
-                        );
-                    } else if *standing < -0.5 {
-                        influenced_content = format!(
-                            "{} [The {} view you with suspicion.]",
-                            influenced_content, faction_id
-                        );
-                    }
+            if let Some(_faction) = self.factions.get(faction_id)
+                && let Some(standing) = self.state.faction_standings.get(faction_id)
+            {
+                // Modify content based on faction standing
+                if *standing > 0.5 {
+                    influenced_content = format!(
+                        "{} [The {} regard you favorably.]",
+                        influenced_content, faction_id
+                    );
+                } else if *standing < -0.5 {
+                    influenced_content = format!(
+                        "{} [The {} view you with suspicion.]",
+                        influenced_content, faction_id
+                    );
                 }
             }
         }

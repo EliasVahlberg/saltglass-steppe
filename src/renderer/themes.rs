@@ -174,6 +174,12 @@ pub struct ThemeManager {
     config: ThemeConfig,
 }
 
+impl Default for ThemeManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ThemeManager {
     pub fn new() -> Self {
         Self {

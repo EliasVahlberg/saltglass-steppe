@@ -248,14 +248,13 @@ impl ActiveQuest {
                 if let ObjectiveType::Kill {
                     enemy_id: target, ..
                 } = &obj.objective_type
+                    && target == enemy_id
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
                 {
-                    if target == enemy_id && !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current += 1;
-                        if self.objectives[i].current >= self.objectives[i].target {
-                            self.objectives[i].completed = true;
-                        }
+                    self.objectives[i].current += 1;
+                    if self.objectives[i].current >= self.objectives[i].target {
+                        self.objectives[i].completed = true;
                     }
                 }
             }
@@ -269,14 +268,13 @@ impl ActiveQuest {
                 if let ObjectiveType::Collect {
                     item_id: target, ..
                 } = &obj.objective_type
+                    && target == item_id
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
                 {
-                    if target == item_id && !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current += 1;
-                        if self.objectives[i].current >= self.objectives[i].target {
-                            self.objectives[i].completed = true;
-                        }
+                    self.objectives[i].current += 1;
+                    if self.objectives[i].current >= self.objectives[i].target {
+                        self.objectives[i].completed = true;
                     }
                 }
             }
@@ -287,13 +285,14 @@ impl ActiveQuest {
     pub fn on_position_changed(&mut self, x: i32, y: i32) {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
-                if let ObjectiveType::Reach { x: tx, y: ty } = &obj.objective_type {
-                    if x == *tx && y == *ty && !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current = 1;
-                        self.objectives[i].completed = true;
-                    }
+                if let ObjectiveType::Reach { x: tx, y: ty } = &obj.objective_type
+                    && x == *tx
+                    && y == *ty
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
+                {
+                    self.objectives[i].current = 1;
+                    self.objectives[i].completed = true;
                 }
             }
         }
@@ -303,14 +302,14 @@ impl ActiveQuest {
     pub fn on_npc_talked(&mut self, npc_id: &str) {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
-                if let ObjectiveType::TalkTo { npc_id: target } = &obj.objective_type {
-                    if target == npc_id && !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current = 1;
-                        self.objectives[i].completed = true;
-                        break;
-                    }
+                if let ObjectiveType::TalkTo { npc_id: target } = &obj.objective_type
+                    && target == npc_id
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
+                {
+                    self.objectives[i].current = 1;
+                    self.objectives[i].completed = true;
+                    break;
                 }
             }
         }
@@ -320,13 +319,13 @@ impl ActiveQuest {
     pub fn on_aria_interfaced(&mut self, item_used: &str) {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
-                if let ObjectiveType::InterfaceWithAria { item_required } = &obj.objective_type {
-                    if item_required == item_used && !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current = 1;
-                        self.objectives[i].completed = true;
-                    }
+                if let ObjectiveType::InterfaceWithAria { item_required } = &obj.objective_type
+                    && item_required == item_used
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
+                {
+                    self.objectives[i].current = 1;
+                    self.objectives[i].completed = true;
                 }
             }
         }
@@ -336,13 +335,13 @@ impl ActiveQuest {
     pub fn on_interact(&mut self, target: &str) {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
-                if let ObjectiveType::Interact { target: obj_target } = &obj.objective_type {
-                    if obj_target == target && !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current = 1;
-                        self.objectives[i].completed = true;
-                    }
+                if let ObjectiveType::Interact { target: obj_target } = &obj.objective_type
+                    && obj_target == target
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
+                {
+                    self.objectives[i].current = 1;
+                    self.objectives[i].completed = true;
                 }
             }
         }
@@ -352,13 +351,13 @@ impl ActiveQuest {
     pub fn on_examine(&mut self, target: &str) {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
-                if let ObjectiveType::Examine { target: obj_target } = &obj.objective_type {
-                    if obj_target == target && !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current = 1;
-                        self.objectives[i].completed = true;
-                    }
+                if let ObjectiveType::Examine { target: obj_target } = &obj.objective_type
+                    && obj_target == target
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
+                {
+                    self.objectives[i].current = 1;
+                    self.objectives[i].completed = true;
                 }
             }
         }
@@ -368,14 +367,13 @@ impl ActiveQuest {
     pub fn on_data_collected(&mut self) {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
-                if let ObjectiveType::CollectData { .. } = &obj.objective_type {
-                    if !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current += 1;
-                        if self.objectives[i].current >= self.objectives[i].target {
-                            self.objectives[i].completed = true;
-                        }
+                if let ObjectiveType::CollectData { .. } = &obj.objective_type
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
+                {
+                    self.objectives[i].current += 1;
+                    if self.objectives[i].current >= self.objectives[i].target {
+                        self.objectives[i].completed = true;
                     }
                 }
             }
@@ -386,14 +384,13 @@ impl ActiveQuest {
     pub fn on_turn_passed(&mut self) {
         if let Some(def) = self.def() {
             for (i, obj) in def.objectives.iter().enumerate() {
-                if let ObjectiveType::Wait { .. } = &obj.objective_type {
-                    if !self.objectives[i].completed
-                        && self.prior_objectives_complete(i)
-                    {
-                        self.objectives[i].current += 1;
-                        if self.objectives[i].current >= self.objectives[i].target {
-                            self.objectives[i].completed = true;
-                        }
+                if let ObjectiveType::Wait { .. } = &obj.objective_type
+                    && !self.objectives[i].completed
+                    && self.prior_objectives_complete(i)
+                {
+                    self.objectives[i].current += 1;
+                    if self.objectives[i].current >= self.objectives[i].target {
+                        self.objectives[i].completed = true;
                     }
                 }
             }
@@ -537,21 +534,22 @@ impl QuestLog {
         }
 
         // Check refraction level requirements
-        if let Some(min_refraction) = criteria.min_refraction {
-            if game_state.refraction() < min_refraction {
-                return false;
-            }
+        if let Some(min_refraction) = criteria.min_refraction
+            && game_state.refraction() < min_refraction
+        {
+            return false;
         }
 
-        if let Some(max_refraction) = criteria.max_refraction {
-            if game_state.refraction() > max_refraction {
-                return false;
-            }
+        if let Some(max_refraction) = criteria.max_refraction
+            && game_state.refraction() > max_refraction
+        {
+            return false;
         }
 
         // Check adaptation requirements
         let player_adaptations: Vec<String> = game_state
-            .player.adaptations
+            .player
+            .adaptations
             .iter()
             .map(|a| a.name().to_string())
             .collect();
@@ -576,10 +574,10 @@ impl QuestLog {
         }
 
         // Check minimum level (using player level directly)
-        if let Some(min_level) = criteria.min_level {
-            if game_state.player_level() < min_level {
-                return false;
-            }
+        if let Some(min_level) = criteria.min_level
+            && game_state.player_level() < min_level
+        {
+            return false;
         }
 
         // Check custom conditions
@@ -600,7 +598,8 @@ impl QuestLog {
     ) -> bool {
         match condition {
             "has_saint_key" => game_state
-                .player.inventory
+                .player
+                .inventory
                 .iter()
                 .any(|item| item.contains("saint_key")),
             "in_deep_archive" => game_state.layer() < -2, // Deep underground

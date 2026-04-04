@@ -102,7 +102,9 @@ fn place_enemy(
         weighted_pick_by_level_and_tier(spawns, level, rng, use_boss)
     };
     if let Some(id) = picked {
-        state.enemies_mut().push(Enemy::new(feature.x, feature.y, id));
+        state
+            .enemies_mut()
+            .push(Enemy::new(feature.x, feature.y, id));
     }
 }
 

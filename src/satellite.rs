@@ -97,24 +97,23 @@ impl SatelliteApp {
                 f.render_widget(list, area);
             })?;
 
-            if event::poll(Duration::from_millis(100))? {
-                if let Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('q') | KeyCode::Esc => break,
-                            KeyCode::Up => {
-                                if self.log_scroll < self.messages.len().saturating_sub(1) {
-                                    self.log_scroll += 1;
-                                }
-                            }
-                            KeyCode::Down => {
-                                if self.log_scroll > 0 {
-                                    self.log_scroll -= 1;
-                                }
-                            }
-                            _ => {}
+            if event::poll(Duration::from_millis(100))?
+                && let Event::Key(key) = event::read()?
+                && key.kind == KeyEventKind::Press
+            {
+                match key.code {
+                    KeyCode::Char('q') | KeyCode::Esc => break,
+                    KeyCode::Up => {
+                        if self.log_scroll < self.messages.len().saturating_sub(1) {
+                            self.log_scroll += 1;
                         }
                     }
+                    KeyCode::Down => {
+                        if self.log_scroll > 0 {
+                            self.log_scroll -= 1;
+                        }
+                    }
+                    _ => {}
                 }
             }
         }
@@ -161,25 +160,23 @@ impl SatelliteApp {
                 f.render_widget(list, area);
             })?;
 
-            if event::poll(Duration::from_millis(100))? {
-                if let Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('q') | KeyCode::Esc => break,
-                            KeyCode::Up => {
-                                if self.game_log_scroll < self.game_messages.len().saturating_sub(1)
-                                {
-                                    self.game_log_scroll += 1;
-                                }
-                            }
-                            KeyCode::Down => {
-                                if self.game_log_scroll > 0 {
-                                    self.game_log_scroll -= 1;
-                                }
-                            }
-                            _ => {}
+            if event::poll(Duration::from_millis(100))?
+                && let Event::Key(key) = event::read()?
+                && key.kind == KeyEventKind::Press
+            {
+                match key.code {
+                    KeyCode::Char('q') | KeyCode::Esc => break,
+                    KeyCode::Up => {
+                        if self.game_log_scroll < self.game_messages.len().saturating_sub(1) {
+                            self.game_log_scroll += 1;
                         }
                     }
+                    KeyCode::Down => {
+                        if self.game_log_scroll > 0 {
+                            self.game_log_scroll -= 1;
+                        }
+                    }
+                    _ => {}
                 }
             }
         }
@@ -224,14 +221,13 @@ impl SatelliteApp {
                 f.render_widget(paragraph, area);
             })?;
 
-            if event::poll(Duration::from_millis(100))? {
-                if let Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('q') | KeyCode::Esc => break,
-                            _ => {}
-                        }
-                    }
+            if event::poll(Duration::from_millis(100))?
+                && let Event::Key(key) = event::read()?
+                && key.kind == KeyEventKind::Press
+            {
+                match key.code {
+                    KeyCode::Char('q') | KeyCode::Esc => break,
+                    _ => {}
                 }
             }
         }
@@ -289,14 +285,13 @@ impl SatelliteApp {
                 f.render_widget(equipped_paragraph, chunks[1]);
             })?;
 
-            if event::poll(Duration::from_millis(100))? {
-                if let Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('q') | KeyCode::Esc => break,
-                            _ => {}
-                        }
-                    }
+            if event::poll(Duration::from_millis(100))?
+                && let Event::Key(key) = event::read()?
+                && key.kind == KeyEventKind::Press
+            {
+                match key.code {
+                    KeyCode::Char('q') | KeyCode::Esc => break,
+                    _ => {}
                 }
             }
         }
@@ -355,32 +350,29 @@ impl SatelliteApp {
                 f.render_widget(input_paragraph, chunks[2]);
             })?;
 
-            if event::poll(Duration::from_millis(100))? {
-                if let Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        match key.code {
-                            KeyCode::Char('q')
-                                if key.modifiers.contains(event::KeyModifiers::CONTROL) =>
-                            {
-                                break;
-                            }
-                            KeyCode::Esc => break,
-                            KeyCode::Enter => {
-                                if !input.is_empty() {
-                                    let _ = self.client.send_message(&IpcMessage::Command {
-                                        action: input.clone(),
-                                    });
-                                    self.messages.push(format!("> {}", input));
-                                    input.clear();
-                                }
-                            }
-                            KeyCode::Backspace => {
-                                input.pop();
-                            }
-                            KeyCode::Char(c) => input.push(c),
-                            _ => {}
+            if event::poll(Duration::from_millis(100))?
+                && let Event::Key(key) = event::read()?
+                && key.kind == KeyEventKind::Press
+            {
+                match key.code {
+                    KeyCode::Char('q') if key.modifiers.contains(event::KeyModifiers::CONTROL) => {
+                        break;
+                    }
+                    KeyCode::Esc => break,
+                    KeyCode::Enter => {
+                        if !input.is_empty() {
+                            let _ = self.client.send_message(&IpcMessage::Command {
+                                action: input.clone(),
+                            });
+                            self.messages.push(format!("> {}", input));
+                            input.clear();
                         }
                     }
+                    KeyCode::Backspace => {
+                        input.pop();
+                    }
+                    KeyCode::Char(c) => input.push(c),
+                    _ => {}
                 }
             }
         }

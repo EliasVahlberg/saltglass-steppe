@@ -6,7 +6,10 @@ fn test_main_questline_initialization() {
 
     // Check that the first main quest is automatically added
     assert_eq!(state.player.quest_log.active.len(), 1);
-    assert_eq!(state.player.quest_log.active[0].quest_id, "pilgrims_last_angle");
+    assert_eq!(
+        state.player.quest_log.active[0].quest_id,
+        "pilgrims_last_angle"
+    );
 
     // Check that the dying pilgrim is spawned
     assert!(state.world.npcs.iter().any(|npc| npc.id == "dying_pilgrim"));

@@ -73,20 +73,19 @@ impl MovementSystem {
             .collect();
 
         // Check if this NPC uses terminal interface
-        if let Some(tree) = crate::game::dialogue::get_dialogue_tree(&npc_id) {
-            if tree.uses_terminal_interface() {
-                if let Some(personality) = &tree.aria_personality {
-                    if let Some((aria_text, aria_options)) = crate::game::dialogue::start_aria_dialogue(&npc_id, personality, state) {
-                        // Set up ARIA interface instead of regular dialogue
-                        state.pending_aria_dialogue = Some((aria_text, aria_options));
-                        state.log_typed(
-                            format!("ARIA Terminal activated: {}", name),
-                            MsgType::System,
-                        );
-                        return true;
-                    }
-                }
-            }
+        if let Some(tree) = crate::game::dialogue::get_dialogue_tree(&npc_id)
+            && tree.uses_terminal_interface()
+            && let Some(personality) = &tree.aria_personality
+            && let Some((aria_text, aria_options)) =
+                crate::game::dialogue::start_aria_dialogue(&npc_id, personality, state)
+        {
+            // Set up ARIA interface instead of regular dialogue
+            state.pending_aria_dialogue = Some((aria_text, aria_options));
+            state.log_typed(
+                format!("ARIA Terminal activated: {}", name),
+                MsgType::System,
+            );
+            return true;
         }
 
         // Store pending dialogue for UI
@@ -123,10 +122,10 @@ impl MovementSystem {
                 for (i, obj) in def.objectives.iter().enumerate() {
                     if let crate::game::quest::ObjectiveType::TalkTo { npc_id: target } =
                         &obj.objective_type
+                        && target == npc_id
+                        && !quest.objectives[i].completed
                     {
-                        if target == npc_id && !quest.objectives[i].completed {
-                            return true;
-                        }
+                        return true;
                     }
                 }
             }
@@ -144,19 +143,18 @@ impl MovementSystem {
             // Item exchange
             if let (Some(gives), Some(consumes)) =
                 (&action.effect.gives_item, &action.effect.consumes)
+                && let Some(idx) = state.player.inventory.iter().position(|id| id == consumes)
             {
-                if let Some(idx) = state.player.inventory.iter().position(|id| id == consumes) {
-                    state.player.inventory.remove(idx);
-                    state.player.inventory.push(gives.clone());
-                    let gives_name = get_item_def(gives)
-                        .map(|d| d.name.as_str())
-                        .unwrap_or("item");
-                    state.log_typed(
-                        format!("The pilgrim presses {} into your hand.", gives_name),
-                        MsgType::Loot,
-                    );
-                    return;
-                }
+                state.player.inventory.remove(idx);
+                state.player.inventory.push(gives.clone());
+                let gives_name = get_item_def(gives)
+                    .map(|d| d.name.as_str())
+                    .unwrap_or("item");
+                state.log_typed(
+                    format!("The pilgrim presses {} into your hand.", gives_name),
+                    MsgType::Loot,
+                );
+                return;
             }
             // Heal action
             if let Some(heal) = action.effect.heal {
@@ -220,7 +218,11 @@ impl MovementSystem {
 
         // Clear storm change highlighting
         let player_idx = new_y as usize * state.world.map.width + new_x as usize;
-        state.world.visual_effects.storm_changed_tiles.remove(&player_idx);
+        state
+            .world
+            .visual_effects
+            .storm_changed_tiles
+            .remove(&player_idx);
 
         // Emit movement event (QuestSystem handles position-based objectives)
         state.emit(GameEvent::PlayerMoved {
@@ -248,7 +250,8 @@ impl MovementSystem {
     /// Handle pre-movement effects like Mirage Step
     fn handle_pre_movement(state: &mut GameState) {
         if state
-            .player.adaptations
+            .player
+            .adaptations
             .iter()
             .any(|a| a.has_ability("mirage_step"))
         {
@@ -264,7 +267,12 @@ impl MovementSystem {
     fn handle_tile_effects(state: &mut GameState, tile: &Tile, _x: i32, _y: i32) {
         match tile {
             Tile::Glass => {
-                if state.player.adaptations.iter().any(|a| a.has_immunity("glass")) {
+                if state
+                    .player
+                    .adaptations
+                    .iter()
+                    .any(|a| a.has_immunity("glass"))
+                {
                     state.log("Your saltblood protects you from the glass.");
                 } else {
                     state.player.hp -= 1;

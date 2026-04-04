@@ -2,9 +2,9 @@
 
 use crossterm::event::{self, Event, KeyEventKind};
 use ratatui::{Terminal, backend::CrosstermBackend};
-use saltglass_steppe::{GameState, Renderer};
-use saltglass_steppe::ui::{UiState, handle_input};
 use saltglass_steppe::trading::{calculate_area_tier, get_trade_interface};
+use saltglass_steppe::ui::{UiState, handle_input};
+use saltglass_steppe::{GameState, Renderer};
 use std::io::{self, Stdout};
 
 pub enum SessionOutcome {
@@ -58,7 +58,10 @@ pub fn run_game_session(
             } else {
                 let area_tier = calculate_area_tier(&state.world.enemies);
                 if let Some(interface) = get_trade_interface(
-                    &trader_id, area_tier, &state.player.faction_reputation, None,
+                    &trader_id,
+                    area_tier,
+                    &state.player.faction_reputation,
+                    None,
                 ) {
                     ui.inventory_menu.close();
                     ui.quest_log.close();
@@ -72,30 +75,29 @@ pub fn run_game_session(
             }
         }
 
-        if let Some(ei) = ui.target_enemy {
-            if ei >= state.world.enemies.len() || state.world.enemies[ei].hp <= 0 {
-                ui.target_enemy = None;
-            }
+        if let Some(ei) = ui.target_enemy
+            && (ei >= state.world.enemies.len() || state.world.enemies[ei].hp <= 0)
+        {
+            ui.target_enemy = None;
         }
 
         if ui.show_controls {
             terminal.draw(super::render_controls)?;
-            if event::poll(std::time::Duration::from_millis(16))? {
-                if let Event::Key(key) = event::read()? {
-                    if key.kind == KeyEventKind::Press {
-                        ui.show_controls = false;
-                    }
-                }
+            if event::poll(std::time::Duration::from_millis(16))?
+                && let Event::Key(key) = event::read()?
+                && key.kind == KeyEventKind::Press
+            {
+                ui.show_controls = false;
             }
         } else {
             terminal.draw(|frame| super::render(frame, &state, &mut ui, renderer))?;
             let action = handle_input(&mut ui, &mut state)?;
             match super::update(&mut state, action, &mut ui) {
                 Some(true) => {
-                    if ui.tutorial_message.is_none() {
-                        if let Some(msg) = state.get_next_tutorial_message() {
-                            ui.tutorial_message = Some(msg);
-                        }
+                    if ui.tutorial_message.is_none()
+                        && let Some(msg) = state.get_next_tutorial_message()
+                    {
+                        ui.tutorial_message = Some(msg);
                     }
                     on_turn(&mut state, &ui);
                 }

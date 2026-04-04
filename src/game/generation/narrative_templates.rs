@@ -157,27 +157,24 @@ impl NarrativeGenerator {
         rng: &mut ChaCha8Rng,
     ) -> Option<String> {
         // Try biome-specific descriptions first
-        if let Some(ref biome) = context.biome {
-            if let Some(biome_templates) =
+        if let Some(ref biome) = context.biome
+            && let Some(biome_templates) =
                 self.templates.contextual_descriptions.get("biome_specific")
-            {
-                if let Some(template) = biome_templates.get(biome) {
-                    return Some(self.fill_template(template, rng));
-                }
-            }
+            && let Some(template) = biome_templates.get(biome)
+        {
+            return Some(self.fill_template(template, rng));
         }
 
         // Try adaptation-aware descriptions
-        if !context.adaptations.is_empty() {
-            if let Some(adaptation_templates) = self
+        if !context.adaptations.is_empty()
+            && let Some(adaptation_templates) = self
                 .templates
                 .contextual_descriptions
                 .get("adaptation_aware")
-            {
-                for adaptation in &context.adaptations {
-                    if let Some(template) = adaptation_templates.get(adaptation) {
-                        return Some(self.fill_template(template, rng));
-                    }
+        {
+            for adaptation in &context.adaptations {
+                if let Some(template) = adaptation_templates.get(adaptation) {
+                    return Some(self.fill_template(template, rng));
                 }
             }
         }
@@ -198,10 +195,10 @@ impl NarrativeGenerator {
                 }
             }
 
-            if let Some(faction) = best_faction {
-                if let Some(template) = faction_templates.get(faction) {
-                    return Some(self.fill_template(template, rng));
-                }
+            if let Some(faction) = best_faction
+                && let Some(template) = faction_templates.get(faction)
+            {
+                return Some(self.fill_template(template, rng));
             }
         }
 
@@ -221,13 +218,11 @@ impl NarrativeGenerator {
         rng: &mut ChaCha8Rng,
     ) -> Option<String> {
         // Try contextual item lore first
-        if context.refraction_level > 50 {
-            if let Some(contextual_templates) = self.templates.item_lore.get("contextual_artifacts")
-            {
-                if let Some(template) = contextual_templates.choose(rng) {
-                    return Some(self.fill_template(template, rng));
-                }
-            }
+        if context.refraction_level > 50
+            && let Some(contextual_templates) = self.templates.item_lore.get("contextual_artifacts")
+            && let Some(template) = contextual_templates.choose(rng)
+        {
+            return Some(self.fill_template(template, rng));
         }
 
         // Fall back to regular item lore
@@ -283,13 +278,13 @@ impl NarrativeGenerator {
 
     pub fn generate_world_history(&self, rng: &mut ChaCha8Rng, num_events: usize) -> Vec<String> {
         let mut history = Vec::new();
-        let event_types = vec!["storm_events", "faction_events"];
+        let event_types = ["storm_events", "faction_events"];
 
         for _ in 0..num_events {
-            if let Some(event_type) = event_types.choose(rng) {
-                if let Some(event) = self.generate_historical_event(event_type, rng) {
-                    history.push(event);
-                }
+            if let Some(event_type) = event_types.choose(rng)
+                && let Some(event) = self.generate_historical_event(event_type, rng)
+            {
+                history.push(event);
             }
         }
 

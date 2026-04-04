@@ -189,7 +189,10 @@ impl SkillsState {
         for prereq in &def.prerequisites {
             let prereq_level = self.skills.get(&prereq.skill_id).unwrap_or(&0);
             if *prereq_level < prereq.required_level {
-                return Err(format!("Requires {} level {}", prereq.skill_id, prereq.required_level));
+                return Err(format!(
+                    "Requires {} level {}",
+                    prereq.skill_id, prereq.required_level
+                ));
             }
         }
 
@@ -215,7 +218,10 @@ impl SkillsState {
                         bonus_value
                     };
 
-                    *self.passive_bonuses.entry(effect.effect_type.clone()).or_insert(0.0) += final_value;
+                    *self
+                        .passive_bonuses
+                        .entry(effect.effect_type.clone())
+                        .or_insert(0.0) += final_value;
                 }
             }
         }
@@ -257,21 +263,33 @@ impl SkillsState {
 
     /// Get skill level
     pub fn get_skill_level(&self, skill_id: &str) -> u32 {
-        self.skills.get(skill_id).unwrap_or(&0).clone()
+        *self.skills.get(skill_id).unwrap_or(&0)
     }
 
     // --- Typed passive accessors ---
     pub fn melee_accuracy_bonus(&self) -> f32 {
-        self.passive_bonuses.get("melee_accuracy_bonus").copied().unwrap_or(0.0)
+        self.passive_bonuses
+            .get("melee_accuracy_bonus")
+            .copied()
+            .unwrap_or(0.0)
     }
     pub fn melee_damage_bonus(&self) -> f32 {
-        self.passive_bonuses.get("melee_damage_bonus").copied().unwrap_or(0.0)
+        self.passive_bonuses
+            .get("melee_damage_bonus")
+            .copied()
+            .unwrap_or(0.0)
     }
     pub fn ranged_accuracy_bonus(&self) -> f32 {
-        self.passive_bonuses.get("ranged_accuracy_bonus").copied().unwrap_or(0.0)
+        self.passive_bonuses
+            .get("ranged_accuracy_bonus")
+            .copied()
+            .unwrap_or(0.0)
     }
     pub fn ranged_damage_bonus(&self) -> f32 {
-        self.passive_bonuses.get("ranged_damage_bonus").copied().unwrap_or(0.0)
+        self.passive_bonuses
+            .get("ranged_damage_bonus")
+            .copied()
+            .unwrap_or(0.0)
     }
     pub fn passive(&self, key: &str) -> f32 {
         self.passive_bonuses.get(key).copied().unwrap_or(0.0)

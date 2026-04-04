@@ -2,7 +2,6 @@ pub mod algorithms;
 pub mod dungeon_generator;
 pub mod ruins_generator;
 
-pub use algorithms::*;
 pub use dungeon_generator::*;
 use rand_chacha::ChaCha8Rng;
 pub use ruins_generator::*;

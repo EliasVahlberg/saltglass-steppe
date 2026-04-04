@@ -31,25 +31,25 @@ pub struct DialogueCondition {
 
 impl DialogueCondition {
     pub fn evaluate(&self, ctx: &DialogueContext) -> bool {
-        if let Some(ref name) = self.has_adaptation {
-            if !ctx.adaptations.iter().any(|a| a.name() == name) {
-                return false;
-            }
+        if let Some(ref name) = self.has_adaptation
+            && !ctx.adaptations.iter().any(|a| a.name() == name)
+        {
+            return false;
         }
-        if let Some(count) = self.adaptation_count_gte {
-            if ctx.adaptations.len() < count {
-                return false;
-            }
+        if let Some(count) = self.adaptation_count_gte
+            && ctx.adaptations.len() < count
+        {
+            return false;
         }
-        if let Some(ref item_id) = self.has_item {
-            if !ctx.inventory.iter().any(|i| i == item_id) {
-                return false;
-            }
+        if let Some(ref item_id) = self.has_item
+            && !ctx.inventory.iter().any(|i| i == item_id)
+        {
+            return false;
         }
-        if let Some(amount) = self.min_salt_scrip {
-            if ctx.salt_scrip < amount {
-                return false;
-            }
+        if let Some(amount) = self.min_salt_scrip
+            && ctx.salt_scrip < amount
+        {
+            return false;
         }
         if let Some(ref reqs) = self.min_reputation {
             for (faction, min_rep) in reqs {

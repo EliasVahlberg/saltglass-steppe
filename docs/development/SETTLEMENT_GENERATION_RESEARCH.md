@@ -1,3 +1,9 @@
+---
+status: current
+last_verified: 2026-04-04
+commit: e0d1fe7
+---
+
 # Settlement Generation Research & Comparison
 
 *Written: 2026-03-14. Based on research into CDDA and Caves of Qud, compared against the current Saltglass Steppe implementation.*

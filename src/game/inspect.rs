@@ -91,7 +91,10 @@ pub fn inspect_item(id: &str) -> Option<ItemInfo> {
 impl GameState {
     /// Inspect an item in inventory by index
     pub fn inspect_inventory(&self, idx: usize) -> Option<ItemInfo> {
-        self.player.inventory.get(idx).and_then(|id| inspect_item(id))
+        self.player
+            .inventory
+            .get(idx)
+            .and_then(|id| inspect_item(id))
     }
     /// Describe what's at a given position (for look mode)
     pub fn describe_at(&self, x: i32, y: i32) -> String {
@@ -112,7 +115,13 @@ impl GameState {
                 .map(|d| d.description.as_str())
                 .unwrap_or("A creature");
             let demeanor = format!("{:?}", e.demeanor()).to_lowercase();
-            descriptions.push(format!("{} (HP: {}, {}) - {}", e.name(), e.hp, demeanor, desc));
+            descriptions.push(format!(
+                "{} (HP: {}, {}) - {}",
+                e.name(),
+                e.hp,
+                demeanor,
+                desc
+            ));
         }
         if let Some(ni) = self.npc_at(x, y) {
             let n = &self.npcs()[ni];
@@ -135,17 +144,25 @@ impl GameState {
                 } else {
                     "item"
                 };
-                descriptions.push(format!("{} ({}) - {}", def.name, item_type, def.description));
+                descriptions.push(format!(
+                    "{} ({}) - {}",
+                    def.name, item_type, def.description
+                ));
             } else if let Some(wdef) = get_weapon_def(&item.id) {
                 descriptions.push(format!("{} (weapon) - {}", wdef.name, wdef.description));
             }
         }
-        if let Some(light) = self.map().lights.iter().find(|l| l.x == x && l.y == y) {
-            if let Some(def) = get_light_def(&light.id) {
-                descriptions.push(format!("{} (light source)", def.name));
-            }
+        if let Some(light) = self.map().lights.iter().find(|l| l.x == x && l.y == y)
+            && let Some(def) = get_light_def(&light.id)
+        {
+            descriptions.push(format!("{} (light source)", def.name));
         }
-        if let Some(inscription) = self.map().inscriptions.iter().find(|i| i.x == x && i.y == y) {
+        if let Some(inscription) = self
+            .map()
+            .inscriptions
+            .iter()
+            .find(|i| i.x == x && i.y == y)
+        {
             let inscription_desc = match inscription.inscription_type.as_str() {
                 "shrine_text" => "Sacred text",
                 "graffiti" => "Graffiti",

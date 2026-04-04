@@ -129,7 +129,7 @@ fn create_dungeon_map() -> Map {
     for (rx, ry, rw, rh) in rooms {
         for y in ry..(ry + rh) {
             for x in rx..(rx + rw) {
-                let idx = (y * map.width + x) as usize;
+                let idx = y * map.width + x;
                 map.tiles[idx] = Tile::Floor {
                     id: "dry_soil".to_string(),
                 };
@@ -166,7 +166,7 @@ fn create_overworld_map() -> Map {
     for (ox, oy, ow, oh) in obstacles {
         for y in oy..(oy + oh) {
             for x in ox..(ox + ow) {
-                let idx = (y * map.width + x) as usize;
+                let idx = y * map.width + x;
                 map.tiles[idx] = Tile::Wall {
                     id: "sandstone".to_string(),
                     hp: 100,
@@ -201,7 +201,7 @@ fn create_town_map() -> Map {
     for (bx, by, bw, bh) in buildings {
         for y in by..(by + bh) {
             for x in bx..(bx + bw) {
-                let idx = (y * map.width + x) as usize;
+                let idx = y * map.width + x;
                 map.tiles[idx] = Tile::Wall {
                     id: "brick".to_string(),
                     hp: 150,
@@ -225,21 +225,21 @@ fn create_combat_arena() -> Map {
 
     // Add walls around perimeter
     for x in 0..map.width {
-        map.tiles[x as usize] = Tile::Wall {
+        map.tiles[x] = Tile::Wall {
             id: "arena_wall".to_string(),
             hp: 200,
         }; // Top
-        map.tiles[((map.height - 1) * map.width + x) as usize] = Tile::Wall {
+        map.tiles[(map.height - 1) * map.width + x] = Tile::Wall {
             id: "arena_wall".to_string(),
             hp: 200,
         }; // Bottom
     }
     for y in 0..map.height {
-        map.tiles[(y * map.width) as usize] = Tile::Wall {
+        map.tiles[y * map.width] = Tile::Wall {
             id: "arena_wall".to_string(),
             hp: 200,
         }; // Left
-        map.tiles[(y * map.width + map.width - 1) as usize] = Tile::Wall {
+        map.tiles[y * map.width + map.width - 1] = Tile::Wall {
             id: "arena_wall".to_string(),
             hp: 200,
         }; // Right
@@ -257,7 +257,7 @@ fn create_combat_arena() -> Map {
     for (cx, cy, cw, ch) in cover {
         for y in cy..(cy + ch) {
             for x in cx..(cx + cw) {
-                let idx = (y * map.width + x) as usize;
+                let idx = y * map.width + x;
                 map.tiles[idx] = Tile::Wall {
                     id: "cover".to_string(),
                     hp: 50,
@@ -576,7 +576,7 @@ fn narrow_corridors(map: &mut Map) {
     // Find wide corridors and narrow them
     for y in 1..(map.height - 1) {
         for x in 1..(map.width - 1) {
-            let idx = (y * map.width + x) as usize;
+            let idx = y * map.width + x;
             if map.tiles[idx].walkable() {
                 let adjacent_floors = count_adjacent_floors(map, x as i32, y as i32);
                 if adjacent_floors >= 5 {
@@ -599,7 +599,7 @@ fn create_safe_rooms(map: &mut Map) {
     for (sx, sy, sw, sh) in safe_areas {
         for y in sy..(sy + sh) {
             for x in sx..(sx + sw) {
-                let idx = (y * map.width + x) as usize;
+                let idx = y * map.width + x;
                 map.tiles[idx] = Tile::Floor {
                     id: "safe_floor".to_string(),
                 };
@@ -622,7 +622,7 @@ fn create_safe_clearings(map: &mut Map) {
         for y in cy..(cy + ch) {
             for x in cx..(cx + cw) {
                 if x < map.width && y < map.height {
-                    let idx = (y * map.width + x) as usize;
+                    let idx = y * map.width + x;
                     map.tiles[idx] = Tile::Floor {
                         id: "clearing".to_string(),
                     };
@@ -636,7 +636,7 @@ fn remove_blocking_obstacles(map: &mut Map) {
     // Remove some walls to create more paths
     for y in 1..(map.height - 1) {
         for x in 1..(map.width - 1) {
-            let idx = (y * map.width + x) as usize;
+            let idx = y * map.width + x;
             if !map.tiles[idx].walkable() && (x + y) % 4 == 0 {
                 map.tiles[idx] = Tile::Floor {
                     id: "opened_path".to_string(),
@@ -650,7 +650,7 @@ fn widen_streets(map: &mut Map) {
     // Make streets wider by removing building edges
     for y in 0..map.height {
         for x in 0..map.width {
-            let idx = (y * map.width + x) as usize;
+            let idx = y * map.width + x;
             if !map.tiles[idx].walkable() {
                 let adjacent_floors = count_adjacent_floors(map, x as i32, y as i32);
                 if adjacent_floors >= 3 {
@@ -668,7 +668,7 @@ fn add_street_connections(map: &mut Map) {
     for y in 5..(map.height - 5) {
         for x in 5..(map.width - 5) {
             if (x + y) % 8 == 0 {
-                let idx = (y * map.width + x) as usize;
+                let idx = y * map.width + x;
                 map.tiles[idx] = Tile::Floor {
                     id: "connection".to_string(),
                 };
@@ -682,7 +682,7 @@ fn adjust_cover_placement(map: &mut Map) {
     // Remove some central cover
     for y in 8..12 {
         for x in 10..15 {
-            let idx = (y * map.width + x) as usize;
+            let idx = y * map.width + x;
             map.tiles[idx] = Tile::Floor {
                 id: "arena_floor".to_string(),
             };
@@ -694,7 +694,7 @@ fn adjust_cover_placement(map: &mut Map) {
     for (cx, cy, cw, ch) in new_cover {
         for y in cy..(cy + ch) {
             for x in cx..(cx + cw) {
-                let idx = (y * map.width + x) as usize;
+                let idx = y * map.width + x;
                 map.tiles[idx] = Tile::Wall {
                     id: "tactical_cover".to_string(),
                     hp: 75,
@@ -708,7 +708,7 @@ fn ensure_arena_exits(map: &mut Map) {
     // Create exit points in walls
     let exits = vec![(0, map.height / 2), (map.width - 1, map.height / 2)];
     for (ex, ey) in exits {
-        let idx = (ey * map.width + ex) as usize;
+        let idx = ey * map.width + ex;
         map.tiles[idx] = Tile::Floor {
             id: "exit".to_string(),
         };

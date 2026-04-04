@@ -27,8 +27,10 @@ fn toward(from: (f32, f32), to: (f32, f32)) -> &'static str {
     let (dx, dy) = (to.0 - from.0, to.1 - from.1);
     if dx.abs() >= dy.abs() {
         if dx >= 0.0 { "east" } else { "west" }
+    } else if dy >= 0.0 {
+        "south"
     } else {
-        if dy >= 0.0 { "south" } else { "north" }
+        "north"
     }
 }
 
