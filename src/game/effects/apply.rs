@@ -136,6 +136,16 @@ impl GameState {
                     enc.last_flee_attempt = *turn;
                 }
             }
+            PlayerEffect::SetWorldPosition { wx, wy } => {
+                self.world.world_x = *wx;
+                self.world.world_y = *wy;
+            }
+            PlayerEffect::SetLayer { layer } => {
+                self.world.layer = *layer;
+            }
+            PlayerEffect::IncrementTilesTraveled => {
+                self.world.total_tiles_traveled += 1;
+            }
         }
     }
 
@@ -235,6 +245,14 @@ impl GameState {
                         self.update_lighting();
                     }
                 }
+            }
+            MapEffect::SetWorldPath { path, target } => {
+                self.world.world_map_path = path.clone();
+                self.world.world_map_target = *target;
+            }
+            MapEffect::ClearWorldPath => {
+                self.world.world_map_path.clear();
+                self.world.world_map_target = None;
             }
         }
     }

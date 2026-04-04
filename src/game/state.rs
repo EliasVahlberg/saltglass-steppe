@@ -610,6 +610,24 @@ impl GameState {
             Command::FleeEncounter => {
                 self.dispatch_flee_encounter();
             }
+            Command::WorldMove { new_wx, new_wy } => {
+                self.dispatch_world_move(new_wx, new_wy);
+            }
+            Command::WorldMoveSafe { new_wx, new_wy } => {
+                self.dispatch_world_move_safe(new_wx, new_wy);
+            }
+            Command::EnterSubterranean => {
+                self.enter_subterranean();
+            }
+            Command::ExitSubterranean => {
+                self.exit_subterranean();
+            }
+            Command::FollowWorldPath => {
+                self.dispatch_follow_world_path();
+            }
+            Command::CalculateWorldPath { target_wx, target_wy } => {
+                self.dispatch_calculate_world_path((target_wx, target_wy));
+            }
             _ => {
                 let output = {
                     let ctx = super::effects::context::QueryContext::from_state(self);
@@ -1041,6 +1059,161 @@ impl GameState {
                 };
                 self.apply_and_trace(output, "rule_flee_encounter");
             }
+        }
+    }
+
+    fn dispatch_world_move(&mut self, new_wx: usize, new_wy: usize) {
+        use super::effects::{Effect, PlayerEffect};
+
+        let from = (self.world.world_x, self.world.world_y);
+        let to = (new_wx, new_wy);
+
+        if !super::travel::is_adjacent(from, to) {
+            self.log("Too far to travel in one step. Move to an adjacent tile.");
+            return;
+        }
+
+        let wm = match &self.world.world_map {
+            Some(wm) => wm,
+            None => return,
+        };
+
+        let (biome, terrain, _elev, _poi, _res, _conn, level) = wm.get(new_wx, new_wy);
+        let cost = super::travel::travel_cost(terrain, biome);
+
+        let mut effects: Vec<Effect> = vec![
+            Effect::Player(PlayerEffect::IncrementTilesTraveled),
+        ];
+        for _ in 0..cost {
+            effects.push(Effect::Player(PlayerEffect::AdvanceTurn));
+        }
+
+        // Check for encounter
+        let last_encounter = self.world.encounter_history.get(&(new_wx, new_wy)).copied().unwrap_or(0);
+        let encounter_triggered = super::encounter::should_trigger_encounter(
+            self.seed, new_wx, new_wy, self.world.total_tiles_traveled + 1,
+            level, last_encounter, self.turn + cost, self.player.skills.get_skill_level("wayfaring"),
+        );
+
+        effects.push(Effect::Player(PlayerEffect::SetWorldPosition { wx: new_wx, wy: new_wy }));
+
+        let output = super::effects::RuleOutput {
+            effects,
+            presentation: Vec::new(),
+        };
+        self.apply_and_trace(output, "dispatch_world_move");
+
+        if encounter_triggered {
+            let encounter = super::encounter::generate_encounter(
+                self.seed, new_wx, new_wy, self.world.total_tiles_traveled,
+                level, biome.as_str(),
+            );
+            let encounter_msg = match &encounter.encounter_type {
+                super::encounter::EncounterType::Hostile { threat_points } =>
+                    format!("⚔ Hostile encounter! (Threat: {})", threat_points),
+                super::encounter::EncounterType::Neutral { description, .. } =>
+                    description.clone(),
+                super::encounter::EncounterType::Beneficial { boon_points } =>
+                    format!("✨ You discover something! (Value: {})", boon_points),
+            };
+            self.world.encounter_state = Some(encounter);
+            self.world.encounter_history.insert((new_wx, new_wy), self.turn);
+            self.travel_to_tile(new_wx, new_wy);
+            self.spawn_encounter_entities();
+            self.pending_ui.dialogue = Some(("Encounter!".to_string(), encounter_msg));
+        }
+    }
+
+    fn dispatch_world_move_safe(&mut self, new_wx: usize, new_wy: usize) {
+        use super::effects::{Effect, PlayerEffect};
+
+        let from = (self.world.world_x, self.world.world_y);
+        let to = (new_wx, new_wy);
+        let is_same_tile = from == to;
+
+        if !is_same_tile && !super::travel::is_adjacent(from, to) {
+            self.log("Too far to travel in one step. Move to an adjacent tile.");
+            return;
+        }
+
+        if !is_same_tile
+            && let Some(wm) = &self.world.world_map
+        {
+                let (biome, terrain, _elev, _poi, _res, _conn, _level) = wm.get(new_wx, new_wy);
+                let cost = super::travel::travel_cost(terrain, biome);
+
+                let mut effects: Vec<Effect> = vec![
+                    Effect::Player(PlayerEffect::IncrementTilesTraveled),
+                ];
+                for _ in 0..cost {
+                    effects.push(Effect::Player(PlayerEffect::AdvanceTurn));
+                }
+
+                let output = super::effects::RuleOutput { effects, presentation: Vec::new() };
+                self.apply_and_trace(output, "dispatch_world_move_safe");
+        }
+
+        // Always generate tile
+        self.travel_to_tile(new_wx, new_wy);
+    }
+
+    fn dispatch_follow_world_path(&mut self) {
+        if self.world.world_map_path.is_empty() {
+            return;
+        }
+
+        let next_pos = self.world.world_map_path.remove(0);
+        self.dispatch_world_move(next_pos.0, next_pos.1);
+
+        // If encounter triggered, clear path
+        if self.world.encounter_state.is_some() {
+            self.world.world_map_path.clear();
+            self.world.world_map_target = None;
+            return;
+        }
+
+        // Check if we reached the target
+        if let Some(target) = self.world.world_map_target
+            && (self.world.world_x, self.world.world_y) == target
+        {
+            self.world.world_map_target = None;
+            self.world.world_map_path.clear();
+        }
+    }
+
+    fn dispatch_calculate_world_path(&mut self, target: (usize, usize)) {
+        use super::effects::{Effect, MapEffect};
+
+        if self.world.world_map.is_none() { return; }
+
+        let start = (self.world.world_x, self.world.world_y);
+        let mut path = Vec::new();
+        let mut current = start;
+        let max_steps = 500;
+        let mut steps = 0;
+
+        while current != target && steps < max_steps {
+            let (cx, cy) = current;
+            let (tx, ty) = target;
+            let next = if cx < tx { (cx + 1, cy) }
+                else if cx > tx { (cx - 1, cy) }
+                else if cy < ty { (cx, cy + 1) }
+                else if cy > ty { (cx, cy - 1) }
+                else { break };
+            path.push(next);
+            current = next;
+            steps += 1;
+        }
+
+        if !path.is_empty() {
+            let output = super::effects::RuleOutput {
+                effects: vec![Effect::Map(MapEffect::SetWorldPath {
+                    path: path.clone(),
+                    target: Some(target),
+                })],
+                presentation: Vec::new(),
+            };
+            self.apply_and_trace(output, "dispatch_calculate_world_path");
         }
     }
 

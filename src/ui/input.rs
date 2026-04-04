@@ -826,7 +826,9 @@ fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode
         KeyCode::Char('m') | KeyCode::Char('M') | KeyCode::Enter => {
             ui.world_map_view.open = false;
             // Enter the tile at current world position
-            state.travel_to_tile(state.world.world_x, state.world.world_y);
+            state.dispatch(crate::game::effects::Command::WorldMoveSafe {
+                new_wx: state.world.world_x, new_wy: state.world.world_y,
+            });
         }
         code if CONFIG.matches_worldmap(code, "inspect_toggle") => {
             // When entering inspect mode, set cursor to target if set, otherwise player position
@@ -848,7 +850,9 @@ fn handle_world_map_input(ui: &mut UiState, state: &mut GameState, code: KeyCode
                     state.world.world_map_target = None;
                     state.world.world_map_path.clear();
                 } else {
-                    state.calculate_world_path(target);
+                    state.dispatch(crate::game::effects::Command::CalculateWorldPath {
+                        target_wx: target.0, target_wy: target.1,
+                    });
                 }
             }
         }

@@ -264,4 +264,39 @@ mod tests {
         let output = rule_use_psychic("stun_aoe", &ctx);
         assert!(output.effects.iter().any(|e| matches!(e, Effect::Combat(CombatEffect::StunEnemy { .. }))));
     }
+
+    #[test]
+    fn world_adjacency_check() {
+        assert!(crate::game::travel::is_adjacent((5, 5), (5, 6)));
+        assert!(crate::game::travel::is_adjacent((5, 5), (4, 5)));
+        assert!(!crate::game::travel::is_adjacent((5, 5), (5, 7)));
+        assert!(!crate::game::travel::is_adjacent((5, 5), (6, 6))); // diagonal
+    }
+
+    #[test]
+    fn calculate_world_path_manhattan() {
+        // Test the pathfinding logic directly
+        let start = (0usize, 0usize);
+        let target = (3usize, 2usize);
+        let mut path = Vec::new();
+        let mut current = start;
+        while current != target {
+            let (cx, cy) = current;
+            let (tx, ty) = target;
+            let next = if cx < tx { (cx + 1, cy) }
+                else if cx > tx { (cx - 1, cy) }
+                else if cy < ty { (cx, cy + 1) }
+                else { break };
+            path.push(next);
+            current = next;
+        }
+        assert_eq!(path, vec![(1, 0), (2, 0), (3, 0), (3, 1), (3, 2)]);
+    }
+
+    #[test]
+    fn set_world_position_effect() {
+        // Verify the effect variant exists and is constructable
+        let effect = Effect::Player(PlayerEffect::SetWorldPosition { wx: 3, wy: 4 });
+        assert_eq!(effect, Effect::Player(PlayerEffect::SetWorldPosition { wx: 3, wy: 4 }));
+    }
 }

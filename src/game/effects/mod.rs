@@ -53,6 +53,9 @@ pub enum PlayerEffect {
     SetPhaseMode { enabled: bool },
     ClearEncounter,
     SetLastFleeAttempt { turn: u32 },
+    SetWorldPosition { wx: usize, wy: usize },
+    SetLayer { layer: i32 },
+    IncrementTilesTraveled,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -79,6 +82,8 @@ pub enum MapEffect {
     RevealAll,
     DamageWall { x: i32, y: i32, damage: i32 },
     ClearStormHighlight { tile_index: usize },
+    SetWorldPath { path: Vec<(usize, usize)>, target: Option<(usize, usize)> },
+    ClearWorldPath,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -162,6 +167,12 @@ pub enum Command {
     Examine { x: i32, y: i32 },
     UsePsychic { ability_id: String },
     FleeEncounter,
+    WorldMove { new_wx: usize, new_wy: usize },
+    WorldMoveSafe { new_wx: usize, new_wy: usize },
+    EnterSubterranean,
+    ExitSubterranean,
+    FollowWorldPath,
+    CalculateWorldPath { target_wx: usize, target_wy: usize },
 }
 
 impl Command {
@@ -183,6 +194,12 @@ impl Command {
             Command::Examine { .. } => "rule_examine",
             Command::UsePsychic { .. } => "rule_use_psychic",
             Command::FleeEncounter => "rule_flee_encounter",
+            Command::WorldMove { .. } => "dispatch_world_move",
+            Command::WorldMoveSafe { .. } => "dispatch_world_move_safe",
+            Command::EnterSubterranean => "dispatch_enter_subterranean",
+            Command::ExitSubterranean => "dispatch_exit_subterranean",
+            Command::FollowWorldPath => "dispatch_follow_world_path",
+            Command::CalculateWorldPath { .. } => "dispatch_calculate_world_path",
         }
     }
 }

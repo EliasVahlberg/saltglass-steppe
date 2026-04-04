@@ -170,16 +170,24 @@ impl MovementSystem {
         let at_east = new_x == state.world.map.width as i32 - 1;
 
         if at_north && state.world.world_y > 0 {
-            state.travel_to_tile(state.world.world_x, state.world.world_y - 1);
+            state.dispatch(crate::game::effects::Command::WorldMoveSafe {
+                new_wx: state.world.world_x, new_wy: state.world.world_y - 1,
+            });
             state.player.y = state.world.map.height as i32 - 2;
         } else if at_south && state.world.world_y < crate::game::world_map::WORLD_HEIGHT - 1 {
-            state.travel_to_tile(state.world.world_x, state.world.world_y + 1);
+            state.dispatch(crate::game::effects::Command::WorldMoveSafe {
+                new_wx: state.world.world_x, new_wy: state.world.world_y + 1,
+            });
             state.player.y = 1;
         } else if at_west && state.world.world_x > 0 {
-            state.travel_to_tile(state.world.world_x - 1, state.world.world_y);
+            state.dispatch(crate::game::effects::Command::WorldMoveSafe {
+                new_wx: state.world.world_x - 1, new_wy: state.world.world_y,
+            });
             state.player.x = state.world.map.width as i32 - 2;
         } else if at_east && state.world.world_x < crate::game::world_map::WORLD_WIDTH - 1 {
-            state.travel_to_tile(state.world.world_x + 1, state.world.world_y);
+            state.dispatch(crate::game::effects::Command::WorldMoveSafe {
+                new_wx: state.world.world_x + 1, new_wy: state.world.world_y,
+            });
             state.player.x = 1;
         }
     }

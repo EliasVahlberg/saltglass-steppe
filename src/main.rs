@@ -118,10 +118,10 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 if let Some(tile) = state.world.map.get(state.player.x, state.player.y) {
                     match tile {
                         saltglass_steppe::Tile::StairsDown => {
-                            state.enter_subterranean();
+                            state.dispatch(saltglass_steppe::game::effects::Command::EnterSubterranean);
                         }
                         saltglass_steppe::Tile::StairsUp => {
-                            state.exit_subterranean();
+                            state.dispatch(saltglass_steppe::game::effects::Command::ExitSubterranean);
                         }
                         saltglass_steppe::Tile::WorldExit => {
                             // Simple world map travel - for now just show a message
@@ -320,7 +320,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                 if state.world.encounter_state.is_some() {
                     state.log("You cannot travel while in an encounter!");
                 } else {
-                    state.travel_to_tile_safe(wx, wy);
+                    state.dispatch(saltglass_steppe::game::effects::Command::WorldMoveSafe { new_wx: wx, new_wy: wy });
                 }
             }
         }
@@ -335,9 +335,8 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
                     state.world.world_map_target = None;
 
                     // Use fast worldmap movement
-                    if let Some(encounter_msg) = state.move_on_world_map(new_wx, new_wy) {
-                        // Encounter triggered - show popup and close worldmap
-                        ui.dialog_box.show("Encounter!", &encounter_msg);
+                    state.dispatch(saltglass_steppe::game::effects::Command::WorldMove { new_wx, new_wy });
+                    if state.world.encounter_state.is_some() {
                         ui.world_map_view.open = false;
                     }
                 }
@@ -345,15 +344,12 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::WorldMapAutoMove => {
             if state.player.hp > 0 && state.player.layer == 0 {
-                match state.move_along_path() {
-                    Ok(true) => {
-                        // Check if encounter triggered during auto-move
-                        if state.world.encounter_state.is_some() {
-                            ui.world_map_view.open = false;
-                        }
-                    }
-                    Ok(false) => state.log("No path set."),
-                    Err(msg) => state.log(&msg),
+                let had_path = !state.world.world_map_path.is_empty();
+                state.dispatch(saltglass_steppe::game::effects::Command::FollowWorldPath);
+                if had_path && state.world.encounter_state.is_some() {
+                    ui.world_map_view.open = false;
+                } else if !had_path {
+                    state.log("No path set.");
                 }
             }
         }
