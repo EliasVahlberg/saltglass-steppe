@@ -1,4 +1,3 @@
-pub mod algorithms;
 pub mod dungeon_generator;
 pub mod ruins_generator;
 

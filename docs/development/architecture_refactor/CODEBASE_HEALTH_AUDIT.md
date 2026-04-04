@@ -1,90 +1,112 @@
-# Codebase Health Audit — 2026-04-03
+# Codebase Health Audit — 2026-04-03 (Updated 2026-04-04)
 
 ## Executive Summary
 
-An audit of the `.agents/summary/` system descriptions against the actual codebase reveals a consistent pattern: **AI-generated feature scaffolding that is vertically complete but horizontally disconnected from gameplay**. Roughly 3,000–4,000 LOC exists as dead or half-wired code. The root cause is not carelessness — it's the absence of structural gates that catch incomplete integration before code is committed.
+> **Update 2026-04-04:** Phase 0.5 dead code cleanup has been completed. Technical/design documentation has been triaged and archived. This audit has been updated to reflect the current codebase state. Items marked ✅ CLEANED have been resolved. Remaining items are listed under "Remaining Issues."
 
-This report documents all findings, identifies areas needing further investigation, and proposes structural changes that address root causes while supporting future development.
+**Original finding:** AI-generated feature scaffolding that is vertically complete but horizontally disconnected from gameplay. ~3,600 LOC of dead/half-wired code. Root cause: absence of structural gates that catch incomplete integration before code is committed.
+
+**Post-cleanup state:** 150 source files, 43,822 LOC (down from ~164 files, ~48,500 LOC). state.rs reduced from 3,525 LOC / 163 methods to 3,185 LOC / 135 methods. Orphaned schemas cleaned. Dead algorithms, dead methods, dead stubs, dead UI exports, ViewportCuller all removed. Structural gates added: `SYSTEM_STATUS.md` registry, commit policy in AGENTS.md and steering, documentation triage completed.
+
+**Remaining issues:** 7 duplicate pattern files, 7 fake DES scenarios, 2 dead .des files, 5 data files without schemas, 18 dangling data cross-references, empty `algorithms/mod.rs`.
 
 ---
 
 ## Part 1: Dead Code Inventory
 
-### 1.1 Fully Dead Files
+### 1.1 Fully Dead Files — ✅ CLEANED
 
 | File | LOC | Status |
 |------|-----|--------|
-| `terminal_spawn.rs` | 52 | Declared in lib.rs, never called. Debug console lists `spawn`/`terminals` commands but no handler exists. |
-| `ritual.rs` | 0 | **Does not exist.** Summary claims it does — false. |
-| `structures/algorithms/bsp.rs` | ~350 | Zero usage in game or tests. |
-| `structures/algorithms/maze.rs` | ~300 | Zero usage in game or tests. |
-| `structures/algorithms/voronoi.rs` | ~250 | Zero usage in game or tests. |
-| `structures/algorithms/wave_function_collapse.rs` | ~400 | Zero usage in game or tests. |
+| `terminal_spawn.rs` | 52 | ✅ Deleted |
+| `structures/algorithms/bsp.rs` | ~350 | ✅ Deleted |
+| `structures/algorithms/maze.rs` | ~300 | ✅ Deleted |
+| `structures/algorithms/voronoi.rs` | ~250 | ✅ Deleted |
+| `structures/algorithms/wave_function_collapse.rs` | ~400 | ✅ Deleted |
+| `structures/algorithms/cellular_automata.rs` | ~300 | ✅ Deleted (test-only) |
+| `structures/algorithms/drunkard_walk.rs` | ~300 | ✅ Deleted (test-only) |
+| `structures/algorithms/simple_rooms.rs` | ~300 | ✅ Deleted (test-only) |
+| `structure_generation.json` | — | ✅ Deleted |
 
-### 1.2 Dead Methods in state.rs (15 confirmed)
+**Remaining:** `structures/algorithms/mod.rs` is now empty (0 bytes). Should be deleted along with the `algorithms/` directory.
 
-10 narrative methods (never called from anywhere):
-`get_area_description`, `add_story_event`, `story_model_mut`, `world_history_mut`, `generate_npc_backstories`, `get_character_relationships`, `get_world_history`, `get_artifact_inscription`, `generate_flavor_text`, `get_shrine_text`
+**Correction from original audit:** `ritual.rs` was listed as "does not exist, summary claims it does." This was a summary documentation error, not dead code. Summary files have been corrected.
 
-5 other dead methods:
-`calculate_price` (trading), `tutorial_progress_mut`, `decoy_at` (combat), `visible_adaptation_count`, `get_adaptation_visual_effects`
+### 1.2 Dead Methods in state.rs — ✅ CLEANED
 
-### 1.3 Dead UI Exports
+All 15 dead methods removed. 4 dead end_turn stubs removed. state.rs now has 118 pub + 17 private methods (down from 163 total).
 
-- `render_map` in ui/mod.rs — superseded by Renderer, never called
-- `dim_color` in ui/mod.rs — only used internally in game_view.rs
-- `render_inventory_bar` in ui/mod.rs — never called
+### 1.3 Dead UI Exports — ✅ CLEANED
 
-### 1.4 Orphaned Data Artifacts
+`render_map`, `dim_color`, `render_inventory_bar` removed.
 
-**11 orphaned schemas** (no matching data file):
-- 7 deprecated (data merged/renamed): aria_dialogues, floors, walls, lights, effects_config, skills, psychic_abilities, status_effects
-- 3 mismatched names: spawn_tables (→biome_spawn_tables), save_meta (runtime-only), enemies (split into subdirectory — actually valid)
-- 1 truly unused: structures_unified
+### 1.4 Dead Renderer Code — ✅ CLEANED
 
-**7 orphaned pattern files** — entire `data/structures/patterns/special/` directory contains exact duplicates of files in `patterns/ruins/`.
+`ViewportCuller` removed.
 
-**5 data files without schemas**: biome_spawn_tables, environmental_props, main_questline, skill_trees, traders.
+### 1.5 Orphaned Data Artifacts — PARTIALLY CLEANED
 
-**`structure_generation.json`** — only loaded by deprecated tilegen-tool binary, not by the game.
+**Orphaned schemas:** ✅ All 11 orphaned schemas deleted. All 36 remaining schemas now have matching data files.
 
-### 1.5 Dead Renderer Code
+**Orphaned pattern files:** ❌ Still present. `data/structures/patterns/special/` contains 7 files that are byte-for-byte duplicates of files in `patterns/ruins/`: glass_foundry.txt, monastery_ascending_light.txt, new_heliograph_station.txt, nexus_plateau.txt, prism_cathedral_natural.txt, prism_city.txt, salt_harbor.txt.
 
-`ViewportCuller` in renderer/performance.rs — instantiated but result assigned to `_viewport_bounds`. `is_in_bounds()` never called.
+**Data files without schemas:** ❌ Still 5: biome_spawn_tables, environmental_props, main_questline, skill_trees, traders.
 
----
+### 1.6 Remaining Dead Code
 
-## Part 2: Broken / Half-Wired Systems
+| Item | Status | Notes |
+|------|--------|-------|
+| `structures/algorithms/mod.rs` | Empty file (0 bytes) | Delete with directory |
+| `patterns/special/` (7 files) | Duplicates of `patterns/ruins/` | Delete directory |
+| 7 fake DES scenarios | Still exist | crystal_resonance_basic, void_energy_basic, light_manipulation_basic, enhanced_enemy_systems_test, fov_system_test, narrative_system_test, story_model_test |
+| 2 dead .des files | Still exist | skill_progression_test.des, faction_system_test.des |
 
-These are the most concerning findings — real implementations that appear functional but don't work end-to-end.
+### 1.7 Audit Corrections
 
-### 2.1 Light Manipulation (313 LOC + UI)
+Items originally flagged as dead that are actually used:
 
-- **What works**: `update()` runs every turn, energy gained from items, menu renders with 'g' key
-- **What's broken**: Menu has NO input handler — display only. None of the 10+ ability methods (focus_beam, create_prism, absorb_light, trace_beam) are callable from gameplay.
-- **Break point**: No `handle_light_menu_input` function exists. No `UseLightAbility` action variant.
+| Item | Original Assessment | Actual Status |
+|------|-------------------|---------------|
+| `generation/narrative.rs` (535 LOC) | Dead — never called from game pipeline | **Used** by `map.rs::generate_area_description()` for area descriptions |
+| `generation/narrative_templates.rs` (387 LOC) | Dead — tests only | **Used** via narrative.rs → map.rs |
+| `structures/dungeon_generator.rs` (236 LOC) | Dead — custom system superseded | **Used** by `terrain_forge_adapter.rs` for POI-specific dungeon generation |
+| `structures/ruins_generator.rs` (116 LOC) | Dead — custom system superseded | Used by dungeon_generator.rs |
 
-### 2.2 Crystal Resonance (376 LOC + UI)
+## Part 2: Broken / Half-Wired Systems — PARTIALLY RESOLVED
 
-- **What works**: `update()` runs, crystals added during mapgen, energy from items, menu renders with 'V' key
-- **What's broken**: Menu only handles Esc/Up/Down — Enter does nothing. 7+ ability methods unreachable.
-- **Break point**: No Enter handler in `handle_crystal_menu_input()`. No `UseCrystalAbility` action variant.
+> **Update 2026-04-04:** Decision made to remove ability methods from light/crystal/void, keeping resource accumulation only. Psychic abilities remain partially wired (3 of N effects work). See `docs/development/SYSTEM_STATUS.md` for the full wiring status of all systems.
 
-### 2.3 Void Energy (318 LOC + UI)
+### 2.1 Light Manipulation — RESOLVED (ability methods removed)
 
-- **What works**: Full UI pipeline — menu opens, Enter dispatches `Action::UseVoidAbility`, energy deducted
-- **What's broken**: `use_ability()` only handles PhaseWalk internally, but `can_phase_walk()` is never checked in movement code. Other 4 abilities (VoidStep, RealityRend, VoidShield, VoidDrain) hit `_ => {}` — energy spent, nothing happens.
-- **Break point**: Movement system doesn't check `can_phase_walk()`. Other ability match arms are empty.
+- **Previous:** 313 LOC, menu with no input handler, 10+ unreachable ability methods
+- **Current:** 85 LOC. Resource accumulation only (`LightSystem` tracks light level). Ability methods deleted. Menu still renders ('g' key) but is display-only by design.
+- **Decision:** Resource tracking kept for future use. Abilities will be re-implemented properly when the system is designed with full wiring.
 
-### 2.4 Psychic Abilities (144 LOC + UI)
+### 2.2 Crystal Resonance — RESOLVED (ability methods removed)
 
-- **What works**: Full pipeline with cooldowns, data-driven from abilities.json
-- **What's broken**: Only 3 hardcoded effect IDs work (stun_aoe, guaranteed_hit, phasing). Everything else logs "Effect not implemented."
-- **Break point**: Effect dispatch is a hardcoded match, not data-driven despite the data-driven loading.
+- **Previous:** 376 LOC, menu Enter does nothing, 7+ unreachable ability methods
+- **Current:** 151 LOC. Resource tracking + crystal placement on map. Ability methods deleted.
+- **Decision:** Same as light — resource tracking kept, abilities deferred.
 
-### 2.5 Fake DES Scenarios
+### 2.3 Void Energy — RESOLVED (ability methods removed)
 
-All three special system scenarios (`crystal_resonance_basic.json`, `void_energy_basic.json`, `light_manipulation_basic.json`) are **byte-for-byte identical** — spawn player, wait 1 turn, assert `player_alive`. They test nothing about the actual systems. They provide false confidence.
+- **Previous:** 318 LOC, PhaseWalk unchecked in movement, 4 abilities hit `_ => {}`
+- **Current:** 196 LOC. Resource accumulation only. All ability methods deleted including the broken PhaseWalk.
+- **Decision:** Same as light/crystal.
+
+### 2.4 Psychic Abilities — UNCHANGED (partially wired)
+
+- **What works:** Full pipeline with cooldowns, data-driven from abilities.json
+- **What's broken:** Only 3 hardcoded effect IDs work (stun_aoe, guaranteed_hit, phasing). Everything else logs "Effect not implemented."
+- **Status:** ⚠️ Partially wired. Kept because the 3 working effects are functional in gameplay.
+
+### 2.5 Fake DES Scenarios — NOT CLEANED
+
+All 7 fake scenarios still exist:
+- `crystal_resonance_basic.json`, `void_energy_basic.json`, `light_manipulation_basic.json` — identical boilerplate (spawn, wait, assert player_alive)
+- `enhanced_enemy_systems_test.json`, `fov_system_test.json`, `narrative_system_test.json`, `story_model_test.json` — test nothing meaningful
+
+2 dead `.des` files also remain: `skill_progression_test.des`, `faction_system_test.des`.
 
 ---
 
@@ -92,38 +114,38 @@ All three special system scenarios (`crystal_resonance_basic.json`, `void_energy
 
 ### 3.1 state.rs God Object
 
-- **3,525 LOC**, 163 methods, 16 distinct concerns
-- 25+ sibling module imports
+- **3,185 LOC** (down from 3,525), **135 methods** (118 pub + 17 private, down from 163)
+- Still 16 distinct concerns, still the sole STATE-ORCHESTRATOR
 - 4 files extend it with `impl GameState` blocks (combat_actions.rs, inspect.rs, qa_tools.rs, state.rs itself)
-- 22 of 50 game modules have zero reverse dependencies — only consumed by state.rs
-- The god object makes it impossible to tell what's connected without tracing every call chain
+- The god object remains the primary architectural problem — cleanup reduced its size but not its role
 
-### 3.2 Dual Generation System
+### 3.2 Generation System — PARTIALLY RESOLVED
 
-Two parallel generation systems that don't interact:
-- **System A (active)**: terrain-forge pipeline via `terrain_forge_adapter.rs` — handles all game terrain
-- **System B (dead)**: Custom `StructureGenerator` trait with 7 algorithm implementations (~45KB) — only used in deprecated tilegen-tool and 3 test files
+- **System A (active):** terrain-forge pipeline via `terrain_forge_adapter.rs` — handles all game terrain
+- **System B (partially dead):** Custom `StructureGenerator` trait. 7 algorithm implementations deleted. `dungeon_generator.rs` (236 LOC) and `ruins_generator.rs` (116 LOC) remain and ARE used by `terrain_forge_adapter.rs` for POI-specific dungeon generation. `algorithms/mod.rs` is empty and should be deleted.
+- **Correction:** The original audit classified the entire custom system as dead. `dungeon_generator.rs` is actively used — `terrain_forge_adapter.rs` calls `generate_with_dungeon_generator()` for POI types that need dungeon layouts.
 
-The custom system was the original approach, superseded by terrain-forge. The adapter function `generate_with_dungeon_generator()` is misleadingly named — it calls terrain-forge, not the custom DungeonGenerator.
+### 3.3 No Algorithm Registry — CONFIRMED
 
-### 3.3 No Algorithm Registry
+The summary claim about `generation/registry.rs` was false. This has been corrected in the `.agents/summary/` files.
 
-The summary claims `generation/registry.rs` provides a plugin system. **This file does not exist.** Algorithm selection happens via string names in `terrain_forge_adapter.rs` dispatched to the external crate.
+### 3.4 Schema Lifecycle Gap — PARTIALLY RESOLVED
 
-### 3.4 Schema Lifecycle Gap
+- Orphaned schemas cleaned (all 36 schemas now have matching data files)
+- 5 data files still lack schemas: biome_spawn_tables, environmental_props, main_questline, skill_trees, traders
+- No CI step for schema-data consistency (unchanged)
 
-- `schema_gen.rs` uses a manual type list (only 7 types registered)
-- No CI step runs schema_gen or checks schema-data consistency
-- No cleanup mechanism when data files are renamed/merged/split
-- Bidirectional problem: orphaned schemas AND unvalidated data files
+### 3.5 Summary Documentation Drift — RESOLVED
 
-### 3.5 Summary Documentation Drift
+`.agents/summary/` files regenerated after cleanup with corrections documented in `review_notes.md`. False claims about ritual.rs, algorithm registry, and special system functionality corrected.
 
-The `.agents/summary/` files contain multiple false claims:
-- `ritual.rs` exists (it doesn't)
-- Algorithm registry exists (it doesn't)
-- All special systems are functional (they're half-wired)
-- 7 structure algorithms are selectable (none are used in game)
+### 3.6 Structural Gates — NEW (added 2026-04-04)
+
+The following gates have been added to prevent future scaffold-and-abandon:
+
+1. **System Status Registry** (`docs/development/SYSTEM_STATUS.md`): Source of truth for what is wired into gameplay. Overrides `.agents/summary/` claims.
+2. **Commit Policy** (in `AGENTS.md` Custom Instructions and `.kiro/steering/tech.md`): Requires proving DES scenario, honest status marking, and registry update before committing new systems.
+3. **Documentation Triage**: Technical/design docs triaged and archived. Front-matter with `status`, `last_verified`, `commit` added to current docs.
 
 ---
 
@@ -252,58 +274,35 @@ cellular_automata, drunkard_walk, and simple_rooms are used in test files but no
 
 ---
 
-## Part 7: Structural Recommendations (Draft)
+## Part 7: Structural Recommendations — STATUS
 
-These are preliminary. Final recommendations depend on the investigations in Part 6.
+### 7.1 Integration Gates — ✅ IMPLEMENTED
 
-### 7.1 Integration Gates (Prevent Future Scaffolding)
+1. **System Status Registry:** `docs/development/SYSTEM_STATUS.md` — created, covers all systems.
+2. **Commit Policy:** Added to `AGENTS.md` (Custom Instructions) and `.kiro/steering/tech.md`. Requires proving DES scenario, honest status marking, registry update.
+3. **Batch commit awareness:** Covered by commit policy ("do not commit batch scaffolding without proving each system is wired").
 
-The core problem: code can be committed without proving it connects to gameplay. Proposed gates:
+### 7.2 state.rs Decomposition — PENDING (architecture refactor)
 
-1. **Meaningful DES requirement**: Every new system must have a DES scenario that exercises the actual gameplay effect — not just `player_alive`. For combat abilities: assert damage dealt. For movement abilities: assert position changed. For resource systems: assert resource consumed AND effect applied.
+This is the core of the ESCAEV / Elm Architecture refactor. state.rs is still 3,185 LOC with 135 methods across 16 concerns. The cleanup reduced its size but not its structural role as the sole STATE-ORCHESTRATOR. Decomposition approach depends on the architectural direction chosen.
 
-2. **"Wired" checklist in PR template**: Before merging a new system, verify:
-   - [ ] Input action variant exists and is dispatched
-   - [ ] Effect is observable in game state (not just energy deducted)
-   - [ ] At least one DES scenario asserts the observable effect
-   - [ ] No `_ => {}` catch-all in ability dispatch
+### 7.3 Dead Code Policy — ✅ MOSTLY IMPLEMENTED
 
-3. **Batch commit size limit**: Flag commits with >500 insertions for review. Not a hard block, but a signal that integration may be incomplete.
+1. **Immediate deletions:** ✅ Done (algorithms, terminal_spawn, dead methods, ViewportCuller, orphaned schemas, structure_generation.json).
+2. **Half-wired systems decision:** ✅ Done (ability methods removed from light/crystal/void, resource accumulation kept).
+3. **Schema cleanup:** ✅ Orphaned schemas deleted. ❌ CI check not yet added.
+4. **Remaining:** patterns/special/ duplicates, fake DES scenarios, dead .des files, empty algorithms/mod.rs.
 
-### 7.2 state.rs Decomposition (Reduce Coupling Surface)
+### 7.4 Generation System Consolidation — ✅ MOSTLY DONE
 
-The god object makes it hard to see what's connected. Proposed approach:
+1. **Custom algorithms removed:** ✅ All 7 deleted.
+2. **dungeon_generator.rs kept:** Correction — it IS used by terrain_forge_adapter.rs. Not dead.
+3. **structure_generation.json removed:** ✅ Deleted.
+4. **Empty algorithms/mod.rs:** ❌ Still exists, should be deleted with directory.
 
-1. **Extract foundational types first** (Tier 1 from cluster analysis): Map, Tile, Biome, POI, Terrain into a `types` module. Zero risk, high value — these are pure data types with no GameState dependency.
+### 7.5 Summary Documentation Accuracy — ✅ DONE
 
-2. **Extract sub-states with accessor traits**: Instead of one GameState with 163 methods, define sub-state structs (CombatState, NarrativeState, ProgressionState) that own their fields and methods. GameState becomes a composition of sub-states with thin delegation.
-
-3. **Eliminate `impl GameState` sprawl**: combat_actions.rs, inspect.rs, qa_tools.rs should become free functions or methods on sub-states, not extensions of GameState.
-
-4. **Defer the hard parts**: encounter.rs coupling and hub methods (end_turn, etc.) are the hardest to extract. Do them last, after the easy extractions prove the pattern works.
-
-### 7.3 Dead Code Policy
-
-Rather than a one-time cleanup, establish ongoing policy:
-
-1. **Immediate**: Delete `patterns/special/` (duplicates), `terminal_spawn.rs` (dead), 4 dead algorithms with zero test usage (bsp, maze, voronoi, wfc).
-2. **Mark explicitly**: Add `#[deprecated(note = "Not wired to gameplay — see CODEBASE_HEALTH_AUDIT.md")]` to light, crystal, void ability methods. This makes the status visible to anyone reading the code.
-3. **Schema cleanup**: Delete the 7 deprecated schemas. Add a CI check that warns on schema-data mismatches.
-4. **Decide, don't defer**: For each half-wired system, make an explicit decision: finish wiring it, or remove it. Don't leave it in limbo.
-
-### 7.4 Generation System Consolidation
-
-1. **Remove the custom StructureGenerator trait and 7 algorithm implementations** — terrain-forge has superseded them.
-2. **Rename `generate_with_dungeon_generator()`** to reflect that it uses terrain-forge.
-3. **Keep the 3 test-only algorithms only if** investigation 6.6 confirms they test something meaningful. Otherwise delete.
-4. **Remove `structure_generation.json`** and the deprecated tilegen-tool, or update them to use terrain-forge.
-
-### 7.5 Summary Documentation Accuracy
-
-The `.agents/summary/` files need correction. But more importantly, they need a maintenance strategy:
-- Tie summary updates to the same PR that changes the code
-- Add a "last verified" date to each summary file
-- Consider generating parts of the summary from code analysis (e.g., module list, dependency counts)
+`.agents/summary/` files regenerated with corrections. `review_notes.md` documents all corrections. System Status Registry provides ongoing accuracy for gameplay system wiring.
 
 ---
 
@@ -318,7 +317,7 @@ The `.agents/summary/` files need correction. But more importantly, they need a 
 4. `move_on_world_map` / `travel_to_tile_safe` (fan-out 5 each) — travel + encounter wrappers
 5. `process_events` (fan-out 3) — drain → LootSystem → QuestSystem → handle_event
 
-**API surface:** 141 pub, 1 pub(crate), 21 private. 16 pub methods are dead (zero callers). 9 pub methods should be private (only called internally).
+**API surface:** 118 pub, 17 private (down from 141 pub + 1 pub(crate) + 21 private after removing 15 dead pub methods and 4 dead stubs).
 
 **Key finding:** The event system (`emit`/`process_events`) is already a clean boundary. More systems should use it instead of direct method calls — this would decouple `use_item` and `end_turn`.
 
@@ -350,18 +349,21 @@ Only 95 LOC, 7 methods. 4 thin delegators, 2 pure reads, 1 cross-concern method 
 
 No runtime validation exists for cross-references. DataLoader validates schema structure but not referential integrity.
 
-### 6.6 Test-Only Algorithms
+### 6.6 Test-Only Algorithms — ✅ RESOLVED
 
-The 3 test-only algorithms (cellular_automata, drunkard_walk, simple_rooms) are tested by smoke tests that only verify `generate()` returns non-empty output. They test the **custom** implementations, not terrain-forge's equivalents. `des_scenarios.rs` also has 2 pure Rust tests for BSP and CellularAutomata (same smoke pattern). These tests are dead weight — they validate code the game never uses.
+All 3 test-only algorithms (cellular_automata, drunkard_walk, simple_rooms) deleted along with the 4 fully dead algorithms. The smoke tests that validated them are also gone. `algorithms/mod.rs` remains as an empty file — should be deleted with the directory.
 
-### 6.7 Narrative Subsystem Design Intent
+### 6.7 Narrative Subsystem Design Intent — CORRECTED
 
-Three disconnected layers:
-1. **narrative_engine.rs** (130 LOC) — state container with stub methods. QuestLog.on_* are all no-ops. complete() returns hardcoded rewards.
-2. **generation/narrative.rs** (535 LOC) + **narrative_templates.rs** (387 LOC) — real Markov chain + template generation code, but only used in `generation/tests.rs`. Never called from the game pipeline.
-3. **10 dead methods in state.rs** — were supposed to bridge state → generation. All say "Removed: generation systems not yet re-implemented."
+> **Update 2026-04-04:** Original audit classified `generation/narrative.rs` and `narrative_templates.rs` as dead. This was incorrect — they are used by `map.rs::generate_area_description()` for procedural area descriptions during map generation. The 10 dead bridge methods in state.rs were correctly identified as dead and have been removed.
 
-The generation code exists and works (per unit tests) but was never wired into the game loop. Total: ~1,050 LOC exercised only by unit tests.
+Three layers, two of which are active:
+
+1. **narrative_engine.rs** (103 LOC, down from 130) — state container. QuestLog.on_* hooks are functional for quest tracking. `complete()` returns hardcoded rewards. This is a thin orchestration layer, not dead.
+
+2. **generation/narrative.rs** (535 LOC) + **narrative_templates.rs** (387 LOC) — Markov chain + template generation. **Actually used** by `map.rs::generate_area_description()` which is called during map initialization. Not dead.
+
+3. **10 dead bridge methods in state.rs** — ✅ Removed. These were supposed to connect state → generation but were never wired.
 
 ---
 
@@ -508,13 +510,13 @@ Each module classified by the abstract problem it solves, independent of game do
 
 **4. The generation pipeline is a clean `DATA-XFORM` chain** — except for tile_generator.rs which is a `STATE-ORCHESTRATOR` (it writes entities into GameState). If tile_generator returned a struct instead of mutating state, the entire generation pipeline would be pure.
 
-**5. The half-wired systems (light, crystal, void) are `TICK-SYSTEM` + `RESOURCE-ACCUM`** — they tick correctly but their `DECISION-FN` abilities are never invoked because no `INPUT-DISPATCH` → `STATE-ORCHESTRATOR` path exists for them.
+**5. The half-wired systems (light, crystal, void) are now `RESOURCE-ACCUM` only** — ability methods removed. They tick correctly and accumulate resources. When abilities are re-implemented, they will need `INPUT-DISPATCH` → `STATE-ORCHESTRATOR` paths.
 
 **6. The event system is underused.** Only `LootSystem` and `QuestSystem` use `EVENT-ROUTER`. Combat, movement, item use, and encounter resolution all use direct method calls through the `STATE-ORCHESTRATOR`. If `use_item` emitted events instead of calling 10+ methods directly, each concern could react independently.
 
-**7. Two patterns dominate the dead code:**
-- `DATA-XFORM` code that was never connected to a `STATE-ORCHESTRATOR` (narrative generation, custom algorithms)
-- `RESOURCE-ACCUM` systems whose `DECISION-FN` abilities lack an `INPUT-DISPATCH` path (light, crystal, void)
+**7. Two patterns dominated the dead code (now mostly cleaned):**
+- `DATA-XFORM` code that was never connected to a `STATE-ORCHESTRATOR` (custom algorithms — deleted)
+- `RESOURCE-ACCUM` systems whose `DECISION-FN` abilities lacked an `INPUT-DISPATCH` path (light, crystal, void — ability methods deleted, resource tracking kept)
 
 **8. Potential architectural patterns suggested by the taxonomy:**
 - **Command pattern** for `STATE-ORCHESTRATOR` methods — `use_item` becomes a command that emits effects, not a method that calls 10 things
@@ -526,14 +528,40 @@ Each module classified by the abstract problem it solves, independent of game do
 
 ## Appendix: Quantified Impact
 
-| Category | Dead/Broken LOC | Files Affected |
-|----------|----------------|----------------|
-| Dead algorithms (4 fully dead) | ~1,300 | 4 |
-| Dead algorithms (3 test-only) | ~900 | 3 |
-| Half-wired special systems | ~1,007 | 3 (+3 UI files) |
-| Dead state.rs methods | ~300 est. | 1 |
-| Dead UI exports | ~50 est. | 1 |
-| Orphaned schemas | 11 files | 11 |
-| Orphaned pattern files | 7 files | 7 |
-| Dead terminal_spawn.rs | 52 | 1 |
-| **Total estimated dead/broken** | **~3,600 LOC + 19 files** | |
+### Cleanup Completed (Phase 0.5)
+
+| Category | LOC Removed | Files Removed |
+|----------|-------------|---------------|
+| Dead algorithms (4 fully dead + 3 test-only) | ~2,200 | 7 |
+| Dead state.rs methods (15 + 4 stubs) | ~320 est. | 0 (in-file) |
+| Half-wired ability methods (light/crystal/void) | ~600 est. | 0 (in-file) |
+| Dead UI exports | ~50 est. | 0 (in-file) |
+| ViewportCuller | ~30 est. | 0 (in-file) |
+| terminal_spawn.rs | 52 | 1 |
+| Orphaned schemas | — | 11 |
+| structure_generation.json | — | 1 |
+| **Total removed** | **~3,250 LOC** | **20 files** |
+
+### Remaining Issues
+
+| Category | Impact | Files |
+|----------|--------|-------|
+| `patterns/special/` duplicates | 7 duplicate files | 7 |
+| Fake DES scenarios | False test confidence | 7 |
+| Dead .des files | Clutter | 2 |
+| Data files without schemas | No validation | 5 |
+| Dangling data cross-references | Runtime errors possible | 18 refs across 2 files |
+| Empty `algorithms/mod.rs` | Dead directory | 1 |
+
+### Current Codebase Metrics
+
+| Metric | Before Cleanup | After Cleanup |
+|--------|---------------|---------------|
+| Source files | ~164 | 150 |
+| Total LOC | ~48,500 | 43,822 |
+| state.rs LOC | 3,525 | 3,185 |
+| state.rs methods | 163 | 135 (118 pub + 17 private) |
+| Schemas | 47 (11 orphaned) | 36 (0 orphaned) |
+| Light system LOC | 313 | 85 |
+| Crystal system LOC | 376 | 151 |
+| Void system LOC | 318 | 196 |
