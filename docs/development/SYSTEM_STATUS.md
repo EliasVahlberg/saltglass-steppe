@@ -1,15 +1,28 @@
 ---
 status: current
-last_verified: 2026-04-04
-commit: 3033a75
+last_verified: 2026-04-05
+commit: dddd97b
 ---
 
 # System Status Registry
 
 > **Purpose**: Single source of truth for what actually works in gameplay. Read this before working on any system.
 > **Architecture**: VERA (Verified Effect-Rule Architecture) — see `docs/development/architecture_refactor/FINAL_ARCHITECTURE.md`
-> **Last verified**: 2026-04-04 (VERA Phases 1–4 merged)
+> **Last verified**: 2026-04-05 (VERA soft-migration complete)
 > **Rule**: If a system isn't marked ✅, don't assume it works. Verify before building on it.
+
+## VERA Migration Summary
+
+| Metric | Value |
+|--------|-------|
+| state.rs LOC | 3,195 |
+| Command variants | 22 |
+| Rule modules | 7 (actions, combat, economy, item, movement, reactions, turn) |
+| Rule functions | 20 |
+| Rule unit tests | 39 |
+| DES scenarios | 157 |
+
+**Soft-migration complete.** All gameplay actions go through `dispatch()`. Legacy bypass paths deleted. Next: domain decomposition of state.rs (see `STATE_RS_MIGRATION_PLAN.md`).
 
 ## Status Key
 
@@ -26,35 +39,31 @@ commit: 3033a75
 
 | System | Input Path | State Mutation | DES Coverage | Status | VERA |
 |--------|-----------|---------------|-------------|--------|------|
-| **Movement** | Arrow keys → `Command::Move` → `rule_move` | player.x/y, FOV, lighting, tile effects | Multiple scenarios + 7 rule tests | ✅ | ⚠️ Partial — NPC/combat branches delegate to legacy bridge |
-| **Melee combat** | Bump-to-attack → `Command::Attack` → `rule_melee_attack` | enemy.hp, player.ap, XP, loot events | 12+ scenarios + 4 rule tests | ✅ | ⚠️ Partial — post-processing (swarm aggro, reflect, split) still imperative |
-| **Ranged combat** | 'f' key → `Command::RangedAttack` → `rule_ranged_attack` | enemy.hp, ammo consumed, projectile visual | Some scenarios + 3 rule tests | ✅ | ⚠️ Partial — same caveats as melee |
-| **Item use** | 'u' key → `Command::UseItem` → `rule_use_item` | HP, AP, refraction, energy, inventory | 12 DES scenarios + 7 rule tests | ✅ | ✅ Migrated |
-| **Item pickup** | Walk over → `MovementSystem::pickup_items` | inventory, item removed from map | Some scenarios | ✅ | — Legacy |
-| **Equipment** | Inventory menu → equip | player.equipped_weapon | Minimal | ✅ | — Legacy |
-| **Enemy AI** | `end_turn` → `TurnPhase::RunAI` → `AiSystem::update` | enemy positions, player.hp (attacks) | Some scenarios | ✅ | — Legacy (called from TurnPhase) |
-| **Status effects** | `end_turn` → `TurnPhase::TickStatusEffects` → `StatusEffectSystem::update` | HP ticks, duration, expiry | Some scenarios | ✅ | — Legacy (called from TurnPhase) |
-| **Storm system** | `end_turn` → `TurnPhase::TickStorm` → `StormSystem::apply_storm` | map tiles (7 edit types), refraction, wraith spawns | Minimal | ✅ | — Legacy (called from TurnPhase) |
-| **end_turn** | End of player action → `TurnPhase::sequence()` | AP reset, turn advance, all sub-systems | Every scenario (implicit) | ✅ | ⚠️ Partial — ResetAp/AdvanceTurn traced; sub-systems remain legacy |
-| **Quest system** | Events → `QuestSystem::on_event` | quest progress, completion | Some scenarios | ✅ | — Legacy |
-| **Loot system** | EnemyKilled event → `LootSystem::on_event` | items spawned on map | Some scenarios | ✅ | — Legacy |
-| **Save/load** | Menu → `save_game`/`load_game` | Full GameState serialization | No DES coverage | ⚠️ No tests | — Legacy |
-| **World travel** | Map edge → `travel_to_tile` | map regenerated, entities spawned | Minimal | ✅ | — Legacy |
-| **NPC dialogue** | Bump NPC → `handle_npc_interaction_legacy` | pending_ui.dialogue, quest events | Some scenarios | ✅ | — Legacy (bridge from rule_move) |
-| **Trading** | NPC action → `pending_ui.trade` | inventory, salt_scrip | Thin coverage (1-2 scenarios) | ⚠️ | — Legacy |
-| **Crafting** | Menu → craft | inventory (consume + produce) | Thin coverage (1-2 scenarios) | ⚠️ | — Legacy |
-
-## Special Systems (Audit Findings)
-
-| System | Input Path | State Mutation | DES Coverage | Status | Audit Reference |
-|--------|-----------|---------------|-------------|--------|----------------|
-| **Light manipulation** | Menu opens ('g') but **no input handler** | `update()` ticks energy only | 1 fake scenario (player_alive only) | ❌ | Audit §2.1 |
-| **Crystal resonance** | Menu opens ('V'), Enter **does nothing** | `update()` ticks energy only | 1 fake scenario (player_alive only) | ❌ | Audit §2.2 |
-| **Void energy** | Menu opens, Enter dispatches `UseVoidAbility` | Energy deducted but **PhaseWalk unchecked in movement**, 4 other abilities are `_ => {}` | 1 fake scenario (player_alive only) | ❌ | Audit §2.3 |
-| **Psychic abilities** | Full pipeline with cooldowns | Only 3 of N effects work (stun_aoe, guaranteed_hit, phasing). Rest log "not implemented." | No meaningful coverage | ⚠️ | Audit §2.4 |
-| **Adaptations** | Refraction threshold → `check_adaptation_threshold` | Adaptation gained, stat modifiers applied | Minimal | ⚠️ |
-| **Narrative engine** | None — bridge methods are stubs | `narrative_engine.rs` is a stub state container. `complete()` returns hardcoded rewards. | No coverage | ❌ | Audit §6.7 |
-| **Narrative generation** | None — never called from game pipeline | `generation/narrative.rs` (535 LOC) + `narrative_templates.rs` (387 LOC) work in unit tests only | Unit tests only | ❌ | Audit §6.7 |
+| **Movement** | Arrow keys → `Command::Move` → `rule_move` | player.x/y, FOV, lighting, tile effects | Multiple scenarios + 7 rule tests | ✅ | ⚠️ Pure rule; NPC/combat branches delegate to legacy bridge |
+| **Melee combat** | Bump-to-attack → `Command::Attack` → `rule_melee_attack` | enemy.hp, player.ap, XP, loot events | 12+ scenarios + 4 rule tests | ✅ | ⚠️ Pure rule; post-processing (swarm aggro, reflect, split) still imperative |
+| **Ranged combat** | 'f' key → `Command::RangedAttack` → `rule_ranged_attack` | enemy.hp, ammo consumed, projectile visual | Some scenarios + 3 rule tests | ✅ | ⚠️ Pure rule; same caveats as melee |
+| **Item use** | 'u' key → `Command::UseItem` → `rule_use_item` | HP, AP, refraction, energy, inventory | 12 DES scenarios + 7 rule tests | ✅ | ✅ Pure rule |
+| **Item pickup** | Walk over → `MovementSystem::pickup_items` | inventory, item removed from map | Some scenarios | ✅ | — Legacy bridge |
+| **Equipment** | `Command::Equip/Unequip` → `rule_equip/rule_unequip` | player.equipment, equipped_weapon, armor | Minimal + 2 rule tests | ✅ | ✅ Pure rule |
+| **Interact / Examine** | 'e'/'x' → `Command::Interact/Examine` → `rule_interact/rule_examine` | quest progress, log messages | Some scenarios | ✅ | ✅ Pure rule |
+| **Crafting** | Menu → `Command::Craft` → `rule_craft` | inventory (consume + produce) | Thin (1-2 scenarios) + 1 rule test | ⚠️ | ✅ Pure rule |
+| **Trading** | NPC action → `Command::BuyItem/SellItem` → `rule_buy/sell_item` | inventory, salt_scrip | Thin (1-2 scenarios) + 2 rule tests | ⚠️ | ✅ Pure rule |
+| **Quest accept/complete** | `Command::AcceptQuest/CompleteQuest` → dispatch helpers | quest log, XP, items, reputation | Some scenarios | ✅ | ✅ Pure rule (effects only) |
+| **Wait / Rest** | Space/r → `Command::Wait/Rest` → `rule_wait/rule_rest` | AP, HP, wait_counter | Some scenarios + 4 rule tests | ✅ | ✅ Pure rule |
+| **Enemy AI** | `end_turn` → `TurnPhase::RunAI` → `PlayerEffect::RunAI` | enemy positions, player.hp | Some scenarios | ✅ | ⚠️ Bridge effect (calls `update_enemies()`) |
+| **Status effects** | `end_turn` → `TurnPhase::TickStatusEffects` → `PlayerEffect::TickStatusEffects` | HP ticks, duration, expiry | Some scenarios | ✅ | ⚠️ Bridge effect (calls `StatusEffectSystem`) |
+| **Loot drops** | `CombatEffect::Kill` → `reaction_loot_drop` → `ItemEffect::SpawnOnMap` | items spawned on map | Some scenarios + 1 rule test | ✅ | ✅ Pure reaction |
+| **Storm system** | `end_turn` → `TurnPhase::TickStorm` → `MapEffect::TickStorm` | map tiles (7 edit types), refraction, wraith spawns | Minimal | ✅ | ⚠️ Bridge effect (calls `StormSystem`) |
+| **Turn subsystems** | `end_turn` → `TurnPhase::TickSubsystems` → 5 bridge effects | psychic, skills, light, void, crystal ticks | Every scenario (implicit) | ✅ | ⚠️ Bridge effects |
+| **Time / weather** | `end_turn` → `TurnPhase::AdvanceTime` → `MapEffect::AdvanceTime/SetWeather` | time_of_day, weather | Every scenario (implicit) + 2 rule tests | ✅ | ✅ Pure rule (inlined in execute_phase) |
+| **Encounters** | `end_turn` → `TurnPhase::CheckEncounters` → `rule_check_encounters` | encounter_state, ClearEncounter | Some scenarios + 1 rule test | ✅ | ✅ Pure rule |
+| **Adaptations** | Refraction threshold → `rule_check_adaptation` | adaptation gained, stat modifiers | Minimal + 1 rule test | ⚠️ | ✅ Pure rule |
+| **Psychic abilities** | `Command::UsePsychic` → `dispatch_use_psychic` → `rule_use_psychic` | cooldowns; only 3 of N effects work | No meaningful coverage | ⚠️ | ⚠️ Pure rule; most effects unimplemented |
+| **World travel** | Map edge → `Command::WorldMove` → `dispatch_world_move` | map regenerated, entities spawned | Minimal | ✅ | — Orchestrator (not VERA-migratable) |
+| **Subterranean travel** | Stairs → `Command::EnterSubterranean` → `dispatch_enter_subterranean` | map regenerated, layer changed | Minimal | ✅ | — Orchestrator |
+| **NPC dialogue** | Bump NPC → `handle_npc_interaction_legacy` | pending_ui.dialogue, quest events | Some scenarios | ✅ | — Legacy bridge from rule_move |
+| **Save/load** | Menu → `save`/`load` | Full GameState serialization | No DES coverage | ⚠️ | — Legacy |
+| **Quest progress** | `EventEffect::QuestNotify` → apply arm | quest objectives, auto-complete | Some scenarios | ✅ | ⚠️ Bridge effect (calls quest_log methods directly) |
 
 ## Procedural Generation
 
@@ -85,6 +94,7 @@ commit: 3033a75
 | Spawn tables → Enemies cross-refs | ✅ | 0 dangling references |
 | Loot tables → Items cross-refs | ✅ | 0 dangling (fixed: `angle_split_lens`→`angle_lens`, `prism_shard`→`prism_core`) |
 | Spawn tables → Items cross-refs | ✅ | 0 dangling (fixed: 16 refs remapped to existing items) |
+| Hardcoded constructor content | ✅ | `dying_pilgrim`, `hand_torch`, `glass_pick` moved to spawn table data (`room: first`) |
 | Schema coverage | ⚠️ | 5 data files without schemas: biome_spawn_tables, environmental_props, main_questline, skill_trees, traders |
 | Orphaned schemas | ❌ | 11 schemas with no matching data file |
 | Runtime cross-ref validation | ❌ | DataLoader validates schema structure but not referential integrity |
