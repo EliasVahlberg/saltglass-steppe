@@ -1705,27 +1705,28 @@ impl DesExecutor {
             AssertionCheck::SkillPoints { op, value } => {
                 op.compare(self.state.player.skills.skill_points, *value)
             }
-            AssertionCheck::EffectOccurred { pattern } => self
-                .state
-                .trace
-                .entries
-                .iter()
-                .any(|e| format!("{:?}", e.effect).contains(pattern.as_str())),
-            AssertionCheck::EffectNotOccurred { pattern } => !self
-                .state
-                .trace
-                .entries
-                .iter()
-                .any(|e| format!("{:?}", e.effect).contains(pattern.as_str())),
+            AssertionCheck::EffectOccurred { pattern } => {
+                let in_trace = self.state.trace.entries.iter()
+                    .any(|e| format!("{:?}", e.effect).contains(pattern.as_str()));
+                let in_mutations = self.state.mutation_log.iter()
+                    .any(|s| s.contains(pattern.as_str()));
+                in_trace || in_mutations
+            }
+            AssertionCheck::EffectNotOccurred { pattern } => {
+                let in_trace = self.state.trace.entries.iter()
+                    .any(|e| format!("{:?}", e.effect).contains(pattern.as_str()));
+                let in_mutations = self.state.mutation_log.iter()
+                    .any(|s| s.contains(pattern.as_str()));
+                !in_trace && !in_mutations
+            }
             AssertionCheck::EffectCount { pattern, op, value } => {
-                let count = self
-                    .state
-                    .trace
-                    .entries
-                    .iter()
+                let trace_count = self.state.trace.entries.iter()
                     .filter(|e| format!("{:?}", e.effect).contains(pattern.as_str()))
                     .count();
-                op.compare(count, *value)
+                let mutation_count = self.state.mutation_log.iter()
+                    .filter(|s| s.contains(pattern.as_str()))
+                    .count();
+                op.compare(trace_count + mutation_count, *value)
             }
             // Simplified implementations for other assertions
             _ => {

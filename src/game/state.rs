@@ -23,7 +23,6 @@ use super::{
     map_features::MapFeatures,
     npc::Npc,
     storm::Storm,
-    systems::combat::CombatSystem,
     systems::movement::MovementSystem,
     world_map::WorldMap,
 };
@@ -166,6 +165,9 @@ pub struct GameState {
     /// VERA trace — records effects for DES verification
     #[serde(skip)]
     pub trace: super::effects::Trace,
+    /// Mutation trace — debug strings of Mutation variants, for DES verification
+    #[serde(skip)]
+    pub mutation_log: Vec<String>,
 }
 
 impl GameState {
@@ -491,6 +493,7 @@ impl GameState {
             map_features: MapFeatures::new(),
             seed,
             trace: Default::default(),
+            mutation_log: Vec::new(),
         };
 
         // Materialize terrain-forge markers into entities
@@ -508,10 +511,58 @@ impl GameState {
         match command {
             Command::Move { dx, dy } => self.dispatch_move(dx, dy),
             Command::Attack { target_x, target_y } => {
-                self.dispatch_melee_attack(target_x, target_y)
+                self.ensure_spatial_index();
+                let mutations = {
+                    let ctx = super::effects::context::QueryContext {
+                        player: &self.player,
+                        map: &self.world.map,
+                        revealed_count: self.revealed.len(),
+                        tile_count: self.world.map.tiles.len(),
+                        npc_positions: &self.spatial.npc_positions,
+                        enemy_positions: &self.spatial.enemy_positions,
+                        enemies: &self.world.enemies,
+                        visible: &self.visible,
+                        debug_phase: self.debug.phase,
+                        mock_combat_hit: self.debug.mock_combat_hit,
+                        mock_combat_damage: self.debug.mock_combat_damage,
+                        wait_counter: self.wait_counter,
+                        turn: self.turn,
+                        time_of_day: self.world.time_of_day,
+                        encounter_state: self.world.encounter_state.as_ref(),
+                        player_adaptations: &self.player.adaptations,
+                        player_refraction: self.player.refraction,
+                    };
+                    super::systems::combat::handle_melee(target_x, target_y, &ctx, &mut self.rng)
+                };
+                super::dispatch::apply_with_cascade(self, mutations);
+                self.check_auto_end_turn();
             }
             Command::RangedAttack { target_x, target_y } => {
-                self.dispatch_ranged_attack(target_x, target_y)
+                self.ensure_spatial_index();
+                let mutations = {
+                    let ctx = super::effects::context::QueryContext {
+                        player: &self.player,
+                        map: &self.world.map,
+                        revealed_count: self.revealed.len(),
+                        tile_count: self.world.map.tiles.len(),
+                        npc_positions: &self.spatial.npc_positions,
+                        enemy_positions: &self.spatial.enemy_positions,
+                        enemies: &self.world.enemies,
+                        visible: &self.visible,
+                        debug_phase: self.debug.phase,
+                        mock_combat_hit: self.debug.mock_combat_hit,
+                        mock_combat_damage: self.debug.mock_combat_damage,
+                        wait_counter: self.wait_counter,
+                        turn: self.turn,
+                        time_of_day: self.world.time_of_day,
+                        encounter_state: self.world.encounter_state.as_ref(),
+                        player_adaptations: &self.player.adaptations,
+                        player_refraction: self.player.refraction,
+                    };
+                    super::systems::combat::handle_ranged(target_x, target_y, &ctx, &mut self.rng)
+                };
+                super::dispatch::apply_with_cascade(self, mutations);
+                self.check_auto_end_turn();
             }
             Command::Wait => {
                 let output = {
@@ -660,7 +711,30 @@ impl GameState {
             MoveResult::Combat => {
                 let new_x = self.player.x + dx;
                 let new_y = self.player.y + dy;
-                self.dispatch_melee_attack(new_x, new_y);
+                let mutations = {
+                    let ctx = super::effects::context::QueryContext {
+                        player: &self.player,
+                        map: &self.world.map,
+                        revealed_count: self.revealed.len(),
+                        tile_count: self.world.map.tiles.len(),
+                        npc_positions: &self.spatial.npc_positions,
+                        enemy_positions: &self.spatial.enemy_positions,
+                        enemies: &self.world.enemies,
+                        visible: &self.visible,
+                        debug_phase: self.debug.phase,
+                        mock_combat_hit: self.debug.mock_combat_hit,
+                        mock_combat_damage: self.debug.mock_combat_damage,
+                        wait_counter: self.wait_counter,
+                        turn: self.turn,
+                        time_of_day: self.world.time_of_day,
+                        encounter_state: self.world.encounter_state.as_ref(),
+                        player_adaptations: &self.player.adaptations,
+                        player_refraction: self.player.refraction,
+                    };
+                    super::systems::combat::handle_melee(new_x, new_y, &ctx, &mut self.rng)
+                };
+                super::dispatch::apply_with_cascade(self, mutations);
+                self.check_auto_end_turn();
             }
             MoveResult::Moved => {
                 // Derives: FOV, lighting, pickup, world transition, adaptation, auto-end-turn
@@ -676,206 +750,6 @@ impl GameState {
             }
             MoveResult::Blocked => {}
         }
-    }
-
-    /// Dispatch melee attack: rule produces effects, post-processing handles behaviors
-    fn dispatch_melee_attack(&mut self, target_x: i32, target_y: i32) {
-        self.ensure_spatial_index();
-        let output = {
-            let ctx = super::effects::context::QueryContext {
-                player: &self.player,
-                map: &self.world.map,
-                revealed_count: self.revealed.len(),
-                tile_count: self.world.map.tiles.len(),
-                npc_positions: &self.spatial.npc_positions,
-                enemy_positions: &self.spatial.enemy_positions,
-                enemies: &self.world.enemies,
-                visible: &self.visible,
-                debug_phase: self.debug.phase,
-                mock_combat_hit: self.debug.mock_combat_hit,
-                mock_combat_damage: self.debug.mock_combat_damage,
-                wait_counter: self.wait_counter,
-                turn: self.turn,
-                time_of_day: self.world.time_of_day,
-                encounter_state: self.world.encounter_state.as_ref(),
-                player_adaptations: &self.player.adaptations,
-                player_refraction: self.player.refraction,
-            };
-            super::rules::rule_melee_attack(target_x, target_y, &ctx, &mut self.rng)
-        };
-
-        // Check what happened for post-processing
-        let mut killed_idx = None;
-        let mut damage_dealt = 0i32;
-        let mut hit = false;
-        for effect in &output.effects {
-            match effect {
-                super::effects::Effect::Combat(super::effects::CombatEffect::Kill {
-                    enemy_idx,
-                    ..
-                }) => {
-                    killed_idx = Some(*enemy_idx);
-                }
-                super::effects::Effect::Combat(super::effects::CombatEffect::DealDamage {
-                    amount,
-                    ..
-                }) => {
-                    damage_dealt = *amount;
-                    hit = true;
-                }
-                _ => {}
-            }
-        }
-
-        // Apply effects and trace
-        let applied_effects = output.effects.clone();
-        self.apply_and_trace(output, "rule_melee_attack");
-
-        // Run reactions (currently no-op, infrastructure for future phases)
-        self.run_reactions(&applied_effects, 0);
-
-        // Post-processing: visual effects and behaviors (imperative, not rule-based)
-        if hit {
-            self.trigger_hit_flash(target_x, target_y);
-            self.spawn_damage_number(target_x, target_y, damage_dealt, false);
-        }
-
-        // Swarm aggro
-        if let Some(ei) = self.enemy_at(target_x, target_y).or(killed_idx)
-            && let Some(enemy) = self.world.enemies.get(ei)
-            && enemy.def().map(|d| d.swarm).unwrap_or(false)
-        {
-            let id = enemy.id.clone();
-            let ex = enemy.x;
-            let ey = enemy.y;
-            CombatSystem::trigger_swarm_aggro(self, &id, ex, ey, 8);
-        }
-
-        // On-hit effects and reflect damage
-        if hit
-            && killed_idx.is_none()
-            && let Some(ei) = self.enemy_at(target_x, target_y)
-            && let Some(def) = self.world.enemies[ei].def()
-        {
-            for e in &def.effects {
-                if e.condition == "on_hit" {
-                    self.trigger_effect(&e.effect, 2);
-                }
-            }
-            for behavior in &def.behaviors {
-                if behavior.behavior_type == "reflect_damage" {
-                    let percent = behavior.percent.unwrap_or(25);
-                    let reflected = (damage_dealt as u32 * percent / 100) as i32;
-                    if reflected > 0 {
-                        self.player.hp -= reflected;
-                        self.log_typed(
-                            format!("The enemy reflects {} damage back at you!", reflected),
-                            MsgType::Combat,
-                        );
-                    }
-                }
-            }
-        }
-
-        // On-death effects, XP, split on death
-        if let Some(ki) = killed_idx {
-            CombatSystem::process_enemy_death_post(self, ki);
-        }
-
-        self.check_auto_end_turn();
-    }
-
-    /// Dispatch ranged attack: rule produces effects, post-processing handles behaviors
-    fn dispatch_ranged_attack(&mut self, target_x: i32, target_y: i32) {
-        self.ensure_spatial_index();
-
-        // Spawn projectile before the rule (visual only)
-        let weapon_range = self
-            .player
-            .equipped_weapon
-            .as_ref()
-            .and_then(|id| super::combat::get_weapon_def(id))
-            .map(|w| w.range)
-            .unwrap_or(0);
-        if weapon_range > 1 {
-            let proj_char = if weapon_range > 3 { '*' } else { '-' };
-            self.spawn_projectile(
-                (self.player.x, self.player.y),
-                (target_x, target_y),
-                proj_char,
-            );
-        }
-
-        let output = {
-            let ctx = super::effects::context::QueryContext {
-                player: &self.player,
-                map: &self.world.map,
-                revealed_count: self.revealed.len(),
-                tile_count: self.world.map.tiles.len(),
-                npc_positions: &self.spatial.npc_positions,
-                enemy_positions: &self.spatial.enemy_positions,
-                enemies: &self.world.enemies,
-                visible: &self.visible,
-                debug_phase: self.debug.phase,
-                mock_combat_hit: self.debug.mock_combat_hit,
-                mock_combat_damage: self.debug.mock_combat_damage,
-                wait_counter: self.wait_counter,
-                turn: self.turn,
-                time_of_day: self.world.time_of_day,
-                encounter_state: self.world.encounter_state.as_ref(),
-                player_adaptations: &self.player.adaptations,
-                player_refraction: self.player.refraction,
-            };
-            super::rules::rule_ranged_attack(target_x, target_y, &ctx, &mut self.rng)
-        };
-
-        let mut killed_idx = None;
-        let mut damage_dealt = 0i32;
-        let mut hit = false;
-        for effect in &output.effects {
-            match effect {
-                super::effects::Effect::Combat(super::effects::CombatEffect::Kill {
-                    enemy_idx,
-                    ..
-                }) => {
-                    killed_idx = Some(*enemy_idx);
-                }
-                super::effects::Effect::Combat(super::effects::CombatEffect::DealDamage {
-                    amount,
-                    ..
-                }) => {
-                    damage_dealt = *amount;
-                    hit = true;
-                }
-                _ => {}
-            }
-        }
-
-        let applied_effects = output.effects.clone();
-        self.apply_and_trace(output, "rule_ranged_attack");
-        self.run_reactions(&applied_effects, 0);
-
-        if hit {
-            self.trigger_hit_flash(target_x, target_y);
-            self.spawn_damage_number(target_x, target_y, damage_dealt, false);
-        }
-
-        // Swarm aggro
-        if let Some(ei) = self.enemy_at(target_x, target_y).or(killed_idx)
-            && let Some(enemy) = self.world.enemies.get(ei)
-            && enemy.def().map(|d| d.swarm).unwrap_or(false)
-        {
-            let id = enemy.id.clone();
-            let ex = enemy.x;
-            let ey = enemy.y;
-            CombatSystem::trigger_swarm_aggro(self, &id, ex, ey, 8);
-        }
-
-        if let Some(ki) = killed_idx {
-            CombatSystem::process_enemy_death_post(self, ki);
-        }
-
-        self.check_auto_end_turn();
     }
 
     /// Apply a RuleOutput: effects → apply + trace, presentation → log
@@ -3314,6 +3188,9 @@ impl GameState {
     pub fn apply_mutations(&mut self, mutations: Vec<super::mutations::Mutation>) -> Vec<super::mutations::StateTransition> {
         let mut transitions = Vec::new();
         for m in &mutations {
+            if self.trace.enabled {
+                self.mutation_log.push(format!("{:?}", m));
+            }
             if let Some(t) = self.apply_one(m) {
                 transitions.push(t);
             }
