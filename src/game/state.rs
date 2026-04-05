@@ -1879,25 +1879,6 @@ impl GameState {
         }
     }
 
-    /// Check if current encounter is complete and clear it
-    pub fn check_encounter_completion(&mut self) {
-        if let Some(encounter) = &self.world.encounter_state
-            && encounter.is_complete(&self.world.enemies)
-        {
-            // Grant XP for hostile encounters
-            if let super::encounter::EncounterType::Hostile { threat_points } =
-                encounter.encounter_type
-            {
-                let xp = threat_points * 2; // 2 XP per threat point
-                self.gain_xp(xp);
-                self.log_typed(format!("Encounter complete! +{} XP", xp), MsgType::Status);
-            }
-
-            self.world.encounter_state = None;
-            self.log("You are free to travel again.");
-        }
-    }
-
     /// Attempt to flee from current encounter
     pub fn attempt_flee_encounter(&mut self) -> Result<(), String> {
         let encounter = match &self.world.encounter_state {
@@ -2272,24 +2253,6 @@ impl GameState {
         (time_ambient + weather_mod).clamp(10, 200) as u8
     }
 
-    /// Advance time by one turn (10 turns = 1 hour)
-    pub fn tick_time(&mut self) {
-        if self.turn.is_multiple_of(10) {
-            self.world.time_of_day = (self.world.time_of_day + 1) % 24;
-
-            // Random weather changes at dawn/dusk
-            if self.world.time_of_day == 6 || self.world.time_of_day == 18 {
-                let roll = self.rng.gen_range(0..10);
-                self.world.weather = match roll {
-                    0..=6 => Weather::Clear,
-                    7..=8 => Weather::Dusty,
-                    9 => Weather::Sandstorm,
-                    _ => Weather::Clear,
-                };
-            }
-        }
-    }
-
     pub fn get_light_level(&self, x: i32, y: i32) -> u8 {
         if x < 0 || y < 0 {
             return 0;
@@ -2303,53 +2266,6 @@ impl GameState {
             effect: effect.to_string(),
             turns_remaining: duration,
         });
-    }
-
-    /// Gain XP and check for level up
-    pub fn gain_xp(&mut self, amount: u32) {
-        use super::progression::{max_level, stat_points_per_level, xp_for_level};
-
-        self.player.xp += amount;
-        self.log(format!("+{} XP", amount));
-
-        // Check for level up
-        while self.player.level < max_level() {
-            let next_threshold = xp_for_level(self.player.level + 1);
-            if self.player.xp >= next_threshold {
-                self.player.level += 1;
-                let points = stat_points_per_level();
-                self.player.pending_stat_points += points;
-                // Also gain skill points
-                self.player.skills.skill_points += 2;
-                self.log(format!(
-                    "⬆ LEVEL {}! (+{} stat points, +2 skill points)",
-                    self.player.level, points
-                ));
-            } else {
-                break;
-            }
-        }
-    }
-
-    /// Allocate a stat point to a specific stat
-    pub fn allocate_stat(&mut self, stat: &str) -> bool {
-        if self.player.pending_stat_points <= 0 {
-            return false;
-        }
-
-        match stat {
-            "max_hp" => {
-                self.player.max_hp += 1;
-                self.player.hp += 1; // Also heal
-            }
-            "max_ap" => self.player.max_ap += 1,
-            "reflex" => self.player.reflex += 1,
-            _ => return false,
-        }
-
-        self.player.pending_stat_points -= 1;
-        self.log(format!("+1 {}", stat));
-        true
     }
 
     /// End turn: execute the turn phase sequence.
@@ -2457,74 +2373,6 @@ impl GameState {
             MsgType::System,
         );
         self.player.status_effects.push(effect);
-    }
-
-    /// Wait in place (costs 0 AP, ends turn). Auto-heals after 10 consecutive waits with no enemies nearby.
-    pub fn wait_turn(&mut self) {
-        // Check for nearby enemies (within 8 tiles, not FOV range)
-        let enemies_nearby = self.world.enemies.iter().any(|e| {
-            if e.hp <= 0 {
-                return false;
-            } // Ignore dead enemies
-            let dx = (e.x - self.player.x).abs();
-            let dy = (e.y - self.player.y).abs();
-            dx <= 8 && dy <= 8 // Much smaller range for healing
-        });
-
-        if enemies_nearby {
-            self.wait_counter = 0;
-        } else {
-            self.wait_counter += 1;
-            // Auto-rest after 10 consecutive waits
-            if self.wait_counter >= 10 && self.player.hp < self.player.max_hp {
-                let heal = (self.player.max_hp / 20).max(1); // 5% instead of 10%
-                self.player.hp = (self.player.hp + heal).min(self.player.max_hp);
-                self.log_typed(
-                    format!("You rest and recover {} HP.", heal),
-                    MsgType::Status,
-                );
-                self.wait_counter = 0;
-            }
-        }
-        self.end_turn();
-    }
-
-    /// Rest to recover HP (50% max HP). Requires no nearby enemies and costs 10 turns.
-    pub fn rest(&mut self) -> Result<(), String> {
-        // Check for nearby enemies (within FOV range)
-        for enemy in &self.world.enemies {
-            let dx = (enemy.x - self.player.x).abs();
-            let dy = (enemy.y - self.player.y).abs();
-            if dx <= super::constants::FOV_RANGE && dy <= super::constants::FOV_RANGE {
-                return Err("You cannot rest with enemies nearby!".to_string());
-            }
-        }
-
-        // Heal 50% max HP
-        let heal_amount = (self.player.max_hp as f32 * 0.5) as i32;
-        let old_hp = self.player.hp;
-        self.player.hp = (self.player.hp + heal_amount).min(self.player.max_hp);
-        let actual_heal = self.player.hp - old_hp;
-
-        if actual_heal > 0 {
-            self.log_typed(
-                format!("You rest and recover {} HP.", actual_heal),
-                MsgType::Status,
-            );
-        } else {
-            self.log_typed("You rest but are already at full health.", MsgType::Status);
-        }
-
-        // Advance 10 turns
-        for _ in 0..10 {
-            self.turn += 1;
-            self.tick_turn_housekeeping();
-        }
-
-        // Process enemy turns (they get to act while you rest)
-        self.update_enemies();
-
-        Ok(())
     }
 
     /// Auto-end turn if player has no AP left
@@ -3265,7 +3113,7 @@ impl GameState {
                 self.log(format!("Quest completed: {}", def.name));
             }
             if reward.xp > 0 {
-                self.gain_xp(reward.xp);
+                self.apply_effect(&super::effects::Effect::Player(super::effects::PlayerEffect::GainXp { amount: reward.xp }));
             }
             if reward.salt_scrip > 0 {
                 self.player.salt_scrip += reward.salt_scrip;
