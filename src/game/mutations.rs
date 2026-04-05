@@ -91,6 +91,8 @@ pub enum Mutation {
     AcceptQuest(String),
     CompleteQuest(String),
     SetFactionAlignment(String),
+    /// Bridge: calls quest_log notification methods
+    QuestNotify(crate::game::effects::QuestNotifyKind),
 
     // Resources
     SetLightEnergy(u32),
@@ -110,6 +112,22 @@ pub enum Mutation {
 
     // Subsystem ticks (bridge — subsystem handles internally)
     TickSubsystem(SubsystemId),
+    /// Bridge: calls psychic.use_ability then applies the resulting effect
+    UsePsychicAbility { ability_id: String },
+    /// Bridge: calls attempt_flee with full state access
+    AttemptFlee { turn: u32 },
+    /// Delta mutations (used when system doesn't have current value)
+    AddSaltScrip(u32),
+    SpendAp(i32),
+    /// World travel bridges (orchestrators — call travel_to_tile internally)
+    WorldMove { wx: usize, wy: usize },
+    WorldMoveSafe { wx: usize, wy: usize },
+    FollowWorldPath,
+    CalculateWorldPath { target: (usize, usize) },
+    EnterSubterranean,
+    ExitSubterranean,
+    /// Bridge: runs rule_move and handles all branches (NPC, combat, move, blocked)
+    MovePlayer { dx: i32, dy: i32 },
 }
 
 // ---------------------------------------------------------------------------

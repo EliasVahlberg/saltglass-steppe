@@ -3,11 +3,15 @@ use super::state::GameState;
 
 pub mod ai;
 pub mod combat;
+pub mod interact;
+pub mod items;
 pub mod loot;
 pub mod movement;
+pub mod player;
 pub mod quest;
 pub mod status;
 pub mod storm;
+pub mod world;
 
 pub use loot::LootSystem;
 pub use status::StatusEffectSystem;

@@ -10,7 +10,6 @@ use super::{
     adaptation::Adaptation,
     chest::Chest,
     enemy::Enemy,
-    entity::Entity,
     generation::place_microstructures,
     generation::{
         distribute_points_grid, generate_loot, get_biome_spawn_table,
@@ -508,62 +507,17 @@ impl GameState {
     /// VERA dispatch — central command handler
     pub fn dispatch(&mut self, command: super::effects::Command) {
         use super::effects::Command;
+
+        self.ensure_spatial_index();
+
+        if let Some(mutations) = super::dispatch::route_command(&command, self) {
+            super::dispatch::apply_with_cascade(self, mutations);
+            self.check_auto_end_turn();
+            return;
+        }
+
+        // Legacy path: commands not yet migrated to Mutation path
         match command {
-            Command::Move { dx, dy } => self.dispatch_move(dx, dy),
-            Command::Attack { target_x, target_y } => {
-                self.ensure_spatial_index();
-                let mutations = {
-                    let ctx = super::effects::context::QueryContext {
-                        player: &self.player,
-                        map: &self.world.map,
-                        revealed_count: self.revealed.len(),
-                        tile_count: self.world.map.tiles.len(),
-                        npc_positions: &self.spatial.npc_positions,
-                        enemy_positions: &self.spatial.enemy_positions,
-                        enemies: &self.world.enemies,
-                        visible: &self.visible,
-                        debug_phase: self.debug.phase,
-                        mock_combat_hit: self.debug.mock_combat_hit,
-                        mock_combat_damage: self.debug.mock_combat_damage,
-                        wait_counter: self.wait_counter,
-                        turn: self.turn,
-                        time_of_day: self.world.time_of_day,
-                        encounter_state: self.world.encounter_state.as_ref(),
-                        player_adaptations: &self.player.adaptations,
-                        player_refraction: self.player.refraction,
-                    };
-                    super::systems::combat::handle_melee(target_x, target_y, &ctx, &mut self.rng)
-                };
-                super::dispatch::apply_with_cascade(self, mutations);
-                self.check_auto_end_turn();
-            }
-            Command::RangedAttack { target_x, target_y } => {
-                self.ensure_spatial_index();
-                let mutations = {
-                    let ctx = super::effects::context::QueryContext {
-                        player: &self.player,
-                        map: &self.world.map,
-                        revealed_count: self.revealed.len(),
-                        tile_count: self.world.map.tiles.len(),
-                        npc_positions: &self.spatial.npc_positions,
-                        enemy_positions: &self.spatial.enemy_positions,
-                        enemies: &self.world.enemies,
-                        visible: &self.visible,
-                        debug_phase: self.debug.phase,
-                        mock_combat_hit: self.debug.mock_combat_hit,
-                        mock_combat_damage: self.debug.mock_combat_damage,
-                        wait_counter: self.wait_counter,
-                        turn: self.turn,
-                        time_of_day: self.world.time_of_day,
-                        encounter_state: self.world.encounter_state.as_ref(),
-                        player_adaptations: &self.player.adaptations,
-                        player_refraction: self.player.refraction,
-                    };
-                    super::systems::combat::handle_ranged(target_x, target_y, &ctx, &mut self.rng)
-                };
-                super::dispatch::apply_with_cascade(self, mutations);
-                self.check_auto_end_turn();
-            }
             Command::Wait => {
                 let output = {
                     let ctx = super::effects::context::QueryContext::from_state(self);
@@ -580,10 +534,7 @@ impl GameState {
                 let had_effects = !output.effects.is_empty();
                 self.apply_and_trace(output, "rule_rest");
                 if had_effects {
-                    // Rest advances turns internally; also run AI and housekeeping
-                    for _ in 0..10 {
-                        self.tick_turn_housekeeping();
-                    }
+                    for _ in 0..10 { self.tick_turn_housekeeping(); }
                     self.update_enemies();
                 }
             }
@@ -605,57 +556,21 @@ impl GameState {
                 };
                 self.apply_and_trace(output, "rule_allocate_stat");
             }
-            Command::AcceptQuest { quest_id } => {
-                self.dispatch_accept_quest(&quest_id);
-            }
-            Command::CompleteQuest { quest_id } => {
-                self.dispatch_complete_quest(&quest_id);
-            }
-            Command::Interact { x, y } => {
-                self.dispatch_interact(x, y);
-            }
-            Command::Examine { x, y } => {
-                self.dispatch_examine(x, y);
-            }
-            Command::UsePsychic { ability_id } => {
-                self.dispatch_use_psychic(&ability_id);
-            }
-            Command::FleeEncounter => {
-                self.dispatch_flee_encounter();
-            }
-            Command::WorldMove { new_wx, new_wy } => {
-                self.dispatch_world_move(new_wx, new_wy);
-            }
-            Command::WorldMoveSafe { new_wx, new_wy } => {
-                self.dispatch_world_move_safe(new_wx, new_wy);
-            }
-            Command::EnterSubterranean => {
-                self.dispatch_enter_subterranean();
-            }
-            Command::ExitSubterranean => {
-                self.dispatch_exit_subterranean();
-            }
-            Command::FollowWorldPath => {
-                self.dispatch_follow_world_path();
-            }
-            Command::CalculateWorldPath { target_wx, target_wy } => {
-                self.dispatch_calculate_world_path((target_wx, target_wy));
-            }
-            _ => {
+            Command::UseItem { index } => {
                 let output = {
                     let ctx = super::effects::context::QueryContext::from_state(self);
-                    match &command {
-                        Command::UseItem { index } => {
-                            super::rules::rule_use_item(*index, &ctx)
-                        }
-                        Command::UseItemOnTile { index, x, y } => {
-                            super::rules::rule_use_item_on_tile(*index, *x, *y, &ctx)
-                        }
-                        _ => unreachable!(),
-                    }
+                    super::rules::rule_use_item(index, &ctx)
                 };
-                self.apply_and_trace(output, command.name());
+                self.apply_and_trace(output, "rule_use_item");
             }
+            Command::UseItemOnTile { index, x, y } => {
+                let output = {
+                    let ctx = super::effects::context::QueryContext::from_state(self);
+                    super::rules::rule_use_item_on_tile(index, x, y, &ctx)
+                };
+                self.apply_and_trace(output, "rule_use_item_on_tile");
+            }
+            _ => {}
         }
     }
 
@@ -749,156 +664,6 @@ impl GameState {
                 self.check_auto_end_turn();
             }
             MoveResult::Blocked => {}
-        }
-    }
-
-    /// Apply a RuleOutput: effects → apply + trace, presentation → log
-    fn dispatch_accept_quest(&mut self, quest_id: &str) {
-        use super::effects::{Effect, QuestEffect, Presentation};
-
-        let can_accept = self.player.quest_log.is_quest_available(quest_id, self);
-        if !can_accept { return; }
-
-        let mut effects: Vec<Effect> = vec![
-            Effect::Quest(QuestEffect::Accept { quest_id: quest_id.to_string() }),
-        ];
-        let mut presentation = Vec::new();
-
-        if let Some(def) = super::quest::get_quest_def(quest_id) {
-            presentation.push(Presentation::LogMessage {
-                text: format!("Quest accepted: {}", def.name),
-                msg_type: "system".into(),
-            });
-            if def.category == "main" && quest_id.starts_with("faction_choice_") {
-                let faction = if quest_id.contains("monks") { "Mirror Monks" }
-                    else if quest_id.contains("engineers") { "Sand-Engineers" }
-                    else if quest_id.contains("glassborn") { "Glassborn" }
-                    else { "" };
-                if !faction.is_empty() {
-                    effects.push(Effect::Quest(QuestEffect::SetFactionAlignment {
-                        faction: faction.to_string(),
-                    }));
-                    presentation.push(Presentation::LogMessage {
-                        text: format!("You have aligned with the {}", faction),
-                        msg_type: "system".into(),
-                    });
-                }
-            }
-        }
-
-        let output = super::effects::RuleOutput { effects, presentation };
-        self.apply_and_trace(output, "rule_accept_quest");
-    }
-
-    fn dispatch_complete_quest(&mut self, quest_id: &str) {
-        use super::effects::{Effect, PlayerEffect, ItemEffect, Presentation};
-
-        // complete() moves quest to completed and returns reward
-        let reward = match self.player.quest_log.complete(quest_id) {
-            Some(r) => r,
-            None => return,
-        };
-
-        let mut effects = Vec::new();
-        let mut presentation = Vec::new();
-
-        if let Some(def) = super::quest::get_quest_def(quest_id) {
-            presentation.push(Presentation::LogMessage {
-                text: format!("Quest completed: {}", def.name),
-                msg_type: "system".into(),
-            });
-        }
-
-        if reward.xp > 0 {
-            effects.push(Effect::Player(PlayerEffect::GainXp { amount: reward.xp }));
-        }
-        if reward.salt_scrip > 0 {
-            effects.push(Effect::Player(PlayerEffect::GainSaltScrip { amount: reward.salt_scrip }));
-            presentation.push(Presentation::LogMessage {
-                text: format!("Received {} salt scrip", reward.salt_scrip),
-                msg_type: "loot".into(),
-            });
-        }
-        for item_id in &reward.items {
-            effects.push(Effect::Item(ItemEffect::AddToInventory { item_id: item_id.clone() }));
-        }
-        for (faction_id, delta) in &reward.reputation_rewards {
-            effects.push(Effect::Player(PlayerEffect::ModifyReputation {
-                faction: faction_id.clone(),
-                delta: *delta,
-            }));
-        }
-        for unlocked_id in &reward.unlocks_quests {
-            if let Some(unlocked_def) = super::quest::get_quest_def(unlocked_id) {
-                presentation.push(Presentation::LogMessage {
-                    text: format!("New quest available: {}", unlocked_def.name),
-                    msg_type: "system".into(),
-                });
-            }
-        }
-
-        let output = super::effects::RuleOutput { effects, presentation };
-        self.apply_and_trace(output, "rule_complete_quest");
-    }
-
-    fn dispatch_use_psychic(&mut self, ability_id: &str) {
-        match self.player.psychic.use_ability(ability_id) {
-            Ok(effect_id) => {
-                let output = {
-                    let ctx = super::effects::context::QueryContext::from_state(self);
-                    super::rules::rule_use_psychic(&effect_id, &ctx)
-                };
-                self.apply_and_trace(output, "rule_use_psychic");
-            }
-            Err(e) => self.log(e),
-        }
-    }
-
-    fn dispatch_flee_encounter(&mut self) {
-        use super::effects::{Effect, PlayerEffect, Presentation};
-
-        let encounter = match &self.world.encounter_state {
-            Some(e) => e.clone(),
-            None => {
-                self.log("No active encounter.");
-                return;
-            }
-        };
-
-        let difficulty_mod = 1.0;
-        if !encounter.can_flee(self.turn, difficulty_mod) {
-            self.log("You cannot flee yet!");
-            return;
-        }
-
-        match super::encounter::attempt_flee(
-            self.player.x,
-            self.player.y,
-            &self.world.enemies,
-            &encounter.spawned_enemies,
-            &mut self.rng,
-            self.player.skills.get_skill_level("wayfaring"),
-        ) {
-            Ok(()) => {
-                let output = super::effects::RuleOutput {
-                    effects: vec![Effect::Player(PlayerEffect::ClearEncounter)],
-                    presentation: vec![Presentation::LogMessage {
-                        text: "You successfully flee the encounter!".into(),
-                        msg_type: "status".into(),
-                    }],
-                };
-                self.apply_and_trace(output, "rule_flee_encounter");
-            }
-            Err(e) => {
-                let output = super::effects::RuleOutput {
-                    effects: vec![Effect::Player(PlayerEffect::SetLastFleeAttempt { turn: self.turn })],
-                    presentation: vec![Presentation::LogMessage {
-                        text: e,
-                        msg_type: "warning".into(),
-                    }],
-                };
-                self.apply_and_trace(output, "rule_flee_encounter");
-            }
         }
     }
 
@@ -1055,78 +820,6 @@ impl GameState {
             };
             self.apply_and_trace(output, "dispatch_calculate_world_path");
         }
-    }
-
-    fn dispatch_interact(&mut self, x: i32, y: i32) {
-        use super::rules::actions::{InteractTarget, rule_interact};
-        self.ensure_spatial_index();
-
-        let target = if let Some(&idx) = self.spatial.interactable_positions.get(&(x, y))
-            && let Some(interactable) = self.world.interactables.get_mut(idx)
-        {
-            let id = interactable.id.clone();
-            let message = interactable.interact();
-            InteractTarget::Interactable { id, message }
-        } else if let Some(&idx) = self.spatial.npc_positions.get(&(x, y))
-            && let Some(npc) = self.world.npcs.get(idx)
-        {
-            InteractTarget::Npc { id: npc.id.clone(), name: npc.name().to_string() }
-        } else if let Some(&idx) = self.spatial.chest_positions.get(&(x, y))
-            && let Some(chest) = self.world.chests.get(idx)
-        {
-            InteractTarget::Chest { name: chest.name().to_string() }
-        } else {
-            InteractTarget::Nothing
-        };
-
-        let output = rule_interact(target);
-        self.apply_and_trace(output, "rule_interact");
-        self.spatial.dirty = true;
-    }
-
-    fn dispatch_examine(&mut self, x: i32, y: i32) {
-        use super::rules::actions::{ExamineTarget, rule_examine};
-        use super::map::Tile;
-        self.ensure_spatial_index();
-
-        let target = if let Some(&idx) = self.spatial.interactable_positions.get(&(x, y))
-            && let Some(interactable) = self.world.interactables.get(idx)
-        {
-            let id = interactable.id.clone();
-            let message = interactable.examine();
-            ExamineTarget::Interactable { id, message }
-        } else if let Some(&idx) = self.spatial.enemy_positions.get(&(x, y))
-            && let Some(enemy) = self.world.enemies.get(idx)
-            && enemy.hp > 0
-        {
-            let max_hp = enemy.max_hp().unwrap_or(0);
-            ExamineTarget::Enemy { name: enemy.name().to_string(), hp: enemy.hp, max_hp }
-        } else if let Some(&idx) = self.spatial.npc_positions.get(&(x, y))
-            && let Some(npc) = self.world.npcs.get(idx)
-        {
-            ExamineTarget::Npc { name: npc.name().to_string(), description: npc.description().to_string() }
-        } else if let Some(indices) = self.spatial.item_positions.get(&(x, y))
-            && !indices.is_empty()
-            && let Some(item) = self.world.items.get(indices[0])
-        {
-            ExamineTarget::Item { name: item.name().to_string() }
-        } else if let Some(&idx) = self.spatial.chest_positions.get(&(x, y))
-            && let Some(chest) = self.world.chests.get(idx)
-        {
-            ExamineTarget::Chest { name: chest.name().to_string(), description: chest.description().to_string() }
-        } else {
-            let tile = self.world.map.get_tile(x, y);
-            let desc: &'static str = match tile {
-                Tile::Wall { .. } => "A solid wall.",
-                Tile::Floor { .. } => "The ground here is clear.",
-                Tile::Glass => "Dangerous glass terrain that refracts light.",
-                _ => "You examine the area.",
-            };
-            ExamineTarget::Tile { description: desc }
-        };
-
-        let output = rule_examine(target);
-        self.apply_and_trace(output, "rule_examine");
     }
 
     pub fn dispatch_craft(&mut self, recipe_id: &str) -> bool {
@@ -1309,7 +1002,7 @@ impl GameState {
     }
 
     /// Ensure spatial index is up to date before querying
-    fn ensure_spatial_index(&mut self) {
+    pub(crate) fn ensure_spatial_index(&mut self) {
         if self.spatial.dirty {
             self.rebuild_spatial_index_internal();
         }
@@ -3124,6 +2817,41 @@ impl GameState {
             Mutation::SetFactionAlignment(faction) => {
                 self.player.quest_log.set_faction_alignment(faction);
             }
+            Mutation::QuestNotify(kind) => {
+                use super::effects::QuestNotifyKind;
+                let completed = match kind {
+                    QuestNotifyKind::Kill { enemy_id } => {
+                        self.player.quest_log.on_enemy_killed(enemy_id);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::Collect { item_id } => {
+                        self.player.quest_log.on_item_collected(item_id);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::Move { x, y } => {
+                        self.player.quest_log.on_position_changed(*x, *y);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::NpcTalk { npc_id } => self.player.quest_log.on_npc_talked(npc_id),
+                    QuestNotifyKind::Interact { target_id } => {
+                        self.player.quest_log.on_interact(target_id);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::Examine { target_id } => {
+                        self.player.quest_log.on_examine(target_id);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::AriaInterface { item_id } => {
+                        self.player.quest_log.on_aria_interfaced(item_id);
+                        self.player.quest_log.check_auto_complete()
+                    }
+                    QuestNotifyKind::Turn => {
+                        self.player.quest_log.on_turn_passed();
+                        self.player.quest_log.check_auto_complete()
+                    }
+                };
+                self.log_quest_completions(&completed);
+            }
 
             // --- Resources ---
             Mutation::SetLightEnergy(v) => { self.player.light_system.light_energy = *v; }
@@ -3163,8 +2891,54 @@ impl GameState {
             Mutation::TriggerEffect { effect, duration } => {
                 self.trigger_effect(effect, *duration);
             }
+            Mutation::UsePsychicAbility { ability_id } => {
+                match self.player.psychic.use_ability(ability_id) {
+                    Ok(effect_id) => {
+                        self.log_typed(format!("You use {}.", ability_id), MsgType::Combat);
+                        let output = {
+                            let ctx = super::effects::context::QueryContext::from_state(self);
+                            super::rules::rule_use_psychic(&effect_id, &ctx)
+                        };
+                        self.apply_and_trace(output, "rule_use_psychic");
+                    }
+                    Err(e) => self.log(e),
+                }
+            }
+            Mutation::AttemptFlee { turn } => {
+                let encounter = self.world.encounter_state.clone()?;
+                match super::encounter::attempt_flee(
+                    self.player.x, self.player.y,
+                    &self.world.enemies, &encounter.spawned_enemies,
+                    &mut self.rng,
+                    self.player.skills.get_skill_level("wayfaring"),
+                ) {
+                    Ok(()) => {
+                        self.world.encounter_state = None;
+                        self.log_typed("You successfully flee the encounter!".to_string(), MsgType::Status);
+                    }
+                    Err(e) => {
+                        if let Some(enc) = &mut self.world.encounter_state {
+                            enc.last_flee_attempt = *turn;
+                        }
+                        self.log_typed(e, MsgType::Warning);
+                    }
+                }
+            }
 
             // --- Bridge subsystems ---
+            Mutation::AddSaltScrip(amount) => {
+                self.player.salt_scrip += amount;
+            }
+            Mutation::SpendAp(amount) => {
+                self.player.ap = (self.player.ap - amount).clamp(0, self.player.max_ap);
+            }
+            Mutation::WorldMove { wx, wy } => { self.dispatch_world_move(*wx, *wy); }
+            Mutation::WorldMoveSafe { wx, wy } => { self.dispatch_world_move_safe(*wx, *wy); }
+            Mutation::FollowWorldPath => { self.dispatch_follow_world_path(); }
+            Mutation::CalculateWorldPath { target } => { self.dispatch_calculate_world_path(*target); }
+            Mutation::EnterSubterranean => { self.dispatch_enter_subterranean(); }
+            Mutation::ExitSubterranean => { self.dispatch_exit_subterranean(); }
+            Mutation::MovePlayer { dx, dy } => { self.dispatch_move(*dx, *dy); }
             Mutation::TickSubsystem(id) => match id {
                 SubsystemId::Psychic     => { self.player.psychic.tick(); }
                 SubsystemId::Skills      => { self.player.skills.tick(); }

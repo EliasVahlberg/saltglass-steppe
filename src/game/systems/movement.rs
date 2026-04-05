@@ -248,3 +248,8 @@ impl MovementSystem {
         state.rebuild_spatial_index();
     }
 }
+
+/// Command handler: move player by (dx, dy). Bridges to dispatch_move via MovePlayer mutation.
+pub fn handle_move(dx: i32, dy: i32) -> Vec<crate::game::mutations::Mutation> {
+    vec![crate::game::mutations::Mutation::MovePlayer { dx, dy }]
+}
