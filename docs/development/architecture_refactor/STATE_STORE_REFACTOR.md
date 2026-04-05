@@ -27,6 +27,14 @@
 - Trace system (records Mutations instead of Effects)
 - Bridge subsystems: AI, storm, status stay as `TickSubsystem` bridges initially
 
+## Stage 1 Review Notes
+
+These are known deviations in `apply_one` that are correct for Stage 1 but need attention when systems produce `Mutation` directly in Stage 3:
+
+- **`SetEquipment`** — does `equipment.set()` + pushes old item to inventory + calls `recalc_equipment_stats()`. Three mutations in one. When systems emit `SetEquipment` directly, they must also emit `AddToInventory` (for the displaced item) and a `RecalcStats` mutation separately.
+- **`SpawnItemOnMap`** — calls `rebuild_spatial_index()` inside `apply_one`. In the final design, spatial rebuild is a derive that runs after all cascades settle, not inside apply_one. Acceptable for Stage 1.
+- **`RemoveEnemy`** — removes from spatial index and records in meta, but does not remove the enemy object from `world.enemies`. The enemy stays with `hp ≤ 0`. This matches pre-existing behavior (the old `Kill` apply arm did the same). Not a bug.
+
 ## Migration Stages
 
 ### Stage 1: Introduce mutations.rs alongside existing effects

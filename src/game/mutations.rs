@@ -94,8 +94,8 @@ pub enum Mutation {
 
     // Resources
     SetLightEnergy(u32),
-    SetVoidEnergy(u32),
-    SetVoidExposure(u32),
+    AddVoidEnergy(u32),
+    AddVoidExposure(u32),
     SetResonanceEnergy(u32),
     PlaceCrystal { x: i32, y: i32, frequency: String },
 

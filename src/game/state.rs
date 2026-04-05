@@ -3253,8 +3253,8 @@ impl GameState {
 
             // --- Resources ---
             Mutation::SetLightEnergy(v) => { self.player.light_system.light_energy = *v; }
-            Mutation::SetVoidEnergy(v) => { self.player.void_system.gain_energy(*v); }
-            Mutation::SetVoidExposure(v) => { self.player.void_system.add_exposure(*v); }
+            Mutation::AddVoidEnergy(v) => { self.player.void_system.gain_energy(*v); }
+            Mutation::AddVoidExposure(v) => { self.player.void_system.add_exposure(*v); }
             Mutation::SetResonanceEnergy(v) => {
                 self.player.crystal_system.resonance_energy =
                     (*v).min(self.player.crystal_system.max_resonance_energy);

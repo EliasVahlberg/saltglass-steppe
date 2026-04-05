@@ -270,10 +270,10 @@ impl GameState {
                 self.apply_one(&Mutation::SetLightEnergy(self.player.light_system.light_energy + amount));
             }
             ResourceEffect::GainVoidEnergy { amount } => {
-                self.apply_one(&Mutation::SetVoidEnergy(*amount));
+                self.apply_one(&Mutation::AddVoidEnergy(*amount));
             }
             ResourceEffect::GainVoidExposure { amount } => {
-                self.apply_one(&Mutation::SetVoidExposure(*amount));
+                self.apply_one(&Mutation::AddVoidExposure(*amount));
             }
             ResourceEffect::GainResonanceEnergy { amount } => {
                 let new_val = self.player.crystal_system.resonance_energy + amount;
