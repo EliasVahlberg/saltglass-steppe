@@ -26,8 +26,9 @@ fn apply_recursive(state: &mut GameState, mutations: Vec<Mutation>, depth: u32) 
     let transitions = state.apply_mutations(mutations);
     if transitions.is_empty() { return; }
 
-    let rng = state.rng.clone();
-    let reactions = notify::on_transitions(&transitions, state, &mut { rng });
+    let mut rng = state.rng.clone();
+    let reactions = notify::on_transitions(&transitions, state, &mut rng);
+    state.rng = rng; // write back so loot rolls advance the canonical rng
     apply_recursive(state, reactions, depth + 1);
 }
 

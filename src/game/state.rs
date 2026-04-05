@@ -3160,6 +3160,9 @@ impl GameState {
             Mutation::SpawnProjectile { from, to, ch } => {
                 self.world.visual_effects.spawn_projectile(*from, *to, *ch);
             }
+            Mutation::TriggerEffect { effect, duration } => {
+                self.trigger_effect(effect, *duration);
+            }
 
             // --- Bridge subsystems ---
             Mutation::TickSubsystem(id) => match id {

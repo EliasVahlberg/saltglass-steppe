@@ -106,6 +106,7 @@ pub enum Mutation {
     HitFlash { x: i32, y: i32 },
     DamageNumber { x: i32, y: i32, value: i32, is_heal: bool },
     SpawnProjectile { from: (i32, i32), to: (i32, i32), ch: char },
+    TriggerEffect { effect: String, duration: u32 },
 
     // Subsystem ticks (bridge — subsystem handles internally)
     TickSubsystem(SubsystemId),
