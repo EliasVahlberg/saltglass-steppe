@@ -139,3 +139,42 @@ These implicit behaviors in dispatch helpers become explicit notification handle
 - [ ] `cargo test` passes, all DES scenarios pass
 - [ ] Old Effect enums deleted
 - [ ] Old `effects/apply.rs` deleted
+
+## State.rs Decomposition Plan
+
+**Current**: 3,045 LOC. **Target**: ~535 LOC.
+
+### What stays in state.rs (~535 LOC)
+- Struct definition + field declarations (~80)
+- `apply_one` + `apply_mutations` (~420 — will shrink as bridge arms are decomposed)
+- Derives: `update_fov`, `update_lighting`, `rebuild_spatial_index` (~60)
+- Logging: `log`, `log_typed`, `apply_presentation` (~15)
+- Accessors (~105)
+- Save/load (~20)
+- `ensure_spatial_index` (~40)
+
+### What moves out (~2,400 LOC)
+
+| LOC | Methods | Destination |
+|-----|---------|-------------|
+| ~340 | `new()`, `new_with_class()` | `state_init.rs` |
+| ~780 | `travel_to_tile`, `move_on_world_map`, `travel_to_tile_safe`, `spawn_encounter_entities`, `dispatch_enter/exit_subterranean`, `calculate_world_path`, `move_along_path`, `dispatch_world_move*` | `systems/world.rs` |
+| ~230 | auto-explore + helpers | `systems/explore.rs` |
+| ~130 | `pickup_items`, `pickup_filtered_items`, chest ops, `dispatch_craft/buy/sell` | `systems/items.rs` |
+| ~100 | `end_turn`, `execute_phase`, `tick_turn_housekeeping`, `check_auto_end_turn` | `systems/turn.rs` |
+| ~87  | `dispatch_move` | decompose `MovePlayer` bridge into atomic mutations |
+| ~70  | `check_adaptation_threshold`, `apply_light_effects`, `apply_status`, `recalc_equipment_stats`, `attempt_flee_encounter` | `systems/player.rs` |
+| ~60  | visual effect methods (trigger_hit_flash, spawn_damage_number, etc.) | already handled by Mutation presentation variants |
+| ~200 | bridge mutation arms in `apply_one` | decompose into atomic mutations |
+
+### Priority order (by LOC)
+1. World travel (~780) — `travel_to_tile`, `move_on_world_map`, encounter spawning, subterranean
+2. Constructor (~340) — move to `state_init.rs`, straightforward
+3. Auto-explore (~230) — self-contained, move to `systems/explore.rs`
+4. Turn system (~100) — `end_turn`, `execute_phase` → `systems/turn.rs`
+5. Movement bridge (~87) — decompose `MovePlayer` into atomic mutations
+
+### Bridge mutation decomposition note
+Bridge mutations (`MovePlayer`, `EndTurn`, `RestTick`, `WorldMove`, etc.) call old methods
+inside `apply_one`. The logic didn't actually move — it just got a new entry point. Each
+bridge arm must be replaced with the actual atomic mutations the method produces.

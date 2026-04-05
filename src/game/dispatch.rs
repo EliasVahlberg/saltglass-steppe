@@ -5,7 +5,7 @@ use crate::game::{
     mutations::Mutation,
     notify,
     state::GameState,
-    systems::{combat, interact, items, movement, player, quest, world},
+    systems::{combat, interact, items, movement, player, quest},
 };
 
 /// Apply mutations, collect transitions, run notifications, cascade (depth-limited).
@@ -71,17 +71,17 @@ pub fn route_command(
         Command::Examine { x, y } =>
             Some(interact::handle_examine(*x, *y, state)),
         Command::WorldMove { new_wx, new_wy } =>
-            Some(world::handle_world_move(*new_wx, *new_wy)),
+            Some(vec![crate::game::mutations::Mutation::WorldMove { wx: *new_wx, wy: *new_wy }]),
         Command::WorldMoveSafe { new_wx, new_wy } =>
-            Some(world::handle_world_move_safe(*new_wx, *new_wy)),
+            Some(vec![crate::game::mutations::Mutation::WorldMoveSafe { wx: *new_wx, wy: *new_wy }]),
         Command::FollowWorldPath =>
-            Some(world::handle_follow_path()),
+            Some(vec![crate::game::mutations::Mutation::FollowWorldPath]),
         Command::CalculateWorldPath { target_wx, target_wy } =>
-            Some(world::handle_calculate_path((*target_wx, *target_wy))),
+            Some(vec![crate::game::mutations::Mutation::CalculateWorldPath { target: (*target_wx, *target_wy) }]),
         Command::EnterSubterranean =>
-            Some(world::handle_enter_subterranean()),
+            Some(vec![crate::game::mutations::Mutation::EnterSubterranean]),
         Command::ExitSubterranean =>
-            Some(world::handle_exit_subterranean()),
+            Some(vec![crate::game::mutations::Mutation::ExitSubterranean]),
         Command::Move { dx, dy } =>
             Some(movement::handle_move(*dx, *dy)),
         Command::Wait => {

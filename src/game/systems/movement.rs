@@ -253,3 +253,84 @@ impl MovementSystem {
 pub fn handle_move(dx: i32, dy: i32) -> Vec<crate::game::mutations::Mutation> {
     vec![crate::game::mutations::Mutation::MovePlayer { dx, dy }]
 }
+
+/// Execute player movement: rule determines outcome, bridges to NPC/combat/move handlers.
+/// Called from apply_one(MovePlayer) bridge arm.
+pub fn dispatch_move(state: &mut crate::game::state::GameState, dx: i32, dy: i32) {
+    use crate::game::effects::{context::QueryContext, MoveResult};
+
+    state.ensure_spatial_index();
+    let move_output = {
+        let ctx = QueryContext {
+            player: &state.player,
+            map: &state.world.map,
+            revealed_count: state.revealed.len(),
+            tile_count: state.world.map.tiles.len(),
+            npc_positions: &state.spatial.npc_positions,
+            enemy_positions: &state.spatial.enemy_positions,
+            enemies: &state.world.enemies,
+            visible: &state.visible,
+            debug_phase: state.debug.phase,
+            mock_combat_hit: state.debug.mock_combat_hit,
+            mock_combat_damage: state.debug.mock_combat_damage,
+            wait_counter: state.wait_counter,
+            turn: state.turn,
+            time_of_day: state.world.time_of_day,
+            encounter_state: state.world.encounter_state.as_ref(),
+            player_adaptations: &state.player.adaptations,
+            player_refraction: state.player.refraction,
+        };
+        crate::game::rules::rule_move(dx, dy, &ctx, &mut state.rng)
+    };
+    let mutations: Vec<crate::game::mutations::Mutation> = move_output.effects.into_iter()
+        .filter_map(crate::game::systems::effect_to_mutation)
+        .collect();
+    for p in &move_output.presentation { state.apply_presentation(p); }
+    state.apply_mutations(mutations);
+
+    match move_output.result {
+        MoveResult::Npc => {
+            let (nx, ny) = (state.player.x + dx, state.player.y + dy);
+            MovementSystem::handle_npc_interaction_legacy(state, nx, ny);
+        }
+        MoveResult::Combat => {
+            let (nx, ny) = (state.player.x + dx, state.player.y + dy);
+            let mutations = {
+                let ctx = QueryContext {
+                    player: &state.player,
+                    map: &state.world.map,
+                    revealed_count: state.revealed.len(),
+                    tile_count: state.world.map.tiles.len(),
+                    npc_positions: &state.spatial.npc_positions,
+                    enemy_positions: &state.spatial.enemy_positions,
+                    enemies: &state.world.enemies,
+                    visible: &state.visible,
+                    debug_phase: state.debug.phase,
+                    mock_combat_hit: state.debug.mock_combat_hit,
+                    mock_combat_damage: state.debug.mock_combat_damage,
+                    wait_counter: state.wait_counter,
+                    turn: state.turn,
+                    time_of_day: state.world.time_of_day,
+                    encounter_state: state.world.encounter_state.as_ref(),
+                    player_adaptations: &state.player.adaptations,
+                    player_refraction: state.player.refraction,
+                };
+                crate::game::systems::combat::handle_melee(nx, ny, &ctx, &mut state.rng)
+            };
+            crate::game::dispatch::apply_with_cascade(state, mutations);
+            state.check_auto_end_turn();
+        }
+        MoveResult::Moved => {
+            state.update_fov();
+            state.update_lighting();
+            MovementSystem::pickup_items(state);
+            let tile = state.world.map.get(state.player.x, state.player.y).cloned();
+            if let Some(t) = tile {
+                MovementSystem::handle_world_transition(state, &t, state.player.x, state.player.y);
+            }
+            state.check_adaptation_threshold();
+            state.check_auto_end_turn();
+        }
+        MoveResult::Blocked => {}
+    }
+}

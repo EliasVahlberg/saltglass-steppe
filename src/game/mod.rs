@@ -47,6 +47,7 @@ pub mod rules;
 pub mod save;
 pub mod skills;
 pub mod state;
+mod state_init;
 pub mod status;
 pub mod storm;
 pub mod systems;
