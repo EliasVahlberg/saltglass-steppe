@@ -349,7 +349,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         }
         Action::Craft => {
             if let Some(recipe_id) = ui.crafting_menu.selected_recipe_id() {
-                state.craft(recipe_id);
+                state.dispatch_craft(recipe_id);
             }
         }
         Action::None => {}

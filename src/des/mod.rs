@@ -1886,7 +1886,7 @@ impl DesExecutor {
             }
             // Crafting actions
             Action::Craft { recipe_id } => {
-                let success = self.state.craft(recipe_id);
+                let success = self.state.dispatch_craft(recipe_id);
                 self.log(format!(
                     "Craft '{}': {}",
                     recipe_id,
@@ -1894,11 +1894,11 @@ impl DesExecutor {
                 ));
             }
             // Economy actions
-            Action::BuyItem { item_id, npc_id } => match self.state.buy_item(item_id, npc_id) {
+            Action::BuyItem { item_id, npc_id } => match self.state.dispatch_buy_item(item_id, npc_id) {
                 Ok(()) => self.log(format!("Bought '{}'", item_id)),
                 Err(e) => self.log(format!("Buy failed: {}", e)),
             },
-            Action::SellItem { item_id } => match self.state.sell_item(item_id) {
+            Action::SellItem { item_id } => match self.state.dispatch_sell_item(item_id) {
                 Ok(()) => self.log(format!("Sold '{}'", item_id)),
                 Err(e) => self.log(format!("Sell failed: {}", e)),
             },

@@ -11,7 +11,6 @@ use super::{
     chest::Chest,
     enemy::Enemy,
     entity::Entity,
-    equipment::EquipSlot,
     generation::place_microstructures,
     generation::{
         distribute_points_grid, generate_loot, get_biome_spawn_table,
@@ -595,10 +594,10 @@ impl GameState {
                 self.dispatch_complete_quest(&quest_id);
             }
             Command::Interact { x, y } => {
-                self.interact_at(x, y);
+                self.dispatch_interact(x, y);
             }
             Command::Examine { x, y } => {
-                self.examine_at(x, y);
+                self.dispatch_examine(x, y);
             }
             Command::UsePsychic { ability_id } => {
                 self.dispatch_use_psychic(&ability_id);
@@ -1215,6 +1214,144 @@ impl GameState {
             };
             self.apply_and_trace(output, "dispatch_calculate_world_path");
         }
+    }
+
+    fn dispatch_interact(&mut self, x: i32, y: i32) {
+        use super::rules::actions::{InteractTarget, rule_interact};
+        self.ensure_spatial_index();
+
+        let target = if let Some(&idx) = self.spatial.interactable_positions.get(&(x, y))
+            && let Some(interactable) = self.world.interactables.get_mut(idx)
+        {
+            let id = interactable.id.clone();
+            let message = interactable.interact();
+            InteractTarget::Interactable { id, message }
+        } else if let Some(&idx) = self.spatial.npc_positions.get(&(x, y))
+            && let Some(npc) = self.world.npcs.get(idx)
+        {
+            InteractTarget::Npc { id: npc.id.clone(), name: npc.name().to_string() }
+        } else if let Some(&idx) = self.spatial.chest_positions.get(&(x, y))
+            && let Some(chest) = self.world.chests.get(idx)
+        {
+            InteractTarget::Chest { name: chest.name().to_string() }
+        } else {
+            InteractTarget::Nothing
+        };
+
+        let output = rule_interact(target);
+        self.apply_and_trace(output, "rule_interact");
+        self.spatial.dirty = true;
+    }
+
+    fn dispatch_examine(&mut self, x: i32, y: i32) {
+        use super::rules::actions::{ExamineTarget, rule_examine};
+        use super::map::Tile;
+        self.ensure_spatial_index();
+
+        let target = if let Some(&idx) = self.spatial.interactable_positions.get(&(x, y))
+            && let Some(interactable) = self.world.interactables.get(idx)
+        {
+            let id = interactable.id.clone();
+            let message = interactable.examine();
+            ExamineTarget::Interactable { id, message }
+        } else if let Some(&idx) = self.spatial.enemy_positions.get(&(x, y))
+            && let Some(enemy) = self.world.enemies.get(idx)
+            && enemy.hp > 0
+        {
+            let max_hp = enemy.max_hp().unwrap_or(0);
+            ExamineTarget::Enemy { name: enemy.name().to_string(), hp: enemy.hp, max_hp }
+        } else if let Some(&idx) = self.spatial.npc_positions.get(&(x, y))
+            && let Some(npc) = self.world.npcs.get(idx)
+        {
+            ExamineTarget::Npc { name: npc.name().to_string(), description: npc.description().to_string() }
+        } else if let Some(indices) = self.spatial.item_positions.get(&(x, y))
+            && !indices.is_empty()
+            && let Some(item) = self.world.items.get(indices[0])
+        {
+            ExamineTarget::Item { name: item.name().to_string() }
+        } else if let Some(&idx) = self.spatial.chest_positions.get(&(x, y))
+            && let Some(chest) = self.world.chests.get(idx)
+        {
+            ExamineTarget::Chest { name: chest.name().to_string(), description: chest.description().to_string() }
+        } else {
+            let tile = self.world.map.get_tile(x, y);
+            let desc: &'static str = match tile {
+                Tile::Wall { .. } => "A solid wall.",
+                Tile::Floor { .. } => "The ground here is clear.",
+                Tile::Glass => "Dangerous glass terrain that refracts light.",
+                _ => "You examine the area.",
+            };
+            ExamineTarget::Tile { description: desc }
+        };
+
+        let output = rule_examine(target);
+        self.apply_and_trace(output, "rule_examine");
+    }
+
+    pub fn dispatch_craft(&mut self, recipe_id: &str) -> bool {
+        // Check station requirement before calling rule (needs &mut self for spatial)
+        if let Some(recipe) = super::crafting::get_recipe(recipe_id)
+            && let Some(ref station) = recipe.station_required
+        {
+                let has_station = {
+                    let mut found = false;
+                    for dx in -1..=1 {
+                        for dy in -1..=1 {
+                            let pos = (self.player.x + dx, self.player.y + dy);
+                            if let Some(&idx) = self.spatial.interactable_positions.get(&pos)
+                                && let Some(inter) = self.world.interactables.get(idx)
+                                && &inter.id == station
+                            {
+                                found = true;
+                            }
+                        }
+                    }
+                    found
+                };
+                if !has_station {
+                    self.log(format!("Requires a nearby {}.", station.replace('_', " ")));
+                    return false;
+                }
+        }
+
+        let ctx = super::effects::context::QueryContext::from_state(self);
+        let output = super::rules::economy::rule_craft(recipe_id, &ctx);
+        let success = !output.effects.is_empty();
+        self.apply_and_trace(output, "rule_craft");
+        success
+    }
+
+    pub fn dispatch_buy_item(&mut self, item_id: &str, npc_id: &str) -> Result<(), String> {
+        let ctx = super::effects::context::QueryContext::from_state(self);
+        let output = super::rules::economy::rule_buy_item(item_id, npc_id, &ctx);
+        // If no effects, the rule produced a warning — extract it as an error
+        if output.effects.is_empty() {
+            let msg = output.presentation.first()
+                .map(|p| match p {
+                    super::effects::Presentation::LogMessage { text, .. } => text.clone(),
+                })
+                .unwrap_or_else(|| "Cannot buy item.".into());
+            return Err(msg);
+        }
+        self.apply_and_trace(output, "rule_buy_item");
+        Ok(())
+    }
+
+    pub fn dispatch_sell_item(&mut self, item_id: &str) -> Result<(), String> {
+        let inv_idx = self.player.inventory.iter().position(|id| id == item_id)
+            .ok_or_else(|| "You don't have that item.".to_string())?;
+        let ctx = super::effects::context::QueryContext::from_state(self);
+        let output = super::rules::economy::rule_sell_item(inv_idx, &ctx);
+        if output.effects.is_empty() {
+            let msg = output.presentation.first()
+                .map(|p| match p {
+                    super::effects::Presentation::LogMessage { text, .. } => text.clone(),
+                })
+                .unwrap_or_else(|| "Cannot sell item.".into());
+            return Err(msg);
+        }
+        self.apply_and_trace(output, "rule_sell_item");
+        Ok(())
     }
 
     pub fn apply_and_trace(
@@ -2438,128 +2575,6 @@ impl GameState {
         }
     }
 
-    /// Interact with an object at the given position
-    pub fn interact_at(&mut self, x: i32, y: i32) {
-        self.ensure_spatial_index();
-
-        // Check for interactables at this position
-        if let Some(&interactable_idx) = self.spatial.interactable_positions.get(&(x, y))
-            && let Some(interactable) = self.world.interactables.get_mut(interactable_idx)
-        {
-            let interactable_id = interactable.id.clone();
-            if let Some(message) = interactable.interact() {
-                self.log(&message);
-
-                // Quest progress for interact objectives
-                self.player.quest_log.on_interact(&interactable_id);
-                let completed = self.player.quest_log.check_auto_complete();
-                self.log_quest_completions(&completed);
-
-                // Mark spatial index as dirty since interactable state changed
-                self.spatial.dirty = true;
-                return;
-            }
-        }
-
-        // Check for NPCs at this position
-        if let Some(&npc_idx) = self.spatial.npc_positions.get(&(x, y))
-            && let Some(npc) = self.world.npcs.get(npc_idx)
-        {
-            let npc_name = npc.name().to_string();
-            let npc_id = npc.id.clone();
-            self.log(format!("You talk to {}.", npc_name));
-            // Quest progress for NPC talk objectives
-            let completed = self.player.quest_log.on_npc_talked(&npc_id);
-            self.log_quest_completions(&completed);
-            return;
-        }
-
-        // Check for chests at this position
-        if let Some(&chest_idx) = self.spatial.chest_positions.get(&(x, y))
-            && let Some(chest) = self.world.chests.get(chest_idx)
-        {
-            let chest_name = chest.name().to_string();
-            self.log(format!("You open the {}.", chest_name));
-            return;
-        }
-
-        self.log("There's nothing to interact with here.");
-    }
-
-    /// Examine an object at the given position
-    pub fn examine_at(&mut self, x: i32, y: i32) {
-        self.ensure_spatial_index();
-
-        // Check for interactables at this position
-        if let Some(&interactable_idx) = self.spatial.interactable_positions.get(&(x, y))
-            && let Some(interactable) = self.world.interactables.get(interactable_idx)
-        {
-            let interactable_id = interactable.id.clone();
-            if let Some(message) = interactable.examine() {
-                self.log(&message);
-
-                // Quest progress for examine objectives
-                self.player.quest_log.on_examine(&interactable_id);
-                let completed = self.player.quest_log.check_auto_complete();
-                self.log_quest_completions(&completed);
-                return;
-            }
-        }
-
-        // Check for enemies at this position
-        if let Some(&enemy_idx) = self.spatial.enemy_positions.get(&(x, y))
-            && let Some(enemy) = self.world.enemies.get(enemy_idx)
-            && enemy.hp > 0
-        {
-            let max_hp = enemy.max_hp().unwrap_or(0);
-            self.log(format!(
-                "You see a {}. HP: {}/{}",
-                enemy.name(),
-                enemy.hp,
-                max_hp
-            ));
-            return;
-        }
-
-        // Check for NPCs at this position
-        if let Some(&npc_idx) = self.spatial.npc_positions.get(&(x, y))
-            && let Some(npc) = self.world.npcs.get(npc_idx)
-        {
-            let npc_name = npc.name().to_string();
-            let npc_desc = npc.description().to_string();
-            self.log(format!("You see {}. {}", npc_name, npc_desc));
-            return;
-        }
-
-        // Check for items at this position
-        if let Some(item_indices) = self.spatial.item_positions.get(&(x, y))
-            && !item_indices.is_empty()
-        {
-            let item = &self.world.items[item_indices[0]];
-            self.log(format!("You see {}.", item.name()));
-            return;
-        }
-
-        // Check for chests at this position
-        if let Some(&chest_idx) = self.spatial.chest_positions.get(&(x, y))
-            && let Some(chest) = self.world.chests.get(chest_idx)
-        {
-            let chest_name = chest.name().to_string();
-            let chest_desc = chest.description().to_string();
-            self.log(format!("You see a {}. {}", chest_name, chest_desc));
-            return;
-        }
-
-        // Examine the tile itself
-        let tile = self.world.map.get_tile(x, y);
-        match tile {
-            Tile::Wall { .. } => self.log("A solid wall."),
-            Tile::Floor { .. } => self.log("The ground here is clear."),
-            Tile::Glass => self.log("Dangerous glass terrain that refracts light."),
-            _ => self.log("You examine the area."),
-        }
-    }
-
     /// Execute a debug command
     pub fn debug_command(&mut self, cmd: &str) {
         super::debug_commands::execute(self, cmd);
@@ -3025,39 +3040,9 @@ impl GameState {
         }
     }
 
-    /// Equip an item from inventory to a slot
-    pub fn equip_item(&mut self, inv_idx: usize, slot: EquipSlot) -> bool {
-        if inv_idx >= self.player.inventory.len() {
-            return false;
-        }
-        let item_id = self.player.inventory[inv_idx].clone();
-
-        // Unequip current item in slot (returns to inventory)
-        if let Some(old) = self.player.equipment.set(slot, Some(item_id)) {
-            self.player.inventory.push(old);
-        }
-        self.player.inventory.remove(inv_idx);
-        self.recalc_equipment_stats();
-        true
-    }
-
-    /// Unequip item from slot back to inventory
-    pub fn unequip_slot(&mut self, slot: EquipSlot) -> bool {
-        if let Some(item) = self.player.equipment.set(slot, None) {
-            self.player.inventory.push(item);
-            self.recalc_equipment_stats();
-            true
-        } else {
-            false
-        }
-    }
-
-    /// Recalculate stats from equipment
+    /// Recalculate stats from equipment (called by ItemEffect::RecalcStats apply arm)
     pub(crate) fn recalc_equipment_stats(&mut self) {
-        // Sync equipped_weapon with equipment.weapon for backward compat
         self.player.equipped_weapon = self.player.equipment.weapon.clone();
-
-        // Calculate armor from equipped jacket item
         self.player.armor = self
             .player
             .equipment
@@ -3066,189 +3051,6 @@ impl GameState {
             .and_then(|id| get_item_def(id))
             .map(|def| def.armor_value)
             .unwrap_or(0);
-    }
-
-    /// Accept a quest by ID
-    pub fn accept_quest(&mut self, quest_id: &str) -> bool {
-        // Check if quest can be accepted (need to do this separately to avoid borrowing issues)
-        let can_accept = self.player.quest_log.is_quest_available(quest_id, self);
-        if !can_accept {
-            return false;
-        }
-
-        // Create the quest
-        if let Some(quest) = super::quest::ActiveQuest::new(quest_id) {
-            self.player.quest_log.active.push(quest);
-
-            if let Some(def) = super::quest::get_quest_def(quest_id) {
-                self.log(format!("Quest accepted: {}", def.name));
-
-                // Handle faction alignment for main questline
-                if def.category == "main" && quest_id.starts_with("faction_choice_") {
-                    let faction = if quest_id.contains("monks") {
-                        "Mirror Monks"
-                    } else if quest_id.contains("engineers") {
-                        "Sand-Engineers"
-                    } else if quest_id.contains("glassborn") {
-                        "Glassborn"
-                    } else {
-                        return true;
-                    };
-
-                    if self.player.quest_log.set_faction_alignment(faction) {
-                        self.log(format!("You have aligned with the {}", faction));
-                    }
-                }
-            }
-            true
-        } else {
-            false
-        }
-    }
-
-    /// Complete a quest and receive rewards
-    pub fn complete_quest(&mut self, quest_id: &str) -> bool {
-        if let Some(reward) = self.player.quest_log.complete(quest_id) {
-            if let Some(def) = super::quest::get_quest_def(quest_id) {
-                self.log(format!("Quest completed: {}", def.name));
-            }
-            if reward.xp > 0 {
-                self.apply_effect(&super::effects::Effect::Player(super::effects::PlayerEffect::GainXp { amount: reward.xp }));
-            }
-            if reward.salt_scrip > 0 {
-                self.player.salt_scrip += reward.salt_scrip;
-                self.log(format!("Received {} salt scrip", reward.salt_scrip));
-            }
-            for item_id in &reward.items {
-                self.player.inventory.push(item_id.clone());
-            }
-            // Apply reputation rewards
-            for (faction_id, delta) in &reward.reputation_rewards {
-                self.modify_reputation(faction_id, *delta);
-            }
-            // Log unlocked quests
-            if !reward.unlocks_quests.is_empty() {
-                for unlocked_id in &reward.unlocks_quests {
-                    if let Some(unlocked_def) = super::quest::get_quest_def(unlocked_id) {
-                        self.log(format!("New quest available: {}", unlocked_def.name));
-                    }
-                }
-            }
-            true
-        } else {
-            false
-        }
-    }
-
-    /// Get crafting stations adjacent to the player
-    pub fn available_stations(&self) -> Vec<String> {
-        let mut stations = Vec::new();
-        for dx in -1..=1 {
-            for dy in -1..=1 {
-                let pos = (self.player.x + dx, self.player.y + dy);
-                if let Some(&idx) = self.spatial.interactable_positions.get(&pos)
-                    && let Some(inter) = self.world.interactables.get(idx)
-                {
-                    stations.push(inter.id.clone());
-                }
-            }
-        }
-        stations
-    }
-
-    /// Craft an item using a recipe
-    pub fn craft(&mut self, recipe_id: &str) -> bool {
-        let recipe = match super::crafting::get_recipe(recipe_id) {
-            Some(r) => r,
-            None => return false,
-        };
-
-        // Check station requirement
-        if let Some(ref station) = recipe.station_required
-            && !self.available_stations().contains(station)
-        {
-            self.log(format!("Requires a nearby {}.", station.replace('_', " ")));
-            return false;
-        }
-
-        if !super::crafting::can_craft(recipe, &self.player.inventory) {
-            return false;
-        }
-
-        // Remove materials
-        for (item_id, &count) in &recipe.materials {
-            for _ in 0..count {
-                if let Some(idx) = self.player.inventory.iter().position(|id| id == item_id) {
-                    self.player.inventory.remove(idx);
-                }
-            }
-        }
-
-        // Add output
-        for _ in 0..recipe.output_count {
-            self.player.inventory.push(recipe.output.clone());
-        }
-
-        self.log(format!("Crafted {}.", recipe.name));
-        true
-    }
-
-    /// Buy an item from an NPC shop
-    pub fn buy_item(&mut self, item_id: &str, npc_id: &str) -> Result<(), String> {
-        // Check if NPC exists and has the item in shop
-        let npc_def =
-            super::npc::get_npc_def(npc_id).ok_or_else(|| format!("NPC '{}' not found", npc_id))?;
-
-        if !npc_def.shop_inventory.contains(&item_id.to_string()) {
-            return Err(format!("{} doesn't sell that item", npc_def.name));
-        }
-
-        // Get item value
-        let item_def =
-            get_item_def(item_id).ok_or_else(|| format!("Item '{}' not found", item_id))?;
-
-        let price = item_def.value;
-
-        // Check if player has enough currency
-        if self.player.salt_scrip < price {
-            return Err(format!(
-                "Not enough salt scrip (need {}, have {})",
-                price, self.player.salt_scrip
-            ));
-        }
-
-        // Execute transaction
-        self.player.salt_scrip -= price;
-        self.player.inventory.push(item_id.to_string());
-        self.log(format!("Bought {} for {} salt scrip", item_def.name, price));
-        Ok(())
-    }
-
-    /// Sell an item to an NPC
-    pub fn sell_item(&mut self, item_id: &str) -> Result<(), String> {
-        // Check if player has the item
-        let item_idx = self
-            .player
-            .inventory
-            .iter()
-            .position(|id| id == item_id)
-            .ok_or_else(|| "You don't have that item".to_string())?;
-
-        // Get item value
-        let item_def =
-            get_item_def(item_id).ok_or_else(|| format!("Item '{}' not found", item_id))?;
-
-        // Sell for half value
-        let sell_price = item_def.value / 2;
-
-        // Execute transaction
-        self.player.inventory.remove(item_idx);
-        self.player.salt_scrip += sell_price;
-        self.log(format!(
-            "Sold {} for {} salt scrip",
-            item_def.name, sell_price
-        ));
-        Ok(())
     }
 
     /// Get next tutorial message if conditions are met — returns (id, text)

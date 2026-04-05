@@ -1,5 +1,6 @@
 pub mod actions;
 pub mod combat;
+pub mod economy;
 pub mod item;
 pub mod movement;
 pub mod turn;

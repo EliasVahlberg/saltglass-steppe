@@ -191,6 +191,117 @@ pub fn rule_use_psychic(ability_id: &str, ctx: &QueryContext) -> RuleOutput {
 // Rule unit tests
 // ---------------------------------------------------------------------------
 
+/// Interact with an entity at (x, y).
+/// Caller resolves what's at the position and passes the relevant data.
+pub enum InteractTarget {
+    Interactable { id: String, message: Option<String> },
+    Npc { id: String, name: String },
+    Chest { name: String },
+    Nothing,
+}
+
+pub fn rule_interact(target: InteractTarget) -> RuleOutput {
+    let mut effects = Vec::new();
+    let mut presentation = Vec::new();
+
+    match target {
+        InteractTarget::Interactable { id, message } => {
+            if let Some(msg) = message {
+                presentation.push(Presentation::LogMessage { text: msg, msg_type: "info".into() });
+                effects.push(Effect::Event(super::super::effects::EventEffect::QuestNotify {
+                    kind: super::super::effects::QuestNotifyKind::Interact { target_id: id },
+                }));
+            } else {
+                presentation.push(Presentation::LogMessage {
+                    text: "Nothing happens.".into(),
+                    msg_type: "info".into(),
+                });
+            }
+        }
+        InteractTarget::Npc { id, name } => {
+            presentation.push(Presentation::LogMessage {
+                text: format!("You talk to {}.", name),
+                msg_type: "info".into(),
+            });
+            effects.push(Effect::Event(super::super::effects::EventEffect::QuestNotify {
+                kind: super::super::effects::QuestNotifyKind::NpcTalk { npc_id: id },
+            }));
+        }
+        InteractTarget::Chest { name } => {
+            presentation.push(Presentation::LogMessage {
+                text: format!("You open the {}.", name),
+                msg_type: "info".into(),
+            });
+        }
+        InteractTarget::Nothing => {
+            presentation.push(Presentation::LogMessage {
+                text: "There's nothing to interact with here.".into(),
+                msg_type: "info".into(),
+            });
+        }
+    }
+
+    RuleOutput { effects, presentation }
+}
+
+/// Examine an entity at (x, y).
+pub enum ExamineTarget {
+    Interactable { id: String, message: Option<String> },
+    Enemy { name: String, hp: i32, max_hp: i32 },
+    Npc { name: String, description: String },
+    Item { name: String },
+    Chest { name: String, description: String },
+    Tile { description: &'static str },
+}
+
+pub fn rule_examine(target: ExamineTarget) -> RuleOutput {
+    let mut effects = Vec::new();
+    let mut presentation = Vec::new();
+
+    match target {
+        ExamineTarget::Interactable { id, message } => {
+            if let Some(msg) = message {
+                presentation.push(Presentation::LogMessage { text: msg, msg_type: "info".into() });
+                effects.push(Effect::Event(super::super::effects::EventEffect::QuestNotify {
+                    kind: super::super::effects::QuestNotifyKind::Examine { target_id: id },
+                }));
+            }
+        }
+        ExamineTarget::Enemy { name, hp, max_hp } => {
+            presentation.push(Presentation::LogMessage {
+                text: format!("You see a {}. HP: {}/{}", name, hp, max_hp),
+                msg_type: "info".into(),
+            });
+        }
+        ExamineTarget::Npc { name, description } => {
+            presentation.push(Presentation::LogMessage {
+                text: format!("You see {}. {}", name, description),
+                msg_type: "info".into(),
+            });
+        }
+        ExamineTarget::Item { name } => {
+            presentation.push(Presentation::LogMessage {
+                text: format!("You see {}.", name),
+                msg_type: "info".into(),
+            });
+        }
+        ExamineTarget::Chest { name, description } => {
+            presentation.push(Presentation::LogMessage {
+                text: format!("You see a {}. {}", name, description),
+                msg_type: "info".into(),
+            });
+        }
+        ExamineTarget::Tile { description } => {
+            presentation.push(Presentation::LogMessage {
+                text: description.to_string(),
+                msg_type: "info".into(),
+            });
+        }
+    }
+
+    RuleOutput { effects, presentation }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
