@@ -38,22 +38,18 @@ pub fn route_command(
 
     match command {
         Command::Attack { target_x, target_y } => {
-            let mutations = {
-                let ctx = QueryContext::from_state(state);
-                combat::handle_melee(*target_x, *target_y, &ctx, &mut state.rng.clone())
-            };
-            // write rng back not needed here — handle_melee doesn't use rng for loot
-            Some(mutations)
+            let ctx = QueryContext::from_state(state);
+            let mut rng = state.rng.clone();
+            let m = combat::handle_melee(*target_x, *target_y, &ctx, &mut rng);
+            state.rng = rng;
+            Some(m)
         }
         Command::RangedAttack { target_x, target_y } => {
-            let mutations = {
-                let ctx = QueryContext::from_state(state);
-                let mut rng = state.rng.clone();
-                let m = combat::handle_ranged(*target_x, *target_y, &ctx, &mut rng);
-                state.rng = rng;
-                m
-            };
-            Some(mutations)
+            let ctx = QueryContext::from_state(state);
+            let mut rng = state.rng.clone();
+            let m = combat::handle_ranged(*target_x, *target_y, &ctx, &mut rng);
+            state.rng = rng;
+            Some(m)
         }
         Command::UsePsychic { ability_id } =>
             Some(vec![crate::game::mutations::Mutation::UsePsychicAbility { ability_id: ability_id.clone() }]),

@@ -35,6 +35,11 @@ These are known deviations in `apply_one` that are correct for Stage 1 but need 
 - **`SpawnItemOnMap`** — calls `rebuild_spatial_index()` inside `apply_one`. In the final design, spatial rebuild is a derive that runs after all cascades settle, not inside apply_one. Acceptable for Stage 1.
 - **`RemoveEnemy`** — removes from spatial index and records in meta, but does not remove the enemy object from `world.enemies`. The enemy stays with `hp ≤ 0`. This matches pre-existing behavior (the old `Kill` apply arm did the same). Not a bug.
 
+## Stage 3 Review Notes
+
+- **`UsePsychicAbility` / `AttemptFlee`** — these are bridge mutations that call imperative logic inside `apply_one` rather than returning mutations directly. This is intentional for Stage 3: `use_ability` mutates psychic cooldown state and `attempt_flee` needs `&mut enemies`. Both should be converted to pure system functions returning `Vec<Mutation>` in Stage 4 when `PsychicState` and `EncounterState` are decomposed.
+- **rng writeback in `route_command`** — all command handlers that take `&mut ChaCha8Rng` must clone-call-writeback to advance `state.rng`. The pattern is: `let mut rng = state.rng.clone(); let m = handler(..., &mut rng); state.rng = rng;`. Any handler that skips the writeback silently breaks determinism. Fixed in Stage 3 post-review (Attack arm was missing writeback).
+
 ## Migration Stages
 
 ### Stage 1: Introduce mutations.rs alongside existing effects
