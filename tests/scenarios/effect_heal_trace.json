@@ -1,0 +1,15 @@
+{
+  "name": "effect_heal_trace",
+  "description": "Assert that using a healing item produces a Player(Heal effect in the trace",
+  "seed": 42,
+  "player": {"x": 5, "y": 5, "hp": 5, "max_hp": 20, "inventory": ["saints_tear"]},
+  "actions": [
+    {"turn": 0, "action": {"type": "use_item", "item_index": 0}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "effect_occurred", "pattern": "Player(Heal"}, "message": "Heal effect must appear in trace"},
+    {"at_end": true, "check": {"type": "effect_occurred", "pattern": "Item(Consume"}, "message": "Consume effect must appear in trace"},
+    {"at_end": true, "check": {"type": "effect_occurred", "pattern": "Player(SpendAp"}, "message": "AP cost must appear in trace"},
+    {"at_end": true, "check": {"type": "player_hp", "op": "eq", "value": 20}, "message": "State assertion still works alongside effect assertions"}
+  ]
+}

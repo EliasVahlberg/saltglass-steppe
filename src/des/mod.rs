@@ -454,6 +454,22 @@ pub enum AssertionCheck {
         op: CmpOp,
         value: u32,
     },
+    /// Assert that an effect matching `pattern` (substring of Debug repr) occurred in the trace.
+    /// Example: `{ "type": "effect_occurred", "pattern": "Combat(Kill" }`
+    EffectOccurred {
+        pattern: String,
+    },
+    /// Assert that no effect matching `pattern` occurred in the trace.
+    EffectNotOccurred {
+        pattern: String,
+    },
+    /// Assert that the count of effects matching `pattern` satisfies the comparison.
+    /// Example: `{ "type": "effect_count", "pattern": "Player(Heal", "op": "ge", "value": 1 }`
+    EffectCount {
+        pattern: String,
+        op: CmpOp,
+        value: usize,
+    },
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -1689,6 +1705,28 @@ impl DesExecutor {
             AssertionCheck::SkillPoints { op, value } => {
                 op.compare(self.state.player.skills.skill_points, *value)
             }
+            AssertionCheck::EffectOccurred { pattern } => self
+                .state
+                .trace
+                .entries
+                .iter()
+                .any(|e| format!("{:?}", e.effect).contains(pattern.as_str())),
+            AssertionCheck::EffectNotOccurred { pattern } => !self
+                .state
+                .trace
+                .entries
+                .iter()
+                .any(|e| format!("{:?}", e.effect).contains(pattern.as_str())),
+            AssertionCheck::EffectCount { pattern, op, value } => {
+                let count = self
+                    .state
+                    .trace
+                    .entries
+                    .iter()
+                    .filter(|e| format!("{:?}", e.effect).contains(pattern.as_str()))
+                    .count();
+                op.compare(count, *value)
+            }
             // Simplified implementations for other assertions
             _ => {
                 self.log(format!("Unimplemented assertion: {:?}", check));
@@ -2440,3 +2478,4 @@ mod tests {
         assert_eq!(enemy_hp, 5, "Enemy should have 5 HP (attack missed)");
     }
 }
+

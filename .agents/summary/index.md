@@ -1,78 +1,74 @@
-# Saltglass Steppe — Documentation Index
+# Documentation Index
 
-> **For AI Assistants**: This file is the primary entry point for understanding the codebase. Read this first, then consult specific files as needed.
+> **For AI assistants**: This file is your primary entry point. Read it first to understand what documentation exists and where to find detailed information. You should rarely need to read all files — use the summaries below to determine which file answers your question.
 
 ## How to Use This Documentation
 
-1. **Start here** — this index has enough metadata to determine which file has the answer
-2. **Consult specific files** — each file below has a summary of its contents
-3. **Cross-reference** — files link to each other where topics overlap
-4. **Data files** — game content lives in `data/*.json`, validated by `schemas/*_v1.json`
-5. **Existing docs** — extensive docs in `docs/` (architecture, design, development, features, narrative, testing)
+1. **Start here** — scan the file summaries below to find relevant docs
+2. **Check SYSTEM_STATUS.md first** — before working on any gameplay system, read `docs/development/SYSTEM_STATUS.md`. It's the source of truth for what's wired into gameplay
+3. **Use AGENTS.md for navigation** — it has the directory map and repo-specific patterns
+4. **Dive into specific files** only when you need implementation details
 
-## Quick Reference
+## File Index
 
-- **Central game state**: `src/game/state.rs`
-- **All data definitions**: `data/*.json`
-- **All schemas**: `schemas/*_v1.json`
-- **DES scenarios**: `tests/scenarios/`
-- **Main entry point**: `src/main.rs`
-- **Cannot run default binary** in agent context (locks terminal for TUI) — use DES or `mapgen-tool` instead
+| File | What It Contains | Read When... |
+|------|-----------------|--------------|
+| [codebase_info.md](codebase_info.md) | Project identity, repo structure, build commands | You need project basics or how to build/test |
+| [architecture.md](architecture.md) | VERA pattern, layer diagram, turn processing, generation pipeline, multi-terminal IPC | You need to understand how systems connect or the VERA dispatch flow |
+| [components.md](components.md) | All major components: effects, rules, systems, generation, UI, renderer, DES, domain modules | You need to find which file implements a specific feature |
+| [interfaces.md](interfaces.md) | Command enum (22 variants), Effect enum (7 domains), QueryContext, TestContext, System trait, DES API, DataLoader | You need to understand API contracts or add new commands/effects |
+| [data_models.md](data_models.md) | GameState hierarchy, entity models (Enemy, NPC, Item), map models, quest models, combat formulas, data cross-references | You need to understand data structures or add new entity types |
+| [workflows.md](workflows.md) | Player action flow, end-of-turn sequence, combat flow, reaction chains, world travel, map generation, DES execution, save/load, CI | You need to trace how a specific gameplay flow works end-to-end |
+| [dependencies.md](dependencies.md) | 27 crate dependencies with versions and purposes, dependency graph | You need to understand external libraries or add new dependencies |
 
-## Documentation Files
+## Quick Reference: Common Tasks
 
-### [codebase_info.md](codebase_info.md)
-**What**: Project metadata, entry points, directory map, tech stack, CI pipeline.
-**When to consult**: Understanding project basics, finding where code lives, checking dependencies.
+| Task | Start With |
+|------|-----------|
+| Add a new player action | interfaces.md (Command enum) → architecture.md (VERA pattern) |
+| Add a new enemy type | data_models.md (EnemyDef) → components.md (spawn system) |
+| Add a new item | data_models.md (ItemDef) → dependencies.md (cross-references) |
+| Fix a combat bug | workflows.md (combat flow) → components.md (combat system) |
+| Add a DES test scenario | interfaces.md (DES API) → workflows.md (DES execution) |
+| Understand turn processing | workflows.md (end-of-turn) → architecture.md (TurnPhase) |
+| Add a new UI menu | components.md (UI components) → dependencies.md (ratatui) |
+| Modify map generation | workflows.md (map gen flow) → components.md (generation pipeline) |
+| Add a new effect variant | interfaces.md (Effect enum) → architecture.md (VERA pattern) |
+| Understand the reaction system | workflows.md (reaction chain) → architecture.md (reactions) |
 
-### [architecture.md](architecture.md)
-**What**: System overview diagrams, design patterns (central state hub, ECS-style systems, data-driven, deterministic RNG, DES, multi-terminal IPC), key architectural decisions.
-**When to consult**: Understanding how systems connect, why architectural choices were made, adding new subsystems.
+## External Documentation
 
-### [components.md](components.md)
-**What**: Detailed descriptions of every major component — game systems, procedural generation, UI, renderer, testing infrastructure. Reflects post-cleanup state (dead ability methods removed from light/crystal/void, custom algorithms deleted).
-**When to consult**: Understanding what a specific module does, finding the right file to modify.
+These files live outside `.agents/summary/` but are critical references:
 
-### [interfaces.md](interfaces.md)
-**What**: API contracts between systems — DataLoader, game systems interface, generation pipeline, DES scenario format, IPC protocol, save/load, rendering pipeline, data file cross-references.
-**When to consult**: Integrating systems, understanding data flow, writing DES scenarios, adding new data files.
+| File | Purpose |
+|------|---------|
+| `docs/development/SYSTEM_STATUS.md` | **Source of truth** for system wiring status. Read before working on any system. |
+| `docs/development/architecture_refactor/FINAL_ARCHITECTURE.md` | Full VERA design document with rationale |
+| `docs/development/architecture_refactor/VERA_FULL_MIGRATION.md` | Migration plan with batch descriptions |
+| `AGENTS.md` | Agent navigation guide with directory map, patterns, Custom Instructions |
+| `README.md` | Project overview, setup, usage |
 
-### [data_models.md](data_models.md)
-**What**: All data structures — GameState, entities, world map, quests, combat, progression, generation models. Complete data file reference table.
-**When to consult**: Understanding data shapes, adding fields, creating new data files, working with save format.
+## Relationships Between Files
 
-### [workflows.md](workflows.md)
-**What**: Key process flows — game turn loop (15 live phases in end_turn), map generation pipeline, DES testing, save/load, world travel, CI pipeline, content addition workflow.
-**When to consult**: Understanding execution order, debugging flow issues, adding new pipeline stages.
+```mermaid
+graph TB
+    INDEX["index.md<br/>(you are here)"] --> CI["codebase_info.md<br/>Project basics"]
+    INDEX --> ARCH["architecture.md<br/>How systems connect"]
+    INDEX --> COMP["components.md<br/>What each file does"]
+    INDEX --> INTF["interfaces.md<br/>API contracts"]
+    INDEX --> DM["data_models.md<br/>Data structures"]
+    INDEX --> WF["workflows.md<br/>End-to-end flows"]
+    INDEX --> DEPS["dependencies.md<br/>External crates"]
 
-### [dependencies.md](dependencies.md)
-**What**: All Cargo dependencies with versions and usage, build configuration, external tool requirements.
-**When to consult**: Adding dependencies, understanding what libraries are available, build/release configuration.
+    ARCH --> INTF
+    ARCH --> WF
+    COMP --> INTF
+    COMP --> DM
+    WF --> COMP
+    DM --> DEPS
 
-## Existing Project Documentation
+    EXT["docs/development/<br/>SYSTEM_STATUS.md"] -.->|overrides| COMP
+    EXT -.->|overrides| ARCH
+```
 
-| Directory | Contents |
-|-----------|----------|
-| `docs/architecture/` | System design, tech stack |
-| `docs/design/` | Game concept, core mechanics, creative direction, skill trees, quest design |
-| `docs/development/` | DES usage, procedural generation guide, codebase health audit, architecture proposals, roadmap |
-| `docs/features/` | Feature specs: enemies, factions, skills, settlements, renderer, effects, connectivity, oku integration |
-| `docs/narrative/` | World lore, entity lore |
-| `docs/testing/` | QA checklist, debug reference |
-| `docs/papers/` | Glass Seam Bridging algorithm paper |
-
-## Topic Quick-Find
-
-| Topic | Primary File | Also See |
-|-------|-------------|----------|
-| Adding a new enemy | data_models.md | `data/enemies/`, `schemas/enemies_v1.json` |
-| Adding a new quest | data_models.md, workflows.md | `data/quests.json`, `docs/development/DES_USAGE.md` |
-| Map generation | components.md, workflows.md | `docs/development/PROCEDURAL_GENERATION_COMPREHENSIVE_GUIDE.md` |
-| Writing DES tests | interfaces.md, workflows.md | `docs/development/DES_USAGE.md`, `tests/scenarios/` |
-| Combat mechanics | components.md | `src/game/combat.rs`, `src/game/systems/combat.rs` |
-| UI/menu changes | components.md | `src/ui/`, `src/renderer/` |
-| Save system | interfaces.md, data_models.md | `src/game/save.rs` |
-| Storm system | components.md | `src/game/storm.rs`, `src/game/systems/storm.rs` |
-| Skill system | components.md, data_models.md | `docs/development/SKILL_TREE_DESIGN.md` |
-| Architecture proposals | — | `docs/development/architecture_refactor/` |
-| Codebase health | — | `docs/development/CODEBASE_HEALTH_AUDIT.md` |
+The `SYSTEM_STATUS.md` registry overrides claims in these summary files. If a summary says a system is functional but the registry says ❌, trust the registry.

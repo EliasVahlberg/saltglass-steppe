@@ -1,78 +1,98 @@
-# dependencies.md
+# Dependencies
 
 ## Runtime Dependencies
 
 ### UI & Terminal
+| Crate | Version | Purpose |
+|-------|---------|---------|
+| `ratatui` | 0.28 | TUI framework — multi-panel layouts, widgets |
+| `crossterm` | 0.28 | Cross-platform terminal backend |
 
-| Crate | Version | Usage |
-|-------|---------|-------|
-| ratatui | 0.28 | TUI framework — multi-panel layouts, widgets, rendering |
-| crossterm | 0.28 | Cross-platform terminal backend — input, colors, cursor |
+### Data & Serialization
+| Crate | Version | Purpose |
+|-------|---------|---------|
+| `serde` | 1.0 | Serialization framework (with `derive` feature) |
+| `serde_json` | 1.0 | JSON parsing for data files and saves |
+| `ron` | 0.8 | Rusty Object Notation for some config files |
+| `jsonschema` | 0.17 | JSON schema validation at data load time |
+| `schemars` | 0.8 | Auto-generate JSON schemas from Rust types (with `derive` feature) |
 
 ### Procedural Generation
-
-| Crate | Version | Usage |
-|-------|---------|-------|
-| terrain-forge | 0.7.0 | 2D procedural terrain generation (base terrain layer) |
-| bracket-noise | 0.8.7 | Perlin/simplex noise for terrain variation |
-| bracket-pathfinding | 0.8 | A* pathfinding for connectivity and road generation |
-| bracket-geometry | 0.8.7 | Geometric utilities (points, lines, distances) |
-| bracket-algorithm-traits | 0.8.7 | Trait definitions for bracket-lib integration |
-
-### Serialization & Data
-
-| Crate | Version | Features | Usage |
-|-------|---------|----------|-------|
-| serde | 1.0 | `derive` | Serialization framework |
-| serde_json | 1.0 | — | JSON for configs, saves, DES scenarios |
-| ron | 0.8 | — | Rusty Object Notation for meta_progress |
-| jsonschema | 0.17 | — | Runtime JSON schema validation |
-| schemars | 0.8 | `derive` | JSON schema generation from Rust types |
+| Crate | Version | Purpose |
+|-------|---------|---------|
+| `terrain-forge` | 0.7.0 | 2D procedural terrain generation (exclusive terrain backend) |
+| `bracket-noise` | 0.8.7 | Perlin/simplex noise for terrain variation |
+| `bracket-pathfinding` | 0.8 | A* pathfinding for enemies and connectivity |
+| `bracket-geometry` | 0.8.7 | Geometric utilities (line drawing, distance) |
+| `bracket-algorithm-traits` | 0.8.7 | Trait definitions for bracket-lib integration |
 
 ### RNG
-
-| Crate | Version | Usage |
-|-------|---------|-------|
-| rand | 0.8 | Random number generation traits and distributions |
-| rand_chacha | 0.3 | ChaCha8Rng — seeded deterministic RNG for all game systems |
+| Crate | Version | Purpose |
+|-------|---------|---------|
+| `rand` | 0.8 | Random number generation traits |
+| `rand_chacha` | 0.3 | ChaCha8Rng — deterministic, seedable RNG |
 
 ### Utilities
+| Crate | Version | Purpose |
+|-------|---------|---------|
+| `once_cell` | 1.0 | Lazy static initialization (behavior registry, data caches) |
+| `rayon` | 1.11 | Data parallelism (used in generation) |
+| `textwrap` | 0.16 | Text wrapping for UI panels |
+| `chrono` | 0.4 | Date/time for save file metadata (with `serde` feature) |
+| `clap` | 4.0 | CLI argument parsing (with `derive` feature) |
+| `which` | 6.0 | Terminal emulator detection for satellite windows |
+| `image` | 0.25 | Image processing (map exports) |
+| `smallvec` | 1.15 | Stack-allocated vectors for performance-sensitive paths |
+| `md5` | 0.8 | Save file checksum computation |
 
-| Crate | Version | Features | Usage |
-|-------|---------|----------|-------|
-| clap | 4.0 | `derive` | CLI argument parsing |
-| once_cell | 1.0 | — | Lazy static initialization for data caches |
-| rayon | 1.11 | — | Data parallelism for generation |
-| textwrap | 0.16 | — | Text wrapping for UI panels |
-| chrono | 0.4 | `serde` | Timestamps for save files |
-| which | 6.0 | — | Terminal emulator detection for satellite spawning |
-| image | 0.25 | — | Map image export |
-| smallvec | 1.15 | — | Stack-allocated vectors for hot paths |
-| md5 | 0.8 | — | Save file checksum computation |
+### VERA
+| Crate | Version | Purpose |
+|-------|---------|---------|
+| `vera-effects` | 0.1 | RuleOutput type definition for VERA pattern |
 
-## Dev Dependencies
+## Dependency Graph (Key Relationships)
 
-| Crate | Version | Usage |
-|-------|---------|-------|
-| tempfile | 3.24 | Temporary files/directories for save/load tests |
+```mermaid
+graph TB
+    subgraph "Core"
+        SERDE["serde + serde_json"]
+        RAND["rand + rand_chacha"]
+    end
 
-## Build Configuration
+    subgraph "UI"
+        RATATUI["ratatui"]
+        CROSS["crossterm"]
+        RATATUI --> CROSS
+    end
 
-```toml
-[profile.release]
-codegen-units = 1    # Single codegen unit for better optimization
-lto = true           # Link-time optimization
-opt-level = 3        # Maximum speed (TUI rendering performance)
-strip = true         # Remove debug symbols from binary
-panic = "abort"      # No unwinding — reduces binary size
+    subgraph "Generation"
+        TF["terrain-forge"]
+        BN["bracket-noise"]
+        BP["bracket-pathfinding"]
+        BG["bracket-geometry"]
+    end
+
+    subgraph "Data"
+        JS["jsonschema"]
+        SC["schemars"]
+    end
+
+    GS["GameState"] --> SERDE
+    GS --> RAND
+    GS --> BP
+    GEN["Generation"] --> TF
+    GEN --> BN
+    GEN --> BG
+    GEN --> RAND
+    DL["DataLoader"] --> SERDE
+    DL --> JS
+    DL --> SC
+    MAIN["main.rs"] --> RATATUI
 ```
 
-## External Tools
+## Notable Dependency Patterns
 
-| Tool | Required For | Install |
-|------|-------------|---------|
-| rustfmt | Code formatting (CI enforced) | `rustup component add rustfmt` |
-| clippy | Linting with `-D warnings` (CI enforced) | `rustup component add clippy` |
-| jq | JSON data file validation scripts | System package manager |
-| mingw-w64 | Cross-compile Linux → Windows | `apt install mingw-w64` + `rustup target add x86_64-pc-windows-gnu` |
-| Zig | Multi-target release builds (`build-release.sh`) | [ziglang.org](https://ziglang.org) |
+- **terrain-forge is the exclusive terrain backend**: All procedural terrain generation goes through `terrain_forge_adapter.rs`. Dead custom algorithms (BSP, maze, voronoi, WFC) exist but are unused.
+- **bracket-pathfinding for A***: Used by enemy AI and connectivity analysis. `Map` implements `BaseMap` trait.
+- **Deterministic RNG everywhere**: `ChaCha8Rng` is the only RNG used. Never use `thread_rng()` or `OsRng`.
+- **schemars for schema generation**: Run `cargo run --bin schema_gen` after changing data struct definitions to regenerate `schemas/`.

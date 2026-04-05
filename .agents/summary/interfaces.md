@@ -1,31 +1,102 @@
-# Interfaces & Integration Points
+# Interfaces
 
-> Updated 2026-04-04 after cleanup.
+## VERA Dispatch Interface
 
-## DataLoader\<T\> (`src/game/data_loader.rs`)
-
-Generic loader for JSON data files with schema validation.
+The primary interface for all gameplay actions:
 
 ```rust
-pub trait HasId { fn id(&self) -> &str; }
-
-pub struct DataLoader<T> { data: HashMap<String, T> }
-
-impl<T: DeserializeOwned + HasId> DataLoader<T> {
-    fn load_single(source: DataSource, list_key: &str, expected_schema: &str) -> Self;
-    fn load_multiple(sources: &[DataSource], list_key: &str, expected_schema: &str) -> Self;
-    fn from_map(data: HashMap<String, T>) -> Self;
-    fn get(&self, id: &str) -> Option<&T>;
-    fn all(&self) -> Vec<&T>;
-    fn ids(&self) -> Vec<&str>;
+// Command → dispatch → rule → effects → apply → trace
+impl GameState {
+    pub fn dispatch(&mut self, command: Command);
 }
 ```
 
-Schema validation runs at load time against `schemas/*_v1.json`. Supported schemas: `enemies_v1`, `items_v1`, `weapons_v1`, `quests_v1`, `npcs_v1`. Panics on duplicate IDs, missing schema fields, or validation failures.
+### Command Enum (22 variants)
 
-## Game Systems (`src/game/systems/`)
+| Command | Rule Function | Module |
+|---------|--------------|--------|
+| `UseItem { index }` | `rule_use_item` | `rules/item.rs` |
+| `UseItemOnTile { index, x, y }` | `rule_use_item_on_tile` | `rules/item.rs` |
+| `Move { dx, dy }` | `rule_move` | `rules/movement.rs` |
+| `Attack { target_x, target_y }` | `rule_melee_attack` | `rules/combat.rs` |
+| `RangedAttack { target_x, target_y }` | `rule_ranged_attack` | `rules/combat.rs` |
+| `Wait` | `rule_wait` | `rules/actions.rs` |
+| `Rest` | `rule_rest` | `rules/actions.rs` |
+| `Equip { inv_idx, slot }` | `rule_equip` | `rules/actions.rs` |
+| `Unequip { slot }` | `rule_unequip` | `rules/actions.rs` |
+| `AllocateStat { stat }` | `rule_allocate_stat` | `rules/actions.rs` |
+| `AcceptQuest { quest_id }` | dispatch helper | `state.rs` |
+| `CompleteQuest { quest_id }` | dispatch helper | `state.rs` |
+| `Interact { x, y }` | dispatch helper | `state.rs` |
+| `Examine { x, y }` | dispatch helper | `state.rs` |
+| `UsePsychic { ability_id }` | `rule_use_psychic` | `rules/actions.rs` |
+| `FleeEncounter` | dispatch helper | `state.rs` |
+| `WorldMove { new_wx, new_wy }` | dispatch helper | `state.rs` |
+| `WorldMoveSafe { new_wx, new_wy }` | dispatch helper | `state.rs` |
+| `EnterSubterranean` | dispatch helper | `state.rs` |
+| `ExitSubterranean` | dispatch helper | `state.rs` |
+| `FollowWorldPath` | dispatch helper | `state.rs` |
+| `CalculateWorldPath { target_wx, target_wy }` | dispatch helper | `state.rs` |
 
-All systems implement the `System` trait:
+### Effect Enum (7 domains)
+
+| Domain | Variants | Purpose |
+|--------|----------|---------|
+| `PlayerEffect` | 34 | HP, AP, position, stats, status, bridge ticks |
+| `CombatEffect` | 5 | Damage, miss, kill, provoke, stun |
+| `ItemEffect` | 6 | Consume, equip, unequip, inventory |
+| `MapEffect` | 9 | Reveal, wall damage, time, weather, storm bridge |
+| `ResourceEffect` | 5 | Light/void/resonance energy, crystal placement |
+| `EventEffect` | 3 | Book open, loot drop reaction, quest notify reaction |
+| `QuestEffect` | 3 | Accept, complete, faction alignment |
+
+## QueryContext Interface
+
+Read-only view of game state for rule functions:
+
+```rust
+pub struct QueryContext<'a> {
+    pub player: &'a PlayerState,
+    pub world: &'a WorldState,
+    pub turn: u32,
+    pub visible: &'a HashSet<usize>,
+    pub enemy_positions: &'a HashMap<(i32, i32), usize>,
+    pub npc_positions: &'a HashMap<(i32, i32), usize>,
+    pub mock_combat_hit: Option<bool>,
+    pub mock_combat_damage: Option<i32>,
+    pub time_of_day: u8,
+    pub encounter_state: Option<&'a EncounterState>,
+    pub player_adaptations: &'a [Adaptation],
+    pub player_refraction: u32,
+}
+```
+
+Key convenience methods:
+- `from_state(state: &GameState) -> Self`
+- `item_def(id: &str) -> Option<&ItemDef>`
+- `enemy_idx_at(x, y) -> Option<usize>`
+- `has_npc_at(x, y) -> bool`
+- `has_enemy_at(x, y) -> bool`
+- `has_adaptation(id: &str) -> bool`
+
+## TestContext Interface
+
+Builder for unit testing rules without GameState:
+
+```rust
+TestContext::new()
+    .with_player_hp(100)
+    .with_player_ap(10)
+    .with_inventory(vec!["healing_salve".into()])
+    .with_enemy_at("salt_crawler", 7, 5)
+    .with_floor_at(6, 5)
+    .with_mock_combat_hit(true)
+    .build()  // → QueryContext
+```
+
+## System Trait
+
+Legacy system interface (being replaced by VERA):
 
 ```rust
 pub trait System {
@@ -34,164 +105,77 @@ pub trait System {
 }
 ```
 
-Concrete systems: `ai`, `combat`, `movement`, `storm`, `status`, `loot`, `quest`. Called during turn processing in `state.rs`.
-
-## Procedural Generation (`src/game/generation/`)
-
-### Algorithm Interface (`algorithm.rs`)
+## AI Behavior Trait
 
 ```rust
-pub trait GenerationAlgorithm: Send + Sync {
-    fn generate(&self, context: &AlgorithmContext) -> Result<GenerationResult, GenerationError>;
-    fn parameters(&self) -> &AlgorithmParameters;
-    fn validate_context(&self, context: &AlgorithmContext) -> Result<(), ValidationError>;
-    fn algorithm_id(&self) -> &str;
-    fn display_name(&self) -> &str;
+pub trait AiBehavior: Send + Sync {
+    fn execute(&self, entity_idx: usize, state: &mut GameState) -> bool;
 }
 ```
 
-- `AlgorithmContext`: width, height, seed, biome, poi_type, input_layers, parameters, quest_ids, metadata.
-- `GenerationResult`: output_layers (HashMap of `GenerationLayer`), metadata, warnings.
+4 implementations: `StandardMeleeBehavior`, `RangedOnlyBehavior`, `HealerBehavior`, `SuicideBomberBehavior`. Registered in `BEHAVIOR_REGISTRY` (lazy static HashMap).
 
-### Terrain Forge Adapter (`terrain_forge_adapter.rs`)
+## DataLoader Interface
+
+Generic data loading with schema validation:
 
 ```rust
-impl TerrainForgeGenerator {
-    pub fn new() -> Self;
-    pub fn generate_tile_with_seed(
-        &self, biome: Biome, terrain: Terrain, elevation: u8,
-        poi: POI, seed: u64, quest_ids: &[String],
-    ) -> (Map, GenerationMetadata);
+pub struct DataLoader<T: DeserializeOwned> { ... }
+
+impl<T> DataLoader<T> {
+    pub fn load_single(path: &str) -> Result<T>;
+    pub fn load_multiple(paths: &[&str]) -> Result<Vec<T>>;
+    pub fn get(id: &str) -> Option<&T>;
+    pub fn all() -> &[T];
+    pub fn ids() -> Vec<String>;
 }
 ```
 
-All tile terrain generation goes through this adapter. Custom algorithms were removed.
+## DES Scenario Interface
 
-### Tile Generator (`tile_generator.rs`)
+JSON-based test scenarios:
 
 ```rust
-pub struct TileParams {
-    pub seed: u64, pub biome: Biome, pub terrain: Terrain,
-    pub elevation: u8, pub poi: POI, pub level: u32,
-    pub faction_control: Vec<(String, f32)>, pub quest_ids: Vec<String>,
-}
-
-pub struct GeneratedTile {
-    pub map: Map, pub enemies: Vec<Enemy>, pub npcs: Vec<Npc>,
-    pub items: Vec<Item>, pub chests: Vec<Chest>,
-    pub spawn_pos: (i32, i32), pub walkable_positions: Vec<(i32, i32)>,
-}
-
-pub fn generate_tile(params: &TileParams) -> GeneratedTile;
-```
-
-### Constraint Validation (`constraints.rs`)
-
-- `validate_constraints()` — run all rules against generated map
-- `are_critical_constraints_satisfied()` — hard requirements only
-- `calculate_satisfaction_score()` — soft quality score (0.0–1.0)
-
-## DES Scenario Format (`tests/scenarios/*.json`)
-
-```json
-{
-  "name": "scenario_name",
-  "inherits": "BASE_combat",
-  "seed": 12345,
-  "map_setup": { "width": 20, "height": 20, "clear_area": { "x": 0, "y": 0, "w": 20, "h": 20 } },
-  "player": { "x": 5, "y": 5, "hp": 100 },
-  "entities": [{ "type": "enemy", "id": "salt_crawler", "x": 7, "y": 5 }],
-  "mocks": { "combat_always_hit": true, "combat_fixed_damage": 10 },
-  "actions": [{ "actor": "player", "action": "attack", "direction": "east" }],
-  "assertions": [{ "check": "enemy_hp", "index": 0, "op": "<", "value": 100, "at_end": true }]
+pub struct Scenario {
+    pub name: String,
+    pub inherits: Option<String>,
+    pub seed: u64,
+    pub map_setup: Option<MapSetup>,
+    pub player: Option<PlayerSetup>,
+    pub entities: Vec<EntitySpawn>,
+    pub mocks: Option<MockSettings>,
+    pub actions: Vec<ScheduledAction>,
+    pub assertions: Vec<Assertion>,
 }
 ```
 
-Key actions: `move`, `attack`, `wait`, `use_item`, `equip`, `teleport`, `interact`, `rest`, `ranged_attack`, `log`.
-Assertions: player HP/AP/position, enemy state, inventory contents, quest progress, map state.
-Inheritance: `BASE_*` files provide reusable setups.
+Key DES methods:
+- `DesExecutor::from_json(json) -> Self`
+- `run() -> ExecutionResult`
+- `execute_player_action(action)` — dispatches via VERA `Command` for migrated actions
+- `check_assertion(assertion) -> AssertionResult`
 
-## IPC (`src/ipc.rs`)
+## IPC Interface
 
-Multi-terminal communication via Unix domain sockets (unix-only).
+Multi-terminal communication:
 
 ```rust
 pub enum IpcMessage {
-    GameState { hp, max_hp, refraction, turn, storm_countdown, adaptations, god_view, phase_mode },
-    LogEntry { message, msg_type, turn },
-    InventoryUpdate { items, equipped },
-    DebugInfo { player_pos, enemies_count, items_count, storm_intensity, seed, ... },
-    Command { action },
+    // Game state updates sent to satellite terminals
+    // Log messages, status updates, inventory changes
 }
 
-pub struct IpcServer { /* accepts clients, broadcasts messages */ }
-pub struct IpcClient { /* connects, reads messages */ }
+pub struct IpcServer { ... }  // Main game process
+pub struct IpcClient { ... }  // Satellite terminal
 ```
 
-Messages are JSON-serialized, sent line-delimited over the socket. Non-blocking broadcast to prevent game lag.
-
-## Save/Load (`src/game/save.rs`)
+## Save/Load Interface
 
 ```rust
-pub fn save_game(state: &GameState) -> Result<PathBuf, String>;
-pub fn load_game(path: impl AsRef<Path>) -> Result<GameState, String>;
-pub fn list_saves() -> Vec<SaveInfo>;
-```
-
-- Format: RON serialization of `SaveFile { version, state }`.
-- Integrity: filename is MD5 hash of content. `compute_hash()` detects tampering.
-- Migration: `migrate_save(state, from_version)` handles version upgrades (currently v1→v2→v3).
-- Metadata: `saves/meta.json` tracks status (Ok/HashMismatch/Corrupt), character name, save time.
-
-## Rendering (`src/renderer/mod.rs`)
-
-```rust
-impl Renderer {
-    pub fn new() -> Result<Self, Box<dyn std::error::Error>>;
-    pub fn render_game(
-        &mut self, frame: &mut Frame, area: Rect, state: &GameState,
-        frame_count: u64, look_cursor: Option<(i32, i32)>, pause_particles: bool,
-    );
-    pub fn reload_config(&mut self) -> Result<(), Box<dyn std::error::Error>>;
-    pub fn add_particle_effect(&mut self, x: f32, y: f32, effect_type: ParticleType);
-    pub fn add_screen_shake(&mut self);
-    pub fn set_theme(&mut self, theme_name: &str) -> bool;
-    pub fn set_fps(&mut self, fps: u32);
+impl GameState {
+    pub fn save(&self, slot: &str) -> Result<()>;
+    pub fn load(slot: &str) -> Result<GameState>;
 }
 ```
 
-Pipeline: camera update → particle/animation update → lighting calculation → tile rendering → entity rendering → effects compositing → particle overlay → procedural effects → look cursor → frame output.
-
-Config loaded from `data/render_config.json`, themes from `data/themes.json`, effects from `data/effects.json`.
-
-## Data Cross-Reference Graph
-
-```mermaid
-graph TD
-    Items["data/items.json"] --> Traders["data/traders.json"]
-    Items --> LootTables["data/loot_tables.json"]
-    Items --> Recipes["data/recipes.json"]
-    Items --> Quests
-
-    Enemies["data/enemies/*.json"] --> SpawnTables["data/biome_spawn_tables.json"]
-    Enemies --> LootTables
-
-    NPCs["data/npcs.json"] --> Dialogues["data/dialogues.json"]
-
-    Quests["data/quests.json\ndata/main_questline.json"] --> NPCs
-    Quests --> Items
-    Quests --> Enemies
-
-    Factions["data/factions.json"] --> NPCs
-    Factions --> Quests
-
-    BiomeProfiles["data/biome_profiles.json"] --> TerrainConfig["data/terrain_config.json"]
-    BiomeProfiles --> SpawnTables
-
-    Structures["data/structures/"] --> MapElements["data/map_elements.json"]
-    Structures --> NPCs
-
-    SkillTrees["data/skill_trees.json"] --> Items
-```
-
-When adding or modifying data entries, verify all cross-references are valid. Run `cargo run --bin schema_gen` if Rust types changed.
+Uses `serde_json` serialization with MD5 checksums and version-based migration.

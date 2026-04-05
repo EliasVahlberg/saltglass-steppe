@@ -14,6 +14,7 @@ A deterministic, data-driven, turn-based TUI RPG set in the harsh, crystalline w
 - **[Narrative](docs/narrative/)** — World lore and storytelling
 - **[Testing](docs/testing/)** — QA procedures and guidelines
 - **[Document Database](docs/DOCUMENT_DATABASE.md)** — Complete document listing
+- **[System Status](docs/development/SYSTEM_STATUS.md)** — Source of truth for system wiring status
 
 ### Research Papers
 - **[Glass Seam Bridging Algorithm](docs/papers/glass_seam_bridging_paper.pdf)** — Novel algorithm for procedural map connectivity
@@ -44,6 +45,16 @@ cargo build
 ```bash
 cargo run
 ```
+
+## Architecture
+
+The codebase uses the **VERA (Verified Effect-Rule Architecture)** pattern: pure rule functions return Effect enums, a mechanical apply function mutates state, and traces record what happened for verification.
+
+```
+Input → Command → Rule(ctx, rng) → Vec<Effect> → apply(state) → Trace
+```
+
+See [AGENTS.md](AGENTS.md) for the full architecture guide and [FINAL_ARCHITECTURE.md](docs/development/architecture_refactor/FINAL_ARCHITECTURE.md) for the design document.
 
 ## Multi-Terminal UI System
 
@@ -108,7 +119,7 @@ cargo test                        # All tests
 cargo test --test des_scenarios   # DES scenario tests only
 ```
 
-DES (Debug Execution System) enables headless, deterministic gameplay testing via JSON scenarios in `tests/scenarios/`.
+DES (Debug Execution System) enables headless, deterministic gameplay testing via JSON scenarios in `tests/scenarios/`. See [AGENTS.md](AGENTS.md#testing-with-des) for scenario format and examples.
 
 ## Cross-compile for Windows (from Linux)
 

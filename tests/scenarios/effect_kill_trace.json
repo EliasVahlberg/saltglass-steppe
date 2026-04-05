@@ -1,0 +1,17 @@
+{
+  "name": "effect_kill_trace",
+  "description": "Assert that killing an enemy produces Combat(Kill and Player(GainXp effects in the trace",
+  "seed": 100,
+  "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10},
+  "entities": [{"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 1, "ai_disabled": true}],
+  "mocks": {"combat_always_hit": true},
+  "actions": [
+    {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "effect_occurred", "pattern": "Combat(Kill"}, "message": "Kill effect must appear in trace"},
+    {"at_end": true, "check": {"type": "effect_occurred", "pattern": "Player(GainXp"}, "message": "XP gain must appear in trace on kill"},
+    {"at_end": true, "check": {"type": "effect_not_occurred", "pattern": "Combat(Miss"}, "message": "No miss when combat_always_hit is set"},
+    {"at_end": true, "check": {"type": "effect_count", "pattern": "Combat(DealDamage", "op": "eq", "value": 1}, "message": "Exactly one damage effect per attack"}
+  ]
+}

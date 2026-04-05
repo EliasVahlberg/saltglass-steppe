@@ -355,3 +355,47 @@ fn settlement_road_pathfinding_test() {
             .collect::<Vec<_>>()
     );
 }
+
+#[test]
+fn effect_heal_trace() {
+    let result = run_scenario("tests/scenarios/effect_heal_trace.json")
+        .expect("Failed to run effect_heal_trace");
+    assert!(
+        result.success,
+        "Effect heal trace failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn effect_kill_trace() {
+    let result = run_scenario("tests/scenarios/effect_kill_trace.json")
+        .expect("Failed to run effect_kill_trace");
+    assert!(
+        result.success,
+        "Effect kill trace failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn effect_wait_no_combat() {
+    let result = run_scenario("tests/scenarios/effect_wait_no_combat.json")
+        .expect("Failed to run effect_wait_no_combat");
+    assert!(
+        result.success,
+        "Effect wait no combat failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}
+
+#[test]
+fn effect_miss_trace() {
+    let result = run_scenario("tests/scenarios/effect_miss_trace.json")
+        .expect("Failed to run effect_miss_trace");
+    assert!(
+        result.success,
+        "Effect miss trace failed: {:?}",
+        result.assertion_results.iter().filter(|r| !r.passed).collect::<Vec<_>>()
+    );
+}

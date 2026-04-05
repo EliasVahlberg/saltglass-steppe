@@ -1,38 +1,46 @@
 # Review Notes
 
-## Post-Cleanup Regeneration (2026-04-04)
+## Consistency Check
 
-This documentation was regenerated after a major dead code cleanup that removed ~3,600 LOC of dead/half-wired code. The previous summary files contained several false claims that are now corrected.
+### Cross-file consistency ✅
+- Effect variant counts in interfaces.md match actual `effects/mod.rs` (verified: 34 PlayerEffect, 5 CombatEffect, 6 ItemEffect, 9 MapEffect, 5 ResourceEffect, 3 EventEffect, 3 QuestEffect)
+- Command variant count (22) matches actual enum
+- TurnPhase sequence (9 phases) matches actual code
+- Rule function list matches actual `rules/` directory (6 files, ~32 unit tests)
+- Dependency list matches Cargo.toml (27 crates)
 
-### Corrections from Previous Version
+### Architecture description accuracy ✅
+- VERA migration status correctly reflects current state: Batches A-F complete, bridge effects for AI/storm/status
+- Reaction system correctly described as replacing GameEvent (Batch F)
+- Generation pipeline order matches actual `tile_generator.rs` orchestration
 
-| Previous Claim | Reality | Status |
-|---|---|---|
-| `ritual.rs` exists | Never existed | Corrected — not mentioned |
-| Algorithm registry in `registry.rs` | File never existed | Corrected — not mentioned |
-| 7 structure algorithms selectable | None used in game; all deleted | Corrected — terrain-forge only |
-| All special systems functional | Light/crystal/void abilities unreachable | Corrected — abilities removed, resource accumulation kept |
-| terrain-forge 0.3.1 | Actually 0.7.0 | Corrected |
+## Completeness Check
 
-### Known Data Integrity Issues
+### Well-documented areas
+- VERA dispatch flow (Command → Rule → Effect → Apply → Trace)
+- Turn processing phases and their traced/bridge status
+- Procedural generation pipeline
+- DES testing infrastructure
+- Data model cross-references
 
-18 dangling cross-references exist in data files (not a documentation issue, but noted):
-- 16 item IDs in `biome_spawn_tables.json` reference items not defined in `items.json`
-- 2 item IDs in `loot_tables.json` reference items not defined in `items.json` (angle_split_lens, prism_shard)
+### Areas with limited documentation
 
-No runtime validation exists for these cross-references. DataLoader validates schema structure but not referential integrity.
+| Gap | Impact | Recommendation |
+|-----|--------|----------------|
+| **Save/load migration format** | Low — save format is stable | Document in data_models.md if migration logic changes |
+| **Renderer internals** | Low — renderer is read-only, rarely modified | Sufficient for navigation; add detail if rendering bugs arise |
+| **Narrative generation** | Medium — narrative.rs and narrative_templates.rs are complex but mostly dead code | Document if/when narrative system is wired into gameplay |
+| **Settlement generation details** | Low — settlement/ submodule works but is rarely modified | Current component listing is sufficient |
+| **IPC protocol details** | Low — multi-terminal is a convenience feature | Document if protocol changes |
 
-### Documentation Gaps
+### Known documentation limitations
+- **SYSTEM_STATUS.md is the authority**: These summary files may become stale as VERA migration continues. Always check the registry.
+- **Dead code not documented**: ~3,600 LOC of dead code exists (dead algorithms, unused methods, fake DES scenarios). Not documented here because it should be deleted, not built upon.
+- **Special systems (light, crystal, void) are ❌ in registry**: Components.md lists them as "resource accumulation only" which is accurate, but agents should check SYSTEM_STATUS.md before assuming they work.
 
-1. **Renderer pipeline**: No dedicated architecture doc. `docs/features/RENDERER_ENHANCEMENT_OVERVIEW.md` focuses on enhancements, not the base pipeline.
-2. **Save migration strategy**: No doc explaining versioning or how to add migrations.
-3. **Enemy AI behaviors**: No design doc for when each behavior is used or how to add new ones.
-4. **Effect system**: `src/game/effect.rs` has parsed effects and conditions with no dedicated documentation.
+## Recommendations
 
-### Consistency Check
-
-- Entry points match Cargo.toml `[[bin]]` declarations (mapgen-tool only; schema_gen auto-discovered)
-- Dependency versions match Cargo.toml
-- Component descriptions match post-cleanup source code
-- DES scenario format matches `src/des/mod.rs` implementation
-- Data file references match actual `data/` contents
+1. **Re-run this documentation** after completing VERA migration (all batches) to capture the final architecture state
+2. **Delete dead code** before next documentation pass — it creates noise in analysis
+3. **Add DES scenario examples** to workflows.md if new assertion types are added (effect_occurred, etc.)
+4. **Update SYSTEM_STATUS.md** as the authoritative reference — these summary files are secondary

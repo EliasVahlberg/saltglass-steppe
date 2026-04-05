@@ -1,142 +1,176 @@
-# architecture.md
+# Architecture
 
-## System Overview
+## Overview
+
+Saltglass Steppe is a monolithic Rust application organized in layers. The codebase is actively migrating from imperative state mutation to the VERA (Verified Effect-Rule Architecture) pattern. Both patterns coexist during migration.
+
+## Layer Architecture
 
 ```mermaid
 graph TB
-    subgraph Entry["Entry Points"]
-        Main["main.rs — TUI Game Loop"]
-        MapGen["mapgen_tool.rs — CLI"]
-        DES["des/mod.rs — Headless Testing"]
+    subgraph "Input Layer"
+        TUI["TUI Input (main.rs)"]
+        DES["DES Interpreter (des/mod.rs)"]
     end
 
-    subgraph UI["UI Layer — src/ui/"]
-        Input["input.rs"]
-        GameView["game_view.rs"]
-        HUD["hud.rs"]
-        Menus["Menus (~15 modules)"]
+    subgraph "Dispatch Layer"
+        CMD["Command Enum"]
+        DISP["dispatch() in state.rs"]
     end
 
-    subgraph Renderer["Renderer — src/renderer/"]
-        Tiles["tiles.rs"]
-        Entities["entities.rs"]
-        Lighting["lighting.rs"]
-        Particles["particles.rs"]
+    subgraph "Rule Layer (VERA)"
+        RI["rules/item.rs"]
+        RM["rules/movement.rs"]
+        RC["rules/combat.rs"]
+        RA["rules/actions.rs"]
+        RT["rules/turn.rs"]
     end
 
-    subgraph Core["Game Simulation — src/game/"]
-        State["state.rs — GameState"]
-        Systems["systems/"]
-        Content["combat, quest, item, npc,<br/>enemy, dialogue, skills,<br/>storm, light, adaptation, ..."]
+    subgraph "Effect Layer (VERA)"
+        EFF["Effect Enums (effects/mod.rs)"]
+        APP["apply_effect (effects/apply.rs)"]
+        TRC["Trace (effects/trace.rs)"]
     end
 
-    subgraph Gen["Procedural Generation"]
-        TFA["terrain_forge_adapter.rs"]
-        Conn["connectivity.rs (GSB)"]
-        Struct["structure_library.rs"]
-        Micro["microstructures.rs"]
-        EnvProps["environmental_props.rs"]
-        Spawn["spawn.rs"]
+    subgraph "Legacy Systems"
+        AI["systems/ai.rs"]
+        STM["systems/storm.rs"]
+        MOV["systems/movement.rs"]
+        LOT["systems/loot.rs"]
+        STS["systems/status.rs"]
     end
 
-    subgraph Data["Data Layer"]
+    subgraph "State Layer"
+        GS["GameState (state.rs)"]
+        PS["PlayerState"]
+        WS["WorldState"]
+    end
+
+    subgraph "Rendering Layer (read-only)"
+        REN["Renderer"]
+        TILE["Tile Renderer"]
+        ENT["Entity Renderer"]
+        LIT["Lighting Renderer"]
+        PART["Particle System"]
+    end
+
+    subgraph "Data Layer"
         JSON["data/*.json"]
-        Schemas["schemas/*.json"]
-        DataLoader["DataLoader&lt;T&gt;"]
+        SCH["schemas/*.json"]
+        DL["DataLoader"]
     end
 
-    Main --> UI --> State
-    Main --> Renderer --> State
-    DES --> State
-    MapGen --> Gen
-    State --> Systems
-    State --> Gen
-    DataLoader --> JSON
-    DataLoader --> Schemas
+    TUI --> CMD
+    DES --> CMD
+    CMD --> DISP
+    DISP --> RI & RM & RC & RA & RT
+    RI & RM & RC & RA & RT --> EFF
+    EFF --> APP
+    APP --> GS
+    APP --> TRC
+    DISP -.->|bridge effects| AI & STM & STS
+    GS --> PS & WS
+    GS --> REN
+    DL --> JSON
+    DL --> SCH
 ```
 
-## Central State Hub
+## VERA Pattern (Current State)
 
-`GameState` in `state.rs` is the single source of truth. Key sub-structs:
-
-| Struct | Responsibility |
-|--------|---------------|
-| `PlayerState` | Position, HP, inventory, equipment, skills, status effects |
-| `WorldState` | World map, current tile map, biome data, discovered locations |
-| `NarrativeEngine` | Quest state, dialogue tracking, event history |
-
-All systems read/write through `GameState`. When adding features, you almost certainly need to touch `state.rs`.
-
-## ECS-Style Systems
-
-Systems in `src/game/systems/` are decoupled processors that operate on `GameState`:
+The VERA migration converts imperative `GameState` methods into a three-step pipeline:
 
 ```mermaid
-graph LR
-    Event["GameEvent"] --> Systems
-    subgraph Systems["src/game/systems/"]
-        AI["ai.rs"]
-        Combat["combat.rs"]
-        Movement["movement.rs"]
-        Storm["storm.rs"]
-        Status["status.rs"]
-        Loot["loot.rs"]
-        Quest["quest.rs"]
+sequenceDiagram
+    participant Input
+    participant Dispatch
+    participant Rule
+    participant Apply
+    participant State
+    participant Trace
+
+    Input->>Dispatch: Command enum
+    Dispatch->>Rule: rule_fn(args, &QueryContext, &mut rng)
+    Rule-->>Dispatch: RuleOutput { effects, presentation }
+    loop For each effect
+        Dispatch->>Apply: apply_effect(&effect)
+        Apply->>State: Mechanical field mutation
+        Dispatch->>Trace: record(effect, source, turn)
     end
-    Systems --> State["GameState mutation"]
+    Dispatch->>Dispatch: run_reactions(effects)
+    Dispatch->>State: update_fov(), update_lighting()
 ```
 
-Systems communicate via `GameEvent` dispatched through the shared `GameState`. No direct system-to-system calls.
+### Migration Status
 
-## Generation Pipeline
+Systems are in three states:
 
-Tile generation follows a fixed pipeline order:
+1. **Fully migrated** (pure rules): item use, movement, combat (melee/ranged), player actions (wait, rest, equip, etc.), world travel
+2. **Bridge effects** (traced but calling legacy code): AI system, storm system, status effects, subsystem ticks (psychic, skills, light, void, crystal)
+3. **Legacy** (not yet traced): save/load, NPC dialogue, trading, crafting
+
+See `docs/development/SYSTEM_STATUS.md` for the authoritative status of each system.
+
+## Turn Processing
+
+End-of-turn executes a fixed phase sequence:
 
 ```mermaid
 graph LR
-    A["terrain-forge<br/>(base terrain)"] --> B["connectivity.rs<br/>(Glass Seam Bridging)"]
-    B --> C["structure_library.rs<br/>(prefab stamps)"]
-    C --> D["microstructures.rs<br/>(small features)"]
-    D --> E["environmental_props.rs<br/>(props & decor)"]
-    E --> F["spawn.rs<br/>(entities)"]
+    A[ResetAp] --> B[TickStatusEffects]
+    B --> C[TickSubsystems]
+    C --> D[AdvanceTurn]
+    D --> E[RunAI]
+    E --> F[TickStorm]
+    F --> G[AdvanceTime]
+    G --> H[UpdateDerives]
+    H --> I[CheckEncounters]
 ```
 
-- **terrain_forge_adapter.rs** bridges the `terrain-forge` crate to game tile types, driven by biome profiles in `data/biome_profiles.json`
-- **connectivity.rs** implements Glass Seam Bridging (GSB) — a novel algorithm ensuring all walkable regions connect. Documented in `docs/papers/`
-- **constraints.rs** and **quest_constraints.rs** validate post-generation requirements
+All phases except UpdateDerives (FOV/lighting recalc) produce traced effects.
 
-## Data-Driven Architecture
+## Procedural Generation Pipeline
+
+```mermaid
+graph TB
+    WG["world_gen.rs<br/>World map generation"] --> TG["tile_generator.rs<br/>Tile map orchestrator"]
+    TG --> TFA["terrain_forge_adapter.rs<br/>Base terrain via terrain-forge"]
+    TFA --> CON["connectivity.rs<br/>Glass Seam Bridging"]
+    CON --> SL["structure_library.rs<br/>Stamp prefab structures"]
+    SL --> MS["microstructures.rs<br/>Small features"]
+    MS --> EP["environmental_props.rs<br/>Decorations"]
+    EP --> SP["spawn.rs<br/>Entity population"]
+    SP --> FM["feature_materializer.rs<br/>Story hooks, NPCs, loot"]
+    FM --> QC["quest_constraints.rs<br/>Validate quest requirements"]
+```
+
+## Data Flow
+
+All game content is data-driven via JSON files validated against schemas at load time:
 
 ```mermaid
 graph LR
-    Rust["Rust structs<br/>(serde + schemars)"] -->|schema_gen| Schema["schemas/*.json"]
-    JSON["data/*.json"] -->|validated against| Schema
-    JSON -->|loaded by| DL["DataLoader&lt;T&gt;"]
-    DL -->|cached via| OC["once_cell::Lazy"]
-    DL --> State["GameState"]
+    JSON["data/*.json"] --> DL["DataLoader<br/>(generic, cached)"]
+    SCH["schemas/*.json"] --> DL
+    DL --> GS["GameState"]
+    DL --> GEN["Generation Pipeline"]
+    DL --> DES["DES Interpreter"]
 ```
 
-Cross-reference rules: items ↔ traders, loot_tables, recipes, quests. Enemies ↔ biome_spawn_tables, loot_tables. Adding data entries requires checking all referencing files.
+## Multi-Terminal Architecture
 
-## Deterministic RNG
-
-All RNG uses `ChaCha8Rng` from `rand_chacha` with explicit seeds. `RngState` is serialized with saves. This guarantees: same seed → same world, same combat outcomes, same loot drops.
-
-## Multi-Terminal IPC
+The game supports satellite terminal windows via IPC:
 
 ```mermaid
-graph LR
-    Main["Main Game"] -->|Unix domain socket| Log["Log Terminal"]
-    Main -->|Unix domain socket| Status["Status Terminal"]
-    Main -->|Unix domain socket| Inv["Inventory Terminal"]
+graph TB
+    MAIN["Main Game Process"] -->|Unix Socket| LOG["Log UI Terminal"]
+    MAIN -->|Unix Socket| STAT["Status UI Terminal"]
+    MAIN -->|Unix Socket| INV["Inventory UI Terminal"]
 ```
 
-`src/ipc.rs` handles socket communication. `src/satellite.rs` runs satellite terminal processes. `src/terminal_spawn.rs` detects and launches terminal emulators.
+## Key Design Decisions
 
-## Key Architectural Decisions
-
-1. **No ECS framework** — custom systems pattern keeps dependencies lean and code greppable
-2. **terrain-forge for base terrain** — adapted via `terrain_forge_adapter.rs` with biome-specific profiles
-3. **Glass Seam Bridging** for connectivity — novel algorithm, not a standard flood-fill approach
-4. **Schema validation at load time** — all `data/*.json` validated against auto-generated schemas; run `schema_gen` after changing Rust data types
-5. **DES for gameplay testing** — headless scenario execution replaces manual TUI testing in CI
+- **God object pattern**: `GameState` in `state.rs` is the central hub. All systems access state through it. This is intentional — it's the coordination point.
+- **Deterministic RNG**: All randomness uses `ChaCha8Rng` with explicit seeds. Same seed = same gameplay.
+- **DES over manual testing**: The Debug Execution System enables headless, deterministic gameplay testing via JSON scenarios.
+- **Bridge pattern for migration**: Deeply coupled systems (AI, storm) use bridge effects that call existing code while providing trace visibility.
+- **Reactions replace events**: The old `GameEvent` system was replaced by VERA reactions (Batch F). Kill → loot drop → quest progress is now a reaction chain.

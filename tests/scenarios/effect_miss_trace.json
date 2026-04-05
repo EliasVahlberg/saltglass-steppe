@@ -1,0 +1,17 @@
+{
+  "name": "effect_miss_trace",
+  "description": "Assert that a miss produces Combat(Miss and not Combat(Kill — verifies effect_not_occurred on kill",
+  "seed": 100,
+  "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10},
+  "entities": [{"entity_type": "enemy", "id": "mirage_hound", "x": 6, "y": 5, "hp": 5, "ai_disabled": true}],
+  "mocks": {"combat_always_hit": false},
+  "actions": [
+    {"turn": 0, "action": {"type": "attack", "target_x": 6, "target_y": 5}}
+  ],
+  "assertions": [
+    {"at_end": true, "check": {"type": "effect_occurred", "pattern": "Combat(Miss"}, "message": "Miss effect must appear in trace"},
+    {"at_end": true, "check": {"type": "effect_not_occurred", "pattern": "Combat(Kill"}, "message": "No kill on a miss"},
+    {"at_end": true, "check": {"type": "effect_not_occurred", "pattern": "Combat(DealDamage"}, "message": "No damage on a miss"},
+    {"at_end": true, "check": {"type": "effect_not_occurred", "pattern": "Player(GainXp"}, "message": "No XP on a miss"}
+  ]
+}
