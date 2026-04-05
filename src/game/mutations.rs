@@ -51,6 +51,16 @@ pub enum Mutation {
     AddAdaptation(String),
     AddStatusEffect { id: String, duration: i32 },
     SetLastDamageDealt(u32),
+    AllocateStat(String),
+    SuppressAdaptations { turns: u32 },
+    SetPhaseMode(bool),
+    /// Equipment
+    Equip { slot: String, item_id: String },
+    Unequip(String),
+    RecalcStats,
+    /// Combat
+    StunEnemy { idx: usize, duration: i32 },
+    DamageWall { x: i32, y: i32, damage: i32 },
 
     // Inventory & equipment
     AddToInventory(String),
@@ -119,6 +129,9 @@ pub enum Mutation {
     /// Delta mutations (used when system doesn't have current value)
     AddSaltScrip(u32),
     SpendAp(i32),
+    AddHp(i32),
+    AddRefraction(i32),
+    IncrementWaitCounter,
     /// World travel bridges (orchestrators — call travel_to_tile internally)
     WorldMove { wx: usize, wy: usize },
     WorldMoveSafe { wx: usize, wy: usize },
@@ -128,6 +141,10 @@ pub enum Mutation {
     ExitSubterranean,
     /// Bridge: runs rule_move and handles all branches (NPC, combat, move, blocked)
     MovePlayer { dx: i32, dy: i32 },
+    /// Bridge: calls end_turn() (runs all turn phases)
+    EndTurn,
+    /// Bridge: calls update_enemies() + tick_turn_housekeeping() x10 (for Rest)
+    RestTick,
 }
 
 // ---------------------------------------------------------------------------

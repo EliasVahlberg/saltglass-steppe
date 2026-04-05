@@ -1,11 +1,11 @@
 //! Dispatch layer — routes Commands to system handlers, runs the cascade loop.
 
 use crate::game::{
-    effects::Command,
+    effects::{Command, context::QueryContext},
     mutations::Mutation,
     notify,
     state::GameState,
-    systems::{combat, interact, movement, player, quest, world},
+    systems::{combat, interact, items, movement, player, quest, world},
 };
 
 /// Apply mutations, collect transitions, run notifications, cascade (depth-limited).
@@ -34,7 +34,6 @@ pub fn route_command(
     command: &Command,
     state: &mut GameState,
 ) -> Option<Vec<Mutation>> {
-    use crate::game::effects::context::QueryContext;
 
     match command {
         Command::Attack { target_x, target_y } => {
@@ -85,6 +84,39 @@ pub fn route_command(
             Some(world::handle_exit_subterranean()),
         Command::Move { dx, dy } =>
             Some(movement::handle_move(*dx, *dy)),
-        _ => None,
+        Command::Wait => {
+            let ctx = QueryContext::from_state(state);
+            let mut m = player::handle_wait(&ctx);
+            m.push(crate::game::mutations::Mutation::EndTurn);
+            Some(m)
+        }
+        Command::Rest => {
+            let ctx = QueryContext::from_state(state);
+            let mut m = player::handle_rest(&ctx);
+            // If rest produced effects (not blocked by enemies), also run AI/housekeeping
+            let has_effects = m.iter().any(|m| !matches!(m, crate::game::mutations::Mutation::LogMessage { .. }));
+            if has_effects {
+                m.push(crate::game::mutations::Mutation::RestTick);
+            }
+            Some(m)
+        }
+        Command::Equip { inv_idx, slot } => {
+            let ctx = QueryContext::from_state(state);
+            Some(player::handle_equip(*inv_idx, slot, &ctx))
+        }
+        Command::Unequip { slot } =>
+            Some(player::handle_unequip(slot)),
+        Command::AllocateStat { stat } => {
+            let ctx = QueryContext::from_state(state);
+            Some(player::handle_allocate_stat(stat, &ctx))
+        }
+        Command::UseItem { index } => {
+            let ctx = QueryContext::from_state(state);
+            Some(items::handle_use_item(*index, &ctx))
+        }
+        Command::UseItemOnTile { index, x, y } => {
+            let ctx = QueryContext::from_state(state);
+            Some(items::handle_use_item_on_tile(*index, *x, *y, &ctx))
+        }
     }
 }

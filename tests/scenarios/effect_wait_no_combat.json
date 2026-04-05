@@ -1,14 +1,50 @@
 {
   "name": "effect_wait_no_combat",
-  "description": "Assert that waiting produces no combat effects — verifies effect_not_occurred",
+  "description": "Assert that waiting produces no combat effects \u2014 verifies effect_not_occurred",
   "seed": 42,
-  "player": {"x": 5, "y": 5, "hp": 20, "max_hp": 20, "ap": 10, "max_ap": 10},
+  "player": {
+    "x": 5,
+    "y": 5,
+    "hp": 20,
+    "max_hp": 20,
+    "ap": 10,
+    "max_ap": 10
+  },
   "actions": [
-    {"turn": 0, "action": {"type": "wait", "turns": 1}}
+    {
+      "turn": 0,
+      "action": {
+        "type": "wait",
+        "turns": 1
+      }
+    }
   ],
   "assertions": [
-    {"at_end": true, "check": {"type": "effect_not_occurred", "pattern": "Combat("}, "message": "Wait must not produce any combat effects"},
-    {"at_end": true, "check": {"type": "effect_occurred", "pattern": "Player(IncrementWaitCounter"}, "message": "Wait must increment wait counter"},
-    {"at_end": true, "check": {"type": "effect_count", "pattern": "Player(", "op": "ge", "value": 1}, "message": "At least one player effect from wait"}
+    {
+      "at_end": true,
+      "check": {
+        "type": "effect_not_occurred",
+        "pattern": "Combat("
+      },
+      "message": "Wait must not produce any combat effects"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "effect_occurred",
+        "pattern": "IncrementWaitCounter"
+      },
+      "message": "Wait must increment wait counter"
+    },
+    {
+      "at_end": true,
+      "check": {
+        "type": "effect_count",
+        "pattern": "IncrementWaitCounter",
+        "op": "ge",
+        "value": 1
+      },
+      "message": "At least one player effect from wait"
+    }
   ]
 }

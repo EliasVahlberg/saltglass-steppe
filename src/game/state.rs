@@ -506,71 +506,10 @@ impl GameState {
 
     /// VERA dispatch — central command handler
     pub fn dispatch(&mut self, command: super::effects::Command) {
-        use super::effects::Command;
-
         self.ensure_spatial_index();
-
         if let Some(mutations) = super::dispatch::route_command(&command, self) {
             super::dispatch::apply_with_cascade(self, mutations);
             self.check_auto_end_turn();
-            return;
-        }
-
-        // Legacy path: commands not yet migrated to Mutation path
-        match command {
-            Command::Wait => {
-                let output = {
-                    let ctx = super::effects::context::QueryContext::from_state(self);
-                    super::rules::rule_wait(&ctx)
-                };
-                self.apply_and_trace(output, "rule_wait");
-                self.end_turn();
-            }
-            Command::Rest => {
-                let output = {
-                    let ctx = super::effects::context::QueryContext::from_state(self);
-                    super::rules::rule_rest(&ctx)
-                };
-                let had_effects = !output.effects.is_empty();
-                self.apply_and_trace(output, "rule_rest");
-                if had_effects {
-                    for _ in 0..10 { self.tick_turn_housekeeping(); }
-                    self.update_enemies();
-                }
-            }
-            Command::Equip { inv_idx, slot } => {
-                let output = {
-                    let ctx = super::effects::context::QueryContext::from_state(self);
-                    super::rules::rule_equip(inv_idx, &slot, &ctx)
-                };
-                self.apply_and_trace(output, "rule_equip");
-            }
-            Command::Unequip { slot } => {
-                let output = super::rules::rule_unequip(&slot);
-                self.apply_and_trace(output, "rule_unequip");
-            }
-            Command::AllocateStat { stat } => {
-                let output = {
-                    let ctx = super::effects::context::QueryContext::from_state(self);
-                    super::rules::rule_allocate_stat(&stat, &ctx)
-                };
-                self.apply_and_trace(output, "rule_allocate_stat");
-            }
-            Command::UseItem { index } => {
-                let output = {
-                    let ctx = super::effects::context::QueryContext::from_state(self);
-                    super::rules::rule_use_item(index, &ctx)
-                };
-                self.apply_and_trace(output, "rule_use_item");
-            }
-            Command::UseItemOnTile { index, x, y } => {
-                let output = {
-                    let ctx = super::effects::context::QueryContext::from_state(self);
-                    super::rules::rule_use_item_on_tile(index, x, y, &ctx)
-                };
-                self.apply_and_trace(output, "rule_use_item_on_tile");
-            }
-            _ => {}
         }
     }
 
@@ -2682,7 +2621,51 @@ impl GameState {
                 self.apply_status_effect(id, *duration);
             }
             Mutation::SetLastDamageDealt(v) => { self.player.last_damage_dealt = *v; }
-
+            Mutation::AllocateStat(stat) => {
+                if self.player.pending_stat_points > 0 {
+                    match stat.as_str() {
+                        "max_hp" => { self.player.max_hp += 5; self.player.hp += 5; }
+                        "max_ap" => { self.player.max_ap += 1; self.player.ap += 1; }
+                        "reflex" => { self.player.reflex += 1; }
+                        _ => {}
+                    }
+                    self.player.pending_stat_points -= 1;
+                }
+            }
+            Mutation::SuppressAdaptations { turns } => {
+                self.player.adaptations_hidden_turns = *turns;
+            }
+            Mutation::SetPhaseMode(enabled) => {
+                self.debug.phase = *enabled;
+            }
+            Mutation::Equip { slot, item_id } => {
+                self.apply_one(&Mutation::SetEquipment { slot: slot.clone(), item_id: Some(item_id.clone()) });
+            }
+            Mutation::Unequip(slot) => {
+                self.apply_one(&Mutation::SetEquipment { slot: slot.clone(), item_id: None });
+            }
+            Mutation::RecalcStats => {
+                self.recalc_equipment_stats();
+            }
+            Mutation::StunEnemy { idx, duration } => {
+                self.apply_one(&Mutation::AddEnemyStatus { idx: *idx, id: "stun".into(), duration: *duration });
+            }
+            Mutation::DamageWall { x, y, damage } => {
+                let tile_idx = (*y * self.world.map.width as i32 + *x) as usize;
+                if tile_idx < self.world.map.tiles.len() {
+                    let mut broken = false;
+                    if let super::map::Tile::Wall { hp, .. } = &mut self.world.map.tiles[tile_idx] {
+                        *hp -= damage;
+                        if *hp <= 0 { broken = true; }
+                    }
+                    if broken {
+                        self.apply_one(&Mutation::SetTile {
+                            idx: tile_idx,
+                            tile: super::map::Tile::floor("stone"),
+                        });
+                    }
+                }
+            }
             // --- Inventory & equipment ---
             Mutation::AddToInventory(item_id) => {
                 self.player.inventory.push(item_id.clone());
@@ -2932,6 +2915,15 @@ impl GameState {
             Mutation::SpendAp(amount) => {
                 self.player.ap = (self.player.ap - amount).clamp(0, self.player.max_ap);
             }
+            Mutation::AddHp(amount) => {
+                self.player.hp = (self.player.hp + amount).clamp(0, self.player.max_hp);
+            }
+            Mutation::AddRefraction(delta) => {
+                self.player.refraction = (self.player.refraction as i32 + delta).max(0) as u32;
+            }
+            Mutation::IncrementWaitCounter => {
+                self.wait_counter += 1;
+            }
             Mutation::WorldMove { wx, wy } => { self.dispatch_world_move(*wx, *wy); }
             Mutation::WorldMoveSafe { wx, wy } => { self.dispatch_world_move_safe(*wx, *wy); }
             Mutation::FollowWorldPath => { self.dispatch_follow_world_path(); }
@@ -2939,6 +2931,11 @@ impl GameState {
             Mutation::EnterSubterranean => { self.dispatch_enter_subterranean(); }
             Mutation::ExitSubterranean => { self.dispatch_exit_subterranean(); }
             Mutation::MovePlayer { dx, dy } => { self.dispatch_move(*dx, *dy); }
+            Mutation::EndTurn => { self.end_turn(); }
+            Mutation::RestTick => {
+                for _ in 0..10 { self.tick_turn_housekeeping(); }
+                self.update_enemies();
+            }
             Mutation::TickSubsystem(id) => match id {
                 SubsystemId::Psychic     => { self.player.psychic.tick(); }
                 SubsystemId::Skills      => { self.player.skills.tick(); }

@@ -5,6 +5,17 @@ use crate::game::{
     state::{GameState, MsgType},
 };
 
+pub fn handle_use_item(item_index: usize, ctx: &crate::game::effects::context::QueryContext) -> Vec<Mutation> {
+    use crate::game::rules::item::rule_use_item;
+    crate::game::systems::rule_output_to_mutations(rule_use_item(item_index, ctx), msg_type_from_str)
+}
+
+pub fn handle_use_item_on_tile(item_index: usize, x: i32, y: i32,
+                                ctx: &crate::game::effects::context::QueryContext) -> Vec<Mutation> {
+    use crate::game::rules::item::rule_use_item_on_tile;
+    crate::game::systems::rule_output_to_mutations(rule_use_item_on_tile(item_index, x, y, ctx), msg_type_from_str)
+}
+
 pub fn handle_craft(recipe_id: &str, state: &mut GameState) -> Vec<Mutation> {
     // Station check needs spatial index
     state.ensure_spatial_index();
