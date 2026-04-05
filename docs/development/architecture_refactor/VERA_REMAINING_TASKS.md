@@ -168,4 +168,6 @@ Once these tasks are complete, the soft-migration is finished. The codebase will
 - Free of hardcoded content
 - Data-consistent
 
-Then we design the resolution to the state.rs structural problems (domain decomposition or alternative) with a clear picture of what we're working with.
+Then we design the resolution to the state.rs structural problems (verified state store architecture) with a clear picture of what we're working with.
+
+Design document: `VERIFIED_STATE_STORE.md`

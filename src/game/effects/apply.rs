@@ -18,38 +18,36 @@ impl GameState {
     }
 
     fn apply_player_effect(&mut self, effect: &PlayerEffect) {
+        use crate::game::mutations::Mutation;
         match effect {
             PlayerEffect::Heal { amount } => {
-                self.player.hp = (self.player.hp + amount).min(self.player.max_hp);
+                let new_hp = (self.player.hp + amount).min(self.player.max_hp);
+                self.apply_one(&Mutation::SetPlayerHp(new_hp));
             }
             PlayerEffect::TakeDamage { amount } => {
-                self.player.hp -= amount;
+                self.apply_one(&Mutation::SetPlayerHp(self.player.hp - amount));
             }
             PlayerEffect::SpendAp { amount } => {
-                self.player.ap -= amount;
+                self.apply_one(&Mutation::SetPlayerAp(self.player.ap - amount));
             }
             PlayerEffect::SetPosition { x, y } => {
-                self.player.x = *x;
-                self.player.y = *y;
+                self.apply_one(&Mutation::SetPlayerPosition { x: *x, y: *y });
             }
             PlayerEffect::ModifyRefraction { delta } => {
-                self.player.refraction =
-                    (self.player.refraction as i32 + delta).max(0) as u32;
+                let new_val = (self.player.refraction as i32 + delta).max(0) as u32;
+                self.apply_one(&Mutation::SetPlayerRefraction(new_val));
             }
             PlayerEffect::SuppressAdaptations { turns } => {
-                self.player.adaptations_hidden_turns = *turns;
+                self.apply_one(&Mutation::SetAdaptationsHidden(*turns));
             }
             PlayerEffect::PlaceDecoy { x, y } => {
-                self.decoys.push(crate::game::state::Decoy {
-                    x: *x,
-                    y: *y,
-                    turns_remaining: 3,
-                });
+                self.apply_one(&Mutation::PlaceDecoy { x: *x, y: *y });
             }
             PlayerEffect::ResetWaitCounter => {
-                self.wait_counter = 0;
+                self.apply_one(&Mutation::SetWaitCounter(0));
             }
             PlayerEffect::GainXp { amount } => {
+                // Compound: level-up loop stays here until systems/player.rs is created (Stage 3)
                 use crate::game::progression::{max_level, xp_for_level};
                 self.player.xp += amount;
                 self.log_typed(format!("+{} XP", amount), MsgType::System);
@@ -70,164 +68,142 @@ impl GameState {
                 }
             }
             PlayerEffect::RecordDamageDealt { amount } => {
-                self.player.last_damage_dealt = *amount;
+                self.apply_one(&Mutation::SetLastDamageDealt(*amount));
             }
             PlayerEffect::ResetAp => {
-                self.player.ap = self.player.max_ap;
+                self.apply_one(&Mutation::SetPlayerAp(self.player.max_ap));
             }
             PlayerEffect::AdvanceTurn => {
-                self.turn += 1;
+                self.apply_one(&Mutation::AdvanceTurn);
             }
             PlayerEffect::IncrementWaitCounter => {
-                self.wait_counter += 1;
+                self.apply_one(&Mutation::SetWaitCounter(self.wait_counter + 1));
             }
             PlayerEffect::AllocateStat { stat } => {
                 match stat.as_str() {
                     "max_hp" => {
-                        self.player.max_hp += 1;
-                        self.player.hp += 1;
+                        self.apply_one(&Mutation::SetPlayerMaxHp(self.player.max_hp + 1));
+                        self.apply_one(&Mutation::SetPlayerHp(self.player.hp + 1));
                     }
-                    "max_ap" => self.player.max_ap += 1,
-                    "reflex" => self.player.reflex += 1,
+                    "max_ap" => { self.apply_one(&Mutation::SetPlayerMaxAp(self.player.max_ap + 1)); }
+                    "reflex" => { self.apply_one(&Mutation::SetPlayerReflex(self.player.reflex + 1)); }
                     _ => {}
                 }
-                self.player.pending_stat_points -= 1;
+                self.apply_one(&Mutation::SetPlayerStatPoints(self.player.pending_stat_points - 1));
             }
             PlayerEffect::GainSaltScrip { amount } => {
-                self.player.salt_scrip += amount;
+                self.apply_one(&Mutation::SetPlayerSaltScrip(self.player.salt_scrip + amount));
             }
             PlayerEffect::GainSkillPoints { amount } => {
-                self.player.skills.skill_points += amount;
+                self.apply_one(&Mutation::SetPlayerSkillPoints(self.player.skills.skill_points + amount));
             }
             PlayerEffect::LevelUp => {
-                self.player.level += 1;
                 let points = crate::game::progression::stat_points_per_level();
-                self.player.pending_stat_points += points;
-                self.player.skills.skill_points += 2;
+                self.apply_one(&Mutation::SetPlayerLevel(self.player.level + 1));
+                self.apply_one(&Mutation::SetPlayerStatPoints(self.player.pending_stat_points + points));
+                self.apply_one(&Mutation::SetPlayerSkillPoints(self.player.skills.skill_points + 2));
             }
             PlayerEffect::ModifyReputation { faction, delta } => {
                 let current = self.player.faction_reputation.get(faction.as_str()).copied().unwrap_or(0);
-                let new_rep = (current + delta).clamp(-100, 100);
-                self.player.faction_reputation.insert(faction.clone(), new_rep);
+                self.apply_one(&Mutation::SetReputation { faction: faction.clone(), value: current + delta });
             }
             PlayerEffect::ApplyStatusEffect { effect_id, duration } => {
-                self.apply_status(crate::game::status::StatusEffect::new(effect_id, *duration));
+                self.apply_one(&Mutation::AddStatusEffect { id: effect_id.clone(), duration: *duration });
             }
             PlayerEffect::SetPhaseMode { enabled } => {
                 self.debug.phase = *enabled;
             }
             PlayerEffect::ClearEncounter => {
-                self.world.encounter_state = None;
+                self.apply_one(&Mutation::SetEncounterState(None));
             }
             PlayerEffect::SetLastFleeAttempt { turn } => {
-                if let Some(enc) = &mut self.world.encounter_state {
-                    enc.last_flee_attempt = *turn;
-                }
+                self.apply_one(&Mutation::SetLastFleeAttempt(*turn));
             }
             PlayerEffect::SetWorldPosition { wx, wy } => {
-                self.world.world_x = *wx;
-                self.world.world_y = *wy;
+                self.apply_one(&Mutation::SetWorldPosition { wx: *wx, wy: *wy });
             }
             PlayerEffect::SetLayer { layer } => {
-                self.world.layer = *layer;
+                self.apply_one(&Mutation::SetLayer(*layer));
             }
             PlayerEffect::IncrementTilesTraveled => {
-                self.world.total_tiles_traveled += 1;
+                self.apply_one(&Mutation::IncrementTilesTraveled);
             }
             PlayerEffect::TickPsychic => {
-                self.player.psychic.tick();
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::Psychic));
             }
             PlayerEffect::TickSkills => {
-                self.player.skills.tick();
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::Skills));
             }
             PlayerEffect::TickLightSystem => {
-                self.player.light_system.update(&mut self.rng);
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::Light));
             }
             PlayerEffect::TickVoidSystem => {
-                self.player.void_system.update(&mut self.rng);
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::Void));
             }
             PlayerEffect::TickCrystalSystem => {
-                self.player.crystal_system.update(&mut self.rng);
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::Crystal));
             }
             PlayerEffect::TickStatusEffects => {
-                crate::game::systems::StatusEffectSystem::tick_player_effects(self);
-                crate::game::systems::StatusEffectSystem::tick_enemy_effects(self);
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::Status));
             }
             PlayerEffect::TickHousekeeping => {
-                self.tick_turn_housekeeping();
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::Housekeeping));
             }
             PlayerEffect::GainAdaptation { adaptation_id } => {
-                if let Some(adaptation) = crate::game::adaptation::Adaptation::from_id(adaptation_id) {
-                    self.log_typed(
-                        format!("Gained adaptation: {}", adaptation.name()),
-                        MsgType::Status,
-                    );
-                    self.player.adaptations.push(adaptation);
+                // Log before delegating so the message appears
+                if let Some(a) = crate::game::adaptation::Adaptation::from_id(adaptation_id) {
+                    self.log_typed(format!("Gained adaptation: {}", a.name()), MsgType::Status);
                 }
+                self.apply_one(&Mutation::AddAdaptation(adaptation_id.clone()));
             }
             PlayerEffect::RunAI => {
-                self.update_enemies();
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::AI));
             }
         }
     }
 
     fn apply_combat_effect(&mut self, effect: &CombatEffect) {
+        use crate::game::mutations::Mutation;
         match effect {
             CombatEffect::DealDamage { enemy_idx, amount } => {
-                if let Some(enemy) = self.world.enemies.get_mut(*enemy_idx) {
-                    enemy.hp -= amount;
+                if let Some(enemy) = self.world.enemies.get(*enemy_idx) {
+                    let new_hp = enemy.hp - amount;
+                    self.apply_one(&Mutation::SetEnemyHp { idx: *enemy_idx, hp: new_hp });
                 }
             }
             CombatEffect::Miss { .. } => {}
-            CombatEffect::Kill { enemy_id, x, y, .. } => {
-                self.spatial.enemy_positions.remove(&(*x, *y));
-                self.meta.discover_enemy(enemy_id);
+            CombatEffect::Kill { enemy_idx, x, y, .. } => {
+                self.apply_one(&Mutation::RemoveEnemy { idx: *enemy_idx, x: *x, y: *y });
             }
             CombatEffect::Provoke { enemy_idx } => {
-                if let Some(enemy) = self.world.enemies.get_mut(*enemy_idx) {
-                    enemy.provoked = true;
-                }
+                self.apply_one(&Mutation::SetEnemyProvoked { idx: *enemy_idx, provoked: true });
             }
             CombatEffect::StunEnemy { enemy_idx, duration } => {
-                if let Some(enemy) = self.world.enemies.get_mut(*enemy_idx) {
-                    enemy.apply_status("stun", *duration);
-                }
+                self.apply_one(&Mutation::AddEnemyStatus { idx: *enemy_idx, id: "stun".into(), duration: *duration });
             }
         }
     }
 
     fn apply_item_effect(&mut self, effect: &ItemEffect) {
+        use crate::game::mutations::Mutation;
         match effect {
             ItemEffect::Consume { inventory_index, .. } => {
-                if *inventory_index < self.player.inventory.len() {
-                    self.player.inventory.remove(*inventory_index);
-                }
+                self.apply_one(&Mutation::RemoveFromInventory(*inventory_index));
             }
             ItemEffect::RemoveFromInventory { index } => {
-                if *index < self.player.inventory.len() {
-                    self.player.inventory.remove(*index);
-                }
+                self.apply_one(&Mutation::RemoveFromInventory(*index));
             }
             ItemEffect::Equip { item_id, slot } => {
-                if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>()
-                    && let Some(old) = self.player.equipment.set(equip_slot, Some(item_id.clone()))
-                {
-                    self.player.inventory.push(old);
-                }
+                self.apply_one(&Mutation::SetEquipment { slot: slot.clone(), item_id: Some(item_id.clone()) });
             }
             ItemEffect::Unequip { slot } => {
-                if let Ok(equip_slot) = slot.parse::<crate::game::equipment::EquipSlot>()
-                    && let Some(item) = self.player.equipment.set(equip_slot, None)
-                {
-                    self.player.inventory.push(item);
-                }
+                self.apply_one(&Mutation::SetEquipment { slot: slot.clone(), item_id: None });
             }
             ItemEffect::AddToInventory { item_id } => {
-                self.player.inventory.push(item_id.clone());
+                self.apply_one(&Mutation::AddToInventory(item_id.clone()));
             }
             ItemEffect::SpawnOnMap { item_id, x, y } => {
-                self.world.items.push(crate::game::item::Item::new(*x, *y, item_id));
-                self.rebuild_spatial_index();
+                self.apply_one(&Mutation::SpawnItemOnMap { item_id: item_id.clone(), x: *x, y: *y });
             }
             ItemEffect::RecalcStats => {
                 self.recalc_equipment_stats();
@@ -236,95 +212,75 @@ impl GameState {
     }
 
     fn apply_map_effect(&mut self, effect: &MapEffect) {
+        use crate::game::mutations::Mutation;
         match effect {
             MapEffect::RevealAll => {
-                for idx in 0..self.world.map.tiles.len() {
-                    self.revealed.insert(idx);
-                }
+                self.apply_one(&Mutation::RevealAll);
             }
             MapEffect::ClearStormHighlight { tile_index } => {
-                self.world
-                    .visual_effects
-                    .storm_changed_tiles
-                    .remove(tile_index);
+                self.apply_one(&Mutation::ClearStormHighlight(*tile_index));
             }
             MapEffect::DamageWall { x, y, damage } => {
                 let tile_idx = (*y * self.world.map.width as i32 + *x) as usize;
                 if tile_idx < self.world.map.tiles.len() {
                     let mut broken = false;
-                    if let crate::game::map::Tile::Wall { hp, .. } =
-                        &mut self.world.map.tiles[tile_idx]
-                    {
+                    if let crate::game::map::Tile::Wall { hp, .. } = &mut self.world.map.tiles[tile_idx] {
                         *hp -= damage;
-                        if *hp <= 0 {
-                            broken = true;
-                        }
+                        if *hp <= 0 { broken = true; }
                     }
                     if broken {
-                        self.world.map.tiles[tile_idx] =
-                            crate::game::map::Tile::default_floor();
+                        self.apply_one(&Mutation::SetTile {
+                            idx: tile_idx,
+                            tile: crate::game::map::Tile::default_floor(),
+                        });
                         self.update_lighting();
                     }
                 }
             }
             MapEffect::SetWorldPath { path, target } => {
-                self.world.world_map_path = path.clone();
-                self.world.world_map_target = *target;
+                self.apply_one(&Mutation::SetWorldPath { path: path.clone(), target: *target });
             }
             MapEffect::ClearWorldPath => {
-                self.world.world_map_path.clear();
-                self.world.world_map_target = None;
+                self.apply_one(&Mutation::ClearWorldPath);
             }
             MapEffect::AdvanceTime { new_time } => {
-                self.world.time_of_day = *new_time as u8;
+                self.apply_one(&Mutation::SetTimeOfDay(*new_time as u8));
             }
             MapEffect::SetWeather { weather } => {
-                self.world.weather = match weather.as_str() {
-                    "clear" => crate::game::world_state::Weather::Clear,
+                let w = match weather.as_str() {
                     "dusty" => crate::game::world_state::Weather::Dusty,
                     "sandstorm" => crate::game::world_state::Weather::Sandstorm,
                     _ => crate::game::world_state::Weather::Clear,
                 };
+                self.apply_one(&Mutation::SetWeather(w));
             }
             MapEffect::TickEncounterTimer => {
-                if let Some(encounter) = &mut self.world.encounter_state {
-                    encounter.turns_in_encounter += 1;
-                }
+                self.apply_one(&Mutation::IncrementEncounterTimer);
             }
             MapEffect::TickStorm => {
-                if self.world.storm.tick() {
-                    crate::game::systems::StormSystem::apply_storm(self);
-                }
+                self.apply_one(&Mutation::TickSubsystem(crate::game::mutations::SubsystemId::Storm));
             }
         }
     }
 
     fn apply_resource_effect(&mut self, effect: &ResourceEffect) {
+        use crate::game::mutations::Mutation;
         match effect {
             ResourceEffect::GainLightEnergy { amount } => {
-                self.player.light_system.light_energy += amount;
+                self.apply_one(&Mutation::SetLightEnergy(self.player.light_system.light_energy + amount));
             }
             ResourceEffect::GainVoidEnergy { amount } => {
-                self.player.void_system.gain_energy(*amount);
+                self.apply_one(&Mutation::SetVoidEnergy(*amount));
             }
             ResourceEffect::GainVoidExposure { amount } => {
-                self.player.void_system.add_exposure(*amount);
+                self.apply_one(&Mutation::SetVoidExposure(*amount));
             }
             ResourceEffect::GainResonanceEnergy { amount } => {
-                self.player.crystal_system.resonance_energy =
-                    (self.player.crystal_system.resonance_energy + amount)
-                        .min(self.player.crystal_system.max_resonance_energy);
+                let new_val = self.player.crystal_system.resonance_energy + amount;
+                self.apply_one(&Mutation::SetResonanceEnergy(new_val));
             }
             ResourceEffect::PlaceCrystal { x, y, frequency } => {
-                let freq = match frequency.as_str() {
-                    "alpha" => crate::game::crystal_resonance::CrystalFrequency::Alpha,
-                    "beta" => crate::game::crystal_resonance::CrystalFrequency::Beta,
-                    "gamma" => crate::game::crystal_resonance::CrystalFrequency::Gamma,
-                    "delta" => crate::game::crystal_resonance::CrystalFrequency::Delta,
-                    "epsilon" => crate::game::crystal_resonance::CrystalFrequency::Epsilon,
-                    _ => crate::game::crystal_resonance::CrystalFrequency::Alpha,
-                };
-                self.player.crystal_system.add_crystal(*x, *y, freq);
+                self.apply_one(&Mutation::PlaceCrystal { x: *x, y: *y, frequency: frequency.clone() });
             }
         }
     }

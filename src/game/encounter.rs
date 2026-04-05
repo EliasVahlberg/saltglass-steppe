@@ -63,7 +63,7 @@ static CONFIG: Lazy<EncounterConfig> = Lazy::new(|| {
     serde_json::from_str(data).expect("Failed to parse encounter_config.json")
 });
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct EncounterState {
     pub encounter_type: EncounterType,
     pub world_x: usize,
@@ -74,7 +74,7 @@ pub struct EncounterState {
     pub last_flee_attempt: u32,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum EncounterType {
     Hostile {
         threat_points: u32,

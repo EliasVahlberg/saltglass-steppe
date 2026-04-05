@@ -1,9 +1,11 @@
 # Dispatch Extraction Design
 
 > Date: 2026-04-05
-> Status: Design — not yet implemented
-> Prerequisite: Complete VERA_REMAINING_TASKS.md (soft-migration completion) first
-> Supersedes: DOMAIN_DECOMPOSITION_PLAN.md (which proposed moving apply + rules into domain modules)
+> Status: **SUPERSEDED** by `VERIFIED_STATE_STORE.md`
+> This document proposed moving dispatch helpers to free functions while keeping apply.rs centralized.
+> After further design review, the verified state store approach was chosen instead: atomic mutations
+> with per-field verification, external notification system, and systems as pure functions.
+> This document is retained for reference.
 
 ---
 

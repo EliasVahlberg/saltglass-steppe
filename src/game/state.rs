@@ -3046,6 +3046,280 @@ impl GameState {
         state.update_lighting(); // Recalculate lighting after loading
         Ok(state)
     }
+
+    // -----------------------------------------------------------------------
+    // Mutation interface (Stage 1 — verified state store)
+    // -----------------------------------------------------------------------
+
+    /// Apply a single mutation, enforce invariants, return a transition if one occurred.
+    pub fn apply_one(&mut self, mutation: &super::mutations::Mutation) -> Option<super::mutations::StateTransition> {
+        use super::mutations::{Mutation, StateTransition, SubsystemId};
+        use super::progression::max_level;
+
+        match mutation {
+            // --- Player vitals ---
+            Mutation::SetPlayerHp(v) => {
+                let old = self.player.hp;
+                self.player.hp = (*v).clamp(0, self.player.max_hp);
+                if self.player.hp <= 0 && old > 0 {
+                    return Some(StateTransition::PlayerDied);
+                }
+            }
+            Mutation::SetPlayerMaxHp(v) => {
+                self.player.max_hp = (*v).max(1);
+            }
+            Mutation::SetPlayerAp(v) => {
+                let old = self.player.ap;
+                self.player.ap = (*v).clamp(0, self.player.max_ap);
+                if self.player.ap == 0 && old > 0 {
+                    return Some(StateTransition::PlayerApReachedZero);
+                }
+            }
+            Mutation::SetPlayerMaxAp(v) => {
+                self.player.max_ap = (*v).max(1);
+            }
+            Mutation::SetPlayerPosition { x, y } => {
+                let (old_x, old_y) = (self.player.x, self.player.y);
+                self.player.x = *x;
+                self.player.y = *y;
+                if old_x != *x || old_y != *y {
+                    return Some(StateTransition::PlayerPositionChanged {
+                        old_x, old_y, new_x: *x, new_y: *y,
+                    });
+                }
+            }
+            Mutation::SetPlayerReflex(v) => { self.player.reflex = *v; }
+            Mutation::SetPlayerArmor(v) => { self.player.armor = *v; }
+
+            // --- Player progression ---
+            Mutation::SetPlayerXp(v) => {
+                self.player.xp = self.player.xp.max(*v);
+            }
+            Mutation::SetPlayerLevel(v) => {
+                self.player.level = (*v).clamp(1, max_level());
+            }
+            Mutation::SetPlayerStatPoints(v) => { self.player.pending_stat_points = *v; }
+            Mutation::SetPlayerSkillPoints(v) => { self.player.skills.skill_points = *v; }
+            Mutation::SetPlayerSaltScrip(v) => { self.player.salt_scrip = *v; }
+
+            // --- Player state ---
+            Mutation::SetPlayerRefraction(v) => { self.player.refraction = *v; }
+            Mutation::SetWaitCounter(v) => { self.wait_counter = *v; }
+            Mutation::SetAdaptationsHidden(v) => { self.player.adaptations_hidden_turns = *v; }
+            Mutation::AddAdaptation(id) => {
+                if let Some(a) = super::adaptation::Adaptation::from_id(id) {
+                    self.player.adaptations.push(a);
+                }
+            }
+            Mutation::AddStatusEffect { id, duration } => {
+                self.apply_status_effect(id, *duration);
+            }
+            Mutation::SetLastDamageDealt(v) => { self.player.last_damage_dealt = *v; }
+
+            // --- Inventory & equipment ---
+            Mutation::AddToInventory(item_id) => {
+                self.player.inventory.push(item_id.clone());
+                return Some(StateTransition::ItemAddedToInventory { item_id: item_id.clone() });
+            }
+            Mutation::RemoveFromInventory(idx) => {
+                if *idx < self.player.inventory.len() {
+                    self.player.inventory.remove(*idx);
+                }
+            }
+            Mutation::SetEquipment { slot, item_id } => {
+                if let Ok(equip_slot) = slot.parse::<super::equipment::EquipSlot>() {
+                    let old = self.player.equipment.set(equip_slot, item_id.clone());
+                    if let Some(old_item) = old {
+                        self.player.inventory.push(old_item);
+                    }
+                    self.recalc_equipment_stats();
+                }
+            }
+            Mutation::SpawnItemOnMap { item_id, x, y } => {
+                self.world.items.push(super::item::Item::new(*x, *y, item_id));
+                self.rebuild_spatial_index();
+            }
+
+            // --- Enemies ---
+            Mutation::SetEnemyHp { idx, hp } => {
+                if let Some(enemy) = self.world.enemies.get_mut(*idx) {
+                    let old_hp = enemy.hp;
+                    enemy.hp = *hp;
+                    if old_hp != *hp {
+                        let enemy_id = enemy.id.clone();
+                        let (ex, ey) = (enemy.x, enemy.y);
+                        if *hp <= 0 && old_hp > 0 {
+                            return Some(StateTransition::EnemyHpReachedZero {
+                                idx: *idx, enemy_id, x: ex, y: ey,
+                            });
+                        }
+                        return Some(StateTransition::EnemyHpChanged {
+                            idx: *idx, old_hp, new_hp: *hp,
+                        });
+                    }
+                }
+            }
+            Mutation::SetEnemyProvoked { idx, provoked } => {
+                if let Some(enemy) = self.world.enemies.get_mut(*idx) {
+                    enemy.provoked = *provoked;
+                }
+            }
+            Mutation::AddEnemyStatus { idx, id, duration } => {
+                if let Some(enemy) = self.world.enemies.get_mut(*idx) {
+                    enemy.apply_status(id, *duration);
+                }
+            }
+            Mutation::RemoveEnemy { idx, x, y } => {
+                self.spatial.enemy_positions.remove(&(*x, *y));
+                if *idx < self.world.enemies.len() {
+                    let enemy_id = self.world.enemies[*idx].id.clone();
+                    self.meta.discover_enemy(&enemy_id);
+                }
+            }
+            Mutation::SpawnEnemy { id, x, y } => {
+                self.world.enemies.push(super::enemy::Enemy::new(*x, *y, id));
+                self.rebuild_spatial_index();
+            }
+
+            // --- World state ---
+            Mutation::SetWorldPosition { wx, wy } => {
+                self.world.world_x = *wx;
+                self.world.world_y = *wy;
+                return Some(StateTransition::PlayerEnteredWorldTile { wx: *wx, wy: *wy });
+            }
+            Mutation::SetLayer(v) => { self.world.layer = *v; }
+            Mutation::SetTimeOfDay(v) => { self.world.time_of_day = *v % 24; }
+            Mutation::SetWeather(w) => { self.world.weather = *w; }
+            Mutation::IncrementTilesTraveled => { self.world.total_tiles_traveled += 1; }
+            Mutation::AdvanceTurn => {
+                let old = self.turn;
+                self.turn += 1;
+                return Some(StateTransition::TurnAdvanced { old_turn: old, new_turn: self.turn });
+            }
+
+            // --- Map ---
+            Mutation::SetTile { idx, tile } => {
+                if *idx < self.world.map.tiles.len() {
+                    self.world.map.tiles[*idx] = tile.clone();
+                }
+            }
+            Mutation::RevealTile(idx) => { self.revealed.insert(*idx); }
+            Mutation::RevealAll => {
+                for i in 0..self.world.map.tiles.len() { self.revealed.insert(i); }
+            }
+            Mutation::ClearStormHighlight(idx) => {
+                self.world.visual_effects.storm_changed_tiles.remove(idx);
+            }
+            Mutation::SetWorldPath { path, target } => {
+                self.world.world_map_path = path.clone();
+                self.world.world_map_target = *target;
+            }
+            Mutation::ClearWorldPath => {
+                self.world.world_map_path.clear();
+                self.world.world_map_target = None;
+            }
+
+            // --- Encounter ---
+            Mutation::SetEncounterState(s) => {
+                self.world.encounter_state = s.as_ref().map(|b| *b.clone());
+            }
+            Mutation::IncrementEncounterTimer => {
+                if let Some(enc) = &mut self.world.encounter_state {
+                    enc.turns_in_encounter += 1;
+                }
+            }
+            Mutation::SetLastFleeAttempt(turn) => {
+                if let Some(enc) = &mut self.world.encounter_state {
+                    enc.last_flee_attempt = *turn;
+                }
+            }
+
+            // --- Faction & quest ---
+            Mutation::SetReputation { faction, value } => {
+                let clamped = (*value).clamp(-100, 100);
+                self.player.faction_reputation.insert(faction.clone(), clamped);
+            }
+            Mutation::AcceptQuest(quest_id) => {
+                if let Some(quest) = super::quest::ActiveQuest::new(quest_id) {
+                    self.player.quest_log.active.push(quest);
+                }
+            }
+            Mutation::CompleteQuest(quest_id) => {
+                let _ = self.player.quest_log.complete(quest_id);
+            }
+            Mutation::SetFactionAlignment(faction) => {
+                self.player.quest_log.set_faction_alignment(faction);
+            }
+
+            // --- Resources ---
+            Mutation::SetLightEnergy(v) => { self.player.light_system.light_energy = *v; }
+            Mutation::SetVoidEnergy(v) => { self.player.void_system.gain_energy(*v); }
+            Mutation::SetVoidExposure(v) => { self.player.void_system.add_exposure(*v); }
+            Mutation::SetResonanceEnergy(v) => {
+                self.player.crystal_system.resonance_energy =
+                    (*v).min(self.player.crystal_system.max_resonance_energy);
+            }
+            Mutation::PlaceCrystal { x, y, frequency } => {
+                let freq = match frequency.as_str() {
+                    "alpha" => super::crystal_resonance::CrystalFrequency::Alpha,
+                    "beta"  => super::crystal_resonance::CrystalFrequency::Beta,
+                    "gamma" => super::crystal_resonance::CrystalFrequency::Gamma,
+                    "delta" => super::crystal_resonance::CrystalFrequency::Delta,
+                    "epsilon" => super::crystal_resonance::CrystalFrequency::Epsilon,
+                    _ => super::crystal_resonance::CrystalFrequency::Alpha,
+                };
+                self.player.crystal_system.add_crystal(*x, *y, freq);
+            }
+
+            // --- Presentation (no verification, no transitions) ---
+            Mutation::LogMessage { text, msg_type } => {
+                self.log_typed(text.clone(), *msg_type);
+            }
+            Mutation::OpenBook(id) => { self.pending_ui.book_open = Some(id.clone()); }
+            Mutation::PlaceDecoy { x, y } => {
+                self.decoys.push(Decoy { x: *x, y: *y, turns_remaining: 3 });
+            }
+            Mutation::HitFlash { x, y } => { self.world.visual_effects.trigger_hit_flash(*x, *y); }
+            Mutation::DamageNumber { x, y, value, is_heal } => {
+                self.world.visual_effects.spawn_damage_number(*x, *y, *value, *is_heal);
+            }
+            Mutation::SpawnProjectile { from, to, ch } => {
+                self.world.visual_effects.spawn_projectile(*from, *to, *ch);
+            }
+
+            // --- Bridge subsystems ---
+            Mutation::TickSubsystem(id) => match id {
+                SubsystemId::Psychic     => { self.player.psychic.tick(); }
+                SubsystemId::Skills      => { self.player.skills.tick(); }
+                SubsystemId::Light       => { self.player.light_system.update(&mut self.rng); }
+                SubsystemId::Void        => { self.player.void_system.update(&mut self.rng); }
+                SubsystemId::Crystal     => { self.player.crystal_system.update(&mut self.rng); }
+                SubsystemId::Status      => {
+                    super::systems::StatusEffectSystem::tick_player_effects(self);
+                    super::systems::StatusEffectSystem::tick_enemy_effects(self);
+                }
+                SubsystemId::AI          => { self.update_enemies(); }
+                SubsystemId::Storm       => {
+                    if self.world.storm.tick() {
+                        super::systems::StormSystem::apply_storm(self);
+                    }
+                }
+                SubsystemId::Housekeeping => { self.tick_turn_housekeeping(); }
+            },
+        }
+        None
+    }
+
+    /// Apply a batch of mutations, collect all transitions.
+    pub fn apply_mutations(&mut self, mutations: Vec<super::mutations::Mutation>) -> Vec<super::mutations::StateTransition> {
+        let mut transitions = Vec::new();
+        for m in &mutations {
+            if let Some(t) = self.apply_one(m) {
+                transitions.push(t);
+            }
+        }
+        transitions
+    }
 }
 
 impl GameState {

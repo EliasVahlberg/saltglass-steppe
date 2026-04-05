@@ -32,6 +32,7 @@ pub mod map;
 pub mod map_elements;
 pub mod map_features;
 pub mod meta;
+pub mod mutations;
 pub mod narrative_engine;
 pub mod npc;
 pub mod player_state;
