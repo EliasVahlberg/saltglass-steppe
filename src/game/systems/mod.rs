@@ -42,10 +42,10 @@ pub fn effect_to_mutation(effect: crate::game::effects::Effect) -> Option<crate:
             PlayerEffect::ApplyStatusEffect { effect_id, duration } => {
                 Mutation::AddStatusEffect { id: effect_id, duration }
             }
-            PlayerEffect::ModifyRefraction { delta } => {
-                // Delta — needs AddRefraction
-                Mutation::AddRefraction(delta)
-            }
+            PlayerEffect::ModifyRefraction { delta } => Mutation::AddRefraction(delta),
+            PlayerEffect::SetPosition { x, y } => Mutation::SetPlayerPosition { x, y },
+            PlayerEffect::TakeDamage { amount } => Mutation::AddHp(-amount),
+            PlayerEffect::PlaceDecoy { x, y } => Mutation::PlaceDecoy { x, y },
             _ => return None,
         }),
         Effect::Item(e) => Some(match e {
@@ -60,6 +60,7 @@ pub fn effect_to_mutation(effect: crate::game::effects::Effect) -> Option<crate:
         Effect::Map(e) => Some(match e {
             MapEffect::RevealAll => Mutation::RevealAll,
             MapEffect::DamageWall { x, y, damage } => Mutation::DamageWall { x, y, damage },
+            MapEffect::ClearStormHighlight { tile_index } => Mutation::ClearStormHighlight(tile_index),
             _ => return None,
         }),
         Effect::Resource(e) => Some(match e {

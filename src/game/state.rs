@@ -169,6 +169,18 @@ pub struct GameState {
     pub mutation_log: Vec<String>,
 }
 
+fn msg_type_from_str(s: &str) -> MsgType {
+    match s {
+        "combat" => MsgType::Combat,
+        "loot" => MsgType::Loot,
+        "warning" => MsgType::Warning,
+        "status" => MsgType::Status,
+        "dialogue" => MsgType::Dialogue,
+        "social" => MsgType::Social,
+        _ => MsgType::System,
+    }
+}
+
 impl GameState {
     pub fn new(seed: u64) -> Self {
         // Generate world map
@@ -542,18 +554,13 @@ impl GameState {
         };
 
         // Apply effects common to all branches (e.g. ResetWaitCounter)
-        let turn = self.turn;
-        for effect in &move_output.effects {
-            self.apply_effect(effect);
-            self.trace.record(
-                effect,
-                super::effects::TraceSource::Rule { name: "rule_move" },
-                turn,
-            );
-        }
+        let mutations: Vec<super::mutations::Mutation> = move_output.effects.into_iter()
+            .filter_map(super::systems::effect_to_mutation)
+            .collect();
         for p in &move_output.presentation {
             self.apply_presentation(p);
         }
+        self.apply_mutations(mutations);
 
         match move_output.result {
             MoveResult::Npc => {
@@ -607,7 +614,6 @@ impl GameState {
     }
 
     fn dispatch_world_move(&mut self, new_wx: usize, new_wy: usize) {
-        use super::effects::{Effect, PlayerEffect};
 
         let from = (self.world.world_x, self.world.world_y);
         let to = (new_wx, new_wy);
@@ -625,11 +631,11 @@ impl GameState {
         let (biome, terrain, _elev, _poi, _res, _conn, level) = wm.get(new_wx, new_wy);
         let cost = super::travel::travel_cost(terrain, biome);
 
-        let mut effects: Vec<Effect> = vec![
-            Effect::Player(PlayerEffect::IncrementTilesTraveled),
+        let mut mutations: Vec<super::mutations::Mutation> = vec![
+            super::mutations::Mutation::IncrementTilesTraveled,
         ];
         for _ in 0..cost {
-            effects.push(Effect::Player(PlayerEffect::AdvanceTurn));
+            mutations.push(super::mutations::Mutation::AdvanceTurn);
         }
 
         // Check for encounter
@@ -639,13 +645,8 @@ impl GameState {
             level, last_encounter, self.turn + cost, self.player.skills.get_skill_level("wayfaring"),
         );
 
-        effects.push(Effect::Player(PlayerEffect::SetWorldPosition { wx: new_wx, wy: new_wy }));
-
-        let output = super::effects::RuleOutput {
-            effects,
-            presentation: Vec::new(),
-        };
-        self.apply_and_trace(output, "dispatch_world_move");
+        mutations.push(super::mutations::Mutation::SetWorldPosition { wx: new_wx, wy: new_wy });
+        self.apply_mutations(mutations);
 
         if encounter_triggered {
             let encounter = super::encounter::generate_encounter(
@@ -669,7 +670,6 @@ impl GameState {
     }
 
     fn dispatch_world_move_safe(&mut self, new_wx: usize, new_wy: usize) {
-        use super::effects::{Effect, PlayerEffect};
 
         let from = (self.world.world_x, self.world.world_y);
         let to = (new_wx, new_wy);
@@ -686,15 +686,13 @@ impl GameState {
                 let (biome, terrain, _elev, _poi, _res, _conn, _level) = wm.get(new_wx, new_wy);
                 let cost = super::travel::travel_cost(terrain, biome);
 
-                let mut effects: Vec<Effect> = vec![
-                    Effect::Player(PlayerEffect::IncrementTilesTraveled),
+                let mut mutations: Vec<super::mutations::Mutation> = vec![
+                    super::mutations::Mutation::IncrementTilesTraveled,
                 ];
                 for _ in 0..cost {
-                    effects.push(Effect::Player(PlayerEffect::AdvanceTurn));
+                    mutations.push(super::mutations::Mutation::AdvanceTurn);
                 }
-
-                let output = super::effects::RuleOutput { effects, presentation: Vec::new() };
-                self.apply_and_trace(output, "dispatch_world_move_safe");
+                self.apply_mutations(mutations);
         }
 
         // Always generate tile
@@ -726,7 +724,6 @@ impl GameState {
     }
 
     fn dispatch_calculate_world_path(&mut self, target: (usize, usize)) {
-        use super::effects::{Effect, MapEffect};
 
         if self.world.world_map.is_none() { return; }
 
@@ -750,14 +747,10 @@ impl GameState {
         }
 
         if !path.is_empty() {
-            let output = super::effects::RuleOutput {
-                effects: vec![Effect::Map(MapEffect::SetWorldPath {
-                    path: path.clone(),
-                    target: Some(target),
-                })],
-                presentation: Vec::new(),
-            };
-            self.apply_and_trace(output, "dispatch_calculate_world_path");
+            self.apply_mutations(vec![super::mutations::Mutation::SetWorldPath {
+                path: path.clone(),
+                target: Some(target),
+            }]);
         }
     }
 
@@ -790,14 +783,14 @@ impl GameState {
         let ctx = super::effects::context::QueryContext::from_state(self);
         let output = super::rules::economy::rule_craft(recipe_id, &ctx);
         let success = !output.effects.is_empty();
-        self.apply_and_trace(output, "rule_craft");
+        let mutations = super::systems::rule_output_to_mutations(output, msg_type_from_str);
+        self.apply_mutations(mutations);
         success
     }
 
     pub fn dispatch_buy_item(&mut self, item_id: &str, npc_id: &str) -> Result<(), String> {
         let ctx = super::effects::context::QueryContext::from_state(self);
         let output = super::rules::economy::rule_buy_item(item_id, npc_id, &ctx);
-        // If no effects, the rule produced a warning — extract it as an error
         if output.effects.is_empty() {
             let msg = output.presentation.first()
                 .map(|p| match p {
@@ -806,7 +799,8 @@ impl GameState {
                 .unwrap_or_else(|| "Cannot buy item.".into());
             return Err(msg);
         }
-        self.apply_and_trace(output, "rule_buy_item");
+        let mutations = super::systems::rule_output_to_mutations(output, msg_type_from_str);
+        self.apply_mutations(mutations);
         Ok(())
     }
 
@@ -823,90 +817,11 @@ impl GameState {
                 .unwrap_or_else(|| "Cannot sell item.".into());
             return Err(msg);
         }
-        self.apply_and_trace(output, "rule_sell_item");
+        let mutations = super::systems::rule_output_to_mutations(output, msg_type_from_str);
+        self.apply_mutations(mutations);
         Ok(())
     }
 
-    pub fn apply_and_trace(
-        &mut self,
-        output: super::effects::RuleOutput,
-        rule_name: &'static str,
-    ) {
-        let turn = self.turn;
-        for effect in &output.effects {
-            self.apply_effect(effect);
-            self.trace.record(
-                effect,
-                super::effects::TraceSource::Rule { name: rule_name },
-                turn,
-            );
-        }
-        for p in &output.presentation {
-            self.apply_presentation(p);
-        }
-    }
-
-    /// Run reactions triggered by applied effects. Max cascade depth 10.
-    /// Run reactions triggered by applied effects. Max cascade depth 10.
-    ///
-    /// Kill → loot drop + quest progress via collect_reactions.
-    pub fn run_reactions(&mut self, effects: &[super::effects::Effect], depth: u32) {
-        if depth >= 10 {
-            self.log("Warning: reaction cascade depth limit reached");
-            return;
-        }
-        let reaction_effects = self.collect_reactions(effects);
-        if reaction_effects.is_empty() {
-            return;
-        }
-        let turn = self.turn;
-        for (effect, source_name, trigger) in &reaction_effects {
-            self.apply_effect(effect);
-            self.trace.record(
-                effect,
-                super::effects::TraceSource::Reaction {
-                    name: source_name,
-                    trigger: Box::new(trigger.clone()),
-                },
-                turn,
-            );
-        }
-        let next: Vec<_> = reaction_effects.into_iter().map(|(e, _, _)| e).collect();
-        self.run_reactions(&next, depth + 1);
-    }
-
-    fn collect_reactions(
-        &self,
-        effects: &[super::effects::Effect],
-    ) -> Vec<(super::effects::Effect, &'static str, super::effects::Effect)> {
-        use super::effects::{CombatEffect, Effect, EventEffect, QuestNotifyKind};
-        let mut results = Vec::new();
-        for effect in effects {
-            if let Effect::Combat(CombatEffect::Kill { enemy_id, x, y, .. }) = effect {
-                results.push((
-                    Effect::Event(EventEffect::LootDrop {
-                        enemy_id: enemy_id.clone(),
-                        x: *x,
-                        y: *y,
-                    }),
-                    "reaction_loot_drop",
-                    effect.clone(),
-                ));
-                results.push((
-                    Effect::Event(EventEffect::QuestNotify {
-                        kind: QuestNotifyKind::Kill {
-                            enemy_id: enemy_id.clone(),
-                        },
-                    }),
-                    "reaction_quest_kill",
-                    effect.clone(),
-                ));
-            }
-        }
-        results
-    }
-
-    /// Create a new game with a specific character class
     pub fn new_with_class(seed: u64, class_id: &str) -> Self {
         let mut state = Self::new(seed);
 
@@ -1846,80 +1761,64 @@ impl GameState {
     }
 
     fn execute_phase(&mut self, phase: &super::effects::TurnPhase) {
-        use super::effects::{Effect, PlayerEffect, TurnPhase};
-        use super::effects::trace::TraceSource;
+        use super::effects::TurnPhase;
+        use super::mutations::Mutation;
 
         match phase {
             TurnPhase::ResetAp => {
-                let effect = Effect::Player(PlayerEffect::ResetAp);
-                self.apply_effect(&effect);
-                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
+                self.apply_mutations(vec![Mutation::ResetAp]);
             }
             TurnPhase::TickStatusEffects => {
-                let effect = Effect::Player(PlayerEffect::TickStatusEffects);
-                self.apply_effect(&effect);
-                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
+                self.apply_mutations(vec![Mutation::TickStatusEffects]);
             }
             TurnPhase::TickSubsystems => {
-                // Bridge effects — preserve RNG order: psychic, skills, light, void, crystal
-                let effects = vec![
-                    Effect::Player(PlayerEffect::TickPsychic),
-                    Effect::Player(PlayerEffect::TickSkills),
-                    Effect::Player(PlayerEffect::TickLightSystem),
-                    Effect::Player(PlayerEffect::TickVoidSystem),
-                    Effect::Player(PlayerEffect::TickCrystalSystem),
-                ];
-                for effect in &effects {
-                    self.apply_effect(effect);
-                    self.trace.record(effect, TraceSource::Rule { name: "end_turn" }, self.turn);
-                }
+                use super::mutations::SubsystemId;
+                self.apply_mutations(vec![
+                    Mutation::TickSubsystem(SubsystemId::Psychic),
+                    Mutation::TickSubsystem(SubsystemId::Skills),
+                    Mutation::TickSubsystem(SubsystemId::Light),
+                    Mutation::TickSubsystem(SubsystemId::Void),
+                    Mutation::TickSubsystem(SubsystemId::Crystal),
+                ]);
             }
             TurnPhase::AdvanceTurn => {
-                let effect = Effect::Player(PlayerEffect::AdvanceTurn);
-                self.apply_effect(&effect);
-                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
-                // Housekeeping (adaptation suppression, triggered effects, decoys, light effects)
-                let hk = Effect::Player(PlayerEffect::TickHousekeeping);
-                self.apply_effect(&hk);
-                self.trace.record(&hk, TraceSource::Rule { name: "end_turn" }, self.turn);
+                self.apply_mutations(vec![Mutation::AdvanceTurn]);
+                self.apply_mutations(vec![Mutation::TickHousekeeping]);
                 // Adaptation threshold check
                 let ctx = super::effects::context::QueryContext::from_state(self);
                 let output = super::rules::turn::rule_check_adaptation(&ctx);
-                self.apply_and_trace(output, "rule_check_adaptation");
-                // Quest turn progress (replaces TurnEnded event)
-                let qt = Effect::Event(super::effects::EventEffect::QuestNotify {
-                    kind: super::effects::QuestNotifyKind::Turn,
-                });
-                self.apply_effect(&qt);
-                self.trace.record(&qt, TraceSource::Rule { name: "end_turn" }, self.turn);
+                let mutations: Vec<Mutation> = output.effects.into_iter()
+                    .filter_map(super::systems::effect_to_mutation)
+                    .collect();
+                self.apply_mutations(mutations);
+                // Quest turn progress
+                self.apply_mutations(vec![Mutation::QuestNotify(
+                    super::effects::QuestNotifyKind::Turn,
+                )]);
             }
             TurnPhase::RunAI => {
-                let effect = Effect::Player(PlayerEffect::RunAI);
-                self.apply_effect(&effect);
-                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
+                self.apply_mutations(vec![Mutation::RunAI]);
             }
             TurnPhase::TickStorm => {
-                let effect = Effect::Map(super::effects::MapEffect::TickStorm);
-                self.apply_effect(&effect);
-                self.trace.record(&effect, TraceSource::Rule { name: "end_turn" }, self.turn);
+                self.apply_mutations(vec![Mutation::TickStorm]);
             }
             TurnPhase::AdvanceTime => {
-                // Inline tick_time logic to avoid borrow conflict (rule needs &ctx + &mut rng)
-                use super::effects::{MapEffect, RuleOutput};
-                let mut effects = Vec::new();
+                use rand::Rng;
+                let mut mutations = Vec::new();
                 if self.turn.is_multiple_of(10) {
                     let new_time = (self.world.time_of_day as u32 + 1) % 24;
-                    effects.push(Effect::Map(MapEffect::AdvanceTime { new_time }));
+                    mutations.push(Mutation::AdvanceTime { new_time });
                     if new_time == 6 || new_time == 18 {
-                        use rand::Rng;
-                        let roll = self.rng.gen_range(0..10);
+                        let roll = self.rng.gen_range(0..10u32);
                         let weather = match roll {
-                            0..=6 => "clear", 7..=8 => "dusty", 9 => "sandstorm", _ => "clear",
+                            0..=6 => super::world_state::Weather::Clear,
+                            7..=8 => super::world_state::Weather::Dusty,
+                            _ => super::world_state::Weather::Sandstorm,
                         };
-                        effects.push(Effect::Map(MapEffect::SetWeather { weather: weather.to_string() }));
+                        mutations.push(Mutation::SetWeather(weather));
                     }
                 }
-                self.apply_and_trace(RuleOutput { effects, presentation: Vec::new() }, "rule_tick_time");
+                self.apply_mutations(mutations);
             }
             TurnPhase::UpdateDerives => {
                 self.ensure_spatial_index();
@@ -1929,7 +1828,10 @@ impl GameState {
             TurnPhase::CheckEncounters => {
                 let ctx = super::effects::context::QueryContext::from_state(self);
                 let output = super::rules::turn::rule_check_encounters(&ctx);
-                self.apply_and_trace(output, "rule_check_encounters");
+                let mutations: Vec<Mutation> = output.effects.into_iter()
+                    .filter_map(super::systems::effect_to_mutation)
+                    .collect();
+                self.apply_mutations(mutations);
             }
         }
     }
@@ -1977,8 +1879,12 @@ impl GameState {
         self.apply_light_effects();
     }
 
-    pub fn log(&mut self, msg: impl Into<String>) {
-        self.log_typed(msg, MsgType::System);
+    pub fn apply_presentation(&mut self, p: &super::effects::Presentation) {
+        let super::effects::Presentation::LogMessage { text, msg_type } = p;
+        self.log_typed(text.clone(), msg_type_from_str(msg_type));
+    }
+
+    pub fn log(&mut self, msg: impl Into<String>) {        self.log_typed(msg, MsgType::System);
     }
 
     pub fn log_typed(&mut self, msg: impl Into<String>, msg_type: MsgType) {
@@ -2882,7 +2788,8 @@ impl GameState {
                             let ctx = super::effects::context::QueryContext::from_state(self);
                             super::rules::rule_use_psychic(&effect_id, &ctx)
                         };
-                        self.apply_and_trace(output, "rule_use_psychic");
+                        let mutations = super::systems::rule_output_to_mutations(output, msg_type_from_str);
+                        self.apply_mutations(mutations);
                     }
                     Err(e) => self.log(e),
                 }
@@ -2954,6 +2861,24 @@ impl GameState {
                 }
                 SubsystemId::Housekeeping => { self.tick_turn_housekeeping(); }
             },
+            Mutation::ResetAp => {
+                self.player.ap = self.player.max_ap;
+            }
+            Mutation::TickStatusEffects => {
+                self.apply_one(&Mutation::TickSubsystem(SubsystemId::Status));
+            }
+            Mutation::TickHousekeeping => {
+                self.tick_turn_housekeeping();
+            }
+            Mutation::RunAI => {
+                self.apply_one(&Mutation::TickSubsystem(SubsystemId::AI));
+            }
+            Mutation::TickStorm => {
+                self.apply_one(&Mutation::TickSubsystem(SubsystemId::Storm));
+            }
+            Mutation::AdvanceTime { new_time } => {
+                self.world.time_of_day = *new_time as u8;
+            }
         }
         None
     }

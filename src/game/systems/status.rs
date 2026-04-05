@@ -93,12 +93,14 @@ impl StatusEffectSystem {
 
             // Loot drop + quest progress (replaces event system)
             let loot_output = crate::game::rules::reactions::reaction_loot_drop(&enemy_id, x, y, &mut state.rng);
-            for effect in &loot_output.effects {
-                state.apply_effect(effect);
-            }
-            for p in &loot_output.presentation {
-                state.apply_presentation(p);
-            }
+            let mutations = crate::game::systems::rule_output_to_mutations(
+                loot_output,
+                |s| match s {
+                    "loot" => crate::game::state::MsgType::Loot,
+                    _ => crate::game::state::MsgType::System,
+                },
+            );
+            state.apply_mutations(mutations);
             state.player.quest_log.on_enemy_killed(&enemy_id);
             let completed = state.player.quest_log.check_auto_complete();
             state.log_quest_completions(&completed);

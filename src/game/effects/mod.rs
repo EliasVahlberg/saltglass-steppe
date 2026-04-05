@@ -3,7 +3,6 @@
 //! Pure rule functions return `Effect` enums, a mechanical `apply` mutates state,
 //! and a `Trace` records what happened for verification.
 
-pub mod apply;
 pub mod context;
 pub mod trace;
 

@@ -122,6 +122,12 @@ pub enum Mutation {
 
     // Subsystem ticks (bridge — subsystem handles internally)
     TickSubsystem(SubsystemId),
+    ResetAp,
+    TickStatusEffects,
+    TickHousekeeping,
+    RunAI,
+    TickStorm,
+    AdvanceTime { new_time: u32 },
     /// Bridge: calls psychic.use_ability then applies the resulting effect
     UsePsychicAbility { ability_id: String },
     /// Bridge: calls attempt_flee with full state access
