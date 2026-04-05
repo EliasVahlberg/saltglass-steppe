@@ -140,9 +140,10 @@
       },
       {
         "id": "glass_pick",
-        "weight": 1,
+        "weight": 10,
         "min_level": 1,
-        "max_level": 6
+        "max_level": 6,
+        "room": "first"
       },
       {
         "id": "master_glass_pick",
@@ -188,9 +189,10 @@
       },
       {
         "id": "hand_torch",
-        "weight": 1,
+        "weight": 10,
         "min_level": 1,
-        "max_level": 3
+        "max_level": 3,
+        "room": "first"
       },
       {
         "id": "storm_lantern",
@@ -410,9 +412,10 @@
       },
       {
         "id": "dying_pilgrim",
-        "weight": 1,
+        "weight": 10,
         "min_level": 1,
-        "max_level": 5
+        "max_level": 5,
+        "room": "first"
       },
       {
         "id": "mirror_monk_friendly",

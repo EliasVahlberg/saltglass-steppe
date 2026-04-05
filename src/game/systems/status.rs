@@ -92,7 +92,13 @@ impl StatusEffectSystem {
             );
 
             // Loot drop + quest progress (replaces event system)
-            super::loot::LootSystem::handle_enemy_death(state, &enemy_id, x, y);
+            let loot_output = crate::game::rules::reactions::reaction_loot_drop(&enemy_id, x, y, &mut state.rng);
+            for effect in &loot_output.effects {
+                state.apply_effect(effect);
+            }
+            for p in &loot_output.presentation {
+                state.apply_presentation(p);
+            }
             state.player.quest_log.on_enemy_killed(&enemy_id);
             let completed = state.player.quest_log.check_auto_complete();
             state.log_quest_completions(&completed);

@@ -84,6 +84,7 @@ pub enum ItemEffect {
     Equip { item_id: String, slot: String },
     Unequip { slot: String },
     AddToInventory { item_id: String },
+    SpawnOnMap { item_id: String, x: i32, y: i32 },
     RecalcStats,
 }
 

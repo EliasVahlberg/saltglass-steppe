@@ -3,6 +3,7 @@ pub mod combat;
 pub mod economy;
 pub mod item;
 pub mod movement;
+pub mod reactions;
 pub mod turn;
 
 pub use actions::{rule_wait, rule_rest, rule_equip, rule_unequip, rule_allocate_stat, rule_use_psychic};

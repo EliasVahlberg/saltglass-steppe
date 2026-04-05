@@ -27,7 +27,7 @@ use super::{
     systems::movement::MovementSystem,
     world_map::WorldMap,
 };
-use crate::game::narrative_engine::{NarrativeEngine, StoryModel};
+use crate::game::narrative_engine::NarrativeEngine;
 use crate::game::player_state::PlayerState;
 use crate::game::world_state::{Weather, WorldState};
 
@@ -246,46 +246,9 @@ impl GameState {
         // Spawn NPCs
         let mut npcs = Vec::new();
 
-        // ALWAYS spawn the dying pilgrim on the first tile for main questline
-        // Find a safe position near the player spawn
-        let pilgrim_pos = {
-            let offsets = [
-                (1, 0),
-                (-1, 0),
-                (0, 1),
-                (0, -1),
-                (1, 1),
-                (-1, -1),
-                (1, -1),
-                (-1, 1),
-            ];
-            let mut spawn_pos = (px + 1, py); // Default fallback
-            for &(dx, dy) in &offsets {
-                let test_x = px + dx;
-                let test_y = py + dy;
-                if test_x >= 0
-                    && test_y >= 0
-                    && test_x < map.width as i32
-                    && test_y < map.height as i32
-                {
-                    let test_idx = map.idx(test_x, test_y);
-                    if map.tiles[test_idx].walkable() {
-                        spawn_pos = (test_x, test_y);
-                        break;
-                    }
-                }
-            }
-            spawn_pos
-        };
-        npcs.push(Npc::new(pilgrim_pos.0, pilgrim_pos.1, "dying_pilgrim"));
-
         // Spawn other NPCs from spawn table
         let late_room = rooms.len().saturating_sub(2);
         for spawn in &table.npcs {
-            // Skip dying pilgrim since we already spawned it
-            if spawn.id == "dying_pilgrim" {
-                continue;
-            }
 
             let room_idx = match spawn.room.as_deref() {
                 Some("late") => Some(late_room),
@@ -327,10 +290,8 @@ impl GameState {
                         {
                             let test_idx = map.idx(test_x, test_y);
                             if map.tiles[test_idx].walkable() &&
-                                   (test_x != px || test_y != py) && // Don't spawn on player
-                                   (test_x != pilgrim_pos.0 || test_y != pilgrim_pos.1)
-                            {
-                                // Don't spawn on pilgrim
+                                   (test_x != px || test_y != py) // Don't spawn on player
+                        {
                                 spawn_pos = (test_x, test_y);
                                 break;
                             }
@@ -348,15 +309,21 @@ impl GameState {
         let mut items = Vec::new();
         let mut used_positions = HashSet::new();
 
-        // Always spawn hand torch near player start
-        items.push(Item::new(px + 1, py, "hand_torch"));
-        used_positions.insert((px + 1, py));
-
-        // Always spawn glass pick (wall break tool) near player start
-        items.push(Item::new(px - 1, py, "glass_pick"));
-        used_positions.insert((px - 1, py));
-
         for spawn in &table.items {
+            if let Some("first") = spawn.room.as_deref() {
+                // Spawn near player start position
+                let offsets = [(1, 0), (-1, 0), (0, 1), (0, -1)];
+                for &(dx, dy) in &offsets {
+                    let ix = px + dx;
+                    let iy = py + dy;
+                    if !used_positions.contains(&(ix, iy)) {
+                        used_positions.insert((ix, iy));
+                        items.push(Item::new(ix, iy, &spawn.id));
+                        break;
+                    }
+                }
+                continue;
+            }
             if let Some("last") = spawn.room.as_deref() {
                 if let Some(&(rx, ry)) = rooms.last()
                     && !used_positions.contains(&(rx, ry))
@@ -612,10 +579,10 @@ impl GameState {
                 self.dispatch_world_move_safe(new_wx, new_wy);
             }
             Command::EnterSubterranean => {
-                self.enter_subterranean();
+                self.dispatch_enter_subterranean();
             }
             Command::ExitSubterranean => {
-                self.exit_subterranean();
+                self.dispatch_exit_subterranean();
             }
             Command::FollowWorldPath => {
                 self.dispatch_follow_world_path();
@@ -2054,7 +2021,7 @@ impl GameState {
     }
 
     /// Enter subterranean layer (go down stairs)
-    pub fn enter_subterranean(&mut self) -> bool {
+    pub fn dispatch_enter_subterranean(&mut self) -> bool {
         // Check if standing on stairs down
         if let Some(tile) = self.world.map.get(self.player.x, self.player.y) {
             if *tile != Tile::StairsDown {
@@ -2092,7 +2059,7 @@ impl GameState {
     }
 
     /// Exit subterranean layer (go up stairs)
-    pub fn exit_subterranean(&mut self) -> bool {
+    pub fn dispatch_exit_subterranean(&mut self) -> bool {
         // Check if standing on stairs up
         if let Some(tile) = self.world.map.get(self.player.x, self.player.y) {
             if *tile != Tile::StairsUp {
@@ -2271,48 +2238,6 @@ impl GameState {
     pub fn update_fov(&mut self) {
         self.visible = crate::game::map::compute_fov(&self.world.map, self.player.x, self.player.y);
         self.revealed.extend(&self.visible);
-    }
-
-    /// Generate procedural item lore using narrative templates
-    pub fn generate_item_lore(&mut self, _item_category: &str) -> Option<String> {
-        // Placeholder implementation - narrative generator not yet implemented
-        None
-    }
-
-    /// Generate procedural location description
-    pub fn generate_location_description(&mut self, _location_type: &str) -> Option<String> {
-        // Placeholder implementation - narrative generator not yet implemented
-        None
-    }
-
-    /// Generate contextual description based on current game state
-    pub fn generate_contextual_description(&mut self) -> Option<String> {
-        // Placeholder implementation - narrative generator not yet implemented
-        None
-    }
-
-    /// Generate environmental storytelling text
-    pub fn generate_environmental_text(&mut self, _environment_type: &str) -> Option<String> {
-        // Placeholder implementation - narrative generator not yet implemented
-        None
-    }
-
-    /// Generate NPC backstory using story model
-    pub fn generate_npc_backstory(
-        &mut self,
-        npc_id: &str,
-        _story_model: &StoryModel,
-    ) -> Option<String> {
-        // Placeholder implementation - narrative generator not yet implemented
-        // Just return a simple backstory based on NPC definition
-        super::npc::get_npc_def(npc_id)
-            .map(|npc_def| format!("{} has a mysterious past.", npc_def.name))
-    }
-
-    /// Get faction lore from story model
-    pub fn get_faction_lore(&self, _faction_name: &str) -> Option<String> {
-        // Placeholder implementation - story model methods not yet implemented
-        None
     }
 
     /// Generate crystal formations for appropriate biomes
@@ -3002,44 +2927,6 @@ impl GameState {
         }
     }
 
-    pub fn use_psychic_ability(&mut self, ability_id: &str) {
-        match self.player.psychic.use_ability(ability_id) {
-            Ok(effect_id) => {
-                self.log_typed(format!("You use {}.", ability_id), MsgType::Combat);
-                // Apply effect
-                match effect_id.as_str() {
-                    "stun_aoe" => {
-                        // Stun nearby enemies
-                        let mut stunned_count = 0;
-                        for enemy in &mut self.world.enemies {
-                            let dist = ((enemy.x - self.player.x).pow(2)
-                                + (enemy.y - self.player.y).pow(2))
-                                as f32;
-                            if dist <= 25.0 {
-                                // Radius 5
-                                enemy.apply_status("stun", 2);
-                                stunned_count += 1;
-                            }
-                        }
-                        self.log_typed(
-                            format!("Stunned {} enemies.", stunned_count),
-                            MsgType::Combat,
-                        );
-                    }
-                    "guaranteed_hit" => {
-                        self.apply_status_effect("guaranteed_hit", 1);
-                    }
-                    "phasing" => {
-                        self.apply_status_effect("phasing", 5);
-                        self.debug.phase = true; // Or handle via status effect check in movement
-                    }
-                    _ => self.log("Effect not implemented."),
-                }
-            }
-            Err(e) => self.log(e),
-        }
-    }
-
     /// Recalculate stats from equipment (called by ItemEffect::RecalcStats apply arm)
     pub(crate) fn recalc_equipment_stats(&mut self) {
         self.player.equipped_weapon = self.player.equipment.weapon.clone();
@@ -3066,28 +2953,6 @@ impl GameState {
         self.narrative.tutorial_progress.mark_shown(message_id);
     }
 
-    /// Modify faction reputation (clamped to -100 to +100)
-    pub fn modify_reputation(&mut self, faction: &str, delta: i32) {
-        let current = self
-            .player
-            .faction_reputation
-            .get(faction)
-            .copied()
-            .unwrap_or(0);
-        let new_rep = (current + delta).clamp(-100, 100);
-        self.player
-            .faction_reputation
-            .insert(faction.to_string(), new_rep);
-
-        if delta != 0 {
-            let change_desc = if delta > 0 { "improved" } else { "worsened" };
-            self.log_typed(
-                format!("Your reputation with {} has {}.", faction, change_desc),
-                MsgType::Social,
-            );
-        }
-    }
-
     /// Get faction reputation (0 if not set)
     pub fn get_reputation(&self, faction: &str) -> i32 {
         self.player
@@ -3097,8 +2962,8 @@ impl GameState {
             .unwrap_or(0)
     }
 
-    /// Apply status effect to player
-    pub fn apply_status_effect(&mut self, effect_id: &str, duration: i32) {
+    /// Apply status effect to player (merges stacks/duration if already present)
+    pub(crate) fn apply_status_effect(&mut self, effect_id: &str, duration: i32) {
         // Check if effect already exists
         if let Some(existing) = self
             .player

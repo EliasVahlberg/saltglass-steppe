@@ -225,6 +225,10 @@ impl GameState {
             ItemEffect::AddToInventory { item_id } => {
                 self.player.inventory.push(item_id.clone());
             }
+            ItemEffect::SpawnOnMap { item_id, x, y } => {
+                self.world.items.push(crate::game::item::Item::new(*x, *y, item_id));
+                self.rebuild_spatial_index();
+            }
             ItemEffect::RecalcStats => {
                 self.recalc_equipment_stats();
             }
@@ -331,7 +335,13 @@ impl GameState {
                 self.pending_ui.book_open = Some(book_id.clone());
             }
             EventEffect::LootDrop { enemy_id, x, y } => {
-                crate::game::systems::LootSystem::handle_enemy_death(self, enemy_id, *x, *y);
+                let output = crate::game::rules::reactions::reaction_loot_drop(enemy_id, *x, *y, &mut self.rng);
+                for effect in &output.effects {
+                    self.apply_effect(effect);
+                }
+                for p in &output.presentation {
+                    self.apply_presentation(p);
+                }
             }
             EventEffect::QuestNotify { kind } => {
                 use super::QuestNotifyKind;
