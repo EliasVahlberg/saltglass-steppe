@@ -79,6 +79,8 @@ See `STATE_STORE_REFLECTION.md` §3 for the exhaustive list. Summary:
 - **`apply_one` inline logic** — `QuestNotify` (~35 LOC), `AttemptFlee` (fixed), `UsePsychicAbility` (~14 LOC), `DamageWall` (~16 LOC) should be extracted to system functions.
 - **`notify.rs` underuse** — 5 of 7 `StateTransition` variants produce no reactions. `PlayerPositionChanged` is detected on every move but nothing listens to it.
 - **No unit tests for `systems/`** — all 14 system files have zero unit tests. Only tested via DES scenarios.
+- **Parallel trace systems migration risk** — `state.trace` (Effect-based) and `state.mutation_log` (Mutation-based) both exist; DES assertions check both. When the Effect trace is eventually removed, assertions that matched via `state.trace` will silently stop matching. Before removing the Effect trace, audit which DES assertions rely on it exclusively.
+- **RNG clone-writeback is convention, not structure** — every command handler that uses RNG must manually clone, call, and write back `state.rng`. Easy to forget; determinism breaks silently if the writeback is omitted. Consider a `dispatch_with_rng(state, |rng| handler(args, &ctx, rng))` helper in `dispatch.rs` that makes the pattern impossible to get wrong.
 
 ---
 
