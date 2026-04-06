@@ -1,28 +1,29 @@
 ---
 status: current
-last_verified: 2026-04-05
-commit: dddd97b
+last_verified: 2026-04-06
+commit: c0401a0
 ---
 
 # System Status Registry
 
 > **Purpose**: Single source of truth for what actually works in gameplay. Read this before working on any system.
-> **Architecture**: VERA (Verified Effect-Rule Architecture) — see `docs/development/architecture_refactor/FINAL_ARCHITECTURE.md`
-> **Last verified**: 2026-04-05 (VERA soft-migration complete)
+> **Architecture**: Verified State Store — see `docs/development/architecture_refactor/VERIFIED_STATE_STORE.md`
+> **Last verified**: 2026-04-06 (state store refactor complete)
 > **Rule**: If a system isn't marked ✅, don't assume it works. Verify before building on it.
 
-## VERA Migration Summary
+## Architecture Summary
 
 | Metric | Value |
 |--------|-------|
-| state.rs LOC | 3,195 |
-| Command variants | 22 |
-| Rule modules | 7 (actions, combat, economy, item, movement, reactions, turn) |
-| Rule functions | 20 |
+| state.rs LOC | 940 |
+| Command variants | 22 (all routed through dispatch.rs) |
+| System modules | 13 (systems/*.rs) |
+| Mutation variants | ~70 (atomic + bridge + delta + wrapper) |
+| Rule functions | 20 (legacy, in rules/, being absorbed into systems/) |
 | Rule unit tests | 39 |
-| DES scenarios | 157 |
+| DES scenarios | 26 (7 are thin/false-positive — see DES section) |
 
-**Soft-migration complete.** All gameplay actions go through `dispatch()`. Legacy bypass paths deleted. Next: domain decomposition of state.rs (see `STATE_RS_MIGRATION_PLAN.md`).
+**Verified State Store complete.** All commands route through `dispatch.rs` → system → `Vec<Mutation>` → `state.apply_mutations` (verified). Bridge mutations exist for complex systems (movement, world travel, turn, AI, storm). See `VERIFIED_STATE_STORE.md` for the two-tier mutation model.
 
 ## Status Key
 

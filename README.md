@@ -10,6 +10,7 @@ A deterministic, data-driven, turn-based TUI RPG set in the harsh, crystalline w
 - **[Architecture](docs/architecture/)** — Technical architecture and system design
 - **[Design](docs/design/)** — Game design and creative vision
 - **[Development](docs/development/)** — Development guides, roadmap, codebase health audit
+- **[Roadmap](docs/development/ROADMAP.md)** — Definitive development roadmap (features, tech debt, priorities)
 - **[Features](docs/features/)** — Feature specifications and implementation
 - **[Narrative](docs/narrative/)** — World lore and storytelling
 - **[Testing](docs/testing/)** — QA procedures and guidelines
@@ -48,13 +49,13 @@ cargo run
 
 ## Architecture
 
-The codebase uses the **VERA (Verified Effect-Rule Architecture)** pattern: pure rule functions return Effect enums, a mechanical apply function mutates state, and traces record what happened for verification.
+The codebase uses the **Verified State Store** pattern: systems return `Vec<Mutation>`, GameState applies them with per-field invariant checks, state transitions trigger reactions via `notify.rs`.
 
 ```
-Input → Command → Rule(ctx, rng) → Vec<Effect> → apply(state) → Trace
+Command → dispatch.rs → system → Vec<Mutation> → state.apply_mutations (verified) → notify.rs (reactions)
 ```
 
-See [AGENTS.md](AGENTS.md) for the full architecture guide and [FINAL_ARCHITECTURE.md](docs/development/architecture_refactor/FINAL_ARCHITECTURE.md) for the design document.
+See [VERIFIED_STATE_STORE.md](docs/development/architecture_refactor/VERIFIED_STATE_STORE.md) for the architecture and [ROADMAP.md](docs/development/ROADMAP.md) for what's next.
 
 ## Multi-Terminal UI System
 
