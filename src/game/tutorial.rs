@@ -72,32 +72,32 @@ impl TutorialProgress {
         match trigger {
             "game_start" => game_state.turn == 0,
             "first_enemy_visible" => {
-                !game_state.enemies().is_empty()
-                    && game_state.enemies().iter().any(|e| {
+                !game_state.world.enemies.is_empty()
+                    && game_state.world.enemies.iter().any(|e| {
                         e.hp > 0
                             && game_state
                                 .visible
-                                .contains(&(e.y as usize * game_state.map().width + e.x as usize))
+                                .contains(&(e.y as usize * game_state.world.map.width + e.x as usize))
                     })
             }
             "first_item_visible" => {
-                !game_state.items().is_empty()
-                    && game_state.items().iter().any(|item| {
+                !game_state.world.items.is_empty()
+                    && game_state.world.items.iter().any(|item| {
                         game_state
                             .visible
-                            .contains(&(item.y as usize * game_state.map().width + item.x as usize))
+                            .contains(&(item.y as usize * game_state.world.map.width + item.x as usize))
                     })
             }
-            "low_hp" => game_state.player_hp() < (game_state.player_max_hp() / 3),
+            "low_hp" => game_state.player.hp < (game_state.player.max_hp / 3),
             "first_npc_visible" => {
-                !game_state.npcs().is_empty()
-                    && game_state.npcs().iter().any(|npc| {
+                !game_state.world.npcs.is_empty()
+                    && game_state.world.npcs.iter().any(|npc| {
                         game_state
                             .visible
-                            .contains(&(npc.y as usize * game_state.map().width + npc.x as usize))
+                            .contains(&(npc.y as usize * game_state.world.map.width + npc.x as usize))
                     })
             }
-            "ap_depleted" => game_state.player_ap() == 0,
+            "ap_depleted" => game_state.player.ap == 0,
             _ => false,
         }
     }

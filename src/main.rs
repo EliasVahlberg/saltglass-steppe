@@ -233,7 +233,7 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
         Action::OpenChest(_) => {
             // Check if player is standing on a chest
             if let Some(&chest_idx) = state.spatial.chest_positions.get(&(state.player.x, state.player.y)) {
-                if state.open_chest(chest_idx) {
+                if saltglass_steppe::game::systems::items::open_chest(state, chest_idx) {
                     ui.chest_ui = Some(saltglass_steppe::ui::ChestUI::new(chest_idx));
                 }
             } else {
@@ -244,9 +244,9 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
             if let Some(ref chest_ui) = ui.chest_ui {
                 let chest_index = chest_ui.chest_index;
                 if let Some(chest_item_idx) = chest_ui.get_selected_chest_item() {
-                    state.transfer_from_chest(chest_index, chest_item_idx);
+                    saltglass_steppe::game::systems::items::transfer_from_chest(state, chest_index, chest_item_idx);
                 } else if let Some(inv_item_idx) = chest_ui.get_selected_inventory_item() {
-                    state.transfer_to_chest(chest_index, inv_item_idx);
+                    saltglass_steppe::game::systems::items::transfer_to_chest(state, chest_index, inv_item_idx);
                 }
             }
         }
@@ -671,7 +671,7 @@ fn run_main_game() -> Result<()> {
                     let seed = params.seed;
                     let mut state = GameState::new_with_class(seed, "wanderer");
                     state.debug.test_mode = true;
-                    state.load_test_tile(params);
+                    saltglass_steppe::game::des_testing::load_test_tile(&mut state, params);
                     if let SessionOutcome::Quit =
                         run_game_session(&mut terminal, &mut renderer, state, |_, _| {})?
                     {

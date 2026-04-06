@@ -142,7 +142,7 @@ impl EntityRenderer {
         let mut style = Style::default().fg(base_color).bold();
 
         // Apply hit flash
-        if state.has_hit_flash(state.player.x, state.player.y) && frame_count.is_multiple_of(2) {
+        if state.world.visual_effects.has_hit_flash(state.player.x, state.player.y) && frame_count.is_multiple_of(2) {
             return Some(Span::styled(
                 "@",
                 Style::default()
@@ -287,7 +287,7 @@ impl EntityRenderer {
         );
 
         // Apply hit flash
-        if state.has_hit_flash(x, y) && frame_count.is_multiple_of(2) {
+        if state.world.visual_effects.has_hit_flash(x, y) && frame_count.is_multiple_of(2) {
             return Some(Span::styled(
                 enemy.glyph().to_string(),
                 Style::default()

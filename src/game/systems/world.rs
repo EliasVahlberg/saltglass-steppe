@@ -49,7 +49,7 @@ pub fn travel_to_tile(state: &mut GameState, new_wx: usize, new_wy: usize) {
     state.update_fov();
     state.rebuild_spatial_index();
     state.update_lighting();
-    state.generate_crystal_formations(&biome, &walkable, &mut rng);
+    crate::game::systems::world::generate_crystal_formations(state, &biome, &walkable, &mut rng);
     state.log(format!("You enter a new area ({:?} {:?}).", biome, terrain));
 }
 
@@ -536,5 +536,45 @@ pub fn dispatch_calculate_world_path(state: &mut GameState, target: (usize, usiz
             path: state.world.world_map_path.clone(),
             target: Some(target),
         }]);
+    }
+}
+
+/// Generate crystal formations for appropriate biomes. Called after tile generation.
+pub fn generate_crystal_formations(
+    state: &mut crate::game::state::GameState,
+    biome: &crate::game::world_map::Biome,
+    rooms: &[(i32, i32)],
+    rng: &mut rand_chacha::ChaCha8Rng,
+) {
+    use crate::game::crystal_resonance::CrystalFrequency;
+    use crate::game::state::MsgType;
+    use rand::Rng;
+
+    let formation_chance = match biome {
+        crate::game::world_map::Biome::Ruins => 0.6,
+        crate::game::world_map::Biome::Oasis => 0.4,
+        crate::game::world_map::Biome::Saltflat => 0.3,
+        crate::game::world_map::Biome::Scrubland => 0.2,
+        crate::game::world_map::Biome::Desert => 0.1,
+    };
+    if !rng.gen_bool(formation_chance) { return; }
+    let formation_count = match biome {
+        crate::game::world_map::Biome::Ruins => rng.gen_range(2..=4),
+        crate::game::world_map::Biome::Oasis => rng.gen_range(1..=3),
+        _ => rng.gen_range(1..=2),
+    };
+    let frequencies = CrystalFrequency::all();
+    for _ in 0..formation_count {
+        if let Some(&(rx, ry)) = rooms.get(rng.gen_range(0..rooms.len())) {
+            let x = rx + rng.gen_range(-2..=2);
+            let y = ry + rng.gen_range(-2..=2);
+            if (x - state.player.x).abs() < 5 && (y - state.player.y).abs() < 5 { continue; }
+            let frequency = frequencies[rng.gen_range(0..frequencies.len())];
+            state.player.crystal_system.add_crystal(x, y, frequency);
+            state.log_typed(
+                format!("A {} crystal formation glimmers nearby.", frequency.name().to_lowercase()),
+                MsgType::Loot,
+            );
+        }
     }
 }

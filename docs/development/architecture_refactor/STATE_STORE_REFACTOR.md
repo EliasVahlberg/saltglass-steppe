@@ -1,180 +1,145 @@
 # State Store Refactor — Working Document
 
-> Status: Not started
-> Target: Migrate from current VERA soft-migration to the verified state store architecture
+> Status: Final cleanup remaining
 > Reference: `VERIFIED_STATE_STORE.md` (standing architecture document)
-> Baseline: Soft-migration complete (commit c6751ba), state.rs 3,195 LOC
+> Baseline: 3,195 LOC → 1,387 LOC (Stages 1-5 + decomposition complete)
 
 ---
 
-## What Changes
+## Completed
 
-| Current | Target |
-|---------|--------|
-| 15 `dispatch_*` methods on GameState (788 LOC) | Free functions in `systems/*.rs` |
-| `effects/apply.rs` — domain-specific apply arms (419 LOC) | `state.apply_one()` — exhaustive match on `Mutation` |
-| 7 Effect enums (PlayerEffect, CombatEffect, etc.) | Single `Mutation` enum in `mutations.rs` |
-| `collect_reactions` hardcoded in state.rs | `notify.rs` — external, expandable |
-| Compound effects (GainXp has level-up loop) | Atomic mutations (system calculates final values) |
-| Post-processing hardcoded in dispatch helpers | Notification subscribers in `notify.rs` |
-| state.rs: 3,195 LOC | state.rs: ~535 LOC |
+- [x] Stage 1: Mutation enum, apply_one, apply_mutations
+- [x] Stage 2: dispatch.rs, notify.rs, combat end-to-end
+- [x] Stage 3: All 16 commands through dispatch.rs
+- [x] Stage 4: Bridge subsystems (TickSubsystem)
+- [x] Stage 5: Delete effects/apply.rs, old dispatch infrastructure
+- [x] World travel → systems/world.rs (−822 LOC)
+- [x] Constructors → state_init.rs (−390 LOC)
+- [x] Auto-explore → systems/explore.rs (−238 LOC)
+- [x] Turn system → systems/turn.rs (−128 LOC)
+- [x] Movement → systems/movement.rs (−80 LOC)
 
-## What Stays
+## Final Cleanup: state.rs 1,387 → ~1,080 LOC
 
-- `Command` enum (unchanged)
-- `QueryContext` / `TestContext` (unchanged, may need field expansion)
-- DES scenarios (updated to assert on Mutations instead of Effects)
-- Trace system (records Mutations instead of Effects)
-- Bridge subsystems: AI, storm, status stay as `TickSubsystem` bridges initially
+Everything below is a mechanical move — no architectural changes, no new patterns.
 
-## Stage 1 Review Notes
+### Move to systems/player.rs (~83 LOC)
 
-These are known deviations in `apply_one` that are correct for Stage 1 but need attention when systems produce `Mutation` directly in Stage 3:
+| Method | LOC | Why it doesn't belong |
+|--------|-----|----------------------|
+| `check_adaptation_threshold` | 22 | Game logic: checks refraction vs thresholds, grants adaptations |
+| `apply_light_effects` | 43 | Game logic: checks light levels, applies status from items |
+| `apply_status_effect` | 23 | Game logic: stack/duration merge rules |
+| `recalc_equipment_stats` | 13 | Game logic: derives weapon/armor from equipment |
 
-- **`SetEquipment`** — does `equipment.set()` + pushes old item to inventory + calls `recalc_equipment_stats()`. Three mutations in one. When systems emit `SetEquipment` directly, they must also emit `AddToInventory` (for the displaced item) and a `RecalcStats` mutation separately.
-- **`SpawnItemOnMap`** — calls `rebuild_spatial_index()` inside `apply_one`. In the final design, spatial rebuild is a derive that runs after all cascades settle, not inside apply_one. Acceptable for Stage 1.
-- **`RemoveEnemy`** — removes from spatial index and records in meta, but does not remove the enemy object from `world.enemies`. The enemy stays with `hp ≤ 0`. This matches pre-existing behavior (the old `Kill` apply arm did the same). Not a bug.
+`apply_status_effect` is called from `apply_one` (AddStatusEffect arm). After the move, the arm calls `systems::player::apply_status_effect(self, id, duration)` — same pattern as other bridge arms.
 
-## Stage 3 Review Notes
+`recalc_equipment_stats` is called from `apply_one` (SetEquipment arm). Same treatment.
 
-- **`UsePsychicAbility` / `AttemptFlee`** — these are bridge mutations that call imperative logic inside `apply_one` rather than returning mutations directly. This is intentional for Stage 3: `use_ability` mutates psychic cooldown state and `attempt_flee` needs `&mut enemies`. Both should be converted to pure system functions returning `Vec<Mutation>` in Stage 4 when `PsychicState` and `EncounterState` are decomposed.
-- **rng writeback in `route_command`** — all command handlers that take `&mut ChaCha8Rng` must clone-call-writeback to advance `state.rng`. The pattern is: `let mut rng = state.rng.clone(); let m = handler(..., &mut rng); state.rng = rng;`. Any handler that skips the writeback silently breaks determinism. Fixed in Stage 3 post-review (Attack arm was missing writeback).
+### Move to systems/items.rs (~63 LOC)
 
-## Migration Stages
+| Method | LOC | Why it doesn't belong |
+|--------|-----|----------------------|
+| `can_open_chest` | 15 | Game logic: adjacency check |
+| `open_chest` | 29 | Game logic: lock/key check, unlock, open |
+| `transfer_to_chest` | 22 | Game logic: capacity check, inventory ↔ chest |
+| `transfer_from_chest` | 19 | Game logic: inventory ↔ chest |
 
-### Stage 1: Introduce mutations.rs alongside existing effects
+These are called from main.rs UI handlers. After the move, callers use `systems::items::open_chest(state, idx)` instead of `state.open_chest(idx)`.
 
-Add `Mutation` enum, `StateTransition` enum, `SubsystemId` to `mutations.rs`. Add `apply_one()` to GameState. Have existing apply arms in `effects/apply.rs` delegate to `apply_one()` internally where possible. This proves the verification works without changing any system behavior.
+### Move to systems/world.rs or generation (~53 LOC)
 
-Files created: `mutations.rs`
-Files modified: `state.rs` (add apply_one), `effects/apply.rs` (delegate to apply_one)
-Files deleted: none
+| Method | LOC | Why it doesn't belong |
+|--------|-----|----------------------|
+| `generate_crystal_formations` | 53 | Generation logic, not state management |
 
-**Verify:** `cargo test`, all DES pass. Zero behavior change.
+Called from state_init.rs and load_test_tile. After the move, callers use `systems::world::generate_crystal_formations(state, biome, rooms, rng)`.
 
-### Stage 2: Add dispatch.rs and notify.rs, convert combat end-to-end
+### Move to test infrastructure (~35 LOC)
 
-Create `dispatch.rs` with `dispatch()`, `route_command()`, `apply_with_cascade()`, `apply_recursive()`. Create `notify.rs` with `on_transitions()` and handlers for `EnemyHpChanged` and `EnemyHpReachedZero`.
+| Method | LOC | Why it doesn't belong |
+|--------|-----|----------------------|
+| `load_test_tile` | 35 | Test-only, not part of the game state API |
 
-Convert combat: create `systems/combat.rs` with `handle_melee()` and `handle_ranged()` returning `Vec<Mutation>`. Add `on_enemy_hit()` and `on_enemy_killed()` as notification handlers. Route `Command::Attack` and `Command::RangedAttack` through the new path. Other commands still use the old `dispatch()` on GameState.
+Move to `des_testing.rs` or a `#[cfg(test)]` block.
 
-Files created: `dispatch.rs`, `notify.rs`, `systems/combat.rs` (new version)
-Files modified: `state.rs` (dispatch delegates to dispatch.rs for combat commands)
-Files deleted: none yet (old dispatch_melee_attack still exists for other callers)
+### Delete: delegation accessors (~80 LOC)
 
-**Verify:** `cargo test`, combat DES scenarios pass. New combat unit tests for `handle_melee → Vec<Mutation>`.
+The entire second `impl GameState` block (L1245-1349):
+```rust
+pub fn player_x(&self) -> i32 { self.player.x }
+pub fn map(&self) -> &Map { &self.world.map }
+pub fn enemies(&self) -> &Vec<Enemy> { &self.world.enemies }
+// ... 30+ more
+```
 
-### Stage 3: Convert remaining systems (simplest first)
+All fields are `pub`. Callers can write `state.player.x` directly. These add zero value. Delete them and update callers.
 
-Each conversion follows the same pattern:
-1. Create system function in `systems/X.rs` returning `Vec<Mutation>`
-2. Add command routing in `dispatch.rs::route_command()`
-3. Add transition handlers to `notify.rs` if needed
-4. Delete old `dispatch_*` method from state.rs
-5. `cargo test`
+### Delete: pickup_items wrapper (~3 LOC)
 
-Order:
-1. **player** (wait, rest, allocate_stat, psychic, flee) — no notifications
-2. **items** (equip, unequip, use_item, craft, buy, sell) — `ItemAddedToInventory` notification
-3. **quest** (accept, complete) — no notifications
-4. **interact** (interact, examine) — no notifications
-5. **movement** — `PlayerPositionChanged` notification (triggers FOV, lighting, pickup, world transition, adaptation)
-6. **world** (world_move, world_move_safe, subterranean, pathing) — `PlayerEnteredWorldTile` notification
-7. **turn** (end_turn, phase execution) — `TurnAdvanced` notification
+```rust
+pub fn pickup_items(&mut self) { MovementSystem::pickup_items(self) }
+```
 
-### Stage 4: Convert bridge subsystems
+One-line delegation. Callers can use `MovementSystem::pickup_items(state)` directly.
 
-AI, storm, status tick logic stays as `TickSubsystem(SubsystemId)` mutations initially. The `apply_one` arm for `TickSubsystem` calls the legacy system code. These can be decomposed into atomic mutations later when/if those systems need modification.
+### Visual effect wrappers — decision needed (~60 LOC)
 
-### Stage 5: Delete old infrastructure
+```rust
+pub fn trigger_hit_flash(&mut self, x: i32, y: i32) {
+    self.world.visual_effects.trigger_hit_flash(x, y);
+}
+// ... 10 more one-line delegations
+```
 
-- Delete `effects/apply.rs`
-- Delete old Effect enums (PlayerEffect, CombatEffect, ItemEffect, MapEffect, ResourceEffect, EventEffect, QuestEffect)
-- Delete old `dispatch()` method body from state.rs (replaced by dispatch.rs)
-- Delete `collect_reactions`, `run_reactions`, `apply_and_trace` from state.rs
-- Delete `rules/` directory (logic absorbed into `systems/`)
-- Update DES to assert on Mutations instead of Effects
-- Update trace to record Mutations
+These are used by the rendering layer. Two options:
+- **Delete**: callers access `state.world.visual_effects` directly
+- **Keep**: they're thin, they hide the field path, rendering code doesn't need to know about `world.visual_effects`
 
-**Verify:** `cargo test`, all DES pass, `cargo clippy` clean.
+Recommendation: delete. The rendering layer already accesses `state.world` for other things.
 
-## Current Post-Processing → Notification Mapping
+### Summary
 
-These implicit behaviors in dispatch helpers become explicit notification handlers:
+| Action | LOC removed | Destination |
+|--------|-------------|-------------|
+| Delete delegation accessors | ~80 | Callers use `state.player.x` etc. |
+| Move player system methods | ~83 | `systems/player.rs` |
+| Move chest operations | ~63 | `systems/items.rs` |
+| Delete visual effect wrappers | ~60 | Callers use `state.world.visual_effects` |
+| Move crystal generation | ~53 | `systems/world.rs` |
+| Move load_test_tile | ~35 | `des_testing.rs` |
+| Delete pickup_items wrapper | ~3 | Callers use `MovementSystem::pickup_items` |
+| **Total** | **~377** | |
 
-| Current (in dispatch helper) | Transition trigger | Notification handler |
-|-----|-----|-----|
-| `update_fov()`, `update_lighting()` | Any mutation batch | Derives — run after cascade settles, not a notification |
-| `MovementSystem::pickup_items()` | `PlayerPositionChanged` | `items::on_player_moved()` |
-| `MovementSystem::handle_world_transition()` | `PlayerPositionChanged` | `world::on_player_moved()` |
-| `check_adaptation_threshold()` | `PlayerPositionChanged` | `player::on_position_changed()` |
-| `check_auto_end_turn()` | `PlayerApReachedZero` | `turn::on_ap_exhausted()` |
-| `trigger_hit_flash()`, `spawn_damage_number()` | `EnemyHpChanged` | Presentation mutations in notify.rs |
-| `CombatSystem::trigger_swarm_aggro()` | `EnemyHpChanged` | `combat::on_enemy_hit()` |
-| Reflect damage, on-hit effects | `EnemyHpChanged` | `combat::on_enemy_hit()` |
-| `CombatSystem::process_enemy_death_post()` | `EnemyHpReachedZero` | `combat::on_enemy_killed()` |
-| `LootSystem` loot drop | `EnemyHpReachedZero` | `loot::on_enemy_killed()` |
-| Quest kill tracking | `EnemyHpReachedZero` | `quest::on_enemy_killed()` |
-| Quest collect tracking | `ItemAddedToInventory` | `quest::on_item_collected()` |
-| Subsystem ticks | `TurnAdvanced` | `turn::on_turn_advanced()` |
-| Tile generation, encounter check | `PlayerEnteredWorldTile` | `world::on_entered_world_tile()` |
+**Projected state.rs: 1,387 − 377 = ~1,010 LOC**
 
-## Risks
+### What remains after cleanup (~1,010 LOC)
 
-| Risk | Mitigation |
-|------|-----------|
-| Large migration surface — every system changes | One system per stage, verify after each |
-| DES scenarios break when Effects → Mutations | Update DES in Stage 5, keep old path working until then |
-| Notification cascades cause unexpected behavior | Depth limit 10, same as current reactions |
-| QueryContext needs expansion for new systems | Add fields as needed during each system conversion |
-| Bridge subsystems (AI, storm) are complex | Stay as TickSubsystem bridges, don't force conversion |
+| Category | LOC | Content |
+|----------|-----|---------|
+| Data model | ~178 | Struct defs, rng_serde, MsgType, msg_type_from_str |
+| Mutation engine | ~430 | apply_one (exhaustive match), apply_mutations |
+| Command API | ~55 | dispatch, dispatch_craft/buy/sell |
+| Derives | ~55 | update_fov, update_lighting |
+| Spatial index | ~40 | ensure_spatial_index, rebuild_spatial_index_internal |
+| Queries | ~50 | effective_ambient_light, get_light_level, enemy_at, npc_at, has_adaptation, has_status_effect, get_reputation, get_quest_ids_for_location, get_next_tutorial, dismiss_tutorial |
+| Logging | ~28 | log, log_typed, log_quest_completions, apply_presentation |
+| Misc | ~20 | save, load, trigger_effect, debug_command |
+
+Everything in this list is either data definition, the mutation engine, derives, or read-only queries. Zero system logic.
+
+## Future Work (not in this cleanup)
+
+- **Mutation enum cleanup**: Remove duplicate variants (SpendAp vs SetPlayerAp, AddHp vs SetPlayerHp, etc.). Keep Set* variants, remove relative variants. Systems compute final values.
+- **Bridge arm decomposition**: Replace WorldMove/MovePlayer/EndTurn/RestTick bridge arms with atomic mutations. Requires the systems to produce the full mutation sequence.
+- **apply_one inline logic extraction**: Move QuestNotify (~30 LOC), UsePsychicAbility (~15 LOC), AttemptFlee (~20 LOC) logic to helper functions or system functions.
+- **rules/ absorption**: Move remaining rule functions into their corresponding systems/ modules.
 
 ## Done When
 
-- [ ] state.rs ≤ 600 LOC
-- [ ] Zero system logic in state.rs
-- [ ] Zero notification logic in state.rs
-- [ ] Every mutation goes through `apply_one()` with verification
-- [ ] `notify.rs` is the single place for all cross-system reactions
+- [x] state.rs ≤ 1,100 LOC
+- [ ] Zero system logic in state.rs (adaptation, light effects, status merge, chest ops, crystal gen)
+- [ ] Delegation accessors deleted
+- [ ] Visual effect wrappers deleted
+- [ ] load_test_tile moved to test infrastructure
 - [ ] `cargo test` passes, all DES scenarios pass
-- [ ] Old Effect enums deleted
-- [ ] Old `effects/apply.rs` deleted
-
-## State.rs Decomposition Plan
-
-**Current**: 3,045 LOC. **Target**: ~535 LOC.
-
-### What stays in state.rs (~535 LOC)
-- Struct definition + field declarations (~80)
-- `apply_one` + `apply_mutations` (~420 — will shrink as bridge arms are decomposed)
-- Derives: `update_fov`, `update_lighting`, `rebuild_spatial_index` (~60)
-- Logging: `log`, `log_typed`, `apply_presentation` (~15)
-- Accessors (~105)
-- Save/load (~20)
-- `ensure_spatial_index` (~40)
-
-### What moves out (~2,400 LOC)
-
-| LOC | Methods | Destination |
-|-----|---------|-------------|
-| ~340 | `new()`, `new_with_class()` | `state_init.rs` |
-| ~780 | `travel_to_tile`, `move_on_world_map`, `travel_to_tile_safe`, `spawn_encounter_entities`, `dispatch_enter/exit_subterranean`, `calculate_world_path`, `move_along_path`, `dispatch_world_move*` | `systems/world.rs` |
-| ~230 | auto-explore + helpers | `systems/explore.rs` |
-| ~130 | `pickup_items`, `pickup_filtered_items`, chest ops, `dispatch_craft/buy/sell` | `systems/items.rs` |
-| ~100 | `end_turn`, `execute_phase`, `tick_turn_housekeeping`, `check_auto_end_turn` | `systems/turn.rs` |
-| ~87  | `dispatch_move` | decompose `MovePlayer` bridge into atomic mutations |
-| ~70  | `check_adaptation_threshold`, `apply_light_effects`, `apply_status`, `recalc_equipment_stats`, `attempt_flee_encounter` | `systems/player.rs` |
-| ~60  | visual effect methods (trigger_hit_flash, spawn_damage_number, etc.) | already handled by Mutation presentation variants |
-| ~200 | bridge mutation arms in `apply_one` | decompose into atomic mutations |
-
-### Priority order (by LOC)
-1. World travel (~780) — `travel_to_tile`, `move_on_world_map`, encounter spawning, subterranean
-2. Constructor (~340) — move to `state_init.rs`, straightforward
-3. Auto-explore (~230) — self-contained, move to `systems/explore.rs`
-4. Turn system (~100) — `end_turn`, `execute_phase` → `systems/turn.rs`
-5. Movement bridge (~87) — decompose `MovePlayer` into atomic mutations
-
-### Bridge mutation decomposition note
-Bridge mutations (`MovePlayer`, `EndTurn`, `RestTick`, `WorldMove`, etc.) call old methods
-inside `apply_one`. The logic didn't actually move — it just got a new entry point. Each
-bridge arm must be replaced with the actual atomic mutations the method produces.

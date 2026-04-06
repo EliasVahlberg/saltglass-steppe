@@ -29,8 +29,8 @@ impl GameState {
             return false;
         }
 
-        let idx = self.map().idx(x, y);
-        if let Tile::Wall { ref id, hp } = self.map().tiles[idx].clone() {
+        let idx = self.world.map.idx(x, y);
+        if let Tile::Wall { ref id, hp } = self.world.map.tiles[idx].clone() {
             self.player.ap -= cost;
             let new_hp = hp - 5;
             if new_hp <= 0 {

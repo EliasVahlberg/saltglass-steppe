@@ -105,7 +105,7 @@ impl TileRenderer {
 
     /// Render a revealed but not visible tile
     fn render_revealed_tile(&self, _state: &GameState, _idx: usize) -> Span<'_> {
-        let tile = &_state.map().tiles[_idx];
+        let tile = &_state.world.map.tiles[_idx];
         let glyph = tile.glyph();
         let color = parse_color(&self.config.colors.ui.revealed_tile);
 

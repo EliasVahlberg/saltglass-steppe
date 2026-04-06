@@ -142,14 +142,14 @@ impl DesTest {
                 if action.parameters.len() >= 2 {
                     let dx: i32 = action.parameters[0].parse()?;
                     let dy: i32 = action.parameters[1].parse()?;
-                    let old_pos = (state.player_x(), state.player_y());
+                    let old_pos = (state.player.x, state.player.y);
                     state.dispatch(crate::game::effects::Command::Move { dx, dy });
                     Ok(format!(
                         "Moved from ({},{}) to ({},{})",
                         old_pos.0,
                         old_pos.1,
-                        state.player_x(),
-                        state.player_y()
+                        state.player.x,
+                        state.player.y
                     ))
                 } else {
                     Err("Move action requires dx and dy parameters".into())
@@ -202,14 +202,14 @@ impl DesTest {
         match expectation.check_type.as_str() {
             "player_hp" => {
                 let expected: i32 = expectation.expected_value.parse()?;
-                Ok(state.player_hp() == expected)
+                Ok(state.player.hp == expected)
             }
             "player_position" => {
                 let coords: Vec<&str> = expectation.expected_value.split(',').collect();
                 if coords.len() == 2 {
                     let x: i32 = coords[0].parse()?;
                     let y: i32 = coords[1].parse()?;
-                    Ok(state.player_x() == x && state.player_y() == y)
+                    Ok(state.player.x == x && state.player.y == y)
                 } else {
                     Err("Position expectation must be in format 'x,y'".into())
                 }
@@ -313,4 +313,43 @@ pub fn save_sample_des_test() -> Result<(), Box<dyn std::error::Error>> {
     let sample = create_sample_des_test();
     sample.save_to_file("tests/sample_test.des")?;
     Ok(())
+}
+
+/// Load a generated tile into the game state. Used by DES and main.rs debug commands.
+pub fn load_test_tile(
+    state: &mut crate::game::state::GameState,
+    params: crate::game::generation::tile_generator::TileParams,
+) {
+    use crate::game::generation::tile_generator::generate_tile;
+    use rand::SeedableRng;
+    use rand_chacha::ChaCha8Rng;
+
+    let tile = generate_tile(&params);
+    let biome = params.biome;
+    let terrain = params.terrain;
+    let poi = params.poi;
+    let level = params.level;
+    let walkable = tile.walkable_positions.clone();
+    let mut rng = ChaCha8Rng::seed_from_u64(params.seed);
+
+    state.world.map = tile.map;
+    state.world.enemies = tile.enemies;
+    state.world.items = tile.items;
+    state.world.npcs = tile.npcs;
+    state.world.chests = tile.chests;
+    state.player.x = tile.spawn_pos.0;
+    state.player.y = tile.spawn_pos.1;
+
+    crate::game::generation::feature_materializer::materialize_features(
+        state, biome, terrain, poi, level,
+    );
+    if poi == crate::game::world_map::POI::Town {
+        crate::game::systems::world::spawn_crafting_stations(state, &walkable, &mut rng);
+    }
+    crate::game::systems::world::spawn_quest_required_npcs(state);
+    state.update_fov();
+    state.rebuild_spatial_index();
+    state.update_lighting();
+    crate::game::systems::world::generate_crystal_formations(state, &biome, &walkable, &mut rng);
+    state.log(format!("[TEST] Loaded tile: {:?} {:?} {:?}", biome, terrain, poi));
 }

@@ -175,7 +175,7 @@ pub fn start_aria_dialogue(
     let greeting = &personality_data.greeting;
 
     let mut text = greeting.text.clone();
-    text = text.replace("{refraction_level}", &game_state.refraction().to_string());
+    text = text.replace("{refraction_level}", &game_state.player.refraction.to_string());
 
     let options: Vec<String> = greeting
         .options
@@ -270,7 +270,7 @@ fn check_dialogue_condition(
 
     // Check level requirement
     if let Some(required_level) = condition.player_level
-        && game_state.player_level() < required_level
+        && game_state.player.level < required_level
     {
         return false;
     }
@@ -395,7 +395,7 @@ impl crate::game::state::GameState {
 
         // Check player level requirement
         if let Some(required_level) = condition.player_level
-            && self.player_level() < required_level
+            && self.player.level < required_level
         {
             return false;
         }

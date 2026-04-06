@@ -36,7 +36,7 @@ impl StormSystem {
 
         let refraction_gain = state.world.storm.intensity as u32 * refraction_multiplier();
         state.player.refraction += refraction_gain;
-        state.check_adaptation_threshold();
+        crate::game::systems::player::check_adaptation_threshold(state);
 
         // Clear previous storm changes
         state.world.visual_effects.storm_changed_tiles.clear();
@@ -80,7 +80,7 @@ impl StormSystem {
                 )
             })
             .filter(|&(x, y)| {
-                state.enemy_at(x, y).is_none() && !(x == state.player_x() && y == state.player_y())
+                state.enemy_at(x, y).is_none() && !(x == state.player.x && y == state.player.y)
             })
             .collect();
 

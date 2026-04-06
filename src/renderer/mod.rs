@@ -100,8 +100,8 @@ impl Renderer {
 
         // Update camera position
         self.camera.update(
-            state.player_x(),
-            state.player_y(),
+            state.player.x,
+            state.player.y,
             inner.width as i32,
             inner.height as i32,
         );

@@ -125,7 +125,7 @@ impl AiBehavior for StandardMeleeBehavior {
                         .map(|t| t.walkable())
                         .unwrap_or(false)
                         && state.enemy_at(sx, sy).is_none()
-                        && !(sx == state.player_x() && sy == state.player_y())
+                        && !(sx == state.player.x && sy == state.player.y)
                     {
                         let mut new_enemy = crate::game::enemy::Enemy::new(sx, sy, spawn_type);
                         if def.swarm {
@@ -173,17 +173,17 @@ impl AiBehavior for StandardMeleeBehavior {
                 );
 
                 // Check if player is in AOE
-                let player_dist = ((state.player_x() - target_x).pow(2)
-                    + (state.player_y() - target_y).pow(2))
+                let player_dist = ((state.player.x - target_x).pow(2)
+                    + (state.player.y - target_y).pow(2))
                     as f32;
                 if player_dist <= (radius as f32).powi(2) {
                     let player_armor = state.effective_armor();
                     let final_damage = (damage - player_armor).max(1);
                     state.player.hp -= final_damage;
-                    state.trigger_hit_flash(state.player_x(), state.player_y());
-                    state.spawn_damage_number(
-                        state.player_x(),
-                        state.player_y(),
+                    state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
+                    state.world.visual_effects.spawn_damage_number(
+                        state.player.x,
+                        state.player.y,
                         final_damage,
                         false,
                     );
@@ -234,7 +234,7 @@ impl AiBehavior for StandardMeleeBehavior {
                                     .map(|t| t.walkable())
                                     .unwrap_or(false)
                                     && state.enemy_at(nx, ny).is_none()
-                                    && !(nx == state.player_x() && ny == state.player_y())
+                                    && !(nx == state.player.x && ny == state.player.y)
                                 {
                                     state.spatial.enemy_positions.remove(&(ex, ey));
                                     state.world.enemies[i].x = nx;
@@ -261,8 +261,8 @@ impl AiBehavior for StandardMeleeBehavior {
 
                             let final_damage = (bomb_damage - player_armor).max(1);
                             state.player.hp -= final_damage;
-                            state.trigger_hit_flash(state.player.x, state.player.y);
-                            state.spawn_damage_number(
+                            state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
+                            state.world.visual_effects.spawn_damage_number(
                                 state.player.x,
                                 state.player.y,
                                 final_damage,
@@ -324,8 +324,8 @@ impl AiBehavior for StandardMeleeBehavior {
 
         if should_flee && dist < sight {
             // Flee away from player
-            let dx = (ex - state.player_x()).signum();
-            let dy = (ey - state.player_y()).signum();
+            let dx = (ex - state.player.x).signum();
+            let dy = (ey - state.player.y).signum();
             let nx = ex + dx;
             let ny = ey + dy;
             if state
@@ -335,7 +335,7 @@ impl AiBehavior for StandardMeleeBehavior {
                 .map(|t| t.walkable())
                 .unwrap_or(false)
                 && state.enemy_at(nx, ny).is_none()
-                && !(nx == state.player_x() && ny == state.player_y())
+                && !(nx == state.player.x && ny == state.player.y)
             {
                 state.spatial.enemy_positions.remove(&(ex, ey));
                 state.world.enemies[i].x = nx;
@@ -346,8 +346,8 @@ impl AiBehavior for StandardMeleeBehavior {
         }
 
         // Check for nearby decoys - 50% chance to target decoy instead
-        let mut target_x = state.player_x();
-        let mut target_y = state.player_y();
+        let mut target_x = state.player.x;
+        let mut target_y = state.player.y;
         let mut target_is_decoy = false;
 
         // We need to clone decoys to iterate because we might mutate state
@@ -372,8 +372,8 @@ impl AiBehavior for StandardMeleeBehavior {
             let player_armor = state.effective_armor();
             let dmg = (base_dmg - player_armor).max(1);
             state.player.hp -= dmg;
-            state.trigger_hit_flash(state.player_x(), state.player_y());
-            state.spawn_damage_number(state.player_x(), state.player_y(), dmg, false);
+            state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
+            state.world.visual_effects.spawn_damage_number(state.player.x, state.player.y, dmg, false);
             state.log_typed(
                 format!(
                     "{} fires a ranged attack for {} damage!",
@@ -384,9 +384,9 @@ impl AiBehavior for StandardMeleeBehavior {
             );
 
             // Visual effect for ranged attack
-            state.spawn_beam(
+            state.world.visual_effects.spawn_beam(
                 (ex, ey),
-                (state.player_x(), state.player_y()),
+                (state.player.x, state.player.y),
                 crate::game::visual_effects::BeamType::Arrow,
                 6,
             );
@@ -438,8 +438,8 @@ impl AiBehavior for StandardMeleeBehavior {
                     let player_armor = state.effective_armor();
                     let dmg = (base_dmg - player_armor).max(1);
                     state.player.hp -= dmg;
-                    state.trigger_hit_flash(state.player_x(), state.player_y());
-                    state.spawn_damage_number(state.player_x(), state.player_y(), dmg, false);
+                    state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
+                    state.world.visual_effects.spawn_damage_number(state.player.x, state.player.y, dmg, false);
                     let dir = state.direction_from(ex, ey);
                     state.log_typed(
                         format!(
@@ -468,7 +468,7 @@ impl AiBehavior for StandardMeleeBehavior {
                                 format!("Glass shards pierce you. (+{} Refraction)", val),
                                 MsgType::Status,
                             );
-                            state.check_adaptation_threshold();
+                            crate::game::systems::player::check_adaptation_threshold(state);
                         }
                     }
 
@@ -483,8 +483,8 @@ impl AiBehavior for StandardMeleeBehavior {
             {
                 // Fire laser
                 state.player.hp -= laser_damage;
-                state.trigger_hit_flash(state.player_x(), state.player_y());
-                state.spawn_damage_number(state.player_x(), state.player_y(), laser_damage, false);
+                state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
+                state.world.visual_effects.spawn_damage_number(state.player.x, state.player.y, laser_damage, false);
                 state.log_typed(
                     format!(
                         "{} fires a laser beam for {} damage!",
@@ -495,9 +495,9 @@ impl AiBehavior for StandardMeleeBehavior {
                 );
 
                 // Visual effect for beam
-                state.spawn_beam(
+                state.world.visual_effects.spawn_beam(
                     (ex, ey),
-                    (state.player_x(), state.player_y()),
+                    (state.player.x, state.player.y),
                     crate::game::visual_effects::BeamType::Laser,
                     8,
                 );
@@ -534,7 +534,7 @@ impl AiBehavior for StandardMeleeBehavior {
                 .map(|t| t.walkable())
                 .unwrap_or(false)
                 && state.enemy_at(nx, ny).is_none()
-                && !(nx == state.player_x() && ny == state.player_y())
+                && !(nx == state.player.x && ny == state.player.y)
             {
                 state.spatial.enemy_positions.remove(&(ex, ey));
                 state.world.enemies[i].x = nx;
@@ -554,8 +554,8 @@ impl AiBehavior for RangedOnlyBehavior {
     fn execute(&self, i: usize, state: &mut GameState) -> bool {
         let ex = state.world.enemies[i].x;
         let ey = state.world.enemies[i].y;
-        let px = state.player_x();
-        let py = state.player_y();
+        let px = state.player.x;
+        let py = state.player.y;
         let dist = (ex - px).abs() + (ey - py).abs();
 
         let sight = state.world.enemies[i]
@@ -611,7 +611,7 @@ impl AiBehavior for RangedOnlyBehavior {
                 ),
                 MsgType::Combat,
             );
-            state.spawn_damage_number(px, py, dmg, true);
+            state.world.visual_effects.spawn_damage_number(px, py, dmg, true);
         }
         true
     }
@@ -624,8 +624,8 @@ impl AiBehavior for SuicideBomberBehavior {
     fn execute(&self, i: usize, state: &mut GameState) -> bool {
         let ex = state.world.enemies[i].x;
         let ey = state.world.enemies[i].y;
-        let px = state.player_x();
-        let py = state.player_y();
+        let px = state.player.x;
+        let py = state.player.y;
         let dist = (ex - px).abs() + (ey - py).abs();
 
         let sight = state.world.enemies[i]
@@ -658,7 +658,7 @@ impl AiBehavior for SuicideBomberBehavior {
                 ),
                 MsgType::Combat,
             );
-            state.spawn_damage_number(px, py, bomb_damage, true);
+            state.world.visual_effects.spawn_damage_number(px, py, bomb_damage, true);
 
             // Kill self
             state.world.enemies[i].hp = 0;

@@ -535,13 +535,13 @@ impl QuestLog {
 
         // Check refraction level requirements
         if let Some(min_refraction) = criteria.min_refraction
-            && game_state.refraction() < min_refraction
+            && game_state.player.refraction < min_refraction
         {
             return false;
         }
 
         if let Some(max_refraction) = criteria.max_refraction
-            && game_state.refraction() > max_refraction
+            && game_state.player.refraction > max_refraction
         {
             return false;
         }
@@ -575,7 +575,7 @@ impl QuestLog {
 
         // Check minimum level (using player level directly)
         if let Some(min_level) = criteria.min_level
-            && game_state.player_level() < min_level
+            && game_state.player.level < min_level
         {
             return false;
         }
@@ -602,8 +602,8 @@ impl QuestLog {
                 .inventory
                 .iter()
                 .any(|item| item.contains("saint_key")),
-            "in_deep_archive" => game_state.layer() < -2, // Deep underground
-            "storm_active" => game_state.storm().turns_until > 0,
+            "in_deep_archive" => game_state.world.layer < -2, // Deep underground
+            "storm_active" => game_state.world.storm.turns_until > 0,
             "white_noon_discovered" => self.completed.contains(&"discover_white_noon".to_string()),
             "first_time_player" => self.completed.is_empty(), // No quests completed yet
             "has_faction_alignment" => self.faction_alignment.is_some(),

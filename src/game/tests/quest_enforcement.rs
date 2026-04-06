@@ -29,13 +29,13 @@ fn test_dying_pilgrim_spawn_position() {
 
     // Find the dying pilgrim
     let pilgrim = state
-        .npcs()
+        .world.npcs
         .iter()
         .find(|npc| npc.id == "dying_pilgrim")
         .unwrap();
 
     // Check that the pilgrim is near the player spawn
-    let distance = (pilgrim.x - state.player_x()).abs() + (pilgrim.y - state.player_y()).abs();
+    let distance = (pilgrim.x - state.player.x).abs() + (pilgrim.y - state.player.y).abs();
     assert!(
         distance <= 2,
         "Dying pilgrim should be within 2 tiles of player spawn"

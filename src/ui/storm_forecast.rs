@@ -12,16 +12,16 @@ pub fn render_storm_forecast(frame: &mut Frame, area: Rect, state: &GameState) {
     let inner = block.inner(area);
     frame.render_widget(block, area);
 
-    let storm_color = if state.storm().turns_until <= 3 {
+    let storm_color = if state.world.storm.turns_until <= 3 {
         Color::Red
-    } else if state.storm().turns_until <= 5 {
+    } else if state.world.storm.turns_until <= 5 {
         Color::Yellow
     } else {
         Color::Green
     };
 
     // Create intensity bar (5 blocks max)
-    let intensity_blocks = state.storm().intensity.min(5);
+    let intensity_blocks = state.world.storm.intensity.min(5);
     let mut intensity_bar = String::new();
     for i in 0..5 {
         if i < intensity_blocks {
@@ -35,7 +35,7 @@ pub fn render_storm_forecast(frame: &mut Frame, area: Rect, state: &GameState) {
         Line::from(vec![
             Span::raw("Turns: "),
             Span::styled(
-                format!("{}", state.storm().turns_until),
+                format!("{}", state.world.storm.turns_until),
                 Style::default().fg(storm_color),
             ),
         ]),
@@ -46,12 +46,12 @@ pub fn render_storm_forecast(frame: &mut Frame, area: Rect, state: &GameState) {
     ];
 
     // Add edit types
-    if !state.storm().edit_types.is_empty() {
+    if !state.world.storm.edit_types.is_empty() {
         lines.push(Line::from(Span::styled(
             "Edits:",
             Style::default().fg(Color::Cyan),
         )));
-        for edit_type in &state.storm().edit_types {
+        for edit_type in &state.world.storm.edit_types {
             lines.push(Line::from(vec![
                 Span::raw("  "),
                 Span::styled(edit_type.display_name(), Style::default().fg(Color::White)),

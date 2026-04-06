@@ -98,18 +98,18 @@ impl GameState {
     }
     /// Describe what's at a given position (for look mode)
     pub fn describe_at(&self, x: i32, y: i32) -> String {
-        let idx = self.map().idx(x, y);
+        let idx = self.world.map.idx(x, y);
         if !self.visible.contains(&idx) && !self.revealed.contains(&idx) {
             return "Unknown".into();
         }
-        if x == self.player_x() && y == self.player_y() {
+        if x == self.player.x && y == self.player.y {
             return "You".into();
         }
 
         let mut descriptions = Vec::new();
 
         if let Some(ei) = self.enemy_at(x, y) {
-            let e = &self.enemies()[ei];
+            let e = &self.world.enemies[ei];
             let desc = e
                 .def()
                 .map(|d| d.description.as_str())
@@ -124,7 +124,7 @@ impl GameState {
             ));
         }
         if let Some(ni) = self.npc_at(x, y) {
-            let n = &self.npcs()[ni];
+            let n = &self.world.npcs[ni];
             let desc = n
                 .def()
                 .map(|d| d.description.as_str())
@@ -135,7 +135,7 @@ impl GameState {
             }
             descriptions.push(info);
         }
-        for item in self.items().iter().filter(|i| i.x == x && i.y == y) {
+        for item in self.world.items.iter().filter(|i| i.x == x && i.y == y) {
             if let Some(def) = get_item_def(&item.id) {
                 let item_type = if def.armor_value > 0 {
                     "armor"
@@ -152,13 +152,13 @@ impl GameState {
                 descriptions.push(format!("{} (weapon) - {}", wdef.name, wdef.description));
             }
         }
-        if let Some(light) = self.map().lights.iter().find(|l| l.x == x && l.y == y)
+        if let Some(light) = self.world.map.lights.iter().find(|l| l.x == x && l.y == y)
             && let Some(def) = get_light_def(&light.id)
         {
             descriptions.push(format!("{} (light source)", def.name));
         }
         if let Some(inscription) = self
-            .map()
+            .world.map
             .inscriptions
             .iter()
             .find(|i| i.x == x && i.y == y)
@@ -175,7 +175,7 @@ impl GameState {
             return descriptions.join(" | ");
         }
 
-        if let Some(tile) = self.map().get(x, y) {
+        if let Some(tile) = self.world.map.get(x, y) {
             return format!("{} - {}", tile.name(), tile.description());
         }
         "Void".into()
@@ -183,8 +183,8 @@ impl GameState {
 
     /// Get direction string from player to a position
     pub fn direction_from(&self, x: i32, y: i32) -> &'static str {
-        let dx = x - self.player_x();
-        let dy = y - self.player_y();
+        let dx = x - self.player.x;
+        let dy = y - self.player.y;
         match (dx.signum(), dy.signum()) {
             (0, -1) => "to the north",
             (0, 1) => "to the south",

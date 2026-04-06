@@ -30,7 +30,7 @@ mod lib_tests {
         let tile = state
             .world
             .map
-            .get(state.player_x(), state.player_y())
+            .get(state.player.x, state.player.y)
             .unwrap();
         assert!(tile.walkable());
     }
@@ -38,15 +38,15 @@ mod lib_tests {
     #[test]
     fn player_cannot_walk_through_walls() {
         let mut state = GameState::new(42);
-        let start_x = state.player_x();
+        let start_x = state.player.x;
         for _ in 0..100 {
             state.dispatch(crate::game::effects::Command::Move { dx: -1, dy: 0 });
         }
-        let tile = state.world.map.get(state.player_x() - 1, state.player_y());
+        let tile = state.world.map.get(state.player.x - 1, state.player.y);
         if let Some(t) = tile
             && !t.walkable()
         {
-            assert!(state.player_x() <= start_x);
+            assert!(state.player.x <= start_x);
         }
     }
 
@@ -77,7 +77,7 @@ mod lib_tests {
     #[test]
     fn fov_includes_player_position() {
         let state = GameState::new(42);
-        let player_idx = state.world.map.idx(state.player_x(), state.player_y());
+        let player_idx = state.world.map.idx(state.player.x, state.player.y);
         assert!(state.visible.contains(&player_idx));
     }
 
@@ -122,8 +122,8 @@ mod lib_tests {
         let path = "/tmp/test_save.ron";
         state.save(path).unwrap();
         let loaded = GameState::load(path).unwrap();
-        assert_eq!(state.player_x(), loaded.player_x());
-        assert_eq!(state.player_y(), loaded.player_y());
+        assert_eq!(state.player.x, loaded.player.x);
+        assert_eq!(state.player.y, loaded.player.y);
         assert_eq!(state.turn, loaded.turn);
         assert_eq!(state.world.map.tiles, loaded.world.map.tiles);
         std::fs::remove_file(path).ok();
@@ -137,12 +137,12 @@ mod lib_tests {
         state.world.npcs.clear();
         state.rebuild_spatial_index(); // Rebuild indices after clearing
         // Make sure the tile is walkable first
-        let idx = state.world.map.idx(state.player_x() + 1, state.player_y());
+        let idx = state.world.map.idx(state.player.x + 1, state.player.y);
         state.world.map.tiles[idx] = Tile::Glass;
         let initial_refraction = state.player.refraction;
-        let old_x = state.player_x();
+        let old_x = state.player.x;
         state.dispatch(crate::game::effects::Command::Move { dx: 1, dy: 0 });
-        assert_ne!(state.player_x(), old_x, "Player should be able to move onto glass tile");
+        assert_ne!(state.player.x, old_x, "Player should be able to move onto glass tile");
         assert!(
             state.player.refraction > initial_refraction,
             "Refraction should increase after walking on glass"
@@ -153,11 +153,11 @@ mod lib_tests {
     fn saltblood_prevents_glass_damage() {
         let mut state = GameState::new(42);
         state.player.adaptations.push(Adaptation::Saltblood);
-        let idx = state.world.map.idx(state.player_x() + 1, state.player_y());
+        let idx = state.world.map.idx(state.player.x + 1, state.player.y);
         state.world.map.tiles[idx] = Tile::Glass;
-        let initial_hp = state.player_hp();
+        let initial_hp = state.player.hp;
         state.dispatch(crate::game::effects::Command::Move { dx: 1, dy: 0 });
-        assert_eq!(state.player_hp(), initial_hp);
+        assert_eq!(state.player.hp, initial_hp);
     }
 
     #[test]
@@ -174,8 +174,8 @@ mod lib_tests {
         state.world.enemies.clear();
         state.world.npcs.clear();
         // Place item one tile to the right
-        let item_x = state.player_x() + 1;
-        let item_y = state.player_y();
+        let item_x = state.player.x + 1;
+        let item_y = state.player.y;
         // Ensure tile is walkable
         let idx = state.world.map.idx(item_x, item_y);
         state.world.map.tiles[idx] = Tile::Floor {
@@ -190,9 +190,9 @@ mod lib_tests {
         state.rebuild_spatial_index();
         assert_eq!(state.world.items.len(), 1);
         // Move onto item
-        let old_x = state.player_x();
+        let old_x = state.player.x;
         state.dispatch(crate::game::effects::Command::Move { dx: 1, dy: 0 });
-        assert_ne!(state.player_x(), old_x, "Player should be able to move onto the item tile");
+        assert_ne!(state.player.x, old_x, "Player should be able to move onto the item tile");
         // Item should be removed from map
         assert_eq!(
             state.world.items.len(),
@@ -212,10 +212,10 @@ mod lib_tests {
         state
             .world
             .items
-            .push(Item::new(state.player_x(), state.player_y(), "brine_vial"));
+            .push(Item::new(state.player.x, state.player.y, "brine_vial"));
         state.rebuild_spatial_index();
         let items_before = state.world.items.len();
-        state.pickup_items();
+        crate::game::systems::movement::MovementSystem::pickup_items(&mut state);
         assert_eq!(state.world.items.len(), items_before - 1);
         assert!(state.player.inventory.contains(&"brine_vial".to_string()));
     }
@@ -226,7 +226,7 @@ mod lib_tests {
         state.player.hp = 10;
         state.player.inventory.push("brine_vial".to_string());
         state.dispatch(crate::game::effects::Command::UseItem { index: 0 });
-        assert_eq!(state.player_hp(), 15);
+        assert_eq!(state.player.hp, 15);
     }
 
     #[test]
@@ -266,8 +266,8 @@ mod lib_tests {
 
         let mut state = GameState::new(100);
         // Place NPC adjacent to player
-        let npc_x = state.player_x() + 1;
-        let npc_y = state.player_y();
+        let npc_x = state.player.x + 1;
+        let npc_y = state.player.y;
 
         state.world.npcs.push(Npc::new(npc_x, npc_y, "mirror_monk"));
         state.rebuild_spatial_index();

@@ -363,8 +363,8 @@ mod tests {
         let state = GameState::new(42);
         let path = save_game(&state).unwrap();
         let loaded = load_game(&path).unwrap();
-        assert_eq!(state.player_x(), loaded.player_x());
-        assert_eq!(state.player_y(), loaded.player_y());
+        assert_eq!(state.player.x, loaded.player.x);
+        assert_eq!(state.player.y, loaded.player.y);
         assert_eq!(state.turn, loaded.turn);
         fs::remove_file(path).ok();
     }

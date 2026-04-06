@@ -139,7 +139,7 @@ impl MovementSystem {
             }
             // Heal action
             if let Some(heal) = action.effect.heal {
-                let actual = heal.min(state.player_max_hp() - state.player_hp());
+                let actual = heal.min(state.player.max_hp - state.player.hp);
                 state.player.hp += actual;
                 state.log_typed(format!("You rest. (+{} HP)", actual), MsgType::Status);
                 return;
@@ -158,7 +158,7 @@ impl MovementSystem {
         if state.debug.test_mode {
             return;
         }
-        if *tile != Tile::WorldExit || state.layer() != 0 {
+        if *tile != Tile::WorldExit || state.world.layer != 0 {
             return;
         }
 
@@ -328,7 +328,7 @@ pub fn dispatch_move(state: &mut crate::game::state::GameState, dx: i32, dy: i32
             if let Some(t) = tile {
                 MovementSystem::handle_world_transition(state, &t, state.player.x, state.player.y);
             }
-            state.check_adaptation_threshold();
+            crate::game::systems::player::check_adaptation_threshold(state);
             state.check_auto_end_turn();
         }
         MoveResult::Blocked => {}

@@ -132,7 +132,7 @@ pub fn render_map(
                 .unwrap_or(false);
 
             // Check for projectile at this position
-            if let Some(proj_char) = state.get_projectile_at(x as i32, y as i32) {
+            if let Some(proj_char) = state.world.visual_effects.get_projectile_at(x as i32, y as i32) {
                 let style = Style::default().fg(Color::Yellow).bold();
                 let style = if is_look_cursor {
                     style.bg(Color::White).fg(Color::Black)
@@ -144,7 +144,7 @@ pub fn render_map(
             }
 
             // Check for light beam at this position
-            if let Some((beam_char, beam_type)) = state.get_beam_at(x as i32, y as i32) {
+            if let Some((beam_char, beam_type)) = state.world.visual_effects.get_beam_at(x as i32, y as i32) {
                 let beam_color = match beam_type {
                     crate::game::visual_effects::BeamType::Laser => Color::Red,
                     crate::game::visual_effects::BeamType::Light => Color::Yellow,
@@ -196,7 +196,7 @@ fn render_tile(
     let revealed = state.revealed.contains(&idx) || god_view;
 
     // Check for hit flash at this position
-    let has_flash = state.has_hit_flash(x as i32, y as i32);
+    let has_flash = state.world.visual_effects.has_hit_flash(x as i32, y as i32);
 
     // Player
     if x as i32 == state.player.x && y as i32 == state.player.y {
@@ -389,7 +389,7 @@ fn render_tile(
 
     // Light source
     if let Some(ml) = state
-        .map()
+        .world.map
         .lights
         .iter()
         .find(|l| l.x == x as i32 && l.y == y as i32)

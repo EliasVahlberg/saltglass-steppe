@@ -1,4 +1,3 @@
-use rand::Rng;
 use rand_chacha::ChaCha8Rng;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -7,21 +6,13 @@ use std::path::Path;
 
 use super::{
     adaptation::Adaptation,
-    chest::Chest,
-    enemy::Enemy,
-    interactable::Interactable,
-    item::{Item, get_item_def},
+    item::get_item_def,
     lighting::{LightMap, LightSource, compute_lighting},
-    map::Map,
     map_features::MapFeatures,
-    npc::Npc,
-    storm::Storm,
-    systems::movement::MovementSystem,
-    world_map::WorldMap,
 };
 use crate::game::narrative_engine::NarrativeEngine;
 use crate::game::player_state::PlayerState;
-use crate::game::world_state::{Weather, WorldState};
+use crate::game::world_state::WorldState;
 
 mod rng_serde {
     use rand::SeedableRng;
@@ -368,58 +359,6 @@ impl GameState {
         self.revealed.extend(&self.visible);
     }
 
-    /// Generate crystal formations for appropriate biomes
-    pub(crate) fn generate_crystal_formations(
-        &mut self,
-        biome: &super::world_map::Biome,
-        rooms: &[(i32, i32)],
-        rng: &mut ChaCha8Rng,
-    ) {
-        use super::crystal_resonance::CrystalFrequency;
-
-        let formation_chance = match biome {
-            super::world_map::Biome::Ruins => 0.6,
-            super::world_map::Biome::Oasis => 0.4,
-            super::world_map::Biome::Saltflat => 0.3,
-            super::world_map::Biome::Scrubland => 0.2,
-            super::world_map::Biome::Desert => 0.1,
-        };
-
-        if !rng.gen_bool(formation_chance) {
-            return;
-        }
-
-        let formation_count = match biome {
-            super::world_map::Biome::Ruins => rng.gen_range(2..=4),
-            super::world_map::Biome::Oasis => rng.gen_range(1..=3),
-            _ => rng.gen_range(1..=2),
-        };
-
-        let frequencies = CrystalFrequency::all();
-
-        for _ in 0..formation_count {
-            if let Some(&(rx, ry)) = rooms.get(rng.gen_range(0..rooms.len())) {
-                let x = rx + rng.gen_range(-2..=2);
-                let y = ry + rng.gen_range(-2..=2);
-
-                // Don't place on player spawn or too close to enemies
-                if (x - self.player.x).abs() < 5 && (y - self.player.y).abs() < 5 {
-                    continue;
-                }
-
-                let frequency = frequencies[rng.gen_range(0..frequencies.len())];
-                self.player.crystal_system.add_crystal(x, y, frequency);
-
-                self.log_typed(
-                    format!(
-                        "A {} crystal formation glimmers nearby.",
-                        frequency.name().to_lowercase()
-                    ),
-                    MsgType::Loot,
-                );
-            }
-        }
-    }
 
     /// Calculate effective ambient light based on time of day and weather
     pub fn effective_ambient_light(&self) -> u8 {
@@ -499,85 +438,7 @@ impl GameState {
 
     // === Visual Effects delegation ===
 
-    pub fn trigger_hit_flash(&mut self, x: i32, y: i32) {
-        self.world.visual_effects.trigger_hit_flash(x, y);
-    }
 
-    pub fn has_hit_flash(&self, x: i32, y: i32) -> bool {
-        self.world.visual_effects.has_hit_flash(x, y)
-    }
-
-    pub fn spawn_damage_number(&mut self, x: i32, y: i32, value: i32, is_heal: bool) {
-        self.world
-            .visual_effects
-            .spawn_damage_number(x, y, value, is_heal);
-    }
-
-    pub fn spawn_projectile(&mut self, from: (i32, i32), to: (i32, i32), ch: char) {
-        self.world.visual_effects.spawn_projectile(from, to, ch);
-    }
-
-    pub fn get_projectile_at(&self, x: i32, y: i32) -> Option<char> {
-        self.world.visual_effects.get_projectile_at(x, y)
-    }
-
-    pub fn spawn_beam(
-        &mut self,
-        from: (i32, i32),
-        to: (i32, i32),
-        beam_type: super::visual_effects::BeamType,
-        duration: u32,
-    ) {
-        self.world
-            .visual_effects
-            .spawn_beam(from, to, beam_type, duration);
-    }
-
-    pub fn get_beam_at(&self, x: i32, y: i32) -> Option<(char, super::visual_effects::BeamType)> {
-        self.world.visual_effects.get_beam_at(x, y)
-    }
-
-    pub fn tick_hit_flash(&mut self) {
-        self.world.visual_effects.tick_hit_flash();
-    }
-
-    pub fn tick_damage_numbers(&mut self) {
-        self.world.visual_effects.tick_damage_numbers();
-    }
-
-    pub fn tick_projectile_trails(&mut self) {
-        self.world.visual_effects.tick_projectile_trails();
-    }
-
-    pub fn tick_light_beams(&mut self) {
-        self.world.visual_effects.tick_light_beams();
-    }
-
-    pub fn tick_animation(&mut self) {
-        self.world.visual_effects.tick_animation();
-    }
-
-    pub fn check_adaptation_threshold(&mut self) {
-        // Get all available adaptations sorted by threshold
-        let mut available: Vec<(&str, u32)> = super::adaptation::all_adaptation_ids()
-            .iter()
-            .filter_map(|&id| {
-                super::adaptation::get_adaptation_def(id).map(|def| (id, def.threshold))
-            })
-            .filter(|(id, _)| !self.player.adaptations.iter().any(|a| a.id() == *id))
-            .collect();
-
-        available.sort_by_key(|(_, threshold)| *threshold);
-
-        // Find first unlockable adaptation
-        if let Some(&(adaptation_id, _threshold)) =
-            available.iter().find(|(_, t)| self.player.refraction >= *t)
-            && let Some(adaptation) = super::adaptation::Adaptation::from_id(adaptation_id)
-        {
-            self.player.adaptations.push(adaptation);
-            self.log(format!("🧬 You gain {}!", adaptation.name()));
-        }
-    }
 
     pub fn has_adaptation(&self, a: Adaptation) -> bool {
         self.player.adaptations.contains(&a)
@@ -591,108 +452,11 @@ impl GameState {
         self.spatial.npc_positions.get(&(x, y)).copied()
     }
 
-    /// Auto-explore: find nearest unexplored walkable tile and move toward it
-    /// Enhanced with item pickup, danger avoidance, and enemy detection
-    pub fn pickup_items(&mut self) {
-        MovementSystem::pickup_items(self)
-    }
 
-    pub fn can_open_chest(&self, chest_index: usize) -> bool {
-        if chest_index >= self.world.chests.len() {
-            return false;
-        }
 
-        let chest = &self.world.chests[chest_index];
-        let player_pos = (self.player.x, self.player.y);
-        let chest_pos = (chest.x, chest.y);
 
-        // Check if player is adjacent to chest
-        let dx = (player_pos.0 - chest_pos.0).abs();
-        let dy = (player_pos.1 - chest_pos.1).abs();
-        dx <= 1 && dy <= 1 && (dx + dy) > 0 // Adjacent but not same position
-    }
 
-    pub fn open_chest(&mut self, chest_index: usize) -> bool {
-        if !self.can_open_chest(chest_index) {
-            return false;
-        }
 
-        // Check if chest is locked and handle unlocking
-        let chest_id = self.world.chests[chest_index].id.clone();
-        let is_locked = self.world.chests[chest_index].is_locked();
-
-        if is_locked
-            && let Some(def) = super::chest::get_chest_def(&chest_id)
-            && let Some(key_id) = &def.key_required
-        {
-            if self.player.inventory.contains(key_id) {
-                self.world.chests[chest_index].unlock();
-                self.log(format!("Unlocked {} with {}.", def.name, key_id));
-            } else {
-                self.log(format!("{} is locked. You need a {}.", def.name, key_id));
-                return false;
-            }
-        }
-
-        self.world.chests[chest_index].opened = true;
-        let def = super::chest::get_chest_def(&chest_id);
-        let name = def.map(|d| d.name.as_str()).unwrap_or("chest");
-        self.log(format!("Opened {}.", name));
-        true
-    }
-
-    pub fn transfer_to_chest(&mut self, chest_index: usize, inventory_index: usize) -> bool {
-        if chest_index >= self.world.chests.len() || inventory_index >= self.player.inventory.len()
-        {
-            return false;
-        }
-
-        let chest = &mut self.world.chests[chest_index];
-        if !chest.can_add_item() {
-            self.log("Chest is full.");
-            return false;
-        }
-
-        let item_id = self.player.inventory.remove(inventory_index);
-        let item = Item::new(chest.x, chest.y, &item_id);
-        chest.add_item(item);
-
-        let item_def = super::item::get_item_def(&item_id);
-        let name = item_def.map(|d| d.name.as_str()).unwrap_or(&item_id);
-        self.log(format!("Stored {} in chest.", name));
-        true
-    }
-
-    pub fn transfer_from_chest(&mut self, chest_index: usize, chest_item_index: usize) -> bool {
-        if chest_index >= self.world.chests.len() {
-            return false;
-        }
-
-        let chest = &mut self.world.chests[chest_index];
-        if let Some(item) = chest.remove_item(chest_item_index) {
-            self.player.inventory.push(item.id.clone());
-
-            let item_def = super::item::get_item_def(&item.id);
-            let name = item_def.map(|d| d.name.as_str()).unwrap_or(&item.id);
-            self.log(format!("Took {} from chest.", name));
-            true
-        } else {
-            false
-        }
-    }
-
-    /// Recalculate stats from equipment (called by ItemEffect::RecalcStats apply arm)
-    pub(crate) fn recalc_equipment_stats(&mut self) {
-        self.player.equipped_weapon = self.player.equipment.weapon.clone();
-        self.player.armor = self
-            .player
-            .equipment
-            .jacket
-            .as_ref()
-            .and_then(|id| get_item_def(id))
-            .map(|def| def.armor_value)
-            .unwrap_or(0);
-    }
 
     /// Get next tutorial message if conditions are met — returns (id, text)
     pub fn get_next_tutorial_message(&self) -> Option<(String, String)> {
@@ -716,76 +480,10 @@ impl GameState {
             .unwrap_or(0)
     }
 
-    /// Apply status effect to player (merges stacks/duration if already present)
-    pub(crate) fn apply_status_effect(&mut self, effect_id: &str, duration: i32) {
-        // Check if effect already exists
-        if let Some(existing) = self
-            .player
-            .status_effects
-            .iter_mut()
-            .find(|e| e.id == effect_id)
-        {
-            existing.duration = existing.duration.max(duration); // Take longer duration
-            existing.add_stack(5); // Max 5 stacks for most effects
-        } else {
-            self.player
-                .status_effects
-                .push(super::status::StatusEffect::new(effect_id, duration));
-        }
-
-        self.log_typed(
-            format!("You are affected by {}.", effect_id),
-            MsgType::Combat,
-        );
-    }
 
     /// Check if player has specific status effect
     pub fn has_status_effect(&self, effect_id: &str) -> bool {
         self.player.status_effects.iter().any(|e| e.id == effect_id)
-    }
-
-    /// Apply light-based effects (glare damage, visibility modifiers)
-    pub fn apply_light_effects(&mut self) {
-        if self.debug.disable_glare {
-            return;
-        }
-        let light_level =
-            super::lighting::get_light_level(&self.light_map, self.player.x, self.player.y);
-
-        // Glare damage - disabled until lighting system is properly balanced
-        // if super::lighting::has_glare(&self.light_map, self.player.x, self.player.y, 250) {
-        //     if !self.has_status_effect("glare_protection") {
-        //         self.player.hp -= 1;
-        //         self.log_typed("The intense light burns your eyes!".to_string(), MsgType::Combat);
-        //         self.apply_status_effect("blinded", 2);
-        //     }
-        // }
-
-        // Light-based item effects
-        for item_id in &self.player.inventory.clone() {
-            if let Some(def) = super::item::get_item_def(item_id) {
-                if def.reveals_storm_timing && light_level > 150 {
-                    // Storm Chart works better in bright light
-                    if self.rng.gen_range(0..100) < 10 {
-                        self.log_typed(
-                            "The Storm Chart glows, revealing storm patterns...".to_string(),
-                            MsgType::System,
-                        );
-                    }
-                }
-
-                if def.grants_invisibility && light_level < 50 {
-                    // Refraction Oil works better in darkness
-                    if !self.has_status_effect("invisible") {
-                        self.apply_status_effect("invisible", 3);
-                        self.log_typed(
-                            "You blend into the shadows...".to_string(),
-                            MsgType::System,
-                        );
-                    }
-                }
-            }
-        }
     }
 
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), String> {
@@ -866,7 +564,7 @@ impl GameState {
                 }
             }
             Mutation::AddStatusEffect { id, duration } => {
-                self.apply_status_effect(id, *duration);
+                crate::game::systems::player::apply_status_effect(self, id, *duration);
             }
             Mutation::SetLastDamageDealt(v) => { self.player.last_damage_dealt = *v; }
             Mutation::AllocateStat(stat) => {
@@ -893,7 +591,7 @@ impl GameState {
                 self.apply_one(&Mutation::SetEquipment { slot: slot.clone(), item_id: None });
             }
             Mutation::RecalcStats => {
-                self.recalc_equipment_stats();
+                crate::game::systems::player::recalc_equipment_stats(self);
             }
             Mutation::StunEnemy { idx, duration } => {
                 self.apply_one(&Mutation::AddEnemyStatus { idx: *idx, id: "stun".into(), duration: *duration });
@@ -930,7 +628,7 @@ impl GameState {
                     if let Some(old_item) = old {
                         self.player.inventory.push(old_item);
                     }
-                    self.recalc_equipment_stats();
+                    crate::game::systems::player::recalc_equipment_stats(self);
                 }
             }
             Mutation::SpawnItemOnMap { item_id, x, y } => {
@@ -1240,148 +938,3 @@ impl GameState {
     }
 }
 
-impl GameState {
-    // Delegation methods for frequently accessed player fields
-    pub fn player_x(&self) -> i32 {
-        self.player.x
-    }
-    pub fn player_y(&self) -> i32 {
-        self.player.y
-    }
-    pub fn player_hp(&self) -> i32 {
-        self.player.hp
-    }
-    pub fn player_max_hp(&self) -> i32 {
-        self.player.max_hp
-    }
-    pub fn player_ap(&self) -> i32 {
-        self.player.ap
-    }
-    pub fn player_level(&self) -> u32 {
-        self.player.level
-    }
-
-    // Delegation methods for frequently accessed world fields
-    pub fn map(&self) -> &Map {
-        &self.world.map
-    }
-    pub fn map_mut(&mut self) -> &mut Map {
-        &mut self.world.map
-    }
-    pub fn enemies(&self) -> &Vec<Enemy> {
-        &self.world.enemies
-    }
-    pub fn enemies_mut(&mut self) -> &mut Vec<Enemy> {
-        &mut self.world.enemies
-    }
-    pub fn npcs(&self) -> &Vec<Npc> {
-        &self.world.npcs
-    }
-    pub fn npcs_mut(&mut self) -> &mut Vec<Npc> {
-        &mut self.world.npcs
-    }
-    pub fn items(&self) -> &Vec<Item> {
-        &self.world.items
-    }
-    pub fn items_mut(&mut self) -> &mut Vec<Item> {
-        &mut self.world.items
-    }
-    pub fn chests(&self) -> &Vec<Chest> {
-        &self.world.chests
-    }
-    pub fn chests_mut(&mut self) -> &mut Vec<Chest> {
-        &mut self.world.chests
-    }
-    pub fn interactables(&self) -> &Vec<Interactable> {
-        &self.world.interactables
-    }
-    pub fn interactables_mut(&mut self) -> &mut Vec<Interactable> {
-        &mut self.world.interactables
-    }
-    pub fn storm(&self) -> &Storm {
-        &self.world.storm
-    }
-    pub fn storm_mut(&mut self) -> &mut Storm {
-        &mut self.world.storm
-    }
-    pub fn world_map(&self) -> &Option<WorldMap> {
-        &self.world.world_map
-    }
-    pub fn world_x(&self) -> usize {
-        self.world.world_x
-    }
-    pub fn world_y(&self) -> usize {
-        self.world.world_y
-    }
-    pub fn layer(&self) -> i32 {
-        self.world.layer
-    }
-    pub fn time_of_day(&self) -> u8 {
-        self.world.time_of_day
-    }
-    pub fn weather(&self) -> Weather {
-        self.world.weather
-    }
-    pub fn ambient_light(&self) -> u8 {
-        self.world.ambient_light
-    }
-    pub fn refraction(&self) -> u32 {
-        self.player.refraction
-    }
-
-    // Narrative delegation methods
-    pub fn quest_log(&self) -> &crate::game::narrative_engine::QuestLog {
-        &self.narrative.quest_log
-    }
-    pub fn quest_log_mut(&mut self) -> &mut crate::game::narrative_engine::QuestLog {
-        &mut self.narrative.quest_log
-    }
-    pub fn story_model(&self) -> &crate::game::narrative_engine::StoryModel {
-        &self.narrative.story_model
-    }
-    pub fn tutorial_progress(&self) -> &crate::game::tutorial::TutorialProgress {
-        &self.narrative.tutorial_progress
-    }
-    pub fn world_history(&self) -> &crate::game::narrative_engine::WorldHistory {
-        &self.narrative.world_history
-    }
-
-    pub fn load_test_tile(&mut self, params: crate::game::generation::tile_generator::TileParams) {
-        use crate::game::generation::tile_generator::generate_tile;
-        use rand::SeedableRng;
-        use rand_chacha::ChaCha8Rng;
-
-        let tile = generate_tile(&params);
-        let biome = params.biome;
-        let terrain = params.terrain;
-        let poi = params.poi;
-        let level = params.level;
-        let walkable = tile.walkable_positions.clone();
-        let mut rng = ChaCha8Rng::seed_from_u64(params.seed);
-
-        self.world.map = tile.map;
-        self.world.enemies = tile.enemies;
-        self.world.items = tile.items;
-        self.world.npcs = tile.npcs;
-        self.world.chests = tile.chests;
-        self.player.x = tile.spawn_pos.0;
-        self.player.y = tile.spawn_pos.1;
-
-        // same post-load hooks as travel_to_tile
-        crate::game::generation::feature_materializer::materialize_features(
-            self, biome, terrain, poi, level,
-        );
-        if poi == crate::game::world_map::POI::Town {
-            super::systems::world::spawn_crafting_stations(self, &walkable, &mut rng);
-        }
-        super::systems::world::spawn_quest_required_npcs(self);
-        self.update_fov();
-        self.rebuild_spatial_index();
-        self.update_lighting();
-        self.generate_crystal_formations(&biome, &walkable, &mut rng);
-        self.log(format!(
-            "[TEST] Loaded tile: {:?} {:?} {:?}",
-            biome, terrain, poi
-        ));
-    }
-}

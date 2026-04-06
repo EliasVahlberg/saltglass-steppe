@@ -68,7 +68,7 @@ fn place_light(state: &mut GameState, feature: &crate::game::map::MapFeature, pa
         pick_light_type(rule, rng)
     };
     if let Some(id) = id {
-        state.map_mut().lights.push(crate::game::map::MapLight {
+        state.world.map.lights.push(crate::game::map::MapLight {
             x: feature.x,
             y: feature.y,
             id,
@@ -80,7 +80,7 @@ fn place_loot(state: &mut GameState, feature: &crate::game::map::MapFeature, _pa
     // Simple: drop a chest item using existing loot generator by spawn table.
     let id = "generic_chest";
     state
-        .items_mut()
+        .world.items
         .push(crate::game::item::Item::new(feature.x, feature.y, id));
     // Future: hook loot tables here.
 }
@@ -103,7 +103,7 @@ fn place_enemy(
     };
     if let Some(id) = picked {
         state
-            .enemies_mut()
+            .world.enemies
             .push(Enemy::new(feature.x, feature.y, id));
     }
 }
@@ -119,7 +119,7 @@ fn place_npc(state: &mut GameState, feature: &crate::game::map::MapFeature, para
         _ => "settler",
     };
     state
-        .npcs_mut()
+        .world.npcs
         .push(crate::game::npc::Npc::new(feature.x, feature.y, npc_id));
 }
 
@@ -130,7 +130,7 @@ fn place_interactable(
 ) {
     if let Some(id) = params.get("id").and_then(|v| v.as_str()) {
         state
-            .interactables_mut()
+            .world.interactables
             .push(Interactable::new(id.to_string(), feature.x, feature.y));
     }
 }

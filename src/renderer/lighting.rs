@@ -45,8 +45,8 @@ impl LightingRenderer {
 
         // Add player light if enabled (force for testing)
         light_sources.push(LightSource {
-            x: state.player_x(),
-            y: state.player_y(),
+            x: state.player.x,
+            y: state.player.y,
             radius: 16,     // Much larger radius
             intensity: 255, // Maximum intensity
         });
@@ -58,8 +58,8 @@ impl LightingRenderer {
                 && let Some(light_radius) = self.get_item_light_radius(weapon)
             {
                 light_sources.push(LightSource {
-                    x: state.player_x(),
-                    y: state.player_y(),
+                    x: state.player.x,
+                    y: state.player.y,
                     radius: light_radius,
                     intensity: 150, // Equipment light intensity
                 });
@@ -68,8 +68,8 @@ impl LightingRenderer {
                 && let Some(light_radius) = self.get_item_light_radius(ranged_weapon)
             {
                 light_sources.push(LightSource {
-                    x: state.player_x(),
-                    y: state.player_y(),
+                    x: state.player.x,
+                    y: state.player.y,
                     radius: light_radius,
                     intensity: 150, // Equipment light intensity
                 });

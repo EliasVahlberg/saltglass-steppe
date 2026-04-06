@@ -948,7 +948,7 @@ impl DesExecutor {
                         if nidx < state.world.map.tiles.len()
                             && !state.world.map.tiles[nidx].walkable()
                         {
-                            state.map_mut().tiles[nidx] = crate::game::map::Tile::default_floor();
+                            state.world.map.tiles[nidx] = crate::game::map::Tile::default_floor();
                         }
                     }
                 }
@@ -1091,7 +1091,7 @@ impl DesExecutor {
                     {
                         let idx = ny as usize * state.world.map.width + nx as usize;
                         if !state.world.map.tiles[idx].walkable() {
-                            state.map_mut().tiles[idx] = Tile::default_floor();
+                            state.world.map.tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -1109,7 +1109,7 @@ impl DesExecutor {
                     {
                         let idx = y as usize * state.world.map.width + x as usize;
                         if !state.world.map.tiles[idx].walkable() {
-                            state.map_mut().tiles[idx] = Tile::default_floor();
+                            state.world.map.tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -1158,7 +1158,7 @@ impl DesExecutor {
                     {
                         let idx = ny as usize * state.world.map.width + nx as usize;
                         if !state.world.map.tiles[idx].walkable() {
-                            state.map_mut().tiles[idx] = Tile::default_floor();
+                            state.world.map.tiles[idx] = Tile::default_floor();
                         }
                     }
                 }
@@ -1477,14 +1477,14 @@ impl DesExecutor {
                 .unwrap_or(false),
             // Storm assertions
             AssertionCheck::StormTimer { op, value } => {
-                op.compare(self.state.storm().turns_until, *value)
+                op.compare(self.state.world.storm.turns_until, *value)
             }
             AssertionCheck::StormIntensity { op, value } => {
-                op.compare(self.state.storm().intensity as u32, *value as u32)
+                op.compare(self.state.world.storm.intensity as u32, *value as u32)
             }
             AssertionCheck::StormHasEditType { edit_type } => self
                 .state
-                .storm()
+                .world.storm
                 .edit_types
                 .iter()
                 .any(|et| et.display_name().to_lowercase() == edit_type.to_lowercase()),
@@ -1495,7 +1495,7 @@ impl DesExecutor {
             AssertionCheck::ItemExistsOnMap { item_id, min_count } => {
                 let count = self
                     .state
-                    .items()
+                    .world.items
                     .iter()
                     .filter(|item| item.id == *item_id)
                     .count();
@@ -1512,7 +1512,7 @@ impl DesExecutor {
             } => {
                 let count = self
                     .state
-                    .map()
+                    .world.map
                     .tiles
                     .iter()
                     .filter(|tile| match (tile_type.as_str(), tile) {
@@ -1666,7 +1666,7 @@ impl DesExecutor {
             AssertionCheck::PlayerOnWalkableTile => {
                 let tile = self
                     .state
-                    .map()
+                    .world.map
                     .get_tile(self.state.player.x, self.state.player.y);
                 tile.walkable()
             }
@@ -1680,7 +1680,7 @@ impl DesExecutor {
             AssertionCheck::MicrostructureCount { op, value } => {
                 let count = self
                     .state
-                    .map()
+                    .world.map
                     .features
                     .iter()
                     .filter(|f| f.feature_id.starts_with("microstructure_"))
@@ -1765,7 +1765,7 @@ impl DesExecutor {
                             if nidx < self.state.world.map.tiles.len()
                                 && !self.state.world.map.tiles[nidx].walkable()
                             {
-                                self.state.map_mut().tiles[nidx] =
+                                self.state.world.map.tiles[nidx] =
                                     crate::game::map::Tile::default_floor();
                             }
                         }
@@ -1906,17 +1906,17 @@ impl DesExecutor {
             Action::TriggerStorm { intensity } => {
                 use crate::game::systems::StormSystem;
                 if let Some(intensity_val) = intensity {
-                    self.state.storm_mut().intensity = *intensity_val;
+                    self.state.world.storm.intensity = *intensity_val;
                 }
                 StormSystem::apply_storm(&mut self.state);
                 self.log(format!(
                     "Storm triggered with intensity {}",
-                    self.state.storm().intensity
+                    self.state.world.storm.intensity
                 ));
             }
             Action::SetRefraction { value } => {
                 self.state.player.refraction = *value;
-                self.state.check_adaptation_threshold();
+                crate::game::systems::player::check_adaptation_threshold(&mut self.state);
                 self.log(format!("Refraction set to {}", value));
             }
 
@@ -2021,7 +2021,7 @@ impl DesExecutor {
                         "glass" => crate::game::map::Tile::Glass,
                         _ => crate::game::map::Tile::default_floor(),
                     };
-                    self.state.map_mut().tiles[idx] = tile;
+                    self.state.world.map.tiles[idx] = tile;
                     self.log(format!("Set tile at ({}, {}) to {}", x, y, tile_type));
                 }
             }
@@ -2136,14 +2136,14 @@ impl DesExecutor {
             LogQuery::PlayerHp => {
                 format!(
                     "HP: {}/{}",
-                    self.state.player_hp(),
-                    self.state.player_max_hp()
+                    self.state.player.hp,
+                    self.state.player.max_hp
                 )
             }
             LogQuery::PlayerPosition => format!(
                 "Position: ({}, {})",
-                self.state.player_x(),
-                self.state.player_y()
+                self.state.player.x,
+                self.state.player.y
             ),
             LogQuery::Inventory => format!("Inventory: {:?}", self.state.player.inventory),
             LogQuery::EntityAt { x, y } => self.state.describe_at(*x, *y),
@@ -2157,8 +2157,8 @@ impl DesExecutor {
         // Simple text representation of the game state
         let mut lines = Vec::new();
 
-        let start_x = self.state.player_x() - (width as i32 / 2);
-        let start_y = self.state.player_y() - (height as i32 / 2);
+        let start_x = self.state.player.x - (width as i32 / 2);
+        let start_y = self.state.player.y - (height as i32 / 2);
 
         for y in 0..height as i32 {
             let mut line = String::new();
@@ -2167,7 +2167,7 @@ impl DesExecutor {
                 let world_y = start_y + y;
 
                 // Check for player
-                if world_x == self.state.player_x() && world_y == self.state.player_y() {
+                if world_x == self.state.player.x && world_y == self.state.player.y {
                     line.push('@');
                 }
                 // Check for enemies
@@ -2183,7 +2183,7 @@ impl DesExecutor {
                 // Check for items
                 else if self
                     .state
-                    .items()
+                    .world.items
                     .iter()
                     .any(|i| i.x == world_x && i.y == world_y)
                 {
@@ -2192,7 +2192,7 @@ impl DesExecutor {
                 // Check for NPCs
                 else if self
                     .state
-                    .npcs()
+                    .world.npcs
                     .iter()
                     .any(|n| n.x == world_x && n.y == world_y)
                 {
@@ -2267,7 +2267,7 @@ where
     render_fn(&executor.state, None);
     std::thread::sleep(std::time::Duration::from_millis(frame_delay_ms));
 
-    while current_turn <= max_turns && executor.state.player_hp() > 0 {
+    while current_turn <= max_turns && executor.state.player.hp > 0 {
         for scheduled in &scenario.actions {
             if scheduled.turn == current_turn {
                 executor.execute_action(&scheduled.action, &scheduled.actor);
@@ -2300,7 +2300,7 @@ where
 
     let all_passed = executor.assertion_results.iter().all(|r| r.passed);
     ExecutionResult {
-        success: executor.state.player_hp() > 0 && all_passed,
+        success: executor.state.player.hp > 0 && all_passed,
         final_turn: executor.state.turn,
         logs: executor.logs,
         assertion_results: executor.assertion_results,
@@ -2420,9 +2420,9 @@ mod tests {
         eprintln!(
             "Final turn: {}, AP: {}, pos: ({}, {})",
             result.final_turn,
-            final_state.player_ap(),
-            final_state.player_x(),
-            final_state.player_y()
+            final_state.player.ap,
+            final_state.player.x,
+            final_state.player.y
         );
         eprintln!(
             "Logs: {:?}",

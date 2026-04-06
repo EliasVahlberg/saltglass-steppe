@@ -112,7 +112,7 @@ impl GameState {
             d.turns_remaining = d.turns_remaining.saturating_sub(1);
             d.turns_remaining > 0
         });
-        self.apply_light_effects();
+        crate::game::systems::player::apply_light_effects(self);
     }
 }
 
