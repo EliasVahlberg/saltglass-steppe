@@ -1,17 +1,86 @@
 ---
-status: stale
-last_verified: 2026-04-04
-commit: e0d1fe7
-stale_reason: "LOC counts and DES scenario counts outdated after cleanup"
+status: partially-stale
+last_verified: 2026-04-06
+commit: d73fd75
+stale_reason: "Feature roadmap sections are current. LOC counts in older entries are stale."
 ---
 
-> ⚠️ **STALE DOCUMENT** — This document may not accurately reflect the current codebase.
-> Reason: LOC counts and DES scenario counts outdated after cleanup
-> Last verified: 2026-04-04
+> ⚠️ **PARTIALLY STALE** — Feature roadmap is current. LOC counts and DES counts in older 'Recently Completed' entries are stale.
 
 # Development Roadmap
 
-> Last updated: 2026-03-07
+> Last updated: 2026-04-06
+
+---
+
+## Technical Debt Backlog
+
+> Added 2026-04-06 after VERA refactor + state.rs decomposition. See `STATE_STORE_REFLECTION.md` for full analysis.
+
+### Immediate (bugs, not improvements)
+
+| Item | File | Fix |
+|------|------|-----|
+| `teleport` DES action doesn't call `check_auto_complete` | `src/des/mod.rs:1780` | Add `let completed = self.state.player.quest_log.check_auto_complete(); self.state.log_quest_completions(&completed);` after `on_position_changed` |
+| `dying_pilgrim` bump-to-talk not setting `talked` flag | `src/game/systems/movement.rs` | Investigate `handle_npc_interaction_legacy` — `talked` flag not set when NPC has no dialogue |
+| Dialogue condition check not logging to message log | `src/game/dialogue.rs` | `UNAUTHORIZED` message not emitted when item condition fails |
+
+### DES scenario fixes (wrong test data, not wrong code)
+
+| Scenario | Fix |
+|----------|-----|
+| `progression.json` | Change `player_xp: 10` → `8` (shard_spider.xp_value is 8) |
+| `level_up_stat_allocation.json` | Fix XP values to match enemy data; change `player_level: 0` → `1` (level 0 is invalid) |
+| `shop_trading.json` | Add `"salt_scrip": 50` to player setup block |
+| `loot_system_event_test.json` | Replace `MessageContains "[Event]"` — GameEvent system deleted, update to assert on loot drop mutation |
+| `event_bus_test.json` | Same |
+| `auto_explore_fixes_test.json` | Replace exact position assertions with inventory/explored-tile assertions |
+| `auto_explore_danger_avoidance.json` | Same |
+
+### DES scenario format fixes (broken JSON, not broken code)
+
+| Scenario | Fix |
+|----------|-----|
+| `bracket_lib_pathfinding_test.json` | Replace `{type: "custom"}` assertion — rewrite with real assertions or delete |
+| `terrain_variety_test.json` | Same |
+| `bsp_algorithm_test.json` | Same |
+| `main_questline_architect.json` | Replace `{type: "talk"}` action with `move` to NPC position |
+| `settlement_generation_test.json` | Same |
+| `trading_system_test.json` | Replace `{type: "interact_npc"}` with `buy_item` action |
+| `procedural_structure_generation_test.json` | Fix assertion op format |
+
+### Missing data (scenarios reference enemies that don't exist)
+
+| Item | Fix |
+|------|-----|
+| `laser_drone` enemy missing from `data/enemies/` | Add enemy definition or delete `laser_beam_behavior.json` |
+| `glass_bomber` enemy missing from `data/enemies/` | Add enemy definition with `suicide_bomber` behavior or delete `behavior_registry_test.json` |
+| `test_npc` NPC missing from data | Add NPC definition or delete `quest_npc_spawning.json` |
+
+### Real generation bug (significant)
+
+**Dungeon connectivity below 80% threshold** — 6 scenarios fail `ConnectivityRatio >= 0.8`:
+`dungeon_connectivity_test`, `dungeon_comprehensive_validation`, `dungeon_deterministic_test`, `dungeon_quest_accessibility_test`, `archive_dungeon_test`, `connectivity_validation`, `shrine_connectivity_test`, `organic_cave_test`.
+
+The Glass Seam Bridging algorithm (`src/game/generation/connectivity.rs`) is not achieving the connectivity guarantee it was designed to provide. This is the most significant real bug in the ignored test list. Investigate: is the algorithm running? Is the threshold achievable with current map sizes?
+
+### False-positive DES scenarios (pass but verify nothing)
+
+20 scenarios assert only `player_alive`. They catch crashes but not logic errors. Each needs either real assertions added or deletion:
+
+`animation_effects_test`, `basic_movement`, `biome_system_basic`, `constraint_system_basic`, `effects_config_test`, `event_system_basic`, `generation_pipeline_basic`, `grammar_generation_basic`, `microstructures_test`, `narrative_integration_basic`, `procedural_effects_test`, `spawn_distribution_test`, `storm_timer_countdown`, `system_integration_test`, `template_system_basic`, `test_renderer_frame`, `theme_system_test`, `tutorial_messages_display`, `world_tile_transition` (delete — no actions, no assertions), `base_empty_room` (delete — no assertions).
+
+### Architecture debt (deferred from VERA refactor)
+
+See `STATE_STORE_REFLECTION.md` §3 for the exhaustive list. Summary:
+
+- **Bridge mutations** (`MovePlayer`, `EndTurn`, `WorldMove`, `RestTick`, etc.) bypass the invariant layer and cannot trigger reactions. Decompose into atomic mutations when those systems are next touched for feature work.
+- **Duplicate mutation variants** (`SpendAp`/`SetPlayerAp`, `AddHp`/`SetPlayerHp`, `Equip`/`SetEquipment`, etc.) — remove delta variants, keep `Set*` only.
+- **`apply_one` inline logic** — `QuestNotify` (~35 LOC), `AttemptFlee` (fixed), `UsePsychicAbility` (~14 LOC), `DamageWall` (~16 LOC) should be extracted to system functions.
+- **`notify.rs` underuse** — 5 of 7 `StateTransition` variants produce no reactions. `PlayerPositionChanged` is detected on every move but nothing listens to it.
+- **No unit tests for `systems/`** — all 14 system files have zero unit tests. Only tested via DES scenarios.
+
+---
 
 ## Current State
 

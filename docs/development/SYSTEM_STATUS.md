@@ -101,19 +101,70 @@ commit: dddd97b
 
 ## DES Test Coverage
 
+> Last verified: 2026-04-06 (commit d73fd75)
+
 | Category | Count | Notes |
 |----------|-------|-------|
-| Good scenarios (exercise real gameplay) | 101 | |
-| Setup-only (no meaningful assertions) | 48 | |
-| Fake (identical boilerplate, test nothing) | 7 | crystal_resonance_basic, void_energy_basic, light_manipulation_basic, enhanced_enemy_systems_test, fov_system_test, narrative_system_test, story_model_test |
-| Dead .des files (never executed) | 2 | skill_progression_test.des, faction_system_test.des |
-| **Total** | **162** | |
+| Passing | 117 | Run with `cargo test --test des_scenarios` |
+| Ignored — broken test format | 7 | Parse errors: invalid action/assertion types in JSON |
+| Ignored — real code failures | 26 | Genuine bugs, see breakdown below |
+| Ignored — flaky (storm RNG) | 2 | `storm_glass_drops`, `storm_intensity_scaling_test` |
+| **Total registered** | **152** | |
+
+### Ignored: broken test format (fix the JSON, not the code)
+
+| Scenario | Problem |
+|----------|---------|
+| `bracket_lib_pathfinding_test` | Uses `check: {type: "custom"}` — not a valid assertion type |
+| `terrain_variety_test` | Same |
+| `bsp_algorithm_test` | Same |
+| `main_questline_architect` | Uses `{type: "talk"}` action — not a valid DES action |
+| `settlement_generation_test` | Same |
+| `trading_system_test` | Uses `{type: "interact_npc"}` action — not valid |
+| `procedural_structure_generation_test` | Invalid assertion op format |
+
+### Ignored: real code failures (bugs to fix)
+
+| Scenario | Failure | Root cause |
+|----------|---------|-----------|
+| `quest_reach_objective` | Reach objective not completing | `teleport` DES action calls `on_position_changed` but not `check_auto_complete` |
+| `quest_chain_unlocking` | Same | Same |
+| `quest_npc_spawning` | `NpcExists { npc_id: "test_npc" }` fails | `test_npc` doesn't exist in data |
+| `dungeon_connectivity_test` | `ConnectivityRatio >= 0.8` fails | Glass Seam Bridging not achieving connectivity guarantee |
+| `dungeon_comprehensive_validation` | Same | Same |
+| `dungeon_deterministic_test` | Same | Same |
+| `dungeon_quest_accessibility_test` | Same | Same |
+| `archive_dungeon_test` | Same | Same |
+| `connectivity_validation` | Same | Same |
+| `shrine_connectivity_test` | Same | Same |
+| `organic_cave_test` | `ConnectivityRatio >= 0.7` fails | Same |
+| `progression` | `PlayerXp == 10` fails | `shard_spider.xp_value` is 8, test expects 10 |
+| `level_up_stat_allocation` | `PlayerXp == 100` fails | Same XP mismatch; also `player_level: 0` is invalid (levels start at 1) |
+| `shop_trading` | `SaltScrip == 40` fails | Scenario doesn't set `salt_scrip` in player setup |
+| `npc_dialogue` | `NpcTalked` not set | `dying_pilgrim` bump interaction not marking `talked` flag |
+| `loot_system_event_test` | `MessageContains "[Event]"` fails | Old GameEvent system deleted; `[Event]` prefix no longer emitted |
+| `event_bus_test` | Same | Same |
+| `laser_beam_behavior` | `PlayerHp < 50` fails | `laser_drone` enemy doesn't exist in data |
+| `behavior_registry_test` | Bomber doesn't explode | `glass_bomber` enemy doesn't exist in data |
+| `microstructures_on_travel` | `MicrostructureCount >= 1` fails | Microstructures not placed in DES world-coordinate tile load path |
+| `auto_explore_fixes_test` | Wrong player position | Position assertion too brittle — depends on exact map layout |
+| `auto_explore_danger_avoidance` | Wrong player position | Same |
+| `dialogue_item_condition` | `MessageContains "UNAUTHORIZED"` fails | Dialogue condition check not logging to message log |
+| `progression` | `PlayerLevel == 0` fails | Level 0 is invalid; levels start at 1 |
+| `shop_trading` | `SaltScrip` wrong | Missing `salt_scrip` in scenario player setup |
+| `npc_dialogue` | NPC not marked talked | Bump-to-talk path not setting `talked` flag |
+
+### False positives — passing tests that verify nothing
+
+20 scenarios pass with only `player_alive` as their assertion. They catch crashes but not logic errors.
+
+`animation_effects_test`, `basic_movement`, `biome_system_basic`, `constraint_system_basic`, `effects_config_test`, `event_system_basic`, `generation_pipeline_basic`, `grammar_generation_basic`, `microstructures_test`, `narrative_integration_basic`, `procedural_effects_test`, `spawn_distribution_test`, `storm_timer_countdown`, `system_integration_test`, `template_system_basic`, `test_renderer_frame`, `theme_system_test`, `tutorial_messages_display`, `world_tile_transition` (no actions, no assertions — delete), `base_empty_room` (no assertions).
 
 ### Systems with zero meaningful DES coverage
 
-Sanity, ritual (doesn't exist), save/load, encounter, interactable, meta-progression, crystal resonance, void energy, light manipulation, FOV, narrative engine.
+Save/load, encounter (flee path), interactable, meta-progression, crystal resonance, void energy, light manipulation, FOV, narrative engine.
 
-### Systems with dangerously thin coverage (1-2 scenarios)
+### Systems with thin coverage (1-2 scenarios)
 
 Crafting, movement, skills, trading.
 
