@@ -43,15 +43,28 @@ pub fn handle_use_psychic(ability_id: &str, _ctx: &QueryContext, _rng: &mut ChaC
 }
 
 /// Command handler: flee encounter.
-/// Bridges to attempt_flee via AttemptFlee mutation (needs &mut enemies).
-pub fn handle_flee_encounter(ctx: &QueryContext, _rng: &mut ChaCha8Rng) -> Vec<Mutation> {
-    match ctx.encounter_state {
-        None => vec![Mutation::LogMessage { text: "No active encounter.".into(), msg_type: MsgType::System }],
-        Some(enc) if !enc.can_flee(ctx.turn, 1.0) => vec![Mutation::LogMessage {
-            text: "You cannot flee yet!".into(),
-            msg_type: MsgType::Warning,
-        }],
-        _ => vec![Mutation::AttemptFlee { turn: ctx.turn }],
+/// Execute flee attempt. Returns atomic mutations — no bridge mutation, no &mut self.rng.
+pub fn handle_flee_encounter(ctx: &QueryContext, rng: &mut ChaCha8Rng) -> Vec<Mutation> {
+    let Some(enc) = ctx.encounter_state else {
+        return vec![Mutation::LogMessage { text: "No active encounter.".into(), msg_type: MsgType::System }];
+    };
+    if !enc.can_flee(ctx.turn, 1.0) {
+        return vec![Mutation::LogMessage { text: "You cannot flee yet!".into(), msg_type: MsgType::Warning }];
+    }
+    let wayfaring = ctx.player.skills.get_skill_level("wayfaring");
+    match crate::game::encounter::attempt_flee(
+        ctx.player.x, ctx.player.y,
+        ctx.enemies, &enc.spawned_enemies,
+        rng, wayfaring,
+    ) {
+        Ok(()) => vec![
+            Mutation::SetEncounterState(None),
+            Mutation::LogMessage { text: "You successfully flee the encounter!".into(), msg_type: MsgType::Status },
+        ],
+        Err(e) => vec![
+            Mutation::SetLastFleeAttempt(ctx.turn),
+            Mutation::LogMessage { text: e, msg_type: MsgType::Warning },
+        ],
     }
 }
 

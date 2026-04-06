@@ -130,8 +130,6 @@ pub enum Mutation {
     AdvanceTime { new_time: u32 },
     /// Bridge: calls psychic.use_ability then applies the resulting effect
     UsePsychicAbility { ability_id: String },
-    /// Bridge: calls attempt_flee with full state access
-    AttemptFlee { turn: u32 },
     /// Delta mutations (used when system doesn't have current value)
     AddSaltScrip(u32),
     SpendAp(i32),

@@ -834,26 +834,6 @@ impl GameState {
                     Err(e) => self.log(e),
                 }
             }
-            Mutation::AttemptFlee { turn } => {
-                let encounter = self.world.encounter_state.clone()?;
-                match super::encounter::attempt_flee(
-                    self.player.x, self.player.y,
-                    &self.world.enemies, &encounter.spawned_enemies,
-                    &mut self.rng,
-                    self.player.skills.get_skill_level("wayfaring"),
-                ) {
-                    Ok(()) => {
-                        self.world.encounter_state = None;
-                        self.log_typed("You successfully flee the encounter!".to_string(), MsgType::Status);
-                    }
-                    Err(e) => {
-                        if let Some(enc) = &mut self.world.encounter_state {
-                            enc.last_flee_attempt = *turn;
-                        }
-                        self.log_typed(e, MsgType::Warning);
-                    }
-                }
-            }
 
             // --- Bridge subsystems ---
             Mutation::AddSaltScrip(amount) => {
