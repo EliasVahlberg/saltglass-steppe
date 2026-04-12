@@ -230,8 +230,17 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     }
 
     let biome_str = params.biome.as_str();
-    let (_microstructures, mut structure_npcs, structure_chests, mut structure_items) =
+    let (microstructures, mut structure_npcs, structure_chests, mut structure_items) =
         place_microstructures(&mut map, biome_str, &walkable_positions, (px, py), &mut rng);
+    for ms in &microstructures {
+        map.features.push(crate::game::map::MapFeature {
+            x: ms.x,
+            y: ms.y,
+            feature_id: format!("microstructure_{}", ms.id),
+            source: None,
+            metadata: std::collections::HashMap::new(),
+        });
+    }
     items.append(&mut structure_items);
 
     // Spawn biome NPCs

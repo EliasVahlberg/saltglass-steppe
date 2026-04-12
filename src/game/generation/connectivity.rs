@@ -251,9 +251,13 @@ fn identify_regions(map: &Map, spawn: (i32, i32), min_area_ratio: f32) -> Vec<Re
         }
     }
 
-    // Update indices after filtering
+    // Update indices and recompute weights against filtered total
+    let filtered_total: usize = regions.iter().map(|r| r.size).sum();
     for (i, region) in regions.iter_mut().enumerate() {
         region.index = i;
+        if filtered_total > 0 {
+            region.weight = region.size as f32 / filtered_total as f32;
+        }
     }
 
     regions
