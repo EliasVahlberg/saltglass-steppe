@@ -48,6 +48,7 @@ pub fn effect_to_mutation(effect: crate::game::effects::Effect) -> Option<crate:
             PlayerEffect::SetPosition { x, y } => Mutation::SetPlayerPosition { x, y },
             PlayerEffect::TakeDamage { amount } => Mutation::AddHp(-amount),
             PlayerEffect::PlaceDecoy { x, y } => Mutation::PlaceDecoy { x, y },
+            PlayerEffect::GainSaltScrip { amount } => Mutation::AddSaltScrip(amount),
             _ => return None,
         }),
         Effect::Item(e) => Some(match e {

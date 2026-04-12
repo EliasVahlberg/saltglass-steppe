@@ -80,38 +80,17 @@ impl MovementSystem {
         // Execute first available action effect
         Self::execute_npc_action_effects(state, &actions, &npc_id);
 
-        // Mark NPC as talked to (but allow re-talking for quest progression)
-        let should_mark_talked = !Self::has_pending_quest_objectives(state, &npc_id);
-        if should_mark_talked {
-            state.world.npcs[ni].talked = true;
-        }
-
         // Quest progress for NPC talk objectives
         let completed = state.player.quest_log.on_npc_talked(&npc_id);
         state.log_quest_completions(&completed);
+
+        // Mark NPC as talked to
+        state.world.npcs[ni].talked = true;
 
         state.meta.discover_npc(&state.world.npcs[ni].id);
         state.check_auto_end_turn();
 
         true
-    }
-
-    /// Check if there are pending quest objectives for this NPC
-    fn has_pending_quest_objectives(state: &GameState, npc_id: &str) -> bool {
-        for quest in &state.player.quest_log.active {
-            if let Some(def) = quest.def() {
-                for (i, obj) in def.objectives.iter().enumerate() {
-                    if let crate::game::quest::ObjectiveType::TalkTo { npc_id: target } =
-                        &obj.objective_type
-                        && target == npc_id
-                        && !quest.objectives[i].completed
-                    {
-                        return true;
-                    }
-                }
-            }
-        }
-        false
     }
 
     /// Execute effects from NPC dialogue actions

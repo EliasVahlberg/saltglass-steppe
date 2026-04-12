@@ -27,10 +27,19 @@ pub struct DialogueCondition {
     pub min_salt_scrip: Option<u32>,
     #[serde(default)]
     pub min_reputation: Option<HashMap<String, i32>>,
+    /// Captures unrecognized condition keys so they cause the condition to fail
+    /// rather than being silently ignored.
+    #[serde(flatten)]
+    #[schemars(skip)]
+    pub unknown: HashMap<String, serde_json::Value>,
 }
 
 impl DialogueCondition {
     pub fn evaluate(&self, ctx: &DialogueContext) -> bool {
+        // Unrecognized condition fields always fail
+        if !self.unknown.is_empty() {
+            return false;
+        }
         if let Some(ref name) = self.has_adaptation
             && !ctx.adaptations.iter().any(|a| a.name() == name)
         {

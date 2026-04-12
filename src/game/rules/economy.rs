@@ -26,15 +26,23 @@ pub fn rule_craft(recipe_id: &str, ctx: &QueryContext) -> RuleOutput {
         return RuleOutput { effects, presentation };
     }
 
-    // Consume materials
+    // Consume materials — track removed indices to avoid double-counting
+    let mut removed_indices: Vec<usize> = Vec::new();
     for (item_id, &count) in &recipe.materials {
         for _ in 0..count {
-            // Find index in inventory — we need to emit one RemoveFromInventory per consumed item
-            let idx = ctx.player.inventory.iter().position(|id| id == item_id);
-            if let Some(i) = idx {
-                effects.push(Effect::Item(ItemEffect::RemoveFromInventory { index: i }));
+            if let Some(i) = ctx.player.inventory.iter().enumerate()
+                .filter(|(idx, _)| !removed_indices.contains(idx))
+                .find(|(_, id)| *id == item_id)
+                .map(|(idx, _)| idx)
+            {
+                removed_indices.push(i);
             }
         }
+    }
+    // Sort descending so higher indices are removed first (no shifting issues)
+    removed_indices.sort_unstable_by(|a, b| b.cmp(a));
+    for i in removed_indices {
+        effects.push(Effect::Item(ItemEffect::RemoveFromInventory { index: i }));
     }
 
     // Produce output

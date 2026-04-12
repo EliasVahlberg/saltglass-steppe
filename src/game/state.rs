@@ -837,7 +837,7 @@ impl GameState {
 
             // --- Bridge subsystems ---
             Mutation::AddSaltScrip(amount) => {
-                self.player.salt_scrip += amount;
+                self.player.salt_scrip = self.player.salt_scrip.wrapping_add(*amount);
             }
             Mutation::SpendAp(amount) => {
                 self.player.ap = (self.player.ap - amount).clamp(0, self.player.max_ap);

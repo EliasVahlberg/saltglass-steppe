@@ -78,6 +78,9 @@ pub struct MapSetup {
     /// Ensure path is walkable between two points
     #[serde(default)]
     pub ensure_paths: Vec<EnsurePath>,
+    /// Generate map with a specific POI type (dungeon, town, shrine, landmark)
+    #[serde(default)]
+    pub poi_type: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -531,6 +534,8 @@ pub struct PlayerSetup {
     pub equipped_weapon: Option<String>,
     #[serde(default)]
     pub skill_points: Option<u32>,
+    #[serde(default)]
+    pub salt_scrip: Option<u32>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -929,6 +934,34 @@ impl DesExecutor {
         let seed = scenario.seed.unwrap_or(42);
         let mut state = GameState::new(seed);
 
+        // Regenerate map with specific POI type if requested
+        if let Some(ref poi_str) = scenario.map_setup.poi_type {
+            use crate::game::generation::tile_generator::{TileParams, generate_tile};
+            use crate::game::world_map::{Biome, POI, Terrain};
+            let poi = match poi_str.as_str() {
+                "dungeon" => POI::Dungeon,
+                "town" => POI::Town,
+                "shrine" => POI::Shrine,
+                "landmark" => POI::Landmark,
+                _ => POI::None,
+            };
+            let params = TileParams {
+                seed,
+                biome: Biome::Ruins,
+                terrain: Terrain::Canyon,
+                elevation: 50,
+                poi,
+                level: 1,
+                faction_control: vec![],
+                quest_ids: vec![],
+            };
+            let generated = generate_tile(&params);
+            state.world.map = generated.map;
+            // Place player at generated spawn point
+            state.player.x = generated.spawn_pos.0;
+            state.player.y = generated.spawn_pos.1;
+        }
+
         // Apply player setup
         if let Some(x) = scenario.player.x {
             state.player.x = x;
@@ -986,6 +1019,12 @@ impl DesExecutor {
         }
         if let Some(sp) = scenario.player.skill_points {
             state.player.skills.skill_points = sp;
+        }
+        if let Some(scrip) = scenario.player.salt_scrip {
+            state.player.salt_scrip = scrip;
+        }
+        if !scenario.player.inventory.is_empty() {
+            state.player.inventory.clear();
         }
         for item_id in &scenario.player.inventory {
             state.player.inventory.push(item_id.clone());
@@ -1409,9 +1448,8 @@ impl DesExecutor {
                 .world
                 .npcs
                 .iter()
-                .find(|n| n.id == *id)
-                .map(|n| n.talked == *talked)
-                .unwrap_or(false),
+                .filter(|n| n.id == *id)
+                .any(|n| n.talked == *talked),
             AssertionCheck::PlayerXp { op, value } => {
                 op.compare(self.state.player.xp as i32, *value as i32)
             }
@@ -1778,6 +1816,8 @@ impl DesExecutor {
                 self.state.revealed.extend(&self.state.visible);
                 // Notify quest log of position change
                 self.state.player.quest_log.on_position_changed(*x, *y);
+                let completed = self.state.player.quest_log.check_auto_complete();
+                self.state.log_quest_completions(&completed);
                 self.log(format!("Player teleported to ({}, {})", x, y));
             }
             Action::Attack { target_x, target_y } => {
