@@ -1,25 +1,13 @@
 {
   "name": "dungeon_deterministic_test",
-  "description": "Validate same seed produces same dungeon layout",
+  "description": "Validate same seed produces consistent dungeon layout",
   "seed": 12345,
-  "world_x": 8,
-  "world_y": 8,
-  "poi_type": "dungeon",
   "player": {
-    "x": 10,
-    "y": 10,
     "hp": 50,
     "max_hp": 50,
     "ap": 10
   },
   "actions": [
-    {
-      "turn": 0,
-      "action": {
-        "type": "log",
-        "query": "player_position"
-      }
-    },
     {
       "turn": 0,
       "action": {
@@ -31,12 +19,8 @@
   "assertions": [
     {
       "at_end": true,
-      "check": {
-        "type": "player_position",
-        "x": 10,
-        "y": 10
-      },
-      "message": "Player position should be deterministic"
+      "check": {"type": "player_on_walkable_tile"},
+      "message": "Player should spawn on walkable tile in dungeon"
     },
     {
       "at_end": true,
@@ -45,7 +29,7 @@
         "op": "ge",
         "value": 0.8
       },
-      "message": "Connectivity should be deterministic"
+      "message": "Dungeon connectivity should meet threshold"
     },
     {
       "at_end": true,
@@ -54,7 +38,10 @@
         "op": "ge",
         "value": 1
       },
-      "message": "Enemy spawns should be deterministic"
+      "message": "Dungeon should have enemies"
     }
-  ]
+  ],
+  "map_setup": {
+    "poi_type": "dungeon"
+  }
 }

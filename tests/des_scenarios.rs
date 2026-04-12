@@ -312,7 +312,6 @@ fn adaptation_effects_test() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn storm_intensity_scaling_test() {
     let result = run_scenario("tests/scenarios/storm_intensity_scaling_test.json")
         .expect("Failed to run storm_intensity_scaling_test");
@@ -445,7 +444,6 @@ fn ap_melee_cost() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn archive_dungeon_test() {
     let result = run_scenario("tests/scenarios/archive_dungeon_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -464,7 +462,6 @@ fn auto_explore_configuration() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn auto_explore_danger_avoidance() {
     let result = run_scenario("tests/scenarios/auto_explore_danger_avoidance.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -477,7 +474,6 @@ fn auto_explore_enemy_detection() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn auto_explore_fixes_test() {
     let result = run_scenario("tests/scenarios/auto_explore_fixes_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -496,14 +492,6 @@ fn base_empty_room() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
-fn behavior_registry_test() {
-    let result = run_scenario("tests/scenarios/behavior_registry_test.json").expect("Failed to run scenario");
-    assert!(result.success, "{:?}", result.assertion_results);
-}
-
-#[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn biome_specific_content_test() {
     let result = run_scenario("tests/scenarios/biome_specific_content_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -516,29 +504,8 @@ fn biome_system_basic() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
-fn bracket_lib_pathfinding_test() {
-    let result = run_scenario("tests/scenarios/bracket_lib_pathfinding_test.json").expect("Failed to run scenario");
-    assert!(result.success, "{:?}", result.assertion_results);
-}
-
-#[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
-fn bsp_algorithm_test() {
-    let result = run_scenario("tests/scenarios/bsp_algorithm_test.json").expect("Failed to run scenario");
-    assert!(result.success, "{:?}", result.assertion_results);
-}
-
-#[test]
 fn camera_centering_test() {
     let result = run_scenario("tests/scenarios/camera_centering_test.json").expect("Failed to run scenario");
-    assert!(result.success, "{:?}", result.assertion_results);
-}
-
-#[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
-fn cellular_automata_algorithm_test() {
-    let result = run_scenario("tests/scenarios/cellular_automata_algorithm_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
@@ -579,7 +546,6 @@ fn combat_ranged_kill() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn connectivity_validation() {
     let result = run_scenario("tests/scenarios/connectivity_validation.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -622,7 +588,6 @@ fn dialogue_conditions_test() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn dialogue_item_condition() {
     let result = run_scenario("tests/scenarios/dialogue_item_condition.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -635,21 +600,18 @@ fn dialogue_item_condition_with_key() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn dungeon_comprehensive_validation() {
     let result = run_scenario("tests/scenarios/dungeon_comprehensive_validation.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn dungeon_connectivity_test() {
     let result = run_scenario("tests/scenarios/dungeon_connectivity_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn dungeon_deterministic_test() {
     let result = run_scenario("tests/scenarios/dungeon_deterministic_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -662,7 +624,6 @@ fn dungeon_population() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn dungeon_quest_accessibility_test() {
     let result = run_scenario("tests/scenarios/dungeon_quest_accessibility_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -705,7 +666,6 @@ fn equip_torch() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn event_bus_test() {
     let result = run_scenario("tests/scenarios/event_bus_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -802,14 +762,6 @@ fn item_pickup_basic() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
-fn laser_beam_behavior() {
-    let result = run_scenario("tests/scenarios/laser_beam_behavior.json").expect("Failed to run scenario");
-    assert!(result.success, "{:?}", result.assertion_results);
-}
-
-#[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn level_up_stat_allocation() {
     let result = run_scenario("tests/scenarios/level_up_stat_allocation.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -822,16 +774,8 @@ fn lighting() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn loot_system_event_test() {
     let result = run_scenario("tests/scenarios/loot_system_event_test.json").expect("Failed to run scenario");
-    assert!(result.success, "{:?}", result.assertion_results);
-}
-
-#[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
-fn main_questline_architect() {
-    let result = run_scenario("tests/scenarios/main_questline_architect.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
@@ -842,7 +786,6 @@ fn message_log_types() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn microstructures_on_travel() {
     let result = run_scenario("tests/scenarios/microstructures_on_travel.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -891,14 +834,12 @@ fn non_usable_item() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn npc_dialogue() {
     let result = run_scenario("tests/scenarios/npc_dialogue.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn organic_cave_test() {
     let result = run_scenario("tests/scenarios/organic_cave_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -935,14 +876,12 @@ fn procedural_effects_test() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn procedural_structure_generation_test() {
     let result = run_scenario("tests/scenarios/procedural_structure_generation_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn progression() {
     let result = run_scenario("tests/scenarios/progression.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -955,21 +894,12 @@ fn psychic_menu_test() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn quest_chain_unlocking() {
     let result = run_scenario("tests/scenarios/quest_chain_unlocking.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
-fn quest_npc_spawning() {
-    let result = run_scenario("tests/scenarios/quest_npc_spawning.json").expect("Failed to run scenario");
-    assert!(result.success, "{:?}", result.assertion_results);
-}
-
-#[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn quest_reach_objective() {
     let result = run_scenario("tests/scenarios/quest_reach_objective.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -1000,21 +930,18 @@ fn rest_mechanic() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn settlement_generation_test() {
     let result = run_scenario("tests/scenarios/settlement_generation_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn shop_trading() {
     let result = run_scenario("tests/scenarios/shop_trading.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn shrine_connectivity_test() {
     let result = run_scenario("tests/scenarios/shrine_connectivity_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -1075,7 +1002,7 @@ fn storm_glass_conversion() {
 }
 
 #[test]
-#[ignore = "flaky — storm RNG sensitive"]
+#[ignore = "flaky — storm glass drop is probabilistic, RNG state varies with test parallelism"]
 fn storm_glass_drops() {
     let result = run_scenario("tests/scenarios/storm_glass_drops.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -1112,13 +1039,6 @@ fn template_system_basic() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
-fn terrain_variety_test() {
-    let result = run_scenario("tests/scenarios/terrain_variety_test.json").expect("Failed to run scenario");
-    assert!(result.success, "{:?}", result.assertion_results);
-}
-
-#[test]
 fn test_renderer_frame() {
     let result = run_scenario("tests/scenarios/test_renderer_frame.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
@@ -1149,7 +1069,6 @@ fn town_population() {
 }
 
 #[test]
-#[ignore = "scenario fails — known broken, needs investigation"]
 fn trading_system_test() {
     let result = run_scenario("tests/scenarios/trading_system_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);

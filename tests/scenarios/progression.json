@@ -1,6 +1,6 @@
 {
   "name": "Character Progression Test",
-  "description": "Test XP gain from kills and level up",
+  "description": "Test XP gain from kills",
   "seed": 100,
   "player": {
     "x": 5,
@@ -20,13 +20,13 @@
   "assertions": [
     {
       "after_turn": 0,
-      "check": {"type": "player_xp", "op": "eq", "value": 10},
-      "message": "Player should gain 10 XP from killing shard spider"
+      "check": {"type": "player_xp", "op": "eq", "value": 8},
+      "message": "Player should gain 8 XP from killing shard spider"
     },
     {
       "after_turn": 0,
-      "check": {"type": "player_level", "op": "eq", "value": 0},
-      "message": "Player should still be level 0 (need 100 XP for level 1)"
+      "check": {"type": "player_level", "op": "eq", "value": 1},
+      "message": "Player should still be level 1 (need 250 XP for level 2)"
     }
   ]
 }

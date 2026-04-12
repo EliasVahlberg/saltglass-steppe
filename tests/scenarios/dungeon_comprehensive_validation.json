@@ -2,12 +2,7 @@
   "name": "dungeon_comprehensive_validation",
   "description": "Comprehensive dungeon generation validation - all aspects",
   "seed": 2024,
-  "world_x": 10,
-  "world_y": 10,
-  "poi_type": "dungeon",
   "player": {
-    "x": 10,
-    "y": 10,
     "hp": 50,
     "max_hp": 50,
     "ap": 10
@@ -29,7 +24,7 @@
         "op": "ge",
         "value": 0.8
       },
-      "message": "Dungeon connectivity must be ≥80%"
+      "message": "Dungeon connectivity must be \u226580%"
     },
     {
       "at_end": true,
@@ -64,7 +59,10 @@
         "op": "ge",
         "value": 0
       },
-      "message": "Chest spawning should work (≥0 acceptable)"
+      "message": "Chest spawning should work (\u22650 acceptable)"
     }
-  ]
+  ],
+  "map_setup": {
+    "poi_type": "dungeon"
+  }
 }

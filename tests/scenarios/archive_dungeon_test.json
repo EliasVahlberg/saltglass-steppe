@@ -2,12 +2,7 @@
   "name": "archive_dungeon_test",
   "description": "Validate large archive dungeon generation",
   "seed": 999,
-  "world_x": 12,
-  "world_y": 12,
-  "poi_type": "dungeon",
   "player": {
-    "x": 10,
-    "y": 10,
     "hp": 50,
     "max_hp": 50,
     "ap": 10
@@ -57,5 +52,8 @@
       },
       "message": "Player should spawn on walkable tile"
     }
-  ]
+  ],
+  "map_setup": {
+    "poi_type": "dungeon"
+  }
 }

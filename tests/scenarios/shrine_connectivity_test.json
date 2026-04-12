@@ -2,12 +2,7 @@
   "name": "shrine_connectivity_test",
   "description": "Validate shrine connectivity - smaller dungeon type",
   "seed": 123,
-  "world_x": 5,
-  "world_y": 5,
-  "poi_type": "shrine",
   "player": {
-    "x": 10,
-    "y": 10,
     "hp": 50,
     "max_hp": 50,
     "ap": 10
@@ -29,7 +24,7 @@
         "op": "ge",
         "value": 0.8
       },
-      "message": "Shrine should have ≥80% connectivity ratio"
+      "message": "Shrine should have \u226580% connectivity ratio"
     },
     {
       "at_end": true,
@@ -38,5 +33,8 @@
       },
       "message": "Player should spawn on walkable tile"
     }
-  ]
+  ],
+  "map_setup": {
+    "poi_type": "shrine"
+  }
 }

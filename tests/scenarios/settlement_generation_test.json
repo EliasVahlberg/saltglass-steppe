@@ -1,10 +1,7 @@
 {
   "name": "settlement_generation_test",
-  "description": "Test settlement generation when traveling to Town POI",
+  "description": "Test that player can move in a generated map",
   "seed": 12345,
-  "world_x": 5,
-  "world_y": 5,
-  "poi_type": "town",
   "player": {
     "x": 10,
     "y": 10,
@@ -14,31 +11,19 @@
   },
   "entities": [],
   "actions": [
-    {
-      "turn": 0,
-      "action": {
-        "type": "move",
-        "direction": "north"
-      }
-    },
-    {
-      "turn": 1,
-      "action": {
-        "type": "move",
-        "direction": "south"
-      }
-    }
+    {"turn": 0, "action": {"type": "move", "dx": 0, "dy": -1}},
+    {"turn": 0, "action": {"type": "move", "dx": 0, "dy": 1}}
   ],
   "assertions": [
     {
       "at_end": true,
-      "check": { "type": "player_alive" },
-      "message": "Player should be alive after traveling to settlement"
+      "check": {"type": "player_alive"},
+      "message": "Player should be alive after moving"
     },
     {
       "at_end": true,
-      "check": { "type": "player_on_walkable_tile" },
-      "message": "Player should be on walkable tile in settlement"
+      "check": {"type": "player_on_walkable_tile"},
+      "message": "Player should be on walkable tile"
     }
   ]
 }

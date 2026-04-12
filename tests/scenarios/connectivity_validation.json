@@ -2,11 +2,7 @@
   "name": "connectivity_validation",
   "description": "Verify at least 80% of floor tiles are reachable from spawn",
   "seed": 12345,
-  "world_x": 10,
-  "world_y": 10,
   "player": {
-    "x": 10,
-    "y": 10,
     "hp": 50,
     "max_hp": 50,
     "ap": 10
@@ -33,8 +29,13 @@
     },
     {
       "at_end": true,
-      "check": { "type": "player_alive" },
+      "check": {
+        "type": "player_alive"
+      },
       "message": "Player should be alive"
     }
-  ]
+  ],
+  "map_setup": {
+    "poi_type": "dungeon"
+  }
 }

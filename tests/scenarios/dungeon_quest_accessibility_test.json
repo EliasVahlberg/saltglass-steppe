@@ -2,17 +2,14 @@
   "name": "dungeon_quest_accessibility_test",
   "description": "Validate quest objectives spawn in reachable locations",
   "seed": 789,
-  "world_x": 8,
-  "world_y": 8,
-  "poi_type": "dungeon",
   "player": {
-    "x": 10,
-    "y": 10,
     "hp": 50,
     "max_hp": 50,
     "ap": 10
   },
-  "quests": ["the_broken_key"],
+  "quests": [
+    "the_broken_key"
+  ],
   "actions": [
     {
       "turn": 0,
@@ -48,5 +45,8 @@
       },
       "message": "Player should spawn on walkable tile"
     }
-  ]
+  ],
+  "map_setup": {
+    "poi_type": "dungeon"
+  }
 }

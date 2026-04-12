@@ -9,7 +9,7 @@
     "max_hp": 50,
     "ap": 10,
     "max_ap": 10,
-    "xp": 90
+    "xp": 242
   },
   "mocks": {
     "combat_always_hit": true,
@@ -27,23 +27,23 @@
   "assertions": [
     {
       "at_start": true,
-      "check": {"type": "player_xp", "op": "eq", "value": 90},
-      "message": "Player should start with 90 XP"
+      "check": {"type": "player_xp", "op": "eq", "value": 242},
+      "message": "Player should start with 242 XP"
     },
     {
       "at_start": true,
-      "check": {"type": "player_level", "op": "eq", "value": 0},
-      "message": "Player should start at level 0"
-    },
-    {
-      "at_end": true,
-      "check": {"type": "player_xp", "op": "eq", "value": 100},
-      "message": "Player should have 100 XP after killing spider (90 + 10)"
-    },
-    {
-      "at_end": true,
       "check": {"type": "player_level", "op": "eq", "value": 1},
-      "message": "Player should be level 1 after reaching 100 XP"
+      "message": "Player should start at level 1"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "player_xp", "op": "eq", "value": 250},
+      "message": "Player should have 250 XP after killing spider (242 + 8)"
+    },
+    {
+      "at_end": true,
+      "check": {"type": "player_level", "op": "eq", "value": 2},
+      "message": "Player should be level 2 after reaching 250 XP"
     },
     {
       "at_end": true,
@@ -52,8 +52,8 @@
     },
     {
       "at_end": true,
-      "check": {"type": "player_hp", "op": "eq", "value": 52},
-      "message": "Player HP should be 52 (50 + 2 from allocating max_hp twice)"
+      "check": {"type": "player_hp", "op": "eq", "value": 60},
+      "message": "Player HP should be 60 (50 + 2×5 from allocating max_hp twice)"
     }
   ]
 }
