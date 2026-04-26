@@ -200,8 +200,8 @@ The 10 existing adaptations in `data/adaptations.json` are replaced entirely. Th
 
 ---
 
-## Open Questions
+## Resolved Design Decisions
 
-- Should the choice UI show which category each adaptation belongs to, or keep it implicit? (Leaning: show it — players should understand the system)
-- Should activity counters be visible to the player anywhere? (Leaning: no — let the adaptation choices feel like the world responding to you, not a checklist)
-- Faction visibility modifiers: flat reputation delta, or multiplier on existing reputation? (Leaning: flat delta, simpler to reason about)
+- **Choice UI shows category labels** — players should understand the system.
+- **Activity counters visible to player** — shown for now (debug value); may be hidden in a future polish pass.
+- **Faction visibility modifiers are multipliers** on existing reputation, not flat deltas. May be revisited.

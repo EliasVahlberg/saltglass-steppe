@@ -38,7 +38,7 @@
       "turn": 4,
       "action": {
         "type": "set_refraction",
-        "value": 30
+        "value": 150
       }
     },
     {

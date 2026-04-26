@@ -1,73 +1,80 @@
 # Codebase Information
 
-## Project Identity
+<!-- Generated: 2026-04-06 | Commit: c0401a0 -->
 
-- **Name**: Saltglass Steppe
-- **Type**: Deterministic, data-driven, turn-based TUI roguelike RPG
+## Project
+
+- **Name**: saltglass-steppe
+- **Version**: 0.1.0
 - **Language**: Rust (Edition 2024)
-- **License**: See LICENSE file
+- **Type**: Single-crate binary + library with two additional binaries (mapgen-tool, schema_gen)
+- **License**: See LICENSE
+
+## Metrics
+
+| Metric | Value |
+|--------|-------|
+| Total source files | ~173 prioritized Rust files |
+| Functions | ~1,740 |
+| Structs/Enums | ~508 |
+| Estimated LOC | ~47,000 |
 
 ## Repository Structure
 
-```
-saltglass-steppe/
-├── src/                    # Rust source code
-│   ├── main.rs             # TUI game loop entry point
-│   ├── lib.rs              # Library exports + integration tests
-│   ├── cli.rs              # CLI argument parsing
-│   ├── session.rs          # Game session orchestration
-│   ├── ipc.rs              # Multi-terminal IPC (Unix domain sockets)
-│   ├── satellite.rs        # Satellite terminal UI processes
-│   ├── game/               # Core gameplay (~50 modules)
-│   │   ├── state.rs        # Central GameState hub
-│   │   ├── effects/        # VERA effect enums, apply, context, trace
-│   │   ├── rules/          # VERA pure rule functions
-│   │   ├── systems/        # ECS-style systems (ai, combat, movement, loot, storm, status)
-│   │   ├── generation/     # Procedural generation pipeline
-│   │   └── [40+ domain modules]
-│   ├── ui/                 # TUI screens and input handling (~20 menus)
-│   ├── renderer/           # Rendering: tiles, entities, lighting, particles
-│   ├── des/                # Debug Execution System interpreter
-│   └── bin/                # CLI tools (mapgen-tool, schema_gen)
-├── data/                   # 40 JSON data files (game content)
-├── schemas/                # 36 JSON schemas (auto-generated)
-├── tests/
-│   ├── scenarios/          # 153 DES scenario files (JSON)
-│   └── des_scenarios.rs    # DES test runner
-├── docs/                   # Extensive project documentation
-│   ├── architecture/       # System design docs
-│   ├── design/             # Game design docs
-│   ├── development/        # Dev guides, SYSTEM_STATUS.md, VERA refactor docs
-│   ├── features/           # Feature specifications
-│   └── narrative/          # World lore
-└── .github/workflows/      # CI pipeline
+```mermaid
+graph TD
+    ROOT[saltglass-steppe/]
+    ROOT --> SRC[src/]
+    ROOT --> DATA[data/ — 40+ JSON content files]
+    ROOT --> SCHEMAS[schemas/ — 36 JSON schemas]
+    ROOT --> TESTS[tests/ — DES scenarios + integration]
+    ROOT --> DOCS[docs/ — architecture, design, features, narrative]
+    ROOT --> RELEASES[releases/]
+
+    SRC --> MAIN[main.rs — TUI game loop]
+    SRC --> LIB[lib.rs — library exports]
+    SRC --> GAME[game/ — core gameplay]
+    SRC --> UI[ui/ — TUI screens and menus]
+    SRC --> RENDERER[renderer/ — tile, entity, lighting rendering]
+    SRC --> DES[des/ — Debug Execution System]
+    SRC --> BIN[bin/ — CLI tools]
+
+    GAME --> STATE[state.rs — GameState, mutation engine]
+    GAME --> DISPATCH[dispatch.rs — command routing]
+    GAME --> NOTIFY[notify.rs — reaction layer]
+    GAME --> MUTATIONS[mutations.rs — Mutation + StateTransition enums]
+    GAME --> EFFECTS[effects/ — Command, Effect, QueryContext]
+    GAME --> SYSTEMS[systems/ — system handlers]
+    GAME --> RULES[rules/ — pure rule functions]
+    GAME --> GEN[generation/ — procedural generation]
+    GAME --> DOMAIN[30+ domain modules — combat, quest, item, enemy, ...]
 ```
 
-## Key Metrics
+## Build Configuration
 
-- **Packages**: 1 (monorepo with 2 binaries)
-- **Primary language**: Rust (100%)
-- **Data files**: 40 JSON content files, 36 schemas
-- **Test scenarios**: 153 DES scenarios + ~200 unit tests
-- **Core dependencies**: 27 (see dependencies.md)
+- **Release profile**: `codegen-units=1`, `lto=true`, `opt-level=3`, `strip=true`, `panic=abort`
+- **Cross-compilation**: Linux → Windows via `x86_64-pc-windows-gnu` + mingw-w64
+- **CI**: GitHub Actions — build → test → clippy → fmt, then DES scenarios as separate job
 
-## Architecture Pattern
+## Key Dependencies
 
-The codebase is migrating to **VERA (Verified Effect-Rule Architecture)**:
-- Pure rule functions return Effect enums
-- Mechanical apply functions mutate state
-- Traces record what happened for verification
-- Legacy imperative methods coexist during migration
+| Crate | Version | Purpose |
+|-------|---------|---------|
+| ratatui | 0.28 | TUI framework |
+| crossterm | 0.28 | Terminal backend |
+| terrain-forge | 0.7.0 | Procedural terrain generation |
+| bracket-pathfinding | 0.8 | A* pathfinding |
+| bracket-noise | 0.8.7 | Perlin/simplex noise |
+| serde + serde_json + ron | 1.0 / 0.8 | Serialization |
+| rand + rand_chacha | 0.8 / 0.3 | Deterministic RNG |
+| vera-effects | 0.1 | Effect-rule architecture types |
+| jsonschema | 0.17 | Runtime JSON validation |
+| schemars | 0.8 | JSON schema generation from Rust types |
 
-**Source of truth for system wiring status**: `docs/development/SYSTEM_STATUS.md`
+## Entry Points
 
-## Build & Run
-
-| Command | Purpose | Agent-safe? |
-|---------|---------|-------------|
-| `cargo build` | Compile | ✅ |
-| `cargo test` | All tests | ✅ |
-| `cargo test --test des_scenarios` | DES scenarios only | ✅ |
-| `cargo clippy -- -D warnings` | Lint | ✅ |
-| `cargo run --bin mapgen-tool` | Map generation tool | ✅ |
-| `cargo run` | Launch game TUI | ❌ Locks terminal |
+| Binary | Path | Safe for agents? |
+|--------|------|-----------------|
+| saltglass-steppe (default) | `src/main.rs` | ❌ Locks terminal |
+| mapgen-tool | `src/bin/mapgen_tool.rs` | ✅ CLI output |
+| schema_gen | `src/bin/schema_gen.rs` | ✅ Regenerates schemas/ |

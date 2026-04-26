@@ -1,192 +1,201 @@
 # Workflows
 
-## Player Action Flow
+<!-- Generated: 2026-04-06 | tags: workflows, processes, pipelines -->
+
+## Game Loop
 
 ```mermaid
 sequenceDiagram
-    participant UI as UI Input
-    participant Main as main.rs
-    participant Disp as dispatch()
-    participant Rule as Rule Function
-    participant Apply as apply_effect()
-    participant React as Reactions
-    participant Derive as Derives
+    participant M as main.rs
+    participant S as session.rs
+    participant UI as ui/input.rs
+    participant GS as GameState
+    participant R as Renderer
 
-    UI->>Main: Keypress
-    Main->>Disp: Command enum
-    Disp->>Rule: rule_fn(args, &QueryContext, &mut rng)
-    Rule-->>Disp: RuleOutput { effects, presentation }
-    loop Each effect
-        Disp->>Apply: apply_effect(&effect)
-        Disp->>Disp: trace.record(effect)
+    M->>S: run_game_session()
+    loop Every frame
+        S->>UI: handle_input(event)
+        UI->>GS: dispatch(Command)
+        Note over GS: apply_with_cascade
+        S->>R: render_game(state)
+        R-->>S: Frame buffer
     end
-    Disp->>React: run_reactions(effects, depth=0)
-    React-->>Apply: reaction effects applied
-    Disp->>Derive: update_fov(), update_lighting()
-    Main->>Main: end_turn() if AP depleted
 ```
 
-## End-of-Turn Flow
+The main loop in `main.rs` runs at configurable FPS (default 60). Each frame: poll input → dispatch commands → render. The game is turn-based — rendering happens every frame but state only changes on player actions.
+
+## Command Dispatch Flow
 
 ```mermaid
-sequenceDiagram
-    participant ET as end_turn()
-    participant Phase as execute_phase()
-    participant Bridge as Bridge Effects
-    participant Legacy as Legacy Systems
-
-    ET->>Phase: ResetAp
-    Phase->>Phase: PlayerEffect::ResetAp → trace
-
-    ET->>Phase: TickStatusEffects
-    Phase->>Bridge: PlayerEffect::TickStatusEffects
-    Bridge->>Legacy: StatusEffectSystem::tick_player_effects()
-
-    ET->>Phase: TickSubsystems
-    Phase->>Bridge: TickPsychic, TickSkills, TickLight, TickVoid, TickCrystal
-    Bridge->>Legacy: Each .tick()/.update() method
-
-    ET->>Phase: AdvanceTurn
-    Phase->>Phase: PlayerEffect::AdvanceTurn + TickHousekeeping + adaptation check
-
-    ET->>Phase: RunAI
-    Phase->>Bridge: PlayerEffect::RunAI
-    Bridge->>Legacy: AiSystem::update_enemies()
-
-    ET->>Phase: TickStorm
-    Phase->>Bridge: MapEffect::TickStorm
-    Bridge->>Legacy: storm.tick() + StormSystem::apply_storm()
-
-    ET->>Phase: AdvanceTime
-    Phase->>Phase: Inline time/weather logic → traced
-
-    ET->>Phase: UpdateDerives
-    Phase->>Phase: update_fov(), update_lighting() (not traced)
-
-    ET->>Phase: CheckEncounters
-    Phase->>Phase: rule_check_encounters → traced
+flowchart TD
+    INPUT[Key Press] --> HANDLER[input.rs handler]
+    HANDLER --> CMD[Command variant]
+    CMD --> DISPATCH[dispatch.rs::route_command]
+    DISPATCH --> SYSTEM[System handler]
+    SYSTEM --> MUTS[Vec of Mutation]
+    MUTS --> APPLY[state.apply_mutations]
+    APPLY --> TRANS[Vec of StateTransition]
+    TRANS --> NOTIFY[notify::on_transitions]
+    NOTIFY --> REACT[Reactive mutations]
+    REACT -->|depth < 10| APPLY
+    APPLY --> DERIVES[update_fov + update_lighting]
 ```
 
 ## Combat Flow
 
 ```mermaid
 sequenceDiagram
-    participant P as Player
-    participant D as dispatch()
-    participant R as rule_melee_attack
-    participant A as apply_effect
-    participant React as Reactions
+    participant P as Player Input
+    participant D as dispatch.rs
+    participant C as combat system
+    participant S as state
+    participant N as notify.rs
+    participant L as loot system
 
-    P->>D: Command::Attack { target_x, target_y }
-    D->>R: rule_melee_attack(x, y, &ctx, &mut rng)
-    alt Hit
-        R-->>D: [SpendAp, DealDamage, RecordDamageDealt]
-        D->>A: Apply each effect
-    else Miss
-        R-->>D: [SpendAp, Miss]
-    else Kill
-        R-->>D: [SpendAp, DealDamage, Kill, GainXp]
-        D->>A: Apply effects
-        D->>React: run_reactions([Kill])
-        React-->>A: LootDrop, QuestNotify(Kill)
+    P->>D: Command::Attack
+    D->>C: handle_melee(query, rng)
+    C-->>D: [SetEnemyHp, SpendAp, HitFlash, DamageNumber]
+    D->>S: apply_mutations
+    S-->>D: [EnemyHpChanged] or [EnemyHpReachedZero]
+    D->>N: on_transitions
+    alt Enemy HP changed
+        N->>C: on_enemy_hit → swarm aggro, reflect
     end
+    alt Enemy killed
+        N->>C: on_enemy_killed → split-on-death
+        N->>L: reaction_loot_drop → SpawnItemOnMap
+    end
+    N-->>D: reactive mutations
+    D->>S: apply_mutations (cascade)
 ```
 
-## Reaction Chain (Post-Batch F)
+## Turn Processing Flow
 
 ```mermaid
-graph TB
-    KILL["CombatEffect::Kill"] --> LOOT["EventEffect::LootDrop"]
-    KILL --> QUEST["EventEffect::QuestNotify(Kill)"]
-    LOOT --> APPLY_LOOT["LootSystem::drop_loot()"]
-    QUEST --> APPLY_QUEST["quest_log.on_enemy_killed()"]
-    APPLY_QUEST --> AUTO["check_auto_complete()"]
+flowchart LR
+    ET[EndTurn mutation] --> P1[ResetAp]
+    P1 --> P2[TickStatusEffects]
+    P2 --> P3["TickSubsystems (psychic, skills, light, void, crystal)"]
+    P3 --> P4[AdvanceTurn]
+    P4 --> P5["RunAI (all enemies act)"]
+    P5 --> P6["TickStorm (map edits, wraith spawns)"]
+    P6 --> P7["AdvanceTime (time_of_day, weather)"]
+    P7 --> P8["UpdateDerives (FOV, lighting)"]
+    P8 --> P9["CheckEncounters (overworld only)"]
 ```
 
-Reactions replace the old `GameEvent` system. Max depth: 10.
+Each phase produces mutations that are applied immediately. AI phase runs all enemies sequentially with spatial index rebuilds between actions.
+
+## Tile Generation Pipeline
+
+```mermaid
+flowchart TD
+    TRAVEL[travel_to_tile] --> PARAMS[TileParams from world state]
+    PARAMS --> TILEGEN[tile_generator::generate_tile]
+    TILEGEN --> TERRAIN[terrain_forge_adapter — algorithm selection + layering]
+    TERRAIN --> CONNECT[connectivity.rs — Glass Seam Bridging]
+    CONNECT --> STRUCT[structure_library — prefab placement]
+    STRUCT --> MICRO[microstructures — small structures]
+    MICRO --> PROPS[environmental_props — decorations]
+    PROPS --> SPAWN[spawn.rs — enemies, items, NPCs]
+    SPAWN --> FEAT[feature_materializer — story hooks, interactables]
+    FEAT --> QUEST[quest_constraints — validation]
+    QUEST --> MAP[Generated Map]
+
+    SETTLE{POI == Town?}
+    TILEGEN --> SETTLE
+    SETTLE -->|Yes| TOWN[settlement/ — buildings, roads, NPCs]
+    TOWN --> MAP
+```
 
 ## World Travel Flow
 
 ```mermaid
 sequenceDiagram
     participant P as Player
-    participant D as dispatch()
-    participant S as state.rs helpers
+    participant W as world system
+    participant TG as tile_generator
+    participant E as encounter system
 
-    P->>D: Command::WorldMove { new_wx, new_wy }
-    D->>S: dispatch_world_move()
-    S->>S: Validate adjacency
-    S->>S: move_on_world_map() — regenerate tile map
-    S->>S: spawn_quest_required_npcs()
-    S->>S: spawn_crafting_stations()
-    S->>S: Trace effects (SetWorldPosition, IncrementTilesTraveled)
-```
-
-## Map Generation Flow
-
-```mermaid
-graph TB
-    START["travel_to_tile()"] --> PARAMS["TileParams from WorldState"]
-    PARAMS --> TFA["terrain_forge_adapter<br/>Base terrain generation"]
-    TFA --> CONN["connectivity.rs<br/>Glass Seam Bridging"]
-    CONN --> STRUCT["structure_library.rs<br/>Stamp prefabs"]
-    STRUCT --> MICRO["microstructures.rs<br/>Small features"]
-    MICRO --> PROPS["environmental_props.rs<br/>Decorations"]
-    PROPS --> SPAWN["spawn.rs<br/>Enemies, items"]
-    SPAWN --> FEAT["feature_materializer.rs<br/>NPCs, story hooks"]
-    FEAT --> QUEST["quest_constraints.rs<br/>Validate requirements"]
-    QUEST --> DONE["GeneratedTile"]
+    P->>W: Command::WorldMove
+    W->>W: is_adjacent? travel_cost?
+    W->>E: should_trigger_encounter?
+    alt Encounter triggered
+        E-->>W: EncounterState (hostile/neutral/beneficial)
+        W->>W: spawn_encounter_entities
+    else No encounter
+        W->>TG: generate_tile(params)
+        TG-->>W: GeneratedTile
+        W->>W: Replace map, spawn entities
+    end
 ```
 
 ## DES Test Execution Flow
 
 ```mermaid
-sequenceDiagram
-    participant Runner as des_scenarios.rs
-    participant DES as DesExecutor
-    participant GS as GameState
-
-    Runner->>DES: from_json(scenario)
-    DES->>DES: inherit_from(base) if inherits
-    DES->>GS: new_with_class() + apply_map_setup()
-    DES->>GS: Spawn entities, apply mocks
-    loop Each action
-        DES->>GS: execute_player_action(action)
-        Note over GS: dispatch(Command) for VERA actions
-        DES->>DES: Check mid-action assertions
-    end
-    DES->>DES: Check at_end assertions
-    DES-->>Runner: ExecutionResult { passed, failures }
+flowchart TD
+    JSON[Scenario JSON] --> PARSE[from_json / from_file]
+    PARSE --> INHERIT{inherits?}
+    INHERIT -->|Yes| MERGE[Merge parent fields]
+    INHERIT -->|No| SETUP
+    MERGE --> SETUP[apply_map_setup + player setup]
+    SETUP --> ENTITIES[Spawn entities]
+    ENTITIES --> MOCKS[Apply mock settings]
+    MOCKS --> ACTIONS[Execute actions sequentially]
+    ACTIONS --> ASSERT[Evaluate assertions]
+    ASSERT --> RESULT{All pass?}
+    RESULT -->|Yes| PASS[ExecutionResult::success]
+    RESULT -->|No| FAIL[ExecutionResult with failures]
 ```
 
 ## Save/Load Flow
 
 ```mermaid
 sequenceDiagram
-    participant P as Player
-    participant S as save.rs
+    participant UI as Save Menu
+    participant SV as save.rs
     participant FS as Filesystem
 
-    P->>S: save_game(slot)
-    S->>S: Serialize GameState to JSON
-    S->>S: Compute MD5 checksum
-    S->>FS: Write saves/{slot}.json
-    S->>FS: Update saves/meta.json
+    UI->>SV: save_game(state, slot_name)
+    SV->>SV: Serialize GameState to RON
+    SV->>SV: Compute MD5 checksum
+    SV->>SV: Wrap in SaveFile envelope (version + data)
+    SV->>FS: Write to saves/{hash}.ron
+    SV->>SV: Update saves/meta.json
 
-    P->>S: load_game(slot)
-    S->>FS: Read saves/{slot}.json
-    S->>S: Verify checksum
-    S->>S: Check version, migrate if needed
-    S-->>P: GameState
+    UI->>SV: load_game(slot_name)
+    SV->>FS: Read saves/{hash}.ron
+    SV->>SV: Verify checksum
+    SV->>SV: Check SAVE_VERSION
+    SV->>SV: migrate_save if needed (v1→v2)
+    SV->>SV: Deserialize GameState
+    SV-->>UI: GameState
 ```
 
-## CI Pipeline
+## Data Loading Flow
 
 ```mermaid
-graph LR
-    PUSH["git push"] --> BUILD["cargo build"]
-    BUILD --> TEST["cargo test"]
-    TEST --> CLIP["cargo clippy -- -D warnings"]
-    CLIP --> FMT["cargo fmt -- --check"]
-    FMT --> DES["cargo test --test des_scenarios"]
+flowchart LR
+    STARTUP[Game startup] --> LOAD["DataLoader::load_single/load_multiple"]
+    LOAD --> PARSE[serde_json::from_str]
+    PARSE --> VALIDATE["jsonschema::validate against schemas/*_v1.json"]
+    VALIDATE -->|Pass| CACHE[Cached in once_cell lazy statics]
+    VALIDATE -->|Fail| PANIC[Panic with validation error]
+    CACHE --> QUERY["get(id) / all() / ids()"]
+```
+
+Data files are loaded once at startup via `include_str!` (compile-time embedding) or `fs::read_to_string` (runtime). Schema validation catches structural errors immediately.
+
+## Adding a New Gameplay System
+
+```mermaid
+flowchart TD
+    RULE["1. Write system function in systems/"] --> MUT["2. Add Mutation variants if needed"]
+    MUT --> APPLY["3. Add apply_one arm in state.rs"]
+    APPLY --> WIRE["4. Wire in dispatch.rs::route_command"]
+    WIRE --> NOTIFY_Q{Needs reactions?}
+    NOTIFY_Q -->|Yes| NOTIFY_W["5. Add handler + wire in notify.rs"]
+    NOTIFY_Q -->|No| DES
+    NOTIFY_W --> DES["6. Write DES scenario"]
+    DES --> STATUS["7. Update SYSTEM_STATUS.md"]
 ```

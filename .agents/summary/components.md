@@ -1,153 +1,145 @@
 # Components
 
-## Core Game Components
+<!-- Generated: 2026-04-06 | tags: components, subsystems, modules -->
 
-### GameState (`src/game/state.rs`)
-Central hub for all gameplay state. Contains `PlayerState`, `WorldState`, `NarrativeEngine`, spatial indices, turn processing, and the VERA dispatch system. All systems access state through this struct.
+## Component Map
 
-Key responsibilities:
-- `dispatch(Command)` — VERA command dispatch to rule functions
-- `apply_effect(Effect)` — mechanical state mutation
-- `end_turn()` — executes `TurnPhase::sequence()` in order
-- `run_reactions(effects)` — deferred reaction chain (max depth 10)
-- World travel, save/load, FOV/lighting updates
+```mermaid
+graph TB
+    subgraph Core["Core Architecture"]
+        STATE["state.rs — GameState, mutation engine"]
+        DISPATCH["dispatch.rs — command routing"]
+        NOTIFY["notify.rs — reaction layer"]
+        MUT["mutations.rs — Mutation + StateTransition"]
+    end
 
-### Effects System (`src/game/effects/`)
+    subgraph Systems["System Handlers (systems/)"]
+        COMBAT_S["combat.rs — melee/ranged + reactions"]
+        MOVE_S["movement.rs — move dispatch, NPC interaction"]
+        ITEMS_S["items.rs — use/craft/buy/sell"]
+        PLAYER_S["player.rs — wait/rest/equip/stat allocation"]
+        TURN_S["turn.rs — end_turn, phase execution"]
+        AI_S["ai.rs — 4 enemy behaviors"]
+        STORM_S["storm.rs — 7 map edit types"]
+        WORLD_S["world.rs — travel, tile generation"]
+        QUEST_S["quest.rs — accept/complete"]
+        EXPLORE_S["explore.rs — auto-explore"]
+        INTERACT_S["interact.rs — interact/examine"]
+        LOOT_S["loot.rs — loot drop reaction"]
+        STATUS_S["status.rs — status effect ticking"]
+    end
 
-| File | Purpose |
-|------|---------|
-| `mod.rs` | Effect, Command, TurnPhase, Presentation, RuleOutput enums |
-| `apply.rs` | `apply_effect()` — mechanical match arms for all effect variants |
-| `context.rs` | `QueryContext` (read-only state view for rules), `TestContext` (test builder) |
-| `trace.rs` | `Trace`, `TraceEntry`, `TraceSource` — records effects during DES runs |
+    subgraph Rules["Rule Functions (rules/)"]
+        R_COMBAT["combat.rs — rule_melee_attack, rule_ranged_attack"]
+        R_MOVE["movement.rs — rule_move"]
+        R_ITEM["item.rs — rule_use_item"]
+        R_ACTION["actions.rs — rule_wait/rest/equip/unequip/psychic"]
+        R_TURN["turn.rs — rule_tick_time, rule_check_encounters"]
+        R_ECON["economy.rs — rule_craft/buy/sell"]
+        R_REACT["reactions.rs — reaction_loot_drop"]
+    end
 
-### Rules (`src/game/rules/`)
+    subgraph Generation["Procedural Generation (generation/)"]
+        TILEGEN["tile_generator.rs — orchestrator"]
+        TERRAIN["terrain_forge_adapter.rs — terrain-forge bridge"]
+        CONNECT["connectivity.rs — Glass Seam Bridging"]
+        SETTLE["settlement/ — town/village generation"]
+        SPAWN["spawn.rs — entity spawning"]
+        STRUCT["structure_library.rs — prefab loading"]
+        MICRO["microstructures.rs — small structures"]
+        WORLDGEN["world_gen.rs — overworld generation"]
+    end
 
-Pure functions: `(args, &QueryContext, &mut ChaCha8Rng) → RuleOutput`
+    subgraph UI_Layer["UI (ui/)"]
+        INPUT["input.rs — input handler, action dispatch"]
+        GAMEVIEW["game_view.rs — main viewport"]
+        HUD["hud.rs — status bars, panels"]
+        MENUS["~20 menus — inventory, skills, trade, quest, debug, ..."]
+        MENU_MAIN["menu.rs — main menu, character creation"]
+    end
 
-| File | Functions | Tests |
-|------|-----------|-------|
-| `item.rs` | `rule_use_item`, `rule_use_item_on_tile` | 7 |
-| `movement.rs` | `rule_move` → `MoveOutput` | 7 |
-| `combat.rs` | `rule_melee_attack`, `rule_ranged_attack` | 7 |
-| `actions.rs` | `rule_wait`, `rule_rest`, `rule_equip`, `rule_unequip`, `rule_allocate_stat`, `rule_use_psychic` | 7 |
-| `turn.rs` | `rule_tick_time`, `rule_check_encounters`, `rule_check_adaptation` | 4 |
+    subgraph Render["Renderer (renderer/)"]
+        TILES_R["tiles.rs — tile rendering"]
+        ENTITIES_R["entities.rs — entity rendering"]
+        LIGHTING_R["lighting.rs — dynamic lighting"]
+        PARTICLES_R["particles.rs — particle effects"]
+        ANIM["animations.rs — screen shake, glow, blink"]
+    end
 
-### Systems (`src/game/systems/`)
+    DISPATCH --> Systems
+    DISPATCH --> Rules
+    STATE --> MUT
+    NOTIFY --> COMBAT_S
+```
 
-ECS-style systems implementing the `System` trait (`update`, `on_event`). Currently called via bridge effects from VERA dispatch.
+## Core Components
 
-| System | File | Status |
-|--------|------|--------|
-| AI | `ai.rs` | Bridge effect (`PlayerEffect::RunAI`). 4 behaviors: StandardMelee, RangedOnly, Healer, SuicideBomber |
-| Storm | `storm.rs` | Bridge effect (`MapEffect::TickStorm`). 7 edit types: Glass, Rotate, Swap, Mirror, Fracture, Crystallize, Vortex |
-| Combat | `combat.rs` | Post-processing: swarm aggro, enemy death handling |
-| Movement | `movement.rs` | NPC interaction, world transitions, item pickup |
-| Status | `status.rs` | Bridge effect (`PlayerEffect::TickStatusEffects`). Ticks durations, applies damage |
-| Loot | `loot.rs` | Called via `EventEffect::LootDrop` reaction |
-| Quest | `quest.rs` | Stub — quest logic lives in `game/quest.rs` |
+### GameState (`state.rs`)
+Central data store. Owns `PlayerState`, `WorldState`, `NarrativeEngine`, `SpatialIndex`, `DebugState`. Provides `dispatch(Command)` as the single entry point. Contains `apply_one()` — the exhaustive match over all Mutation variants with invariant enforcement.
 
-## Procedural Generation (`src/game/generation/`)
+### Dispatch (`dispatch.rs`)
+`route_command()` maps 22 Command variants to system handlers. `apply_with_cascade()` runs the apply → transitions → notify → apply cascade loop (depth-limited to 10), then runs derives.
 
-### Core Pipeline
-- `tile_generator.rs` — Orchestrates tile map generation
-- `terrain_forge_adapter.rs` — Bridges the `terrain-forge` crate for base terrain
-- `connectivity.rs` — Glass Seam Bridging algorithm for region connectivity
-- `constraints.rs` — Post-generation constraint validation
-- `quest_constraints.rs` — Validates map meets quest requirements
+### Notify (`notify.rs`)
+`on_transitions()` maps `StateTransition` events to reactive `Vec<Mutation>`. Currently handles `EnemyHpChanged` and `EnemyHpReachedZero` only. Static dispatch (compile-time match arms).
 
-### Content Generation
-- `spawn.rs` — Entity population from biome spawn tables
-- `microstructures.rs` — Small structural features
-- `structure_library.rs` — Prefab structure loading and stamping
-- `environmental_props.rs` — Decorative props
-- `feature_materializer.rs` — Story hooks, NPCs, loot placement
+## System Components
 
-### World Generation
-- `world_gen.rs` — Overworld map with biomes, POIs, factions, roads
-- `settlement/` — Town and village generation (layout, buildings, roads, population)
+### Combat (`systems/combat.rs` + `rules/combat.rs`)
+Pure rule functions for melee/ranged attacks. System handles post-processing: swarm aggro, reflect damage, split-on-death, loot drops. Mock system (`combat_always_hit`, `combat_fixed_damage`) for DES testing.
 
-### Narrative Generation
-- `narrative.rs` — Story fragments, faction influence, narrative seeds
-- `narrative_templates.rs` — Markov chains, template filling, contextual text
-- `story.rs` — Story model, characters, events, faction lore
-- `grammar.rs` — Grammar-based text expansion
-- `templates.rs` — Content template system with inheritance
+### Movement (`systems/movement.rs` + `rules/movement.rs`)
+`rule_move` returns `MoveOutput` with result type (Moved/Npc/Combat/Blocked). Bridge mutation `MovePlayer` handles the full dispatch including NPC interaction, combat delegation, FOV update, and tile effects (glass damage, refraction).
 
-### Supporting
-- `biomes.rs` — Biome profiles, hazards, environmental features
-- `events.rs` — Dynamic event system with triggers and consequences
-- `loot.rs` — Loot table generation
-- `spatial.rs` — Poisson disk sampling
-- `algorithm.rs` — Generation algorithm framework
-- `config.rs` — Generation configuration loader
+### AI (`systems/ai.rs`)
+`AiBehavior` trait with 4 implementations: `StandardMelee`, `RangedOnly`, `Healer`, `SuicideBomber`. Called via bridge `TickSubsystem(AI)`. Enemies act sequentially; spatial index rebuilt between actions.
 
-## UI Components (`src/ui/`)
+### Storm (`systems/storm.rs`)
+7 edit types: Glass, Rotate, Swap, Mirror, Fracture, Crystallize, Vortex. Called via bridge `TickSubsystem(Storm)`. Spawns wraith enemies on glass tiles. Storm intensity and timing configured in `data/storm_config.json`.
 
-### Core
-- `input.rs` — Input handler, routes keypresses to appropriate handler
-- `game_view.rs` — Main game viewport rendering
-- `hud.rs` — HUD panels (health bar, inventory bar, side panel)
-- `menu.rs` — Main menu, class select, seed input
+### Turn Processing (`systems/turn.rs`)
+`end_turn()` executes 9 `TurnPhase` variants in fixed order. `execute_phase()` maps each phase to mutations. Subsystem ticks (psychic, skills, light, void, crystal) run as bridge effects.
 
-### Game Menus
-`inventory_menu.rs`, `skills_menu.rs`, `crafting_menu.rs`, `trade_menu.rs`, `quest_log.rs`, `wiki.rs`, `book_reader.rs`, `faction_menu.rs`, `psychic_menu.rs`, `void_menu.rs`, `crystal_menu.rs`, `light_menu.rs`, `chest_ui.rs`
+### World Travel (`systems/world.rs`)
+Handles overworld movement, tile generation, encounters. `dispatch_world_move` regenerates the tile map via `travel_to_tile`. Encounter system with flee mechanics. Subterranean layer transitions.
 
-### Debug/Dev
-- `debug_menu.rs` — Debug overlay with tabs (info, states, commands, performance)
-- `issue_reporter.rs` — In-game issue reporting
-- `storm_forecast.rs` — Storm forecast display
+### Quest (`game/quest.rs` + `systems/quest.rs`)
+Data-driven from `data/quests.json` and `data/main_questline.json`. 7 objective types: Kill, Collect, Reach, Talk, Examine, Interact, Explore. Progress triggered via `QuestNotify` reactions. Auto-complete checking.
 
-### Special
-- `world_map.rs` — Overworld map view with biome/faction overlays
-- `aria_interface.rs` — Aria NPC terminal interface
-- `theme.rs` — UI color themes
+## Generation Components
 
-## Renderer (`src/renderer/`)
+### Tile Generator (`generation/tile_generator.rs`)
+Orchestrates the full tile generation pipeline: terrain-forge → connectivity → structures → microstructures → environmental props → spawning → quest constraints.
 
-Read-only rendering layer. Never mutates GameState.
+### Terrain-Forge Adapter (`generation/terrain_forge_adapter.rs`)
+Bridges the `terrain-forge` crate. Biome-driven algorithm selection from `data/terrain_config.json`. Algorithm layering with 3 blend modes (replace, overlay, mask). POI-specific layout overrides.
 
-- `mod.rs` — Renderer orchestration, theme management
-- `tiles.rs` — Tile rendering with lighting
-- `entities.rs` — Player, enemy, NPC, item rendering
-- `lighting.rs` — Dynamic lighting calculation
-- `particles.rs` — Particle system (sparkle, glow, drift, shimmer)
-- `animations.rs` — Animation system (blink, glow, screen shake)
-- `effects.rs` — Visual effects rendering
-- `procedural.rs` — Weather particles, ambient lighting, heat shimmer
-- `themes.rs` — Color theme management
-- `camera.rs` — Smooth camera following
-- `config.rs` — Render configuration
+### Connectivity (`generation/connectivity.rs`)
+Glass Seam Bridging (GSB) algorithm. Identifies disconnected regions, computes optimal tunnel edges, carves connections. Known issue: not achieving 80% connectivity guarantee for dungeons.
 
-## DES (`src/des/mod.rs`)
+### Settlement (`generation/settlement/`)
+Grid-with-jitter layout. 35 building prefabs (14 core + 21 faction-specific). Faction-weighted building selection. NPC spawning from per-building metadata. Road pathfinding between buildings.
 
-Debug Execution System — headless, deterministic gameplay testing. Parses JSON scenarios, executes actions, checks assertions. Supports scenario inheritance, mocks, map setup, entity spawning, and ~50 assertion types.
+## UI Components
 
-## Domain Modules (`src/game/`)
+### Input Handler (`ui/input.rs`)
+Central input dispatch. Maps key events to `Command` variants or UI actions depending on active screen. Handles ~20 different input contexts (gameplay, world map, menus, debug console, look mode).
 
-| Module | Purpose |
-|--------|---------|
-| `map.rs` | Tile map, FOV computation, pathfinding |
-| `world_map.rs` | Overworld biomes, terrain, POIs |
-| `enemy.rs` | Enemy definitions, behavior context, spawning |
-| `npc.rs` | NPC definitions, dialogue, actions |
-| `item.rs` | Item definitions, data loading |
-| `quest.rs` | Quest system, objectives, progression |
-| `combat.rs` | Combat formulas (hit chance, damage) |
-| `skills.rs` | Skill trees, passive bonuses, abilities |
-| `adaptation.rs` | Refraction adaptations (mutations) |
-| `storm.rs` | Storm forecasting, edit type generation |
-| `encounter.rs` | Encounter generation, flee mechanics |
-| `dialogue.rs` | Dialogue trees, conditions, actions |
-| `equipment.rs` | Equipment slots, stat recalculation |
-| `trading.rs` | Trade interface, buy/sell |
-| `crafting.rs` | Recipe system |
-| `status.rs` | Status effect definitions, ticking |
-| `psychic.rs` | Psychic abilities (3 working: stun_aoe, guaranteed_hit, phasing) |
-| `void_energy.rs` | Void energy/exposure tracking |
-| `crystal_resonance.rs` | Crystal formation system |
-| `light.rs` | Light energy tracking |
-| `save.rs` | Save/load with versioning and checksums |
-| `faction.rs` | Faction definitions, reputation |
-| `event.rs` | GameEvent enum (legacy, being replaced by reactions) |
-| `visual_effects.rs` | Damage numbers, hit flash, beams, projectiles |
+### Game View (`ui/game_view.rs`)
+Main gameplay viewport. Renders map tiles, entities, damage numbers, debug console overlay, death screen. Delegates to renderer for actual tile/entity drawing.
+
+### Menus
+~20 menu screens: inventory, skills (canvas-based tree graph), trade, crafting, quest log, faction, psychic, void, crystal, light, debug, wiki, book reader, chest, issue reporter, storm forecast, ARIA interface.
+
+## Renderer Components
+
+Read-only — never mutates GameState. Configurable via `data/render_config.json` and `data/themes.json`.
+
+- **Tiles**: Biome-aware tile appearance, FOV-based visibility, lighting integration
+- **Entities**: Player, enemies, NPCs, items with lighting-aware dimming
+- **Lighting**: Dynamic light sources, ambient light, glare detection
+- **Particles**: Sparkle, glow, float, drift, pulse, shimmer effects
+- **Animations**: Screen shake, glow, blink with configurable parameters
+
+## DES Component (`des/mod.rs`)
+Debug Execution System interpreter. Parses JSON scenarios, sets up game state, executes actions, evaluates assertions. Supports scenario inheritance, ~50 assertion types, ~30 action types. Mock combat settings for deterministic testing.

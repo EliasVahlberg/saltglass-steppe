@@ -3,6 +3,39 @@ use std::collections::HashMap;
 
 use super::{adaptation::Adaptation, equipment::Equipment, quest::QuestLog, status::StatusEffect};
 
+/// Tracks player activity for adaptation pool weighting.
+/// Higher counts in a category increase the weight of that category's adaptations.
+#[derive(Serialize, Deserialize, Default, Clone, Debug)]
+pub struct ActivityCounters {
+    pub storms_survived: u32,
+    pub glass_tiles_walked: u32,
+    pub enemies_killed_melee: u32,
+    pub enemies_killed_ranged: u32,
+    pub elite_enemies_killed: u32,
+    pub items_crafted: u32,
+    pub items_used: u32,
+    pub psychic_uses: u32,
+    pub tiles_explored: u32,
+    pub npcs_talked: u32,
+    pub damage_taken_total: u32,
+}
+
+/// Identifies a single activity counter field for the IncrementActivity mutation.
+#[derive(Debug, Clone, PartialEq)]
+pub enum ActivityField {
+    StormsSurvived,
+    GlassTilesWalked,
+    EnemiesKilledMelee,
+    EnemiesKilledRanged,
+    EliteEnemiesKilled,
+    ItemsCrafted,
+    ItemsUsed,
+    PsychicUses,
+    TilesExplored,
+    NpcsTalked,
+    DamageTakenTotal(u32),
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct PlayerState {
     pub name: String,
@@ -51,6 +84,10 @@ pub struct PlayerState {
 
     // Combat tracking
     pub last_damage_dealt: u32,
+    // Activity counters for adaptation weighting
+    pub activity: ActivityCounters,
+    // Tracks which adaptation tiers have already triggered a choice (0-indexed: tier 1=0, tier 2=1, etc.)
+    pub adaptation_tiers_triggered: Vec<u8>,
 }
 
 impl Default for PlayerState {
@@ -91,6 +128,8 @@ impl PlayerState {
             void_system: super::void_energy::VoidSystem::default(),
             crystal_system: super::crystal_resonance::CrystalSystem::default(),
             last_damage_dealt: 0,
+            activity: ActivityCounters::default(),
+            adaptation_tiers_triggered: Vec::new(),
         }
     }
 }

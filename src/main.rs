@@ -358,6 +358,12 @@ fn update(state: &mut GameState, action: Action, ui: &mut UiState) -> Option<boo
 }
 
 fn render(frame: &mut Frame, state: &GameState, ui: &mut UiState, renderer: &mut Renderer) {
+    // Adaptation choice — highest priority, overlays everything
+    if ui.adaptation_choice_menu.active {
+        use saltglass_steppe::ui::render_adaptation_choice;
+        render_adaptation_choice(frame, &ui.adaptation_choice_menu, state);
+        return;
+    }
     // Fullscreen menus
     if !ui.aria_interface.response_text.is_empty() {
         ui.aria_interface.render(frame, frame.area());

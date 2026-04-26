@@ -86,6 +86,7 @@ impl MovementSystem {
 
         // Mark NPC as talked to
         state.world.npcs[ni].talked = true;
+        state.player.activity.npcs_talked += 1;
 
         state.meta.discover_npc(&state.world.npcs[ni].id);
         state.check_auto_end_turn();
@@ -304,6 +305,14 @@ pub fn dispatch_move(state: &mut crate::game::state::GameState, dx: i32, dy: i32
             state.update_lighting();
             MovementSystem::pickup_items(state);
             let tile = state.world.map.get(state.player.x, state.player.y).cloned();
+            // Track activity counters
+            let pos_idx = state.world.map.idx(state.player.x, state.player.y);
+            if !state.revealed.contains(&pos_idx) {
+                state.player.activity.tiles_explored += 1;
+            }
+            if matches!(tile, Some(crate::game::map::Tile::Glass)) {
+                state.player.activity.glass_tiles_walked += 1;
+            }
             if let Some(t) = tile {
                 MovementSystem::handle_world_transition(state, &t, state.player.x, state.player.y);
             }

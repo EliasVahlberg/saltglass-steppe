@@ -527,6 +527,8 @@ pub struct PlayerSetup {
     #[serde(default)]
     pub xp: Option<u32>,
     #[serde(default)]
+    pub refraction: Option<u32>,
+    #[serde(default)]
     pub inventory: Vec<String>,
     #[serde(default)]
     pub adaptations: Vec<String>,
@@ -856,6 +858,9 @@ impl Scenario {
         if self.player.xp.is_none() {
             self.player.xp = base.player.xp;
         }
+        if self.player.refraction.is_none() {
+            self.player.refraction = base.player.refraction;
+        }
         if self.player.inventory.is_empty() {
             self.player.inventory = base.player.inventory;
         }
@@ -1022,6 +1027,9 @@ impl DesExecutor {
         }
         if let Some(scrip) = scenario.player.salt_scrip {
             state.player.salt_scrip = scrip;
+        }
+        if let Some(refraction) = scenario.player.refraction {
+            state.player.refraction = refraction;
         }
         if !scenario.player.inventory.is_empty() {
             state.player.inventory.clear();
@@ -1243,6 +1251,15 @@ impl DesExecutor {
         self
     }
 
+    /// In DES mode, automatically confirm any pending adaptation choice by picking the first option.
+    fn auto_confirm_adaptation_choice(&mut self) {
+        if let Some(choices) = self.state.pending_ui.adaptation_choice.take()
+            && let Some(id) = choices.first()
+                && let Some(adaptation) = crate::game::adaptation::Adaptation::from_id(id) {
+                    self.state.player.adaptations.push(adaptation);
+                }
+    }
+
     fn capture_snapshot(&mut self) {
         if self.capture_snapshots {
             self.snapshots.push(StateSnapshot {
@@ -1269,6 +1286,8 @@ impl DesExecutor {
             for scheduled in &scenario.actions {
                 if scheduled.turn == current_turn {
                     self.execute_action(&scheduled.action, &scheduled.actor);
+                    // DES auto-confirms adaptation choices (picks first option)
+                    self.auto_confirm_adaptation_choice();
                     self.capture_snapshot();
                     self.action_index += 1;
                 }
@@ -2311,6 +2330,7 @@ where
         for scheduled in &scenario.actions {
             if scheduled.turn == current_turn {
                 executor.execute_action(&scheduled.action, &scheduled.actor);
+                executor.auto_confirm_adaptation_choice();
 
                 // Render after each action
                 let log = ExecutionLog {

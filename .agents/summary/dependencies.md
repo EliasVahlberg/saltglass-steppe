@@ -1,98 +1,127 @@
 # Dependencies
 
-## Runtime Dependencies
+<!-- Generated: 2026-04-06 | tags: dependencies, crates, external -->
 
-### UI & Terminal
-| Crate | Version | Purpose |
-|-------|---------|---------|
-| `ratatui` | 0.28 | TUI framework — multi-panel layouts, widgets |
-| `crossterm` | 0.28 | Cross-platform terminal backend |
-
-### Data & Serialization
-| Crate | Version | Purpose |
-|-------|---------|---------|
-| `serde` | 1.0 | Serialization framework (with `derive` feature) |
-| `serde_json` | 1.0 | JSON parsing for data files and saves |
-| `ron` | 0.8 | Rusty Object Notation for some config files |
-| `jsonschema` | 0.17 | JSON schema validation at data load time |
-| `schemars` | 0.8 | Auto-generate JSON schemas from Rust types (with `derive` feature) |
-
-### Procedural Generation
-| Crate | Version | Purpose |
-|-------|---------|---------|
-| `terrain-forge` | 0.7.0 | 2D procedural terrain generation (exclusive terrain backend) |
-| `bracket-noise` | 0.8.7 | Perlin/simplex noise for terrain variation |
-| `bracket-pathfinding` | 0.8 | A* pathfinding for enemies and connectivity |
-| `bracket-geometry` | 0.8.7 | Geometric utilities (line drawing, distance) |
-| `bracket-algorithm-traits` | 0.8.7 | Trait definitions for bracket-lib integration |
-
-### RNG
-| Crate | Version | Purpose |
-|-------|---------|---------|
-| `rand` | 0.8 | Random number generation traits |
-| `rand_chacha` | 0.3 | ChaCha8Rng — deterministic, seedable RNG |
-
-### Utilities
-| Crate | Version | Purpose |
-|-------|---------|---------|
-| `once_cell` | 1.0 | Lazy static initialization (behavior registry, data caches) |
-| `rayon` | 1.11 | Data parallelism (used in generation) |
-| `textwrap` | 0.16 | Text wrapping for UI panels |
-| `chrono` | 0.4 | Date/time for save file metadata (with `serde` feature) |
-| `clap` | 4.0 | CLI argument parsing (with `derive` feature) |
-| `which` | 6.0 | Terminal emulator detection for satellite windows |
-| `image` | 0.25 | Image processing (map exports) |
-| `smallvec` | 1.15 | Stack-allocated vectors for performance-sensitive paths |
-| `md5` | 0.8 | Save file checksum computation |
-
-### VERA
-| Crate | Version | Purpose |
-|-------|---------|---------|
-| `vera-effects` | 0.1 | RuleOutput type definition for VERA pattern |
-
-## Dependency Graph (Key Relationships)
+## Dependency Graph
 
 ```mermaid
 graph TB
-    subgraph "Core"
-        SERDE["serde + serde_json"]
-        RAND["rand + rand_chacha"]
+    subgraph UI["UI & Terminal"]
+        RATATUI[ratatui 0.28]
+        CROSSTERM[crossterm 0.28]
     end
 
-    subgraph "UI"
-        RATATUI["ratatui"]
-        CROSS["crossterm"]
-        RATATUI --> CROSS
+    subgraph Proc["Procedural Generation"]
+        TF[terrain-forge 0.7.0]
+        BN[bracket-noise 0.8.7]
+        BP[bracket-pathfinding 0.8]
+        BG[bracket-geometry 0.8.7]
+        BAT[bracket-algorithm-traits 0.8.7]
     end
 
-    subgraph "Generation"
-        TF["terrain-forge"]
-        BN["bracket-noise"]
-        BP["bracket-pathfinding"]
-        BG["bracket-geometry"]
+    subgraph Data["Serialization & Validation"]
+        SERDE[serde 1.0]
+        SJ[serde_json 1.0]
+        RON[ron 0.8]
+        JS[jsonschema 0.17]
+        SCHEM[schemars 0.8]
     end
 
-    subgraph "Data"
-        JS["jsonschema"]
-        SC["schemars"]
+    subgraph RNG_G["Determinism"]
+        RAND[rand 0.8]
+        RC[rand_chacha 0.3]
     end
 
-    GS["GameState"] --> SERDE
-    GS --> RAND
-    GS --> BP
-    GEN["Generation"] --> TF
-    GEN --> BN
-    GEN --> BG
-    GEN --> RAND
-    DL["DataLoader"] --> SERDE
-    DL --> JS
-    DL --> SC
-    MAIN["main.rs"] --> RATATUI
+    subgraph Util["Utilities"]
+        CLAP[clap 4.0]
+        CHRONO[chrono 0.4]
+        OC[once_cell 1.0]
+        RAYON[rayon 1.11]
+        TW[textwrap 0.16]
+        WHICH[which 6.0]
+        IMG[image 0.25]
+        SV[smallvec 1.15]
+        MD5[md5 0.8]
+    end
+
+    subgraph Arch["Architecture"]
+        VERA[vera-effects 0.1]
+    end
+
+    RATATUI --> CROSSTERM
+    TF --> BN
+    BP --> BAT
+    BG --> BAT
 ```
 
-## Notable Dependency Patterns
+## Dependency Details
 
-- **terrain-forge is the exclusive terrain backend**: All procedural terrain generation goes through `terrain_forge_adapter.rs`. Dead custom algorithms (BSP, maze, voronoi, WFC) exist but are unused.
-- **bracket-pathfinding for A***: Used by enemy AI and connectivity analysis. `Map` implements `BaseMap` trait.
-- **Deterministic RNG everywhere**: `ChaCha8Rng` is the only RNG used. Never use `thread_rng()` or `OsRng`.
-- **schemars for schema generation**: Run `cargo run --bin schema_gen` after changing data struct definitions to regenerate `schemas/`.
+### UI & Terminal
+
+| Crate | Version | Usage |
+|-------|---------|-------|
+| `ratatui` | 0.28 | TUI framework — multi-panel layouts, widgets, styled text. Used by all `ui/` modules and `renderer/` |
+| `crossterm` | 0.28 | Terminal backend — raw mode, event polling, cursor control. Used by `main.rs` for terminal setup |
+
+### Procedural Generation
+
+| Crate | Version | Usage |
+|-------|---------|-------|
+| `terrain-forge` | 0.7.0 | 2D procedural terrain generation. Primary algorithm provider for tile maps via `terrain_forge_adapter.rs`. Supports cellular automata, BSP, rooms, noise-based generation |
+| `bracket-pathfinding` | 0.8 | A* pathfinding for AI movement, auto-explore, road generation. Also provides shadowcasting FOV |
+| `bracket-noise` | 0.8.7 | Perlin/simplex noise for terrain variation, biome blending |
+| `bracket-geometry` | 0.8.7 | Geometric utilities — Point, Rect, line-of-sight, distance calculations |
+| `bracket-algorithm-traits` | 0.8.7 | Trait definitions shared by bracket-* crates (BaseMap, Algorithm2D) |
+
+### Serialization & Validation
+
+| Crate | Version | Usage |
+|-------|---------|-------|
+| `serde` | 1.0 (derive) | Serialization framework — `#[derive(Serialize, Deserialize)]` on all data types |
+| `serde_json` | 1.0 | JSON parsing for `data/*.json` content files and DES scenarios |
+| `ron` | 0.8 | RON format for save files (`saves/*.ron`) and meta-progress |
+| `jsonschema` | 0.17 | Runtime JSON schema validation in `DataLoader` — validates data files against `schemas/*_v1.json` |
+| `schemars` | 0.8 (derive) | JSON schema generation from Rust types — `cargo run --bin schema_gen` produces `schemas/` |
+
+### Determinism
+
+| Crate | Version | Usage |
+|-------|---------|-------|
+| `rand` | 0.8 | RNG traits and distributions. All randomness goes through seeded RNG |
+| `rand_chacha` | 0.3 | `ChaCha8Rng` — cryptographic-quality PRNG with deterministic output from seed. Core to the determinism guarantee |
+
+### Architecture
+
+| Crate | Version | Usage |
+|-------|---------|-------|
+| `vera-effects` | 0.1 | Provides `RuleOutput<E, P>` type used by rule functions. Lightweight architecture support crate |
+
+### Utilities
+
+| Crate | Version | Usage |
+|-------|---------|-------|
+| `clap` | 4.0 (derive) | CLI argument parsing — `--log-ui`, `--status-ui`, `--inventory-ui` modes in `cli.rs` |
+| `chrono` | 0.4 (serde) | Date/time for save file timestamps and local time formatting |
+| `once_cell` | 1.0 | Lazy static initialization for data caches (enemy defs, item defs, etc.) |
+| `rayon` | 1.11 | Data parallelism — used in generation pipeline for parallel constraint validation |
+| `textwrap` | 0.16 | Text wrapping for UI panels, dialogue boxes, book reader |
+| `which` | 6.0 | Terminal emulator detection for multi-terminal IPC spawning |
+| `image` | 0.25 | Image processing for map export functionality |
+| `smallvec` | 1.15 | Stack-allocated vectors for hot paths (particle systems, spatial queries) |
+| `md5` | 0.8 | Save file integrity checksums |
+
+### Dev Dependencies
+
+| Crate | Version | Usage |
+|-------|---------|-------|
+| `tempfile` | 3.24 | Temporary directories for save/load round-trip tests |
+
+## Dependency Relationships
+
+Key integration points where external crates shape the architecture:
+
+- **terrain-forge** → `terrain_forge_adapter.rs`: The adapter translates between terrain-forge's output format and the game's `Tile` type. Biome profiles in `terrain_config.json` configure which terrain-forge algorithms to use per biome.
+- **bracket-pathfinding** → `map.rs`, `systems/ai.rs`, `auto_explore.rs`: Map implements `BaseMap` and `Algorithm2D` traits for A* and FOV. AI uses A* for enemy pathfinding.
+- **serde + ron** → `save.rs`: GameState serialization uses RON format. All game data types derive `Serialize`/`Deserialize`.
+- **jsonschema + schemars** → `data_loader.rs`, `bin/schema_gen.rs`: Schema generation from Rust types, runtime validation at data load time.
+- **rand_chacha** → `state.rs`, all systems: `ChaCha8Rng` is the single RNG source. Clone-writeback pattern in dispatch ensures determinism.

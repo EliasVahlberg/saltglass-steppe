@@ -1,5 +1,6 @@
 //! UI components
 
+pub mod adaptation_choice_menu;
 pub mod aria_interface;
 pub mod book_reader;
 pub mod chest_ui;
@@ -24,6 +25,7 @@ pub mod void_menu;
 pub mod wiki;
 pub mod world_map;
 
+pub use adaptation_choice_menu::{AdaptationChoiceMenu, render_adaptation_choice};
 pub use aria_interface::AriaInterface;
 pub use book_reader::render_book_reader;
 pub use chest_ui::{ChestPanel, ChestUI, render_chest_ui};

@@ -4,6 +4,7 @@ use crate::game::{
     effects::context::QueryContext,
     event::GameEvent,
     mutations::Mutation,
+    player_state::ActivityField,
     progression::{max_level, stat_points_per_level, xp_for_level},
     state::{GameState, MsgType},
 };
@@ -115,7 +116,11 @@ pub fn handle_melee(
             out.extend(xp_mutations(ctx.player.xp, ctx.player.level,
                                     ctx.player.pending_stat_points,
                                     ctx.player.skills.skill_points, def.xp_value));
+            if def.xp_value >= 50 {
+                out.push(Mutation::IncrementActivity(ActivityField::EliteEnemiesKilled));
+            }
         }
+        out.push(Mutation::IncrementActivity(ActivityField::EnemiesKilledMelee));
         out.push(Mutation::LogMessage { text: format!("You kill the {}!", name), msg_type: MsgType::Combat });
     } else {
         let crit = if result.crit { " CRITICAL!" } else { "" };
@@ -216,7 +221,11 @@ pub fn handle_ranged(
             out.extend(xp_mutations(ctx.player.xp, ctx.player.level,
                                     ctx.player.pending_stat_points,
                                     ctx.player.skills.skill_points, def.xp_value));
+            if def.xp_value >= 50 {
+                out.push(Mutation::IncrementActivity(ActivityField::EliteEnemiesKilled));
+            }
         }
+        out.push(Mutation::IncrementActivity(ActivityField::EnemiesKilledRanged));
         out.push(Mutation::LogMessage {
             text: format!("You kill the {} with a ranged shot!", name),
             msg_type: MsgType::Combat,

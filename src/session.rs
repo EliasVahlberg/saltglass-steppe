@@ -41,6 +41,9 @@ pub fn run_game_session(
             ui.dialog_box.tick(16);
         }
 
+        if let Some(choices) = state.pending_ui.adaptation_choice.take() {
+            ui.adaptation_choice_menu.open(choices);
+        }
         if let Some((speaker, text)) = state.pending_ui.dialogue.take() {
             ui.dialog_box.show(&speaker, &text);
         }

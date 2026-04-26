@@ -283,6 +283,7 @@ pub struct UiState {
     pub pause_menu: PauseMenu,
     pub wiki_menu: WikiMenu,
     pub trade_menu: TradeMenu,
+    pub adaptation_choice_menu: super::adaptation_choice_menu::AdaptationChoiceMenu,
     pub world_map_view: WorldMapView,
     pub target_enemy: Option<usize>,
     pub debug_console: DebugConsole,
@@ -375,6 +376,7 @@ impl UiState {
             pause_menu: PauseMenu::default(),
             wiki_menu: WikiMenu::default(),
             trade_menu: TradeMenu::default(),
+            adaptation_choice_menu: super::adaptation_choice_menu::AdaptationChoiceMenu::default(),
             world_map_view: WorldMapView::default(),
             target_enemy: None,
             debug_console: DebugConsole::default(),
@@ -541,6 +543,11 @@ pub fn handle_input(ui: &mut UiState, state: &mut GameState) -> Result<Action> {
         // Issue reporter input
         if ui.issue_reporter.active {
             return Ok(handle_issue_reporter_input(ui, key.code));
+        }
+
+        // Adaptation choice menu — highest priority, blocks all other input
+        if ui.adaptation_choice_menu.active {
+            return Ok(handle_adaptation_choice_input(ui, state, key.code));
         }
 
         // Psychic menu input
@@ -1222,6 +1229,23 @@ fn handle_skills_menu_input(ui: &mut UiState, state: &mut GameState, code: KeyCo
                 state.log(e);
             }
         }
+        _ => {}
+    }
+    Action::None
+}
+
+fn handle_adaptation_choice_input(ui: &mut UiState, state: &mut GameState, key: KeyCode) -> Action {
+    match key {
+        KeyCode::Left  => ui.adaptation_choice_menu.navigate(-1),
+        KeyCode::Right => ui.adaptation_choice_menu.navigate(1),
+        KeyCode::Enter => {
+            if let Some(id) = ui.adaptation_choice_menu.confirm()
+                && let Some(adaptation) = crate::game::adaptation::Adaptation::from_id(&id) {
+                    state.player.adaptations.push(adaptation);
+                    state.log(format!("⬡ You gain: {}!", adaptation.name()));
+                }
+        }
+        // Escape intentionally does nothing — choice is mandatory
         _ => {}
     }
     Action::None

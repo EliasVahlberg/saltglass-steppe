@@ -24,17 +24,104 @@ pub struct AdaptationEffect {
     pub ability: Option<String>,
 }
 
+/// Which playstyle category an adaptation belongs to.
+/// Used for activity-weighted pool selection.
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
+#[serde(rename_all = "snake_case")]
+pub enum AdaptationCategory {
+    Survival,
+    Predator,
+    Precision,
+    Artificer,
+}
+
+impl AdaptationCategory {
+    pub fn display_name(&self) -> &str {
+        match self {
+            Self::Survival  => "Survival",
+            Self::Predator  => "Predator",
+            Self::Precision => "Precision",
+            Self::Artificer => "Artificer",
+        }
+    }
+}
+
+/// How visible the adaptation is to NPCs and factions.
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "snake_case")]
+pub enum FactionVisibility {
+    Low,
+    Moderate,
+    High,
+    Extreme,
+}
+
+impl FactionVisibility {
+    pub fn display_name(&self) -> &str {
+        match self {
+            Self::Low      => "Low",
+            Self::Moderate => "Moderate",
+            Self::High     => "High",
+            Self::Extreme  => "Extreme",
+        }
+    }
+}
+
+/// Condition that must be met for this adaptation to appear in the choice pool.
+#[derive(Clone, Debug, Deserialize, Default)]
+pub struct UnlockCondition {
+    #[serde(default)]
+    pub storms_survived: u32,
+    #[serde(default)]
+    pub enemies_killed_melee: u32,
+    #[serde(default)]
+    pub enemies_killed_ranged: u32,
+    #[serde(default)]
+    pub elite_enemies_killed: u32,
+    #[serde(default)]
+    pub items_crafted: u32,
+    #[serde(default)]
+    pub psychic_uses: u32,
+    #[serde(default)]
+    pub tiles_explored: u32,
+}
+
+impl UnlockCondition {
+    pub fn is_met(&self, activity: &crate::game::player_state::ActivityCounters) -> bool {
+        activity.storms_survived      >= self.storms_survived
+            && activity.enemies_killed_melee  >= self.enemies_killed_melee
+            && activity.enemies_killed_ranged >= self.enemies_killed_ranged
+            && activity.elite_enemies_killed  >= self.elite_enemies_killed
+            && activity.items_crafted         >= self.items_crafted
+            && activity.psychic_uses          >= self.psychic_uses
+            && activity.tiles_explored        >= self.tiles_explored
+    }
+}
+
 #[derive(Clone, Debug, Deserialize)]
 pub struct AdaptationDef {
     pub id: String,
     pub name: String,
     pub description: String,
+    /// Refraction threshold tier (1, 2, or 3). Replaces the old flat `threshold` field.
+    #[serde(default = "default_tier")]
+    pub tier: u8,
+    /// Legacy flat threshold — kept for save compat, ignored by new system.
+    #[serde(default)]
     pub threshold: u32,
+    #[serde(default)]
+    pub category: Option<AdaptationCategory>,
+    #[serde(default)]
+    pub faction_visibility: Option<FactionVisibility>,
+    #[serde(default)]
+    pub unlock_condition: UnlockCondition,
     #[serde(default)]
     pub stat_modifiers: StatModifiers,
     #[serde(default)]
     pub effects: Vec<AdaptationEffect>,
 }
+
+fn default_tier() -> u8 { 1 }
 
 #[derive(Deserialize)]
 struct AdaptationsFile {
@@ -62,10 +149,18 @@ pub fn all_adaptation_ids() -> Vec<&'static str> {
 /// Legacy enum for backward compatibility with save files
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Adaptation {
+    // Current adaptations
     Prismhide,
     Sunveins,
     MirageStep,
     Saltblood,
+    StormDrinker,
+    KillingEdge,
+    LensEye,
+    SaltSense,
+    ScarLattice,
+    BoneSpur,
+    // Legacy variants — kept for save file compatibility, no longer in data
     QuantumEntanglement,
     PhaseWalking,
     StormAffinity,
@@ -77,31 +172,43 @@ pub enum Adaptation {
 impl Adaptation {
     pub fn from_id(id: &str) -> Option<Self> {
         match id {
-            "prismhide" => Some(Self::Prismhide),
-            "sunveins" => Some(Self::Sunveins),
-            "mirage_step" => Some(Self::MirageStep),
-            "saltblood" => Some(Self::Saltblood),
-            "quantum_entanglement" => Some(Self::QuantumEntanglement),
-            "phase_walking" => Some(Self::PhaseWalking),
-            "storm_affinity" => Some(Self::StormAffinity),
-            "collective_interface" => Some(Self::CollectiveInterface),
-            "archive_resonance" => Some(Self::ArchiveResonance),
-            "crystalline_consciousness" => Some(Self::CrystallineConsciousness),
+            "prismhide"                  => Some(Self::Prismhide),
+            "sunveins"                   => Some(Self::Sunveins),
+            "mirage_step"                => Some(Self::MirageStep),
+            "saltblood"                  => Some(Self::Saltblood),
+            "storm_drinker"              => Some(Self::StormDrinker),
+            "killing_edge"               => Some(Self::KillingEdge),
+            "lens_eye"                   => Some(Self::LensEye),
+            "salt_sense"                 => Some(Self::SaltSense),
+            "scar_lattice"               => Some(Self::ScarLattice),
+            "bone_spur"                  => Some(Self::BoneSpur),
+            "quantum_entanglement"       => Some(Self::QuantumEntanglement),
+            "phase_walking"              => Some(Self::PhaseWalking),
+            "storm_affinity"             => Some(Self::StormAffinity),
+            "collective_interface"       => Some(Self::CollectiveInterface),
+            "archive_resonance"          => Some(Self::ArchiveResonance),
+            "crystalline_consciousness"  => Some(Self::CrystallineConsciousness),
             _ => None,
         }
     }
 
     pub fn id(&self) -> &str {
         match self {
-            Self::Prismhide => "prismhide",
-            Self::Sunveins => "sunveins",
-            Self::MirageStep => "mirage_step",
-            Self::Saltblood => "saltblood",
-            Self::QuantumEntanglement => "quantum_entanglement",
-            Self::PhaseWalking => "phase_walking",
-            Self::StormAffinity => "storm_affinity",
-            Self::CollectiveInterface => "collective_interface",
-            Self::ArchiveResonance => "archive_resonance",
+            Self::Prismhide                => "prismhide",
+            Self::Sunveins                 => "sunveins",
+            Self::MirageStep               => "mirage_step",
+            Self::Saltblood                => "saltblood",
+            Self::StormDrinker             => "storm_drinker",
+            Self::KillingEdge              => "killing_edge",
+            Self::LensEye                  => "lens_eye",
+            Self::SaltSense                => "salt_sense",
+            Self::ScarLattice              => "scar_lattice",
+            Self::BoneSpur                 => "bone_spur",
+            Self::QuantumEntanglement      => "quantum_entanglement",
+            Self::PhaseWalking             => "phase_walking",
+            Self::StormAffinity            => "storm_affinity",
+            Self::CollectiveInterface      => "collective_interface",
+            Self::ArchiveResonance         => "archive_resonance",
             Self::CrystallineConsciousness => "crystalline_consciousness",
         }
     }

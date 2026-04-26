@@ -7,7 +7,12 @@ use crate::game::{
 
 pub fn handle_use_item(item_index: usize, ctx: &crate::game::effects::context::QueryContext) -> Vec<Mutation> {
     use crate::game::rules::item::rule_use_item;
-    crate::game::systems::rule_output_to_mutations(rule_use_item(item_index, ctx), msg_type_from_str)
+    use crate::game::player_state::ActivityField;
+    let mut mutations = crate::game::systems::rule_output_to_mutations(rule_use_item(item_index, ctx), msg_type_from_str);
+    if !mutations.is_empty() {
+        mutations.push(Mutation::IncrementActivity(ActivityField::ItemsUsed));
+    }
+    mutations
 }
 
 pub fn handle_use_item_on_tile(item_index: usize, x: i32, y: i32,

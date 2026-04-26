@@ -1,10 +1,8 @@
 # Data Models
 
-## Core State Structs
+<!-- Generated: 2026-04-06 | tags: data-models, structs, enums, state -->
 
-### GameState (`src/game/state.rs`)
-
-Top-level game state container:
+## GameState (Central Hub)
 
 ```mermaid
 classDiagram
@@ -13,13 +11,19 @@ classDiagram
         +WorldState world
         +NarrativeEngine narrative
         +SpatialIndex spatial
-        +Trace trace
+        +DebugState debug
         +ChaCha8Rng rng
         +u32 turn
-        +Vec~Decoy~ decoys
+        +u32 wait_counter
         +HashSet~usize~ visible
+        +HashSet~usize~ revealed
+        +Vec~GameMessage~ messages
+        +Vec~TriggeredEffect~ active_effects
+        +Vec~Decoy~ decoys
+        +MapFeatures map_features
         +PendingUi pending_ui
-        +DebugState debug
+        +dispatch(Command)
+        +apply_mutations(Vec~Mutation~) Vec~StateTransition~
     }
 
     class PlayerState {
@@ -27,15 +31,14 @@ classDiagram
         +i32 hp, max_hp
         +i32 ap, max_ap
         +u32 xp, level
-        +u32 refraction
         +u32 salt_scrip
+        +u32 refraction
         +Vec~String~ inventory
         +Equipment equipment
         +Vec~Adaptation~ adaptations
+        +Vec~StatusEffect~ status_effects
         +SkillsState skills
         +PsychicState psychic
-        +HashMap~String,i32~ faction_reputation
-        +Vec~StatusEffect~ status_effects
     }
 
     class WorldState {
@@ -44,228 +47,166 @@ classDiagram
         +Vec~Enemy~ enemies
         +Vec~Npc~ npcs
         +Vec~Item~ items
-        +Vec~Interactable~ interactables
         +Vec~Chest~ chests
-        +Storm storm
+        +Vec~Interactable~ interactables
+        +u8 time_of_day
         +Weather weather
-        +VisualEffects visual_effects
+        +Storm storm
         +Option~EncounterState~ encounter_state
         +usize world_x, world_y
         +i32 layer
     }
 
+    class NarrativeEngine {
+        +QuestLog quest_log
+        +StoryModel story_model
+        +WorldHistory world_history
+    }
+
     GameState --> PlayerState
     GameState --> WorldState
     GameState --> NarrativeEngine
-    GameState --> SpatialIndex
 ```
-
-### SpatialIndex
-
-```rust
-pub struct SpatialIndex {
-    pub enemy_positions: HashMap<(i32, i32), usize>,
-    pub npc_positions: HashMap<(i32, i32), usize>,
-    pub item_positions: HashMap<(i32, i32), Vec<usize>>,
-}
-```
-
-Rebuilt after state mutations via `rebuild_spatial_index()`.
 
 ## Entity Models
 
-### Enemy (`src/game/enemy.rs`)
+### Enemy
 
-```mermaid
-classDiagram
-    class Enemy {
-        +i32 x, y
-        +i32 hp
-        +String id
-        +bool ai_disabled
-        +Vec~StatusEffect~ status_effects
-        +Option~String~ swarm_id
-        +u32 spawned_count
-        +u32 last_spawn_turn
-        +Option~(i32,i32)~ aoe_target
-        +u32 aoe_warning_turns
-    }
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `String` | References `data/enemies/*.json` |
+| `x`, `y` | `i32` | Map position |
+| `hp`, `max_hp` | `i32` | Health |
+| `status_effects` | `Vec<StatusEffect>` | Active effects |
+| `provoked` | `bool` | Aggro state |
 
-    class EnemyDef {
-        +String id, name
-        +i32 max_hp
-        +i32 damage_min, damage_max
-        +i32 sight_range, attack_range
-        +bool ranged_attack, aoe_attack
-        +i32 aoe_radius
-        +String behavior_id
-        +AIDemeanor demeanor
-        +Vec~Behavior~ behaviors
-        +Vec~LootEntry~ loot
-        +Vec~String~ spawn_types
-        +bool swarm
-    }
+Defined by `EnemyDef` in data: `glyph`, `behavior` (StandardMelee/RangedOnly/Healer/SuicideBomber), `demeanor` (Aggressive/Defensive/Neutral), `faction`, `loot`, `xp_value`, `sight_range`. Split across `data/enemies/{common,uncommon,rare,elite,boss}.json`.
 
-    Enemy --> EnemyDef : def()
-```
+### Npc
 
-### NPC (`src/game/npc.rs`)
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `String` | References `data/npcs.json` |
+| `x`, `y` | `i32` | Map position |
+| `hp`, `max_hp` | `i32` | Health |
 
-Data-driven via `data/npcs.json`. Has dialogue trees, actions, backstory. Implements `Entity` trait (hp, position, status effects).
+Defined by `NpcDef`: `glyph`, `dialogue`, `backstory`, `available_actions` (trade, quest, dialogue, craft).
 
-### Item (`src/game/item.rs`)
+### Item
 
-```rust
-pub struct Item { pub x: i32, pub y: i32, pub id: String }
-pub struct ItemDef {
-    pub id: String, pub name: String, pub glyph: char,
-    pub usable: bool, pub consumable: bool,
-    pub heal: i32, pub reduces_refraction: i32,
-    pub reveals_map: bool,
-    pub light_energy: u32, pub void_energy: u32, pub resonance_energy: u32,
-    pub book_id: Option<String>,
-    // weapon stats, tier, effects...
-}
-```
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `String` | References `data/items.json` |
+| `x`, `y` | `i32` | Map position (when on ground) |
+
+Defined by `ItemDef`: `glyph`, `tier`, `consumable`, `pickup`, `effects` (heal, damage, reveal, status), `light_source`, `equip_slot`.
 
 ## Map Models
 
-### Map (`src/game/map.rs`)
+### Map
 
-```rust
-pub struct Map {
-    pub tiles: Vec<Tile>,
-    pub width: usize,
-    pub height: usize,
-    pub inscriptions: Vec<MapInscription>,
-    pub lights: Vec<MapLight>,
-    pub features: Vec<MapFeature>,
-}
+| Field | Type | Description |
+|-------|------|-------------|
+| `width`, `height` | `usize` | Dimensions |
+| `tiles` | `Vec<Tile>` | Flat grid (row-major) |
+| `inscriptions` | `Vec<MapInscription>` | Discoverable text |
+| `lights` | `Vec<MapLight>` | Static light sources |
 
-pub enum Tile {
-    Floor { wall_type: String },
-    Wall { wall_type: String },
-    Glass,
-    Glare,
-    Water,
-    Door,
-    StairsDown,
-    StairsUp,
-    // ...
-}
-```
+### Tile
 
-Implements `bracket_pathfinding::BaseMap` for A* pathfinding.
+| Field | Type | Description |
+|-------|------|-------------|
+| `glyph` | `char` | Display character |
+| `walkable` | `bool` | Movement allowed |
+| `transparent` | `bool` | FOV passes through |
+| `name` | `String` | Tile type name |
+| `wall_hp` | `Option<i32>` | Breakable walls |
 
-### WorldMap (`src/game/world_map.rs`)
+### WorldMap
 
-```rust
-pub struct WorldMap {
-    pub tiles: Vec<Vec<WorldTile>>,  // 2D grid
-    pub width: usize,
-    pub height: usize,
-}
-// WorldTile has: Biome, Terrain, Option<POI>, Resources, faction territory
-```
+Grid of world tiles with `Biome`, `Terrain`, `POI`, `Resources`, faction territories, and road connections.
 
-## Quest Models (`src/game/quest.rs`)
+## Effect & Mutation Enums
 
-```mermaid
-classDiagram
-    class QuestDef {
-        +String id, name, description
-        +Vec~Objective~ objectives
-        +QuestReward reward
-        +QuestCriteria criteria
-    }
+### Effect Domains (7)
 
-    class Objective {
-        +String id, description
-        +ObjectiveType objective_type
-        +u32 required_count
-    }
+| Domain | Key Variants |
+|--------|-------------|
+| `PlayerEffect` | Heal, TakeDamage, SpendAp, SetPosition, GainXp, RunAI, TickSubsystems |
+| `CombatEffect` | DealDamage, Miss, Kill, Provoke, StunEnemy |
+| `ItemEffect` | Consume, Equip, Unequip, AddToInventory, SpawnOnMap |
+| `MapEffect` | RevealAll, DamageWall, TickStorm, AdvanceTime, SetWeather |
+| `ResourceEffect` | GainLightEnergy, GainVoidEnergy, GainResonanceEnergy |
+| `EventEffect` | OpenBook, LootDrop, QuestNotify |
+| `QuestEffect` | Accept, Complete, SetFactionAlignment |
 
-    class ObjectiveType {
-        <<enumeration>>
-        Kill
-        Collect
-        Reach
-        Talk
-        Examine
-        Interact
-        Explore
-    }
+### Mutation Categories (~70 variants)
 
-    class ActiveQuest {
-        +String quest_id
-        +Vec~ObjectiveProgress~ progress
-        +bool completed
-    }
+| Category | Examples |
+|----------|---------|
+| Player vitals | `SetPlayerHp`, `SetPlayerAp`, `SetPlayerPosition` |
+| Player progression | `SetPlayerXp`, `SetPlayerLevel`, `SetPlayerSaltScrip` |
+| Player state | `AddAdaptation`, `AddStatusEffect`, `Equip`, `Unequip` |
+| Inventory | `AddToInventory`, `RemoveFromInventory`, `SpawnItemOnMap` |
+| Enemies | `SetEnemyHp`, `RemoveEnemy`, `SpawnEnemy`, `StunEnemy` |
+| World | `SetTimeOfDay`, `SetWeather`, `AdvanceTurn`, `SetWorldPosition` |
+| Map | `SetTile`, `RevealTile`, `RevealAll`, `DamageWall` |
+| Encounter | `SetEncounterState`, `SetLastFleeAttempt` |
+| Faction/Quest | `SetReputation`, `AcceptQuest`, `CompleteQuest`, `QuestNotify` |
+| Resources | `SetLightEnergy`, `AddVoidEnergy`, `SetResonanceEnergy` |
+| Presentation | `LogMessage`, `HitFlash`, `DamageNumber`, `SpawnProjectile` |
+| Bridge | `MovePlayer`, `EndTurn`, `WorldMove`, `RestTick`, `TickSubsystem` |
 
-    QuestDef --> Objective
-    Objective --> ObjectiveType
-    ActiveQuest --> QuestDef : def()
-```
-
-## Combat Models (`src/game/combat.rs`)
-
-```rust
-pub struct WeaponDef {
-    pub id: String, pub name: String,
-    pub damage_min: i32, pub damage_max: i32,
-    pub accuracy: i32, pub ap_cost: i32,
-    pub range: i32,
-}
-
-pub enum CombatResult { Hit { damage: i32 }, Miss, Kill }
-```
-
-Hit chance: `base_accuracy + weapon_accuracy + skill_bonus - enemy_evasion`, clamped 5%–95%.
-Damage: `roll(min..=max) + strength_bonus - armor`, minimum 1.
-
-## Storm Models (`src/game/storm.rs`)
-
-```rust
-pub struct Storm {
-    pub intensity: u8,        // 1-10
-    pub countdown: u32,       // turns until storm fires
-    pub edit_types: Vec<StormEditType>,
-}
-
-pub enum StormEditType {
-    Glass, Rotate, Swap, Mirror, Fracture, Crystallize, Vortex
-}
-```
-
-## Status Effects (`src/game/status.rs`)
-
-```rust
-pub struct StatusEffect {
-    pub id: String,
-    pub remaining_turns: i32,
-    pub stacks: u32,
-}
-// Effects: poison (damage/turn), stun (skip turn), slow (AP penalty), etc.
-```
-
-## Data File Cross-References
+## Data Files (JSON)
 
 ```mermaid
-graph LR
-    ITEMS["items.json"] --> TRADERS["traders.json"]
-    ITEMS --> LOOT["loot_tables.json"]
-    ITEMS --> RECIPES["recipes.json"]
-    ENEMIES["enemies/*.json"] --> SPAWN["biome_spawn_tables.json"]
-    ENEMIES --> LOOT
-    NPCS["npcs.json"] --> DIALOGUES["dialogues.json"]
-    NPCS --> QUESTS["quests.json"]
-    STRUCTURES["structures.json"] --> MAPEL["map_elements.json"]
-    QUESTS --> MAINQ["main_questline.json"]
+graph TB
+    subgraph Content["Game Content"]
+        ITEMS[items.json]
+        ENEMIES[enemies/*.json]
+        NPCS[npcs.json]
+        QUESTS[quests.json]
+        MAINQ[main_questline.json]
+        DIALOGUES[dialogues.json]
+        BOOKS[books.json]
+    end
+
+    subgraph Config["Configuration"]
+        TERRAIN[terrain_config.json]
+        BIOME_SPAWN[biome_spawn_tables.json]
+        LOOT[loot_tables.json]
+        FACTIONS[factions.json]
+        STORM[storm_config.json]
+        TRAVEL[travel_config.json]
+    end
+
+    subgraph Systems["System Data"]
+        SKILLS[skill_trees.json]
+        ABILITIES[abilities.json]
+        ADAPTATIONS[adaptations.json]
+        RECIPES[recipes.json]
+        WEAPONS[weapons.json]
+        EFFECTS_D[effects.json]
+    end
+
+    subgraph Visual["Visual/UI"]
+        RENDER[render_config.json]
+        THEMES[themes.json]
+        KEYBOARD[keyboard_config.json]
+        TUTORIAL[tutorial.json]
+    end
 ```
 
-## Serialization
+### Cross-Reference Map
 
-- Game state: `serde_json` for save files
-- Data files: `serde_json` for JSON, `ron` for RON configs
-- Schemas: `schemars` for auto-generation from Rust types
-- Save format includes MD5 checksum and version number for migration
+| When modifying... | Also check... |
+|-------------------|---------------|
+| `items.json` | `traders.json`, `loot_tables.json`, `recipes.json` |
+| `enemies/*.json` | `biome_spawn_tables.json`, `loot_tables.json` |
+| `npcs.json` | `dialogues.json`, `quests.json` |
+| `structures/` | `map_elements.json` |
+| Rust data types | Run `cargo run --bin schema_gen` to regenerate schemas |
+
+## Save Format
+
+`SaveFile` envelope with version number + serialized `GameState` in RON format. Current version: v1 (with v2 migration for faction reputation). Stored in `saves/` directory with MD5 checksum for integrity.

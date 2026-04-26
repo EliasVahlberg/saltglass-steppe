@@ -6,27 +6,13 @@
     "y": 10,
     "hp": 20,
     "max_hp": 20,
-    "refraction": 0,
+    "refraction": 120,
     "inventory": []
   },
   "entities": [],
   "actions": [
     {
       "turn": 0,
-      "action": {
-        "type": "trigger_storm",
-        "intensity": 3
-      }
-    },
-    {
-      "turn": 1,
-      "action": {
-        "type": "trigger_storm",
-        "intensity": 3
-      }
-    },
-    {
-      "turn": 2,
       "action": {
         "type": "trigger_storm",
         "intensity": 3
@@ -39,9 +25,9 @@
       "check": {
         "type": "refraction",
         "op": "eq",
-        "value": 30
+        "value": 150
       },
-      "message": "First storm: 30 refraction"
+      "message": "Storm brings refraction to 150 (tier 1 threshold)"
     },
     {
       "after_turn": 0,
@@ -50,43 +36,7 @@
         "op": "eq",
         "value": 1
       },
-      "message": "First storm should unlock 1 adaptation (Prismhide at 25)"
-    },
-    {
-      "after_turn": 1,
-      "check": {
-        "type": "refraction",
-        "op": "eq",
-        "value": 60
-      },
-      "message": "Second storm: 60 refraction"
-    },
-    {
-      "after_turn": 1,
-      "check": {
-        "type": "adaptation_count",
-        "op": "eq",
-        "value": 2
-      },
-      "message": "Second storm should unlock 2nd adaptation (Sunveins at 50)"
-    },
-    {
-      "after_turn": 2,
-      "check": {
-        "type": "refraction",
-        "op": "eq",
-        "value": 90
-      },
-      "message": "Third storm: 90 refraction"
-    },
-    {
-      "after_turn": 2,
-      "check": {
-        "type": "adaptation_count",
-        "op": "eq",
-        "value": 3
-      },
-      "message": "Third storm should unlock 3rd adaptation (MirageStep at 75)"
+      "message": "Tier 1 threshold reached: 1 adaptation granted (DES auto-confirms)"
     }
   ]
 }

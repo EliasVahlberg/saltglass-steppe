@@ -107,6 +107,9 @@ pub struct PendingUi {
     pub trade: Option<String>,
     pub dialogue: Option<(String, String)>,
     pub aria_dialogue: Option<(String, Vec<String>)>,
+    /// Adaptation IDs offered to the player at a refraction threshold.
+    /// Set by check_adaptation_threshold; consumed by session.rs to open the choice UI.
+    pub adaptation_choice: Option<Vec<String>>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -204,6 +207,9 @@ impl GameState {
         let success = !output.effects.is_empty();
         let mutations = super::systems::rule_output_to_mutations(output, msg_type_from_str);
         self.apply_mutations(mutations);
+        if success {
+            self.player.activity.items_crafted += 1;
+        }
         success
     }
 
@@ -567,6 +573,22 @@ impl GameState {
                 crate::game::systems::player::apply_status_effect(self, id, *duration);
             }
             Mutation::SetLastDamageDealt(v) => { self.player.last_damage_dealt = *v; }
+            Mutation::IncrementActivity(field) => {
+                use crate::game::player_state::ActivityField::*;
+                match field {
+                    StormsSurvived       => self.player.activity.storms_survived += 1,
+                    GlassTilesWalked     => self.player.activity.glass_tiles_walked += 1,
+                    EnemiesKilledMelee   => self.player.activity.enemies_killed_melee += 1,
+                    EnemiesKilledRanged  => self.player.activity.enemies_killed_ranged += 1,
+                    EliteEnemiesKilled   => self.player.activity.elite_enemies_killed += 1,
+                    ItemsCrafted         => self.player.activity.items_crafted += 1,
+                    ItemsUsed            => self.player.activity.items_used += 1,
+                    PsychicUses          => self.player.activity.psychic_uses += 1,
+                    TilesExplored        => self.player.activity.tiles_explored += 1,
+                    NpcsTalked           => self.player.activity.npcs_talked += 1,
+                    DamageTakenTotal(v)  => self.player.activity.damage_taken_total += v,
+                }
+            }
             Mutation::AllocateStat(stat) => {
                 if self.player.pending_stat_points > 0 {
                     match stat.as_str() {

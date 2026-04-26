@@ -32,10 +32,11 @@
     {
       "after_turn": 0,
       "check": {
-        "type": "player_has_adaptation",
-        "adaptation": "prismhide"
+        "type": "adaptation_count",
+        "op": "eq",
+        "value": 0
       },
-      "message": "Refraction 30 should unlock Prismhide (threshold 25)"
+      "message": "30 refraction is below tier 1 threshold (150) — no adaptation yet"
     }
   ]
 }

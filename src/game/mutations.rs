@@ -1,6 +1,7 @@
 use crate::game::{
     encounter::EncounterState,
     map::Tile,
+    player_state::ActivityField,
     state::MsgType,
     world_state::Weather,
 };
@@ -54,6 +55,7 @@ pub enum Mutation {
     AllocateStat(String),
     SuppressAdaptations { turns: u32 },
     SetPhaseMode(bool),
+    IncrementActivity(ActivityField),
     /// Equipment
     Equip { slot: String, item_id: String },
     Unequip(String),

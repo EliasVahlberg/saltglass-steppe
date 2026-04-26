@@ -36,6 +36,7 @@ impl StormSystem {
 
         let refraction_gain = state.world.storm.intensity as u32 * refraction_multiplier();
         state.player.refraction += refraction_gain;
+        state.player.activity.storms_survived += 1;
         crate::game::systems::player::check_adaptation_threshold(state);
 
         // Clear previous storm changes
