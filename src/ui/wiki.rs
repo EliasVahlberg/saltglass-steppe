@@ -167,8 +167,8 @@ fn get_entries(tab: WikiTab, meta: &MetaProgress) -> Vec<(String, String, bool)>
                 if def.usable {
                     desc.push_str("\n\n[Consumable]");
                 }
-                if def.equip_slot.is_some() {
-                    desc.push_str(&format!("\nSlot: {}", def.equip_slot.as_ref().unwrap()));
+                if let Some(slot) = &def.equip_slot {
+                    desc.push_str(&format!("\nSlot: {}", slot));
                 }
                 Some((def.name.clone(), desc, discovered))
             })

@@ -155,7 +155,7 @@ impl Default for GenerationConfiguration {
                     let mut params = HashMap::new();
                     params.insert(
                         "scale".to_string(),
-                        serde_json::Value::Number(serde_json::Number::from_f64(0.1).unwrap()),
+                        serde_json::Value::Number(serde_json::Number::from_f64(0.1).expect("0.1 is finite")),
                     );
                     params.insert(
                         "octaves".to_string(),
@@ -163,7 +163,7 @@ impl Default for GenerationConfiguration {
                     );
                     params.insert(
                         "persistence".to_string(),
-                        serde_json::Value::Number(serde_json::Number::from_f64(0.5).unwrap()),
+                        serde_json::Value::Number(serde_json::Number::from_f64(0.5).expect("0.5 is finite")),
                     );
                     params
                 },
@@ -218,7 +218,7 @@ mod tests {
         let mut json_params = HashMap::new();
         json_params.insert(
             "scale".to_string(),
-            serde_json::Value::Number(serde_json::Number::from_f64(0.1).unwrap()),
+            serde_json::Value::Number(serde_json::Number::from_f64(0.1).expect("0.1 is finite")),
         );
         json_params.insert(
             "octaves".to_string(),

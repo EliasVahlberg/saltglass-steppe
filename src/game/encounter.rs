@@ -204,7 +204,8 @@ pub fn generate_encounter(
                 cumulative += e.weight;
                 event_roll < cumulative
             })
-            .unwrap();
+            .unwrap_or_else(|| CONFIG.encounter_types.neutral.events.last()
+                .expect("encounter config must have at least one neutral event"));
 
         EncounterType::Neutral {
             event_id: event.id.clone(),

@@ -134,7 +134,7 @@ impl PsychicState {
     pub fn use_ability(&mut self, ability_id: &str) -> Result<String, String> {
         self.can_use_ability(ability_id)?;
 
-        let def = get_ability_def(ability_id).unwrap();
+        let def = get_ability_def(ability_id).ok_or("Unknown ability")?;
         self.coherence -= def.coherence_cost;
         self.cooldowns.insert(ability_id.to_string(), def.cooldown);
 

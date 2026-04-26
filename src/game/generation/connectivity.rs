@@ -315,7 +315,7 @@ fn extract_perimeter(tiles: &[(i32, i32)], _map: &Map) -> Vec<(i32, i32)> {
         perimeter.sort_by(|a, b| {
             let angle_a = (a.1 as f32 - centroid.1).atan2(a.0 as f32 - centroid.0);
             let angle_b = (b.1 as f32 - centroid.1).atan2(b.0 as f32 - centroid.0);
-            angle_a.partial_cmp(&angle_b).unwrap()
+            angle_a.total_cmp(&angle_b)
         });
     }
 
@@ -409,7 +409,7 @@ fn find_exit_point(
             let db = (b.0 as f32 - from.0, b.1 as f32 - from.1);
             let dot_a = da.0 * dir.0 + da.1 * dir.1;
             let dot_b = db.0 * dir.0 + db.1 * dir.1;
-            dot_a.partial_cmp(&dot_b).unwrap()
+            dot_a.total_cmp(&dot_b)
         })
         .copied()
 }
@@ -493,7 +493,7 @@ fn prune_delaunay(edges: &mut Vec<TunnelEdge>, regions: &[Region]) {
             .filter(|r| r.index != region.index)
             .map(|r| (r.index, centroid_distance(region, r)))
             .collect();
-        neighbors.sort_by(|a, b| a.1.partial_cmp(&b.1).unwrap());
+        neighbors.sort_by(|a, b| a.1.total_cmp(&b.1));
 
         for (neighbor_idx, _) in neighbors.into_iter().take(MAX_NEIGHBORS) {
             let key = if region.index < neighbor_idx {
@@ -760,7 +760,7 @@ fn frr_refine(
         for &a in candidates_a {
             for &b in candidates_b {
                 let cost = count_walls_bresenham(map, a, b);
-                if best.is_none() || cost < best.unwrap().2 {
+                if best.is_none_or(|b| cost < b.2) {
                     best = Some((a, b, cost));
                 }
             }
@@ -854,7 +854,7 @@ fn select_tunnels(
                         weight * 1000.0 // Free connection
                     };
 
-                    if best.is_none() || efficiency > best.unwrap().2 {
+                    if best.is_none_or(|b| efficiency > b.2) {
                         best = Some((edge, other, efficiency));
                     }
                 }
@@ -1081,7 +1081,7 @@ fn select_tunnels_from_connected(
                 weight * 1000.0
             };
 
-            if best.is_none() || efficiency > best.unwrap().2 {
+            if best.is_none_or(|b| efficiency > b.2) {
                 best = Some((edge, other, efficiency));
             }
         }

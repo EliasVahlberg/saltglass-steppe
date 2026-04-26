@@ -75,7 +75,7 @@ fn render_psychic_menu_internal(
         .iter()
         .enumerate()
         .map(|(i, id)| {
-            let def = get_ability_def(id).unwrap();
+            let Some(def) = get_ability_def(id) else { return ListItem::new("") };
             let on_cooldown = state.player.psychic.cooldowns.get(id).unwrap_or(&0) > &0;
             let can_afford = state.player.psychic.coherence >= def.coherence_cost;
 
@@ -90,7 +90,7 @@ fn render_psychic_menu_internal(
             };
 
             let cooldown_text = if on_cooldown {
-                format!(" ({})", state.player.psychic.cooldowns.get(id).unwrap())
+                format!(" ({})", state.player.psychic.cooldowns.get(id).unwrap_or(&0))
             } else {
                 String::new()
             };

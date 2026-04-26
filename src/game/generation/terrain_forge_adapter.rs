@@ -573,7 +573,7 @@ fn weighted_pick(weights: &HashMap<String, f64>, rng: &mut ChaCha8Rng) -> String
         return "cellular".to_string();
     }
     let dist = WeightedIndex::new(entries.iter().map(|(_, w)| *w))
-        .unwrap_or_else(|_| WeightedIndex::new([1.0]).unwrap());
+        .unwrap_or_else(|_| WeightedIndex::new([1.0]).expect("single weight 1.0 is always valid"));
     entries[dist.sample(rng)].0.clone()
 }
 

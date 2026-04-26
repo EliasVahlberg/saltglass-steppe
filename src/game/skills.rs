@@ -231,7 +231,7 @@ impl SkillsState {
     pub fn upgrade_skill(&mut self, skill_id: &str) -> Result<(), String> {
         self.can_upgrade_skill(skill_id)?;
 
-        let def = get_skill_def(skill_id).unwrap();
+        let def = get_skill_def(skill_id).ok_or_else(|| format!("Unknown skill: {skill_id}"))?;
         let current_level = self.skills.get(skill_id).unwrap_or(&0);
         let cost = calculate_skill_cost(&def.id, *current_level);
 

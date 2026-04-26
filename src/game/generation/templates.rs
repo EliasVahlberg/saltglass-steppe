@@ -141,7 +141,7 @@ impl TemplateLibrary {
             roll -= variant.weight;
         }
 
-        Ok(valid_variants.last().unwrap())
+        Ok(valid_variants.last().expect("valid_variants is non-empty (checked above)"))
     }
 
     fn check_conditions(&self, conditions: &[String], context: &TemplateContext) -> bool {

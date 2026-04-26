@@ -272,7 +272,7 @@ pub fn paint_roads(map: &mut Map, settlement: &Settlement) {
             ((dx * dx + dy * dy).sqrt(), i, j)
         })
         .collect();
-    edges.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+    edges.sort_by(|a, b| a.0.total_cmp(&b.0));
 
     let mut parent: Vec<usize> = (0..n).collect();
     let find = |parent: &mut Vec<usize>, mut x: usize| -> usize {

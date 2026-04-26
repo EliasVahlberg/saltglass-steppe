@@ -48,7 +48,7 @@ pub struct GeneratedTile {
 
 impl TileParams {
     pub fn from_world_state(state: &crate::game::state::GameState, wx: usize, wy: usize) -> Self {
-        let world_map = state.world.world_map.as_ref().unwrap();
+        let world_map = state.world.world_map.as_ref().expect("world_map must be initialized before tile generation");
         let (biome, terrain, elevation, poi, _resources, _connected, level) = world_map.get(wx, wy);
         let tile_seed = world_map.tile_seed(wx, wy);
         let faction_control = match world_map.get_faction_territory(wx, wy) {

@@ -71,11 +71,11 @@ impl TradeMenu {
 }
 
 pub fn render_trade_menu(f: &mut Frame, menu: &TradeMenu, state: &GameState) {
-    if !menu.active || menu.interface.is_none() {
+    if !menu.active {
         return;
     }
 
-    let trade_interface = menu.interface.as_ref().unwrap();
+    let Some(trade_interface) = menu.interface.as_ref() else { return };
 
     let area = f.area();
     let block = Block::default()

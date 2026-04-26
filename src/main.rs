@@ -638,7 +638,7 @@ fn run_main_game() -> Result<()> {
                 } => {
                     let seed = std::time::SystemTime::now()
                         .duration_since(std::time::UNIX_EPOCH)
-                        .unwrap()
+                        .unwrap_or_default()
                         .as_secs();
                     break (class, seed, name);
                 }

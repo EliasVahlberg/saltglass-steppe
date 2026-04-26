@@ -166,7 +166,10 @@ impl GenerationAlgorithm for PerlinNoiseAlgorithm {
                 let mut meta = HashMap::new();
                 meta.insert(
                     "scale".to_string(),
-                    serde_json::Value::Number(serde_json::Number::from_f64(scale).unwrap()),
+                    serde_json::Value::Number(
+                        serde_json::Number::from_f64(scale)
+                            .unwrap_or_else(|| serde_json::Number::from(0)),
+                    ),
                 );
                 meta.insert(
                     "octaves".to_string(),
@@ -174,7 +177,10 @@ impl GenerationAlgorithm for PerlinNoiseAlgorithm {
                 );
                 meta.insert(
                     "persistence".to_string(),
-                    serde_json::Value::Number(serde_json::Number::from_f64(persistence).unwrap()),
+                    serde_json::Value::Number(
+                        serde_json::Number::from_f64(persistence)
+                            .unwrap_or_else(|| serde_json::Number::from(0)),
+                    ),
                 );
                 meta
             },

@@ -222,7 +222,7 @@ impl StoryModel {
             "An alliance was forged in desperation",
             "The glass sang with new harmonies",
         ];
-        templates.choose(rng).unwrap().to_string()
+        templates.choose(rng).expect("templates array is non-empty").to_string()
     }
 
     fn generate_consequence(&self, rng: &mut ChaCha8Rng) -> String {
@@ -233,7 +233,7 @@ impl StoryModel {
             "The storms grew stronger",
             "Relationships were forever changed",
         ];
-        consequences.choose(rng).unwrap().to_string()
+        consequences.choose(rng).expect("consequences array is non-empty").to_string()
     }
 
     pub fn add_player_event(&mut self, event_type: EventType, description: String) {

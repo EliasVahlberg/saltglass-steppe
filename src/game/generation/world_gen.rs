@@ -355,7 +355,7 @@ impl WorldGenerator {
                             ((x as i32 - px as i32).pow(2) + (y as i32 - py as i32).pow(2)) as f64
                         })
                         .map(|d| d.sqrt())
-                        .min_by(|a, b| a.partial_cmp(b).unwrap())
+                        .min_by(|a, b| a.total_cmp(b))
                         .unwrap_or(100.0);
 
                     if min_dist < poi_config.min_distance {

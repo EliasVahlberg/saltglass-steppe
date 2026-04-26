@@ -123,7 +123,7 @@ impl NarrativeIntegration {
     pub fn initialize(&mut self, _context: &NarrativeContext, rng: &mut ChaCha8Rng) {
         // Select initial narrative seeds based on context
         let mut available_seeds: Vec<_> = self.seeds.values().collect();
-        available_seeds.sort_by(|a, b| b.weight.partial_cmp(&a.weight).unwrap());
+        available_seeds.sort_by(|a, b| b.weight.total_cmp(&a.weight));
 
         // Select 2-3 initial seeds
         let num_seeds = rng.gen_range(2..=3);

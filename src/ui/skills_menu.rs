@@ -462,11 +462,11 @@ fn render_tree_canvas(f: &mut Frame, game_state: &GameState, menu: &SkillsMenu, 
         for (col, &(ch, style)) in canvas_row.iter().enumerate() {
             let sx = inner_x + col as u16;
             let sy = inner_y + row as u16;
-            if sx < area.x + area.width && sy < area.y + area.height {
-                let cell = frame_buf.cell_mut((sx, sy)).unwrap();
-                cell.set_char(ch);
-                cell.set_style(style);
-            }
+            if sx < area.x + area.width && sy < area.y + area.height
+                && let Some(cell) = frame_buf.cell_mut((sx, sy)) {
+                    cell.set_char(ch);
+                    cell.set_style(style);
+                }
         }
     }
 

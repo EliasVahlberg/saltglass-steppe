@@ -77,7 +77,7 @@ pub fn generate_loot(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8Rng) -> Ve
             let entry = available_entries
                 .iter()
                 .find(|e| e.item_id == item_id)
-                .unwrap();
+                .expect("item_id came from available_entries so find must succeed");
 
             let count = rng.gen_range(entry.min_count..=entry.max_count);
             for _ in 0..count {

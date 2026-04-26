@@ -116,7 +116,8 @@ impl IpcServer {
 #[cfg(unix)]
 #[allow(dead_code)]
 fn handle_client(stream: UnixStream, sender: mpsc::Sender<IpcMessage>) {
-    let mut reader = BufReader::new(stream.try_clone().unwrap());
+    let Ok(stream_clone) = stream.try_clone() else { return };
+    let mut reader = BufReader::new(stream_clone);
     let mut line = String::new();
 
     while reader.read_line(&mut line).unwrap_or(0) > 0 {

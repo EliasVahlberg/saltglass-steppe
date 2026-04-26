@@ -53,7 +53,7 @@ pub fn render_crafting_menu(frame: &mut Frame, menu: &CraftingMenu, state: &Game
     let items: Vec<ListItem> = recipe_ids
         .iter()
         .map(|id| {
-            let recipe = get_recipe(id).unwrap();
+            let recipe = get_recipe(id).expect("recipe ID from all_recipe_ids() must be valid");
             let craftable = can_craft(recipe, &state.player.inventory);
             let style = if craftable {
                 Style::default().fg(Color::Green)

@@ -109,7 +109,7 @@ fn parse_key(key_str: &str) -> KeyCode {
                 KeyCode::Char(s.chars().next().unwrap_or(' '))
             }
         }
-        s if s.len() == 1 => KeyCode::Char(s.chars().next().unwrap()),
+        s if s.len() == 1 => KeyCode::Char(s.chars().next().unwrap_or(' ')),
         _ => KeyCode::Char(' '), // fallback
     }
 }

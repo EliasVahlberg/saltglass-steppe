@@ -93,7 +93,7 @@ impl MarkovChain {
             return String::new();
         }
 
-        let start = self.opening_words.choose(rng).unwrap();
+        let start = self.opening_words.choose(rng).expect("opening_words is non-empty (checked above)");
         let mut result = vec![start.0.clone(), start.1.clone()];
         let mut current = start.clone();
 

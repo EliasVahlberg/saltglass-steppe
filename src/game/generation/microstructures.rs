@@ -113,11 +113,9 @@ pub fn place_microstructures(
         }
 
         // Select random structure weighted by biome
-        let structure = select_weighted_structure(&available_structures, biome, rng);
-        if structure.is_none() {
+        let Some(structure) = select_weighted_structure(&available_structures, biome, rng) else {
             continue;
-        }
-        let structure = structure.unwrap();
+        };
 
         // Find valid placement position
         let mut attempts = 0;

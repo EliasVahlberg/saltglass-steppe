@@ -103,7 +103,7 @@ impl Grammar {
                 roll -= weight;
             }
 
-            Ok(rule.expansions.last().unwrap())
+            Ok(rule.expansions.last().expect("rule must have at least one expansion"))
         } else {
             // Uniform selection
             let index = rng.gen_range(0..rule.expansions.len());
