@@ -648,7 +648,11 @@ impl Algorithm2D for Map {
 }
 
 pub fn compute_fov(map: &Map, x: i32, y: i32) -> HashSet<usize> {
-    field_of_view(Point::new(x, y), FOV_RANGE, map)
+    compute_fov_radius(map, x, y, FOV_RANGE)
+}
+
+pub fn compute_fov_radius(map: &Map, x: i32, y: i32, radius: i32) -> HashSet<usize> {
+    field_of_view(Point::new(x, y), radius, map)
         .into_iter()
         .map(|p| map.idx(p.x, p.y))
         .collect()

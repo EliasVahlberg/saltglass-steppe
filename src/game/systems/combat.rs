@@ -9,6 +9,7 @@ use crate::game::{
     state::{GameState, MsgType},
 };
 use rand_chacha::ChaCha8Rng;
+use rand::Rng;
 
 pub struct CombatSystem;
 
@@ -79,7 +80,12 @@ pub fn handle_melee(
     let cost = crate::game::action::action_cost("attack_melee");
     if ctx.player.ap < cost { return out; }
 
-    out.push(Mutation::SetPlayerAp(ctx.player.ap - cost));
+    // killing_edge: if kill_ap_refund_active, this attack costs 0 AP and clears the flag
+    if ctx.player.kill_ap_refund_active {
+        out.push(Mutation::SetKillApRefund(false));
+    } else {
+        out.push(Mutation::SetPlayerAp(ctx.player.ap - cost));
+    }
     out.push(Mutation::SetEnemyProvoked { idx: ei, provoked: true });
 
     let weapon = ctx.player.equipped_weapon.as_ref()
@@ -110,6 +116,13 @@ pub fn handle_melee(
     out.push(Mutation::SetEnemyHp { idx: ei, hp: enemy.hp - dmg });
     out.push(Mutation::SetLastDamageDealt(dmg as u32));
 
+    // bone_spur: 20% chance to apply bleed on hit
+    if ctx.player.adaptations.iter().any(|a| a.id() == "bone_spur")
+        && rng.gen_range(0..100) < 20
+    {
+        out.push(Mutation::AddEnemyStatus { idx: ei, id: "bleed".into(), duration: 3 });
+    }
+
     if enemy.hp - dmg <= 0 {
         out.push(Mutation::RemoveEnemy { idx: ei, x: target_x, y: target_y });
         if let Some(def) = enemy.def() && def.xp_value > 0 {
@@ -121,6 +134,10 @@ pub fn handle_melee(
             }
         }
         out.push(Mutation::IncrementActivity(ActivityField::EnemiesKilledMelee));
+        // killing_edge: grant free AP on next attack
+        if ctx.player.adaptations.iter().any(|a| a.id() == "killing_edge") {
+            out.push(Mutation::SetKillApRefund(true));
+        }
         out.push(Mutation::LogMessage { text: format!("You kill the {}!", name), msg_type: MsgType::Combat });
     } else {
         let crit = if result.crit { " CRITICAL!" } else { "" };
@@ -203,8 +220,21 @@ pub fn handle_ranged(
     let accuracy_bonus = ctx.player.skills.ranged_accuracy_bonus();
     let damage_bonus   = ctx.player.skills.ranged_damage_bonus();
 
-    let result = apply_mocks(ctx, roll_attack(rng, weapon, enemy_reflex, enemy_armor,
-                                              -(accuracy_bonus * 100.0) as i32));
+    // lens_eye: never miss within ranged_accuracy_bonus tiles
+    let dist = (target_x - ctx.player.x).abs().max((target_y - ctx.player.y).abs());
+    let lens_range: i32 = ctx.player.adaptations.iter()
+        .filter_map(|a| a.def())
+        .flat_map(|d| d.effects.iter())
+        .filter(|e| e.effect_type == "ranged_accuracy_bonus")
+        .filter_map(|e| e.value)
+        .sum();
+    let guaranteed_hit = lens_range > 0 && dist <= lens_range;
+
+    let result = if guaranteed_hit {
+        crate::game::combat::CombatResult { hit: true, damage: roll_attack(rng, weapon, enemy_reflex, enemy_armor, -(accuracy_bonus * 100.0) as i32).damage, crit: false }
+    } else {
+        apply_mocks(ctx, roll_attack(rng, weapon, enemy_reflex, enemy_armor, -(accuracy_bonus * 100.0) as i32))
+    };
     let name = enemy.name().to_string();
 
     if !result.hit {

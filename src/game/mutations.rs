@@ -52,6 +52,7 @@ pub enum Mutation {
     AddAdaptation(String),
     AddStatusEffect { id: String, duration: i32 },
     SetLastDamageDealt(u32),
+    SetKillApRefund(bool),
     AllocateStat(String),
     SuppressAdaptations { turns: u32 },
     SetPhaseMode(bool),

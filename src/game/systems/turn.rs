@@ -18,7 +18,7 @@ impl GameState {
     fn execute_phase(&mut self, phase: &TurnPhase) {
         match phase {
             TurnPhase::ResetAp => {
-                self.apply_mutations(vec![Mutation::ResetAp]);
+                self.apply_mutations(vec![Mutation::ResetAp, Mutation::SetKillApRefund(false)]);
             }
             TurnPhase::TickStatusEffects => {
                 self.apply_mutations(vec![Mutation::TickStatusEffects]);

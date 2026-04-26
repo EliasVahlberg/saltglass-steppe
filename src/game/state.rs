@@ -361,7 +361,17 @@ impl GameState {
 
     /// Update player field of view using shadow casting algorithm
     pub fn update_fov(&mut self) {
-        self.visible = crate::game::map::compute_fov(&self.world.map, self.player.x, self.player.y);
+        let fov_bonus: i32 = self.player.adaptations.iter()
+            .filter_map(|a| a.def())
+            .flat_map(|d| d.effects.iter())
+            .filter(|e| e.effect_type == "fov_bonus")
+            .filter_map(|e| e.value)
+            .sum();
+        let radius = (crate::game::constants::FOV_RANGE + fov_bonus)
+            .clamp(1, crate::game::constants::FOV_RANGE);
+        self.visible = crate::game::map::compute_fov_radius(
+            &self.world.map, self.player.x, self.player.y, radius,
+        );
         self.revealed.extend(&self.visible);
     }
 
@@ -573,6 +583,7 @@ impl GameState {
                 crate::game::systems::player::apply_status_effect(self, id, *duration);
             }
             Mutation::SetLastDamageDealt(v) => { self.player.last_damage_dealt = *v; }
+            Mutation::SetKillApRefund(v) => { self.player.kill_ap_refund_active = *v; }
             Mutation::IncrementActivity(field) => {
                 use crate::game::player_state::ActivityField::*;
                 match field {
