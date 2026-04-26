@@ -1,15 +1,12 @@
 ---
-status: partially-stale
-last_verified: 2026-04-06
-commit: d73fd75
-stale_reason: "Feature roadmap sections are current. LOC counts in older entries are stale."
+status: current
+last_verified: 2026-04-26
+commit: 3fdbafb
 ---
-
-> ⚠️ **PARTIALLY STALE** — Feature roadmap is current. LOC counts and DES counts in older 'Recently Completed' entries are stale.
 
 # Development Roadmap
 
-> Last updated: 2026-04-06
+> Last updated: 2026-04-26
 
 ---
 
@@ -17,54 +14,21 @@ stale_reason: "Feature roadmap sections are current. LOC counts in older entries
 
 > Added 2026-04-06 after VERA refactor + state.rs decomposition. See `STATE_STORE_REFLECTION.md` for full analysis.
 
-### Immediate (bugs, not improvements)
+### Immediate bugs ✅ ALL FIXED (2026-04-06)
 
-| Item | File | Fix |
-|------|------|-----|
-| `teleport` DES action doesn't call `check_auto_complete` | `src/des/mod.rs:1780` | Add `let completed = self.state.player.quest_log.check_auto_complete(); self.state.log_quest_completions(&completed);` after `on_position_changed` |
-| `dying_pilgrim` bump-to-talk not setting `talked` flag | `src/game/systems/movement.rs` | Investigate `handle_npc_interaction_legacy` — `talked` flag not set when NPC has no dialogue |
-| Dialogue condition check not logging to message log | `src/game/dialogue.rs` | `UNAUTHORIZED` message not emitted when item condition fails |
+| Item | Status |
+|------|--------|
+| `teleport` DES action doesn't call `check_auto_complete` | ✅ Fixed — `src/des/mod.rs` |
+| `dying_pilgrim` bump-to-talk not setting `talked` flag | ✅ Fixed — `src/game/systems/movement.rs` |
+| Dialogue condition check not logging to message log | ✅ Fixed — `src/game/npc.rs` (unknown condition fields now fail-closed) |
 
-### DES scenario fixes (wrong test data, not wrong code)
+### DES scenario fixes ✅ ALL FIXED (2026-04-06)
 
-| Scenario | Fix |
-|----------|-----|
-| `progression.json` | Change `player_xp: 10` → `8` (shard_spider.xp_value is 8) |
-| `level_up_stat_allocation.json` | Fix XP values to match enemy data; change `player_level: 0` → `1` (level 0 is invalid) |
-| `shop_trading.json` | Add `"salt_scrip": 50` to player setup block |
-| `loot_system_event_test.json` | Replace `MessageContains "[Event]"` — GameEvent system deleted, update to assert on loot drop mutation |
-| `event_bus_test.json` | Same |
-| `auto_explore_fixes_test.json` | Replace exact position assertions with inventory/explored-tile assertions |
-| `auto_explore_danger_avoidance.json` | Same |
+All 7 wrong-test-data scenarios fixed. All 7 broken-JSON-format scenarios fixed or deleted. All 3 missing-data scenarios deleted. Dungeon connectivity bug fixed (GSB weight calculation + DES `poi_type` support).
 
-### DES scenario format fixes (broken JSON, not broken code)
+**DES test status as of 2026-04-26**: 142 passing, 2 ignored (`run_all_scenarios` — meta-test; `storm_glass_drops` — probabilistic drop, flaky under parallel execution).
 
-| Scenario | Fix |
-|----------|-----|
-| `bracket_lib_pathfinding_test.json` | Replace `{type: "custom"}` assertion — rewrite with real assertions or delete |
-| `terrain_variety_test.json` | Same |
-| `bsp_algorithm_test.json` | Same |
-| `main_questline_architect.json` | Replace `{type: "talk"}` action with `move` to NPC position |
-| `settlement_generation_test.json` | Same |
-| `trading_system_test.json` | Replace `{type: "interact_npc"}` with `buy_item` action |
-| `procedural_structure_generation_test.json` | Fix assertion op format |
-
-### Missing data (scenarios reference enemies that don't exist)
-
-| Item | Fix |
-|------|-----|
-| `laser_drone` enemy missing from `data/enemies/` | Add enemy definition or delete `laser_beam_behavior.json` |
-| `glass_bomber` enemy missing from `data/enemies/` | Add enemy definition with `suicide_bomber` behavior or delete `behavior_registry_test.json` |
-| `test_npc` NPC missing from data | Add NPC definition or delete `quest_npc_spawning.json` |
-
-### Real generation bug (significant)
-
-**Dungeon connectivity below 80% threshold** — 6 scenarios fail `ConnectivityRatio >= 0.8`:
-`dungeon_connectivity_test`, `dungeon_comprehensive_validation`, `dungeon_deterministic_test`, `dungeon_quest_accessibility_test`, `archive_dungeon_test`, `connectivity_validation`, `shrine_connectivity_test`, `organic_cave_test`.
-
-The Glass Seam Bridging algorithm (`src/game/generation/connectivity.rs`) is not achieving the connectivity guarantee it was designed to provide. This is the most significant real bug in the ignored test list. Investigate: is the algorithm running? Is the threshold achievable with current map sizes?
-
-### False-positive DES scenarios (pass but verify nothing)
+### False-positive DES scenarios (low priority)
 
 20 scenarios assert only `player_alive`. They catch crashes but not logic errors. Each needs either real assertions added or deletion:
 
@@ -76,127 +40,69 @@ See `STATE_STORE_REFLECTION.md` §3 for the exhaustive list. Summary:
 
 - **Bridge mutations** (`MovePlayer`, `EndTurn`, `WorldMove`, `RestTick`, etc.) bypass the invariant layer and cannot trigger reactions. Decompose into atomic mutations when those systems are next touched for feature work.
 - **Duplicate mutation variants** (`SpendAp`/`SetPlayerAp`, `AddHp`/`SetPlayerHp`, `Equip`/`SetEquipment`, etc.) — remove delta variants, keep `Set*` only.
-- **`apply_one` inline logic** — `QuestNotify` (~35 LOC), `AttemptFlee` (fixed), `UsePsychicAbility` (~14 LOC), `DamageWall` (~16 LOC) should be extracted to system functions.
+- **`apply_one` inline logic** — `QuestNotify` (~35 LOC), `UsePsychicAbility` (~14 LOC), `DamageWall` (~16 LOC) should be extracted to system functions.
 - **`notify.rs` underuse** — 5 of 7 `StateTransition` variants produce no reactions. `PlayerPositionChanged` is detected on every move but nothing listens to it.
 - **No unit tests for `systems/`** — all 14 system files have zero unit tests. Only tested via DES scenarios.
-- **Parallel trace systems migration risk** — `state.trace` (Effect-based) and `state.mutation_log` (Mutation-based) both exist; DES assertions check both. When the Effect trace is eventually removed, assertions that matched via `state.trace` will silently stop matching. Before removing the Effect trace, audit which DES assertions rely on it exclusively.
-- **RNG clone-writeback is convention, not structure** — every command handler that uses RNG must manually clone, call, and write back `state.rng`. Easy to forget; determinism breaks silently if the writeback is omitted. Consider a `dispatch_with_rng(state, |rng| handler(args, &ctx, rng))` helper in `dispatch.rs` that makes the pattern impossible to get wrong.
+- **Parallel trace systems migration risk** — `state.trace` (Effect-based) and `state.mutation_log` (Mutation-based) both exist. Before removing the Effect trace, audit which DES assertions rely on it exclusively.
+- **RNG clone-writeback is convention, not structure** — consider a `dispatch_with_rng` helper in `dispatch.rs` that makes the pattern impossible to get wrong.
 
----
-
-## Current State
-
-The codebase has been through a major maintainability overhaul (Phases 1–5). The monolithic `state.rs` has been decomposed into `PlayerState`, `WorldState`, and `NarrativeEngine`. Dead code, stub systems, and duplicate implementations have been removed.
-
-A 30-minute play session is possible: character creation, movement, combat, quests, inventory, crafting, trading, storms, and auto-explore all work. The first quest ("The Pilgrim's Last Angle") is completable. Quest progression beyond that is blocked by missing infrastructure.
-
-**Test status**: 15/16 DES scenarios pass. 1 pre-existing failure (`interaction_system_test` — `interactables.json` missing `interact` field, unrelated to recent work).
-
----
-
-## Recently Completed
-
-### Skill System Rework (2026-03-07)
-- **7-category skill tree**: `SaltAlchemy`, `Crafting`, `Social`, `Survival`, `Medical`, `MeleeCombat`, `RangedCombat` — legacy variants kept for save compatibility
-- **35 skills in `data/skill_trees.json`** with `tree_parent`, `blocked`, `active` flags and `passive_effects`
-- **Canvas-based tree UI** in `skills_menu.rs`: pannable 2D graph, box-drawing nodes, connection lines, detail panel
-- **Typed accessors** on `SkillsState`: `melee_accuracy_bonus()`, `ranged_accuracy_bonus()`, etc. — replaced 4 raw string lookups in `combat.rs`
-- **Tree query helpers**: `get_category_roots()`, `get_skill_children()` — sorted for stable layout
-- **DES coverage**: `skill_tree_upgrade_test.json` verifies upgrade, passive recalculation, prerequisite enforcement
-- **Design doc**: `docs/development/SKILL_TREE_DESIGN.md` — ~90 planned skills with ASCII tree diagrams, blocker analysis, balancing notes
-- **Implementation plan updated**: `docs/development/SKILL_SYSTEM_IMPLEMENTATION_PLAN.md`
-
-### Faction Enemy Aggression (2026-03-07)
-- Added `faction: Option<String>` to `EnemyDef` — reads existing `faction` field from enemy JSON files
-- `is_hostile()` now accepts `&HashMap<String, i32>` (player faction_reputation) — Aggressive/Defensive enemies won't attack if player rep ≥ 25 with their faction
-- Single call site updated in `src/game/systems/ai.rs`
-
-### Algorithm Layering & Composition (2026-03-07)
-- `AlgorithmLayer` struct + `apply_layers`/`blend` functions in `terrain_forge_adapter.rs`
-- Three blend modes: `replace` (overwrite), `overlay` (walls only), `mask` (floors only)
-- `terrain_config.json` extended with `algorithm_layers` for desert, saltflat, ruins biomes
-- Backward compatible — biomes without layers use existing weighted picks
-- `glass_seam` always uses `mask` blend to preserve floors
-
-### Data File Audit (2026-03-07)
-- 41 JSON files traced: 34 via `include_str!`, 5 via `fs::read_to_string`, 2 not yet loaded
-- No dead files found — `settlement_config.json` is planned (settlement task 13), `skill_trees.schema.json` is schema-only
-- `structure_generation.json` confirmed CLI-tool-only
-- `biome_profiles.json` and `terrain_config.json` serve different purposes — no consolidation needed
-- Full audit: `docs/development/DATA_FILE_AUDIT.md`
-
-### Tile Generator Refactor + Tile-Gen Tester (2026-03-01) ⏳ Awaiting Approval
-- **Refactor**: Extracted `generate_tile()` from `travel_to_tile()` into `src/game/generation/tile_generator.rs`. `travel_to_tile` is now a thin wrapper. Generation is now independently callable without a full `GameState`.
-- **TileTestConfig**: JSON-driven test configs in `data/tile_tests/` (21 configs covering all biomes, POIs, factions)
-- **In-game tester**: "Test Tile Generation" option in main menu → config sub-menu → loads tile directly into game session with `test_mode=true` (exits blocked, save disabled)
-- **Documentation**: `docs/development/TILE_GENERATOR_REFACTOR_PLAN.md`
-
-### Settlement Generation — Complete (2026-02-22 to 2026-03-01)
-- **Unified StructureLibrary**: Replaced prefab system with single JSON+txt hybrid loading
-- **Grid-with-jitter layout**: Replaced terrain-forge BSP/Voronoi (all algorithms produce one connected region, not isolated plots)
-- **Building placement**: Weighted random by faction, `to_snake_case()` normalization for faction ID lookup
-- **Faction integration**: Dominant faction determines building selection and settlement aesthetic
-- **NPC spawning**: Per-building `npc_types` from `structures.json` metadata
-- **Decorations**: Faction-themed decoration placement
-- **World map integration**: `Map::generate_from_world()` detects `POI::Town`, calls `generate_settlement()`
-- **mapgen-tool**: `settlement <seed> <tier>` renders full ASCII map + building list
-- **Documentation**: `docs/features/SETTLEMENT_GENERATION.md`, `docs/features/SETTLEMENT_GENERATION_SUMMARY.md`
-- **Future work logged**: `docs/development/SETTLEMENT_FUTURE_WORK.md`
-
-### Settlement Generation Foundation (2026-02-22 to 2026-03-01)
-- **Prefab Library System**: Implemented JSON-based building template system with rotation, mirroring, and validation
-- **Building Content**: Created 35 building prefabs (14 core + 21 faction-specific)
-- **Settlement Tiles**: Added 5 wall types and 4 floor types for settlement construction
-- **Furniture & Decorations**: Added 12 furniture types as interactables
-- **Settlement Module**: Implemented core data structures (SettlementConfig, Settlement, Building) with tier system (Village/Town/City)
-- **Configuration**: Created settlement_config.json with tier parameters and faction building mappings
-- **Unified Structure System**: Designed consolidation of structure_templates and prefabs into single system with hybrid loading (external .txt files + inline JSON)
-- **Documentation**: `docs/development/SETTLEMENT_GENERATION_PLAN.md`, `docs/development/PREFAB_SYSTEM_DESIGN.md`, `docs/development/UNIFIED_STRUCTURE_SYSTEM.md`
-
-### Cleanup (2026-02-15)
-- Removed ritual/sanity placeholder systems and orphaned DES test files
-- Removed 7 dead generation stub structs from NarrativeEngine
-- Removed ~200 lines of commented-out generation code from state.rs
-- Eliminated 4 compiler warnings (now zero)
-- Consolidated FOV into single bracket-lib shadowcasting implementation (deleted duplicate `fov.rs`)
-
-### Bug Fixes (2026-02-15)
-- BUG-004: Tile renderer now uses FOV (`state.visible`) instead of light distance — player can no longer see through walls
-- BUG-002: Quest objectives enforce sequential completion — can't skip objectives
-- BUG-001: Auto-explore avoids NPCs with quest interaction history
-- BUG-006: Tutorial system wired into game loop with real trigger conditions
-- BUG-003: Player spawn point clamped away from map edges
-- BUG-005: Look mode shows all entities on a tile, not just the first
-- Tutorial dismiss fix: `has_shown` now keyed by message id, not trigger string
-
-### Phase 5: State.rs Decomposition (2026-02-14 to 2026-02-15)
-- Extracted `PlayerState` (25 fields), `WorldState` (20 fields), `NarrativeEngine` (5 fields)
-- 997 compilation errors fixed via systematic bulk sed scripts (~11 minutes)
-- Phase 4 feature integration: tutorial overlay, faction menu, void/crystal menus, crafting stations
-
----
-
-## Remaining Technical Debt
+### Remaining technical debt
 
 | Issue | Severity | Estimate |
 |-------|----------|----------|
 | 97+ `unwrap()` in non-test code | High | 2–3 days |
 | ~15 functions >100 lines in state.rs | Medium | Ongoing |
-| 12 disabled DES scenarios | Low | 1 day |
 | NarrativeEngine QuestLog is a stub duplicate of real quest_log | Medium | 1 day |
 | Stale docs and lore files | Low | 1 day |
 
-### Data File Audit ✅ **COMPLETED** (2026-02-21)
+---
 
-**Findings**:
-- Audited 54 JSON files in `data/` directory
-- Removed 6 dead files (11% reduction): `npc_spawn_config.json`, `quest_constraints.json`, `structure_spawn_config.json`, `grammars/*.json`, `templates/content_templates.json`
-- Identified 49 active files (91%)
-- `biome_profiles.json` unused but kept (valid future feature for environmental storytelling)
-- `structure_generation.json` confirmed test-only (tilegen-tool.rs)
-- No consolidation needed - `biome_profiles.json` and `terrain_config.json` serve different purposes
+## Current State
 
-**Documentation**: `docs/development/DATA_FILE_AUDIT.md`
+A 30-minute play session is possible: character creation, movement, combat, quests, inventory, crafting, trading, storms, and auto-explore all work. The first quest ("The Pilgrim's Last Angle") is completable. Quest progression beyond that is blocked by missing infrastructure.
+
+**Test status**: 142 DES scenarios pass, 2 ignored (probabilistic/meta). All immediate bugs resolved.
+
+**Gameplay gap (identified 2026-04-12)**: Adaptations are the game's signature system but are currently inert. Most adaptation effects exist only in data — only `saltblood` (glass immunity) and basic `armor`/`damage_bonus` stat modifiers are read in code. Adaptation gain is also passive and unearned (automatic on refraction threshold). Design direction needed before implementation — see §9 below.
+
+---
+
+## Recently Completed
+
+### DES Infrastructure & Bug Fixes (2026-04-06 to 2026-04-26)
+- Fixed all 3 immediate gameplay bugs (teleport quest completion, NPC talked flag, dialogue condition logging)
+- Fixed DES `poi_type` support — scenarios can now generate dungeon/shrine/landmark maps via full tile pipeline
+- Fixed GSB connectivity weight calculation — dungeon connectivity scenarios now pass
+- Fixed crafting bug — `rule_craft` index collision when consuming multiple items of same type
+- Fixed DES inventory setup — scenario inventory now replaces (not appends to) class starting items
+- Fixed `GainSaltScrip` effect missing from `effect_to_mutation` — shop trading now deducts correctly
+- Fixed `AddSaltScrip` overflow in debug mode — changed to `wrapping_add`
+- Recorded microstructures as `MapFeature` entries in `tile_generator.rs`
+- Fixed `NpcTalked` DES assertion to use `any()` instead of `find()` — handles duplicate NPC ids
+- Fixed `DialogueCondition` unknown field handling — joke conditions no longer silently pass
+- 26 previously-ignored DES scenarios now pass; 7 dead scenarios deleted
+
+### Skill System Rework (2026-03-07)
+- **7-category skill tree**: `SaltAlchemy`, `Crafting`, `Social`, `Survival`, `Medical`, `MeleeCombat`, `RangedCombat`
+- **35 skills in `data/skill_trees.json`** with `tree_parent`, `blocked`, `active` flags and `passive_effects`
+- **Canvas-based tree UI** in `skills_menu.rs`: pannable 2D graph, box-drawing nodes, connection lines, detail panel
+- **Typed accessors** on `SkillsState`: `melee_accuracy_bonus()`, `ranged_accuracy_bonus()`, etc.
+- **DES coverage**: `skill_tree_upgrade_test.json`
+- **Design doc**: `docs/development/SKILL_TREE_DESIGN.md` — ~90 planned skills
+
+### Faction Enemy Aggression (2026-03-07)
+- `is_hostile()` checks player rep ≥ 25 with enemy faction before attacking
+
+### Algorithm Layering & Composition (2026-03-07)
+- Three blend modes: `replace`, `overlay`, `mask` in `terrain_forge_adapter.rs`
+- `terrain_config.json` extended with `algorithm_layers` for desert, saltflat, ruins
+
+### Settlement Generation — Complete (2026-02-22 to 2026-03-01)
+- Unified StructureLibrary, grid-with-jitter layout, faction-weighted buildings, NPC spawning
+- 35 building prefabs, world map integration, mapgen-tool support
+
+### Faction System — Complete (2026-02-21)
+- 7 factions, reputation system, world map territories, faction menu UI, save migration
 
 ---
 
@@ -204,103 +110,18 @@ A 30-minute play session is possible: character creation, movement, combat, ques
 
 Features are grouped into tiers. Each tier builds on the previous one. Within a tier, items can be worked in parallel.
 
-### Tier 1 — Core Systems Rework
-
-These are foundational systems that most other features depend on. They should be tackled first.
+### Tier 1 — Core Systems Rework ✅ COMPLETE
 
 #### 1. Save/Load Game Library with Versioning ✅
-- `src/game/save.rs`: `SaveFile` envelope with `SAVE_VERSION` (currently v1) + `GameState`
-- `save_game()` / `load_game()` replace raw `state.save()` / `GameState::load()`
-- Version mismatch returns descriptive error; corrupt saves caught at deserialization
-- Wired into `main.rs` action handlers
-- Future: migration functions between versions, integrity checks, auto-save, save slots
-
-#### 2. Proper Overworld Travel ✅
-
-**Step 1 ✅ — Adjacent movement with terrain travel costs**
-- `src/game/travel.rs`: data-driven travel cost from `data/travel_config.json`
-- `is_adjacent()` restricts world map movement to cardinal neighbors
-- `travel_cost(terrain, biome)` = base terrain cost + biome modifier (min 1)
-- `travel_to_tile_safe` rejects non-adjacent, advances turns, logs travel
-
-**Step 2 ✅ — Random encounters during travel**
-- `src/game/encounter.rs`: deterministic encounter generation using world seed
-- Three encounter types: Hostile (50%), Neutral (30%), Beneficial (20%)
-- Threat/boon point budget system for enemy/item spawning
-- Flee mechanic with cooldown and distance requirements
-- Encounter completion checking and XP rewards
-- Fast worldmap movement with deferred tile generation
-- Direct arrow key movement and inspect mode with pathfinding
-- Keyboard configuration system for worldmap controls
-- 25% base encounter rate, 50-turn cooldown per tile
-
-**Remaining steps:**
-- Resource consumption (water, food) during travel
-- Camp/rest mechanic during long journeys
-- **Depends on**: Save system ✅
-
-#### 3. Actual Skill Catalog ✅ **COMPLETED** (2026-03-07)
-- ✅ 35 skills in `data/skill_trees.json` across 7 categories with tree structure
-- ✅ Canvas-based tree graph UI with pan, cursor navigation, detail panel
-- ✅ Typed accessors on `SkillsState` — no raw string lookups outside `skills.rs`
-- ✅ DES test coverage: `skill_tree_upgrade_test.json`
-- ✅ Full design doc: `docs/development/SKILL_TREE_DESIGN.md` (~90 planned skills)
-- 🔲 ~55 remaining skills to implement (see design doc for priority order)
-- **Documentation**: `docs/development/SKILL_SYSTEM_ARCHITECTURE.md`, `docs/development/SKILL_TREE_DESIGN.md`
-
-#### 4. Proper Faction System ✅ **COMPLETED** (2026-02-21)
-- ✅ Load and use `factions.json` definitions (7 factions)
-- ✅ Faction reputation system (-100 to +100 scale)
-- ✅ Starting reputation by character class
-- ✅ Faction territories on world map (Voronoi division, neutral center)
-- ✅ Faction overlay on world map (F key toggle)
-- ✅ Quest reputation rewards
-- ✅ Faction menu UI with exact numbers and color-coded standings
-- ✅ Save system migration (v1 → v2)
-- ✅ Reputation affects: NPC dialogue, quest availability, shop prices (existing integrations)
-- ✅ Enemy faction tags wired: `EnemyDef.faction` read from JSON, `is_hostile()` checks player rep ≥ 25
-- 🔲 Faction-specific quests and storylines (future content)
-- 🔲 Reputation decay/growth over time (future enhancement)
-- **Documentation**: `docs/features/FACTION_SYSTEM.md`
+#### 2. Proper Overworld Travel ✅ (resource consumption and camp/rest deferred)
+#### 3. Actual Skill Catalog ✅ (35/~90 skills implemented; ~55 remaining)
+#### 4. Proper Faction System ✅
 
 ### Tier 2 — Content & Generation
 
-These features fill the world with meaningful content. They depend on Tier 1 foundations.
-
 #### 5. Procedural Village/Town/City Generation ✅ **COMPLETE** (2026-03-01)
-
-- ✅ Unified StructureLibrary with hybrid loading (.txt pattern files + inline JSON)
-- ✅ 35 building prefabs (14 core + 21 faction-specific)
-- ✅ Grid-with-jitter layout algorithm (terrain-forge BSP/Voronoi abandoned — produces one connected region, not isolated plots)
-- ✅ Building placement with faction-weighted selection and `to_snake_case()` normalization
-- ✅ Faction integration: dominant faction determines building selection and aesthetic
-- ✅ NPC spawning from per-building `npc_types` in `structures.json` metadata
-- ✅ Decoration placement with faction theming
-- ✅ World map integration: `POI::Town` triggers `generate_settlement()`
-- ✅ mapgen-tool `settlement` command for iteration
-- ✅ Save/load: deterministic from `tile_seed`, no special handling needed
-- 🔲 Building interiors (deferred — z-level approach, logged in `SETTLEMENT_FUTURE_WORK.md`)
-- 🔲 Furniture micro-prefab system (deferred, low priority)
-- **Documentation**: `docs/features/SETTLEMENT_GENERATION.md`, `docs/features/SETTLEMENT_GENERATION_SUMMARY.md`
-
 #### 5.5. Biome-Driven Tile Generation Profiles ✅
-
-> ⚠️ **READ TERRAIN-FORGE DOCUMENTATION TO SEE WHAT IS ALREADY IMPLEMENTED** before starting work on any procedural generation task. Many algorithms and features may already exist in the library.
-- **Status**: Implemented (2026-02-15)
-- Replaced random algorithm switching with data-driven biome+terrain profiles in `terrain_config.json`
-- Each biome defines weighted algorithm preferences (cellular, bsp, rooms) with per-terrain overrides
-- POI types (town, dungeon, shrine, landmark) have separate algorithm overrides that take priority
-- Natural biomes (desert, saltflat) favor cellular automata; structured biomes (ruins) favor BSP/rooms
-- `generate_with_dungeon_generator` now uses biome-aware selection instead of hardcoded BSP
-- All weights tunable in `data/terrain_config.json` without recompilation
-
 #### 5.6. Algorithm Layering & Composition ✅ **COMPLETED** (2026-03-07)
-- ✅ `AlgorithmLayer` struct with algorithm, blend mode, optional params
-- ✅ Three blend modes: `replace`, `overlay` (walls only), `mask` (floors only)
-- ✅ `apply_layers` / `blend` functions in `terrain_forge_adapter.rs`
-- ✅ `terrain_config.json` extended with `algorithm_layers` for desert, saltflat, ruins
-- ✅ Backward compatible — biomes without layers use existing weighted picks
-- ✅ `glass_seam` always uses `mask` to preserve floors
 
 #### 6. Mob and Item Spawn Table Update
 - Biome-specific enemy rosters with level scaling
@@ -308,7 +129,7 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - Environmental spawns (glass crawlers near glass, salt wraiths in flats)
 - Dynamic spawn density based on player level and area danger
 - Item rarity tiers affecting spawn weights
-- **Depends on**: Tiered mobs, tiered loot (co-developed)
+- **Depends on**: Tiered mobs (#7), tiered loot (#8) — co-developed
 
 #### 7. Tiered Mob Overhaul
 - Enemy tier system: Common → Uncommon → Rare → Elite → Boss
@@ -325,16 +146,20 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - Set items with bonuses for wearing multiple pieces
 - Unique/legendary items with lore and special abilities
 - Loot quality scaling with area danger and enemy tier
-- **Depends on**: Tiered mobs (loot drops from tiered enemies)
+- **Depends on**: Tiered mobs (#7)
 
-#### 9. Adaptations Rework
-- Redesign mutation system with clearer progression paths
-- Adaptation trees: Glass, Salt, Storm, Void, Light
-- Each tree has 5–8 nodes with prerequisites
-- Social consequences: visible mutations affect NPC reactions and faction standing
-- Adaptation conflicts: some mutations are mutually exclusive
-- Environmental interactions: adaptations change how biomes affect you
-- **Depends on**: Faction system (social consequences), skill catalog (integration)
+#### 9. Adaptations Rework ✏️ DESIGN COMPLETE — READY TO IMPLEMENT
+- **Design doc**: `docs/features/ADAPTATION_SYSTEM.md`
+- **Current state**: 10 placeholder adaptations in data; only `saltblood` and basic stat modifiers read in code. Gain is passive and automatic — to be replaced entirely.
+- **Mechanic**: Choice at refraction threshold (tier 1: 150, tier 2: 400, tier 3: 800). 3 options drawn from pool weighted by activity counters. Locked adaptations require specific unlock conditions.
+- **4 categories**: Survival, Predator, Precision, Artificer — each crystallizes a distinct playstyle.
+- **Expected per run**: 3 adaptations (semi-long), 4–5 (late-game).
+- **Implementation phases**:
+  1. Activity counters + weighted selection logic + choice UI + threshold redesign
+  2. New `adaptations.json` (24 entries) + wire each effect in code + faction reputation modifiers
+  3. NPC dialogue references + visual indicators + DES scenarios
+- **Save version bump required** (existing saves incompatible)
+- **Depends on**: Faction system ✅, skill catalog ✅
 
 #### 10. Storm System Rework
 - Predictable storm cycles with forecast system
@@ -343,36 +168,31 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - Storm intensity scaling with world progression
 - Storm shelters and preparation mechanics
 - Storm-created opportunities (new paths, revealed secrets, rare spawns)
-- **Depends on**: Tiered mobs (storm spawns), adaptations (storm resistance)
+- **Depends on**: Tiered mobs (#7) (storm spawns), adaptations (#9) (storm resistance)
 
 ### Tier 3 — Combat & Economy
 
 #### 11. Ranged/Throw Weapon Overhaul
 - Proper projectile system with trajectory and obstacles
-- Weapon types: bows, crossbows, thrown weapons, slings
 - Ammunition system with crafting
-- Range penalties and bonuses
 - Line-of-sight integration with FOV
 - Special ammo types (glass-tipped, salt-coated, light-infused)
-- **Depends on**: Tiered loot (weapon tiers), skill catalog (ranged skills)
+- **Depends on**: Tiered loot (#8), skill catalog ✅
 
 #### 12. Trader Overhaul
 - Dynamic pricing based on supply, demand, and faction reputation
 - Trader inventories that refresh and respond to world state
 - Specialized traders: weaponsmith, alchemist, scribe, glass-worker
 - Haggling mechanic using social skills
-- Black market traders for illegal/rare goods
 - Caravan system: traders travel between settlements
-- **Depends on**: Faction system (prices), settlement generation (trader placement), tiered loot
+- **Depends on**: Faction system ✅, settlement generation ✅, tiered loot (#8)
 
 #### 12.5. Improved Biome Variance
 - Distinct visual identity per biome (unique glyphs, color palettes, tile types)
 - Biome-specific hazards, resources, and encounters
 - Transition zones between biomes with blended features
 - Weather patterns per biome affecting gameplay
-- Biome-specific structures and points of interest
-- Seasonal/cyclical biome changes
-- **Depends on**: Storm rework (weather), settlement generation (biome-appropriate buildings)
+- **Depends on**: Storm rework (#10), settlement generation ✅
 
 ### Tier 4 — Narrative & Progression
 
@@ -384,25 +204,19 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - Key items: broken_saint_key, aria_core_fragment, lens_of_the_first_saint
 - Act II boss encounter with phase mechanics
 - Multiple dialogue paths based on faction alignment
-- **Depends on**: Settlement generation (quest locations), faction system (dialogue), tiered mobs (bosses)
+- **Depends on**: Settlement generation ✅, faction system ✅, tiered mobs (#7)
 
 #### 14. Procedurally Generated Quests
 - Quest template system: fetch, kill, escort, explore, defend
 - Dynamic objectives based on world state and player location
-- Procedural quest givers with generated names and motivations
 - Reward scaling based on quest difficulty and player level
-- Quest chains: completing one procedural quest can spawn follow-ups
-- Integration with faction reputation (faction-specific procedural quests)
-- **Depends on**: Main questline (quest infrastructure), faction system, settlement generation
+- **Depends on**: Main questline (#13), faction system ✅, settlement generation ✅
 
 #### 15. Procedurally Generated Lore
 - Lore fragment system: books, inscriptions, NPC dialogue, item descriptions
 - Grammar-based text generation for environmental descriptions
 - Consistent world history generated per seed
-- Discoverable lore that reveals game mechanics and world secrets
-- Lore connections: fragments reference each other across locations
-- Integration with quest system (lore discoveries can trigger quests)
-- **Depends on**: Main questline (lore framework), biome variance (location-specific lore)
+- **Depends on**: Main questline (#13), biome variance (#12.5)
 
 ---
 
@@ -413,3 +227,4 @@ These features fill the world with meaningful content. They depend on Tier 1 fou
 - **Test with DES**: Every new feature gets at least one DES scenario
 - **Versioned saves**: Every GameState change must include a migration path
 - **Zero warnings**: `cargo clippy` clean before every commit
+- **Priority order**: fixable bugs → features blocking fixes → new features
