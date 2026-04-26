@@ -53,7 +53,7 @@ impl GameState {
     /// Get effective player armor (base + equipment + adaptations)
     pub fn effective_armor(&self) -> i32 {
         let adapt_mods = total_stat_modifiers(&self.player.adaptations);
-        self.player.armor + adapt_mods.armor
+        self.player.armor + adapt_mods.armor + self.player.scar_lattice_armor
     }
 
     /// Get effective player reflex (base + adaptations)

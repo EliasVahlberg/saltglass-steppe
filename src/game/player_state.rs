@@ -87,6 +87,9 @@ pub struct PlayerState {
     /// Set by killing_edge adaptation: next melee attack costs 0 AP
     #[serde(default)]
     pub kill_ap_refund_active: bool,
+    /// Temporary armor stacks from scar_lattice adaptation (resets each combat)
+    #[serde(default)]
+    pub scar_lattice_armor: i32,
     // Activity counters for adaptation weighting
     pub activity: ActivityCounters,
     // Tracks which adaptation tiers have already triggered a choice (0-indexed: tier 1=0, tier 2=1, etc.)
@@ -132,6 +135,7 @@ impl PlayerState {
             crystal_system: super::crystal_resonance::CrystalSystem::default(),
             last_damage_dealt: 0,
             kill_ap_refund_active: false,
+            scar_lattice_armor: 0,
             activity: ActivityCounters::default(),
             adaptation_tiers_triggered: Vec::new(),
         }

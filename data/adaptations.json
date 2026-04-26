@@ -12,28 +12,6 @@
       "effects": [{ "type": "light_refraction", "value": 1 }]
     },
     {
-      "id": "sunveins",
-      "name": "Sunveins",
-      "description": "Store light charge in your veins. +2 attack damage.",
-      "tier": 1,
-      "threshold": 150,
-      "category": "predator",
-      "faction_visibility": "low",
-      "stat_modifiers": { "damage_bonus": 2 },
-      "effects": [{ "type": "damage_bonus", "value": 2 }]
-    },
-    {
-      "id": "mirage_step",
-      "name": "Mirage Step",
-      "description": "Leave a decoy at your previous position when you move. Enemies attack the decoy first.",
-      "tier": 2,
-      "threshold": 400,
-      "category": "precision",
-      "faction_visibility": "moderate",
-      "stat_modifiers": {},
-      "effects": [{ "type": "special_ability", "value": 0, "ability": "mirage_step" }]
-    },
-    {
       "id": "saltblood",
       "name": "Saltblood",
       "description": "Immune to glass terrain damage. Glass tiles restore 1 HP per step instead of dealing damage.",
@@ -47,7 +25,7 @@
     {
       "id": "storm_drinker",
       "name": "Storm Drinker",
-      "description": "Storms energize rather than hinder you. +2 AP per turn during storms. Refraction gain from storms doubled.",
+      "description": "Storms energize rather than hinder you. +2 AP when a storm fires.",
       "tier": 1,
       "threshold": 150,
       "category": "survival",
@@ -55,39 +33,6 @@
       "unlock_condition": { "storms_survived": 3 },
       "stat_modifiers": {},
       "effects": [{ "type": "storm_energize", "value": 2 }]
-    },
-    {
-      "id": "killing_edge",
-      "name": "Killing Edge",
-      "description": "Melee attacks deal +3 damage. After killing an enemy, your next attack this turn costs 0 AP.",
-      "tier": 1,
-      "threshold": 150,
-      "category": "predator",
-      "faction_visibility": "low",
-      "stat_modifiers": { "damage_bonus": 3 },
-      "effects": [{ "type": "kill_ap_refund", "value": 1 }]
-    },
-    {
-      "id": "lens_eye",
-      "name": "Lens Eye",
-      "description": "FOV range +4. Ranged attacks never miss targets within 6 tiles.",
-      "tier": 1,
-      "threshold": 150,
-      "category": "precision",
-      "faction_visibility": "low",
-      "stat_modifiers": {},
-      "effects": [{ "type": "fov_bonus", "value": 4 }, { "type": "ranged_accuracy_bonus", "value": 6 }]
-    },
-    {
-      "id": "salt_sense",
-      "name": "Salt Sense",
-      "description": "Loot containers are highlighted in FOV. Crafting recipes require 1 fewer ingredient (minimum 1).",
-      "tier": 1,
-      "threshold": 150,
-      "category": "artificer",
-      "faction_visibility": "low",
-      "stat_modifiers": {},
-      "effects": [{ "type": "loot_highlight", "value": 1 }, { "type": "craft_ingredient_reduction", "value": 1 }]
     },
     {
       "id": "scar_lattice",
@@ -101,6 +46,28 @@
       "effects": [{ "type": "damage_stack_armor", "value": 5 }]
     },
     {
+      "id": "sunveins",
+      "name": "Sunveins",
+      "description": "Store light charge in your veins. +2 attack damage.",
+      "tier": 1,
+      "threshold": 150,
+      "category": "predator",
+      "faction_visibility": "low",
+      "stat_modifiers": { "damage_bonus": 2 },
+      "effects": [{ "type": "damage_bonus", "value": 2 }]
+    },
+    {
+      "id": "killing_edge",
+      "name": "Killing Edge",
+      "description": "Melee attacks deal +3 damage. After killing an enemy, your next melee attack this turn costs 0 AP.",
+      "tier": 1,
+      "threshold": 150,
+      "category": "predator",
+      "faction_visibility": "low",
+      "stat_modifiers": { "damage_bonus": 3 },
+      "effects": [{ "type": "kill_ap_refund", "value": 1 }]
+    },
+    {
       "id": "bone_spur",
       "name": "Bone Spur",
       "description": "Melee attacks have a 20% chance to cause bleed (3 damage/turn for 3 turns). Bleed stacks.",
@@ -110,6 +77,39 @@
       "faction_visibility": "high",
       "stat_modifiers": {},
       "effects": [{ "type": "bleed_on_hit", "value": 20 }]
+    },
+    {
+      "id": "lens_eye",
+      "name": "Lens Eye",
+      "description": "FOV range +4. Ranged attacks never miss targets within 6 tiles.",
+      "tier": 1,
+      "threshold": 150,
+      "category": "precision",
+      "faction_visibility": "low",
+      "stat_modifiers": {},
+      "effects": [{ "type": "fov_bonus", "value": 4 }, { "type": "ranged_accuracy_bonus", "value": 6 }]
+    },
+    {
+      "id": "mirage_step",
+      "name": "Mirage Step",
+      "description": "Leave a decoy at your previous position when you move. Enemies attack the decoy first.",
+      "tier": 2,
+      "threshold": 400,
+      "category": "precision",
+      "faction_visibility": "moderate",
+      "stat_modifiers": {},
+      "effects": [{ "type": "special_ability", "value": 0, "ability": "mirage_step" }]
+    },
+    {
+      "id": "salt_sense",
+      "name": "Salt Sense",
+      "description": "Loot containers are highlighted in FOV. Crafting recipes require 1 fewer ingredient (minimum 1).",
+      "tier": 1,
+      "threshold": 150,
+      "category": "artificer",
+      "faction_visibility": "low",
+      "stat_modifiers": {},
+      "effects": [{ "type": "loot_highlight", "value": 1 }, { "type": "craft_ingredient_reduction", "value": 1 }]
     }
   ]
 }

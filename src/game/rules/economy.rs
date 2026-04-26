@@ -18,7 +18,21 @@ pub fn rule_craft(recipe_id: &str, ctx: &QueryContext) -> RuleOutput {
         }
     };
 
-    if !super::super::crafting::can_craft(recipe, &ctx.player.inventory) {
+    // salt_sense: reduce each ingredient requirement by 1 (minimum 1)
+    let ingredient_reduction: u32 = ctx.player_adaptations.iter()
+        .filter_map(|a| a.def())
+        .flat_map(|d| d.effects.iter())
+        .filter(|e| e.effect_type == "craft_ingredient_reduction")
+        .filter_map(|e| e.value)
+        .map(|v| v as u32)
+        .sum();
+
+    // Check materials with reduction applied
+    let can_craft = recipe.materials.iter().all(|(item_id, &count)| {
+        let effective = count.saturating_sub(ingredient_reduction).max(1);
+        ctx.player.inventory.iter().filter(|id| *id == item_id).count() as u32 >= effective
+    });
+    if !can_craft {
         presentation.push(Presentation::LogMessage {
             text: "You don't have the required materials.".into(),
             msg_type: "warning".into(),
@@ -29,7 +43,8 @@ pub fn rule_craft(recipe_id: &str, ctx: &QueryContext) -> RuleOutput {
     // Consume materials — track removed indices to avoid double-counting
     let mut removed_indices: Vec<usize> = Vec::new();
     for (item_id, &count) in &recipe.materials {
-        for _ in 0..count {
+        let effective_count = count.saturating_sub(ingredient_reduction).max(1);
+        for _ in 0..effective_count {
             if let Some(i) = ctx.player.inventory.iter().enumerate()
                 .filter(|(idx, _)| !removed_indices.contains(idx))
                 .find(|(_, id)| *id == item_id)

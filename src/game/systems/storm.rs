@@ -37,6 +37,13 @@ impl StormSystem {
         let refraction_gain = state.world.storm.intensity as u32 * refraction_multiplier();
         state.player.refraction += refraction_gain;
         state.player.activity.storms_survived += 1;
+
+        // storm_drinker: +2 AP during storm
+        if state.player.adaptations.iter().any(|a| a.id() == "storm_drinker") {
+            let new_ap = (state.player.ap + 2).min(state.player.max_ap);
+            state.player.ap = new_ap;
+        }
+
         crate::game::systems::player::check_adaptation_threshold(state);
 
         // Clear previous storm changes

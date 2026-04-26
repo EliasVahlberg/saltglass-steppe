@@ -19,6 +19,10 @@ impl GameState {
         match phase {
             TurnPhase::ResetAp => {
                 self.apply_mutations(vec![Mutation::ResetAp, Mutation::SetKillApRefund(false)]);
+                // scar_lattice: reset temp armor when no enemies remain (combat over)
+                if self.world.enemies.iter().all(|e| e.hp <= 0) {
+                    self.player.scar_lattice_armor = 0;
+                }
             }
             TurnPhase::TickStatusEffects => {
                 self.apply_mutations(vec![Mutation::TickStatusEffects]);

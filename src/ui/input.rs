@@ -1241,6 +1241,10 @@ fn handle_adaptation_choice_input(ui: &mut UiState, state: &mut GameState, key: 
         KeyCode::Enter => {
             if let Some(id) = ui.adaptation_choice_menu.confirm()
                 && let Some(adaptation) = crate::game::adaptation::Adaptation::from_id(&id) {
+                    crate::game::adaptation::apply_adaptation_faction_effects(
+                        &adaptation,
+                        &mut state.player.faction_reputation,
+                    );
                     state.player.adaptations.push(adaptation);
                     state.log(format!("⬡ You gain: {}!", adaptation.name()));
                 }

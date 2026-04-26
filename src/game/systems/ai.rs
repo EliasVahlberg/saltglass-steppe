@@ -8,6 +8,13 @@ use once_cell::sync::Lazy;
 use rand::Rng;
 use std::collections::HashMap;
 
+/// Apply scar_lattice armor stack when player takes damage.
+fn apply_scar_lattice(state: &mut GameState) {
+    if state.player.adaptations.iter().any(|a| a.id() == "scar_lattice") {
+        state.player.scar_lattice_armor = (state.player.scar_lattice_armor + 1).min(5);
+    }
+}
+
 /// Trait for AI behaviors
 pub trait AiBehavior: Send + Sync {
     /// Execute behavior for a single enemy
@@ -181,6 +188,7 @@ impl AiBehavior for StandardMeleeBehavior {
                     let final_damage = (damage - player_armor).max(1);
                     state.player.hp -= final_damage;
                     state.player.activity.damage_taken_total += final_damage as u32;
+                    apply_scar_lattice(state);
                     state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
                     state.world.visual_effects.spawn_damage_number(
                         state.player.x,
@@ -263,6 +271,7 @@ impl AiBehavior for StandardMeleeBehavior {
                             let final_damage = (bomb_damage - player_armor).max(1);
                             state.player.hp -= final_damage;
                     state.player.activity.damage_taken_total += final_damage as u32;
+                    apply_scar_lattice(state);
                             state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
                             state.world.visual_effects.spawn_damage_number(
                                 state.player.x,
@@ -375,6 +384,7 @@ impl AiBehavior for StandardMeleeBehavior {
             let dmg = (base_dmg - player_armor).max(1);
             state.player.hp -= dmg;
                 state.player.activity.damage_taken_total += dmg as u32;
+                apply_scar_lattice(state);
             state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
             state.world.visual_effects.spawn_damage_number(state.player.x, state.player.y, dmg, false);
             state.log_typed(
@@ -442,6 +452,7 @@ impl AiBehavior for StandardMeleeBehavior {
                     let dmg = (base_dmg - player_armor).max(1);
                     state.player.hp -= dmg;
                 state.player.activity.damage_taken_total += dmg as u32;
+                apply_scar_lattice(state);
                     state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
                     state.world.visual_effects.spawn_damage_number(state.player.x, state.player.y, dmg, false);
                     let dir = state.direction_from(ex, ey);
@@ -488,6 +499,7 @@ impl AiBehavior for StandardMeleeBehavior {
                 // Fire laser
                 state.player.hp -= laser_damage;
                 state.player.activity.damage_taken_total += laser_damage as u32;
+                apply_scar_lattice(state);
                 state.world.visual_effects.trigger_hit_flash(state.player.x, state.player.y);
                 state.world.visual_effects.spawn_damage_number(state.player.x, state.player.y, laser_damage, false);
                 state.log_typed(
@@ -609,6 +621,7 @@ impl AiBehavior for RangedOnlyBehavior {
             let dmg = state.rng.gen_range(def.damage_min..=def.damage_max);
             state.player.hp -= dmg;
                 state.player.activity.damage_taken_total += dmg as u32;
+                apply_scar_lattice(state);
             state.log_typed(
                 format!(
                     "{} shoots you for {} damage!",
@@ -657,6 +670,7 @@ impl AiBehavior for SuicideBomberBehavior {
 
             state.player.hp -= bomb_damage;
                 state.player.activity.damage_taken_total += bomb_damage as u32;
+                apply_scar_lattice(state);
             state.log_typed(
                 format!(
                     "{} explodes for {} damage!",

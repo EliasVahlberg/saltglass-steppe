@@ -286,3 +286,27 @@ pub fn total_stat_modifiers(adaptations: &[Adaptation]) -> StatModifiers {
     }
     total
 }
+
+/// Apply faction reputation multipliers when an adaptation is gained.
+/// Mirror Monks revere visible mutations; Salt Traders distrust them.
+pub fn apply_adaptation_faction_effects(
+    adaptation: &Adaptation,
+    faction_reputation: &mut std::collections::HashMap<String, i32>,
+) {
+    let visibility = adaptation.def().and_then(|d| d.faction_visibility.as_ref());
+    let (monks_mult, traders_mult) = match visibility {
+        Some(FactionVisibility::Low)      => return, // no effect
+        Some(FactionVisibility::Moderate) => (1.1f32, 0.95f32),
+        Some(FactionVisibility::High)     => (1.3f32, 0.80f32),
+        Some(FactionVisibility::Extreme)  => (1.5f32, 0.50f32),
+        None => return,
+    };
+
+    for (faction, mult) in [("MirrorMonks", monks_mult), ("SaltTraders", traders_mult)] {
+        let current = *faction_reputation.get(faction).unwrap_or(&0);
+        if current != 0 {
+            let new_rep = ((current as f32 * mult).round() as i32).clamp(-100, 100);
+            faction_reputation.insert(faction.to_string(), new_rep);
+        }
+    }
+}
