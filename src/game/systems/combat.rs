@@ -78,7 +78,10 @@ pub fn handle_melee(
     };
 
     let cost = crate::game::action::action_cost("attack_melee");
-    if ctx.player.ap < cost { return out; }
+    if ctx.player.ap < cost {
+        out.push(Mutation::LogMessage { text: "Not enough AP to attack.".into(), msg_type: MsgType::Combat });
+        return out;
+    }
 
     // killing_edge: if kill_ap_refund_active, this attack costs 0 AP and clears the flag
     if ctx.player.kill_ap_refund_active {
@@ -179,7 +182,10 @@ pub fn handle_ranged(
     }
 
     let cost = weapon.ap_cost;
-    if ctx.player.ap < cost { return out; }
+    if ctx.player.ap < cost {
+        out.push(Mutation::LogMessage { text: "Not enough AP to attack.".into(), msg_type: MsgType::Combat });
+        return out;
+    }
 
     if let Some(ammo_type) = &weapon.ammo_type {
         match ctx.player.inventory.iter().position(|id| id == ammo_type) {

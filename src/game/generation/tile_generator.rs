@@ -111,7 +111,7 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
         map
     };
 
-    // Find safe spawn position
+    // Find a walkable tile to anchor the connectivity pass (doesn't need to be final spawn)
     let (px, py) = find_safe_spawn_position(&map);
 
     // Collect walkable positions for later use
@@ -368,6 +368,9 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
 
     // Final connectivity pass — carve tunnels to connect any isolated regions
     ensure_connectivity(&mut map, (px, py), &GSBParams::default(), &mut rng);
+
+    // Re-find spawn position on the now-connected map to guarantee it's in the main region
+    let (px, py) = find_safe_spawn_position(&map);
 
     // Refresh walkable_positions for the returned struct
     let walkable_positions: Vec<(i32, i32)> = map

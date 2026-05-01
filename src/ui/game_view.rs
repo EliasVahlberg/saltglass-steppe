@@ -54,12 +54,8 @@ pub fn render_damage_numbers(frame: &mut Frame, area: Rect, state: &GameState) {
     );
     let view_w = inner.width as i32;
     let view_h = inner.height as i32;
-    let cam_x = (state.player.x - view_w / 2)
-        .max(0)
-        .min(state.world.map.width as i32 - view_w);
-    let cam_y = (state.player.y - view_h / 2)
-        .max(0)
-        .min(state.world.map.height as i32 - view_h);
+    let cam_x = state.player.x - view_w / 2;
+    let cam_y = state.player.y - view_h / 2;
 
     for dn in &state.world.visual_effects.damage_numbers {
         let rise = (12 - dn.frames) / 6;
