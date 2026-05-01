@@ -1,0 +1,81 @@
+{
+  "locations": [
+    {
+      "id": "last_salt",
+      "name": "Last Salt",
+      "type": "settlement",
+      "biome": "saltflat",
+      "description": "Starting settlement built around a functioning brine well.",
+      "faction_presence": ["mirror_monks", "sand_engineers", "salt_traders"],
+      "services": ["trade", "rest", "quest"],
+      "npcs": ["dying_pilgrim", "merchant_keth", "mirror_monk"],
+      "lore_graph_id": "last_salt"
+    },
+    {
+      "id": "vitrified_library",
+      "name": "The Vitrified Library Wedge",
+      "type": "dungeon",
+      "biome": "ruins",
+      "description": "A pre-storm archive fused into glass by a catastrophic refraction event.",
+      "faction_presence": ["mirror_monks"],
+      "services": ["quest"],
+      "npcs": [],
+      "lore_graph_id": null
+    },
+    {
+      "id": "crucible_block",
+      "name": "The Crucible Block",
+      "type": "dungeon",
+      "biome": "shattered_citadel",
+      "description": "Industrial ruins where the Sand-Engineers once forged glass-steel alloys.",
+      "faction_presence": ["sand_engineers"],
+      "services": ["quest"],
+      "npcs": ["forge_master_durgan"],
+      "lore_graph_id": null
+    },
+    {
+      "id": "deep_archive_wing",
+      "name": "The Deep Archive Wing",
+      "type": "dungeon",
+      "biome": "shattered_citadel",
+      "description": "Subterranean vaults where the Archive Consciousness stores its oldest records.",
+      "faction_presence": ["archive_consciousness"],
+      "services": ["quest"],
+      "npcs": ["custodian_iri_7"],
+      "lore_graph_id": "first_archive"
+    },
+    {
+      "id": "vector_spire",
+      "name": "The Vector Spire",
+      "type": "landmark",
+      "biome": "refraction_fields",
+      "description": "A crystalline tower that bends light into navigational beams visible for miles.",
+      "faction_presence": [],
+      "services": [],
+      "npcs": [],
+      "lore_graph_id": null
+    },
+    {
+      "id": "angle_cathedra",
+      "name": "Angle Cathedra",
+      "type": "settlement",
+      "biome": "glass_gardens",
+      "description": "The Mirror Monks' primary cathedral, built at the convergence of three refraction lines.",
+      "faction_presence": ["mirror_monks"],
+      "services": ["trade", "rest", "quest"],
+      "npcs": ["high_prism", "brother_halix"],
+      "lore_graph_id": "angle_cathedra"
+    },
+    {
+      "id": "nexus_plateau",
+      "name": "The Nexus Plateau",
+      "type": "landmark",
+      "biome": "saltflat",
+      "description": "A neutral trading ground maintained by the Synthesis Seekers. Embassies of several factions operate here.",
+      "faction_presence": ["synthesis_seekers", "salt_traders"],
+      "services": ["trade", "quest"],
+      "npcs": ["saint_matthias"],
+      "lore_graph_id": "nexus_plateau"
+    }
+  ]
+}

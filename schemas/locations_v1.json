@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Locations",
+  "type": "object",
+  "required": ["locations"],
+  "properties": {
+    "locations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "biome", "description", "faction_presence", "services", "npcs"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "snake_case unique identifier. Matches lore graph place ID where applicable."
+          },
+          "name": {
+            "type": "string",
+            "description": "Display name shown in-game."
+          },
+          "type": {
+            "type": "string",
+            "enum": ["settlement", "dungeon", "landmark", "ruin"],
+            "description": "Location category."
+          },
+          "biome": {
+            "type": "string",
+            "description": "Biome this location spawns in. References biome_profiles.json."
+          },
+          "description": {
+            "type": "string",
+            "description": "Short in-game description shown when the player discovers or examines the location."
+          },
+          "faction_presence": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Faction IDs with a presence here. Affects NPC spawns and structure selection."
+          },
+          "services": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["trade", "rest", "quest", "craft", "heal"]
+            },
+            "description": "What the player can do at this location."
+          },
+          "npcs": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Named NPC IDs that spawn here. Overrides biome spawn tables."
+          },
+          "lore_graph_id": {
+            "type": ["string", "null"],
+            "description": "Optional. Maps to the chronicle graph place ID for the export pipeline."
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}
