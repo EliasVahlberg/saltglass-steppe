@@ -30,20 +30,26 @@
       ],
       "reward": {
         "xp": 50,
-        "items": ["scripture_shard"],
+        "items": [
+          "scripture_shard"
+        ],
         "salt_scrip": 100,
-        "unlocks_quests": ["the_broken_key"]
+        "unlocks_quests": [
+          "the_broken_key"
+        ]
       },
       "criteria": {
         "requires_quests_completed": [],
-        "custom_conditions": ["first_time_player"]
+        "custom_conditions": [
+          "first_time_player"
+        ]
       }
     },
     {
       "id": "the_broken_key",
       "name": "The Broken Key",
       "description": "The scripture shard speaks of saint-keys and doors that remember. Investigate the ruins where the first key lies broken.",
-      "category": "main", 
+      "category": "main",
       "act": 1,
       "objectives": [
         {
@@ -63,12 +69,20 @@
       ],
       "reward": {
         "xp": 75,
-        "items": ["broken_saint_key"],
+        "items": [
+          "broken_saint_key"
+        ],
         "salt_scrip": 150,
-        "unlocks_quests": ["faction_choice_monks", "faction_choice_engineers", "faction_choice_glassborn"]
+        "unlocks_quests": [
+          "faction_choice_monks",
+          "faction_choice_engineers",
+          "faction_choice_glassborn"
+        ]
       },
       "criteria": {
-        "requires_quests_completed": ["pilgrims_last_angle"]
+        "requires_quests_completed": [
+          "pilgrims_last_angle"
+        ]
       }
     },
     {
@@ -94,11 +108,15 @@
       ],
       "reward": {
         "xp": 100,
-        "items": ["sacred_angle_lens"],
+        "items": [
+          "sacred_angle_lens"
+        ],
         "salt_scrip": 200
       },
       "criteria": {
-        "requires_quests_completed": ["the_broken_key"],
+        "requires_quests_completed": [
+          "the_broken_key"
+        ],
         "min_faction_reputation": {
           "mirror_monks": 25
         },
@@ -109,7 +127,7 @@
       }
     },
     {
-      "id": "faction_choice_engineers", 
+      "id": "faction_choice_engineers",
       "name": "The Sand-Engineer Path",
       "description": "Forewoman Ressa Vane offers practical solutions. The Sand-Engineers believe in controlling the storms through technology.",
       "category": "main",
@@ -131,11 +149,16 @@
       ],
       "reward": {
         "xp": 100,
-        "items": ["forecast_instrument", "spoof_module"],
+        "items": [
+          "forecast_instrument",
+          "spoof_module"
+        ],
         "salt_scrip": 200
       },
       "criteria": {
-        "requires_quests_completed": ["the_broken_key"],
+        "requires_quests_completed": [
+          "the_broken_key"
+        ],
         "min_faction_reputation": {
           "sand_engineers": 25
         },
@@ -147,7 +170,7 @@
     },
     {
       "id": "faction_choice_glassborn",
-      "name": "The Glassborn Path", 
+      "name": "The Glassborn Path",
       "description": "Sable-of-the-Seam speaks of kinship and transformation. The Glassborn embrace the storm's changes.",
       "category": "main",
       "act": 1,
@@ -168,11 +191,15 @@
       ],
       "reward": {
         "xp": 100,
-        "items": ["storm_glass"],
+        "items": [
+          "storm_glass"
+        ],
         "salt_scrip": 200
       },
       "criteria": {
-        "requires_quests_completed": ["the_broken_key"],
+        "requires_quests_completed": [
+          "the_broken_key"
+        ],
         "min_faction_reputation": {
           "glassborn": 25
         },
@@ -200,13 +227,23 @@
       ],
       "reward": {
         "xp": 200,
-        "items": ["saint_key"],
+        "items": [
+          "saint_key"
+        ],
         "salt_scrip": 500,
-        "unlocks_quests": ["custodians_query"]
+        "unlocks_quests": [
+          "custodians_query"
+        ]
       },
       "criteria": {
-        "requires_quests_completed": ["faction_choice_monks", "faction_choice_engineers", "faction_choice_glassborn"],
-        "custom_conditions": ["has_faction_alignment"]
+        "requires_quests_completed": [
+          "faction_choice_monks",
+          "faction_choice_engineers",
+          "faction_choice_glassborn"
+        ],
+        "custom_conditions": [
+          "has_faction_alignment"
+        ]
       }
     },
     {
@@ -233,18 +270,26 @@
       "reward": {
         "xp": 500,
         "salt_scrip": 1000,
-        "unlocks_quests": ["white_noon_revelation"]
+        "unlocks_quests": [
+          "white_noon_revelation"
+        ]
       },
       "criteria": {
-        "requires_quests_completed": ["the_second_key"],
-        "required_items": ["saint_key"],
-        "custom_conditions": ["in_deep_archive"]
+        "requires_quests_completed": [
+          "the_second_key"
+        ],
+        "required_items": [
+          "saint_key"
+        ],
+        "custom_conditions": [
+          "in_deep_archive"
+        ]
       }
     },
     {
       "id": "white_noon_revelation",
       "name": "The White Noon Revelation",
-      "description": "Custodian IRI-7 reveals the truth of White Noon—not an accident, but sabotage by the Preservation Protocol. The Architect's Great Work was interrupted.",
+      "description": "Custodian IRI-7 reveals the truth of White Noon\u2014not an accident, but sabotage by the Preservation Protocol. The Architect's Great Work was interrupted.",
       "category": "main",
       "act": 3,
       "objectives": [
@@ -264,16 +309,20 @@
       "reward": {
         "xp": 750,
         "salt_scrip": 1500,
-        "unlocks_quests": ["prime_lens_prophecy"]
+        "unlocks_quests": [
+          "prime_lens_prophecy"
+        ]
       },
       "criteria": {
-        "requires_quests_completed": ["custodians_query"]
+        "requires_quests_completed": [
+          "custodians_query"
+        ]
       }
     },
     {
       "id": "prime_lens_prophecy",
       "name": "The Prime Lens Prophecy",
-      "description": "The Architect reveals the Prime Lens—a master key that can focus the entire Heliograph array. It was shattered into three Aspects during White Noon.",
+      "description": "The Architect reveals the Prime Lens\u2014a master key that can focus the entire Heliograph array. It was shattered into three Aspects during White Noon.",
       "category": "main",
       "act": 3,
       "objectives": [
@@ -293,12 +342,20 @@
       ],
       "reward": {
         "xp": 1000,
-        "items": ["prime_lens_shard"],
+        "items": [
+          "prime_lens_shard"
+        ],
         "salt_scrip": 2000,
-        "unlocks_quests": ["shard_of_clarity", "shard_of_will", "shard_of_soul"]
+        "unlocks_quests": [
+          "shard_of_clarity",
+          "shard_of_will",
+          "shard_of_soul"
+        ]
       },
       "criteria": {
-        "requires_quests_completed": ["white_noon_revelation"]
+        "requires_quests_completed": [
+          "white_noon_revelation"
+        ]
       }
     },
     {
@@ -332,11 +389,15 @@
       ],
       "reward": {
         "xp": 1500,
-        "items": ["shard_of_clarity"],
+        "items": [
+          "shard_of_clarity"
+        ],
         "salt_scrip": 3000
       },
       "criteria": {
-        "requires_quests_completed": ["prime_lens_prophecy"]
+        "requires_quests_completed": [
+          "prime_lens_prophecy"
+        ]
       }
     },
     {
@@ -370,11 +431,15 @@
       ],
       "reward": {
         "xp": 1500,
-        "items": ["shard_of_will"],
+        "items": [
+          "shard_of_will"
+        ],
         "salt_scrip": 3000
       },
       "criteria": {
-        "requires_quests_completed": ["prime_lens_prophecy"]
+        "requires_quests_completed": [
+          "prime_lens_prophecy"
+        ]
       }
     },
     {
@@ -407,12 +472,18 @@
       ],
       "reward": {
         "xp": 1500,
-        "items": ["shard_of_soul"],
+        "items": [
+          "shard_of_soul"
+        ],
         "salt_scrip": 3000,
-        "unlocks_quests": ["vector_choice"]
+        "unlocks_quests": [
+          "vector_choice"
+        ]
       },
       "criteria": {
-        "requires_quests_completed": ["prime_lens_prophecy"]
+        "requires_quests_completed": [
+          "prime_lens_prophecy"
+        ]
       }
     },
     {
@@ -445,12 +516,22 @@
       ],
       "reward": {
         "xp": 5000,
-        "items": ["prime_lens_complete"],
+        "items": [
+          "prime_lens_complete"
+        ],
         "salt_scrip": 10000
       },
       "criteria": {
-        "requires_quests_completed": ["shard_of_clarity", "shard_of_will", "shard_of_soul"],
-        "required_items": ["shard_of_clarity", "shard_of_will", "shard_of_soul"]
+        "requires_quests_completed": [
+          "shard_of_clarity",
+          "shard_of_will",
+          "shard_of_soul"
+        ],
+        "required_items": [
+          "shard_of_clarity",
+          "shard_of_will",
+          "shard_of_soul"
+        ]
       }
     }
   ],
@@ -513,7 +594,7 @@
           },
           "condition": {
             "type": "faction_reputation",
-            "faction": "sand_engineers", 
+            "faction": "sand_engineers",
             "min_rep": 25
           }
         }
