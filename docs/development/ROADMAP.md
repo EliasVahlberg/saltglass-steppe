@@ -1,7 +1,7 @@
 ---
 status: current
 last_verified: 2026-05-01
-commit: f14ba9c
+commit: 2dce3ca
 ---
 
 # Development Roadmap
@@ -30,21 +30,19 @@ commit: f14ba9c
 
 `animation_effects_test`, `effects_config_test`, `event_system_basic`, `microstructures_test`, `narrative_integration_basic`, `procedural_effects_test`, `spawn_distribution_test`, `storm_timer_countdown`, `system_integration_test`, `test_renderer_frame`, `theme_system_test`, `tutorial_messages_display`, `basic_movement_scenario`.
 
-### StatEffect system — follow-on work
+### StatEffect system — follow-on work ✅ ALL COMPLETE (2026-05-01)
 
-The `StatEffect` / `collect_player_stat_effects` refactor (2026-05-01) established a unified stat resolution mechanism. Several follow-on improvements are now unblocked:
+**Enemy stat effects** ✅
+`collect_enemy_stat_effects(enemy)` added. Status effects with `reduces_damage` lower enemy armor; `reduces_accuracy` lowers enemy reflex. All four combat sites use `resolve_stat_i32` for enemy armor and reflex.
 
-**Enemy stat effects** (Medium, 1 day)
-Enemy armor and reflex are still read directly from `EnemyDef` fields. Enemies can have status effects (`bleed`, `stun`) but those don't yet modify their stats. Extend `collect_player_stat_effects` pattern to enemies: `collect_enemy_stat_effects(enemy)` → `effective_enemy_armor()`, `effective_enemy_reflex()`. This would make bleed's `reduces_damage` and future debuffs actually affect enemy combat stats.
+**Skill passive bonuses → StatEffect** ✅
+`passive_bonuses` HashMap and `recalculate_passive_bonuses()` removed from `SkillsState`. Skills contribute `StatEffect` entries via `collect_player_stat_effects`, computed from raw skill levels at query time. `passive()` and typed accessors compute on-the-fly.
 
-**Skill passive bonuses → StatEffect** (Medium, 1 day)
-`SkillsState.passive_bonuses` is a `HashMap<String, f32>` computed by `recalculate_passive_bonuses()` and stored on the player. This is the write-on-change pattern we just eliminated for equipment. Skills should instead contribute `StatEffect` entries via `collect_player_stat_effects`, making `passive_bonuses` and `recalculate_passive_bonuses()` redundant. The skill accessors (`melee_accuracy_bonus()`, `ranged_damage_bonus()`, etc.) would become `resolve_stat()` calls.
+**Adaptation event effects → effect-type queries** ✅
+Hardcoded adaptation ID checks (`bone_spur`, `killing_edge`, `scar_lattice`, `storm_drinker`) replaced with `player_has_effect(player, effect_type)` and `player_effect_value(player, effect_type)` in `adaptation.rs`. Effect types and values are read from `AdaptationDef.effects` in JSON. Adding a new adaptation with an existing mechanic is now a data-only change.
 
 **Item boolean flags → StatEffect** (Low, 0.5 days)
-`ItemDef` has ~15 boolean flags (`grants_invisibility`, `stealth_bonus`, `grants_sprint`, etc.) that are checked ad hoc across systems. These could be expressed as `StatEffect` entries with value 1.0, making item capabilities queryable through the same mechanism as other stats. Not urgent — the boolean flags work fine — but would reduce the number of special-case checks.
-
-**Adaptation event effects → parameterized rules** (Medium, ongoing)
-The 4 hardcoded adaptation ID checks (`bone_spur`, `killing_edge`, `scar_lattice`, `storm_drinker`) are the remaining non-stat adaptation effects. These belong to a second category: parameterized rules that fire on events. The right long-term approach is a small rule registry where adaptation data specifies the rule name and parameters, and the system looks up the rule at the relevant event site. This removes the hardcoded ID checks without requiring a general interpreter. Design before implementing — see the discussion in session notes (2026-05-01).
+`ItemDef` has ~15 boolean flags (`grants_invisibility`, `stealth_bonus`, `grants_sprint`, etc.) checked ad hoc across systems. Not urgent — flags work correctly — but would reduce special-case checks.
 
 ### Architecture debt (deferred from VERA refactor)
 
@@ -75,6 +73,15 @@ A 30-minute play session is possible: character creation, movement, combat, ques
 ---
 
 ## Recently Completed
+
+### p1 Bug Fixes & StatEffect Follow-on (2026-05-01)
+- **Combat AP feedback**: `handle_melee`/`handle_ranged` now log "Not enough AP to attack." instead of silently rejecting (closes #1)
+- **Damage number position**: `render_damage_numbers` now uses unclamped camera matching the renderer — numbers appear at the correct position (closes #2)
+- **Spawn connectivity**: spawn position re-found after `ensure_connectivity` pass, guaranteeing player starts in the connected region (closes #3)
+- **Enemy stat effects**: `collect_enemy_stat_effects()` added; bleed/debuff status effects now modify enemy armor and reflex in combat (closes #4)
+- **Skill passives → StatEffect**: `passive_bonuses` HashMap removed; skills contribute `StatEffect` entries computed at query time (closes #5)
+- **Adaptation event effects → data-driven**: hardcoded ID checks replaced with `player_has_effect`/`player_effect_value` queries; effect values (`bleed_on_hit` chance, `damage_stack_armor` max, `storm_energize` AP) now read from JSON (closes #6)
+- **System Design Philosophy doc**: `docs/development/SYSTEM_DESIGN_PHILOSOPHY.md` added — captures the design principles from today's session
 
 ### StatEffect Refactor (2026-05-01)
 - `src/game/stat_effect.rs`: unified `StatEffect { stat, op: Add|Multiply, priority, source_id }` + `resolve_stat()` + `collect_player_stat_effects()`
