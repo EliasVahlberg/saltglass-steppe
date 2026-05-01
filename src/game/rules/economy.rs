@@ -19,13 +19,8 @@ pub fn rule_craft(recipe_id: &str, ctx: &QueryContext) -> RuleOutput {
     };
 
     // salt_sense: reduce each ingredient requirement by 1 (minimum 1)
-    let ingredient_reduction: u32 = ctx.player_adaptations.iter()
-        .filter_map(|a| a.def())
-        .flat_map(|d| d.effects.iter())
-        .filter(|e| e.effect_type == "craft_ingredient_reduction")
-        .filter_map(|e| e.value)
-        .map(|v| v as u32)
-        .sum();
+    let stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+    let ingredient_reduction = crate::game::stat_effect::resolve_stat_i32(0, "craft_ingredient_reduction", &stat_effects).max(0) as u32;
 
     // Check materials with reduction applied
     let can_craft = recipe.materials.iter().all(|(item_id, &count)| {

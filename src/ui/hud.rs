@@ -135,7 +135,7 @@ pub fn render_side_panel(frame: &mut Frame, area: Rect, state: &GameState) {
             ),
             Span::raw(" Arm: "),
             Span::styled(
-                format!("{}", state.player.armor),
+                format!("{}", state.effective_armor()),
                 Style::default().fg(Color::Blue),
             ),
         ]),

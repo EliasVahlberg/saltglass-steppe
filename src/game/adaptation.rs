@@ -263,28 +263,6 @@ impl Adaptation {
             })
             .unwrap_or(false)
     }
-
-    /// Get stat modifiers from this adaptation
-    pub fn stat_modifiers(&self) -> &'static StatModifiers {
-        static DEFAULT: StatModifiers = StatModifiers {
-            armor: 0,
-            damage_bonus: 0,
-            reflex: 0,
-        };
-        self.def().map(|d| &d.stat_modifiers).unwrap_or(&DEFAULT)
-    }
-}
-
-/// Calculate total stat modifiers from a list of adaptations
-pub fn total_stat_modifiers(adaptations: &[Adaptation]) -> StatModifiers {
-    let mut total = StatModifiers::default();
-    for a in adaptations {
-        let mods = a.stat_modifiers();
-        total.armor += mods.armor;
-        total.damage_bonus += mods.damage_bonus;
-        total.reflex += mods.reflex;
-    }
-    total
 }
 
 /// Apply faction reputation multipliers when an adaptation is gained.

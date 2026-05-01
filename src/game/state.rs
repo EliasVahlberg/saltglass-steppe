@@ -361,12 +361,8 @@ impl GameState {
 
     /// Update player field of view using shadow casting algorithm
     pub fn update_fov(&mut self) {
-        let fov_bonus: i32 = self.player.adaptations.iter()
-            .filter_map(|a| a.def())
-            .flat_map(|d| d.effects.iter())
-            .filter(|e| e.effect_type == "fov_bonus")
-            .filter_map(|e| e.value)
-            .sum();
+        let effects = crate::game::stat_effect::collect_player_stat_effects(&self.player);
+        let fov_bonus = crate::game::stat_effect::resolve_stat_i32(0, "fov", &effects);
         let radius = (crate::game::constants::FOV_RANGE + fov_bonus)
             .clamp(1, crate::game::constants::FOV_RANGE);
         self.visible = crate::game::map::compute_fov_radius(
@@ -624,7 +620,8 @@ impl GameState {
                 self.apply_one(&Mutation::SetEquipment { slot: slot.clone(), item_id: None });
             }
             Mutation::RecalcStats => {
-                crate::game::systems::player::recalc_equipment_stats(self);
+                // Equipment stats are now computed on query via collect_player_stat_effects.
+                // This mutation is kept for compatibility but is a no-op.
             }
             Mutation::StunEnemy { idx, duration } => {
                 self.apply_one(&Mutation::AddEnemyStatus { idx: *idx, id: "stun".into(), duration: *duration });

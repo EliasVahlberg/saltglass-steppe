@@ -1,11 +1,44 @@
-//! Combat action methods for GameState
+//! Combat action methods and stat resolution for GameState.
 
 use super::{
-    action::action_cost, adaptation::total_stat_modifiers,
-    item::get_item_def, map::Tile, state::GameState, systems::ai::AiSystem,
+    action::action_cost,
+    item::get_item_def,
+    map::Tile,
+    state::GameState,
+    stat_effect::{collect_player_stat_effects, resolve_stat_i32},
+    systems::ai::AiSystem,
 };
 
 impl GameState {
+    /// Collect all active stat effects from adaptations, equipment, and status effects.
+    pub fn active_stat_effects(&self) -> Vec<super::stat_effect::StatEffect> {
+        collect_player_stat_effects(&self.player)
+    }
+
+    /// Effective armor: sum of all armor effects.
+    pub fn effective_armor(&self) -> i32 {
+        let effects = self.active_stat_effects();
+        resolve_stat_i32(0, "armor", &effects)
+    }
+
+    /// Effective reflex: base + all reflex effects.
+    pub fn effective_reflex(&self) -> i32 {
+        let effects = self.active_stat_effects();
+        resolve_stat_i32(self.player.reflex, "reflex", &effects)
+    }
+
+    /// Flat damage bonus from all sources (adaptations + status debuffs).
+    pub fn effective_damage_bonus_flat(&self) -> i32 {
+        let effects = self.active_stat_effects();
+        resolve_stat_i32(0, "damage_bonus", &effects)
+    }
+
+    /// Accuracy penalty from status effects (positive = worse accuracy).
+    pub fn effective_accuracy_penalty(&self) -> i32 {
+        let effects = self.active_stat_effects();
+        resolve_stat_i32(0, "accuracy_penalty", &effects)
+    }
+
     /// Break a wall at position (requires tool)
     pub fn try_break_wall(&mut self, x: i32, y: i32) -> bool {
         let has_pick = self
@@ -48,18 +81,6 @@ impl GameState {
         }
         self.log("Nothing to break there.");
         false
-    }
-
-    /// Get effective player armor (base + equipment + adaptations)
-    pub fn effective_armor(&self) -> i32 {
-        let adapt_mods = total_stat_modifiers(&self.player.adaptations);
-        self.player.armor + adapt_mods.armor + self.player.scar_lattice_armor
-    }
-
-    /// Get effective player reflex (base + adaptations)
-    pub fn effective_reflex(&self) -> i32 {
-        let adapt_mods = total_stat_modifiers(&self.player.adaptations);
-        self.player.reflex + adapt_mods.reflex
     }
 
     pub fn update_enemies(&mut self) {

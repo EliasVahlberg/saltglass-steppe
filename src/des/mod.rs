@@ -1426,7 +1426,7 @@ impl DesExecutor {
                 .map(|e| Some(e) == item.as_ref())
                 .unwrap_or(item.is_none()),
             AssertionCheck::PlayerArmor { op, value } => {
-                op.compare(self.state.player.armor, *value)
+                op.compare(self.state.effective_armor(), *value)
             }
             AssertionCheck::EnemyProvoked { id, provoked } => self
                 .state

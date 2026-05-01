@@ -55,12 +55,21 @@ pub fn rule_use_item(item_index: usize, ctx: &QueryContext) -> RuleOutput {
 
     // Healing
     if def.heal > 0 {
-        let heal = def.heal.min(ctx.player.max_hp - ctx.player.hp);
-        effects.push(Effect::Player(PlayerEffect::Heal { amount: heal }));
-        presentation.push(Presentation::LogMessage {
-            text: format!("You use {}. (+{} HP)", def.name, heal),
-            msg_type: "loot".into(),
-        });
+        let stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+        let healing_blocked = crate::game::stat_effect::resolve_stat_i32(0, "blocks_healing", &stat_effects) > 0;
+        if healing_blocked {
+            presentation.push(Presentation::LogMessage {
+                text: format!("You use {} but bleeding prevents healing.", def.name),
+                msg_type: "warning".into(),
+            });
+        } else {
+            let heal = def.heal.min(ctx.player.max_hp - ctx.player.hp);
+            effects.push(Effect::Player(PlayerEffect::Heal { amount: heal }));
+            presentation.push(Presentation::LogMessage {
+                text: format!("You use {}. (+{} HP)", def.name, heal),
+                msg_type: "loot".into(),
+            });
+        }
     }
 
     // Refraction reduction

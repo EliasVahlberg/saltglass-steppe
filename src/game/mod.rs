@@ -46,6 +46,7 @@ pub mod quest;
 pub mod rules;
 pub mod save;
 pub mod skills;
+pub mod stat_effect;
 pub mod state;
 mod state_init;
 pub mod status;

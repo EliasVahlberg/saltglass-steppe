@@ -216,11 +216,8 @@ pub fn apply_status_effect(state: &mut GameState, effect_id: &str, duration: i32
     state.log_typed(format!("You are affected by {}.", effect_id), MsgType::Combat);
 }
 
-/// Recalculate weapon/armor stats from equipment slots.
+/// Sync equipped_weapon from equipment slot. Called on equip/unequip.
+/// Armor is now computed on query via collect_player_stat_effects — no write needed.
 pub fn recalc_equipment_stats(state: &mut GameState) {
     state.player.equipped_weapon = state.player.equipment.weapon.clone();
-    state.player.armor = state.player.equipment.jacket.as_ref()
-        .and_then(|id| crate::game::item::get_item_def(id))
-        .map(|def| def.armor_value)
-        .unwrap_or(0);
 }

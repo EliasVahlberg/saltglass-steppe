@@ -110,8 +110,9 @@ pub fn handle_melee(
         return out;
     }
 
-    let adapt_mods = crate::game::adaptation::total_stat_modifiers(&ctx.player.adaptations);
-    let dmg = ((result.damage as f32 * (1.0 + damage_bonus)) as i32 + adapt_mods.damage_bonus).max(0);
+    let adapt_mods = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+    let flat_dmg_bonus = crate::game::stat_effect::resolve_stat_i32(0, "damage_bonus", &adapt_mods);
+    let dmg = ((result.damage as f32 * (1.0 + damage_bonus)) as i32 + flat_dmg_bonus).max(0);
 
     out.push(Mutation::SetEnemyHp { idx: ei, hp: enemy.hp - dmg });
     out.push(Mutation::SetLastDamageDealt(dmg as u32));
@@ -222,18 +223,15 @@ pub fn handle_ranged(
 
     // lens_eye: never miss within ranged_accuracy_bonus tiles
     let dist = (target_x - ctx.player.x).abs().max((target_y - ctx.player.y).abs());
-    let lens_range: i32 = ctx.player.adaptations.iter()
-        .filter_map(|a| a.def())
-        .flat_map(|d| d.effects.iter())
-        .filter(|e| e.effect_type == "ranged_accuracy_bonus")
-        .filter_map(|e| e.value)
-        .sum();
+    let stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+    let lens_range = crate::game::stat_effect::resolve_stat_i32(0, "ranged_accuracy_bonus", &stat_effects);
+    let accuracy_penalty = crate::game::stat_effect::resolve_stat_i32(0, "accuracy_penalty", &stat_effects);
     let guaranteed_hit = lens_range > 0 && dist <= lens_range;
 
     let result = if guaranteed_hit {
         crate::game::combat::CombatResult { hit: true, damage: roll_attack(rng, weapon, enemy_reflex, enemy_armor, -(accuracy_bonus * 100.0) as i32).damage, crit: false }
     } else {
-        apply_mocks(ctx, roll_attack(rng, weapon, enemy_reflex, enemy_armor, -(accuracy_bonus * 100.0) as i32))
+        apply_mocks(ctx, roll_attack(rng, weapon, enemy_reflex, enemy_armor, -(accuracy_bonus * 100.0) as i32 + accuracy_penalty))
     };
     let name = enemy.name().to_string();
 

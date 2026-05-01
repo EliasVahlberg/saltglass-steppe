@@ -1,10 +1,10 @@
 use crate::game::action::action_cost;
-use crate::game::adaptation::total_stat_modifiers;
 use crate::game::combat::{default_weapon, get_weapon_def, roll_attack, CombatResult};
 use crate::game::effects::context::QueryContext;
 use crate::game::effects::{
     CombatEffect, Effect, ItemEffect, PlayerEffect, Presentation, RuleOutput,
 };
+use crate::game::stat_effect::{collect_player_stat_effects, resolve_stat_i32};
 use rand_chacha::ChaCha8Rng;
 
 /// Apply mock overrides to a combat result.
@@ -82,8 +82,8 @@ pub fn rule_melee_attack(
 
     let mut dmg = result.damage;
     dmg = (dmg as f32 * (1.0 + damage_bonus)) as i32;
-    let adapt_mods = total_stat_modifiers(&ctx.player.adaptations);
-    dmg += adapt_mods.damage_bonus;
+    let stat_effects = collect_player_stat_effects(ctx.player);
+    dmg += resolve_stat_i32(0, "damage_bonus", &stat_effects);
 
     effects.push(Effect::Combat(CombatEffect::DealDamage {
         enemy_idx: ei,
