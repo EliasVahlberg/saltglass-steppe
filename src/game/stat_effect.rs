@@ -159,5 +159,61 @@ pub fn collect_player_stat_effects(
         }
     }
 
+    // --- Skills ---
+    use crate::game::skills::get_skill_def;
+    for (skill_id, &level) in &player.skills.skills {
+        let Some(def) = get_skill_def(skill_id) else { continue };
+        for effect in &def.passive_effects {
+            let stat: Option<&'static str> = match effect.effect_type.as_str() {
+                "melee_accuracy_bonus"  => Some("melee_accuracy_bonus"),
+                "melee_damage_bonus"    => Some("melee_damage_bonus"),
+                "ranged_accuracy_bonus" => Some("ranged_accuracy_bonus"),
+                "ranged_damage_bonus"   => Some("ranged_damage_bonus"),
+                "armor"                 => Some("armor"),
+                "damage_bonus"          => Some("damage_bonus"),
+                "reflex"                => Some("reflex"),
+                "fov"                   => Some("fov"),
+                _ => None,
+            };
+            let Some(stat) = stat else { continue };
+            let bonus = {
+                let raw = effect.value_per_level * level as f32;
+                if let Some(max) = effect.max_value { raw.min(max) } else { raw }
+            };
+            if bonus != 0.0 {
+                effects.push(StatEffect {
+                    stat,
+                    op: StatOp::Add(bonus),
+                    priority: 1.0,
+                    source_id: format!("skill_{}", skill_id),
+                });
+            }
+        }
+    }
+
+    effects
+}
+/// Base armor/reflex come from EnemyDef and are passed as base values to resolve_stat.
+pub fn collect_enemy_stat_effects(enemy: &crate::game::enemy::Enemy) -> Vec<StatEffect> {
+    let mut effects = Vec::new();
+    for status in &enemy.status_effects {
+        let Some(def) = crate::game::status::get_status_def(&status.id) else { continue };
+        if def.reduces_damage != 0 {
+            effects.push(StatEffect {
+                stat: "armor",
+                op: StatOp::Add(def.reduces_damage as f32),
+                priority: 0.0,
+                source_id: status.id.clone(),
+            });
+        }
+        if def.reduces_accuracy != 0 {
+            effects.push(StatEffect {
+                stat: "reflex",
+                op: StatOp::Add(-(def.reduces_accuracy as f32)),
+                priority: 0.0,
+                source_id: status.id.clone(),
+            });
+        }
+    }
     effects
 }

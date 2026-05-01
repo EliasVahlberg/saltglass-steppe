@@ -99,10 +99,12 @@ pub fn handle_melee(
         Some(e) => e,
         None => return out,
     };
-    let enemy_reflex = enemy.def().map(|d| d.reflex).unwrap_or(0);
-    let enemy_armor  = enemy.def().map(|d| d.armor).unwrap_or(0);
-    let accuracy_bonus = ctx.player.skills.melee_accuracy_bonus();
-    let damage_bonus   = ctx.player.skills.melee_damage_bonus();
+    let enemy_stat_effects = crate::game::stat_effect::collect_enemy_stat_effects(enemy);
+    let enemy_reflex = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.reflex).unwrap_or(0), "reflex", &enemy_stat_effects);
+    let enemy_armor  = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.armor).unwrap_or(0), "armor", &enemy_stat_effects);
+    let player_stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+    let accuracy_bonus = crate::game::stat_effect::resolve_stat(0.0, "melee_accuracy_bonus", &player_stat_effects);
+    let damage_bonus   = crate::game::stat_effect::resolve_stat(0.0, "melee_damage_bonus", &player_stat_effects);
 
     let result = apply_mocks(ctx, roll_attack(rng, weapon, enemy_reflex, enemy_armor,
                                               -(accuracy_bonus * 100.0) as i32));
@@ -113,8 +115,7 @@ pub fn handle_melee(
         return out;
     }
 
-    let adapt_mods = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
-    let flat_dmg_bonus = crate::game::stat_effect::resolve_stat_i32(0, "damage_bonus", &adapt_mods);
+    let flat_dmg_bonus = crate::game::stat_effect::resolve_stat_i32(0, "damage_bonus", &player_stat_effects);
     let dmg = ((result.damage as f32 * (1.0 + damage_bonus)) as i32 + flat_dmg_bonus).max(0);
 
     out.push(Mutation::SetEnemyHp { idx: ei, hp: enemy.hp - dmg });
@@ -222,14 +223,15 @@ pub fn handle_ranged(
         Some(e) => e,
         None => return out,
     };
-    let enemy_reflex = enemy.def().map(|d| d.reflex).unwrap_or(0);
-    let enemy_armor  = enemy.def().map(|d| d.armor).unwrap_or(0);
-    let accuracy_bonus = ctx.player.skills.ranged_accuracy_bonus();
-    let damage_bonus   = ctx.player.skills.ranged_damage_bonus();
+    let enemy_stat_effects = crate::game::stat_effect::collect_enemy_stat_effects(enemy);
+    let enemy_reflex = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.reflex).unwrap_or(0), "reflex", &enemy_stat_effects);
+    let enemy_armor  = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.armor).unwrap_or(0), "armor", &enemy_stat_effects);
 
     // lens_eye: never miss within ranged_accuracy_bonus tiles
     let dist = (target_x - ctx.player.x).abs().max((target_y - ctx.player.y).abs());
     let stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+    let accuracy_bonus = crate::game::stat_effect::resolve_stat(0.0, "ranged_accuracy_bonus", &stat_effects);
+    let damage_bonus   = crate::game::stat_effect::resolve_stat(0.0, "ranged_damage_bonus", &stat_effects);
     let lens_range = crate::game::stat_effect::resolve_stat_i32(0, "ranged_accuracy_bonus", &stat_effects);
     let accuracy_penalty = crate::game::stat_effect::resolve_stat_i32(0, "accuracy_penalty", &stat_effects);
     let guaranteed_hit = lens_range > 0 && dist <= lens_range;

@@ -4,7 +4,7 @@ use crate::game::effects::context::QueryContext;
 use crate::game::effects::{
     CombatEffect, Effect, ItemEffect, PlayerEffect, Presentation, RuleOutput,
 };
-use crate::game::stat_effect::{collect_player_stat_effects, resolve_stat_i32};
+use crate::game::stat_effect::{collect_player_stat_effects, resolve_stat, resolve_stat_i32};
 use rand_chacha::ChaCha8Rng;
 
 /// Apply mock overrides to a combat result.
@@ -60,11 +60,13 @@ pub fn rule_melee_attack(
         Some(e) => e,
         None => return RuleOutput { effects, presentation },
     };
-    let enemy_reflex = enemy.def().map(|d| d.reflex).unwrap_or(0);
-    let enemy_armor = enemy.def().map(|d| d.armor).unwrap_or(0);
+    let enemy_stat_effects = crate::game::stat_effect::collect_enemy_stat_effects(enemy);
+    let enemy_reflex = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.reflex).unwrap_or(0), "reflex", &enemy_stat_effects);
+    let enemy_armor = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.armor).unwrap_or(0), "armor", &enemy_stat_effects);
 
-    let accuracy_bonus = ctx.player.skills.melee_accuracy_bonus();
-    let damage_bonus = ctx.player.skills.melee_damage_bonus();
+    let player_stat_effects = collect_player_stat_effects(ctx.player);
+    let accuracy_bonus = resolve_stat(0.0, "melee_accuracy_bonus", &player_stat_effects);
+    let damage_bonus = resolve_stat(0.0, "melee_damage_bonus", &player_stat_effects);
     let cover_bonus = -(accuracy_bonus * 100.0) as i32;
 
     let result = roll_attack(rng, weapon, enemy_reflex, enemy_armor, cover_bonus);
@@ -82,8 +84,7 @@ pub fn rule_melee_attack(
 
     let mut dmg = result.damage;
     dmg = (dmg as f32 * (1.0 + damage_bonus)) as i32;
-    let stat_effects = collect_player_stat_effects(ctx.player);
-    dmg += resolve_stat_i32(0, "damage_bonus", &stat_effects);
+    dmg += resolve_stat_i32(0, "damage_bonus", &player_stat_effects);
 
     effects.push(Effect::Combat(CombatEffect::DealDamage {
         enemy_idx: ei,
@@ -203,11 +204,13 @@ pub fn rule_ranged_attack(
         Some(e) => e,
         None => return RuleOutput { effects, presentation },
     };
-    let enemy_reflex = enemy.def().map(|d| d.reflex).unwrap_or(0);
-    let enemy_armor = enemy.def().map(|d| d.armor).unwrap_or(0);
+    let enemy_stat_effects = crate::game::stat_effect::collect_enemy_stat_effects(enemy);
+    let enemy_reflex = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.reflex).unwrap_or(0), "reflex", &enemy_stat_effects);
+    let enemy_armor = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.armor).unwrap_or(0), "armor", &enemy_stat_effects);
 
-    let accuracy_bonus = ctx.player.skills.ranged_accuracy_bonus();
-    let damage_bonus = ctx.player.skills.ranged_damage_bonus();
+    let player_stat_effects = collect_player_stat_effects(ctx.player);
+    let accuracy_bonus = resolve_stat(0.0, "ranged_accuracy_bonus", &player_stat_effects);
+    let damage_bonus = resolve_stat(0.0, "ranged_damage_bonus", &player_stat_effects);
     let cover_bonus = -(accuracy_bonus * 100.0) as i32;
 
     let result = roll_attack(rng, weapon, enemy_reflex, enemy_armor, cover_bonus);

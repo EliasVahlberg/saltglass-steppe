@@ -105,8 +105,6 @@ pub struct SkillsState {
     pub unlocked_abilities: Vec<String>,
     pub cooldowns: HashMap<String, u32>,
     pub skill_points: u32,
-    #[serde(default)]
-    pub passive_bonuses: HashMap<String, f32>, // effect_type -> total_bonus
 }
 
 impl Default for SkillsState {
@@ -117,8 +115,7 @@ impl Default for SkillsState {
             skills: HashMap::new(),
             unlocked_abilities: Vec::new(),
             cooldowns: HashMap::new(),
-            skill_points: 5, // Start with 5 skill points
-            passive_bonuses: HashMap::new(),
+            skill_points: 5,
         }
     }
 }
@@ -205,27 +202,10 @@ impl SkillsState {
     }
 
     /// Recalculate all passive bonuses from skills
-    pub fn recalculate_passive_bonuses(&mut self) {
-        self.passive_bonuses.clear();
-
-        for (skill_id, &level) in &self.skills {
-            if let Some(def) = get_skill_def(skill_id) {
-                for effect in &def.passive_effects {
-                    let bonus_value = effect.value_per_level * level as f32;
-                    let final_value = if let Some(max_val) = effect.max_value {
-                        bonus_value.min(max_val)
-                    } else {
-                        bonus_value
-                    };
-
-                    *self
-                        .passive_bonuses
-                        .entry(effect.effect_type.clone())
-                        .or_insert(0.0) += final_value;
-                }
-            }
-        }
-    }
+    // NOTE: passive_bonuses removed — passives are now computed on-the-fly via passive()
+    // and contributed to StatEffect via collect_player_stat_effects. This method is kept
+    // as a no-op for any save migration that may call it.
+    pub fn recalculate_passive_bonuses(&mut self) {}
 
     /// Upgrade a skill with skill points
     pub fn upgrade_skill(&mut self, skill_id: &str) -> Result<(), String> {
@@ -266,33 +246,26 @@ impl SkillsState {
         *self.skills.get(skill_id).unwrap_or(&0)
     }
 
-    // --- Typed passive accessors ---
-    pub fn melee_accuracy_bonus(&self) -> f32 {
-        self.passive_bonuses
-            .get("melee_accuracy_bonus")
-            .copied()
-            .unwrap_or(0.0)
-    }
-    pub fn melee_damage_bonus(&self) -> f32 {
-        self.passive_bonuses
-            .get("melee_damage_bonus")
-            .copied()
-            .unwrap_or(0.0)
-    }
-    pub fn ranged_accuracy_bonus(&self) -> f32 {
-        self.passive_bonuses
-            .get("ranged_accuracy_bonus")
-            .copied()
-            .unwrap_or(0.0)
-    }
-    pub fn ranged_damage_bonus(&self) -> f32 {
-        self.passive_bonuses
-            .get("ranged_damage_bonus")
-            .copied()
-            .unwrap_or(0.0)
-    }
+    // --- Typed passive accessors (compute on-the-fly from skill levels) ---
+    pub fn melee_accuracy_bonus(&self) -> f32 { self.passive("melee_accuracy_bonus") }
+    pub fn melee_damage_bonus(&self) -> f32 { self.passive("melee_damage_bonus") }
+    pub fn ranged_accuracy_bonus(&self) -> f32 { self.passive("ranged_accuracy_bonus") }
+    pub fn ranged_damage_bonus(&self) -> f32 { self.passive("ranged_damage_bonus") }
+
     pub fn passive(&self, key: &str) -> f32 {
-        self.passive_bonuses.get(key).copied().unwrap_or(0.0)
+        let mut total = 0.0f32;
+        for (skill_id, &level) in &self.skills {
+            if let Some(def) = get_skill_def(skill_id) {
+                for effect in &def.passive_effects {
+                    if effect.effect_type == key {
+                        let raw = effect.value_per_level * level as f32;
+                        let val = if let Some(max) = effect.max_value { raw.min(max) } else { raw };
+                        total += val;
+                    }
+                }
+            }
+        }
+        total
     }
 }
 
