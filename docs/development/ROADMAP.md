@@ -1,58 +1,65 @@
 ---
 status: current
-last_verified: 2026-04-26
-commit: 3fdbafb
+last_verified: 2026-05-01
+commit: f14ba9c
 ---
 
 # Development Roadmap
 
-> Last updated: 2026-04-26
+> Last updated: 2026-05-01
 
 ---
 
 ## Technical Debt Backlog
 
-> Added 2026-04-06 after VERA refactor + state.rs decomposition. See `STATE_STORE_REFLECTION.md` for full analysis.
-
 ### Immediate bugs ✅ ALL FIXED (2026-04-06)
 
 | Item | Status |
 |------|--------|
-| `teleport` DES action doesn't call `check_auto_complete` | ✅ Fixed — `src/des/mod.rs` |
-| `dying_pilgrim` bump-to-talk not setting `talked` flag | ✅ Fixed — `src/game/systems/movement.rs` |
-| Dialogue condition check not logging to message log | ✅ Fixed — `src/game/npc.rs` (unknown condition fields now fail-closed) |
+| `teleport` DES action doesn't call `check_auto_complete` | ✅ Fixed |
+| `dying_pilgrim` bump-to-talk not setting `talked` flag | ✅ Fixed |
+| Dialogue condition check not logging to message log | ✅ Fixed |
 
-### DES scenario fixes ✅ ALL FIXED (2026-04-06)
+### DES scenario fixes ✅ ALL FIXED (2026-04-26)
 
-All 7 wrong-test-data scenarios fixed. All 7 broken-JSON-format scenarios fixed or deleted. All 3 missing-data scenarios deleted. Dungeon connectivity bug fixed (GSB weight calculation + DES `poi_type` support).
-
-**DES test status as of 2026-04-26**: 142 passing, 2 ignored (`run_all_scenarios` — meta-test; `storm_glass_drops` — probabilistic drop, flaky under parallel execution).
+**DES test status as of 2026-05-01**: 134 passing, 3 ignored (`run_all_scenarios` — meta-test; `storm_glass_drops`, `storm_intensity_scaling_test` — probabilistic, flaky under parallel execution).
 
 ### False-positive DES scenarios (low priority)
 
-20 scenarios assert only `player_alive`. They catch crashes but not logic errors. Each needs either real assertions added or deletion:
+13 scenarios still assert only `player_alive`. Each needs real assertions or deletion:
 
-`animation_effects_test`, `basic_movement`, `biome_system_basic`, `constraint_system_basic`, `effects_config_test`, `event_system_basic`, `generation_pipeline_basic`, `grammar_generation_basic`, `microstructures_test`, `narrative_integration_basic`, `procedural_effects_test`, `spawn_distribution_test`, `storm_timer_countdown`, `system_integration_test`, `template_system_basic`, `test_renderer_frame`, `theme_system_test`, `tutorial_messages_display`, `world_tile_transition` (delete — no actions, no assertions), `base_empty_room` (delete — no assertions).
+`animation_effects_test`, `effects_config_test`, `event_system_basic`, `microstructures_test`, `narrative_integration_basic`, `procedural_effects_test`, `spawn_distribution_test`, `storm_timer_countdown`, `system_integration_test`, `test_renderer_frame`, `theme_system_test`, `tutorial_messages_display`, `basic_movement_scenario`.
+
+### StatEffect system — follow-on work
+
+The `StatEffect` / `collect_player_stat_effects` refactor (2026-05-01) established a unified stat resolution mechanism. Several follow-on improvements are now unblocked:
+
+**Enemy stat effects** (Medium, 1 day)
+Enemy armor and reflex are still read directly from `EnemyDef` fields. Enemies can have status effects (`bleed`, `stun`) but those don't yet modify their stats. Extend `collect_player_stat_effects` pattern to enemies: `collect_enemy_stat_effects(enemy)` → `effective_enemy_armor()`, `effective_enemy_reflex()`. This would make bleed's `reduces_damage` and future debuffs actually affect enemy combat stats.
+
+**Skill passive bonuses → StatEffect** (Medium, 1 day)
+`SkillsState.passive_bonuses` is a `HashMap<String, f32>` computed by `recalculate_passive_bonuses()` and stored on the player. This is the write-on-change pattern we just eliminated for equipment. Skills should instead contribute `StatEffect` entries via `collect_player_stat_effects`, making `passive_bonuses` and `recalculate_passive_bonuses()` redundant. The skill accessors (`melee_accuracy_bonus()`, `ranged_damage_bonus()`, etc.) would become `resolve_stat()` calls.
+
+**Item boolean flags → StatEffect** (Low, 0.5 days)
+`ItemDef` has ~15 boolean flags (`grants_invisibility`, `stealth_bonus`, `grants_sprint`, etc.) that are checked ad hoc across systems. These could be expressed as `StatEffect` entries with value 1.0, making item capabilities queryable through the same mechanism as other stats. Not urgent — the boolean flags work fine — but would reduce the number of special-case checks.
+
+**Adaptation event effects → parameterized rules** (Medium, ongoing)
+The 4 hardcoded adaptation ID checks (`bone_spur`, `killing_edge`, `scar_lattice`, `storm_drinker`) are the remaining non-stat adaptation effects. These belong to a second category: parameterized rules that fire on events. The right long-term approach is a small rule registry where adaptation data specifies the rule name and parameters, and the system looks up the rule at the relevant event site. This removes the hardcoded ID checks without requiring a general interpreter. Design before implementing — see the discussion in session notes (2026-05-01).
 
 ### Architecture debt (deferred from VERA refactor)
 
-See `STATE_STORE_REFLECTION.md` §3 for the exhaustive list. Summary:
-
-- **Bridge mutations** (`MovePlayer`, `EndTurn`, `WorldMove`, `RestTick`, etc.) bypass the invariant layer and cannot trigger reactions. Decompose into atomic mutations when those systems are next touched for feature work.
-- **Duplicate mutation variants** (`SpendAp`/`SetPlayerAp`, `AddHp`/`SetPlayerHp`, `Equip`/`SetEquipment`, etc.) — remove delta variants, keep `Set*` only.
-- **`apply_one` inline logic** — `QuestNotify` (~35 LOC), `UsePsychicAbility` (~14 LOC), `DamageWall` (~16 LOC) should be extracted to system functions.
-- **`notify.rs` underuse** — 5 of 7 `StateTransition` variants produce no reactions. `PlayerPositionChanged` is detected on every move but nothing listens to it.
-- **No unit tests for `systems/`** — all 14 system files have zero unit tests. Only tested via DES scenarios.
-- **Parallel trace systems migration risk** — `state.trace` (Effect-based) and `state.mutation_log` (Mutation-based) both exist. Before removing the Effect trace, audit which DES assertions rely on it exclusively.
-- **RNG clone-writeback is convention, not structure** — consider a `dispatch_with_rng` helper in `dispatch.rs` that makes the pattern impossible to get wrong.
+- **Bridge mutations** — decompose when systems are next touched for feature work
+- **`apply_one` inline logic** — `QuestNotify`, `UsePsychicAbility`, `DamageWall` should be extracted
+- **`notify.rs` underuse** — `PlayerPositionChanged` detected but nothing listens
+- **No unit tests for `systems/`** — only tested via DES scenarios
+- **RNG clone-writeback** — consider `dispatch_with_rng` helper
 
 ### Remaining technical debt
 
 | Issue | Severity | Estimate |
 |-------|----------|----------|
-| 97+ `unwrap()` in non-test code | High | 2–3 days |
+| ~90 `unwrap()` in non-test code | High | 2–3 days |
 | ~15 functions >100 lines in state.rs | Medium | Ongoing |
-| NarrativeEngine QuestLog is a stub duplicate of real quest_log | Medium | 1 day |
 | Stale docs and lore files | Low | 1 day |
 
 ---
@@ -61,13 +68,27 @@ See `STATE_STORE_REFLECTION.md` §3 for the exhaustive list. Summary:
 
 A 30-minute play session is possible: character creation, movement, combat, quests, inventory, crafting, trading, storms, and auto-explore all work. The first quest ("The Pilgrim's Last Angle") is completable. Quest progression beyond that is blocked by missing infrastructure.
 
-**Test status**: 142 DES scenarios pass, 2 ignored (probabilistic/meta). All immediate bugs resolved.
+**Test status**: 134 DES scenarios pass, 3 ignored (probabilistic/meta). All immediate bugs resolved.
 
-**Gameplay gap (identified 2026-04-12)**: Adaptations are the game's signature system but are currently inert. Most adaptation effects exist only in data — only `saltblood` (glass immunity) and basic `armor`/`damage_bonus` stat modifiers are read in code. Adaptation gain is also passive and unearned (automatic on refraction threshold). Design direction needed before implementation — see §9 below.
+**Adaptation system**: Phase 1 and 2 complete (2026-05-01). Choice-based gain at refraction thresholds (150/400/800), activity-weighted pool, 10 adaptations with wired effects, faction reputation multipliers on gain. See `docs/features/ADAPTATION_SYSTEM.md`.
 
 ---
 
 ## Recently Completed
+
+### StatEffect Refactor (2026-05-01)
+- `src/game/stat_effect.rs`: unified `StatEffect { stat, op: Add|Multiply, priority, source_id }` + `resolve_stat()` + `collect_player_stat_effects()`
+- Replaced `total_stat_modifiers()`, `StatModifiers` struct, and equipment armor write-on-equip
+- All stat queries (armor, reflex, damage_bonus, fov, accuracy_penalty, craft_ingredient_reduction) now go through `resolve_stat_i32()`
+- Status effect stats (`reduces_accuracy`, `reduces_damage`, `blocks_healing`) now actually wired into gameplay for the first time
+
+### Adaptation System Phase 1 & 2 (2026-04-26 to 2026-05-01)
+- Activity counters (11 fields on `PlayerState`) tracking playstyle
+- Choice-based gain: refraction thresholds 150/400/800/1400, 3 options weighted by activity
+- Choice UI: full-screen panel, arrow navigation, Escape disabled
+- 10 adaptations with wired effects: saltblood, mirage_step, prismhide, sunveins, killing_edge, bone_spur, lens_eye, scar_lattice, storm_drinker, salt_sense
+- Faction reputation multipliers on adaptation gain (Mirror Monks / Salt Traders)
+- Design spec: `docs/features/ADAPTATION_SYSTEM.md`
 
 ### DES Infrastructure & Bug Fixes (2026-04-06 to 2026-04-26)
 - Fixed all 3 immediate gameplay bugs (teleport quest completion, NPC talked flag, dialogue condition logging)
