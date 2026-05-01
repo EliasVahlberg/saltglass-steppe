@@ -146,6 +146,24 @@ pub fn all_adaptation_ids() -> Vec<&'static str> {
     ADAPTATION_DEFS.keys().map(|s| s.as_str()).collect()
 }
 
+/// Returns true if the player has any adaptation with the given effect type.
+pub fn player_has_effect(player: &crate::game::player_state::PlayerState, effect_type: &str) -> bool {
+    player.adaptations.iter().any(|a| {
+        get_adaptation_def(a.id())
+            .map(|def| def.effects.iter().any(|e| e.effect_type == effect_type))
+            .unwrap_or(false)
+    })
+}
+
+/// Returns the value of the first matching effect, or 0 if not found.
+pub fn player_effect_value(player: &crate::game::player_state::PlayerState, effect_type: &str) -> i32 {
+    player.adaptations.iter().find_map(|a| {
+        get_adaptation_def(a.id())?.effects.iter()
+            .find(|e| e.effect_type == effect_type)
+            .and_then(|e| e.value)
+    }).unwrap_or(0)
+}
+
 /// Legacy enum for backward compatibility with save files
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Adaptation {

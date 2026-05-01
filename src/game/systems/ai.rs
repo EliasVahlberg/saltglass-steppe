@@ -8,10 +8,11 @@ use once_cell::sync::Lazy;
 use rand::Rng;
 use std::collections::HashMap;
 
-/// Apply scar_lattice armor stack when player takes damage.
+/// Stack temporary armor when player takes damage (e.g. scar_lattice: damage_stack_armor effect).
 fn apply_scar_lattice(state: &mut GameState) {
-    if state.player.adaptations.iter().any(|a| a.id() == "scar_lattice") {
-        state.player.scar_lattice_armor = (state.player.scar_lattice_armor + 1).min(5);
+    let max = crate::game::adaptation::player_effect_value(&state.player, "damage_stack_armor");
+    if max > 0 {
+        state.player.scar_lattice_armor = (state.player.scar_lattice_armor + 1).min(max);
     }
 }
 

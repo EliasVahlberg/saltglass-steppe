@@ -38,9 +38,10 @@ impl StormSystem {
         state.player.refraction += refraction_gain;
         state.player.activity.storms_survived += 1;
 
-        // storm_drinker: +2 AP during storm
-        if state.player.adaptations.iter().any(|a| a.id() == "storm_drinker") {
-            let new_ap = (state.player.ap + 2).min(state.player.max_ap);
+        // storm_energize: grant AP when a storm fires (e.g. storm_drinker)
+        let storm_ap = crate::game::adaptation::player_effect_value(&state.player, "storm_energize");
+        if storm_ap > 0 {
+            let new_ap = (state.player.ap + storm_ap).min(state.player.max_ap);
             state.player.ap = new_ap;
         }
 

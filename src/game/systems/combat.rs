@@ -121,10 +121,9 @@ pub fn handle_melee(
     out.push(Mutation::SetEnemyHp { idx: ei, hp: enemy.hp - dmg });
     out.push(Mutation::SetLastDamageDealt(dmg as u32));
 
-    // bone_spur: 20% chance to apply bleed on hit
-    if ctx.player.adaptations.iter().any(|a| a.id() == "bone_spur")
-        && rng.gen_range(0..100) < 20
-    {
+    // bleed_on_hit: chance to apply bleed on melee hit (e.g. bone_spur)
+    let bleed_chance = crate::game::adaptation::player_effect_value(ctx.player, "bleed_on_hit");
+    if bleed_chance > 0 && rng.gen_range(0..100) < bleed_chance {
         out.push(Mutation::AddEnemyStatus { idx: ei, id: "bleed".into(), duration: 3 });
     }
 
@@ -139,8 +138,8 @@ pub fn handle_melee(
             }
         }
         out.push(Mutation::IncrementActivity(ActivityField::EnemiesKilledMelee));
-        // killing_edge: grant free AP on next attack
-        if ctx.player.adaptations.iter().any(|a| a.id() == "killing_edge") {
+        // kill_ap_refund: grant free AP on next attack after kill (e.g. killing_edge)
+        if crate::game::adaptation::player_has_effect(ctx.player, "kill_ap_refund") {
             out.push(Mutation::SetKillApRefund(true));
         }
         out.push(Mutation::LogMessage { text: format!("You kill the {}!", name), msg_type: MsgType::Combat });
