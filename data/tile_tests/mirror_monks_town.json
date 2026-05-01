@@ -5,6 +5,6 @@
   "elevation": 105,
   "poi": "Town",
   "level": 4,
-  "faction_territory": "MirrorMonks",
+  "faction_territory": "mirror_monks",
   "seed": 12354
 }

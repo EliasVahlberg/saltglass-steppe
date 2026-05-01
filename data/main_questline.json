@@ -100,11 +100,11 @@
       "criteria": {
         "requires_quests_completed": ["the_broken_key"],
         "min_faction_reputation": {
-          "Mirror Monks": 25
+          "mirror_monks": 25
         },
         "max_faction_reputation": {
-          "Sand-Engineers": 50,
-          "Glassborn": 50
+          "sand_engineers": 50,
+          "glassborn": 50
         }
       }
     },
@@ -137,11 +137,11 @@
       "criteria": {
         "requires_quests_completed": ["the_broken_key"],
         "min_faction_reputation": {
-          "Sand-Engineers": 25
+          "sand_engineers": 25
         },
         "max_faction_reputation": {
-          "Mirror Monks": 50,
-          "Glassborn": 50
+          "mirror_monks": 50,
+          "glassborn": 50
         }
       }
     },
@@ -174,11 +174,11 @@
       "criteria": {
         "requires_quests_completed": ["the_broken_key"],
         "min_faction_reputation": {
-          "Glassborn": 25
+          "glassborn": 25
         },
         "max_faction_reputation": {
-          "Mirror Monks": 50,
-          "Sand-Engineers": 50
+          "mirror_monks": 50,
+          "sand_engineers": 50
         },
         "min_refraction": 50
       }
@@ -495,7 +495,7 @@
           },
           "condition": {
             "type": "faction_reputation",
-            "faction": "Mirror Monks",
+            "faction": "mirror_monks",
             "min_rep": 25
           }
         }
@@ -513,7 +513,7 @@
           },
           "condition": {
             "type": "faction_reputation",
-            "faction": "Sand-Engineers", 
+            "faction": "sand_engineers", 
             "min_rep": 25
           }
         }
@@ -530,7 +530,7 @@
           },
           "condition": {
             "type": "faction_reputation",
-            "faction": "Glassborn",
+            "faction": "glassborn",
             "min_rep": 25
           }
         }

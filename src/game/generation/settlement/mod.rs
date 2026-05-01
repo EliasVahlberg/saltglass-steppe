@@ -408,10 +408,10 @@ pub fn place_decorations<R: Rng>(map: &mut Map, settlement: &Settlement, rng: &m
             let tile = map.get_tile(x, y);
             if matches!(tile, Tile::Floor { id } if id == "dry_soil") && rng.gen_bool(0.08) {
                 let decoration_id = match dominant_faction.as_deref() {
-                    Some("MirrorMonks") => {
+                    Some("mirror_monks") => {
                         ["prismatic_tiles", "light_pool", "crystal_moss"][rng.gen_range(0..3)]
                     }
-                    Some("StormCults") => {
+                    Some("glass_prophets") => {
                         ["storm_glass_shards", "void_stone", "glass_sand"][rng.gen_range(0..3)]
                     }
                     Some("SaltTradingCompany") => {
@@ -442,7 +442,7 @@ mod tests {
         let config = SettlementConfig {
             seed: 12345,
             tier: SettlementTier::Village,
-            faction_control: vec![("MirrorMonks".to_string(), 0.6)],
+            faction_control: vec![("mirror_monks".to_string(), 0.6)],
         };
         let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
         let settlement = generate_settlement(config.clone(), &mut rng);
@@ -458,8 +458,8 @@ mod tests {
             seed: 54321,
             tier: SettlementTier::Town,
             faction_control: vec![
-                ("SaltTraders".to_string(), 0.4),
-                ("Glassborn".to_string(), 0.3),
+                ("salt_traders".to_string(), 0.4),
+                ("glassborn".to_string(), 0.3),
             ],
         };
         let mut rng = ChaCha8Rng::seed_from_u64(config.seed);
@@ -475,13 +475,13 @@ mod tests {
             seed: 1,
             tier: SettlementTier::Village,
             faction_control: vec![
-                ("MirrorMonks".to_string(), 0.5),
-                ("Glassborn".to_string(), 0.3),
+                ("mirror_monks".to_string(), 0.5),
+                ("glassborn".to_string(), 0.3),
             ],
         };
 
         let dominant = faction_theme::get_dominant_faction(&config);
-        assert_eq!(dominant, Some("MirrorMonks".to_string()));
+        assert_eq!(dominant, Some("mirror_monks".to_string()));
     }
 
     #[test]
@@ -490,16 +490,16 @@ mod tests {
             seed: 1,
             tier: SettlementTier::Town,
             faction_control: vec![
-                ("MirrorMonks".to_string(), 0.4),
-                ("Glassborn".to_string(), 0.3),
-                ("SaltTraders".to_string(), 0.2),
+                ("mirror_monks".to_string(), 0.4),
+                ("glassborn".to_string(), 0.3),
+                ("salt_traders".to_string(), 0.2),
             ],
         };
 
         let significant = faction_theme::get_significant_factions(&config);
         assert_eq!(significant.len(), 2); // Only >25%
-        assert!(significant.contains(&"MirrorMonks".to_string()));
-        assert!(significant.contains(&"Glassborn".to_string()));
+        assert!(significant.contains(&"mirror_monks".to_string()));
+        assert!(significant.contains(&"glassborn".to_string()));
     }
 
     #[test]

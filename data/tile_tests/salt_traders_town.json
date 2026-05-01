@@ -5,6 +5,6 @@
   "elevation": 120,
   "poi": "Town",
   "level": 2,
-  "faction_territory": "SaltTraders",
+  "faction_territory": "salt_traders",
   "seed": 12357
 }

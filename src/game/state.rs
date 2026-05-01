@@ -498,6 +498,30 @@ impl GameState {
         self.player.status_effects.iter().any(|e| e.id == effect_id)
     }
 
+    /// Migrate PascalCase faction IDs from old saves to snake_case.
+    /// Safe to call on new saves — unknown keys are left unchanged.
+    fn migrate_faction_ids(&mut self) {
+        let renames: &[(&str, &str)] = &[
+            ("MirrorMonks",        "mirror_monks"),
+            ("SandEngineers",      "sand_engineers"),
+            ("SaltTraders",        "salt_traders"),
+            ("StormCults",         "glass_prophets"),
+            ("RefractionOutcasts", "refraction_outcasts"),
+            ("ArchiveDrones",      "archive_consciousness"),
+            ("Glassborn",          "glassborn"),
+        ];
+        let rep = &mut self.player.faction_reputation;
+        for (old, new) in renames {
+            if let Some(val) = rep.remove(*old) {
+                rep.entry(new.to_string()).or_insert(val);
+            }
+        }
+        // Initialize new factions at 0 if not present
+        for id in ["synthesis_seekers", "iron_covenant", "wandering_court"] {
+            rep.entry(id.to_string()).or_insert(0);
+        }
+    }
+
     pub fn save(&self, path: impl AsRef<Path>) -> Result<(), String> {
         let data = ron::to_string(self).map_err(|e| e.to_string())?;
         fs::write(path, data).map_err(|e| e.to_string())
@@ -506,6 +530,7 @@ impl GameState {
     pub fn load(path: impl AsRef<Path>) -> Result<Self, String> {
         let data = fs::read_to_string(path).map_err(|e| e.to_string())?;
         let mut state: Self = ron::from_str(&data).map_err(|e| e.to_string())?;
+        state.migrate_faction_ids();
         state.rebuild_spatial_index();
         state.update_lighting(); // Recalculate lighting after loading
         Ok(state)

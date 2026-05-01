@@ -52,7 +52,7 @@ mod tests {
         let wedding_book =
             get_book_def("book_wedding_refractions").expect("book_wedding_refractions not found");
         assert!(wedding_book.tags.contains(&"Culture".to_string()));
-        assert!(wedding_book.tags.contains(&"Glassborn".to_string()));
+        assert!(wedding_book.tags.contains(&"glassborn".to_string()));
 
         // Check that all books have at least one tag (optional, but good practice if that's the goal)
         // Note: We can't iterate over BOOKS directly as it's private, but we can check known IDs.

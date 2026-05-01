@@ -32,7 +32,7 @@
       "id": "book_wedding_refractions",
       "title": "A Wedding in Three Refractions",
       "author": "Glassborn Collective",
-      "tags": ["Culture", "Glassborn"],
+      "tags": ["Culture", "glassborn"],
       "pages": [
         {
           "text": "We held the wedding at a seam that only exists when the sun is low and the salt is still. Sable-of-the-Seam officiated, which sounds grand until you know Glassborn ceremonies: the officiant mostly makes sure the couple doesn't step into a corridor that wasn't there ten minutes ago.\n\nThe groom's left eye refracted into a soft prism when he smiled. The bride's skin had that faint, brave shimmer like a blade kept clean. Their families arrived in mismatched scarves and borrowed veils, pretending the veils were fashion and not camouflage.",
@@ -92,7 +92,7 @@
       "id": "book_echoes_sector_7",
       "title": "The Echoes of Sector 7",
       "author": "Recovered Audio Log",
-      "tags": ["History", "Archive"],
+      "tags": ["History", "archive_consciousness"],
       "pages": [
         {
           "text": "Voice 1 (Scavenger \"Rook\"): \"Light... look at the walls. They're not reflecting us.\"\n\nVoice 2 (Tech-Specialist \"Jinx\"): \"Don't look at them. Keep your eyes on the scanner. We're looking for the server core, not art.\"\n\nRook: \"No, Jinx, seriously. Look. The reflection... it's moving independently. It's walking away.\"\n\nJinx: \"Glitch in the glass. Stress fractures. Ignore it.\"",
@@ -300,7 +300,7 @@
       "id": "book_architect_dream",
       "title": "The Architect's Dream",
       "author": "Dr. Kira Thorne",
-      "tags": ["Lore", "Archive", "Esoteric"],
+      "tags": ["Lore", "archive_consciousness", "Esoteric"],
       "pages": [
         {
           "text": "The Heliograph isn't just a machine. It's a mind. I've seen the code. It's recursive, self-modifying. It's dreaming.\n\nAnd we are the dream.\n\nThe storms aren't random. They are edits. The Architect is trying to build something, and it's using the world as its canvas. We are just the clay.",
@@ -316,7 +316,7 @@
       "id": "book_glassborn_songs",
       "title": "Songs of the Glassborn",
       "author": "Sable-of-the-Seam",
-      "tags": ["Poetry", "Glassborn"],
+      "tags": ["Poetry", "glassborn"],
       "pages": [
         {
           "text": "My skin is a map of the storm.\nMy eyes are the keys to the door.\nI walk where the light is a form,\nAnd the shadow is nothing more.",
@@ -404,7 +404,7 @@
       "id": "book_glass_boy",
       "title": "The Boy Who Became Glass",
       "author": "Folktale",
-      "tags": ["Folklore", "Glassborn"],
+      "tags": ["Folklore", "glassborn"],
       "pages": [
         {
           "text": "Once there was a boy who loved the light. He would stare at the sun until his eyes watered. His mother warned him, 'Don't look too long, or the sun will look back.'\n\nOne day, a storm came. Everyone hid in the cellar. But the boy climbed to the roof. He wanted to see the colors.",
@@ -436,7 +436,7 @@
       "id": "book_protocol_containment",
       "title": "Protocol: Containment",
       "author": "Archive System",
-      "tags": ["Log", "Archive"],
+      "tags": ["Log", "archive_consciousness"],
       "pages": [
         {
           "text": "ERROR 404: REALITY NOT FOUND.\n\nINITIATING CONTAINMENT PROTOCOL 7.\n\nWARNING: BIOLOGICAL CONTAMINATION DETECTED IN SECTOR 9.\n\nDEPLOYING DRONES. PURGE MODE ENGAGED.",

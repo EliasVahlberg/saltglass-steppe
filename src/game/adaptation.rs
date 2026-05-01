@@ -298,7 +298,7 @@ pub fn apply_adaptation_faction_effects(
         None => return,
     };
 
-    for (faction, mult) in [("MirrorMonks", monks_mult), ("SaltTraders", traders_mult)] {
+    for (faction, mult) in [("mirror_monks", monks_mult), ("salt_traders", traders_mult)] {
         let current = *faction_reputation.get(faction).unwrap_or(&0);
         if current != 0 {
             let new_rep = ((current as f32 * mult).round() as i32).clamp(-100, 100);

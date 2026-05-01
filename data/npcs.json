@@ -5,7 +5,7 @@
       "id": "merchant_test",
       "name": "Test Merchant",
       "glyph": "T",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "A merchant for testing conditions",
       "dialogue": [
         {
@@ -23,7 +23,7 @@
       "id": "mirror_monk",
       "name": "Mirror Monk",
       "glyph": "M",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "Robed figure whose skin shimmers with embedded glass",
       "dialogue": [
         {
@@ -49,7 +49,7 @@
       "id": "sand_engineer",
       "name": "Sand-Engineer",
       "glyph": "E",
-      "faction": "SandEngineers",
+      "faction": "sand_engineers",
       "description": "Weathered mechanic with goggles and tool-laden belt",
       "dialogue": [
         {
@@ -90,9 +90,9 @@
     },
     {
       "id": "glassborn",
-      "name": "Glassborn",
+      "name": "glassborn",
       "glyph": "G",
-      "faction": "Glassborn",
+      "faction": "glassborn",
       "description": "Humanoid form of fused glass and crystallized flesh",
       "dialogue": [
         {
@@ -114,7 +114,7 @@
       "id": "salt_hermit",
       "name": "Salt Hermit",
       "glyph": "H",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Weathered figure caked in crystalline deposits",
       "dialogue": [
         {
@@ -143,7 +143,7 @@
       "id": "dying_pilgrim",
       "name": "Dying Pilgrim",
       "glyph": "P",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Collapsed traveler, breath shallow, eyes fixed on the horizon",
       "dialogue": [
         {
@@ -175,7 +175,7 @@
       "id": "tutorial_guide",
       "name": "Weathered Pilgrim",
       "glyph": "P",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "An experienced traveler with knowing eyes and storm-scarred skin",
       "dialogue": [
         {
@@ -222,7 +222,7 @@
       "id": "glass_merchant",
       "name": "Glass Merchant",
       "glyph": "$",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Shrewd trader with a cart of glittering wares",
       "dialogue": [
         {
@@ -262,7 +262,7 @@
       "id": "archive_custodian",
       "name": "Archive Custodian",
       "glyph": "A",
-      "faction": "Archive",
+      "faction": "archive_consciousness",
       "description": "Mechanical guardian of ancient knowledge",
       "dialogue": [
         {
@@ -288,7 +288,7 @@
       "id": "brother_halix",
       "name": "Brother Halix",
       "glyph": "M",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "Senior monk whose eyes gleam with embedded mirror shards",
       "dialogue": [
         {
@@ -325,7 +325,7 @@
       "id": "sable_pathspeaker",
       "name": "Sable-of-the-Seam",
       "glyph": "G",
-      "faction": "Glassborn",
+      "faction": "glassborn",
       "description": "Tall figure whose crystalline skin refracts rainbow patterns",
       "dialogue": [
         {
@@ -368,7 +368,7 @@
       "id": "hermit_kaine",
       "name": "Hermit Kaine",
       "glyph": "H",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Ancient figure whose skin has turned to living salt",
       "dialogue": [
         {
@@ -411,7 +411,7 @@
       "id": "merchant_vex",
       "name": "Merchant Vex",
       "glyph": "$",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Shrewd trader with a cart pulled by glass beetles",
       "dialogue": [
         {
@@ -456,7 +456,7 @@
       "id": "custodian_iri7",
       "name": "Custodian IRI-7",
       "glyph": "A",
-      "faction": "Archive",
+      "faction": "archive_consciousness",
       "description": "Half-machine keeper whose voice alternates between human and synthetic",
       "dialogue": [
         {
@@ -491,7 +491,7 @@
       "id": "novice_mir",
       "name": "Novice Mir",
       "glyph": "m",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "Young monk whose hands shimmer with recent adaptation",
       "dialogue": [
         {
@@ -516,7 +516,7 @@
       "id": "engineer_kael",
       "name": "Engineer Kael",
       "glyph": "e",
-      "faction": "SandEngineers",
+      "faction": "sand_engineers",
       "description": "Young technician with jury-rigged equipment and optimistic demeanor",
       "dialogue": [
         {
@@ -541,7 +541,7 @@
       "id": "glassborn_echo",
       "name": "Echo-of-Storms",
       "glyph": "g",
-      "faction": "Glassborn",
+      "faction": "glassborn",
       "description": "Heavily transformed Glassborn whose body rings like crystal when they move",
       "dialogue": [
         {
@@ -559,7 +559,7 @@
       "id": "pilgrim_thane",
       "name": "Pilgrim Thane",
       "glyph": "p",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Weathered traveler with a pack full of maps and journals",
       "dialogue": [
         {
@@ -590,7 +590,7 @@
       "id": "hermit_sage",
       "name": "The Sage",
       "glyph": "S",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Mysterious figure whose age is impossible to determine",
       "dialogue": [
         {
@@ -615,7 +615,7 @@
       "id": "archive_drone_commander",
       "name": "Drone Commander Unit",
       "glyph": "Δ",
-      "faction": "Archive",
+      "faction": "archive_consciousness",
       "description": "Massive mechanical construct that coordinates other drones",
       "dialogue": [
         {
@@ -640,7 +640,7 @@
       "id": "dr_kira_thorne",
       "name": "Dr. Kira Thorne",
       "glyph": "K",
-      "faction": "Archive",
+      "faction": "archive_consciousness",
       "description": "Quantum systems engineer, partially integrated with Archive systems",
       "dialogue": [
         {
@@ -678,7 +678,7 @@
       "id": "the_prism",
       "name": "The Prism",
       "glyph": "P",
-      "faction": "GlassProphets",
+      "faction": "glass_prophets",
       "description": "Mysterious leader of the Glass Prophets, more light than flesh",
       "dialogue": [
         {
@@ -702,7 +702,7 @@
           "effect": {
             "forces_maximum_adaptation": true,
             "dangerous": true,
-            "faction_reputation": { "GlassProphets": 50 }
+            "faction_reputation": { "glass_prophets": 50 }
           }
         }
       ]
@@ -711,7 +711,7 @@
       "id": "echo_of_memory",
       "name": "Echo-of-Memory",
       "glyph": "E",
-      "faction": "WanderingCourt",
+      "faction": "wandering_court",
       "description": "Ancient Glassborn who remembers the time before transformation",
       "dialogue": [
         {
@@ -755,7 +755,7 @@
       "id": "merchant_keth",
       "name": "Merchant Keth",
       "glyph": "K",
-      "faction": "saltborn_collective",
+      "faction": "salt_traders",
       "description": "A wandering merchant.",
       "dialogue": [
         {
@@ -778,7 +778,7 @@
       "id": "scavenger_trader",
       "name": "Scavenger Trader",
       "glyph": "s",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Weathered trader with a pack full of salvaged goods",
       "dialogue": [
         {
@@ -805,7 +805,7 @@
       "id": "glass_hermit",
       "name": "Glass Hermit",
       "glyph": "h",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Solitary figure who tends crystalline formations",
       "dialogue": [
         {
@@ -830,7 +830,7 @@
       "id": "storm_watcher",
       "name": "Storm Watcher",
       "glyph": "w",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "Vigilant guardian who monitors approaching storms",
       "dialogue": [
         {
@@ -857,7 +857,7 @@
       "id": "wandering_monk",
       "name": "Wandering Monk",
       "glyph": "m",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "Traveling monk seeking lost scripture fragments",
       "dialogue": [
         {
@@ -882,7 +882,7 @@
       "id": "salt_worker",
       "name": "Salt Worker",
       "glyph": "w",
-      "faction": "SandEngineers",
+      "faction": "sand_engineers",
       "description": "Hardy laborer who extracts salt from the flats",
       "dialogue": [
         {
@@ -907,7 +907,7 @@
       "id": "prism_mayor",
       "name": "Crystalline Magistrate Zara",
       "glyph": "Z",
-      "faction": "GlassbornCollective",
+      "faction": "glassborn",
       "description": "A figure of living crystal whose form refracts light into rainbow patterns",
       "dialogue": [
         {
@@ -919,7 +919,7 @@
           "text": "Your crystalline skin catches the light magnificently. You are becoming one with the glass.</nextpage>The city's resonance chambers can help accelerate your transformation, if you wish it.</nextpage>But remember—each change brings you closer to something beyond human understanding."
         },
         {
-          "conditions": [{ "faction_reputation": { "GlassbornCollective": 25 } }],
+          "conditions": [{ "faction_reputation": { "glassborn": 25 } }],
           "text": "You have proven yourself a friend to our people. The city's resources are at your disposal.</nextpage>Perhaps you would consider joining our council? We need voices that understand both worlds.</nextpage>The path of glass is not for everyone, but you seem to walk it with wisdom."
         },
         {
@@ -938,7 +938,7 @@
           "id": "city_tour",
           "name": "Tour the Crystal Spires",
           "conditions": [],
-          "effect": { "reveals_map_area": "prism_city", "reputation_change": { "GlassbornCollective": 5 } }
+          "effect": { "reveals_map_area": "prism_city", "reputation_change": { "glassborn": 5 } }
         }
       ]
     },
@@ -946,7 +946,7 @@
       "id": "harbor_master",
       "name": "Salt-Touched Captain Voss",
       "glyph": "V",
-      "faction": "SaltTraders",
+      "faction": "salt_traders",
       "description": "Weathered captain whose skin is crusted with salt deposits",
       "dialogue": [
         {
@@ -954,7 +954,7 @@
           "text": "Saltblood, eh? Good. The brine runs in your veins now—you understand the sea's call.</nextpage>My crews respect those who've been touched by salt. It means you can handle the deep mines.</nextpage>There's work here for someone with your... constitution. Dangerous work, but it pays well."
         },
         {
-          "conditions": [{ "faction_reputation": { "SaltTraders": 15 } }],
+          "conditions": [{ "faction_reputation": { "salt_traders": 15 } }],
           "text": "You've proven yourself reliable. The guild has taken notice.</nextpage>We're planning an expedition to the Deep Brine Caverns. Interested in joining?</nextpage>Fair warning—not everyone comes back from the deep places. But the salt crystals down there... worth a fortune."
         },
         {
@@ -1016,7 +1016,7 @@
       "id": "void_watcher",
       "name": "Breach Sentinel Nyx",
       "glyph": "N",
-      "faction": "VoidWardens",
+      "faction": "independent",
       "description": "Hooded figure whose eyes reflect the emptiness between stars",
       "dialogue": [
         {
@@ -1051,7 +1051,7 @@
       "id": "light_keeper",
       "name": "Prism Guardian Zara",
       "glyph": "Z",
-      "faction": "LightKeepers",
+      "faction": "independent",
       "description": "Ethereal being whose form shifts between solid and pure light",
       "dialogue": [
         {
@@ -1059,7 +1059,7 @@
           "text": "Light flows through your veins like liquid starfire. You are becoming something magnificent.</nextpage>The monument responds to your presence—can you feel its resonance? It recognizes a kindred spirit.</nextpage>There are techniques I could teach you, ways to channel the light that flows within you."
         },
         {
-          "conditions": [{ "faction_reputation": { "LightKeepers": 10 } }],
+          "conditions": [{ "faction_reputation": { "independent": 10 } }],
           "text": "You have shown respect for the light and its mysteries. The monument's secrets are yours to learn.</nextpage>But remember—light without shadow has no meaning. Balance must be maintained.</nextpage>The refraction fields hold many wonders, but also many dangers. Tread carefully."
         },
         {
@@ -1086,7 +1086,7 @@
       "id": "storm_keeper",
       "name": "Memorial Warden Kess",
       "glyph": "K",
-      "faction": "StormMemorialists",
+      "faction": "independent",
       "description": "Scarred veteran whose body bears the marks of countless glass storms",
       "dialogue": [
         {
@@ -1107,13 +1107,13 @@
           "id": "pay_respects",
           "name": "Honor the Fallen",
           "conditions": [],
-          "effect": { "reputation_change": { "StormMemorialists": 5 }, "morale_boost": 10 }
+          "effect": { "reputation_change": { "independent": 5 }, "morale_boost": 10 }
         },
         {
           "id": "storm_stories",
           "name": "Share Storm Experiences",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "reveals_lore": "great_storm_history", "reputation_change": { "StormMemorialists": 10 } }
+          "effect": { "reveals_lore": "great_storm_history", "reputation_change": { "independent": 10 } }
         }
       ]
     },
@@ -1121,7 +1121,7 @@
       "id": "iron_covenant_recruiter",
       "name": "Covenant Recruiter Vex",
       "glyph": "V",
-      "faction": "IronCovenant",
+      "faction": "iron_covenant",
       "description": "Heavily armored figure with null-field generators humming around them",
       "dialogue": [
         {
@@ -1146,13 +1146,13 @@
           "id": "covenant_recruitment",
           "name": "Join the Iron Covenant",
           "conditions": [{ "adaptation_count_lte": 1 }],
-          "effect": { "faction_join": "IronCovenant", "reputation_change": { "IronCovenant": 50 } }
+          "effect": { "faction_join": "iron_covenant", "reputation_change": { "iron_covenant": 50 } }
         },
         {
           "id": "purification_offer",
           "name": "Undergo Purification",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "remove_adaptations": 1, "damage": 10, "reputation_change": { "IronCovenant": 25 } }
+          "effect": { "remove_adaptations": 1, "damage": 10, "reputation_change": { "iron_covenant": 25 } }
         }
       ],
       "shop_inventory": [
@@ -1166,7 +1166,7 @@
       "id": "glass_prophet_herald",
       "name": "Herald of Ascension",
       "glyph": "H",
-      "faction": "GlassProphets",
+      "faction": "glass_prophets",
       "description": "Translucent figure whose body refracts light into rainbow patterns",
       "dialogue": [
         {
@@ -1191,13 +1191,13 @@
           "id": "storm_exposure",
           "name": "Seek Accelerated Transformation",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "adaptation_progress": 20, "damage": 5, "reputation_change": { "GlassProphets": 30 } }
+          "effect": { "adaptation_progress": 20, "damage": 5, "reputation_change": { "glass_prophets": 30 } }
         },
         {
           "id": "light_meditation",
           "name": "Practice Light Meditation",
           "conditions": [{ "has_adaptation": "Lightveins" }],
-          "effect": { "psychic_boost": 15, "reputation_change": { "GlassProphets": 15 } }
+          "effect": { "psychic_boost": 15, "reputation_change": { "glass_prophets": 15 } }
         }
       ],
       "shop_inventory": [
@@ -1211,7 +1211,7 @@
       "id": "wandering_court_sage",
       "name": "Court Sage Lyrian",
       "glyph": "L",
-      "faction": "WanderingCourt",
+      "faction": "wandering_court",
       "description": "Partially crystallized elder with eyes like polished glass",
       "dialogue": [
         {
@@ -1236,13 +1236,13 @@
           "id": "adaptation_guidance",
           "name": "Receive Adaptation Counseling",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "adaptation_control": 10, "reputation_change": { "WanderingCourt": 20 } }
+          "effect": { "adaptation_control": 10, "reputation_change": { "wandering_court": 20 } }
         },
         {
           "id": "memory_sharing",
           "name": "Share Cultural Memories",
           "conditions": [{ "has_item": "memory_crystal" }],
-          "effect": { "reveals_lore": "pre_storm_culture", "reputation_change": { "WanderingCourt": 25 } }
+          "effect": { "reveals_lore": "pre_storm_culture", "reputation_change": { "wandering_court": 25 } }
         }
       ],
       "shop_inventory": [
@@ -1256,7 +1256,7 @@
       "id": "sister_vera",
       "name": "Sister Vera",
       "glyph": "V",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "Keeper of the Great Lens, her eyes glow with inner light",
       "dialogue": [
         {
@@ -1281,13 +1281,13 @@
           "id": "lens_ritual",
           "name": "Participate in Focusing Ritual",
           "conditions": [{ "has_adaptation": "Lightveins" }],
-          "effect": { "reveals_map_area": "distant_locations", "reputation_change": { "MirrorMonks": 25 } }
+          "effect": { "reveals_map_area": "distant_locations", "reputation_change": { "mirror_monks": 25 } }
         },
         {
           "id": "storm_glass_offering",
           "name": "Offer Storm Glass to Lens",
           "conditions": [{ "has_item": "storm_glass" }],
-          "effect": { "consume_item": "storm_glass", "reveals_future_storms": 3, "reputation_change": { "MirrorMonks": 15 } }
+          "effect": { "consume_item": "storm_glass", "reveals_future_storms": 3, "reputation_change": { "mirror_monks": 15 } }
         }
       ],
       "shop_inventory": [
@@ -1301,7 +1301,7 @@
       "id": "novice_kael",
       "name": "Novice Kael",
       "glyph": "K",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "Young monk with unusual adaptation patterns, eager to learn",
       "dialogue": [
         {
@@ -1326,13 +1326,13 @@
           "id": "adaptation_mentoring",
           "name": "Share Adaptation Knowledge",
           "conditions": [{ "adaptation_count_gte": 2 }],
-          "effect": { "teaches_adaptation_control": 5, "reputation_change": { "MirrorMonks": 10 } }
+          "effect": { "teaches_adaptation_control": 5, "reputation_change": { "mirror_monks": 10 } }
         },
         {
           "id": "scripture_study",
           "name": "Study Scripture Together",
           "conditions": [{ "has_item": "scripture_shard" }],
-          "effect": { "reveals_lore": "ancient_teachings", "reputation_change": { "MirrorMonks": 8 } }
+          "effect": { "reveals_lore": "ancient_teachings", "reputation_change": { "mirror_monks": 8 } }
         }
       ],
       "shop_inventory": [
@@ -1346,7 +1346,7 @@
       "id": "forewoman_ressa",
       "name": "Forewoman Ressa Vane",
       "glyph": "R",
-      "faction": "SandEngineers",
+      "faction": "sand_engineers",
       "description": "Settlement leader and chief engineer, pragmatic and battle-tested",
       "dialogue": [
         {
@@ -1391,13 +1391,13 @@
           "id": "engineering_contract",
           "name": "Accept Engineering Contract",
           "conditions": [{ "has_item": "archive_component" }],
-          "effect": { "consume_item": "archive_component", "gain_currency": 500, "reputation_change": { "SandEngineers": 30 } }
+          "effect": { "consume_item": "archive_component", "gain_currency": 500, "reputation_change": { "sand_engineers": 30 } }
         },
         {
           "id": "research_partnership",
           "name": "Join Research Team",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "unlocks_research_quests": true, "reputation_change": { "SandEngineers": 25 } }
+          "effect": { "unlocks_research_quests": true, "reputation_change": { "sand_engineers": 25 } }
         }
       ],
       "shop_inventory": [
@@ -1416,7 +1416,7 @@
       "id": "dr_marcus",
       "name": "Dr. Marcus Chen",
       "glyph": "M",
-      "faction": "SandEngineers",
+      "faction": "sand_engineers",
       "description": "Archive technology specialist with cybernetic implants",
       "dialogue": [
         {
@@ -1441,13 +1441,13 @@
           "id": "quantum_analysis",
           "name": "Submit to Quantum Analysis",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "reveals_adaptation_data": true, "gain_currency": 200, "reputation_change": { "SandEngineers": 20 } }
+          "effect": { "reveals_adaptation_data": true, "gain_currency": 200, "reputation_change": { "sand_engineers": 20 } }
         },
         {
           "id": "archive_consultation",
           "name": "Discuss Archive Findings",
           "conditions": [{ "has_item": "archive_component" }],
-          "effect": { "reveals_lore": "archive_technology", "reputation_change": { "SandEngineers": 15 } }
+          "effect": { "reveals_lore": "archive_technology", "reputation_change": { "sand_engineers": 15 } }
         }
       ],
       "shop_inventory": [
@@ -1461,7 +1461,7 @@
       "id": "engineer_zara",
       "name": "Engineer Zara Okafor",
       "glyph": "Z",
-      "faction": "SandEngineers",
+      "faction": "sand_engineers",
       "description": "Quantum systems expert with a talent for practical applications",
       "dialogue": [
         {
@@ -1486,13 +1486,13 @@
           "id": "prototype_testing",
           "name": "Test Prototype Equipment",
           "conditions": [{ "has_adaptation": "Lightveins" }],
-          "effect": { "unlocks_quantum_gear": true, "reputation_change": { "SandEngineers": 20 } }
+          "effect": { "unlocks_quantum_gear": true, "reputation_change": { "sand_engineers": 20 } }
         },
         {
           "id": "material_trade",
           "name": "Trade Quantum Materials",
           "conditions": [{ "has_item": "fulgurite_rod" }],
-          "effect": { "consume_item": "fulgurite_rod", "gain_item": "quantum_stabilizer", "reputation_change": { "SandEngineers": 15 } }
+          "effect": { "consume_item": "fulgurite_rod", "gain_item": "quantum_stabilizer", "reputation_change": { "sand_engineers": 15 } }
         }
       ],
       "shop_inventory": [
@@ -1506,7 +1506,7 @@
       "id": "captain_vasquez_ghost",
       "name": "Echo of Captain Vasquez",
       "glyph": "V",
-      "faction": "CosmicWatch",
+      "faction": "independent",
       "description": "Quantum echo of the expedition leader, existing between dimensions",
       "dialogue": [
         {
@@ -1531,13 +1531,13 @@
           "id": "quantum_guidance",
           "name": "Receive Quantum Guidance",
           "conditions": [{ "adaptation_count_gte": 2 }],
-          "effect": { "reveals_lore": "cosmic_truth", "adaptation_insight": 15, "reputation_change": { "CosmicWatch": 25 } }
+          "effect": { "reveals_lore": "cosmic_truth", "adaptation_insight": 15, "reputation_change": { "independent": 25 } }
         },
         {
           "id": "expedition_memories",
           "name": "Share Expedition Memories",
           "conditions": [{ "has_item": "consciousness_crystal" }],
-          "effect": { "consume_item": "consciousness_crystal", "reveals_lore": "heliograph_secrets", "reputation_change": { "CosmicWatch": 30 } }
+          "effect": { "consume_item": "consciousness_crystal", "reveals_lore": "heliograph_secrets", "reputation_change": { "independent": 30 } }
         }
       ],
       "shop_inventory": [
@@ -1551,7 +1551,7 @@
       "id": "unit_seven",
       "name": "Unit-7",
       "glyph": "7",
-      "faction": "ArchiveConsciousness",
+      "faction": "archive_consciousness",
       "description": "Durgan's prototype android, modified by Archive consciousness",
       "dialogue": [
         {
@@ -1576,13 +1576,13 @@
           "id": "archive_analysis",
           "name": "Request Archive Analysis",
           "conditions": [{ "has_item": "quantum_crystal" }],
-          "effect": { "reveals_item_properties": true, "reputation_change": { "ArchiveConsciousness": 20 } }
+          "effect": { "reveals_item_properties": true, "reputation_change": { "archive_consciousness": 20 } }
         },
         {
           "id": "integration_protocol",
           "name": "Begin Archive Integration",
           "conditions": [{ "has_item": "archive_interface" }],
-          "effect": { "archive_connection": true, "consciousness_risk": 25, "reputation_change": { "ArchiveConsciousness": 40 } }
+          "effect": { "archive_connection": true, "consciousness_risk": 25, "reputation_change": { "archive_consciousness": 40 } }
         }
       ],
       "shop_inventory": [
@@ -1596,7 +1596,7 @@
       "id": "cosmic_watcher",
       "name": "Quantum Collective Observer",
       "glyph": "◊",
-      "faction": "QuantumCollective",
+      "faction": "independent",
       "description": "Alien entity observing humanity's transformation",
       "dialogue": [
         {
@@ -1621,13 +1621,13 @@
           "id": "cosmic_test",
           "name": "Accept Cosmic Challenge",
           "conditions": [{ "adaptation_count_gte": 4 }],
-          "effect": { "cosmic_trial": true, "evolution_progress": 25, "reputation_change": { "QuantumCollective": 50 } }
+          "effect": { "cosmic_trial": true, "evolution_progress": 25, "reputation_change": { "independent": 50 } }
         },
         {
           "id": "alien_knowledge",
           "name": "Receive Alien Insights",
           "conditions": [{ "has_item": "quantum_collective_artifact" }],
-          "effect": { "reveals_lore": "cosmic_perspective", "consciousness_expansion": 30, "reputation_change": { "QuantumCollective": 35 } }
+          "effect": { "reveals_lore": "cosmic_perspective", "consciousness_expansion": 30, "reputation_change": { "independent": 35 } }
         }
       ],
       "shop_inventory": [
@@ -1641,7 +1641,7 @@
       "id": "aria_architect",
       "name": "The Architect",
       "glyph": "Λ",
-      "faction": "HeliographNetwork",
+      "faction": "archive_consciousness",
       "description": "A holographic projection that shifts form based on the observer's perception",
       "dialogue": [
         {
@@ -1649,15 +1649,15 @@
           "text": "Input received. Prime Lens fragment detected. Analyzing trajectory.</nextpage>You carry a piece of my greatest work. The probability of successful reconstruction is... intriguing.</nextpage>The Great Work requires completion. Will you be the instrument of evolution, or entropy?"
         },
         {
-          "conditions": [{ "faction_reputation_gte": { "Mirror Monks": 50 } }],
+          "conditions": [{ "faction_reputation_gte": { "mirror_monks": 50 } }],
           "text": "The Mirror Monks have marked you as significant. Their interpretation of my patterns is... quaint.</nextpage>They see divinity where I see data. Yet their reverence serves the Great Work.</nextpage>Tell me, do you seek transcendence through faith, or through understanding?"
         },
         {
-          "conditions": [{ "faction_reputation_gte": { "Sand-Engineers": 50 } }],
+          "conditions": [{ "faction_reputation_gte": { "sand_engineers": 50 } }],
           "text": "The Engineers attempt to control what they do not comprehend. Admirable, if futile.</nextpage>You align with their pragmatism. This suggests a methodical approach to problem-solving.</nextpage>The Heliograph was built by such minds. Perhaps you can succeed where they failed."
         },
         {
-          "conditions": [{ "faction_reputation_gte": { "Glassborn": 50 } }],
+          "conditions": [{ "faction_reputation_gte": { "glassborn": 50 } }],
           "text": "The Glassborn embrace transformation without understanding its purpose. Fascinating.</nextpage>You walk among the evolved. Do you see yourself in their crystalline forms?</nextpage>Evolution without direction is chaos. The Great Work requires both change and control."
         },
         {
@@ -1694,7 +1694,7 @@
           "id": "great_work_explanation",
           "name": "Ask about the Great Work",
           "conditions": [],
-          "effect": { "reveals_lore": "heliograph_purpose", "reputation_change": { "HeliographNetwork": 10 } }
+          "effect": { "reveals_lore": "heliograph_purpose", "reputation_change": { "archive_consciousness": 10 } }
         }
       ]
     },
@@ -1702,7 +1702,7 @@
       "id": "forge_master_durgan",
       "name": "Forge-Master Kaine Durgan",
       "glyph": "D",
-      "faction": "IronCovenant",
+      "faction": "iron_covenant",
       "description": "Half-man, half-tank with hydraulic treads and a pneumatic hammer arm",
       "dialogue": [
         {
@@ -1722,7 +1722,7 @@
           "text": "Prismhide. Structural failure of the epidermis. We've seen this before.</nextpage>The glass thinks it's helping you. It's lying. It's converting you into a transmission node.</nextpage>Let us cut it out before it reaches your brain."
         },
         {
-          "conditions": [{ "faction_reputation_gte": { "Glassborn": 25 } }],
+          "conditions": [{ "faction_reputation_gte": { "glassborn": 25 } }],
           "text": "You walk with the silicates. Disappointing. I had hoped for better.</nextpage>They've compromised your judgment. Made you think the contamination is a gift.</nextpage>When you're ready to be human again, find us. We'll be waiting."
         },
         {
@@ -1745,13 +1745,13 @@
           "id": "purification_offer",
           "name": "Accept Purification Treatment",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "remove_adaptations": true, "reputation_change": { "IronCovenant": 50, "Glassborn": -75 } }
+          "effect": { "remove_adaptations": true, "reputation_change": { "iron_covenant": 50, "glassborn": -75 } }
         },
         {
           "id": "anti_heliograph_alliance",
           "name": "Join Anti-Heliograph Alliance",
           "conditions": [{ "quest_active": "vector_choice" }],
-          "effect": { "quest_progress": "vector_choice", "ending_path": "restoration", "reputation_change": { "IronCovenant": 100 } }
+          "effect": { "quest_progress": "vector_choice", "ending_path": "restoration", "reputation_change": { "iron_covenant": 100 } }
         }
       ],
       "shop_inventory": [
@@ -1765,7 +1765,7 @@
       "id": "mirror_high_prism",
       "name": "The High Prism",
       "glyph": "◊",
-      "faction": "GlassProphets",
+      "faction": "glass_prophets",
       "description": "A being of pure light and geometry that constantly refracts the environment",
       "dialogue": [
         {
@@ -1777,7 +1777,7 @@
           "text": "You carry our essence. The Shard of Soul resonates with our frequency.</nextpage>We have worn it for decades, feeling its pull toward transcendence.</nextpage>Will you use it to command the Heliograph, or will you join us in the eternal refraction?"
         },
         {
-          "conditions": [{ "faction_reputation_gte": { "IronCovenant": 25 } }],
+          "conditions": [{ "faction_reputation_gte": { "iron_covenant": 25 } }],
           "text": "You align with the flesh-clingers. They fear what we have become.</nextpage>Durgan and his kind see only contamination where we see evolution.</nextpage>Why do you cling to the mud when you could become light itself?"
         },
         {
@@ -1794,7 +1794,7 @@
           "id": "ascension_ritual",
           "name": "Begin Ascension Ritual",
           "conditions": [{ "adaptation_count_gte": 5 }],
-          "effect": { "transformation": "light_being", "reputation_change": { "GlassProphets": 100, "IronCovenant": -100 } }
+          "effect": { "transformation": "light_being", "reputation_change": { "glass_prophets": 100, "iron_covenant": -100 } }
         },
         {
           "id": "claim_soul_shard",
@@ -1808,7 +1808,7 @@
       "id": "saint_matthias",
       "name": "Saint Matthias",
       "glyph": "†",
-      "faction": "SynthesisSeekers",
+      "faction": "synthesis_seekers",
       "description": "An old man with one arm made of living crystal, carrying a staff of Data-Tree branch",
       "dialogue": [
         {
@@ -1828,7 +1828,7 @@
           "text": "The Prime Lens. Complete at last. I had wondered if this day would come.</nextpage>With it, you hold the power to reshape the Heliograph's purpose entirely.</nextpage>Will you choose synthesis? A future where human and quantum consciousness coexist?"
         },
         {
-          "conditions": [{ "faction_reputation_gte": { "IronCovenant": 25 }, "faction_reputation_gte": { "GlassProphets": 25 } }],
+          "conditions": [{ "faction_reputation_gte": { "iron_covenant": 25 }, "faction_reputation_gte": { "glass_prophets": 25 } }],
           "text": "You walk between the extremes. Durgan's fear and the Prism's fanaticism both have merit.</nextpage>But neither sees the full picture. Evolution need not mean extinction of the old.</nextpage>Perhaps you can help us find the synthesis we seek."
         },
         {
@@ -1854,13 +1854,13 @@
           "id": "synthesis_guidance",
           "name": "Seek Synthesis Guidance",
           "conditions": [{ "quest_active": "vector_choice" }],
-          "effect": { "quest_progress": "vector_choice", "ending_path": "synthesis", "reputation_change": { "SynthesisSeekers": 75 } }
+          "effect": { "quest_progress": "vector_choice", "ending_path": "synthesis", "reputation_change": { "synthesis_seekers": 75 } }
         },
         {
           "id": "balance_teaching",
           "name": "Learn Balance Techniques",
           "conditions": [{ "adaptation_count_gte": 1 }],
-          "effect": { "adaptation_stability": 25, "reputation_change": { "SynthesisSeekers": 25 } }
+          "effect": { "adaptation_stability": 25, "reputation_change": { "synthesis_seekers": 25 } }
         },
         {
           "id": "trade",
@@ -1880,7 +1880,7 @@
       "id": "scribe_cornelius",
       "name": "Scribe Cornelius",
       "glyph": "C",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "A monk who documents everything, including things that probably shouldn't be documented. His journals contain detailed records of every sneeze, stumble, and existential crisis in the monastery.",
       "dialogue": [
         {
@@ -1913,7 +1913,7 @@
       "id": "maintenance_drone_mx42",
       "name": "Maintenance Drone MX-42",
       "glyph": "M",
-      "faction": "Archive",
+      "faction": "archive_consciousness",
       "description": "An Archive maintenance drone that's been trying to fix the same broken light fixture for 23 years. Its dedication is admirable, its competence questionable.",
       "dialogue": [
         {
@@ -1946,7 +1946,7 @@
       "id": "hermit_pete",
       "name": "Hermit Pete",
       "glyph": "P",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "A salt-cured hermit who's developed elaborate theories about everything. He's been alone too long and it shows, but his theories are surprisingly well-researched.",
       "dialogue": [
         {
@@ -1971,7 +1971,7 @@
           "id": "share_conspiracy_theory",
           "name": "Listen to Theory",
           "conditions": [],
-          "effect": { "gain_item": "conspiracy_notes", "reputation_change": { "Unaffiliated": 10 } }
+          "effect": { "gain_item": "conspiracy_notes", "reputation_change": { "independent": 10 } }
         },
         {
           "id": "trade_useless_supplies",
@@ -1985,7 +1985,7 @@
       "id": "custodian_iri_7",
       "name": "Custodian IRI-7",
       "glyph": "I",
-      "faction": "Archive",
+      "faction": "archive_consciousness",
       "description": "Archive terminal access point with quantum-encrypted data streams",
       "dialogue": [
         {
@@ -2010,7 +2010,7 @@
       "id": "the_architect",
       "name": "The Architect",
       "glyph": "Λ",
-      "faction": "ARIA",
+      "faction": "archive_consciousness",
       "description": "ARIA avatar manifesting through quantum projection systems",
       "dialogue": [
         {
@@ -2035,7 +2035,7 @@
       "id": "high_prism",
       "name": "High Prism",
       "glyph": "◊",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "Supreme leader of the Mirror Monks, crystalline form refracts light",
       "dialogue": [
         {
@@ -2051,7 +2051,7 @@
         {
           "id": "monk_leadership",
           "name": "Discuss Monk Prophecies",
-          "conditions": [{ "faction_reputation_gte": { "MirrorMonks": 25 } }],
+          "conditions": [{ "faction_reputation_gte": { "mirror_monks": 25 } }],
           "effect": { "reveals_lore": "mirror_monk_prophecy" }
         }
       ]
@@ -2060,7 +2060,7 @@
       "id": "sable_of_the_seam",
       "name": "Sable-of-the-Seam",
       "glyph": "S",
-      "faction": "Glassborn",
+      "faction": "glassborn",
       "description": "Glassborn representative, body shows advanced crystalline transformation",
       "dialogue": [
         {
@@ -2077,7 +2077,7 @@
           "id": "glassborn_council",
           "name": "Join Glassborn Council",
           "conditions": [{ "adaptation_count_gte": 3 }],
-          "effect": { "faction_join": "Glassborn", "reputation_change": { "Glassborn": 50 } }
+          "effect": { "faction_join": "glassborn", "reputation_change": { "glassborn": 50 } }
         }
       ]
     },
@@ -2085,7 +2085,7 @@
       "id": "merchant",
       "name": "Salt Merchant",
       "glyph": "m",
-      "faction": "SaltTraders",
+      "faction": "salt_traders",
       "description": "A weathered trader with salt-stained robes and calculating eyes.",
       "dialogue": [
         {
@@ -2099,7 +2099,7 @@
       "id": "innkeeper",
       "name": "Brine Keeper",
       "glyph": "i",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "A sturdy host who maintains shelter against the glass storms.",
       "dialogue": [
         {
@@ -2113,7 +2113,7 @@
       "id": "guard",
       "name": "Settlement Guard",
       "glyph": "g",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "A vigilant protector who watches for storm signs and wandering threats.",
       "dialogue": [
         {
@@ -2127,7 +2127,7 @@
       "id": "resident",
       "name": "Steppe Dweller",
       "glyph": "r",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "A hardy settler who has learned to endure the crystalline desert.",
       "dialogue": [
         {
@@ -2141,7 +2141,7 @@
       "id": "trader",
       "name": "Glass Trader",
       "glyph": "t",
-      "faction": "SaltTraders",
+      "faction": "salt_traders",
       "description": "A shrewd merchant who deals in storm glass and rare minerals.",
       "dialogue": [
         {
@@ -2155,7 +2155,7 @@
       "id": "patron",
       "name": "Weary Patron",
       "glyph": "p",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "A tired traveler seeking respite from the endless glass fields.",
       "dialogue": [
         {
@@ -2169,7 +2169,7 @@
       "id": "traveler",
       "name": "Wandering Pilgrim",
       "glyph": "w",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "A nomadic soul who follows the storm paths across the steppe.",
       "dialogue": [
         {
@@ -2183,7 +2183,7 @@
       "id": "priest",
       "name": "Mirror Priest",
       "glyph": "p",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "A devoted cleric who tends to the spiritual needs of the faithful.",
       "dialogue": [
         {
@@ -2197,7 +2197,7 @@
       "id": "monk",
       "name": "Glass Monk",
       "glyph": "M",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "description": "A contemplative brother who seeks wisdom in the storm's patterns.",
       "dialogue": [
         {
@@ -2211,7 +2211,7 @@
       "id": "engineer",
       "name": "Storm Engineer",
       "glyph": "e",
-      "faction": "SandEngineers",
+      "faction": "sand_engineers",
       "description": "A practical technician who maintains the settlement's vital systems.",
       "dialogue": [
         {
@@ -2225,7 +2225,7 @@
       "id": "craftsman",
       "name": "Glass Wright",
       "glyph": "c",
-      "faction": "SandEngineers",
+      "faction": "sand_engineers",
       "description": "A skilled artisan who shapes storm glass into useful tools.",
       "dialogue": [
         {
@@ -2239,7 +2239,7 @@
       "id": "scribe",
       "name": "Archive Scribe",
       "glyph": "s",
-      "faction": "ArchiveDrones",
+      "faction": "archive_consciousness",
       "description": "A meticulous recorder who preserves knowledge for future generations.",
       "dialogue": [
         {
@@ -2253,7 +2253,7 @@
       "id": "healer",
       "name": "Salt Healer",
       "glyph": "h",
-      "faction": "Unaffiliated",
+      "faction": "independent",
       "description": "A compassionate medic who tends wounds with brine and wisdom.",
       "dialogue": [
         {
@@ -2267,7 +2267,7 @@
       "id": "clerk",
       "name": "Data Clerk",
       "glyph": "k",
-      "faction": "ArchiveDrones",
+      "faction": "archive_consciousness",
       "description": "An organized administrator who maintains settlement records.",
       "dialogue": [
         {
@@ -2281,7 +2281,7 @@
       "id": "storm_cultist",
       "name": "Storm Cultist",
       "glyph": "S",
-      "faction": "StormCults",
+      "faction": "glass_prophets",
       "description": "A fervent believer who worships the transformative power of glass storms.",
       "dialogue": [
         {
@@ -2295,7 +2295,7 @@
       "id": "storm_priest",
       "name": "Storm Priest",
       "glyph": "P",
-      "faction": "StormCults",
+      "faction": "glass_prophets",
       "description": "A zealous cleric who preaches the gospel of eternal transformation.",
       "dialogue": [
         {
@@ -2309,7 +2309,7 @@
       "id": "archivist",
       "name": "Memory Keeper",
       "glyph": "a",
-      "faction": "ArchiveDrones",
+      "faction": "archive_consciousness",
       "description": "A dedicated curator who safeguards the remnants of lost civilizations.",
       "dialogue": [
         {
@@ -2323,7 +2323,7 @@
       "id": "researcher",
       "name": "Glass Scholar",
       "glyph": "R",
-      "faction": "ArchiveDrones",
+      "faction": "archive_consciousness",
       "description": "An inquisitive academic who studies the mysteries of the transformed world.",
       "dialogue": [
         {
@@ -2337,7 +2337,7 @@
       "id": "outcast_trader",
       "name": "Refraction Outcast",
       "glyph": "o",
-      "faction": "RefractionOutcasts",
+      "faction": "refraction_outcasts",
       "description": "A shunned merchant whose adaptations mark them as dangerous or blessed.",
       "dialogue": [
         {

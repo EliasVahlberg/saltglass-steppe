@@ -55,7 +55,7 @@
       "output_count": 1,
       "skill_required": 2,
       "station_required": "crafting_table",
-      "faction_required": "glasswright_guild"
+      "faction_required": "glassborn"
     },
     {
       "id": "advanced_optics",
@@ -70,7 +70,7 @@
       "output_count": 1,
       "skill_required": 3,
       "station_required": "glass_forge",
-      "faction_required": "glasswright_guild"
+      "faction_required": "glassborn"
     },
     {
       "id": "health_potion",

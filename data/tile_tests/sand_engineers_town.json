@@ -5,6 +5,6 @@
   "elevation": 115,
   "poi": "Town",
   "level": 5,
-  "faction_territory": "SandEngineers",
+  "faction_territory": "sand_engineers",
   "seed": 12356
 }

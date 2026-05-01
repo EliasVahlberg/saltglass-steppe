@@ -67,8 +67,8 @@
         "salt_scrip": 75,
         "unlocks_quests": ["craft_your_first_item"],
         "reputation_rewards": {
-          "Glassborn": 15,
-          "SandEngineers": 5
+          "glassborn": 15,
+          "sand_engineers": 5
         }
       }
     },
@@ -98,8 +98,8 @@
         "salt_scrip": 75,
         "unlocks_quests": ["learn_to_hunt"],
         "reputation_rewards": {
-          "SaltTraders": 15,
-          "RefractionOutcasts": 5
+          "salt_traders": 15,
+          "refraction_outcasts": 5
         }
       }
     },

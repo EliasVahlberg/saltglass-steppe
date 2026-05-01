@@ -2818,7 +2818,7 @@
       "tier": 3,
       "usable": false,
       "consumable": false,
-      "faction_access": "CosmicWatch",
+      "faction_access": "independent",
       "effects": [
         {
           "condition": "on_pickup",

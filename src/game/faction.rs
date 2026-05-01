@@ -75,25 +75,25 @@ pub fn get_starting_reputation(class: &str) -> HashMap<String, i32> {
 
     match class {
         "pilgrim" => {
-            rep.insert("MirrorMonks".to_string(), 10);
-            rep.insert("ArchiveDrones".to_string(), 5);
+            rep.insert("mirror_monks".to_string(), 10);
+            rep.insert("archive_consciousness".to_string(), 5);
         }
         "scavenger" => {
-            rep.insert("SaltTraders".to_string(), 10);
-            rep.insert("SandEngineers".to_string(), 5);
+            rep.insert("salt_traders".to_string(), 10);
+            rep.insert("sand_engineers".to_string(), 5);
         }
         "outcast" => {
-            rep.insert("RefractionOutcasts".to_string(), 15);
+            rep.insert("refraction_outcasts".to_string(), 15);
             // Penalty to all others
             for id in all_faction_ids() {
-                if id != "RefractionOutcasts" {
+                if id != "refraction_outcasts" {
                     rep.insert(id, -10);
                 }
             }
         }
         "cultist" => {
-            rep.insert("StormCults".to_string(), 20);
-            rep.insert("MirrorMonks".to_string(), -15);
+            rep.insert("glass_prophets".to_string(), 20);
+            rep.insert("mirror_monks".to_string(), -15);
         }
         _ => {
             // Default: all neutral (0)
@@ -111,13 +111,13 @@ mod tests {
     fn test_factions_load() {
         let ids = all_faction_ids();
         assert!(!ids.is_empty(), "Should load factions");
-        assert!(ids.contains(&"MirrorMonks".to_string()));
-        assert!(ids.contains(&"SaltTraders".to_string()));
+        assert!(ids.contains(&"mirror_monks".to_string()));
+        assert!(ids.contains(&"salt_traders".to_string()));
     }
 
     #[test]
     fn test_get_faction() {
-        let faction = get_faction("MirrorMonks");
+        let faction = get_faction("mirror_monks");
         assert!(faction.is_some());
         assert_eq!(faction.unwrap().name, "Mirror Monks");
     }
@@ -136,11 +136,11 @@ mod tests {
     #[test]
     fn test_starting_reputation() {
         let rep = get_starting_reputation("pilgrim");
-        assert_eq!(rep.get("MirrorMonks"), Some(&10));
-        assert_eq!(rep.get("ArchiveDrones"), Some(&5));
+        assert_eq!(rep.get("mirror_monks"), Some(&10));
+        assert_eq!(rep.get("archive_consciousness"), Some(&5));
 
         let rep = get_starting_reputation("outcast");
-        assert_eq!(rep.get("RefractionOutcasts"), Some(&15));
-        assert_eq!(rep.get("MirrorMonks"), Some(&-10));
+        assert_eq!(rep.get("refraction_outcasts"), Some(&15));
+        assert_eq!(rep.get("mirror_monks"), Some(&-10));
     }
 }

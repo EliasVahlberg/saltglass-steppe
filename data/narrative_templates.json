@@ -155,8 +155,8 @@
         "template": "The {faction1} clashed with the {faction2} at {location}, {outcome}.",
         "variables": {
           "faction1": [
-            "Mirror Monks",
-            "Sand-Engineers",
+            "mirror_monks",
+            "sand_engineers",
             "Glassborn Collective",
             "Archive Remnants",
             "Synthesis Seekers"
@@ -191,8 +191,8 @@
         "template": "The {faction1} and {faction2} signed the {treaty_name} at {location}, agreeing to {terms}.",
         "variables": {
           "faction1": [
-            "Mirror Monks",
-            "Sand-Engineers",
+            "mirror_monks",
+            "sand_engineers",
             "Glassborn Collective"
           ],
           "faction2": [
@@ -404,7 +404,7 @@
       }
     },
     "faction_influenced": {
-      "Mirror Monks": {
+      "mirror_monks": {
         "template": "Through the lens of Mirror Monk teachings, you see {interpretation}.",
         "variables": {
           "interpretation": [
@@ -415,7 +415,7 @@
           ]
         }
       },
-      "Sand-Engineers": {
+      "sand_engineers": {
         "template": "Your engineering knowledge reveals {technical_insight}.",
         "variables": {
           "technical_insight": [

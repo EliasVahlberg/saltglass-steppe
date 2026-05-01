@@ -4,7 +4,7 @@
     {
       "trader_id": "merchant_keth",
       "name": "Merchant Keth",
-      "faction": "saltborn_collective",
+      "faction": "salt_traders",
       "base_tier": 1,
       "items": [
         {
@@ -64,7 +64,7 @@
     {
       "trader_id": "glasswright_artisan",
       "name": "Artisan Vex",
-      "faction": "glasswright_guild",
+      "faction": "glassborn",
       "base_tier": 2,
       "items": [
         {
@@ -87,7 +87,7 @@
           "stock": 1,
           "min_tier": 3,
           "required_reputation": 50,
-          "faction_exclusive": "glasswright_guild"
+          "faction_exclusive": "glassborn"
         },
         {
           "item_id": "precision_tools",
@@ -125,7 +125,7 @@
     {
       "trader_id": "storm_prophet_trader",
       "name": "Prophet Zara",
-      "faction": "storm_prophets",
+      "faction": "glass_prophets",
       "base_tier": 3,
       "items": [
         {
@@ -155,7 +155,7 @@
           "stock": 1,
           "min_tier": 4,
           "required_reputation": 50,
-          "faction_exclusive": "storm_prophets"
+          "faction_exclusive": "glass_prophets"
         }
       ],
       "reputation_modifiers": {

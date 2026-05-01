@@ -1413,7 +1413,7 @@
         "description": "A simple shrine where storm cultists gather to commune with the tempest. The central altar bears scorch marks from lightning strikes, and the air hums with residual electrical energy.",
         "tags": [
           "faction",
-          "storm_cults"
+          "glass_prophets"
         ],
         "weight": 1.0,
         "entrance_side": "south",
@@ -1421,7 +1421,7 @@
         "npc_types": [
           "storm_priest"
         ],
-        "faction": "storm_cults"
+        "faction": "glass_prophets"
       }
     },
     {
@@ -1449,7 +1449,7 @@
         "description": "An open ceremonial space where storm cultists perform their chaotic rituals. Twin altars mark the center, and the minimal walls allow the wild winds to flow freely through the sacred space.",
         "tags": [
           "faction",
-          "storm_cults"
+          "glass_prophets"
         ],
         "weight": 1.0,
         "entrance_side": "any",
@@ -1458,7 +1458,7 @@
           "storm_cultist",
           "storm_cultist"
         ],
-        "faction": "storm_cults"
+        "faction": "glass_prophets"
       }
     },
     {
@@ -1494,7 +1494,7 @@
         "description": "A fortified observation post where storm cultists track the movements of glass tempests. Charts and storm-glass instruments line the shelves, while the watcher maintains vigil for the next great storm.",
         "tags": [
           "faction",
-          "storm_cults"
+          "glass_prophets"
         ],
         "weight": 1.0,
         "entrance_side": "south",
@@ -1502,7 +1502,7 @@
         "npc_types": [
           "storm_watcher"
         ],
-        "faction": "storm_cults"
+        "faction": "glass_prophets"
       }
     },
     {

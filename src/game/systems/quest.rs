@@ -19,7 +19,7 @@ pub fn handle_accept_quest(quest_id: &str, state: &GameState) -> Vec<Mutation> {
         if def.category == "main" && quest_id.starts_with("faction_choice_") {
             let faction = if quest_id.contains("monks") { "Mirror Monks" }
                 else if quest_id.contains("engineers") { "Sand-Engineers" }
-                else if quest_id.contains("glassborn") { "Glassborn" }
+                else if quest_id.contains("glassborn") { "glassborn" }
                 else { "" };
             if !faction.is_empty() {
                 out.push(Mutation::SetFactionAlignment(faction.to_string()));

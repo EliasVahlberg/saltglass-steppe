@@ -170,8 +170,8 @@ fn display_settlement(seed: u64, tier: SettlementTier) {
         seed,
         tier,
         faction_control: vec![
-            ("MirrorMonks".to_string(), 0.4),
-            ("SaltTraders".to_string(), 0.3),
+            ("mirror_monks".to_string(), 0.4),
+            ("salt_traders".to_string(), 0.3),
         ],
     };
 

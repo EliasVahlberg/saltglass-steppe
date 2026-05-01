@@ -3,7 +3,7 @@
     {
       "npc_id": "merchant_keth",
       "name": "Merchant Keth",
-      "faction": "saltborn_collective",
+      "faction": "salt_traders",
       "root_node": "greeting",
       "nodes": [
         {
@@ -30,7 +30,7 @@
               "text": "How do you feel about the other factions?",
               "condition": {
                 "faction_reputation": {
-                  "saltborn_collective": 10
+                  "salt_traders": 10
                 }
               },
               "leads_to": "faction_talk"
@@ -91,7 +91,7 @@
     {
       "npc_id": "glasswright_artisan",
       "name": "Artisan Vex",
-      "faction": "glasswright_guild",
+      "faction": "glassborn",
       "root_node": "greeting",
       "nodes": [
         {
@@ -114,7 +114,7 @@
               "text": "I've heard you only sell to guild members.",
               "condition": {
                 "faction_reputation": {
-                  "glasswright_guild": -10
+                  "glassborn": -10
                 }
               },
               "leads_to": "guild_exclusive"
@@ -123,7 +123,7 @@
               "text": "Can you teach me about glassworking?",
               "condition": {
                 "faction_reputation": {
-                  "glasswright_guild": 25
+                  "glassborn": 25
                 }
               },
               "leads_to": "teaching"
@@ -146,7 +146,7 @@
               "action": {
                 "type": "reputation_change",
                 "parameters": {
-                  "faction": "glasswright_guild",
+                  "faction": "glassborn",
                   "change": 5
                 }
               },
@@ -158,7 +158,7 @@
               "action": {
                 "type": "reputation_change",
                 "parameters": {
-                  "faction": "glasswright_guild",
+                  "faction": "glassborn",
                   "change": -5
                 }
               },
@@ -175,7 +175,7 @@
               "text": "Tell me about the advanced techniques.",
               "condition": {
                 "faction_reputation": {
-                  "glasswright_guild": 50
+                  "glassborn": 50
                 }
               },
               "response": "The master techniques involve working with storm-touched glass and incorporating salt crystal matrices. Here, take these tools - you've earned them.",
@@ -193,7 +193,7 @@
               "action": {
                 "type": "reputation_change",
                 "parameters": {
-                  "faction": "glasswright_guild",
+                  "faction": "glassborn",
                   "change": 10
                 }
               },
@@ -206,7 +206,7 @@
     {
       "npc_id": "storm_prophet_trader",
       "name": "Prophet Zara",
-      "faction": "storm_prophets",
+      "faction": "glass_prophets",
       "root_node": "greeting",
       "nodes": [
         {
@@ -235,7 +235,7 @@
               "action": {
                 "type": "reputation_change",
                 "parameters": {
-                  "faction": "storm_prophets",
+                  "faction": "glass_prophets",
                   "change": -10
                 }
               },
@@ -284,7 +284,7 @@
               "action": {
                 "type": "reputation_change",
                 "parameters": {
-                  "faction": "storm_prophets",
+                  "faction": "glass_prophets",
                   "change": 25
                 }
               },
@@ -294,7 +294,7 @@
               "text": "What secrets can you share with me?",
               "condition": {
                 "faction_reputation": {
-                  "storm_prophets": 50
+                  "glass_prophets": 50
                 }
               },
               "response": "The deepest mysteries are not spoken, but experienced. Take this storm glass - it will reveal truths when the time is right.",
@@ -313,7 +313,7 @@
     {
       "npc_id": "scribe_cornelius",
       "name": "Scribe Cornelius",
-      "faction": "MirrorMonks",
+      "faction": "mirror_monks",
       "root_node": "greeting",
       "nodes": [
         {

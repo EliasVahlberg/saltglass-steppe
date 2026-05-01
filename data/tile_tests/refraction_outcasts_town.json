@@ -5,6 +5,6 @@
   "elevation": 130,
   "poi": "Town",
   "level": 7,
-  "faction_territory": "RefractionOutcasts",
+  "faction_territory": "refraction_outcasts",
   "seed": 12359
 }

@@ -1,46 +1,64 @@
 {
   "factions": [
     {
-      "id": "MirrorMonks",
+      "id": "mirror_monks",
       "name": "Mirror Monks",
       "description": "Glass-scarred mystics who read scripture in storm refractions.",
       "color": "Cyan"
     },
     {
-      "id": "Glassborn",
+      "id": "glassborn",
       "name": "Glassborn",
       "description": "Storm-transformed beings who shimmer with crystalline pride.",
       "color": "Magenta"
     },
     {
-      "id": "SandEngineers",
-      "name": "Sand Engineers",
+      "id": "sand_engineers",
+      "name": "Sand-Engineers",
       "description": "Pragmatic builders who fuse glass and steel into survival.",
       "color": "Yellow"
     },
     {
-      "id": "SaltTraders",
+      "id": "salt_traders",
       "name": "Salt Traders",
       "description": "Brine merchants who navigate the steppe's shifting markets.",
       "color": "White"
     },
     {
-      "id": "StormCults",
-      "name": "Storm Cults",
-      "description": "Zealots who worship the glass tempests as divine wrath.",
+      "id": "glass_prophets",
+      "name": "Glass Prophets",
+      "description": "Radical accelerationists who believe the final storm will complete humanity's transformation into beings of pure light. Absorbs the former Storm Cults.",
       "color": "Red"
     },
     {
-      "id": "RefractionOutcasts",
+      "id": "refraction_outcasts",
       "name": "Refraction Outcasts",
       "description": "Exiled adapted who glint with forbidden transformations.",
       "color": "Blue"
     },
     {
-      "id": "ArchiveDrones",
-      "name": "Archive Drones",
-      "description": "Tireless automatons preserving the saints' lost knowledge.",
+      "id": "archive_consciousness",
+      "name": "Archive Consciousness",
+      "description": "The distributed intelligence preserving the saints' lost knowledge. Its drones and ARIA interface are its agents in the world.",
       "color": "Green"
+    },
+    {
+      "id": "synthesis_seekers",
+      "name": "Synthesis Seekers",
+      "description": "Neutral mediators who believe science and spirituality are two faces of the same truth. Founded by Saint Matthias after the Schism Wars.",
+      "color": "White"
+    },
+    {
+      "id": "iron_covenant",
+      "name": "Iron Covenant",
+      "description": "Anti-adaptation militants who believe all transformation is contamination. Led by Forge-Master Kaine Durgan.",
+      "color": "DarkGray"
+    },
+    {
+      "id": "wandering_court",
+      "name": "Wandering Court",
+      "description": "Moderate Glassborn who preserve human culture while embracing gradual transformation. Led by Echo-of-Memory.",
+      "color": "DarkMagenta"
     }
   ]
 }
