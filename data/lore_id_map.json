@@ -1,0 +1,32 @@
+{
+  "description": "Maps game NPC IDs to lore graph actor IDs where they differ. Consumed by the chronicle→game export pipeline. Not loaded at runtime.",
+  "npc_to_graph": {
+    "forewoman_ressa": "ressa_vane",
+    "forge_master_durgan": "kaine_durgan",
+    "captain_vasquez_ghost": "captain_elena_vasquez",
+    "dr_kira_thorne": "dr_kira_thorne",
+    "unit_seven": "aria",
+    "archive_custodian": "custodian_iri_7"
+  },
+  "faction_game_to_graph": {
+    "mirror_monks": "mirror_monks",
+    "sand_engineers": "sand_engineers",
+    "glassborn": "glassborn",
+    "archive_consciousness": "archive_consciousness",
+    "synthesis_seekers": "synthesis_seekers",
+    "iron_covenant": "iron_covenant",
+    "glass_prophets": "glass_prophets",
+    "wandering_court": "wandering_court",
+    "salt_traders": null,
+    "refraction_outcasts": null
+  },
+  "notes": {
+    "forewoman_ressa": "Game uses role-prefixed IDs for NPCs; graph uses personal names.",
+    "forge_master_durgan": "Same convention as forewoman_ressa.",
+    "unit_seven": "Game NPC for ARIA's drone avatar. Maps to aria in the graph.",
+    "salt_traders": "Game-only minor faction. No lore graph equivalent yet.",
+    "refraction_outcasts": "Game-only minor faction. No lore graph equivalent yet.",
+    "custodian_iri_7": "No graph equivalent yet. Add to graph in follow-up.",
+    "dying_pilgrim": "No graph equivalent yet. Add to graph in follow-up."
+  }
+}
