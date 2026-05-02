@@ -1075,3 +1075,9 @@ fn boss_phase_transition_test() {
     let result = run_scenario("tests/scenarios/boss_phase_transition_test.json").expect("Failed to run scenario");
     assert!(result.success, "{:?}", result.assertion_results);
 }
+
+#[test]
+fn enrage_enemy_attacks() {
+    let result = run_scenario("tests/scenarios/enrage_enemy_attacks.json").expect("Failed to run scenario");
+    assert!(result.success, "{:?}", result.assertion_results);
+}

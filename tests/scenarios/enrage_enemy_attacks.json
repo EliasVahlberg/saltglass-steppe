@@ -1,0 +1,36 @@
+{
+  "name": "enrage_enemy_attacks",
+  "description": "Enemy below enrage threshold gains enraged status and attacks player",
+  "seed": 11111,
+  "map_setup": {
+    "width": 20,
+    "height": 20,
+    "clear_area": { "x": 0, "y": 0, "width": 20, "height": 20 }
+  },
+  "player": { "x": 5, "y": 5, "hp": 100, "max_hp": 100, "ap": 4, "max_ap": 4 },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "archive_sentinel",
+      "x": 6,
+      "y": 5,
+      "hp": 20
+    }
+  ],
+  "mocks": {},
+  "actions": [
+    { "turn": 0, "action": { "type": "wait", "turns": 1 } },
+    { "turn": 1, "action": { "type": "wait", "turns": 1 } }
+  ],
+  "assertions": [
+    {
+      "check": { "type": "enemy_has_status", "id": "archive_sentinel", "effect": "enraged" }
+    },
+    {
+      "check": { "type": "player_hp", "op": "lt", "value": 100 }
+    },
+    {
+      "check": { "type": "player_alive" }
+    }
+  ]
+}

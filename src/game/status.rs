@@ -26,6 +26,8 @@ pub struct StatusEffectDef {
     #[serde(default)]
     pub reduces_damage: i32,
     #[serde(default)]
+    pub damage_bonus: i32,
+    #[serde(default)]
     pub grants_invisibility: bool,
 }
 

@@ -245,6 +245,30 @@
       "reduces_accuracy": 50,
       "reduces_damage": 0,
       "grants_invisibility": false
+    },
+    {
+      "id": "enraged",
+      "name": "Enraged",
+      "description": "Reckless aggression. Deals more damage but ignores self-preservation.",
+      "max_stacks": 1,
+      "tick_damage": 0,
+      "blocks_healing": false,
+      "reduces_accuracy": 0,
+      "reduces_damage": 0,
+      "damage_bonus": 3,
+      "grants_invisibility": false
+    },
+    {
+      "id": "phase_2",
+      "name": "Phase 2",
+      "description": "The creature has entered a more dangerous phase.",
+      "max_stacks": 1,
+      "tick_damage": 0,
+      "blocks_healing": false,
+      "reduces_accuracy": 0,
+      "reduces_damage": 0,
+      "damage_bonus": 0,
+      "grants_invisibility": false
     }
   ],
   "config": {

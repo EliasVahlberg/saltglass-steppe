@@ -232,6 +232,32 @@ pub fn collect_enemy_stat_effects(enemy: &crate::game::enemy::Enemy) -> Vec<Stat
                 source_id: status.id.clone(),
             });
         }
+        if def.damage_bonus != 0 {
+            effects.push(StatEffect {
+                stat: "damage_bonus",
+                op: StatOp::Add(def.damage_bonus as f32),
+                priority: 0.0,
+                source_id: status.id.clone(),
+            });
+        }
     }
     effects
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn enraged_status_contributes_damage_bonus() {
+        use crate::game::enemy::Enemy;
+        use crate::game::status::StatusEffect;
+
+        let mut enemy = Enemy::new(5, 5, "shard_spider");
+        enemy.apply_status("enraged", 10);
+
+        let effects = enemy.collect_stat_effects();
+        let bonus = resolve_stat_i32(0, "damage_bonus", &effects);
+        assert!(bonus > 0, "enraged enemy should have positive damage_bonus, got {}", bonus);
+    }
 }

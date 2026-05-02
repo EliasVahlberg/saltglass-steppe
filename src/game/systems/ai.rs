@@ -1,6 +1,7 @@
 use super::System;
 use crate::game::{
     event::GameEvent,
+    stat_effect::StatEffectSource,
     state::{GameState, MsgType},
 };
 use bracket_pathfinding::prelude::*;
@@ -446,8 +447,10 @@ impl AiBehavior for StandardMeleeBehavior {
                 return true;
             };
             let base_dmg = state.rng.gen_range(def.damage_min..=def.damage_max);
+            let enemy_effects = state.world.enemies[i].collect_stat_effects();
+            let dmg_bonus = crate::game::stat_effect::resolve_stat_i32(0, "damage_bonus", &enemy_effects);
             let player_armor = state.effective_armor();
-            let dmg = (base_dmg - player_armor).max(1);
+            let dmg = (base_dmg + dmg_bonus - player_armor).max(1);
             state.player.hp -= dmg;
                 state.player.activity.damage_taken_total += dmg as u32;
                 apply_scar_lattice(state);
@@ -514,8 +517,10 @@ impl AiBehavior for StandardMeleeBehavior {
                 };
                 for _ in 0..attacks {
                     let base_dmg = state.rng.gen_range(def.damage_min..=def.damage_max);
+                    let enemy_effects = state.world.enemies[i].collect_stat_effects();
+                    let dmg_bonus = crate::game::stat_effect::resolve_stat_i32(0, "damage_bonus", &enemy_effects);
                     let player_armor = state.effective_armor();
-                    let dmg = (base_dmg - player_armor).max(1);
+                    let dmg = (base_dmg + dmg_bonus - player_armor).max(1);
                     state.player.hp -= dmg;
                 state.player.activity.damage_taken_total += dmg as u32;
                 apply_scar_lattice(state);
