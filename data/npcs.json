@@ -3098,7 +3098,23 @@
           "text": "Quality storm glass for fair scrip. No haggling."
         }
       ],
-      "actions": []
+      "actions": [
+        {
+          "id": "trade",
+          "name": "Trade",
+          "conditions": [],
+          "effect": {
+            "trade": true
+          }
+        }
+      ],
+      "shop_inventory": [
+        "storm_glass",
+        "brine_vial",
+        "salt_poultice",
+        "glass_fiber_rope",
+        "salt_cured_rat"
+      ]
     },
     {
       "id": "patron",

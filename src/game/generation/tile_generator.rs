@@ -70,6 +70,26 @@ impl TileParams {
     }
 }
 
+/// BFS flood fill to check if `target` is reachable from `start` on walkable tiles.
+fn is_reachable(map: &Map, start: (i32, i32), target: (i32, i32)) -> bool {
+    if start == target { return true; }
+    let mut visited = std::collections::HashSet::new();
+    let mut queue = std::collections::VecDeque::new();
+    queue.push_back(start);
+    visited.insert(start);
+    while let Some((x, y)) = queue.pop_front() {
+        for (dx, dy) in [(0,1),(0,-1),(1,0),(-1,0)] {
+            let nx = x + dx; let ny = y + dy;
+            if (nx, ny) == target { return true; }
+            if !visited.contains(&(nx, ny)) && map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false) {
+                visited.insert((nx, ny));
+                queue.push_back((nx, ny));
+            }
+        }
+    }
+    false
+}
+
 fn find_safe_spawn_position(map: &Map) -> (i32, i32) {
     // Try center area first
     for y in (MAP_HEIGHT / 2 - 10)..(MAP_HEIGHT / 2 + 10) {
@@ -369,8 +389,13 @@ pub fn generate_tile(params: &TileParams) -> GeneratedTile {
     // Final connectivity pass — carve tunnels to connect any isolated regions
     ensure_connectivity(&mut map, (px, py), &GSBParams::default(), &mut rng);
 
-    // Re-find spawn position on the now-connected map to guarantee it's in the main region
-    let (px, py) = find_safe_spawn_position(&map);
+    // Re-find spawn position. find_safe_spawn_position tries center first, which should be
+    // in the main connected region after GSB. Keep the anchor (px, py) as fallback.
+    let (px, py) = {
+        let candidate = find_safe_spawn_position(&map);
+        // Verify candidate is reachable from the connectivity anchor via flood fill
+        if is_reachable(&map, (px, py), candidate) { candidate } else { (px, py) }
+    };
 
     // Refresh walkable_positions for the returned struct
     let walkable_positions: Vec<(i32, i32)> = map
