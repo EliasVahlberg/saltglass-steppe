@@ -151,6 +151,16 @@ Features are grouped into tiers. Each tier builds on the previous one. Within a 
 #### 5.5. Biome-Driven Tile Generation Profiles ✅
 #### 5.6. Algorithm Layering & Composition ✅ **COMPLETED** (2026-03-07)
 
+#### 5.7. Content Tier 1 — World Vocabulary Pass
+- 8 item renames, 6 weapon renames, 3 chest renames (generic → world-grounded IDs and names)
+- 10 skill renames (e.g. `Bartering` → `Salt-Scrip Haggling`)
+- 4 placeholder quest rewrites (pest_control, supply_run, scout_mission, meet_merchant)
+- 2 tonal-break event rewrites (bureaucratic_confusion, interpretive_disagreement)
+- 9 missing quest items added to items.json (broken_saint_key, prime_lens shards, etc.)
+- Data-only: no Rust changes, no new schemas
+- Full spec: `docs/development/CHANGESET_CONTENT_TIER1.md` (GitHub issue #10)
+- **Depends on**: Structural alignment ✅
+
 #### 6. Mob and Item Spawn Table Update
 - Biome-specific enemy rosters with level scaling
 - Elite and rare enemy variants with unique loot
