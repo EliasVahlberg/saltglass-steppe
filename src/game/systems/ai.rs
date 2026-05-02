@@ -141,11 +141,16 @@ impl AiBehavior for StandardMeleeBehavior {
                             new_enemy.swarm_id = Some(format!("spawner_{}", i));
                         }
 
-                        state.world.enemies.push(new_enemy);
-                        // Update spatial index for new enemy
-                        state
-                            .spatial.enemy_positions
-                            .insert((sx, sy), state.world.enemies.len() - 1);
+                        state.apply_one(&crate::game::mutations::Mutation::SpawnEnemy {
+                            id: spawn_type.to_string(),
+                            x: sx,
+                            y: sy,
+                        });
+                        // Set swarm_id on the newly pushed enemy
+                        if def.swarm {
+                            let idx = state.world.enemies.len() - 1;
+                            state.world.enemies[idx].swarm_id = Some(format!("spawner_{}", i));
+                        }
                         state.world.enemies[i].spawned_count += 1;
                         state.world.enemies[i].last_spawn_turn = state.turn;
 
@@ -348,13 +353,12 @@ impl AiBehavior for StandardMeleeBehavior {
                                     if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
                                         && state.enemy_at(nx, ny).is_none()
                                     {
-                                        if let Some(def) = crate::game::enemy::get_enemy_def(&spawn_id) {
-                                            let max = def.max_hp;
-                                            let mut add = crate::game::enemy::Enemy::new(nx, ny, &spawn_id);
-                                            add.hp = max;
-                                            let idx = state.world.enemies.len();
-                                            state.world.enemies.push(add);
-                                            state.spatial.enemy_positions.insert((nx, ny), idx);
+                                        if crate::game::enemy::get_enemy_def(&spawn_id).is_some() {
+                                            state.apply_one(&crate::game::mutations::Mutation::SpawnEnemy {
+                                                id: spawn_id.clone(),
+                                                x: nx,
+                                                y: ny,
+                                            });
                                             state.log_typed(format!("{} calls for aid!", name), MsgType::Warning);
                                         }
                                         break 'spawn;
