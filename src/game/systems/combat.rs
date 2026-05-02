@@ -46,7 +46,7 @@ fn xp_mutations(current_xp: u32, current_level: u32, current_stat_pts: i32,
     let mut stat_pts = current_stat_pts;
     let mut skill_pts = current_skill_pts;
     while level < max_level() {
-        if new_xp >= xp_for_level(level + 1) {
+        if new_xp >= xp_for_level(level) {
             level += 1;
             let pts = stat_points_per_level();
             stat_pts += pts;

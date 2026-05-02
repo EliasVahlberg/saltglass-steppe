@@ -9,7 +9,7 @@
     "max_hp": 50,
     "ap": 10,
     "max_ap": 10,
-    "xp": 242
+    "xp": 92
   },
   "mocks": {
     "combat_always_hit": true,
@@ -27,8 +27,8 @@
   "assertions": [
     {
       "at_start": true,
-      "check": {"type": "player_xp", "op": "eq", "value": 242},
-      "message": "Player should start with 242 XP"
+      "check": {"type": "player_xp", "op": "eq", "value": 92},
+      "message": "Player should start with 92 XP"
     },
     {
       "at_start": true,
@@ -37,8 +37,8 @@
     },
     {
       "at_end": true,
-      "check": {"type": "player_xp", "op": "eq", "value": 250},
-      "message": "Player should have 250 XP after killing spider (242 + 8)"
+      "check": {"type": "player_xp", "op": "eq", "value": 100},
+      "message": "Player should have 100 XP after killing spider (92 + 8)"
     },
     {
       "at_end": true,

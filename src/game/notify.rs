@@ -23,7 +23,8 @@ pub fn on_transitions(
             StateTransition::EnemyHpChanged { idx, old_hp, new_hp } => {
                 out.extend(combat::on_enemy_hit(state, *idx, *old_hp, *new_hp));
             }
-            StateTransition::EnemyHpReachedZero { idx, enemy_id, x, y } => {
+            StateTransition::EnemyHpReachedZero { idx, enemy_id, x, y, damage } => {
+                out.push(Mutation::DamageNumber { x: *x, y: *y, value: *damage, is_heal: false });
                 out.extend(combat::on_enemy_killed(state, *idx, enemy_id, *x, *y, rng));
             }
             // Future: PlayerPositionChanged, TurnAdvanced, ItemAddedToInventory, etc.

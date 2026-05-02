@@ -164,7 +164,7 @@ pub enum StateTransition {
     PlayerApReachedZero,
     PlayerDied,
     EnemyHpChanged { idx: usize, old_hp: i32, new_hp: i32 },
-    EnemyHpReachedZero { idx: usize, enemy_id: String, x: i32, y: i32 },
+    EnemyHpReachedZero { idx: usize, enemy_id: String, x: i32, y: i32, damage: i32 },
     TurnAdvanced { old_turn: u32, new_turn: u32 },
     ItemAddedToInventory { item_id: String },
     PlayerEnteredWorldTile { wx: usize, wy: usize },

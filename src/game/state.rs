@@ -701,7 +701,7 @@ impl GameState {
                         let (ex, ey) = (enemy.x, enemy.y);
                         if *hp <= 0 && old_hp > 0 {
                             return Some(StateTransition::EnemyHpReachedZero {
-                                idx: *idx, enemy_id, x: ex, y: ey,
+                                idx: *idx, enemy_id, x: ex, y: ey, damage: old_hp,
                             });
                         }
                         return Some(StateTransition::EnemyHpChanged {

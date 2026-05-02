@@ -418,13 +418,6 @@
         "max_level": 8
       },
       {
-        "id": "dying_pilgrim",
-        "weight": 10,
-        "min_level": 1,
-        "max_level": 5,
-        "room": "first"
-      },
-      {
         "id": "mirror_monk_friendly",
         "weight": 2,
         "min_level": 3,
@@ -480,6 +473,11 @@
         "min_level": 8,
         "max_level": 10,
         "room": "last"
+      },
+      {
+        "id": "dying_pilgrim",
+        "weight": 1,
+        "room": "first"
       }
     ]
   },
