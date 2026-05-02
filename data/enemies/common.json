@@ -13,7 +13,11 @@
       "xp_value": 8,
       "description": "Skitters on glass legs, feeds on blood to increase refraction",
       "faction": "glass_spirits",
-      "tags": ["glass", "swarm", "small"],
+      "tags": [
+        "glass",
+        "swarm",
+        "small"
+      ],
       "swarm": true,
       "behaviors": [
         {
@@ -39,7 +43,9 @@
           "condition": "on_death",
           "effect": "S(@1 &LightCyan)"
         }
-      ]
+      ],
+      "tier": "common",
+      "reflex": 2
     },
     {
       "id": "mirage_hound",
@@ -53,7 +59,11 @@
       "xp_value": 12,
       "description": "Shimmering predator that hunts by heat signature",
       "faction": "glass_spirits",
-      "tags": ["glass", "predator", "heat"],
+      "tags": [
+        "glass",
+        "predator",
+        "heat"
+      ],
       "behaviors": [
         {
           "type": "heat_vision",
@@ -79,7 +89,9 @@
           "condition": "on_death",
           "effect": "D(@6 &Yellow)"
         }
-      ]
+      ],
+      "tier": "common",
+      "reflex": 3
     },
     {
       "id": "salt_wraith",
@@ -92,7 +104,11 @@
       "level": 1,
       "xp_value": 10,
       "description": "Desiccated spirit bound to salt deposits",
-      "tags": ["salt", "undead", "spirit"],
+      "tags": [
+        "salt",
+        "undead",
+        "spirit"
+      ],
       "demeanor": "defensive",
       "resistances": {
         "physical": 0.5
@@ -119,7 +135,9 @@
           "condition": "on_death",
           "effect": "D(@8 &DarkGray)"
         }
-      ]
+      ],
+      "tier": "common",
+      "reflex": 1
     },
     {
       "id": "glass_crawler",
@@ -133,7 +151,11 @@
       "xp_value": 15,
       "description": "Insectoid scavenger with crystalline carapace",
       "faction": "glass_spirits",
-      "tags": ["glass", "insect", "scavenger"],
+      "tags": [
+        "glass",
+        "insect",
+        "scavenger"
+      ],
       "armor": 1,
       "behaviors": [
         {
@@ -162,7 +184,9 @@
           "condition": "on_death",
           "effect": "S(@2 &LightCyan &White)"
         }
-      ]
+      ],
+      "tier": "common",
+      "reflex": 0
     },
     {
       "id": "brine_leech",
@@ -175,7 +199,11 @@
       "level": 1,
       "xp_value": 6,
       "description": "Parasitic worm that feeds on salt and moisture",
-      "tags": ["salt", "parasite", "small"],
+      "tags": [
+        "salt",
+        "parasite",
+        "small"
+      ],
       "swarm": true,
       "behaviors": [
         {
@@ -199,7 +227,9 @@
           "condition": "on_hit",
           "effect": "W(@2 &White)"
         }
-      ]
+      ],
+      "tier": "common",
+      "reflex": 0
     },
     {
       "id": "dust_devil",
@@ -213,7 +243,11 @@
       "xp_value": 14,
       "description": "Miniature whirlwind animated by storm residue",
       "faction": "storm_cultists",
-      "tags": ["storm", "wind", "elemental"],
+      "tags": [
+        "storm",
+        "wind",
+        "elemental"
+      ],
       "resistances": {
         "physical": 0.3
       },
@@ -236,7 +270,9 @@
           "condition": "on_death",
           "effect": "D(@6 &DarkGray)"
         }
-      ]
+      ],
+      "tier": "common",
+      "reflex": 4
     }
   ]
 }

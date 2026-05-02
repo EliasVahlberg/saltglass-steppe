@@ -315,7 +315,17 @@ impl EntityRenderer {
                 )
             });
 
-        let style = Style::default().fg(self.dim_color(base_color, light_level));
+        let mut style = Style::default().fg(self.dim_color(base_color, light_level));
+
+        // Tier-based visual indicators
+        if let Some(def) = enemy.def() {
+            use crate::game::enemy::EnemyTier;
+            match def.tier {
+                EnemyTier::Elite => { style = style.bold(); }
+                EnemyTier::Boss  => { style = style.bold().fg(ratatui::style::Color::Magenta); }
+                _ => {}
+            }
+        }
 
         Some(Span::styled(enemy.glyph().to_string(), style))
     }

@@ -14,7 +14,11 @@
       "armor": 2,
       "description": "Armored insect with refractive carapace that feeds on storm glass",
       "faction": "glass_spirits",
-      "tags": ["glass", "insect", "armored"],
+      "tags": [
+        "glass",
+        "insect",
+        "armored"
+      ],
       "behaviors": [
         {
           "type": "reflect_damage",
@@ -46,7 +50,9 @@
           "condition": "on_death",
           "effect": "S(@3 &LightCyan &White)"
         }
-      ]
+      ],
+      "tier": "uncommon",
+      "reflex": 1
     },
     {
       "id": "salt_mummy",
@@ -59,13 +65,19 @@
       "level": 5,
       "xp_value": 30,
       "description": "Desiccated pilgrim preserved and animated by salt",
-      "tags": ["salt", "undead", "pilgrim"],
+      "tags": [
+        "salt",
+        "undead",
+        "pilgrim"
+      ],
       "demeanor": "defensive",
       "resistances": {
         "poison": 0.0,
         "cold": 0.5
       },
-      "immunities": ["poison"],
+      "immunities": [
+        "poison"
+      ],
       "loot_table": [
         {
           "item": "salt_crystal",
@@ -91,12 +103,14 @@
           "condition": "on_death",
           "effect": "D(@10 &DarkGray)"
         }
-      ]
+      ],
+      "tier": "uncommon",
+      "reflex": 0
     },
     {
       "id": "refraction_wraith",
       "name": "Refraction Wraith",
-      "glyph": "◊",
+      "glyph": "\u25ca",
       "max_hp": 8,
       "damage_min": 4,
       "damage_max": 7,
@@ -105,7 +119,11 @@
       "xp_value": 40,
       "description": "Storm-born specter made of bent light and crystallized air",
       "faction": "storm_cultists",
-      "tags": ["storm", "spirit", "light"],
+      "tags": [
+        "storm",
+        "spirit",
+        "light"
+      ],
       "spawns_during_storm": true,
       "resistances": {
         "physical": 0.7
@@ -144,7 +162,9 @@
           "condition": "on_death",
           "effect": "W(@6 &White)"
         }
-      ]
+      ],
+      "tier": "uncommon",
+      "reflex": 3
     },
     {
       "id": "void_whisper",
@@ -158,7 +178,11 @@
       "xp_value": 45,
       "description": "Consciousness fragment from beyond reality's edge",
       "faction": "void_touched",
-      "tags": ["void", "psychic", "spirit"],
+      "tags": [
+        "void",
+        "psychic",
+        "spirit"
+      ],
       "ranged_attack": true,
       "attack_range": 6,
       "behaviors": [
@@ -197,7 +221,9 @@
           "condition": "on_death",
           "effect": "F(@8 &DarkGray)"
         }
-      ]
+      ],
+      "tier": "uncommon",
+      "reflex": 2
     },
     {
       "id": "archive_custodian",
@@ -212,7 +238,11 @@
       "armor": 3,
       "description": "Pre-storm maintenance drone still following ancient protocols",
       "faction": "archive_drones",
-      "tags": ["archive", "mechanical", "guardian"],
+      "tags": [
+        "archive",
+        "mechanical",
+        "guardian"
+      ],
       "demeanor": "neutral",
       "behaviors": [
         {
@@ -226,7 +256,9 @@
         "poison": 0.0,
         "cold": 0.3
       },
-      "immunities": ["poison"],
+      "immunities": [
+        "poison"
+      ],
       "loot_table": [
         {
           "item": "archive_component",
@@ -250,7 +282,9 @@
           "condition": "on_death",
           "effect": "S(@4 &LightBlue)"
         }
-      ]
+      ],
+      "tier": "uncommon",
+      "reflex": 1
     },
     {
       "id": "storm_herald",
@@ -264,7 +298,11 @@
       "xp_value": 60,
       "description": "Transformed pilgrim who speaks for the coming storms",
       "faction": "storm_cultists",
-      "tags": ["storm", "pilgrim", "prophet"],
+      "tags": [
+        "storm",
+        "pilgrim",
+        "prophet"
+      ],
       "ranged_attack": true,
       "attack_range": 8,
       "aoe_attack": true,
@@ -303,7 +341,9 @@
           "condition": "on_death",
           "effect": "W(@8 &LightYellow)"
         }
-      ]
+      ],
+      "tier": "uncommon",
+      "reflex": 2
     }
   ]
 }

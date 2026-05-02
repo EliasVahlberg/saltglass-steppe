@@ -1,0 +1,36 @@
+{
+  "name": "elite_enrage_test",
+  "description": "Elite enemy with enrage behavior triggers at 40% HP threshold",
+  "seed": 54321,
+  "map_setup": {
+    "width": 20,
+    "height": 20,
+    "clear_area": { "x": 0, "y": 0, "width": 20, "height": 20 }
+  },
+  "player": { "x": 5, "y": 5, "hp": 100, "max_hp": 100, "ap": 4, "max_ap": 4 },
+  "entities": [
+    {
+      "entity_type": "enemy",
+      "id": "archive_sentinel",
+      "x": 6,
+      "y": 5,
+      "hp": 5
+    }
+  ],
+  "mocks": {
+    "combat_always_hit": true,
+    "combat_fixed_damage": 3
+  },
+  "actions": [
+    { "turn": 0, "action": { "type": "attack", "target_x": 6, "target_y": 5 } },
+    { "turn": 1, "action": { "type": "wait", "turns": 1 } }
+  ],
+  "assertions": [
+    {
+      "check": { "type": "enemy_has_status", "id": "archive_sentinel", "effect": "enraged" }
+    },
+    {
+      "check": { "type": "message_contains", "text": "enrages" }
+    }
+  ]
+}

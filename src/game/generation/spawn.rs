@@ -16,6 +16,9 @@ pub struct WeightedSpawn {
     pub min_level: u32,
     #[serde(default = "default_max_level")]
     pub max_level: u32,
+    /// Optional tier hint for filtering. If absent, tier is inferred from the enemy def.
+    #[serde(default)]
+    pub tier: Option<String>,
 }
 
 fn default_weight() -> u32 {

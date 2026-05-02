@@ -1063,3 +1063,15 @@ fn wall_break_test() {
     assert!(result.success, "{:?}", result.assertion_results);
 }
 
+
+#[test]
+fn elite_enrage_test() {
+    let result = run_scenario("tests/scenarios/elite_enrage_test.json").expect("Failed to run scenario");
+    assert!(result.success, "{:?}", result.assertion_results);
+}
+
+#[test]
+fn boss_phase_transition_test() {
+    let result = run_scenario("tests/scenarios/boss_phase_transition_test.json").expect("Failed to run scenario");
+    assert!(result.success, "{:?}", result.assertion_results);
+}

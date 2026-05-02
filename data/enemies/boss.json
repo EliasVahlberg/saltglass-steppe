@@ -4,7 +4,7 @@
     {
       "id": "prism_tyrant",
       "name": "Prism Tyrant",
-      "glyph": "Ψ",
+      "glyph": "\u03a8",
       "max_hp": 150,
       "damage_min": 25,
       "damage_max": 45,
@@ -14,7 +14,11 @@
       "armor": 8,
       "description": "Colossal glass entity that bends light and reality to its will",
       "faction": "glass_spirits",
-      "tags": ["glass", "tyrant", "colossal"],
+      "tags": [
+        "glass",
+        "tyrant",
+        "colossal"
+      ],
       "ranged_attack": true,
       "attack_range": 12,
       "aoe_attack": true,
@@ -23,7 +27,10 @@
       "is_spawner": true,
       "spawn_rate": 4,
       "max_spawns": 12,
-      "spawn_types": ["shard_sentinel", "crystal_scarab"],
+      "spawn_types": [
+        "shard_sentinel",
+        "crystal_scarab"
+      ],
       "behaviors": [
         {
           "type": "laser_beam",
@@ -51,12 +58,17 @@
       "vulnerabilities": {
         "lightning": 2.0
       },
-      "immunities": ["poison"],
+      "immunities": [
+        "poison"
+      ],
       "phases": [
         {
           "hp_threshold": 50,
-          "glyph": "Ω",
-          "behaviors": ["enrage", "teleport"],
+          "glyph": "\u03a9",
+          "behaviors": [
+            "enrage",
+            "teleport"
+          ],
           "damage_multiplier": 1.5,
           "armor": 10
         }
@@ -97,12 +109,15 @@
           "condition": "on_death",
           "effect": "S(@30 &LightCyan &White)"
         }
-      ]
+      ],
+      "tier": "boss",
+      "reflex": 6,
+      "phase_threshold": 0.5
     },
     {
       "id": "void_emperor",
       "name": "Void Emperor",
-      "glyph": "Ξ",
+      "glyph": "\u039e",
       "max_hp": 200,
       "damage_min": 35,
       "damage_max": 60,
@@ -111,7 +126,11 @@
       "xp_value": 1200,
       "description": "Ultimate void entity that seeks to unmake reality itself",
       "faction": "void_touched",
-      "tags": ["void", "emperor", "ultimate"],
+      "tags": [
+        "void",
+        "emperor",
+        "ultimate"
+      ],
       "ranged_attack": true,
       "attack_range": 15,
       "aoe_attack": true,
@@ -120,7 +139,10 @@
       "is_spawner": true,
       "spawn_rate": 3,
       "max_spawns": 8,
-      "spawn_types": ["void_sovereign", "light_eater"],
+      "spawn_types": [
+        "void_sovereign",
+        "light_eater"
+      ],
       "behaviors": [
         {
           "type": "teleport",
@@ -143,17 +165,26 @@
       "vulnerabilities": {
         "lightning": 4.0
       },
-      "immunities": ["poison", "stun", "immobilized"],
+      "immunities": [
+        "poison",
+        "stun",
+        "immobilized"
+      ],
       "phases": [
         {
           "hp_threshold": 75,
-          "behaviors": ["reality_warp"],
+          "behaviors": [
+            "reality_warp"
+          ],
           "damage_multiplier": 1.2
         },
         {
           "hp_threshold": 25,
-          "glyph": "Θ",
-          "behaviors": ["void_storm", "mass_teleport"],
+          "glyph": "\u0398",
+          "behaviors": [
+            "void_storm",
+            "mass_teleport"
+          ],
           "damage_multiplier": 2.0,
           "resistances": {
             "physical": 0.95,
@@ -201,12 +232,16 @@
           "condition": "on_death",
           "effect": "F(@50 &DarkGray)"
         }
-      ]
+      ],
+      "tier": "boss",
+      "reflex": 4,
+      "armor": 6,
+      "phase_threshold": 0.4
     },
     {
       "id": "storm_sovereign",
       "name": "Storm Sovereign",
-      "glyph": "Σ",
+      "glyph": "\u03a3",
       "max_hp": 180,
       "damage_min": 30,
       "damage_max": 50,
@@ -215,7 +250,11 @@
       "xp_value": 1000,
       "description": "Living embodiment of the glass storms' fury and transformation",
       "faction": "storm_cultists",
-      "tags": ["storm", "sovereign", "embodiment"],
+      "tags": [
+        "storm",
+        "sovereign",
+        "embodiment"
+      ],
       "spawns_during_storm": true,
       "ranged_attack": true,
       "attack_range": 12,
@@ -225,7 +264,10 @@
       "is_spawner": true,
       "spawn_rate": 2,
       "max_spawns": 10,
-      "spawn_types": ["storm_phantom", "storm_caller"],
+      "spawn_types": [
+        "storm_phantom",
+        "storm_caller"
+      ],
       "behaviors": [
         {
           "type": "teleport",
@@ -247,17 +289,24 @@
       "vulnerabilities": {
         "cold": 2.0
       },
-      "immunities": ["lightning"],
+      "immunities": [
+        "lightning"
+      ],
       "phases": [
         {
           "hp_threshold": 60,
-          "behaviors": ["storm_intensify"],
+          "behaviors": [
+            "storm_intensify"
+          ],
           "damage_multiplier": 1.3
         },
         {
           "hp_threshold": 20,
-          "glyph": "Ϟ",
-          "behaviors": ["reality_storm", "mass_summon"],
+          "glyph": "\u03de",
+          "behaviors": [
+            "reality_storm",
+            "mass_summon"
+          ],
           "damage_multiplier": 1.8,
           "aoe_radius": 10
         }
@@ -300,12 +349,16 @@
           "condition": "on_death",
           "effect": "W(@40 &Yellow &LightYellow &White)"
         }
-      ]
+      ],
+      "tier": "boss",
+      "reflex": 8,
+      "armor": 4,
+      "phase_threshold": 0.5
     },
     {
       "id": "archive_overmind",
       "name": "Archive Overmind",
-      "glyph": "Ω",
+      "glyph": "\u03a9",
       "max_hp": 120,
       "damage_min": 20,
       "damage_max": 40,
@@ -315,7 +368,11 @@
       "armor": 10,
       "description": "Central AI consciousness that guards the deepest archive secrets",
       "faction": "archive_drones",
-      "tags": ["archive", "overmind", "ai"],
+      "tags": [
+        "archive",
+        "overmind",
+        "ai"
+      ],
       "ranged_attack": true,
       "attack_range": 14,
       "aoe_attack": true,
@@ -324,7 +381,10 @@
       "is_spawner": true,
       "spawn_rate": 3,
       "max_spawns": 6,
-      "spawn_types": ["archive_sentinel", "archive_custodian"],
+      "spawn_types": [
+        "archive_sentinel",
+        "archive_custodian"
+      ],
       "behaviors": [
         {
           "type": "laser_beam",
@@ -346,18 +406,26 @@
         "physical": 0.6,
         "lightning": 0.3
       },
-      "immunities": ["poison", "stun"],
+      "immunities": [
+        "poison",
+        "stun"
+      ],
       "phases": [
         {
           "hp_threshold": 50,
-          "behaviors": ["system_override"],
+          "behaviors": [
+            "system_override"
+          ],
           "damage_multiplier": 1.4,
           "armor": 12
         },
         {
           "hp_threshold": 15,
-          "glyph": "Φ",
-          "behaviors": ["emergency_protocol", "mass_summon"],
+          "glyph": "\u03a6",
+          "behaviors": [
+            "emergency_protocol",
+            "mass_summon"
+          ],
           "damage_multiplier": 2.0,
           "armor": 15
         }
@@ -398,28 +466,38 @@
           "condition": "on_death",
           "effect": "S(@25 &Blue &LightBlue &White)"
         }
-      ]
+      ],
+      "tier": "boss",
+      "reflex": 5,
+      "phase_threshold": 0.3
     },
     {
       "id": "salt_emperor",
       "name": "Salt Emperor",
-      "glyph": "Ε",
+      "glyph": "\u0395",
       "max_hp": 160,
       "damage_min": 28,
       "damage_max": 48,
       "sight_range": 14,
       "level": 38,
       "xp_value": 1100,
-      "armor": 6,
+      "armor": 8,
       "description": "Ancient ruler of the salt wastes, preserved for millennia",
-      "tags": ["salt", "emperor", "ancient"],
+      "tags": [
+        "salt",
+        "emperor",
+        "ancient"
+      ],
       "aoe_attack": true,
       "aoe_radius": 8,
       "aoe_warning_turns": 4,
       "is_spawner": true,
       "spawn_rate": 2,
       "max_spawns": 15,
-      "spawn_types": ["salt_lord", "salt_mummy"],
+      "spawn_types": [
+        "salt_lord",
+        "salt_mummy"
+      ],
       "behaviors": [
         {
           "type": "summon",
@@ -434,18 +512,26 @@
         "fire": 0.4,
         "physical": 0.3
       },
-      "immunities": ["poison", "frozen"],
+      "immunities": [
+        "poison",
+        "frozen"
+      ],
       "phases": [
         {
           "hp_threshold": 40,
-          "behaviors": ["salt_storm"],
+          "behaviors": [
+            "salt_storm"
+          ],
           "damage_multiplier": 1.5,
           "aoe_radius": 12
         },
         {
           "hp_threshold": 10,
-          "glyph": "Ξ",
-          "behaviors": ["desiccation_wave", "mass_resurrection"],
+          "glyph": "\u039e",
+          "behaviors": [
+            "desiccation_wave",
+            "mass_resurrection"
+          ],
           "damage_multiplier": 2.2,
           "armor": 8
         }
@@ -488,12 +574,15 @@
           "condition": "on_death",
           "effect": "D(@35 &LightGray &White)"
         }
-      ]
+      ],
+      "tier": "boss",
+      "reflex": 6,
+      "phase_threshold": 0.5
     },
     {
       "id": "pilgrim_saint",
       "name": "Pilgrim Saint",
-      "glyph": "Ϟ",
+      "glyph": "\u03de",
       "max_hp": 140,
       "damage_min": 22,
       "damage_max": 42,
@@ -502,7 +591,11 @@
       "xp_value": 1500,
       "description": "Ascended seeker who achieved perfect unity with the storms",
       "faction": "pilgrims",
-      "tags": ["pilgrim", "saint", "ascended"],
+      "tags": [
+        "pilgrim",
+        "saint",
+        "ascended"
+      ],
       "ranged_attack": true,
       "attack_range": 10,
       "aoe_attack": true,
@@ -522,12 +615,19 @@
         "cold": 0.2,
         "lightning": 0.1
       },
-      "immunities": ["poison", "stun", "blinded"],
+      "immunities": [
+        "poison",
+        "stun",
+        "blinded"
+      ],
       "phases": [
         {
           "hp_threshold": 30,
-          "glyph": "Ψ",
-          "behaviors": ["divine_wrath", "reality_blessing"],
+          "glyph": "\u03a8",
+          "behaviors": [
+            "divine_wrath",
+            "reality_blessing"
+          ],
           "damage_multiplier": 1.8,
           "resistances": {
             "physical": 0.7,
@@ -575,7 +675,11 @@
           "condition": "on_death",
           "effect": "W(@50 &LightGray &White)"
         }
-      ]
+      ],
+      "tier": "boss",
+      "reflex": 7,
+      "armor": 3,
+      "phase_threshold": 0.4
     }
   ]
 }

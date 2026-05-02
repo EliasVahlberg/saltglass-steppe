@@ -215,15 +215,37 @@ impl AiBehavior for StandardMeleeBehavior {
         // Main AI Logic
         let dist = (ex - state.player.x).abs() + (ey - state.player.y).abs();
 
-        // Check behaviors from def
-        if let Some(def) = state.world.enemies[i].def() {
-            let ctx = crate::game::enemy::BehaviorContext {
-                player_adaptations: state.player.adaptations.len(),
-                player_items: &state.player.inventory,
-            };
+        // Boss phase transition: when HP drops below phase_threshold, enter phase 2
+        {
+            let (threshold, max_hp, hp) = state.world.enemies[i].def()
+                .map(|d| (d.phase_threshold, d.max_hp, state.world.enemies[i].hp))
+                .unwrap_or((0.0, 1, 0));
+            if threshold > 0.0 && hp <= (threshold * max_hp as f32) as i32
+                && !state.world.enemies[i].has_status_effect("phase_2")
+            {
+                let name = state.world.enemies[i].name().to_string();
+                state.world.enemies[i].apply_status("phase_2", 9999);
+                state.world.enemies[i].apply_status("enraged", 9999);
+                state.log_typed(format!("{} enters a new phase!", name), MsgType::Warning);
+                state.trigger_effect("F(@3 &Magenta)", 3);
+            }
+        }
 
-            for behavior in &def.behaviors {
-                if !behavior.condition_met(&ctx) {
+        // Check behaviors from def
+        let behaviors_to_check: Vec<crate::game::enemy::Behavior> = state.world.enemies[i]
+            .def()
+            .map(|d| d.behaviors.clone())
+            .unwrap_or_default();
+        if !behaviors_to_check.is_empty() {
+            for behavior in &behaviors_to_check {
+                let condition_met = {
+                    let ctx = crate::game::enemy::BehaviorContext {
+                        player_adaptations: state.player.adaptations.len(),
+                        player_items: &state.player.inventory,
+                    };
+                    behavior.condition_met(&ctx)
+                };
+                if !condition_met {
                     continue;
                 }
 
@@ -295,6 +317,49 @@ impl AiBehavior for StandardMeleeBehavior {
                             // Kill the bomber
                             state.world.enemies[i].hp = 0;
                             return true;
+                        }
+                    }
+                    "enrage" => {
+                        let threshold = behavior.percent.unwrap_or(50) as i32;
+                        let max_hp = state.world.enemies[i].def().map(|d| d.max_hp).unwrap_or(1);
+                        let hp_pct = state.world.enemies[i].hp * 100 / max_hp;
+                        let already = state.world.enemies[i].has_status_effect("enraged");
+                        if hp_pct <= threshold && !already {
+                            let name = state.world.enemies[i].name().to_string();
+                            state.world.enemies[i].apply_status("enraged", 999);
+                            state.log_typed(format!("{} enrages!", name), MsgType::Warning);
+                        }
+                    }
+                    "call_reinforcements" => {
+                        let threshold = behavior.percent.unwrap_or(50) as i32;
+                        let spawn_id = behavior.spawns.clone().unwrap_or_else(|| "shard_spider".to_string());
+                        let max_hp = state.world.enemies[i].def().map(|d| d.max_hp).unwrap_or(1);
+                        let hp_pct = state.world.enemies[i].hp * 100 / max_hp;
+                        let already = state.world.enemies[i].has_status_effect("called_reinforcements");
+                        if hp_pct <= threshold && !already {
+                            state.world.enemies[i].apply_status("called_reinforcements", 999);
+                            let name = state.world.enemies[i].name().to_string();
+                            'spawn: for dx in -3i32..=3 {
+                                for dy in -3i32..=3 {
+                                    let nx = ex + dx;
+                                    let ny = ey + dy;
+                                    if (dx == 0 && dy == 0) || (nx == state.player.x && ny == state.player.y) { continue; }
+                                    if state.world.map.get(nx, ny).map(|t| t.walkable()).unwrap_or(false)
+                                        && state.enemy_at(nx, ny).is_none()
+                                    {
+                                        if let Some(def) = crate::game::enemy::get_enemy_def(&spawn_id) {
+                                            let max = def.max_hp;
+                                            let mut add = crate::game::enemy::Enemy::new(nx, ny, &spawn_id);
+                                            add.hp = max;
+                                            let idx = state.world.enemies.len();
+                                            state.world.enemies.push(add);
+                                            state.spatial.enemy_positions.insert((nx, ny), idx);
+                                            state.log_typed(format!("{} calls for aid!", name), MsgType::Warning);
+                                        }
+                                        break 'spawn;
+                                    }
+                                }
+                            }
                         }
                     }
                     _ => {}

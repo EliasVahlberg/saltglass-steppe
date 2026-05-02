@@ -388,6 +388,13 @@
         "weight": 1,
         "min_level": 20,
         "max_level": 30
+      },
+      {
+        "id": "dune_stalker",
+        "weight": 1,
+        "min_level": 6,
+        "max_level": 10,
+        "tier": "elite"
       }
     ],
     "npcs": [
@@ -551,6 +558,13 @@
         "weight": 1,
         "min_level": 25,
         "max_level": 40
+      },
+      {
+        "id": "dune_stalker",
+        "weight": 1,
+        "min_level": 5,
+        "max_level": 10,
+        "tier": "elite"
       }
     ],
     "npcs": [
@@ -711,6 +725,13 @@
         "weight": 1,
         "min_level": 18,
         "max_level": 30
+      },
+      {
+        "id": "pilgrim_saint",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 10,
+        "tier": "boss"
       }
     ],
     "npcs": [
@@ -988,6 +1009,13 @@
         "weight": 1,
         "min_level": 25,
         "max_level": 35
+      },
+      {
+        "id": "pilgrim_saint",
+        "weight": 1,
+        "min_level": 8,
+        "max_level": 10,
+        "tier": "boss"
       }
     ],
     "npcs": [

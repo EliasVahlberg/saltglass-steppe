@@ -70,6 +70,7 @@ pub fn generate_loot(table_id: &str, x: i32, y: i32, rng: &mut ChaCha8Rng) -> Ve
                 room: None,
                 min_level: 1,
                 max_level: 10,
+                tier: None,
             })
             .collect();
 

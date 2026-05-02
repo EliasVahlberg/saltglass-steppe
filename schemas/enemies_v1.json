@@ -127,6 +127,19 @@
           "pattern": "^[a-z][a-z0-9_]*$",
           "description": "Faction identifier"
         },
+        "tier": {
+          "type": "string",
+          "enum": ["common", "uncommon", "rare", "elite", "boss"],
+          "default": "common",
+          "description": "Enemy tier for visual indicators and spawn weighting"
+        },
+        "phase_threshold": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0,
+          "default": 0.0,
+          "description": "HP fraction at which boss enters phase 2. 0 = no phase transition."
+        },
         "tags": {
           "type": "array",
           "items": {
@@ -402,7 +415,10 @@
             "summon",
             "enrage",
             "pack_coordination",
-            "heat_vision"
+            "heat_vision",
+            "call_reinforcements",
+            "suicide_bomber",
+            "on_hit_refraction"
           ],
           "description": "Behavior type"
         },

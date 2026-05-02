@@ -50,6 +50,30 @@ pub struct Behavior {
     pub count: Option<u32>,
 }
 
+/// Tier determines visual indicators, spawn weight, and expected power level.
+#[derive(Clone, Debug, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "snake_case")]
+pub enum EnemyTier {
+    #[default]
+    Common,
+    Uncommon,
+    Rare,
+    Elite,
+    Boss,
+}
+
+impl EnemyTier {
+    pub fn xp_multiplier(&self) -> f32 {
+        match self {
+            Self::Common   => 1.0,
+            Self::Uncommon => 1.5,
+            Self::Rare     => 2.0,
+            Self::Elite    => 3.0,
+            Self::Boss     => 5.0,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, JsonSchema)]
 pub struct EnemyDef {
     pub id: String,
@@ -106,6 +130,11 @@ pub struct EnemyDef {
     pub level: u32,
     #[serde(default)]
     pub faction: Option<String>,
+    #[serde(default)]
+    pub tier: EnemyTier,
+    /// HP fraction (0.0–1.0) at which boss switches to phase 2 behaviors. 0.0 = no phase.
+    #[serde(default)]
+    pub phase_threshold: f32,
 }
 
 impl HasId for EnemyDef {

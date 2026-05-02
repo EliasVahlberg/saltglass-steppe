@@ -14,11 +14,17 @@
       "armor": 4,
       "description": "Massive spider queen that weaves webs of crystallized light",
       "faction": "glass_spirits",
-      "tags": ["glass", "spider", "queen"],
+      "tags": [
+        "glass",
+        "spider",
+        "queen"
+      ],
       "is_spawner": true,
       "spawn_rate": 3,
       "max_spawns": 8,
-      "spawn_types": ["shard_spider"],
+      "spawn_types": [
+        "shard_spider"
+      ],
       "ranged_attack": true,
       "attack_range": 8,
       "behaviors": [
@@ -33,13 +39,20 @@
           "spawns": "shard_spider",
           "count": 4,
           "cooldown": 5
+        },
+        {
+          "type": "call_reinforcements",
+          "percent": 50,
+          "spawns": "shard_spider"
         }
       ],
       "resistances": {
         "poison": 0.0,
         "physical": 0.3
       },
-      "immunities": ["poison"],
+      "immunities": [
+        "poison"
+      ],
       "loot_table": [
         {
           "item": "crystal_web",
@@ -73,7 +86,9 @@
           "condition": "on_death",
           "effect": "S(@15 &LightCyan &White)"
         }
-      ]
+      ],
+      "tier": "elite",
+      "reflex": 4
     },
     {
       "id": "void_sovereign",
@@ -87,7 +102,11 @@
       "xp_value": 400,
       "description": "Apex void entity that commands reality through pure negation",
       "faction": "void_touched",
-      "tags": ["void", "sovereign", "reality"],
+      "tags": [
+        "void",
+        "sovereign",
+        "reality"
+      ],
       "ranged_attack": true,
       "attack_range": 12,
       "aoe_attack": true,
@@ -96,7 +115,9 @@
       "is_spawner": true,
       "spawn_rate": 6,
       "max_spawns": 4,
-      "spawn_types": ["void_whisper"],
+      "spawn_types": [
+        "void_whisper"
+      ],
       "behaviors": [
         {
           "type": "teleport",
@@ -119,7 +140,9 @@
       "vulnerabilities": {
         "lightning": 3.0
       },
-      "immunities": ["poison"],
+      "immunities": [
+        "poison"
+      ],
       "loot_table": [
         {
           "item": "void_crown",
@@ -153,12 +176,15 @@
           "condition": "on_death",
           "effect": "F(@25 &DarkGray)"
         }
-      ]
+      ],
+      "tier": "elite",
+      "reflex": 3,
+      "armor": 2
     },
     {
       "id": "archive_sentinel",
       "name": "Archive Sentinel",
-      "glyph": "Δ",
+      "glyph": "\u0394",
       "max_hp": 70,
       "damage_min": 18,
       "damage_max": 28,
@@ -168,7 +194,11 @@
       "armor": 6,
       "description": "Elite guardian drone with adaptive combat protocols",
       "faction": "archive_drones",
-      "tags": ["archive", "sentinel", "adaptive"],
+      "tags": [
+        "archive",
+        "sentinel",
+        "adaptive"
+      ],
       "ranged_attack": true,
       "attack_range": 10,
       "behaviors": [
@@ -191,7 +221,9 @@
         "fire": 0.2,
         "physical": 0.4
       },
-      "immunities": ["poison"],
+      "immunities": [
+        "poison"
+      ],
       "loot_table": [
         {
           "item": "sentinel_core",
@@ -223,7 +255,9 @@
           "condition": "on_death",
           "effect": "S(@12 &LightBlue &White)"
         }
-      ]
+      ],
+      "tier": "elite",
+      "reflex": 2
     },
     {
       "id": "refraction_beast",
@@ -237,7 +271,11 @@
       "xp_value": 280,
       "description": "Massive predator evolved from countless storm exposures",
       "faction": "glass_spirits",
-      "tags": ["glass", "beast", "evolved"],
+      "tags": [
+        "glass",
+        "beast",
+        "evolved"
+      ],
       "behaviors": [
         {
           "type": "reflect_damage",
@@ -284,7 +322,10 @@
           "condition": "on_death",
           "effect": "W(@12 &Yellow &LightYellow)"
         }
-      ]
+      ],
+      "tier": "elite",
+      "reflex": 5,
+      "armor": 2
     },
     {
       "id": "storm_caller",
@@ -298,7 +339,11 @@
       "xp_value": 300,
       "description": "Transformed prophet who channels the fury of glass storms",
       "faction": "storm_cultists",
-      "tags": ["storm", "caller", "prophet"],
+      "tags": [
+        "storm",
+        "caller",
+        "prophet"
+      ],
       "ranged_attack": true,
       "attack_range": 10,
       "aoe_attack": true,
@@ -307,13 +352,20 @@
       "is_spawner": true,
       "spawn_rate": 5,
       "max_spawns": 6,
-      "spawn_types": ["storm_herald"],
+      "spawn_types": [
+        "storm_herald"
+      ],
       "behaviors": [
         {
           "type": "summon",
           "spawns": "storm_herald",
           "count": 2,
           "cooldown": 8
+        },
+        {
+          "type": "call_reinforcements",
+          "percent": 60,
+          "spawns": "dust_devil"
         }
       ],
       "resistances": {
@@ -358,7 +410,10 @@
           "condition": "on_death",
           "effect": "W(@18 &Yellow &LightYellow)"
         }
-      ]
+      ],
+      "tier": "elite",
+      "reflex": 6,
+      "armor": 2
     },
     {
       "id": "dune_stalker",
@@ -372,7 +427,11 @@
       "xp_value": 350,
       "description": "Apex predator that hunts across the endless salt flats",
       "faction": "salt_traders",
-      "tags": ["salt", "stalker", "apex"],
+      "tags": [
+        "salt",
+        "stalker",
+        "apex"
+      ],
       "behaviors": [
         {
           "type": "pack_coordination",
@@ -381,6 +440,10 @@
         {
           "type": "heat_vision",
           "range": 20
+        },
+        {
+          "type": "teleport",
+          "value": 3
         }
       ],
       "resistances": {
@@ -416,7 +479,10 @@
           "condition": "on_death",
           "effect": "D(@15 &Yellow)"
         }
-      ]
+      ],
+      "tier": "elite",
+      "reflex": 4,
+      "armor": 2
     }
   ]
 }

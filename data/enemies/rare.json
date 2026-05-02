@@ -14,7 +14,11 @@
       "armor": 4,
       "description": "Towering guardian made of fused glass and storm energy",
       "faction": "glass_spirits",
-      "tags": ["glass", "guardian", "large"],
+      "tags": [
+        "glass",
+        "guardian",
+        "large"
+      ],
       "ranged_attack": true,
       "attack_range": 8,
       "behaviors": [
@@ -61,7 +65,9 @@
           "condition": "on_death",
           "effect": "S(@10 &LightCyan &White)"
         }
-      ]
+      ],
+      "tier": "rare",
+      "reflex": 2
     },
     {
       "id": "crystal_scarab",
@@ -76,7 +82,11 @@
       "armor": 5,
       "description": "Massive beetle with crystalline armor that channels light",
       "faction": "glass_spirits",
-      "tags": ["glass", "insect", "crystal"],
+      "tags": [
+        "glass",
+        "insect",
+        "crystal"
+      ],
       "behaviors": [
         {
           "type": "reflect_damage",
@@ -119,7 +129,9 @@
           "condition": "on_death",
           "effect": "S(@12 &Cyan &LightCyan &White)"
         }
-      ]
+      ],
+      "tier": "rare",
+      "reflex": 3
     },
     {
       "id": "salt_lord",
@@ -133,11 +145,17 @@
       "xp_value": 150,
       "armor": 3,
       "description": "Ancient ruler preserved in salt, commands lesser undead",
-      "tags": ["salt", "undead", "lord"],
+      "tags": [
+        "salt",
+        "undead",
+        "lord"
+      ],
       "is_spawner": true,
       "spawn_rate": 4,
       "max_spawns": 6,
-      "spawn_types": ["salt_mummy"],
+      "spawn_types": [
+        "salt_mummy"
+      ],
       "aoe_attack": true,
       "aoe_radius": 3,
       "aoe_warning_turns": 2,
@@ -153,7 +171,9 @@
         "poison": 0.0,
         "cold": 0.2
       },
-      "immunities": ["poison"],
+      "immunities": [
+        "poison"
+      ],
       "loot_table": [
         {
           "item": "salt_crown",
@@ -183,7 +203,9 @@
           "condition": "on_death",
           "effect": "D(@15 &LightGray)"
         }
-      ]
+      ],
+      "tier": "rare",
+      "reflex": 1
     },
     {
       "id": "light_eater",
@@ -197,7 +219,11 @@
       "xp_value": 110,
       "description": "Void-touched entity that devours illumination itself",
       "faction": "void_touched",
-      "tags": ["void", "light", "devourer"],
+      "tags": [
+        "void",
+        "light",
+        "devourer"
+      ],
       "ranged_attack": true,
       "attack_range": 10,
       "behaviors": [
@@ -239,12 +265,15 @@
           "condition": "on_death",
           "effect": "F(@12 &DarkGray)"
         }
-      ]
+      ],
+      "tier": "rare",
+      "reflex": 4,
+      "armor": 1
     },
     {
       "id": "storm_phantom",
       "name": "Storm Phantom",
-      "glyph": "Φ",
+      "glyph": "\u03a6",
       "max_hp": 30,
       "damage_min": 12,
       "damage_max": 20,
@@ -253,7 +282,11 @@
       "xp_value": 140,
       "description": "Powerful storm entity that manipulates reality itself",
       "faction": "storm_cultists",
-      "tags": ["storm", "phantom", "reality"],
+      "tags": [
+        "storm",
+        "phantom",
+        "reality"
+      ],
       "spawns_during_storm": true,
       "ranged_attack": true,
       "attack_range": 10,
@@ -297,7 +330,10 @@
           "condition": "on_death",
           "effect": "W(@15 &LightCyan &White)"
         }
-      ]
+      ],
+      "tier": "rare",
+      "reflex": 5,
+      "armor": 1
     },
     {
       "id": "pilgrim_hollow",
@@ -311,7 +347,11 @@
       "xp_value": 85,
       "description": "Empty shell of a seeker, animated by desperate faith",
       "faction": "pilgrims",
-      "tags": ["pilgrim", "hollow", "faith"],
+      "tags": [
+        "pilgrim",
+        "hollow",
+        "faith"
+      ],
       "demeanor": "defensive",
       "behaviors": [
         {
@@ -325,7 +365,9 @@
         "poison": 0.0,
         "physical": 0.4
       },
-      "immunities": ["poison"],
+      "immunities": [
+        "poison"
+      ],
       "loot_table": [
         {
           "item": "scripture_shard",
@@ -351,7 +393,10 @@
           "condition": "on_death",
           "effect": "W(@10 &LightGray)"
         }
-      ]
+      ],
+      "tier": "rare",
+      "reflex": 2,
+      "armor": 1
     }
   ]
 }
