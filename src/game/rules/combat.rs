@@ -67,7 +67,8 @@ pub fn rule_melee_attack(
     let player_stat_effects = ctx.player.collect_stat_effects();
     let accuracy_bonus = resolve_stat(0.0, "melee_accuracy_bonus", &player_stat_effects);
     let damage_bonus = resolve_stat(0.0, "melee_damage_bonus", &player_stat_effects);
-    let cover_bonus = -(accuracy_bonus * 100.0) as i32;
+    let accuracy_penalty = resolve_stat_i32(0, "accuracy_penalty", &player_stat_effects);
+    let cover_bonus = -(accuracy_bonus * 100.0) as i32 + accuracy_penalty;
 
     let result = roll_attack(rng, weapon, enemy_reflex, enemy_armor, cover_bonus);
     let result = apply_mocks(ctx, result);
