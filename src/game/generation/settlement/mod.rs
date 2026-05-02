@@ -111,7 +111,9 @@ pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement, origin
         return;
     }
 
-    // Clear the full settlement area using the known map origin
+    const DILATION: i32 = 8;
+    const DILATION_SQ: i32 = DILATION * DILATION;
+
     let min_x = origin.0.max(0);
     let min_y = origin.1.max(0);
     let max_x = (origin.0 + settlement.width as i32).min(map.width as i32);
@@ -119,17 +121,22 @@ pub fn clear_settlement_footprint(map: &mut Map, settlement: &Settlement, origin
 
     for cy in min_y..max_y {
         for cx in min_x..max_x {
-            let inside = footprints
+            let inside_building = footprints
                 .iter()
                 .any(|&(bx, by, bw, bh)| cx >= bx && cx < bx + bw && cy >= by && cy < by + bh);
-            if !inside {
-                map.set_tile(
-                    cx as usize,
-                    cy as usize,
-                    Tile::Floor {
-                        id: "dry_soil".to_string(),
-                    },
-                );
+            if inside_building {
+                continue;
+            }
+
+            // Distance from (cx,cy) to nearest point inside each building rectangle
+            let near_enough = footprints.iter().any(|&(bx, by, bw, bh)| {
+                let dx = if cx < bx { bx - cx } else if cx >= bx + bw { cx - (bx + bw - 1) } else { 0 };
+                let dy = if cy < by { by - cy } else if cy >= by + bh { cy - (by + bh - 1) } else { 0 };
+                dx * dx + dy * dy <= DILATION_SQ
+            });
+
+            if near_enough {
+                map.set_tile(cx as usize, cy as usize, Tile::Floor { id: "dry_soil".to_string() });
             }
         }
     }
