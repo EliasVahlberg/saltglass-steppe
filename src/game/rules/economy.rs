@@ -1,3 +1,4 @@
+use crate::game::stat_effect::StatEffectSource;
 use super::super::effects::{Effect, ItemEffect, PlayerEffect, Presentation, RuleOutput};
 use super::super::effects::context::QueryContext;
 
@@ -19,7 +20,7 @@ pub fn rule_craft(recipe_id: &str, ctx: &QueryContext) -> RuleOutput {
     };
 
     // salt_sense: reduce each ingredient requirement by 1 (minimum 1)
-    let stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+    let stat_effects = ctx.player.collect_stat_effects();
     let ingredient_reduction = crate::game::stat_effect::resolve_stat_i32(0, "craft_ingredient_reduction", &stat_effects).max(0) as u32;
 
     // Check materials with reduction applied

@@ -7,6 +7,7 @@ use crate::game::{
     player_state::ActivityField,
     progression::{max_level, stat_points_per_level, xp_for_level},
     state::{GameState, MsgType},
+    stat_effect::StatEffectSource,
 };
 use rand_chacha::ChaCha8Rng;
 use rand::Rng;
@@ -99,10 +100,10 @@ pub fn handle_melee(
         Some(e) => e,
         None => return out,
     };
-    let enemy_stat_effects = crate::game::stat_effect::collect_enemy_stat_effects(enemy);
+    let enemy_stat_effects = enemy.collect_stat_effects();
     let enemy_reflex = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.reflex).unwrap_or(0), "reflex", &enemy_stat_effects);
     let enemy_armor  = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.armor).unwrap_or(0), "armor", &enemy_stat_effects);
-    let player_stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+    let player_stat_effects = ctx.player.collect_stat_effects();
     let accuracy_bonus = crate::game::stat_effect::resolve_stat(0.0, "melee_accuracy_bonus", &player_stat_effects);
     let damage_bonus   = crate::game::stat_effect::resolve_stat(0.0, "melee_damage_bonus", &player_stat_effects);
 
@@ -222,13 +223,13 @@ pub fn handle_ranged(
         Some(e) => e,
         None => return out,
     };
-    let enemy_stat_effects = crate::game::stat_effect::collect_enemy_stat_effects(enemy);
+    let enemy_stat_effects = enemy.collect_stat_effects();
     let enemy_reflex = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.reflex).unwrap_or(0), "reflex", &enemy_stat_effects);
     let enemy_armor  = crate::game::stat_effect::resolve_stat_i32(enemy.def().map(|d| d.armor).unwrap_or(0), "armor", &enemy_stat_effects);
 
     // lens_eye: never miss within ranged_accuracy_bonus tiles
     let dist = (target_x - ctx.player.x).abs().max((target_y - ctx.player.y).abs());
-    let stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+    let stat_effects = ctx.player.collect_stat_effects();
     let accuracy_bonus = crate::game::stat_effect::resolve_stat(0.0, "ranged_accuracy_bonus", &stat_effects);
     let damage_bonus   = crate::game::stat_effect::resolve_stat(0.0, "ranged_damage_bonus", &stat_effects);
     let lens_range = crate::game::stat_effect::resolve_stat_i32(0, "ranged_accuracy_bonus", &stat_effects);

@@ -1,3 +1,4 @@
+use crate::game::stat_effect::StatEffectSource;
 use crate::game::action::action_cost;
 use crate::game::effects::context::QueryContext;
 use crate::game::effects::{
@@ -55,7 +56,7 @@ pub fn rule_use_item(item_index: usize, ctx: &QueryContext) -> RuleOutput {
 
     // Healing
     if def.heal > 0 {
-        let stat_effects = crate::game::stat_effect::collect_player_stat_effects(ctx.player);
+        let stat_effects = ctx.player.collect_stat_effects();
         let healing_blocked = crate::game::stat_effect::resolve_stat_i32(0, "blocks_healing", &stat_effects) > 0;
         if healing_blocked {
             presentation.push(Presentation::LogMessage {

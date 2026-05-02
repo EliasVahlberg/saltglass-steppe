@@ -5,14 +5,14 @@ use super::{
     item::get_item_def,
     map::Tile,
     state::GameState,
-    stat_effect::{collect_player_stat_effects, resolve_stat_i32},
+    stat_effect::{resolve_stat_i32, StatEffectSource},
     systems::ai::AiSystem,
 };
 
 impl GameState {
     /// Collect all active stat effects from adaptations, equipment, and status effects.
     pub fn active_stat_effects(&self) -> Vec<super::stat_effect::StatEffect> {
-        collect_player_stat_effects(&self.player)
+        self.player.collect_stat_effects()
     }
 
     /// Effective armor: sum of all armor effects.

@@ -48,6 +48,24 @@ pub fn resolve_stat_i32(base: i32, stat: &str, effects: &[StatEffect]) -> i32 {
     resolve_stat(base as f32, stat, effects) as i32
 }
 
+/// Anything that can contribute stat effects implements this trait.
+/// Call `.collect_stat_effects()` instead of the standalone free functions.
+pub trait StatEffectSource {
+    fn collect_stat_effects(&self) -> Vec<StatEffect>;
+}
+
+impl StatEffectSource for crate::game::player_state::PlayerState {
+    fn collect_stat_effects(&self) -> Vec<StatEffect> {
+        collect_player_stat_effects(self)
+    }
+}
+
+impl StatEffectSource for crate::game::enemy::Enemy {
+    fn collect_stat_effects(&self) -> Vec<StatEffect> {
+        collect_enemy_stat_effects(self)
+    }
+}
+
 /// Collect all active stat effects from a PlayerState.
 /// Used by both GameState::active_stat_effects() and QueryContext.
 pub fn collect_player_stat_effects(
