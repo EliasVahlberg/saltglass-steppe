@@ -53,6 +53,9 @@ pub struct WorldState {
     pub visual_effects: VisualEffects,
     #[serde(skip)]
     pub light_map: LightMap,
+    /// Cached light sources from map lights — rebuilt only when the map changes.
+    #[serde(skip)]
+    pub static_light_sources: Vec<crate::game::lighting::LightSource>,
 
     // Encounter system
     pub encounter_state: Option<super::encounter::EncounterState>,

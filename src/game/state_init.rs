@@ -315,6 +315,7 @@ impl GameState {
             ambient_light: ambient,
             visual_effects: super::visual_effects::VisualEffects::default(),
             light_map: light_map.clone(),
+            static_light_sources: Vec::new(),
             encounter_state: None,
             encounter_history: HashMap::new(),
             total_tiles_traveled: 0,
@@ -360,6 +361,7 @@ impl GameState {
         );
 
         state.rebuild_spatial_index();
+        state.rebuild_static_lights();
         state
     }
     pub fn new_with_class(seed: u64, class_id: &str) -> Self {

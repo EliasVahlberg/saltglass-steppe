@@ -25,6 +25,7 @@ pub fn travel_to_tile(state: &mut GameState, new_wx: usize, new_wy: usize) {
     state.world.world_x = new_wx;
     state.world.world_y = new_wy;
     state.world.map = tile.map;
+    state.rebuild_static_lights();
     state.world.enemies = tile.enemies;
     state.world.items = tile.items;
     state.world.npcs = tile.npcs;
@@ -312,6 +313,7 @@ pub fn enter_subterranean(state: &mut GameState) -> bool {
     let (map, rooms) = Map::generate_subterranean(&mut rng, state.world.layer);
     let (px, py) = rooms[0];
     state.world.map = map;
+    state.rebuild_static_lights();
     state.world.enemies = Vec::new();
     state.world.items = Vec::new();
     state.world.npcs = Vec::new();
@@ -342,6 +344,7 @@ pub fn exit_subterranean(state: &mut GameState) -> bool {
         let (map, rooms) = Map::generate_subterranean(&mut rng, state.world.layer);
         let (px, py) = rooms.last().copied().unwrap_or((5, 5));
         state.world.map = map;
+        state.rebuild_static_lights();
         state.world.enemies = Vec::new();
         state.world.items = Vec::new();
         state.world.npcs = Vec::new();

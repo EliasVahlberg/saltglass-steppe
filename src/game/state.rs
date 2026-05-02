@@ -332,17 +332,6 @@ impl GameState {
                 });
             }
         }
-        // Map lights
-        for ml in &self.world.map.lights {
-            if let Some(def) = super::light_defs::get_light_def(&ml.id) {
-                sources.push(LightSource {
-                    x: ml.x,
-                    y: ml.y,
-                    radius: def.radius,
-                    intensity: def.intensity,
-                });
-            }
-        }
         // Items on ground with light_source property
         for item in &self.world.items {
             if let Some(def) = get_item_def(&item.id)
@@ -356,7 +345,23 @@ impl GameState {
                 });
             }
         }
+        // Static map lights (cached — rebuilt only when map changes)
+        sources.extend_from_slice(&self.world.static_light_sources);
         self.light_map = compute_lighting(&sources, self.effective_ambient_light());
+    }
+
+    /// Rebuild the static light source cache from map lights.
+    /// Call this whenever world.map is replaced.
+    pub fn rebuild_static_lights(&mut self) {
+        self.world.static_light_sources = self.world.map.lights.iter()
+            .filter_map(|ml| {
+                super::light_defs::get_light_def(&ml.id).map(|def| LightSource {
+                    x: ml.x, y: ml.y,
+                    radius: def.radius,
+                    intensity: def.intensity,
+                })
+            })
+            .collect();
     }
 
     /// Update player field of view using shadow casting algorithm
